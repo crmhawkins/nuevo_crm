@@ -1,0 +1,27 @@
+// Fonts
+@import url('https://fonts.bunny.net/css?family=Nunito');
+
+// Variables
+@import 'variables';
+@import 'botones';
+
+// Bootstrap
+// @import 'bootstrap/scss/bootstrap';
+
+
+
+body {
+    background-color: #EAECEE;
+}
+
+
+.avatar-table {
+    width: 40px;
+}
+
+.h_fit_content {
+    height: fit-content !important;
+}
+.modalDelete{
+    background-color: rgba(0,0,0, 0.5);
+}
