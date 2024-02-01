@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titulo', 'Usuarios')
+@section('titulo', 'Clientes')
 
 @section('css')
 <link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
@@ -15,14 +15,15 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-4 order-md-1 order-last">
-                    <h3>Usuarios</h3>
-                    <p class="text-subtitle text-muted">Listado de usuarios - empleados</p>
+                    <h3>Clientes</h3>
+                    <p class="text-subtitle text-muted">Listado de clientes</p>
+                    {{$clientes->count()}}
                 </div>
 
                 <div class="col-12 col-md-4 order-md-1 order-last">
 
-                    <a href="{{route('user.create')}}" class="btn btn-primary"><i class="fa-solid fa-user-plus me-2 mx-auto"></i>  Crear Usuario</a>
-                    @if($usuarios->count() > 0)
+                    @if($clientes->count() >= 0)
+                        <a href="{{route('cliente.create')}}" class="btn btn-primary"><i class="fa-solid fa-user-plus me-2 mx-auto"></i>  Crear cliente</a>
                     @endif
                 </div>
 
@@ -30,7 +31,7 @@
                     <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Usuarios</li>
+                            <li class="breadcrumb-item active" aria-current="page">Clientes</li>
                         </ol>
                     </nav>
 
@@ -42,7 +43,7 @@
             <div class="card">
 
                 <div class="card-body">
-                    <livewire:users-table-view>
+                    <livewire:clients-table-view>
                 </div>
             </div>
 
@@ -83,7 +84,7 @@
             });
         }
         function getDelete(id) {
-            const url = '{{route("user.delete")}}'
+            const url = '{{route("cliente.delete")}}'
             return $.ajax({
                 type: "POST",
                 url: url,

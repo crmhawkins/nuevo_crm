@@ -29,11 +29,24 @@
                     </a>
                 </li>
                 <li class="sidebar-item  ">
-                    <a href="{{route('users.index')}}" class='sidebar-link'>
+                    <a href="{{route('clientes.index')}}" class='sidebar-link'>
                         <i class="fa-solid fa-people-group"></i>
                         <span>Clientes</span>
                     </a>
                 </li>
+                <li class="sidebar-item  ">
+                    <a href="{{route('presupuestos.index')}}" class='sidebar-link'>
+                        <i class="fa-solid fa-file-invoice-dollar fs-5"></i>
+                        <span>Presupuestos</span>
+                    </a>
+                </li>
+                <li class="sidebar-item  ">
+                    <a href="{{route('campania.index')}}" class='sidebar-link'>
+                        <i class="fa-solid fa-diagram-project fs-5"></i>
+                        <span>Campañas</span>
+                    </a>
+                </li>
+
             </ul>
         </div>
         <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>

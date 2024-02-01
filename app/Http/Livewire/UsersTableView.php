@@ -63,15 +63,15 @@ class UsersTableView extends TableView
         ];
     }
     protected function filters()
-{
-    return [
-        new UsersActiveFilter,
-        new UsersInactiveFilter,
-        new UsersDepartamentoFilter,
-        new UsersCargoFilter
+    {
+        return [
+            new UsersActiveFilter,
+            new UsersInactiveFilter,
+            new UsersDepartamentoFilter,
+            new UsersCargoFilter
 
-    ];
+        ];
 
-}
+    }
 
 }

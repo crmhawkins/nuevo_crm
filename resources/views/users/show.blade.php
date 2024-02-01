@@ -19,7 +19,7 @@
                     <div class="d-flex">
                         @if ($usuario->image == null)
                             <img class="rounded-circle img-fuild avatar-table" alt="avatar1" src="{{asset('assets/images/guest.webp')}}" />
-                        @else
+                            @else
                             <img class="rounded-circle img-fuild avatar-table" alt="avatar1" src="{{asset('/storage/avatars/'.$usuario->image)}}" />
                         @endif
                         <h3 class=" ms-2">{{$usuario->username}}</h3>
@@ -53,9 +53,9 @@
                                         <div class="card mb-4">
                                           <div class="card-body text-center">
                                             @if ($usuario->image == null)
-                                                <img alt="avatar" class="rounded-circle img-fluid" style="width: 150px;" src="{{asset('assets/images/guest.webp')}}" />
+                                                <img alt="avatar" class="rounded-circle img-fluid  m-auto" style="width: 150px;" src="{{asset('assets/images/guest.webp')}}" />
                                             @else
-                                                <img alt="avatar" class="rounded-circle img-fluid" style="width: 150px;" src="{{ asset('/storage/avatars/'.$usuario->image) }}" />
+                                                <img alt="avatar" class="rounded-circle img-fluid  m-auto" style="width: 150px;" src="{{ asset('/storage/avatars/'.$usuario->image) }}" />
                                             @endif
                                             <h5 class="my-3">{{$usuario->username}}</h5>
                                             <p class="text-muted mb-1">{{$usuario->departamento->name}}</p>
