@@ -19,4 +19,19 @@ class BudgetConceptType extends Model
     protected $fillable = [
         'name'
     ];
+
+    // Para los ID
+     /**
+     * TIPO CONCEPTO: Proveedor
+     *
+     * @var string
+     */
+    const TYPE_SUPPLIER = 1;
+
+    /**
+     * TIPO CONCEPTO: Propio
+     *
+     * @var string
+     */
+    const TYPE_OWN = 2;
 }

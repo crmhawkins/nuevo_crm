@@ -243,4 +243,15 @@ class UserController extends Controller
 
         return $output_file;
     }
+
+    public function saveThemePreference(Request $request)
+    {
+        $user = auth()->user();
+        $user->is_dark = $request->input('is_dark');
+        // dd($request->input('is_dark'));
+        $user->save();
+
+        return response()->json(['message' => 'Preferencia de tema guardada con éxito.']);
+    }
+
 }

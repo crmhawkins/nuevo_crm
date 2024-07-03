@@ -1,0 +1,57 @@
+.page-heading h3 {
+    font-weight: 700;
+    font-size: 1rem;
+    // color: black;
+}
+
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: $gris-claro;
+    border-color: $gris-claro;
+}
+
+.header-table {
+    background-color: $white !important;
+    color: $gris;
+    font-size: 0.85rem;
+}
+.header-table-other {
+    background-color: #805dca !important;
+    color: white;
+}
+.form-primary label {
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem
+}
+
+.css-96uzu9 {
+    height: 300px;
+    width: 100vw;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    opacity: 1;
+    background: $black;
+    color: rgb(52, 71, 103);
+}
+.card {
+    border-radius: 7px;
+    border: none;
+    background-color: white;
+}
+.card-body {
+    border-radius: 7px;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+}
+.table thead tr {
+    border-bottom: 1px solid #575757;
+}
+.table>:not(caption)>*>* {
+    padding: 1rem !important;
+    border: none;
+}

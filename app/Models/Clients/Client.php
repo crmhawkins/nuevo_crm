@@ -83,4 +83,7 @@ class Client extends Model
     public function webs() {
         return $this->hasMany(\App\Models\Clients\ClientWeb::class);
     }
+    public function presupuestos() {
+        return $this->hasMany(\App\Models\Budgets\Budget::class);
+    }
 }

@@ -15,17 +15,23 @@
         {{-- Titulos --}}
         <div class="page-title">
             <div class="row">
+                <div class="col-2">
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
-                    <div class="d-flex">
-                        @if ($usuario->image == null)
+                    <div class="d-flex align-items-center mb-2">
+                        <a href="javascript:history.back()" class="btn btn-volver p-2 w-auto mr-3"><i class="bi bi-arrow-left"></i></a>
+
+                        {{-- @if ($usuario->image == null)
                             <img class="rounded-circle img-fuild avatar-table" alt="avatar1" src="{{asset('assets/images/guest.webp')}}" />
                             @else
                             <img class="rounded-circle img-fuild avatar-table" alt="avatar1" src="{{asset('/storage/avatars/'.$usuario->image)}}" />
-                        @endif
-                        <h3 class=" ms-2">{{$usuario->username}}</h3>
+                        @endif --}}
+                        <h3 class="ms-2 text-uppercase display-5">{{$usuario->username}}</h3>
                         <span class="badge bg-warning h_fit_content ms-2">{{$usuario->posicion->name}}</span>
                     </div>
-                    <p class="text-subtitle text-muted">Información sobre el usuario {{$usuario->name}} {{$usuario->surname}}.</p>
+                    <p class="text-subtitle text-muted mb-3">Información sobre el usuario {{$usuario->name}} {{$usuario->surname}}.</p>
                 </div>
 
                 <div class="col-12 col-md-6 order-md-2 order-first">

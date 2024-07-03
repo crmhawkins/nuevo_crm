@@ -35,7 +35,8 @@ class User extends Authenticatable
         'seniority_years',
         'seniority_months',
         'holidays_days',
-        'inactive'
+        'inactive',
+        'is_dark'
     ];
 
     /**

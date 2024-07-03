@@ -1,0 +1,75 @@
+@extends('layouts.app')
+
+@section('titulo', 'Tareas')
+
+@section('css')
+<link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
+
+@endsection
+
+@section('content')
+
+    <div class="page-heading">
+
+        {{-- Titulos --}}
+        <div class="page-title">
+            <div class="row justify-content-between">
+                <div class="col-12 col-md-4 order-md-1 order-last">
+                    <h3>Tareas</h3>
+                    <p class="text-subtitle text-muted">Listado de tareas</p>
+                    {{-- {{$clientes->count()}} --}}
+                </div>
+                <div class="col-12 col-md-4 order-md-2 order-first">
+                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Tareas</li>
+                        </ol>
+                    </nav>
+
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 col-md-4 order-md-1 order-last">
+                    @if($tareas->count() >= 0)
+                        <a href="{{route('clientes.create')}}" class="btn btn-primary"><i class="fa-solid fa-plus me-2 mx-auto"></i>  Crear tarea</a>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <section class="section pt-4">
+            <div class="card">
+
+                <div class="card-body">
+                    {{-- <livewire:users-table-view> --}}
+                    @php
+                        use Jenssegers\Agent\Agent;
+
+                        $agent = new Agent();
+                    @endphp
+                    @if ($agent->isMobile())
+                        {{-- Contenido para dispositivos móviles --}}
+                        <div>
+                            <span>Es movil</span>
+                        </div>
+                    @else
+                        {{-- Contenido para dispositivos de escritorio --}}
+                        {{-- <livewire:users-table-view> --}}
+                        {{-- @livewire('clients-table') --}}
+                    @endif
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+@endsection
+
+@section('scripts')
+
+
+    @include('partials.toast')
+
+@endsection
+

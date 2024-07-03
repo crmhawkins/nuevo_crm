@@ -1,0 +1,8 @@
+body.dark-mode  {
+    background-color: black;
+    font-family: "Akshar", sans-serif;
+}
+
+body.dark-mode .card-body {
+    background-color: gray;
+}

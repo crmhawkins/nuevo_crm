@@ -49,7 +49,7 @@ class ClientController extends Controller
             'company' => 'required|max:200',
             'cif' => 'required|max:200',
             'identifier' => 'required|max:200',
-            'industry' => 'required|max:200',
+            // 'industry' => 'required|max:200',
             'activity' => 'required|max:200',
             'address' => 'required|max:200',
             'country' => 'required|max:200',
@@ -66,7 +66,7 @@ class ClientController extends Controller
             'company.required' => 'El nombre de la empresa a es requerido para continuar',
             'cif.required' => 'El cif es requerido para continuar',
             'identifier.required' => 'La marca es requerida para continuar',
-            'industry.required' => 'La industria es requerida para continuar',
+            // 'industry.required' => 'La industria es requerida para continuar',
             'activity.required' => 'La actividad es requerida para continuar',
             'address.required' => 'La dirección es requerida para continuar',
             'country.required' => 'El pais es requerido para continuar',
@@ -90,6 +90,9 @@ class ClientController extends Controller
                 $newContacto['civil_status_id'] = null;
                 $newContacto['phone'] = $newContacto['telephone'];
                 $newContacto['client_id'] = $clienteCreado->id;
+                $newContacto['privacy_policy_accepted'] = false;
+                $newContacto['cookies_accepted'] = false;
+                $newContacto['newsletters_sending_accepted'] = false;
                 // dd($newContacto);
                 $contacto = Contact::create($newContacto);
                 if (!$contacto) {
@@ -155,7 +158,7 @@ class ClientController extends Controller
             'mensaje' => 'El cliente se creo correctamente'
         ]);
 
-        return redirect()->route('cliente.show', $clienteCreado->id);
+        return redirect()->route('clientes.show', $clienteCreado->id);
     }
 
 
@@ -210,6 +213,9 @@ class ClientController extends Controller
                 $newContacto['civil_status_id'] = null;
                 $newContacto['phone'] = $newContacto['telephone'];
                 $newContacto['client_id'] = $clienteCreado->id;
+                $newContacto['privacy_policy_accepted'] = false;
+                $newContacto['cookies_accepted'] = false;
+                $newContacto['newsletters_sending_accepted'] = false;
                 // dd($newContacto);
                 $contacto = Contact::create($newContacto);
                 if (!$contacto) {
@@ -275,7 +281,7 @@ class ClientController extends Controller
             'mensaje' => 'El cliente se creo correctamente'
         ]);
         return redirect(route('presupuesto.create'))->with('clienteId', $clienteCreado->id);
-        return redirect()->route('cliente.show', $clienteCreado->id);
+        return redirect()->route('clientes.show', $clienteCreado->id);
     }
 
     /**
@@ -293,16 +299,140 @@ class ClientController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $gestores = User::all();
+        $clientes = Client::all();
+        $cliente = Client::find($id);
+        $contactos = Contact::where('client_id', $id)->get();
+        return view('clients.edit', compact('clientes', 'cliente', 'gestores', 'contactos'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        // Validamos los campos
+        $this->validate($request, [
+            'name' => 'required|max:200',
+            'admin_user_id' => 'required|exists:admin_users,id',
+            'email' => 'required|email:filter',
+            'company' => 'required|max:200',
+            'cif' => 'required|max:200',
+            'identifier' => 'required|max:200',
+            'activity' => 'required|max:200',
+            'address' => 'required|max:200',
+            'country' => 'required|max:200',
+            'city' => 'required|max:200',
+            'province' => 'required|max:200',
+            'zipcode' => 'required|max:200',
+            'phone' => 'required',
+        ], [
+            'name.required' => 'El nombre es requerido para continuar',
+            'admin_user_id.required' => 'El gestor es requerido para continuar',
+            'admin_user_id.exists' => 'El gestor debe ser valido para continuar',
+            'email.required' => 'El email es requerido para continuar',
+            'email.email' => 'El email debe ser un email valido',
+            'company.required' => 'El nombre de la empresa es requerido para continuar',
+            'cif.required' => 'El cif es requerido para continuar',
+            'identifier.required' => 'La marca es requerida para continuar',
+            'activity.required' => 'La actividad es requerida para continuar',
+            'address.required' => 'La dirección es requerida para continuar',
+            'country.required' => 'El pais es requerido para continuar',
+            'city.required' => 'La ciudad es requerida para continuar',
+            'province.required' => 'La provincia es requerida para continuar',
+            'zipcode.required' => 'El codigo postal es requerido para continuar',
+            'phone.required' => 'El telefono es requerido para continuar',
+        ]);
+
+        $cliente = Client::findOrFail($id);
+        $data = $request->all();
+        $data['is_client'] = true;
+        $data['privacy_policy_accepted'] = $request->input('privacy_policy_accepted', false); // Valor por defecto
+
+        $cliente->update($data);
+
+        // Validamos si hay contacto asociado
+        if (isset($data['newAssociatedContact'])) {
+            foreach ($data['newAssociatedContact'] as $newContacto) {
+                $newContacto['admin_user_id'] = Auth::user()->id;
+                $newContacto['civil_status_id'] = null;
+                $newContacto['phone'] = $newContacto['telephone'];
+                $newContacto['client_id'] = $cliente->id;
+                $newContacto['privacy_policy_accepted'] = false;
+                $newContacto['cookies_accepted'] = false;
+                $newContacto['newsletters_sending_accepted'] = false;
+                $contacto = Contact::updateOrCreate(
+                    ['id' => $newContacto['id'] ?? null], // Usa 'id' para encontrar el contacto existente o crea uno nuevo
+                    $newContacto
+                );
+                if (!$contacto) {
+                    return session()->flash('toast', [
+                        'icon' => 'error',
+                        'mensaje' => "Error en el servidor, intentelo mas tarde."
+                    ]);
+                }
+            }
+        }
+
+        // Teléfonos
+        if ($request->input('numbers')) {
+            foreach ($request->input('numbers') as $key => $value) {
+                if ($value != '') {
+                    $clientPhone = ClientPhone::updateOrCreate(
+                        ['client_id' => $cliente->id, 'number' => $value]
+                    );
+                    if (!$clientPhone) {
+                        return session()->flash('toast', [
+                            'icon' => 'error',
+                            'mensaje' => "Error en el servidor, intentelo mas tarde."
+                        ]);
+                    }
+                }
+            }
+        }
+
+        // Mails
+        if ($request->input('mails')) {
+            foreach ($request->input('mails') as $key => $value) {
+                if ($value != '') {
+                    $clientMail = ClientEmail::updateOrCreate(
+                        ['client_id' => $cliente->id, 'email' => $value]
+                    );
+                    if (!$clientMail) {
+                        return session()->flash('toast', [
+                            'icon' => 'error',
+                            'mensaje' => "Error en el servidor, intentelo mas tarde."
+                        ]);
+                    }
+                }
+            }
+        }
+
+        // Webs
+        if ($request->input('webs')) {
+            foreach ($request->input('webs') as $key => $value) {
+                if ($value != '') {
+                    $clientWeb = ClientWeb::updateOrCreate(
+                        ['client_id' => $cliente->id, 'url' => $value]
+                    );
+                    if (!$clientWeb) {
+                        return session()->flash('toast', [
+                            'icon' => 'error',
+                            'mensaje' => "Error en el servidor, intentelo mas tarde."
+                        ]);
+                    }
+                }
+            }
+        }
+
+        session()->flash('toast', [
+            'icon' => 'success',
+            'mensaje' => 'El cliente se actualizó correctamente'
+        ]);
+
+        return redirect()->route('clientes.show', $cliente->id);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -319,7 +449,6 @@ class ClientController extends Controller
         }
 
         $cliente->delete();
-
         return response()->json([
             'error' => false,
             'mensaje' => 'El usuario fue borrado correctamente'

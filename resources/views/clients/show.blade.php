@@ -10,10 +10,10 @@
 
 @section('content')
 
-    <div class="page-heading">
+    <div class="page-heading card ">
 
         {{-- Titulos --}}
-        <div class="page-title">
+        <div class="page-title card-body">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <div class="d-flex">
@@ -33,7 +33,7 @@
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
                             <li class="breadcrumb-item"><a href="{{route('clientes.index')}}">Clientes</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">{{$cliente->company}}</li>
+                            <li class="breadcrumb-item active" aria-current="page">{{$cliente->name}}</li>
                         </ol>
                     </nav>
 
@@ -41,17 +41,17 @@
             </div>
         </div>
 
-        <section class="section">
+        <section class="section pt-4">
             <div class="card">
                 <div class="card-body">
 
                     <div class="card">
                         <div class="card-content">
-                            <div class="card-body">
+                            <div class="card-body" style="border:none">
                                 <div class="row">
                                     <div class="col-lg-4">
                                         <div class="card mb-4">
-                                          <div class="card-body text-center">
+                                          <div class="card-body text-center" style="border:none">
                                             {{-- @if ($cliente->image == null)
                                                 <img alt="avatar" class="rounded-circle img-fluid" style="width: 150px;" src="{{asset('assets/images/guest.webp')}}" />
                                             @else
@@ -130,7 +130,7 @@
                                         <div class="tab-content text-justify" id="nav-tabContent">
                                             <div class="tab-pane show active" id="list-profile" role="tabpanel"
                                                 aria-labelledby="list-profile-list">
-                                                <div class="card-body">
+                                                <div class="card-body" style="border:none">
                                                     <div class="row p-2">
                                                       <div class="col-sm-3">
                                                         <p class="mb-0">Nombre:</p>
@@ -154,7 +154,7 @@
                                                           <p class="mb-0">Gestor:</p>
                                                         </div>
                                                         <div class="col-sm-9">
-                                                          <p class="text-muted mb-0"><a href="{{route('user.show',$cliente->gestor->id)}}">{{$cliente->gestor->name}}</a></p>
+                                                          <p class="text-muted mb-0"><a href="{{route('users.show',$cliente->gestor->id)}}">{{$cliente->gestor->name}}</a></p>
                                                         </div>
                                                     </div>
                                                     <hr>
@@ -354,7 +354,40 @@
                                             </div>
                                             <div class="tab-pane" id="list-presupuestos" role="tabpanel"
                                                 aria-labelledby="list-presupuestos-list">
-                                                <h5>No tienes presupuestos</h5>
+                                                <h3 class="mb-2 fs-4 text-uppercase">Presupuestos del Cliente</h3>
+                                                <hr class="border mb-4" >
+                                                <div class="table-responsive">
+                                                    <table class="table">
+                                                        <thead class="header-table-other">
+                                                            <th class="px-3" style="font-size:0.75rem">REFERENCIA</th>
+                                                            <th class="" style="font-size:0.75rem">CLIENTE</th>
+                                                            <th class="" style="font-size:0.75rem">CAMPAÑA</th>
+                                                            <th class="" style="font-size:0.75rem">FECHA CREACION</th>
+                                                            <th class="" style="font-size:0.75rem">ESTADO</th>
+                                                            <th class="" style="font-size:0.75rem">TOTAL</th>
+                                                            <th class="" style="font-size:0.75rem">GESTOR</th>
+                                                            <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach ( $cliente->presupuestos as $budget )
+                                                                <tr>
+                                                                    <td>{{$budget->reference}}</td>
+                                                                    <td>{{$budget->cliente->name}}</td>
+                                                                    <td>{{$budget->proyecto->name}}</td>
+                                                                    <td>{{$budget->creation_date}}</td>
+                                                                    <td>{{$budget->estadoPresupuesto->name}}</td>
+                                                                    <td>{{$budget->total}} €</td>
+                                                                    <td>{{$budget->usuario->name}}</td>
+                                                                    <td class="">
+                                                                        <a class="" href="{{route('presupuesto.show', $budget->id)}}"><img class="m-auto" src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar usuario"></a>
+                                                                        {{-- <a class="" href="{{route('presupuesto.edit', $budget->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Mostrar usuario"></a>
+                                                                        <a class="delete" data-id="{{$budget->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Mostrar usuario"></a> --}}
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                             <div class="tab-pane" id="list-facturas" role="tabpanel"
                                                 aria-labelledby="list-facturas-list">

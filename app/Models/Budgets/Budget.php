@@ -78,4 +78,12 @@ class Budget extends Model
     public function metodoPago() {
         return $this->belongsTo(\App\Models\PaymentMethods\PaymentMethod::class,'payment_method_id');
     }
+
+    /**
+     * Obtiene los conceptos asociados al presupuesto.
+     */
+    public function budgetConcepts()
+    {
+        return $this->hasMany(BudgetConcept::class, 'budget_id');
+    }
 }

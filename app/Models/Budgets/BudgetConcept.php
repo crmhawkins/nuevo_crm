@@ -55,4 +55,14 @@ class BudgetConcept extends Model
     public function servicioCategoria() {
         return $this->belongsTo(\App\Models\Services\ServiceCategories::class,'services_category_id');
     }
+
+    /**
+     * Obtener la Unidades de Concepto Proveedor
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function unidades()
+    {
+        return $this->hasMany(BudgetConceptSupplierUnits::class,'budget_concept_id');
+    }
 }

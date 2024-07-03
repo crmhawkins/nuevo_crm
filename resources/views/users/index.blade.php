@@ -9,23 +9,15 @@
 
 @section('content')
 
-    <div class="page-heading">
+    <div class="page-heading card">
 
         {{-- Titulos --}}
-        <div class="page-title">
-            <div class="row">
+        <div class="page-title card-body">
+            <div class="row justify-content-between">
                 <div class="col-12 col-md-4 order-md-1 order-last">
-                    <h3>Usuarios</h3>
+                    <h3><i class="bi bi-person"></i> Usuarios</h3>
                     <p class="text-subtitle text-muted">Listado de usuarios - empleados</p>
                 </div>
-
-                <div class="col-12 col-md-4 order-md-1 order-last">
-
-                    <a href="{{route('user.create')}}" class="btn btn-primary"><i class="fa-solid fa-user-plus me-2 mx-auto"></i>  Crear Usuario</a>
-                    @if($usuarios->count() > 0)
-                    @endif
-                </div>
-
                 <div class="col-12 col-md-4 order-md-2 order-first">
                     <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                         <ol class="breadcrumb">
@@ -36,13 +28,35 @@
 
                 </div>
             </div>
+            {{-- <div class="row mt-3">
+                <div class="col-12 col-md-4 order-md-1 order-last">
+                    @if($usuarios->count() > 0)
+                        <a href="{{route('users.create')}}" class="btn btn-primary"><i class="fa-solid fa-plus me-2 mx-auto"></i>  Crear Usuario</a>
+                    @endif
+                </div>
+            </div> --}}
         </div>
 
         <section class="section pt-4">
             <div class="card">
 
                 <div class="card-body">
-                    <livewire:users-table-view>
+                    {{-- <livewire:users-table-view> --}}
+                    @php
+                        use Jenssegers\Agent\Agent;
+
+                        $agent = new Agent();
+                    @endphp
+                    @if ($agent->isMobile())
+                        {{-- Contenido para dispositivos móviles --}}
+                        <div>
+                            <span>Es movil</span>
+                        </div>
+                    @else
+                        {{-- Contenido para dispositivos de escritorio --}}
+                        {{-- <livewire:users-table-view> --}}
+                        @livewire('users-table')
+                    @endif
                 </div>
             </div>
 
@@ -83,7 +97,7 @@
             });
         }
         function getDelete(id) {
-            const url = '{{route("user.delete")}}'
+            const url = '{{route("users.delete")}}'
             return $.ajax({
                 type: "POST",
                 url: url,

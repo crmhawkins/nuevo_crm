@@ -3,8 +3,11 @@
 namespace App\Http\Livewire;
 
 use App\Actions\DeleteClientAction;
+use App\Filters\BudgetsAnioFilter;
+use App\Filters\BudgetsEstadosFilter;
 use App\Filters\BudgetsGestorFilter;
 use App\Models\Budgets\Budget;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use LaravelViews\Actions\RedirectAction;
 use LaravelViews\Views\TableView;
 
@@ -30,13 +33,16 @@ class BudgetsTableView extends TableView
             'Nombre',
             'Marca',
             'Actividad',
-            'Actividad',
+            'Fecha Creacion',
             'Empresa',
             'Email',
             'Gestor',
             'Acciones'
         ];
     }
+
+    public $filterYear;
+
 
     public function row($model): array
     {
@@ -65,7 +71,8 @@ class BudgetsTableView extends TableView
     {
         return [
             new BudgetsGestorFilter,
-
+            new BudgetsEstadosFilter,
+            new BudgetsAnioFilter
         ];
 
     }
