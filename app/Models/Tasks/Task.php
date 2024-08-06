@@ -75,8 +75,5 @@ class Task extends Model
         return $this->belongsTo(\App\Models\Tasks\Task::class,'split_master_task_id');
     }
 
-    public function cliente() {
-        return $this->belongsTo(\App\Models\Tasks\Task::class,'split_master_task_id');
-    }
 
 }

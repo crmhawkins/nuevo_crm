@@ -8,6 +8,7 @@ use App\Models\Clients\ClientEmail;
 use App\Models\Clients\ClientPhone;
 use App\Models\Clients\ClientWeb;
 use App\Models\Contacts\Contact;
+use App\Models\Countries\Country;
 use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,8 +32,9 @@ class ClientController extends Controller
         // $gestores = User::where('access_level_id', 4)->get();
         $gestores = User::all();
         $clientes = Client::all();
+        $countries = Country::all();
 
-        return view('clients.create', compact('gestores','clientes'));
+        return view('clients.create', compact('gestores','clientes','countries'));
 
     }
 
@@ -49,7 +51,6 @@ class ClientController extends Controller
             'company' => 'required|max:200',
             'cif' => 'required|max:200',
             'identifier' => 'required|max:200',
-            // 'industry' => 'required|max:200',
             'activity' => 'required|max:200',
             'address' => 'required|max:200',
             'country' => 'required|max:200',
@@ -66,7 +67,6 @@ class ClientController extends Controller
             'company.required' => 'El nombre de la empresa a es requerido para continuar',
             'cif.required' => 'El cif es requerido para continuar',
             'identifier.required' => 'La marca es requerida para continuar',
-            // 'industry.required' => 'La industria es requerida para continuar',
             'activity.required' => 'La actividad es requerida para continuar',
             'address.required' => 'La dirección es requerida para continuar',
             'country.required' => 'El pais es requerido para continuar',
@@ -281,7 +281,34 @@ class ClientController extends Controller
             'mensaje' => 'El cliente se creo correctamente'
         ]);
         return redirect(route('presupuesto.create'))->with('clienteId', $clienteCreado->id);
-        return redirect()->route('clientes.show', $clienteCreado->id);
+    }
+    public function storeFromPetition(Request $request)
+    {
+        //Validamos los campos
+        $this->validate($request, [
+            'name' => 'required|max:200',
+            'admin_user_id' => 'required|exists:admin_users,id',
+            'email' => 'required|email:filter',
+            'phone' => 'required',
+        ], [
+            'name.required' => 'El nombre es requerido para continuar',
+            'admin_user_id.required' => 'El gestor es requerido para continuar',
+            'admin_user_id.exists' => 'El gestor debe ser valido para continuar',
+            'email.required' => 'El email es requerido para continuar',
+            'email.email' => 'El email debe ser un email valido',
+            'phone.required' => 'El telefono es requerido para continuar',
+        ]);
+
+
+        $data = $request->all();
+        $data['is_client'] = false;
+        $clienteCreado = Client::create($data);
+
+        session()->flash('toast', [
+            'icon' => 'success',
+            'mensaje' => 'El lead se creo correctamente'
+        ]);
+        return redirect(route('peticion.create'))->with('clienteId', $clienteCreado->id);
     }
 
     /**
@@ -471,5 +498,17 @@ class ClientController extends Controller
         $gestores = User::all();
         $clientes = Client::all();
         return view('clients.createFromBudget', compact('gestores', 'clientes'));
+    }
+    public function createFromPetition()
+    {
+        $gestores = User::all();
+        $clientes = Client::all();
+        return view('clients.createFromPetition', compact('gestores', 'clientes'));
+    }
+
+    public function getGestorFromClient(Request $request){
+        $client = Client::find($request->input('client_id'));
+        $gestor = $client->gestor->id;
+        return response($gestor);
     }
 }

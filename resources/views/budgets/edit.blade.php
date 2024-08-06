@@ -4,13 +4,11 @@
 
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
-
 @endsection
 
 @section('content')
-
-    <div class="page-heading">
-        <div class="page-title">
+    <div class="page-heading card" style="box-shadow: none !important" >
+        <div class="page-title card-body" >
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Editar Presupuesto</h3>
@@ -34,12 +32,12 @@
                 <div class="col-9">
                     <div class="card">
                         <div class="card-body">
-                            <form action="{{route('presupuesto.update', $presupuesto->id)}}" method="POST">
+                            <form id="update" action="{{route('presupuesto.update', $presupuesto->id)}}" method="POST">
                                 @csrf
                                 <div class="row">
                                     <div class="col-md-6 col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="reference">Ref.:</label>
+                                            <label class="mb-2 text-left" for="reference">Ref.:</label>
                                             <input type="text" class="form-control @error('reference') is-invalid @enderror" id="reference" value="{{ $presupuesto->reference }}" name="reference">
                                             @error('reference')
                                                     <span class="invalid-feedback" role="alert">
@@ -48,25 +46,39 @@
                                             @enderror
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="projetc_id">Campaña:</label>
-                                            <input type="text" class="form-control @error('projetc_id') is-invalid @enderror" id="projetc_id" value="{{ $presupuesto->proyecto->name }}" name="projetc_id">
-                                            @error('projetc_id')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
+                                            <label class="mb-2 text-left">Campañas</label>
+                                            <div class="flex flex-row align-items-start mb-0">
+                                                <select class="choices form-select w-100 @error('project_id') is-invalid @enderror" name="project_id"  id="proyecto" @if($campanias != null )@if( $campanias->count() < 0){{'disabled'}} @endif @endif >
+                                                            <option value="{{null}}">Seleccione una Campaña</option>
+                                                            @foreach ( $campanias as $campania )
+                                                                <option @if(old('project_id', $presupuesto->project_id) == $campania->id) {{'selected'}} @endif value="{{$campania->id}}">{{$campania->name}}</option>
+                                                            @endforeach
+                                                </select>
+                                            </div>
+                                            @error('project_id')
+                                                <p class="invalid-feedback d-block" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </p>
                                             @enderror
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="payment_method_id">Forma de pago:</label>
-                                            <input type="text" class="form-control @error('payment_method_id') is-invalid @enderror" id="payment_method_id" value="{{ $presupuesto->metodoPago->name }}" name="payment_method_id">
-                                            @error('payment_method_id')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
+                                            <label class="mb-2 text-left" for="payment_method_id">Forma de pago:</label>
+                                            <div class="flex flex-row align-items-start mb-0">
+                                                <select class="choices form-select w-100 @error('payment_method_id') is-invalid @enderror" name="payment_method_id"  id="payment_method_id" >
+                                                            <option value="{{null}}">Seleccione una forma de pago</option>
+                                                            @foreach ( $formasPago as $formaPago )
+                                                                <option @if(old('payment_method_id', $presupuesto->payment_method_id) == $formaPago->id) {{'selected'}} @endif value="{{$formaPago->id}}">{{$formaPago->name}}</option>
+                                                            @endforeach
+                                                </select>
+                                            </div>
+                                            @error('project_id')
+                                                <p class="invalid-feedback d-block" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </p>
                                             @enderror
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="budget_status_id">Estado:</label>
+                                            <label class="mb-2 text-left" for="budget_status_id">Estado:</label>
                                             <select class="form-control @error('budget_status_id') is-invalid @enderror" id="budget_status_id" name="budget_status_id">
                                                 @foreach ( $estadoPresupuesto as $estado )
                                                     <option value="{{ $estado->id }}" {{ $presupuesto->budget_status_id == $estado->id ? 'selected' : '' }}>{{ $estado->name }}</option>
@@ -80,7 +92,7 @@
                                             @enderror
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="description">Observaciones:</label>
+                                            <label class="mb-2 text-left" for="description">Observaciones:</label>
                                             <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description">{{ $presupuesto->description}}</textarea>
                                             @error('description')
                                                 <span class="invalid-feedback" role="alert">
@@ -91,25 +103,44 @@
                                     </div>
                                     <div class="col-md-6 col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="client_id">Cliente:</label>
-                                            <input type="text" class="form-control @error('client_id') is-invalid @enderror" id="client_id" value="{{ $presupuesto->cliente->name }}" name="client_id">
+                                            <label class="text-left mb-2">Cliente Asociado:</label>
+                                            <div class="flex flex-row align-items-start">
+                                                <select id="cliente" class="choices w-100 form-select @error('client_id') is-invalid @enderror" name="client_id" >
+                                                    @if ($clientes->count() > 0)
+                                                    <option value="">Seleccione un Cliente</option>
+                                                        @foreach ( $clientes as $cliente )
+                                                            <option @if($presupuesto->client_id == $cliente->id) {{'selected'}} @endif data-id="{{$cliente->id}}" value="{{$cliente->id}}">{{$cliente->name}}</option>
+                                                        @endforeach
+                                                    @else
+                                                        <option value="">No existen clientes todavia</option>
+                                                    @endif
+                                                </select>
+                                            </div>
                                             @error('client_id')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
+                                                <p class="invalid-feedback d-block" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </p>
                                             @enderror
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="admin_user_id">Gestor:</label>
-                                            <input type="text" class="form-control @error('admin_user_id') is-invalid @enderror" id="admin_user_id" value="{{ $presupuesto->usuario->name }}" name="admin_user_id">
+                                            <label class="mb-2 text-left">Gestor</label>
+                                            <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor">
+                                                @if ($gestores->count() > 0)
+                                                    @foreach ( $gestores as $gestor )
+                                                        <option @if($presupuesto->admin_user_id == $gestor->id) {{'selected'}} @endif  value="{{$gestor->id}}">{{$gestor->name}}</option>
+                                                    @endforeach
+                                                @else
+                                                    <option value="{{null}}">No existen gestores todavia</option>
+                                                @endif
+                                            </select>
                                             @error('admin_user_id')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
+                                                <p class="invalid-feedback d-block" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </p>
                                             @enderror
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="concept">Concepto:</label>
+                                            <label class="mb-2 text-left" for="concept">Concepto:</label>
                                             <input type="text" class="form-control @error('concept') is-invalid @enderror" id="concept" value="{{ $presupuesto->concept }}" name="concept">
                                             @error('concept')
                                                     <span class="invalid-feedback" role="alert">
@@ -118,7 +149,7 @@
                                             @enderror
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="creation_date">Fecha Creación:</label>
+                                            <label class="mb-2 text-left" for="creation_date">Fecha Creación:</label>
                                             <input type="date" class="form-control @error('creation_date') is-invalid @enderror" id="creation_date" value="{{ $presupuesto->creation_date }}" name="creation_date">
                                             @error('creation_date')
                                                     <span class="invalid-feedback" role="alert">
@@ -127,7 +158,7 @@
                                             @enderror
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="note">Nota Interna:</label>
+                                            <label class="mb-2 text-left" for="note">Nota Interna:</label>
                                             <textarea class="form-control @error('note') is-invalid @enderror" id="note" name="note">{{ $presupuesto->note}}</textarea>
                                             @error('note')
                                                 <span class="invalid-feedback" role="alert">
@@ -280,7 +311,7 @@
                                                 <td>
                                                     <input type="number" class="form-control" style="width:80px" id="iva" name="iva_percentage" min="0" max="100"
                                                     @if($presupuesto->iva_percentage == null) value="21"
-                                                    @else value="{{ number_format((float)$budget->iva_percentage, 2, '.', '')  }}"
+                                                    @else value="{{ number_format((float)$presupuesto->iva_percentage, 2, '.', '')  }}"
                                                     @endif >
                                                 </td>
                                                 <td id="iva_amount">{{ number_format((float)$presupuesto->iva, 2, '.', '')  }}</td>
@@ -314,7 +345,7 @@
 
                 </div>
                 <div class="col-3">
-                    <div class="card p-3">
+                    <div class="card-body p-3">
                         <div class="card-title">
                             Acciones
                             <hr>
@@ -322,14 +353,17 @@
                         <div class="card-body">
                             <a href="" id="actualizarPresupuesto" class="btn btn-success btn-block">Actualizar Presupuesto</a>
                             <a href="" id="aceptarPresupuesto" class="btn btn-primary btn-block mt-3">Aceptar Presupuesto</a>
-                            <a href="" class="btn btn-danger btn-block mt-3">Cancelar Presupuesto</a>
-                            <a href="" class="btn btn-secondary btn-block mt-3">Duplicar Presupuesto</a>
-                            <a href="" class="btn btn-dark btn-block mt-3">Generar PDF</a>
+                            <a href="" id="cancelarPresupuesto"class="btn btn-danger btn-block mt-3">Cancelar Presupuesto</a>
+                            <form action="{{ route('presupuesto.duplicate', $presupuesto->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary btn-block mt-3">Duplicar Presupuesto</button>
+                            </form>
+                            <a href="" id="generatePdf" class="btn btn-dark btn-block mt-3">Generar PDF</a>
                             <a href="" class="btn btn-dark btn-block mt-3">Enviar por email</a>
-                            <a href="" class="btn btn-dark btn-block mt-3">Generar factura</a>
-                            <a href="" class="btn btn-dark btn-block mt-3">Generar factura parcial</a>
-                            <a href="" class="btn btn-dark btn-block mt-3">Generar tareas</a>
-                            <a href="" class="btn btn-outline-danger btn-block mt-3">Eliminar</a>
+                            <a href="" id="generateInvoice" class="btn btn-dark btn-block mt-3">Generar factura</a>
+                            <a href="" id="generateInvoicePartial" class="btn btn-dark btn-block mt-3">Generar factura parcial</a>
+                            <a href="" id="generateTask" class="btn btn-dark btn-block mt-3">Generar tareas</a>
+                            <a href="" id="deletePresupuesto" data-id="{{$presupuesto->id}}" class="btn btn-outline-danger btn-block mt-3">Eliminar</a>
                         </div>
                     </div>
                 </div>
@@ -382,7 +416,7 @@
         // Boton Actualizar presupuesto
         $('#actualizarPresupuesto').click(function(e){
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
-            $('form').submit(); // Esto envía el formulario.
+            $('#update').submit(); // Esto envía el formulario.
         });
 
         // Boton Aceptar presupuesto
@@ -392,7 +426,7 @@
             const idPresupuesto = @json($presupuesto->id);
 
             $.ajax({
-                url: '{{ route("presupuesto.aceptarPresupuesto") }}', // Asegúrate de que la URL es correcta
+                url: '{{ route("presupuesto.aceptarPresupuesto")}}', // Asegúrate de que la URL es correcta
                 type: 'POST',
                 data: {
                     id: idPresupuesto
@@ -431,6 +465,272 @@
                 });
                 return;
         });
+
+        $('#cancelarPresupuesto').click(function(e){
+            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
+
+            const idPresupuesto = @json($presupuesto->id);
+
+            $.ajax({
+                url: '{{ route("presupuesto.cancelarPresupuesto")}}', // Asegúrate de que la URL es correcta
+                type: 'POST',
+                data: {
+                    id: idPresupuesto
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+                },
+                success: function(response) {
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        icon: response.icon,
+                        title: response.mensaje,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        },
+                        didClose: () => {
+                            location.reload();
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    // Manejo de errores
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al cambiar el estado del presupuesto. Por favor, inténtalo de nuevo.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+
+        });
+
+        //Boton de generar factura
+        $('#generateInvoice').click(function(e){
+            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
+
+            const idPresupuesto = @json($presupuesto->id);
+
+            $.ajax({
+                url: '{{ route("presupuesto.generarFactura")}}', // Asegúrate de que la URL es correcta
+                type: 'POST',
+                data: {
+                    id: idPresupuesto
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+                },
+                success: function(response) {
+                    if (response.status) {
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Factura generada correctamente',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.onmouseenter = Swal.stopTimer;
+                                toast.onmouseleave = Swal.resumeTimer;
+                            },
+                            didClose: () => {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        // Mostrar mensaje de error
+                        Swal.fire({
+                            icon: 'error',
+                            title: response.mensaje,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.onmouseenter = Swal.stopTimer;
+                                toast.onmouseleave = Swal.resumeTimer;
+                            }
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    // Manejo de errores
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al generar la factura. Por favor, inténtalo de nuevo.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+
+        //Boton de generar tareas
+        $('#generateTask').click(function(e){
+            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
+
+            const idPresupuesto = @json($presupuesto->id);
+
+            $.ajax({
+                url: '{{ route("presupuesto.generarTarea")}}', // Asegúrate de que la URL es correcta
+                type: 'POST',
+                data: {
+                    id: idPresupuesto
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+                },
+                success: function(response) {
+                    if (response.status) {
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Tarea creada correctamente.',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.onmouseenter = Swal.stopTimer;
+                                toast.onmouseleave = Swal.resumeTimer;
+                            },
+                            didClose: () => {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        // Mostrar mensaje de error
+                        Swal.fire({
+                            icon: 'error',
+                            title: response.mensaje,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.onmouseenter = Swal.stopTimer;
+                                toast.onmouseleave = Swal.resumeTimer;
+                            }
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    // Manejo de errores
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al generar la tarea. Por favor, inténtalo de nuevo.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+
+        //Boton de generar tareas
+        $('#generatePdf').click(function(e){
+            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
+
+            const idPresupuesto = @json($presupuesto->id);
+            $.ajax({
+                url: '{{ route("presupuesto.generarPDF") }}', // Asegúrate de que la URL es correcta
+                type: 'POST',
+                data: {
+                    id: idPresupuesto
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+                },
+                xhrFields: {
+                    responseType: 'blob' // Necesario para manejar la descarga del archivo
+                },
+                success: function(response) {
+                    // Crear una URL para el blob y forzar la descarga
+                    const blob = new Blob([response], { type: 'application/pdf' });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = 'presupuesto_' + idPresupuesto + '_' + new Date().toISOString().slice(0, 10) + '.pdf';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pdf creado correctamente.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        },
+                        didClose: () => {
+                            location.reload();
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    // Manejo de errores
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al generar la tarea. Por favor, inténtalo de nuevo.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+
 
         // Boton eliminar concepto propio
         $('#deleteOwn').click(function(e){
@@ -614,33 +914,118 @@
             })
         })
 
+        $('#generateInvoicePartial').click(function(e) {
+            // Iniciar SweetAlert2 con opciones
+            e.preventDefault();
+            const porcentajeYaFacturado = @json($porcentaje); // Asegúrate de que esta variable tiene el porcentaje ya facturado.
+            const maximoPermitido = 100 - porcentajeYaFacturado;
+            Swal.fire({
+                title: 'Facturar Parcialmente',
+                text: 'Selecciona el porcentaje que deseas facturar:',
+                icon: 'question',
+                input: 'range', // Establece el tipo de input como un rango
+                inputAttributes: {
+                    min: 0, // Valor mínimo
+                    max: maximoPermitido, // Valor máximo
+                    step: 5 // Incrementos
+                },
+                inputValue: 0, // Valor inicial
+                inputLabel: 'Porcentaje a facturar',
+                showCancelButton: true, // Muestra el botón cancelar
+                confirmButtonText: 'Confirmar',
+                cancelButtonText: 'Cancelar',
+                preConfirm: (percentage) => {
+                    return new Promise((resolve) => {
+                        // Enviar datos al servidor o hacer algo antes de cerrar el diálogo
+                        generatePartialInvoice(percentage).done(function(response) {
+                            if (response.status) {
+                                Swal.fire({
+                                    title: '¡Factura generada!',
+                                    toast: true,
+                                    text: `La factura ha sido generada por el ${percentage}% del total.`,
+                                    icon: 'success',
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.onmouseenter = Swal.stopTimer;
+                                        toast.onmouseleave = Swal.resumeTimer;
+                                    },
+                                    didClose: () => {
+                                        location.reload();
+                                    }
+                                });
+                            } else {
+                            // Mostrar mensaje de error
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: response.mensaje,
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.onmouseenter = Swal.stopTimer;
+                                        toast.onmouseleave = Swal.resumeTimer;
+                                    }
+                                });
+                            }
+                        }).fail(function(error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error al generar la factura. Por favor, inténtalo de nuevo.',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.onmouseenter = Swal.stopTimer;
+                                    toast.onmouseleave = Swal.resumeTimer;
+                                }
+                            });
+                            console.error(xhr.responseText);
+                        });
+                    });
+                }
+            });
+        });
+
+        $('#deletePresupuesto').on('click', function(e){
+            e.preventDefault();
+            let id = $(this).data('id'); // Usa $(this) para obtener el atributo data-id
+            botonAceptar(id);
+        })
+
+        $('#iva').on('change', function(){
+            actualizarPrecios()
+        })
+
         // Actualizar Precios
         const actualizarPrecios = () => {
             const conceptosPresupuesto = @json($budgetConcepts);
             let total = 0;
-            let iva;
+            let totalgross = 0;
+            let iva = $('#iva').val();
             let descuento;
-            console.log($('#total').val())
 
             conceptosPresupuesto.map((concepto) => {
-                console.log(concepto.total)
-
                 descuento += concepto.discount;
                 total += concepto.total;
-
+                totalgross += concepto.sale_price
             })
-
-            const ivaTotal = (total*21)/100
-            console.log(ivaTotal)
+            const ivaTotal = (total*iva)/100
             $('#base').val(total)
-            $('#gross').val(total)
+            $('#gross').val(totalgross)
             $('#total').val(total+ivaTotal)
-            $('#iva_total').val(total+21/100)
+            $('#iva_total').val(ivaTotal)
             $('#budget_total').html(`<strong>${formatearNumero(total+ivaTotal)} €</strong>`)
-            $('#gross').html(formatearNumero(total) + ' €')
+            $('#gross').html(formatearNumero(totalgross) + ' €')
             $('#base_amount').html(formatearNumero(total) + ' €')
             $('#iva_amount').html(formatearNumero(ivaTotal) + ' €')
-
         }
 
         // Formatear los numeros
@@ -651,8 +1036,76 @@
             });
         }
 
-        // actualizarPrecios()
+        function botonAceptar(id){
+            // Salta la alerta para confirmar la eliminacion
+            Swal.fire({
+                title: "¿Estas seguro que quieres eliminar este presupuesto?",
+                html: "<p>Esta acción es irreversible.</p>", // Corrige aquí
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: "Borrar",
+                cancelButtonText: "Cancelar",
+                // denyButtonText: `No Borrar`
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    // Llamamos a la funcion para borrar el usuario
+                    $.when( getDelete(id) ).then(function( data, textStatus, jqXHR ) {
+                        console.log(data)
+                        if (!data.status) {
+                            // Si recibimos algun error
+                            Toast.fire({
+                                icon: "error",
+                                title: data.mensaje
+                            })
+                        } else {
+                            // Todo a ido bien
+                            Toast.fire({
+                                icon: "success",
+                                title: data.mensaje
+                            })
+                            .then(() => {
+                                window.location.href = "{{ route('presupuestos.index') }}";
+                            })
+                        }
+                    });
+                }
+            });
+        }
 
+        function getDelete(id) {
+            // Ruta de la peticion
+            const url = '{{route("presupuesto.delete")}}'
+            // Peticion
+            return $.ajax({
+                type: "POST",
+                url: url,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: {
+                    'id': id,
+                },
+                dataType: "json"
+            });
+        }
+
+        // Función para enviar datos al servidor y generar la factura parcial
+        function generatePartialInvoice(percentage) {
+            return $.ajax({
+                url: '{{ route("presupuesto.generarFacturaParcial") }}', // Asegúrate de que la URL es correcta
+                type: 'POST',
+                data: {
+                    id: @json($presupuesto->id), // ID del presupuesto
+                    percentage: percentage // Porcentaje para facturar
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // CSRF token
+                }
+            });
+        }
+
+        actualizarPrecios()
     });
 </script>
 @endsection

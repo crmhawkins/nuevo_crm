@@ -59,7 +59,7 @@ class InvoicesTable extends Component
                 $query->where('admin_user_id', $this->selectedGestor);
             })
             ->when($this->selectedEstados, function ($query) {
-                $query->where('budget_status_id', $this->selectedEstados);
+                $query->where('invoice_status_id', $this->selectedEstados);
             });
 
         // Verifica si se seleccionó 'all' para mostrar todos los registros

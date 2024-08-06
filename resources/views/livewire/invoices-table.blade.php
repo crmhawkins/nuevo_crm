@@ -58,23 +58,30 @@
                 </thead>
                 <tbody>
                     @foreach ( $invoices as $invoice )
-
                         <tr>
                             <td>{{$invoice->reference}}</td>
-                            <td>{{$invoice->cliente->name}}</td>
-                            <td>{{$invoice->proyecto->name}}</td>
-                            <td>{{$invoice->creation_date}}</td>
-                            <td>{{$invoice->estadoPresupuesto->name}}</td>
-                            <td>{{$invoice->total}} €</td>
-                            <td>{{$invoice->usuario->name}}</td>
+                            <td>{{$invoice->client->name ??  ($invoice->client_id ? 'Cliente borrado' : 'Sin cliente asignado')}}</td>
+                            <td>{{$invoice->project->name ?? ($invoice->project_id ? 'Campaña borrada' : 'Sin campaña asignada')}}</td>
+                            <td>{{Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y')}}</td>
+                            <td>{{$invoice->invoiceStatus->name ?? ($invoice->invoice_status_id ? 'Estado borrado' : 'Sin estado asignado')}}</td>
+                            <td>{{number_format((float)$invoice->total, 2, '.', '') }} €</td>
+                            <td>{{$invoice->adminUser->name ?? ($invoice->admin_user_id ? 'Gestor borrado' : 'Sin gestor asignado')}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
-                                <a class="" href="{{route('presupuesto.show', $invoice->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar usuario"></a>
-                                <a class="" href="{{route('presupuesto.edit', $invoice->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Mostrar usuario"></a>
-                                <a class="delete" data-id="{{$invoice->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Mostrar usuario"></a>
+                                <a class="" href="{{route('factura.show', $invoice->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Ver factura"></a>
+                                <a class="" href="{{route('factura.edit', $invoice->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar factura"></a>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4"></td>
+                        <th>Sumatorio:</th>
+                        <td>{{number_format((float)$invoice->sum('total'), 2, '.', '') }} €</td>
+                        <td colspan="2"></td>
+
+                    </tr>
+                </tfoot>
             </table>
             @if($perPage !== 'all')
                 {{ $invoices->links() }}
@@ -82,8 +89,8 @@
         </div>
     @else
         <div class="text-center py-4">
-            <h3 class="text-center fs-3">No se encontraron registros de <strong>USUARIOS</strong></h3>
-            <p class="mt-2">Pulse el boton superior para crear algun usuario.</p>
+            <h3 class="text-center fs-3">No se encontraron registros de <strong>FACTURAS</strong></h3>
+            <p class="mt-2">Pulse el boton superior para crear alguna factura.</p>
         </div>
     @endif
     {{-- {{$users}} --}}
@@ -99,14 +106,14 @@
                 e.preventDefault();
                 let id = $(this).data('id'); // Usa $(this) para obtener el atributo data-id
                 botonAceptar(id);
-                
+
             });
         });
 
         function botonAceptar(id){
             // Salta la alerta para confirmar la eliminacion
             Swal.fire({
-                title: "¿Estas seguro que quieres eliminar este usuario?",
+                title: "¿Estas seguro que quieres eliminar esta factura?",
                 html: "<p>Esta acción es irreversible.</p>", // Corrige aquí
                 showDenyButton: false,
                 showCancelButton: true,
@@ -141,7 +148,7 @@
         }
         function getDelete(id) {
             // Ruta de la peticion
-            const url = '{{route("presupuesto.delete")}}'
+            const url = '{{route("factura.delete")}}'
             // Peticion
             return $.ajax({
                 type: "POST",

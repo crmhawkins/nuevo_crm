@@ -9,7 +9,7 @@
 
 @section('content')
 {{var_dump($clienteId)}}
-    <div class="page-heading card">
+    <div class="page-heading card" style="box-shadow: none !important" >
         <div class="page-title card-body">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
@@ -64,7 +64,7 @@
                                     <div class="form-group">
                                         <label class="mb-2 text-left">Campañas</label>
                                         <div class="flex flex-row align-items-start mb-0">
-                                        
+
                                             <select class=" form-select w-100 @error('project_id') is-invalid @enderror" name="project_id" disabled id="proyecto">
                                                 @if ($campanias != null)
                                                     @if ($campanias->count() > 0)
@@ -77,7 +77,7 @@
                                                 @else
                                                     <option value="{{null}}">No existen campañas todavia</option>
                                                 @endif
-            
+
                                             </select>
                                             <button id="newCampania" type="button" class="btn btn-color-1 ml-3" style="height: fit-content"><i class="fa-solid fa-plus"></i></button>
                                         </div>

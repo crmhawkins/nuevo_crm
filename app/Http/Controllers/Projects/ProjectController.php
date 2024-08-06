@@ -72,25 +72,73 @@ class ProjectController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+    public function edit(string $id){
 
+        $project = Project::find($id);
+        if (!$project) {
+            session()->flash('toast', [
+                'icon' => 'error',
+                'mensaje' => 'La campaña no existe'
+            ]);
+            return redirect()->route('campania.index');
+        }
+        // Obtener listas de opciones necesarias para el formulario
+        $clientes = Client::orderBy('id', 'asc')->get();
+
+        return view('campania.edit', compact('project', 'clientes'));
+
+    }
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(Request $request, string $id){
+        $project = Project::find($id);
+        // Validar los datos del formulario
+        $validated = $this->validate($request, [
+            'client_id' => 'required|integer',
+            'name' => 'required|max:200',
+            'description' => 'required|max:200',
+            'notes' => 'nullable'
+        ], [
+            'client_id.required' => 'El cliente es requerido para continuar',
+            'name.required' => 'El nombre de la campaña es requerido para continuar',
+            'description.required' => 'La descripción de la campaña es requerido para continuar',
+        ]);
+        // Actualizar el gasto con los datos validados
+        $project->update($validated);
+        // Redireccionar con mensaje de éxito
+        return redirect()->route('campania.index')->with('toast',[
+            'icon' => 'success',
+            'mensaje' => 'Campaña actualizada con exito'
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy(Request $request){
+        $id = $request->id;
+        if ($id != null) {
+            $project = Project::find($id);
+            if ($project != null) {
+                // Eliminar el presupuesto
+                $project->delete();
+                return response()->json([
+                    'status' => true,
+                    'mensaje' => "La campaña fue borrada con éxito."
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Error 500 no se encuentra la Campaña."
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'mensaje' => "Error 500 no se encuentra el ID en la petición."
+            ]);
+        }
     }
 
     /**
@@ -101,27 +149,52 @@ class ProjectController extends Controller
         $cliente = Client::find($id);
         return view('campania.createFromBudget', compact('cliente'));
     }
+    public function createFromBudgetAndPetition(string $id, string $petitionid)
+    {
+        $cliente = Client::find($id);
+
+        return view('campania.createFromBudget', compact('cliente','petitionid'));
+    }
     public function storeFromBudget(Request $request)
     {
         // Validamos los campos
-        // $this->validate($request, [
-        //     'client_id' => 'required|integer',
-        //     'name' => 'required|max:200',
-        //     'description' => 'required|max:200',
-        // ], [
-        //     'client_id.required' => 'El cliente es requerido para continuar',
-        //     'name.required' => 'El nombre de la campaña es requerido para continuar',
-        //     'description.required' => 'La descripción de la campaña es requerido para continuar',
-        // ]);
-
-        session()->flash('toast', [
-            'icon' => 'success',
-            'mensaje' => 'El cliente se creo correctamente'
+        $data = $this->validate($request, [
+            'client_id' => 'required|integer',
+            'name' => 'required|max:200',
+            'description' => 'required|max:200',
+            'notes' => 'nullable'
+        ], [
+            'client_id.required' => 'El cliente es requerido para continuar',
+            'name.required' => 'El nombre de la campaña es requerido para continuar',
+            'description.required' => 'La descripción de la campaña es requerido para continuar',
         ]);
-        $protectId = 0;
+
+        $data['admin_user_id'] = auth()->user()->id;
+
+        $proyectoCreado = Project::create($data);
+
+        $projectId = $proyectoCreado->id;
         $clienteId = $request->client_id;
-        // dd($clienteId);
-        return redirect(route('presupuesto.create'))->with('clienteId', $clienteId, 'projectId', $protectId);
+        $petitionId = $request->petition_id;
+        $cliente =  Client::find( $clienteId);
+
+        if ($proyectoCreado != null) {
+            session()->flash('toast', [
+                'icon' => 'success',
+                'mensaje' => 'La campaña se creo correctamente'
+            ]);
+        } else {
+            session()->flash('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Ocurrio un error en el servidor, intentelo mas tarde'
+            ]);
+        }
+
+        if(isset($petitionId)){
+            return redirect(route('presupuesto.createFromPetition', $petitionId))->with(['clienteId' => $clienteId,'projectId' => $projectId ]);
+        }else{
+            return redirect(route('presupuesto.create'))->with(['clienteId' => $clienteId,'projectId' => $projectId ]);
+        }
     }
     public function updateFromWindow(Request $request)
     {

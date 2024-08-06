@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titulo', 'Crear Cliente')
+@section('titulo', 'Editar Cliente')
 
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
@@ -9,10 +9,10 @@
 
 @section('content')
 
-    <div class="page-heading">
+    <div class="page-heading card" style="box-shadow: none !important" >
 
         {{-- Titulos --}}
-        <div class="page-title">
+        <div class="page-title card-body">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Editar Cliente</h3>
@@ -37,144 +37,133 @@
                 <div class="card-body">
                     <form action="{{route('clientes.update', $cliente->id)}}" method="POST" class="form-primary">
                         @csrf
-                        <div class="form-group">
-                            <label for="name">Nombre:</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name', $cliente->name) }}" name="name">
-                            @error('name')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="admin_user_id">Gestor:</label>
-                            <select class="form-select @error('admin_user_id') is-invalid @enderror" id="admin_user_id" name="admin_user_id">
-                                <option value="">Seleccione el gestor del cliente</option>
-                                @foreach ($gestores as $gestor)
-                                    <option value="{{ $gestor->id }}"
-                                        {{ (old('admin_user_id') ?? $cliente->admin_user_id) == $gestor->id ? 'selected' : '' }}>
-                                        {{ $gestor->name }} {{ $gestor->surname }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('admin_user_id')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="text" class="form-control @error('email') is-invalid @enderror" id="email" value="{{ old('name', $cliente->email) }}" name="email">
-                            @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="company">Nombre de la empresa:</label>
-                            <input type="text" class="form-control @error('company') is-invalid @enderror" id="company"value="{{ old('name', $cliente->company) }}" name="company">
-                            @error('company')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">Nombre del contacto:</label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name', $cliente->name) }}" name="name">
+                                    @error('name')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
 
-                        <div class="form-group">
-                            <label for="cif">CIF/DNI:</label>
-                            <input type="text" class="form-control @error('cif') is-invalid @enderror" id="cif" value="{{ old('name', $cliente->cif) }}" name="cif">
-                            @error('cif')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="identifier">Marca:</label>
-                            <input type="text" class="form-control @error('identifier') is-invalid @enderror" id="identifier" value="{{ old('name', $cliente->identifier) }}" name="identifier">
-                            @error('identifier')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="industry">Industria:</label>
-                            <input type="text" class="form-control @error('industry') is-invalid @enderror" id="industry" value="{{ old('name', $cliente->industry) }}" name="industry">
-                            @error('industry')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="activity">Actividad:</label>
-                            <input type="text" class="form-control @error('activity') is-invalid @enderror" id="activity" value="{{ old('name', $cliente->activity) }}" name="activity">
-                            @error('activity')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="address">Dirección:</label>
-                            <input type="text" class="form-control @error('address') is-invalid @enderror" id="address" value="{{ old('name', $cliente->address) }}" name="address">
-                            @error('address')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="country">Pais:</label>
-                            <input type="text" class="form-control @error('country') is-invalid @enderror" id="country" value="{{ old('country', $cliente->country) }}" name="country">
-                            @error('country')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="city">Ciudad:</label>
-                            <input type="text" class="form-control @error('city') is-invalid @enderror" id="city" value="{{ old('city', $cliente->city) }}" name="city">
-                            @error('city')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="province">Provincia:</label>
-                            <input type="text" class="form-control @error('province') is-invalid @enderror" id="province" value="{{ old('province', $cliente->province) }}" name="province">
-                            @error('province')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="zipcode">Código postal:</label>
-                            <input type="text" class="form-control @error('zipcode') is-invalid @enderror" id="zipcode" value="{{ old('zipcode', $cliente->zipcode) }}" name="zipcode">
-                            @error('zipcode')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="birthdate">Fecha de Nacimiento / creación de la empresa:</label>
-                            <input type="date" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" value="{{ old('birthdate', $cliente->birthdate) }}" name="birthdate">
-                            @error('birthdate')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
+                                <div class="form-group">
+                                    <label for="company">Nombre de la empresa:</label>
+                                    <input type="text" class="form-control @error('company') is-invalid @enderror" id="company"value="{{ old('company', $cliente->company) }}" name="company">
+                                    @error('company')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="activity">Actividad:</label>
+                                    <input type="text" class="form-control @error('activity') is-invalid @enderror" id="activity" value="{{ old('activity', $cliente->activity) }}" name="activity">
+                                    @error('activity')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
 
-                        <div class="form-group">
+                                <div class="form-group">
+                                    <label for="cif">CIF/DNI:</label>
+                                    <input type="text" class="form-control @error('cif') is-invalid @enderror" id="cif" value="{{ old('cif', $cliente->cif) }}" name="cif">
+                                    @error('cif')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="identifier">Marca:</label>
+                                    <input type="text" class="form-control @error('identifier') is-invalid @enderror" id="identifier" value="{{ old('identifier', $cliente->identifier) }}" name="identifier">
+                                    @error('identifier')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="birthdate">Fecha de alta:</label>
+                                    <input type="date" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" value="{{ old('birthdate', $cliente->birthdate) }}" name="birthdate">
+                                    @error('birthdate')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="admin_user_id">Gestor:</label>
+                                    <select class="form-select @error('admin_user_id') is-invalid @enderror" id="admin_user_id" name="admin_user_id">
+                                        <option value="">Seleccione el gestor del cliente</option>
+                                        @foreach ($gestores as $gestor)
+                                            <option value="{{ $gestor->id }}"
+                                                {{ (old('admin_user_id') ?? $cliente->admin_user_id) == $gestor->id ? 'selected' : '' }}>
+                                                {{ $gestor->name }} {{ $gestor->surname }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('admin_user_id')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="address">Dirección:</label>
+                                    <input type="text" class="form-control @error('address') is-invalid @enderror" id="address" value="{{ old('address', $cliente->address) }}" name="address">
+                                    @error('address')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="country">Pais:</label>
+                                    <input type="text" class="form-control @error('country') is-invalid @enderror" id="country" value="{{ old('country', $cliente->country) }}" name="country">
+                                    @error('country')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="city">Ciudad:</label>
+                                    <input type="text" class="form-control @error('city') is-invalid @enderror" id="city" value="{{ old('city', $cliente->city) }}" name="city">
+                                    @error('city')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="province">Provincia:</label>
+                                    <input type="text" class="form-control @error('province') is-invalid @enderror" id="province" value="{{ old('province', $cliente->province) }}" name="province">
+                                    @error('province')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="zipcode">Código postal:</label>
+                                    <input type="text" class="form-control @error('zipcode') is-invalid @enderror" id="zipcode" value="{{ old('zipcode', $cliente->zipcode) }}" name="zipcode">
+                                    @error('zipcode')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group mt-3">
                             <div class="form-floating">
                                 <textarea class="form-control" placeholder="Escribe la anotación..."
                                     id="floatingTextarea" name="notes">{{ old('notes', $cliente->notes) }}</textarea>
@@ -186,14 +175,13 @@
                                     </span>
                             @enderror
                         </div>
-
                         <h3 class="mt-5 mb-2 text-center uppercase">Cliente Asociado</h3>
-                        <hr>
+                        <hr class="mb-4">
                         <div class="form-group">
                             <select class="choices form-select" name="client_id">
                                 @if ($clientes->count() > 0)
+                                <option value="{{null}}">No existen clientes todavia</option>
                                     @foreach ( $clientes as $client )
-                                        <option value="{{null}}">No existen clientes todavia</option>
                                         <option @if($client->id === $cliente->client_id) {{'selected'}} @endif value="{{$client->id}}">{{$client->name}}</option>
                                     @endforeach
                                 @else
@@ -206,57 +194,29 @@
                         <hr class="mb-4">
 
                         <div class="form-group">
-                            <button id="newAssociatedContact" type="button" class="btn btn-secondary mb-4"><i class="fa-solid fa-plus"></i> Agregar Contacto</button>
+                            <button id="newAssociatedContact" type="button" class="btn btn-secondary  mb-4"><i class="fa-solid fa-plus"></i> Agregar Contacto</button>
                             <h5 hidden id="labelAssociateNew" for="associated_contact_new" class="mb-2">Creación de nuevo/s contacto/s:</h5>
                             <div class="col-12 form-group" id="dynamic_field_associated_contact_new">
                             </div>
-                            {{-- <div class="row">
-                                <div class="col-4">
-                                    <label for="nombre_contacto">Nombre completo</label>
-                                    <input type="text" class="form-control @error('nombre_contacto') is-invalid @enderror" id="nombre_contacto" value="{{ old('nombre_contacto') }}" name="nombre_contacto">
-                                    @error('nombre_contacto')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                    @enderror
-                                </div>
-                                <div class="col-4">
-                                    <label for="email_contacto">Email</label>
-                                    <input type="text" class="form-control @error('email_contacto') is-invalid @enderror" id="email_contacto" value="{{ old('email_contacto') }}" name="email_contacto">
-                                    @error('email_contacto')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                    @enderror
-                                </div>
-                                <div class="col-4">
-                                    <label for="phone_contacto">Telefono</label>
-                                    <input type="text" class="form-control @error('phone_contacto') is-invalid @enderror" id="phone_contacto" value="{{ old('phone_contacto') }}" name="phone_contacto">
-                                    @error('phone_contacto')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                    @enderror
-                                </div>
-                            </div> --}}
-                        </div>0.
+                        </div>
 
-
-
-
-
-
-
-
-                        
                         <h3 class="mt-5 mb-2 text-center uppercase">Informacion de Contacto de la Empresa</h3>
                         <hr class="mb-4">
-                        <button type="button" name="addMails" id="addExtraMail" class="btn btn-secondary"><i class="fas fa-plus"></i> Añadir email/s extra</button>
+                        <div class="form-group">
+                            <label for="email">Email de contacto:</label>
+                            <input type="text" class="form-control @error('email') is-invalid @enderror" id="email" value="{{ old('email', $cliente->email) }}" name="email">
+                            @error('email')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                            @enderror
+                        </div>
+                        <button type="button" name="addMails" id="addExtraMail" class="btn btn-secondary mt-3"><i class="fas fa-plus"></i> Añadir email/s extra</button>
                         <br/>
                         <div class="col-12 form-group mt-4" id="dynamic_field_mails">
                         </div>
                         <div class="form-group">
-                            <label for="phone">Teléfono principal:</label>
+                            <label for="phone">Teléfono movil:</label>
                             <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" value="{{ old('phone', $cliente->phone) }}" name="phone">
                             @error('phone')
                                     <span class="invalid-feedback" role="alert">
@@ -264,7 +224,7 @@
                                     </span>
                             @enderror
                         </div>
-                        <button type="button" name="addExtraPhone" id="addExtraPhone" class="btn btn-secondary"><i class="fas fa-plus"></i> Añadir teléfono/s extra</button>
+                        <button type="button" name="addExtraPhone" id="addExtraPhone" class="btn btn-secondary mt-3"><i class="fas fa-plus"></i> Añadir teléfono/s extra</button>
                         <div class="col-12 form-group mt-4" id="dynamic_field_phones">
                         </div>
                         <div class="form-group">
@@ -289,7 +249,7 @@
                                     </span>
                             @enderror
                         </div>
-                        <button type="button" name="addWebs" id="addExtraWeb" class="btn btn-secondary"><i class="fas fa-plus"></i> Añadir web/s extra</button>
+                        <button type="button" name="addWebs" id="addExtraWeb" class="btn btn-secondary mt-3"><i class="fas fa-plus"></i> Añadir web/s extra</button>
                         <div class="col-12 form-group mt-4" id="dynamic_field_webs">
                         </div>
 
@@ -345,7 +305,7 @@
 
 
                         <div class="form-group mt-5">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary w-100">
                                 {{ __('Actualizar') }}
                             </button>
                         </div>

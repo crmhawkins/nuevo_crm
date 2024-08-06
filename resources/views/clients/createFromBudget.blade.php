@@ -9,7 +9,7 @@
 
 @section('content')
 
-    <div class="page-heading card">
+    <div class="page-heading card" style="box-shadow: none !important" >
 
         {{-- Titulos --}}
         <div class="page-title card-body">
@@ -50,7 +50,7 @@
                                                 </span>
                                         @enderror
                                     </div>
-                                    
+
                                     <div class="form-group mt-2">
                                         <label for="email">Email:</label>
                                         <input placeholder="Direccion de correo electronico" type="text" class="form-control @error('email') is-invalid @enderror" id="email" value="{{ old('email') }}" name="email">
@@ -98,7 +98,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-4">
-                                    
+
                                     <div class="form-group">
                                         <label for="activity">Actividad:</label>
                                         <input placeholder="Actividad de la empresa..." type="text" class="form-control @error('activity') is-invalid @enderror" id="activity" value="{{ old('activity') }}" name="activity">
@@ -153,7 +153,7 @@
                                                 </span>
                                         @enderror
                                     </div>
-                                    
+
                                 </div>
                                 <div class="col-sm-12 col-md-4">
                                     <div class="form-group select-wrapper w-100">
@@ -179,7 +179,7 @@
                                                 </span>
                                         @enderror
                                     </div>
-                                    
+
                                     <div class="form-group mt-2">
                                         <label for="phone">Teléfono principal:</label>
                                         <input placeholder="Telefono principal..." type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" value="{{ old('phone') }}" name="phone">
@@ -228,8 +228,8 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        
+
+
                         <div class="row">
                             <div class="col-md-6 col-sm-12">
                                 <div class="w-100">
@@ -246,10 +246,10 @@
                                     <div class="form-group mt-3">
                                         <h5 hidden id="labelAssociateNew" for="associated_contact_new" class="mb-2">Creación de nuevo/s contacto/s:</h5>
                                         <div class="col-12 form-group" id="dynamic_field_associated_contact_new">
-                                            
+
                                         </div>
                                     </div>
-    
+
                                 </div>
                                 <div class="w-100">
                                     <div class="d-flex align-items-center mt-4">
@@ -271,12 +271,12 @@
                                             {{-- <i class="bi bi-telephone text-info fs-4 mr-2"></i>  --}}
                                             Telefonos extra
                                         </h3>
-    
+
                                     </div>
-                                    
+
                                     <div class="col-12 form-group mt-4" id="dynamic_field_phones">
                                     </div>
-    
+
                                 </div>
                                 <div class="w-100">
                                     <div class="d-flex align-items-center mt-4">
@@ -285,11 +285,11 @@
                                             {{-- <i class="bi bi-globe-americas text-info fs-4 mr-2"></i> --}}
                                             Webs extra
                                         </h3>
-    
+
                                     </div>
                                     <div class="col-12 form-group mt-4" id="dynamic_field_webs">
                                     </div>
-                                </div> 
+                                </div>
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <h3 class="mt-3 mb-2 text-center uppercase"><i class="bi bi-share text-color-2 mr-4 fs-4"></i>Redes Sociales</h3>
@@ -342,7 +342,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
 
                         <div class="form-group mt-5">

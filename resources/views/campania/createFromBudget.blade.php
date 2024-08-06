@@ -9,8 +9,8 @@
 
 @section('content')
 
-    <div class="page-heading">
-        <div class="page-title">
+    <div class="page-heading card" style="box-shadow: none !important" >
+        <div class="page-title card-body">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Crear Campaña</h3>
@@ -35,6 +35,9 @@
                     <form action="{{route('campania.storeFromBudget')}}" method="POST">
                         @csrf
                         <input type="text" name="client_id" value="{{$cliente->id}}" hidden>
+                        @if (isset($petitionid))
+                        <input type="text" name="petition_id" value="{{$petitionid}}" hidden>
+                        @endif
 
                         <h3 class="mb-2 text-left uppercase">Cliente Asociado</h3>
                         <div class="form-control mb-4">{{$cliente->company}}</div>

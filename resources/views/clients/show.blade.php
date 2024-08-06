@@ -61,17 +61,11 @@
                                             <p class="text-muted mb-1">{{$cliente->activity}}</p>
                                             <p class="text-m$clientelist-presupuestos-listuted mb-4">{{$cliente->identifier}}</p>
                                             <div class="d-flex justify-content-center mb-2">
-                                              {{-- <button type="button" class="btn btn-primary">Follow</button> --}}
-                                            {{-- @if ($cliente->image == null)
-                                                <button data-bs-backdrop="false" data-bs-toggle="modal" data-bs-target="#ModalAvatar{{$cliente->id}}" type="button" class="btn btn-outline-primary ms-1">Añadir Avatar</button>
-                                            @else
-                                                <button data-bs-backdrop="false" data-bs-toggle="modal" data-bs-target="#ModalAvatar{{$cliente->id}}" class="btn btn-outline-primary ms-1">Cambiar Avatar</button>
-                                            @endif --}}
                                               <button type="button" class="btn btn-outline-primary ms-1">Mensajes</button>
                                             </div>
                                           </div>
                                         </div>
-                                        <div class="list-group" role="tablist">
+                                        <div class="mb-4 list-group" role="tablist">
                                             <a class="list-group-item list-group-item-action active"
                                                 id="list-profile-list" data-bs-toggle="list" href="#list-profile"
                                                 role="tab">Perfil</a>
@@ -84,6 +78,9 @@
                                             <a class="list-group-item list-group-item-action"
                                                 id="list-presupuestos-list" data-bs-toggle="list"
                                                 href="#list-facturas" role="tab">Facturas</a>
+                                            <a class="list-group-item list-group-item-action"
+                                                id="list-dominios-list" data-bs-toggle="list"
+                                                href="#list-dominios" role="tab">Dominios</a>
                                             <a class="list-group-item list-group-item-action"
                                                 id="list-contactos-list" data-bs-toggle="list"
                                                 href="#list-contactos" role="tab">Contactos</a>
@@ -98,10 +95,12 @@
                                         <div class="card mb-4 mb-lg-0">
                                           <div class="card-body p-0">
                                             <ul class="list-group list-group-flush rounded-3">
+                                            @if ($cliente->web)
                                               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                                 <i class="fas fa-globe fa-lg text-warning"></i>
                                                 <p class="mb-0">{{$cliente->web}}</p>
                                               </li>
+                                            @endif
                                               @if ($cliente->twitter)
                                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                                     <i class="fab fa-twitter fa-lg" style="color: #55acee;"></i>
@@ -132,138 +131,129 @@
                                                 aria-labelledby="list-profile-list">
                                                 <div class="card-body" style="border:none">
                                                     <div class="row p-2">
-                                                      <div class="col-sm-3">
+                                                      <div class="col-sm-4">
                                                         <p class="mb-0">Nombre:</p>
                                                       </div>
-                                                      <div class="col-sm-9">
+                                                      <div class="col-sm-8">
                                                         <p class="text-muted mb-0">{{$cliente->name}}</p>
                                                       </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                      <div class="col-sm-3">
+                                                      <div class="col-sm-4">
                                                         <p class="mb-0">Nombre de la empresa:</p>
                                                       </div>
-                                                      <div class="col-sm-9">
+                                                      <div class="col-sm-8">
                                                         <p class="text-muted mb-0">{{$cliente->company}}</p>
                                                       </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Gestor:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0"><a href="{{route('users.show',$cliente->gestor->id)}}">{{$cliente->gestor->name}}</a></p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">CIF:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->cif}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Marca:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->identifier}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
-                                                          <p class="mb-0">Industria:</p>
-                                                        </div>
-                                                        <div class="col-sm-9">
-                                                          <p class="text-muted mb-0">{{$cliente->industry}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <hr>
-                                                    <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Actividad:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->activity}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Dirección:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->address}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Pais:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->country}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Ciudad:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->city}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Provincia:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->province}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Codigo Postal:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->zipcode}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Creación de la Empresa:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->birthdate}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Notas:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->notes}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     @if ($cliente->client_id)
                                                         <div class="row p-2">
-                                                            <div class="col-sm-3">
+                                                            <div class="col-sm-4">
                                                             <p class="mb-0">Cliente Asociado:</p>
                                                             </div>
-                                                            <div class="col-sm-9">
-                                                            <p class="text-muted mb-0"><a href="{{route('cliente.show',$cliente->cliente->id)}}">{{$cliente->cliente->name}}</a></p>
+                                                            <div class="col-sm-8">
+                                                            <p class="text-muted mb-0"><a href="{{route('clientes.show',$cliente->cliente->id)}}">{{$cliente->cliente->name}}</a></p>
                                                             </div>
                                                         </div>
                                                         <hr>
@@ -276,37 +266,37 @@
                                                 aria-labelledby="list-info-list">
                                                 <div class="card-body">
                                                     <div class="row p-2">
-                                                      <div class="col-sm-3">
+                                                      <div class="col-sm-4">
                                                         <p class="mb-0">Telefono:</p>
                                                       </div>
-                                                      <div class="col-sm-9">
+                                                      <div class="col-sm-8">
                                                         <p class="text-muted mb-0">{{$cliente->phone}}</p>
                                                       </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                      <div class="col-sm-3">
+                                                      <div class="col-sm-4">
                                                         <p class="mb-0">Fax:</p>
                                                       </div>
-                                                      <div class="col-sm-9">
+                                                      <div class="col-sm-8">
                                                         <p class="text-muted mb-0">{{$cliente->fax}}</p>
                                                       </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Email:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                           <p class="text-muted mb-0">{{$cliente->email}}</p>
                                                         </div>
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Otros Telefonos:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                             <ul>
                                                                 @foreach ($cliente->phones as $phone )
                                                                     <li>
@@ -319,10 +309,10 @@
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Otros Emails:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                             <ul>
                                                                 @foreach ($cliente->emails as $email )
                                                                     <li>
@@ -335,10 +325,10 @@
                                                     </div>
                                                     <hr>
                                                     <div class="row p-2">
-                                                        <div class="col-sm-3">
+                                                        <div class="col-sm-4">
                                                           <p class="mb-0">Otras Webs:</p>
                                                         </div>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-8">
                                                             <ul>
                                                                 @foreach ($cliente->webs as $web )
                                                                     <li>
@@ -350,57 +340,112 @@
                                                         </div>
                                                     </div>
                                                     <hr>
-                                            </div>
+                                                </div>
                                             </div>
                                             <div class="tab-pane" id="list-presupuestos" role="tabpanel"
                                                 aria-labelledby="list-presupuestos-list">
                                                 <h3 class="mb-2 fs-4 text-uppercase">Presupuestos del Cliente</h3>
                                                 <hr class="border mb-4" >
-                                                <div class="table-responsive">
-                                                    <table class="table">
-                                                        <thead class="header-table-other">
-                                                            <th class="px-3" style="font-size:0.75rem">REFERENCIA</th>
-                                                            <th class="" style="font-size:0.75rem">CLIENTE</th>
-                                                            <th class="" style="font-size:0.75rem">CAMPAÑA</th>
-                                                            <th class="" style="font-size:0.75rem">FECHA CREACION</th>
-                                                            <th class="" style="font-size:0.75rem">ESTADO</th>
-                                                            <th class="" style="font-size:0.75rem">TOTAL</th>
-                                                            <th class="" style="font-size:0.75rem">GESTOR</th>
-                                                            <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach ( $cliente->presupuestos as $budget )
-                                                                <tr>
-                                                                    <td>{{$budget->reference}}</td>
-                                                                    <td>{{$budget->cliente->name}}</td>
-                                                                    <td>{{$budget->proyecto->name}}</td>
-                                                                    <td>{{$budget->creation_date}}</td>
-                                                                    <td>{{$budget->estadoPresupuesto->name}}</td>
-                                                                    <td>{{$budget->total}} €</td>
-                                                                    <td>{{$budget->usuario->name}}</td>
-                                                                    <td class="">
-                                                                        <a class="" href="{{route('presupuesto.show', $budget->id)}}"><img class="m-auto" src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar usuario"></a>
-                                                                        {{-- <a class="" href="{{route('presupuesto.edit', $budget->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Mostrar usuario"></a>
-                                                                        <a class="delete" data-id="{{$budget->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Mostrar usuario"></a> --}}
-                                                                    </td>
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
+                                                @if (count($cliente->presupuestos) > 0)
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead class="header-table-other">
+                                                                <th class="px-3" style="font-size:0.75rem">CAMPAÑA</th>
+                                                                <th class="" style="font-size:0.75rem">ESTADO</th>
+                                                                <th class="" style="font-size:0.75rem">TOTAL</th>
+                                                                <th class="" style="font-size:0.75rem">GESTOR</th>
+                                                                <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ( $cliente->presupuestos as $budget )
+                                                                    <tr>
+                                                                        <td>{{$budget->proyecto->name ?? ($budget->project_id ? 'Campaña borrada' : 'Sin campaña asignada')}}</td>
+                                                                        <td>{{$budget->estadoPresupuesto->name ?? ($budget->budget_status_id ? 'Estado borrado' : 'Sin estado asignado')}}</td>
+                                                                        <td>{{$budget->total}} €</td>
+                                                                        <td>{{$budget->usuario->name ?? ($budget->admin_user_id ? 'Gestor borrado' : 'Sin gestor asignado')}}</td>
+                                                                        <td class="">
+                                                                            <a class="" href="{{route('presupuesto.show', $budget->id)}}"><img class="m-auto" src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar usuario"></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                @else
+                                                <div class="text-center py-4">
+                                                    <h3 class="text-center fs-4">No se encontraron registros de <strong>Presupuestos</strong></h3>
                                                 </div>
+                                                @endif
                                             </div>
                                             <div class="tab-pane" id="list-facturas" role="tabpanel"
                                                 aria-labelledby="list-facturas-list">
-                                                <h5>No tienes facturas</h5>
-
+                                                <h3 class="mb-2 fs-4 text-uppercase">Facturas del Cliente</h3>
+                                                <hr class="border mb-4" >
+                                                @if (count($cliente->facturas) > 0)
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead class="header-table-other">
+                                                                <th class="px-3" style="font-size:0.75rem">CAMPAÑA</th>
+                                                                <th class="" style="font-size:0.75rem">ESTADO</th>
+                                                                <th class="" style="font-size:0.75rem">TOTAL</th>
+                                                                <th class="" style="font-size:0.75rem">GESTOR</th>
+                                                                <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ( $cliente->facturas as $invoice )
+                                                                    <tr>
+                                                                        <td>{{$invoice->project->name ?? ($invoice->project_id ? 'Campaña borrada' : 'Sin campaña asignada')}}</td>
+                                                                        <td>{{$invoice->invoiceStatus->name ?? ($invoice->invoice_status_id ? 'Estado borrado' : 'Sin estado asignado')}}</td>
+                                                                        <td>{{$invoice->total}} €</td>
+                                                                        <td>{{$invoice->adminUser->name ?? ($invoice->admin_user_id ? 'Gestor borrado' : 'Sin gestor asignado')}}</td>
+                                                                        <td class="">
+                                                                            <a class="" href="{{route('factura.show', $invoice->id)}}"><img class="m-auto" src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar factura"></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                @else
+                                                <div class="text-center py-4">
+                                                    <h3 class="text-center fs-4">No se encontraron registros de <strong>Facturas</strong></h3>
+                                                </div>
+                                                @endif
                                             </div>
-                                            <div class="tab-pane" id="list-estadisticas" role="tabpanel"
-                                                aria-labelledby="list-estadisticas-list">
-                                                <h5>No tienes estadisticas</h5>
-                                            </div>
-                                            <div class="tab-pane" id="list-newsletter" role="tabpanel"
-                                                aria-labelledby="list-newsletter-list">
-                                                <h5>No tienes newsletter</h5>
+                                            <div class="tab-pane" id="list-dominios" role="tabpanel"
+                                                aria-labelledby="list-dominios-list">
+                                                <h3 class="mb-2 fs-4 text-uppercase">Dominios del Cliente</h3>
+                                                <hr class="border mb-4" >
+                                                @if (count($cliente->dominios) > 0)
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead class="header-table-other">
+                                                                <th class="px-3" style="font-size:0.75rem">DOMINIO</th>
+                                                                <th class="" style="font-size:0.75rem">CONTRARACIÓN</th>
+                                                                <th class="" style="font-size:0.75rem">RENOVACIÓN</th>
+                                                                <th class="" style="font-size:0.75rem">ESTADO</th>
+                                                                <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ( $cliente->dominios as $dominio )
+                                                                    <tr>
+                                                                        <td>{{$dominio->dominio}}</td>
+                                                                        <td>{{$dominio->date_start}}</td>
+                                                                        <td>{{$dominio->date_end}}</td>
+                                                                        <td>{{$dominio->estadoName->name ?? ($dominio->estado_id ? 'Estado borrado' : 'Sin estado asignado')}}</td>
+                                                                        <td class="">
+                                                                            <a class="" href="{{route('dominios.edit', $dominio->id)}}"><img class="m-auto" src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar factura"></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                @else
+                                                <div class="text-center py-4">
+                                                    <h3 class="text-center fs-4">No se encontraron registros de <strong>Facturas</strong></h3>
+                                                </div>
+                                                @endif
                                             </div>
                                             <div class="tab-pane" id="list-contactos" role="tabpanel"
                                                 aria-labelledby="list-contactos-list">
@@ -450,6 +495,14 @@
                                                     <h5>No tienes contactos</h5>
 
                                                 @endif
+                                            </div>
+                                            <div class="tab-pane" id="list-newsletter" role="tabpanel"
+                                                aria-labelledby="list-newsletter-list">
+                                                <h5>No tienes newsletter</h5>
+                                            </div>
+                                            <div class="tab-pane" id="list-estadisticas" role="tabpanel"
+                                                aria-labelledby="list-estadisticas-list">
+                                                <h5>No tienes estadisticas</h5>
                                             </div>
                                         </div>
                                     </div>

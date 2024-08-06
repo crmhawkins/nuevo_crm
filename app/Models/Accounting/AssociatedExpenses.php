@@ -48,7 +48,7 @@ class AssociatedExpenses extends Model
 
     /**
      * Obtener los bancos
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function bankAccount()
@@ -58,7 +58,7 @@ class AssociatedExpenses extends Model
 
     /**
      * Obtener Ordenes de compra
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function OrdenCompra()
@@ -68,7 +68,7 @@ class AssociatedExpenses extends Model
 
     /**
      * Obtener Presupuesto
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function budget()

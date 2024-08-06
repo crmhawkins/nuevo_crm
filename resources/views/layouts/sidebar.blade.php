@@ -24,11 +24,14 @@
 
                 @php
                     $clientesActive = request()->routeIs('clientes.index') || request()->routeIs('clientes.create') || request()->routeIs('clientes.show') || request()->routeIs('cliente.createFromBudget') || request()->routeIs('clientes.edit');
-                    $presupuestoActive = request()->routeIs('presupuestos.index') || request()->routeIs('presupuesto.create') || request()->routeIs('clientes.show');
+                    $presupuestoActive = request()->routeIs('presupuestos.index') || request()->routeIs('presupuesto.create') || request()->routeIs('presupuesto.show');
                     $dominiosActive = request()->routeIs('dominios.index') || request()->routeIs('dominios.create') || request()->routeIs('dominios.edit');
-                    $tesoreriaActive = request()->routeIs('ingresos.index') 
-                    || request()->routeIs('ingreso.create') 
-                    || request()->routeIs('ingreso.edit');
+                    $projectActive = request()->routeIs('campania.*') ;
+                    $servicesActive = request()->routeIs('servicios.*') || request()->routeIs('serviciosCategoria.*');
+                    $peticionesActive = request()->routeIs('peticion.*');
+                    $personalActive = request()->routeIs('users.*') ;
+                    $tareaActive = request()->routeIs('tareas.*') ;
+                    $tesoreriaActive = request()->routeIs('ingresos.*') || request()->routeIs('gastos.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
                 @endphp
 
                 <li class="sidebar-item has-sub {{ $clientesActive ? 'active' : '' }}">
@@ -37,7 +40,7 @@
                         <span>Clientes</span>
                     </a>
                     <ul class="submenu" style="{{ $clientesActive ? 'display:block;' : 'display:none' }}">
-                        <li class="submenu-item {{ request()->routeIs('clientes.index') ? 'active' : 'no' }} ">
+                        <li class="submenu-item {{ request()->routeIs('clientes.index') ? 'active' : '' }} ">
                             <a href="{{route('clientes.index')}}">
                                 <i class="fa-solid fa-list"></i>
                                 <span>
@@ -55,7 +58,6 @@
                         </li>
                     </ul>
                 </li>
-
                 <li class="sidebar-item has-sub {{ $presupuestoActive ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
                         <i class="fa-solid fa-file-invoice-dollar fs-5"></i>
@@ -80,44 +82,164 @@
                         </li>
                     </ul>
                 </li>
-
+                <li class="sidebar-item has-sub {{ $peticionesActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
+                        <i class="fa-solid fa-clipboard"></i>
+                        <span>Peticiones</span>
+                    </a>
+                    <ul class="submenu" style="{{ $peticionesActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('peticion.index') ? 'active' : '' }}">
+                            <a href="{{route('peticion.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('peticion.create') ? 'active' : '' }}">
+                            <a href="{{route('peticion.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear petición
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 <li class="sidebar-item {{ request()->routeIs('facturas.index') ? 'active' : '' }}">
                     <a href="{{route('facturas.index')}}" class='sidebar-link'>
                         <i class="fa-solid fa-file-invoice-dollar fs-5"></i>
                         <span>Facturas</span>
                     </a>
                 </li>
-                <li class="sidebar-item {{ request()->routeIs('campania.index') ? 'active' : '' }}">
-                    <a href="{{route('campania.index')}}" class='sidebar-link'>
+                <li class="sidebar-item has-sub {{ $projectActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
                         <i class="fa-solid fa-diagram-project fs-5"></i>
                         <span>Campañas</span>
                     </a>
+                    <ul class="submenu" style="{{ $projectActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('campania.index') ? 'active' : '' }}">
+                            <a href="{{route('campania.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('campania.create') ? 'active' : '' }}">
+                            <a href="{{route('campania.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear campaña
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="sidebar-item {{ request()->routeIs('servicios.index') ? 'active' : '' }}">
-                    <a href="{{route('servicios.index')}}" class='sidebar-link'>
+                <li class="sidebar-item has-sub {{ $servicesActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
                         <i class="fa-solid fa-sliders fs-5"></i>
                         <span>Servicios</span>
                     </a>
+                    <ul class="submenu" style="{{ $servicesActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('servicios.index') ? 'active' : '' }}">
+                            <a href="{{route('servicios.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('servicios.create') ? 'active' : '' }}">
+                            <a href="{{route('servicios.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear servicio
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('serviciosCategoria.index') ? 'active' : '' }}">
+                            <a href="{{route('serviciosCategoria.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver Categorias
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('serviciosCategoria.create') ? 'active' : '' }}">
+                            <a href="{{route('serviciosCategoria.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear categoria de servicio
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="sidebar-item {{ request()->routeIs('serviciosCategoria.index') ? 'active' : '' }}">
-                    <a href="{{route('serviciosCategoria.index')}}" class='sidebar-link'>
-                        <i class="fa-solid fa-gears fs-5"></i>
-                        <span>Categorias de Servicio</span>
-                    </a>
-                </li>
-                <li class="sidebar-item {{ request()->routeIs('tareas.index') ? 'active' : '' }}">
-                    <a href="{{route('tareas.index')}}" class='sidebar-link'>
+                <li class="sidebar-item has-sub {{ $tareaActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
                         <i class="fa-solid fa-list-check fs-5"></i>
                         <span>Tareas</span>
                     </a>
+                    <ul class="submenu" style="{{ $tareaActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('tareas.index') ? 'active' : '' }}">
+                            <a href="{{route('tareas.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('tareas.asignar') ? 'active' : '' }}">
+                            <a href="{{route('tareas.asignar')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Por Asignar
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('tareas.cola') ? 'active' : '' }}">
+                            <a href="{{route('tareas.cola')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    En Cola
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('tareas.revision') ? 'active' : '' }}">
+                            <a href="{{route('tareas.revision')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    En Revisión
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="sidebar-item {{ $isActive('users.*') }}">
-                    <a href="{{route('users.index')}}" class='sidebar-link'>
+                <li class="sidebar-item has-sub {{ $personalActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
                         <i class="fa-solid fa-user-group"></i>
                         <span>Personal</span>
                     </a>
+                    <ul class="submenu" style="{{ $personalActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('users.index') ? 'active' : '' }}">
+                            <a href="{{route('users.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('users.create') ? 'active' : '' }}">
+                            <a href="{{route('users.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear usuario
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-
                 <li class="sidebar-item has-sub {{ $dominiosActive ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
                         <i class="fa-solid fa-globe fs-5"></i>
@@ -164,31 +286,53 @@
                                 </span>
                             </a>
                         </li>
-                        <li class="submenu-item {{ request()->routeIs('dominios.index') ? 'active' : '' }}">
-                            <a href="{{route('dominios.index')}}">
+                        <li class="submenu-item {{ request()->routeIs('gastos.index') ? 'active' : '' }}">
+                            <a href="{{route('gastos.index')}}">
                                 <i class="fa-solid fa-list"></i>
                                 <span>
                                     Ver Gastos
                                 </span>
                             </a>
                         </li>
-                        <li class="submenu-item {{ request()->routeIs('dominios.index') ? 'active' : '' }}">
-                            <a href="{{route('dominios.index')}}">
+                        <li class="submenu-item {{ request()->routeIs('gasto.create') ? 'active' : '' }}">
+                            <a href="{{route('gasto.create')}}">
                                 <i class="fa-solid fa-plus"></i>
                                 <span>
                                     Añadir Gasto
                                 </span>
                             </a>
                         </li>
-                        <li class="submenu-item {{ request()->routeIs('dominios.index') ? 'active' : '' }}">
-                            <a href="{{route('dominios.index')}}">
+                        <li class="submenu-item {{ request()->routeIs('gastos-asociados.index') ? 'active' : '' }}">
+                            <a href="{{route('gastos-asociados.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver Gastos Asociados
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('gasto-asociado.create') ? 'active' : '' }}">
+                            <a href="{{route('gasto-asociado.create')}}">
                                 <i class="fa-solid fa-plus"></i>
                                 <span>
                                     Añadir Gasto Asociado
                                 </span>
                             </a>
                         </li>
+                        <li class="submenu-item {{ request()->routeIs('gastos-sin-clasificar.index') ? 'active' : '' }}">
+                            <a href="{{route('gastos-sin-clasificar.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver Gastos Sin Clasificar
+                                </span>
+                            </a>
+                        </li>
                     </ul>
+                </li>
+                <li class="sidebar-item {{ request()->routeIs('configuracion.index') ? 'active' : '' }}">
+                    <a href="{{route('configuracion.index')}}" class='sidebar-link'>
+                        <i class="fa-solid fa-gears fs-5"></i>
+                        <span>Cofiguracion</span>
+                    </a>
                 </li>
             </ul>
         </div>

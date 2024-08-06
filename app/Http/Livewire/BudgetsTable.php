@@ -16,10 +16,28 @@ class BudgetsTable extends Component
 
     public $gestores;
     public $estados;
+    public $meses = [
+        1 => 'Enero',
+        2 => 'Febrero',
+        3 => 'Marzo',
+        4 => 'Abril',
+        5 => 'Mayo',
+        6 => 'Junio',
+        7 => 'Julio',
+        8 => 'Agosto',
+        9 => 'Septiembre',
+        10 => 'Octubre',
+        11 => 'Noviembre',
+        12 => 'Diciembre'
+    ];
     public $buscar;
     public $selectedGestor = '';
     public $selectedEstados = '';
     public $perPage = 10;
+    public $sortColumn = 'reference'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
+    public $selectedMonth;
+    public $selectedYear;
 
     protected $budgets; // Propiedad protegida para los usuarios
 
@@ -31,9 +49,9 @@ class BudgetsTable extends Component
     public function render()
     {
 
-        $this->actualizarPresupuestos(); // Inicializa los usuarios
+        $this->actualizarPresupuestos(); // Inicializa los presupuestos
         return view('livewire.budgets-table', [
-            'budgets' => $this->getBudgets() // Utiliza un método para obtener los usuarios
+            'budgets' => $this->getBudgets() // Utiliza un método para obtener los presupuestos
         ]);
     }
 
@@ -58,7 +76,17 @@ class BudgetsTable extends Component
             })
             ->when($this->selectedEstados, function ($query) {
                 $query->where('budget_status_id', $this->selectedEstados);
+
+            })->when($this->selectedMonth, function ($query) {
+                $query->whereMonth('creation_date', $this->selectedMonth);
+
+            })->when($this->selectedYear, function ($query) {
+                $query->whereYear('creation_date', $this->selectedYear);
+
             });
+
+            // Aplica la ordenación
+        $query->orderBy($this->sortColumn, $this->sortDirection);
 
         // Verifica si se seleccionó 'all' para mostrar todos los registros
         $this->budgets = $this->perPage === 'all' ? $query->get() : $query->paginate($this->perPage);
@@ -77,6 +105,17 @@ class BudgetsTable extends Component
         // Por ejemplo: $this->filtroEspecifico = 'valor';
 
         $this->actualizarPresupuestos(); // Luego actualizas la lista de usuarios basada en los filtros
+    }
+
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
     }
 
     public function updating($propertyName)

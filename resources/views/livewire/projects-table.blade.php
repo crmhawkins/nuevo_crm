@@ -54,9 +54,8 @@
                             <td>{{$project->cliente->name}}</td>
                             <td>{{$project->usuario->name}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
-                                <a class="" href="{{route('clientes.show', $project->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar usuario"></a>
-                                <a class="" href="{{route('clientes.edit', $project->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Mostrar usuario"></a>
-                                <a class="delete" data-id="{{$project->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Mostrar usuario"></a>
+                                <a class="" href="{{route('campania.edit', $project->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar Campaña"></a>
+                                <a class="delete" data-id="{{$project->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Borrar Campaña"></a>
                             </td>
                         </tr>
                     @endforeach
@@ -65,8 +64,7 @@
             {{-- Si los servicios vienen vacio --}}
             @if( count($projects) == 0 )
             <div class="text-center py-4">
-                <h3 class="text-center fs-3">No se encontraron registros de <strong>CLIENTES</strong></h3>
-                <p class="mt-2">Pulse el boton superior para crear algun cliente.</p>
+                <h3 class="text-center fs-3">No se encontraron registros de <strong>CAMPAÑAS</strong></h3>
             </div>
             @endif
 
@@ -76,8 +74,7 @@
         </div>
     @else
         <div class="text-center py-4">
-            <h3 class="text-center fs-3">No se encontraron registros de <strong>CLIENTES</strong></h3>
-            <p class="mt-2">Pulse el boton superior para crear algun cliente.</p>
+            <h3 class="text-center fs-3">No se encontraron registros de <strong>CAMPAÑAS</strong></h3>
         </div>
     @endif
     {{-- {{$users}} --}}
@@ -133,7 +130,7 @@
         }
         function getDelete(id) {
             // Ruta de la peticion
-            const url = '{{route("clientes.delete")}}'
+            const url = '{{route("campania.delete")}}'
             // Peticion
             return $.ajax({
                 type: "POST",

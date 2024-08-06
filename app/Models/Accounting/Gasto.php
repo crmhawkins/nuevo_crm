@@ -21,9 +21,14 @@ class Gasto extends Model
      */
     protected $fillable = [
         'title',
+        'reference',
         'quantity',
         'bank_id',
+        'date',
+        'received_date',
+        'payment_method_id',
         'transfer_movement',
+        'state',
         'documents'
     ];
 
@@ -33,12 +38,12 @@ class Gasto extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at', 
+        'created_at', 'updated_at', 'deleted_at',
     ];
-    
+
     /**
      * Obtener los gastos
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function bankAccount()

@@ -9,7 +9,7 @@
 
 @section('content')
 
-    <div class="page-heading card">
+    <div class="page-heading card" style="box-shadow: none !important" >
 
         {{-- Titulos --}}
         <div class="page-title card-body">
@@ -55,9 +55,10 @@
                             @if ($servicios->count() >= 0)
                                 @foreach ($servicios as $servicio)
                                     <div class="card border-bottom">
-                                        <div class="card-body">
+                                        <div class="card-body" href="{{route('serviciosCategoria.edit',$servicio->id)}}">
                                             <h5 class="card-title">{{ $servicio->title }}</h5>
-                                            <p class="card-text">{{ $servicio->concepto->name }}</p>
+                                            <p class="card-text">{{ $servicio->terms }}</p>
+                                            <p class="card-text">{{ $servicio->type }}</p>
                                             <!-- Más contenido de la tarjeta -->
                                         </div>
                                     </div>

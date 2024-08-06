@@ -44,7 +44,7 @@ class Invoice extends Model
         'paid_date',
         'paid_amount',
         'note',
-        'observations', 
+        'observations',
         'billed_in_advance',
         'expiration_date',
         'seen_date',
@@ -53,7 +53,6 @@ class Invoice extends Model
         'show_summary',
         'partial_number',// si es la primera, segunda...
         'rectification',
-        'created_at',
     ];
 
 
@@ -63,12 +62,12 @@ class Invoice extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at', 
+        'created_at', 'updated_at', 'deleted_at',
     ];
 
     /**
      * Obtener el presupuesto al que está vinculada
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function budget()
@@ -78,17 +77,17 @@ class Invoice extends Model
 
     /**
      * Obtener el usuario
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function adminUser()
     {
         return $this->belongsTo(User::class,'admin_user_id');
     }
-        
+
     /**
      * Obtener el cliente al que está vinculado
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function client()
@@ -98,7 +97,7 @@ class Invoice extends Model
 
     /**
      * Obtener la campaña al que está vinculado
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function project()
@@ -108,23 +107,23 @@ class Invoice extends Model
 
     /**
      * Obtener el método de pago
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
 
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
-    } 
+    }
 
     /**
      * Obtener el estado de la factura
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
 
     public function invoiceStatus()
     {
         return $this->belongsTo(InvoiceStatus::class, 'invoice_status_id');
-    } 
+    }
 }

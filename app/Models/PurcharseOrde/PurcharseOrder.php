@@ -10,7 +10,7 @@ class PurcharseOrder extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    
+
     protected $table = 'purchase_order';
     /**
      * The attributes that are mass assignable.
@@ -39,4 +39,8 @@ class PurcharseOrder extends Model
     protected $dates = [
         'created_at', 'updated_at', 'deleted_at',
     ];
+
+    public function concepto() {
+        return $this->belongsTo(\App\Models\Budgets\BudgetConcept::class,'budget_concept_id');
+    }
 }

@@ -37,12 +37,11 @@
                     {{-- Recorremos los servicios --}}
                     @foreach ( $categorias as $categoria )
                         <tr>
-                            <td class="px-3" style="width: 70%">{{$categoria->name}}</td>
-                            <td style="width: 20%">{{$categoria->type}}</td>
+                            <td class="px-3" style="width: 60%">{{$categoria->name}}</td>
+                            <td style="width: 20%">{{$categoria->type == 1 ? 'Proveedor': ($categoria->type == 2 ? 'Propio': 'No definido' ) }}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
-                                <a class="" href="{{route('servicios.show', $categoria->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar servicio"></a>
-                                <a class="" href="{{route('servicios.edit', $categoria->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Mostrar servicio"></a>
-                                <a class="delete" data-id="{{$categoria->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Mostrar servicio"></a>
+                                <a class="" href="{{route('serviciosCategoria.edit', $categoria->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar servicio"></a>
+                                <a class="delete" data-id="{{$categoria->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar servicio"></a>
                             </td>
                         </tr>
                     @endforeach

@@ -307,7 +307,7 @@ class BudgetConceptsController extends Controller
 
         $budgetConceptSaved = $budgetConcept->save();
 
-        // Guarda las unidades
+        // Guarda las unidadesº
         foreach( $data['units'] as $unit ) {
             $crearFilaUniadades = BudgetConceptSupplierUnits::create([
                 'budget_concept_id' => $budgetConcept->id,
@@ -372,25 +372,26 @@ class BudgetConceptsController extends Controller
         return redirect(route('presupuesto.edit', $budget));
     }
 
-    public function editTypeSupplier(BudgetConcept $budgetConcept)
+    public function editTypeSupplier(string $id)
     {
+        $budgetConcept = BudgetConcept::find($id);
         $arrayEmails = array();
         $suppliers = Supplier::all();
-        $budget = Budget::where('id', $budgetConcept->budget_id)->get()->first();
+        $presupuesto = Budget::where('id', $budgetConcept->budget_id)->get()->first();
         $budgetSuppliersSaved = BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConcept->id)->get();
-        $services = Service::All();
-        $serviceCategories = ServiceCategories::All();
-        $client = Client::find($budget->client_id);
+        $services = Service::where('services_categories_id', $budgetConcept->services_category_id)->get();
+        $categorias = ServiceCategories::all();
+        $client = Client::find($presupuesto->client_id);
 
-        if(!$client->contacts->isEmpty()){
-            foreach ($client->contacts as $contact) {
+        if(!$client->contacto->isEmpty()){
+            foreach ($client->contacto as $contact) {
                 $arrayEmails[] = $contact->email;
             }
         }
 
         $budgetSupplierSelectedOption = BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConcept->id)->where('selected', 1)->get()->first();
 
-        return view('budget-concepts.editTypeSupplier', compact('budgetConcept', 'budget','suppliers', 'budgetSuppliersSaved', 'budgetSupplierSelectedOption', 'services', 'serviceCategories', 'client', 'arrayEmails'));
+        return view('budgets-concepts.editTypeSupplier', compact('budgetConcept', 'presupuesto','suppliers', 'budgetSuppliersSaved', 'budgetSupplierSelectedOption', 'services', 'categorias', 'client', 'arrayEmails'));
     }
 
     /**** FUNCIONES GLOBALES ****/

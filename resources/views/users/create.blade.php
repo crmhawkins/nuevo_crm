@@ -8,10 +8,8 @@
 
 @section('content')
 
-    <div class="page-heading">
-
-        {{-- Titulos --}}
-        <div class="page-title">
+    <div class="page-heading card" style="box-shadow: none !important" >
+        <div class="page-title card-body">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Crear Usuarios</h3>
@@ -26,12 +24,11 @@
                             <li class="breadcrumb-item active" aria-current="page">Crear usuario</li>
                         </ol>
                     </nav>
-
                 </div>
             </div>
         </div>
 
-        <section class="section">
+        <section class="section mt-4">
             <div class="card">
                 <div class="card-body">
                     <form action="{{route('user.store')}}" method="POST">

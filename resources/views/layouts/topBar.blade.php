@@ -12,7 +12,7 @@
                   <span class="text-white" style="font-size: 0.85rem">0</span>
                 </span>
               </a>
-            
+
             {{-- <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
             </a> --}}
             {{-- <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated dropdown-lg py-0">
@@ -28,7 +28,7 @@
                         </div>
                     </div>
                 </div>
-    
+
                 <div style="max-height: 300px;" data-simplebar="init">
                     <div class="simplebar-wrapper" style="margin: 0px;">
                         <div class="simplebar-height-auto-observer-wrapper">
@@ -38,7 +38,7 @@
                             <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
                                 <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden;">
                                     <div class="simplebar-content" style="padding: 0px;">
-    
+
                                         <!-- item-->
                                         <a href="javascript:void(0);" class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
                                             <div class="card-body">
@@ -55,7 +55,7 @@
                                                 </div>
                                             </div>
                                         </a>
-    
+
                                         <!-- item-->
                                         <a href="javascript:void(0);" class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
                                             <div class="card-body">
@@ -72,7 +72,7 @@
                                                 </div>
                                             </div>
                                         </a>
-    
+
                                         <!-- item-->
                                         <a href="javascript:void(0);" class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
                                             <div class="card-body">
@@ -89,7 +89,7 @@
                                                 </div>
                                             </div>
                                         </a>
-    
+
                                         <!-- item-->
                                         <a href="javascript:void(0);" class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
                                             <div class="card-body">
@@ -106,7 +106,7 @@
                                                 </div>
                                             </div>
                                         </a>
-    
+
                                         <!-- item-->
                                         <a href="javascript:void(0);" class="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
                                             <div class="card-body">
@@ -123,7 +123,7 @@
                                                 </div>
                                             </div>
                                         </a>
-    
+
                                     </div>
                                 </div>
                             </div>
@@ -137,15 +137,15 @@
                         <div class="simplebar-scrollbar" style="height: 0px; display: none;"></div>
                     </div>
                 </div>
-    
+
                 <!-- All-->
                 <a href="javascript:void(0);" class="dropdown-item text-center text-primary text-decoration-underline fw-bold notify-item border-top border-light py-2">
                     View All
                 </a>
-    
+
             </div> --}}
         </li>
-    
+
         <li class="dropdown notification-list">
             <a class="nav-link arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                 <i class="fa-regular fa-bell"></i>
@@ -166,7 +166,7 @@
                         </div>
                     </div>
                 </div>
-    
+
                 <div style="max-height: 300px;" data-simplebar="init">
                     <div class="simplebar-wrapper" style="margin: 0px;">
                         <div class="simplebar-height-auto-observer-wrapper">
@@ -185,7 +185,7 @@
                                                 <small class="noti-time">1 min ago</small>
                                             </p>
                                         </a>
-    
+
                                         <!-- item-->
                                         <a href="javascript:void(0);" class="dropdown-item notify-item">
                                             <div class="notify-icon bg-warning-subtle">
@@ -195,7 +195,7 @@
                                                 <small class="noti-time">5 hours ago</small>
                                             </p>
                                         </a>
-    
+
                                         <!-- item-->
                                         <a href="javascript:void(0);" class="dropdown-item notify-item">
                                             <div class="notify-icon bg-danger-subtle">
@@ -205,7 +205,7 @@
                                                 <small class="noti-time">3 days ago</small>
                                             </p>
                                         </a>
-    
+
                                         <!-- item-->
                                         <a href="javascript:void(0);" class="dropdown-item notify-item">
                                             <div class="notify-icon bg-pink-subtle">
@@ -215,7 +215,7 @@
                                                 <small class="noti-time">4 days ago</small>
                                             </p>
                                         </a>
-    
+
                                         <!-- item-->
                                         <a href="javascript:void(0);" class="dropdown-item notify-item">
                                             <div class="notify-icon bg-purple-subtle">
@@ -225,7 +225,7 @@
                                                 <small class="noti-time">7 days ago</small>
                                             </p>
                                         </a>
-    
+
                                         <!-- item-->
                                         <a href="javascript:void(0);" class="dropdown-item notify-item">
                                             <div class="notify-icon bg-success-subtle">
@@ -248,66 +248,66 @@
                         <div class="simplebar-scrollbar" style="height: 0px; display: none;"></div>
                     </div>
                 </div>
-    
+
                 <!-- All-->
                 <a href="javascript:void(0);" class="dropdown-item text-center text-primary text-decoration-underline fw-bold notify-item border-top border-light py-2">
                     View All
                 </a>
-    
+
             </div>
-        </li>    
+        </li>
         <li class="d-none d-sm-inline-block">
             <div class="nav-link" >
                 <i id="light-dark-mode" class="bi @if($isDarkMode) bi-brightness-high @else bi-moon @endif" style="cursor: pointer;"></i>
             </div>
         </li>
-    
-        {{-- <li class="dropdown">
+
+       <li class="dropdown">
             <a class="nav-link dropdown-toggle arrow-none nav-user" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                 <span class="account-user-avatar">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png" alt="user-image" width="32" class="rounded-circle">
                 </span>
-                <span class="d-lg-block d-none">
+                {{-- <span class="d-lg-block d-none">
                     <h5 class="my-0 fw-normal">Thomson <i class="ri-arrow-down-s-line d-none d-sm-inline-block align-middle"></i></h5>
-                </span>
+                </span> --}}
             </a>
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated profile-dropdown">
                 <!-- item-->
                 <div class="dropdown-header noti-title">
                     <h6 class="text-overflow m-0">Welcome!</h6>
                 </div>
-    
+
                 <!-- item-->
                 <a href="pages-profile.html" class="dropdown-item">
                     <i class="ri-account-circle-line fs-18 align-middle me-1"></i>
                     <span>My Account</span>
                 </a>
-    
+
                 <!-- item-->
                 <a href="pages-profile.html" class="dropdown-item">
                     <i class="ri-settings-4-line fs-18 align-middle me-1"></i>
                     <span>Settings</span>
                 </a>
-    
+
                 <!-- item-->
                 <a href="pages-faq.html" class="dropdown-item">
                     <i class="ri-customer-service-2-line fs-18 align-middle me-1"></i>
                     <span>Support</span>
                 </a>
-    
+
                 <!-- item-->
                 <a href="auth-lock-screen.html" class="dropdown-item">
                     <i class="ri-lock-password-line fs-18 align-middle me-1"></i>
                     <span>Lock Screen</span>
                 </a>
-    
+
                 <!-- item-->
                 <a href="auth-logout-2.html" class="dropdown-item">
                     <i class="ri-logout-box-line fs-18 align-middle me-1"></i>
                     <span>Logout</span>
                 </a>
             </div>
-        </li> --}}
+        </li>
     </ul>
 </nav>
 
@@ -330,7 +330,7 @@
                 console.log('Preferencia de tema guardada.');
                 console.log(isDarkMode)
                 console.log(this)
-                window.location.reload();                
+                window.location.reload();
             } else {
                 console.error('Error al guardar la preferencia de tema.');
             }
@@ -338,4 +338,3 @@
     });
 </script>
 
-  

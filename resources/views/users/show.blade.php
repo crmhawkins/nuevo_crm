@@ -10,10 +10,8 @@
 
 @section('content')
 
-    <div class="page-heading">
-
-        {{-- Titulos --}}
-        <div class="page-title">
+    <div class="page-heading card" style="box-shadow: none !important" >
+        <div class="page-title card-body">
             <div class="row">
                 <div class="col-2">
                 </div>
@@ -47,7 +45,7 @@
             </div>
         </div>
 
-        <section class="section">
+        <section class="section mt-4">
             <div class="card">
                 <div class="card-body">
 
@@ -77,7 +75,7 @@
                                             </div>
                                           </div>
                                         </div>
-                                        <div class="list-group" role="tablist">
+                                        <div class="list-group mb-4" role="tablist">
                                             <a class="list-group-item list-group-item-action active"
                                                 id="list-profile-list" data-bs-toggle="list" href="#list-profile"
                                                 role="tab">Perfil</a>
@@ -122,21 +120,21 @@
                                         </div>
                                       </div>
 
-                                    <div class="col-12 col-sm-12 col-md-8 mt-1">
+                                    <div class="col-sm-12 col-lg-8 mt-1">
                                         <div class="tab-content text-justify" id="nav-tabContent">
                                             <div class="tab-pane show active" id="list-profile" role="tabpanel"
                                                 aria-labelledby="list-profile-list">
                                                 <div class="card-body">
-                                                    <div class="row">
-                                                      <div class="col-sm-3">
+                                                    <div class="row my-2">
+                                                      <div class="col-sm-4">
                                                         <p class="mb-0">Nombre Completo</p>
                                                       </div>
-                                                      <div class="col-sm-9">
+                                                      <div class="col-sm-8">
                                                         <p class="text-muted mb-0">{{$usuario->name}} {{$usuario->surname}}</p>
                                                       </div>
                                                     </div>
                                                     <hr>
-                                                    <div class="row">
+                                                    <div class="row my-2">
                                                       <div class="col-sm-3">
                                                         <p class="mb-0">Email</p>
                                                       </div>
@@ -145,7 +143,7 @@
                                                       </div>
                                                     </div>
                                                     <hr>
-                                                    <div class="row">
+                                                    <div class="row my-2">
                                                         <div class="col-sm-3">
                                                           <p class="mb-0">Nivel de Acceso</p>
                                                         </div>
@@ -154,7 +152,7 @@
                                                         </div>
                                                     </div>
                                                     <hr>
-                                                    <div class="row">
+                                                    <div class="row my-2">
                                                         <div class="col-sm-3">
                                                           <p class="mb-0">Departamento</p>
                                                         </div>
@@ -163,7 +161,7 @@
                                                         </div>
                                                     </div>
                                                     <hr>
-                                                    <div class="row">
+                                                    <div class="row my-2">
                                                         <div class="col-sm-3">
                                                           <p class="mb-0">Cargo</p>
                                                         </div>
@@ -172,7 +170,7 @@
                                                         </div>
                                                     </div>
                                                     <hr>
-                                                    <div class="row">
+                                                    <div class="row my-2">
                                                         <div class="col-sm-3">
                                                           <p class="mb-0">Vacaciones</p>
                                                         </div>
@@ -182,16 +180,16 @@
                                                     </div>
                                                     <hr>
 
-                                                    <div class="row">
+                                                    <div class="row my-2">
                                                         <div class="col-sm-3">
                                                           <p class="mb-0">Productividad</p>
                                                         </div>
                                                         <div class="col-sm-9">
-                                                          <p class="text-muted mb-0">55%</p>
+                                                          <p class="text-muted mb-0">90%</p>
                                                         </div>
                                                     </div>
                                                     <hr>
-                                                    <div class="row">
+                                                    <div class="row my-2">
                                                         <div class="col-sm-3">
                                                           <p class="mb-0">Estado de animo</p>
                                                         </div>
@@ -204,8 +202,40 @@
                                             </div>
                                             <div class="tab-pane" id="list-tareas" role="tabpanel"
                                                 aria-labelledby="list-tareas-list">
-                                                <h5>No tienes tareas</h5>
-
+                                                <h3 class="mb-2 fs-4 text-uppercase">Tareas</h3>
+                                                <hr class="border mb-4" >
+                                                @if (count($usuario->tareas) > 0)
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead class="header-table-other">
+                                                                <th class="px-3" style="font-size:0.75rem">TITULO</th>
+                                                                <th class="" style="font-size:0.75rem">CLIENTE</th>
+                                                                <th class="" style="font-size:0.75rem">ESTIMADO</th>
+                                                                <th class="" style="font-size:0.75rem">REAL</th>
+                                                                <th class="" style="font-size:0.75rem">ESTADO</th>
+                                                                <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ( $usuario->tareas as $tarea )
+                                                                    <tr>
+                                                                        <td>{{$tarea->title}}</td>
+                                                                        <td>{{$tarea->presupuesto->cliente->name}}</td>
+                                                                        <td>{{$tarea->estimated_time}}</td>
+                                                                        <td>{{$tarea->real_time}}</td>
+                                                                        <td>{{$tarea->estado->name}}</td>
+                                                                        <td class="">
+                                                                            <a class="" href="{{route('tarea.edit', $tarea->id)}}"><img class="m-auto" src="{{asset('assets/icons/edit.svg')}}" alt="Editar Tarea"></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                @else
+                                                    <div class="text-center py-4">
+                                                        <h3 class="text-center fs-4">No se encontraron registros de <strong>Tareas</strong></h3>
+                                                    </div>
+                                                @endif
                                             </div>
                                             <div class="tab-pane" id="list-estadisticas" role="tabpanel"
                                                 aria-labelledby="list-estadisticas-list">

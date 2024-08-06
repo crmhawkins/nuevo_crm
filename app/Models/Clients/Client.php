@@ -24,7 +24,6 @@ class Client extends Model
         'contact_id',
         'client_id',
         'company',
-        'name',
         'email',
         'industry',
         'activity',
@@ -85,5 +84,11 @@ class Client extends Model
     }
     public function presupuestos() {
         return $this->hasMany(\App\Models\Budgets\Budget::class);
+    }
+    public function facturas(){
+        return $this->hasMany(\App\Models\Invoices\Invoice::class, 'client_id');
+    }
+    public function dominios(){
+        return $this->hasMany(\App\Models\Dominios\Dominio::class, 'client_id');
     }
 }

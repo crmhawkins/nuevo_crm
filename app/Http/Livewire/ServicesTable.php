@@ -15,7 +15,6 @@ class ServicesTable extends Component
     public $buscar;
     public $selectedCategoria = '';
     public $perPage = 10;
-
     protected $services; // Propiedad protegida para los usuarios
 
     public function mount(){

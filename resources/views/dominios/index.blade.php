@@ -10,7 +10,7 @@
 
 @section('content')
 
-    <div class="page-heading card">
+    <div class="page-heading card" style="box-shadow: none !important" >
 
         {{-- Titulos --}}
         <div class="page-title card-body">

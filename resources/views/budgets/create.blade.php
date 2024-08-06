@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titulo', 'Crear Cliente')
+@section('titulo', 'Crear Presupuesto')
 
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
@@ -8,8 +8,7 @@
 @endsection
 
 @section('content')
-{{var_dump($clienteId)}}
-    <div class="page-heading card">
+    <div class="page-heading card" style="box-shadow: none !important" >
         <div class="page-title card-body">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
@@ -34,6 +33,9 @@
                 <div class="card-body">
                     <form action="{{route('presupuesto.store')}}" method="POST">
                         @csrf
+                        @if (isset($petitionId))
+                        <input type="text" name="petitionId" value="{{$petitionId}}" hidden>
+                        @endif
                         <div class="bloque-formulario">
                             <div class="row">
                                 <div class="col-sm-12 col-md-6">
@@ -41,16 +43,17 @@
                                     <div class="form-group">
                                         <label class="mb-2 text-left">Cliente Asociado</label>
                                         <div class="flex flex-row align-items-start mb-0">
-                                            <select id="cliente" class="choices w-100 form-select @error('client_id') is-invalid @enderror" name="client_id">
+                                            <select id="cliente" class="choices w-100 form-select @error('client_id') is-invalid @enderror" name="client_id" >
                                                 @if ($clientes->count() > 0)
+                                                <option value="">Seleccione un Cliente</option>
                                                     @foreach ( $clientes as $cliente )
-                                                        <option @if($clienteId != null || $clienteId != null) {{'selected'}} @endif data-id="{{$cliente->id}}" value="{{$cliente->id}}">{{$cliente->name}}</option>
+                                                        <option @if($clienteId == $cliente->id) {{'selected'}} @endif data-id="{{$cliente->id}}" value="{{$cliente->id}}">{{$cliente->name}}</option>
                                                     @endforeach
                                                 @else
                                                     <option value="">No existen clientes todavia</option>
                                                 @endif
                                             </select>
-                                            <button id="newClient" type="button" class="btn btn-color-1 ml-3" style="height: fit-content"><i class="fa-solid fa-plus"></i></button>
+                                            <button id="newClient" type="button" class="btn btn-color-1 ml-3" style="height: fit-content" @if(isset($petitionId)){{'disabled'}}@endif><i class="fa-solid fa-plus"></i></button>
                                         </div>
                                         @error('client_id')
                                             <p class="invalid-feedback d-block" role="alert">
@@ -64,12 +67,13 @@
                                     <div class="form-group">
                                         <label class="mb-2 text-left">Campañas</label>
                                         <div class="flex flex-row align-items-start mb-0">
-                                        
-                                            <select class=" form-select w-100 @error('project_id') is-invalid @enderror" name="project_id" disabled id="proyecto">
+
+                                            <select class="form-select w-100 @error('project_id') is-invalid @enderror" name="project_id"  id="proyecto" @if($campanias != null )@if( $campanias->count() < 0){{'disabled'}} @endif @endif >
                                                 @if ($campanias != null)
                                                     @if ($campanias->count() > 0)
+                                                        <option value="{{null}}">Seleccione una Campaña</option>
                                                         @foreach ( $campanias as $campania )
-                                                            <option value="{{$campania->id}}">{{$campania->name}}</option>
+                                                            <option @if(old('project_id', $projectId) == $campania->id) {{'selected'}} @endif value="{{$campania->id}}">{{$campania->name}}</option>
                                                         @endforeach
                                                     @else
                                                         <option value="{{null}}">No existen campañas todavia</option>
@@ -77,7 +81,7 @@
                                                 @else
                                                     <option value="{{null}}">No existen campañas todavia</option>
                                                 @endif
-            
+
                                             </select>
                                             <button id="newCampania" type="button" class="btn btn-color-1 ml-3" style="height: fit-content"><i class="fa-solid fa-plus"></i></button>
                                         </div>
@@ -94,10 +98,10 @@
                                     {{-- Gestor model:User --}}
                                     <div class="form-group mb-3">
                                         <label class="mb-2 text-left">Gestor</label>
-                                        <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id">
+                                        <select class="form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor">
                                             @if ($gestores->count() > 0)
                                                 @foreach ( $gestores as $gestor )
-                                                    <option value="{{$gestor->id}}">{{$gestor->name}}</option>
+                                                    <option @if($gestorId != null || $gestorId == $gestor->id) {{'selected'}} @endif  value="{{$gestor->id}}">{{$gestor->name}}</option>
                                                 @endforeach
                                             @else
                                                 <option value="{{null}}">No existen gestores todavia</option>
@@ -204,12 +208,25 @@
 
 <script type="text/javascript">
     var urlTemplate = "{{ route('campania.createFromBudget', ['cliente' => 'CLIENTE_ID']) }}";
+    var urlTemplatePetition = "{{ route('campania.createFromBudgetAndPetition', ['cliente' => 'CLIENTE_ID','petitionid' => 'PETITION_ID']) }}";
     var urlTemplateCliente = "{{ route('cliente.createFromBudget') }}";
 
 </script>
 
 <script>
     $(document).ready(function() {
+            // Extrae la URL actual
+        var currentUrl = window.location.pathname;
+
+        // Divide la URL en segmentos basados en '/'
+        var segments = currentUrl.split('/');
+
+        // El petitionId es el último segmento en tu estructura de URL
+        // Asegúrate de que el índice sea correcto según tu estructura URL
+        var petitionId = segments[segments.length - 1];
+
+        // Ahora puedes usar petitionId como necesites
+        console.log(petitionId);
         // Boton añadir campaña
         $('#newCampania').click(function(){
             var clientId = $('select[name="client_id"]').val();
@@ -235,8 +252,13 @@
                 return;
             }
 
-            // Abrimos pestaña para crear campaña
-            var finalUrl = urlTemplate.replace('CLIENTE_ID', clientId);
+            var finalUrl = '';
+            if (petitionId && petitionId !== '') {
+                finalUrl = urlTemplatePetition.replace('CLIENTE_ID', clientId).replace('PETITION_ID', petitionId);
+            } else {
+                finalUrl = urlTemplate.replace('CLIENTE_ID', clientId);
+            }
+
             window.open(finalUrl, '_self');
         });
 
@@ -281,8 +303,40 @@
                 }
             });
 
+            $.ajax({
+                url: '{{ route("cliente.getGestor") }}', // Asegúrate de que la URL es correcta
+                type: 'POST',
+                data: {
+                    client_id: clienteId
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+                },
+                success: function(response) {
+                    console.log(response);
+
+                    var select = $('#gestor'); // Reemplaza 'tuSelect' con el ID de tu select
+                    select.val(null); // Deselect any previously selected options
+
+                    if (response.length === 0) {
+                        alert('El cliente no tiene gestor asociado');
+                    } else {
+                        var gestorId = response;
+                        select.val(gestorId); // Automatically select the gestor
+                    }
+
+
+                },
+                error: function(xhr, status, error) {
+                    // Manejo de errores
+                    console.error(error);
+                }
+            });
+
+
         })
     });
+
 </script>
 @endsection
 

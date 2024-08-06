@@ -63,27 +63,31 @@ class Budget extends Model
     public function usuario() {
         return $this->belongsTo(\App\Models\Users\User::class,'admin_user_id');
     }
+
     public function referencia() {
         return $this->belongsTo(\App\Models\Budgets\BudgetReferenceAutoincrement::class,'reference_autoincrement_id');
     }
+
     public function estadoPresupuesto() {
         return $this->belongsTo(\App\Models\Budgets\BudgetStatu::class,'budget_status_id');
     }
+
     public function cliente() {
         return $this->belongsTo(\App\Models\Clients\Client::class,'client_id');
     }
+
     public function proyecto() {
         return $this->belongsTo(\App\Models\Projects\Project::class,'project_id');
     }
+
     public function metodoPago() {
         return $this->belongsTo(\App\Models\PaymentMethods\PaymentMethod::class,'payment_method_id');
     }
 
-    /**
-     * Obtiene los conceptos asociados al presupuesto.
-     */
     public function budgetConcepts()
     {
         return $this->hasMany(BudgetConcept::class, 'budget_id');
     }
+
+
 }

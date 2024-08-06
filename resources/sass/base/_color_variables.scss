@@ -24,6 +24,7 @@ $blanco-gris: #f0f0f0;
 $color-1: #125772;
 $color-2: #41839c;
 $color-3: #88cee7;
+$color-4: #bbc0ca;
 
 $l-primary: #eceffe;
 $l-info: #e6f4ff;
@@ -147,4 +148,7 @@ $body-color: $m-color_19;
 }
 .text-color-3 {
   color: $color-3 !important;
+}
+.text-color-4 {
+  color: $color-4 !important;
 }

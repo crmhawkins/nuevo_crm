@@ -9,8 +9,8 @@
 
 @section('content')
 
-    <div class="page-heading">
-        <div class="page-title">
+    <div class="page-heading card" style="box-shadow: none !important" >
+        <div class="page-title card-body">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Crear Concepto Propio</h3>
@@ -143,9 +143,9 @@
         $('.js-example-basic-single').select2();
 
         // Calcula el total automáticamente
-        $('#units, #price').on('input', function() {
+        $('#units, #sale_price').on('input', function() {
             var units = parseFloat($('#units').val()) || 0;
-            var price = parseFloat($('#price').val()) || 0;
+            var price = parseFloat($('#sale_price').val()) || 0;
             var total = units * price;
             $('#total').val(total.toFixed(2)); // Asumiendo dos decimales
         });

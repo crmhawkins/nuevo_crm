@@ -9,7 +9,7 @@
 
 @section('content')
 
-    <div class="page-heading card">
+    <div class="page-heading card" style="box-shadow: none !important" >
 
         {{-- Titulos --}}
         <div class="page-title card-body">
@@ -30,14 +30,6 @@
 
                 </div>
             </div>
-            {{-- <div class="row mt-3">
-                <div class="col-12 col-md-4 order-md-1 order-last">
-                    @if($servicios->count() >= 0)
-                        <a href="{{route('servicios.create')}}" class="btn btn-primary"><i class="fa-solid fa-plus me-2 mx-auto"></i>  Crear servico</a>
-                    @endif
-                </div>
-
-            </div> --}}
         </div>
 
         <section class="section pt-4">
@@ -58,10 +50,10 @@
                             @if ($servicios->count() >= 0)
                                 @foreach ($servicios as $servicio)
                                     <div class="card border-bottom">
-                                        <div class="card-body">
+                                        <div class="card-body" href="{{route('servicios.edit',$servicio->id)}}">
                                             <h5 class="card-title">{{ $servicio->title }}</h5>
-                                            <p class="card-text">{{ $servicio->concepto->name }}</p>
-                                            <!-- Más contenido de la tarjeta -->
+                                            <p class="card-text">{{ $servicio->concept }}</p>
+                                            <p class="card-text">{{ $servicio->price }}</p>
                                         </div>
                                     </div>
                                 @endforeach

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Services;
 
 use App\Http\Controllers\Controller;
 use App\Models\Services\Service;
+use App\Models\Services\ServiceCategories;
 use Illuminate\Http\Request;
 
 class ServicesController extends Controller
@@ -15,19 +16,77 @@ class ServicesController extends Controller
     }
 
     public function create() {
+        $categorias = ServiceCategories::all();
+        return view('services.create', compact('categorias'));
+    }
+
+
+    public function store(Request $request) {
+
+        // Validamos los campos
+        $data = $this->validate($request, [
+            'title' => 'required|max:255',
+            'services_categories_id' => 'required|integer',
+            'concept' => 'required|max:255',
+            'price' => 'required|numeric',
+        ], [
+            'title.required' => 'El titulo es requerido para continuar',
+            'title.max' => 'El titulo no pueder tener mas de 255 caracteres',
+            'services_categories_id.required' => 'La categoria es requerida para continuar',
+            'concept.required' => 'El concepto es requerido para continuar',
+            'concept.max' => 'El concepto no pueder tener mas de 255 caracteres',
+            'price.required' => 'El precio es requerido para continuar',
+            'price.numeric' => 'El precio deve ser un numero',
+        ]);
+
+        $data['estado'] = 1;
+        $data['order'] = 1;
+
+        $servicioCreado = Service::create($data);
+
+
+        return redirect()->route('servicios.edit', $servicioCreado->id)->with('toast', [
+                'icon' => 'success',
+                'mensaje' => 'El servicio creado con exito'
+        ]);
 
     }
 
-    public function store() {
-
+    public function edit(string $id){
+        $servicio = Service::find($id);
+        $categorias = ServiceCategories::all();
+        if (!$servicio) {
+            session()->flash('toast', [
+                'icon' => 'error',
+                'mensaje' => 'El servicio no existe'
+            ]);
+            return redirect()->route('servicios.index');
+        }
+        return view('services.edit', compact('servicio','categorias'));
     }
 
-    public function edit() {
+    public function update(string $id ,Request $request) {
+        $servicio = Service::find($id);
+        $data = $this->validate($request, [
+            'title' => 'required|max:255',
+            'services_categories_id' => 'required|integer',
+            'concept' => 'required|max:255',
+            'price' => 'required|numeric',
+        ], [
+            'title.required' => 'El titulo es requerido para continuar',
+            'title.max' => 'El titulo no pueder tener mas de 255 caracteres',
+            'services_categories_id.required' => 'La categoria es requerida para continuar',
+            'concept.required' => 'El concepto es requerido para continuar',
+            'concept.max' => 'El concepto no pueder tener mas de 255 caracteres',
+            'price.required' => 'El precio es requerido para continuar',
+            'price.numeric' => 'El precio deve ser un numero',
+        ]);
 
-    }
-
-    public function update() {
-
+        $petitionCreado = $servicio->update($data);
+        return redirect()->route('servicios.index')->with('toast', [
+                'icon' => 'success',
+                'mensaje' => 'El servicio actualizado con exito'
+        ]);
     }
 
     public function destroy(Request $request) {
@@ -48,29 +107,6 @@ class ServicesController extends Controller
         ]);
     }
 
-    // CATEGORIA DE SERVICIOS
-    public function servicesCategories() {
 
-    }
-
-    public function servicesCategoriesCreate() {
-
-    }
-
-    public function servicesCategoriesEdit() {
-
-    }
-
-    public function servicesCategoriesStore() {
-
-    }
-
-    public function servicesCategoriesUpdate() {
-
-    }
-
-    public function servicesCategoriesDestroy() {
-
-    }
 
 }

@@ -9,8 +9,8 @@
 
 @section('content')
 
-    <div class="page-heading">
-        <div class="page-title">
+    <div class="page-heading card" style="box-shadow: none !important" >
+        <div class="page-title card-body">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Crear Concepto de Proveedor</h3>
@@ -42,7 +42,7 @@
                                 <option value="{{null}}">Seleccione una categoria</option>
 
                                 @foreach ($categorias as $categoria)
-                                    <option value="{{$categoria->id}}">{{$categoria->name}}</option>
+                                    <option value="{{$categoria->id}}" {{$budgetConcept->services_category_id == $categoria->id ? 'selected' : ''}}>{{$categoria->name}}</option>
                                 @endforeach
                             </select>
                             @error('services_category_id')
@@ -56,7 +56,10 @@
                         <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="service_id">Servicio:</label>
                             <select class="js-example-basic-single form-control @error('service_id') is-invalid @enderror" name="service_id" >
-                                <option value="{{null}}">Seleccione una categoria</option>
+                                <option value="{{null}}">Seleccione un servicio</option>
+                                    @foreach ($services as $service)
+                                        <option value="{{$service->id}}" {{$budgetConcept->service_id == $service->id ? 'selected' : ''}}>{{$service->title}}</option>
+                                    @endforeach
                             </select>
                             @error('service_id')
                                     <span class="invalid-feedback" role="alert">
@@ -68,7 +71,7 @@
                         {{-- Titulo --}}
                         <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="title">Titulo:</label>
-                            <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" value="{{ old('title') }}" name="title">
+                            <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" value="{{old('title', $budgetConcept->title)}}" name="title">
                             @error('title')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -79,7 +82,7 @@
                         {{-- Concepto --}}
                         <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="concept">Concepto:</label>
-                            <textarea class="form-control @error('concept') is-invalid @enderror" id="concept" name="concept"></textarea>
+                            <textarea class="form-control @error('concept') is-invalid @enderror" id="concept"  name="concept">{{ old('concept', $budgetConcept->concept) }}</textarea>
                             @error('concept')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -88,9 +91,9 @@
                         </div>
 
                         {{-- Unidades --}}
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="units">Unidades:</label>
-                            <input type="double" class="form-control @error('units') is-invalid @enderror" id="units" value="{{ old('units') }}" name="units">
+                            <input type="double" class="form-control @error('units') is-invalid @enderror" id="units" value="{{old('units', $budgetConcept->units)}}" name="units">
                             @error('units')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -114,7 +117,7 @@
                                 <label class="text-uppercase" style="font-weight: bold; display:block" for="em">Enviar email a todos los proveedores:</label>
                                 <input class="form-check-input" type="checkbox" id="checkMail" name="checkMail" value="true" style="height:20px;width:20px;">
                                 <label class="form-check-label" for="checkMail">
-                                   Si
+                                    Si
                                 </label>
                                 <small class="text-muted d-block">Enviara el email a la lista de proveedores con los archivos adjuntos de la opcion de arriba.</small>
                                 @error('checkMail')
@@ -126,9 +129,9 @@
                             <div class="col-md-6">
                                 {{-- Precio --}}
                                 <div class="form-group">
-                                    <label class="text-uppercase" style="font-weight: bold" for="sale_price">Precio:</label>
-                                    <input type="double" class="form-control @error('sale_price') is-invalid @enderror" id="sale_price" value="{{ old('sale_price') }}" name="sale_price">
-                                    @error('sale_price')
+                                    <label class="text-uppercase" style="font-weight: bold" for="purchase_price">Precio:</label>
+                                    <input type="double" class="form-control @error('purchase_price') is-invalid @enderror" id="purchase_price" value="{{ old('purchase_price') }}" name="purchase_price">
+                                    @error('purchase_price')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
                                             </span>
@@ -141,8 +144,8 @@
                             {{-- Margen --}}
                             <div class="form-group col-md-6">
                                 <label class="text-uppercase" style="font-weight: bold" for="total">Margen %:</label>
-                                <input type="double" class="form-control @error('total') is-invalid @enderror" id="total" value="{{ old('total') }}" name="total">
-                                @error('total')
+                                <input type="double" class="form-control @error('benefit_margin') is-invalid @enderror" id="benefit_margin" value="{{ old('benefit_margin', 50) }}" name="benefit_margin">
+                                @error('benefit_margin')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>
@@ -150,9 +153,9 @@
                             </div>
                             {{-- Total --}}
                             <div class="form-group col-md-6">
-                                <label class="text-uppercase" style="font-weight: bold" for="total">Total (Precio + Margen):</label>
-                                <input type="double" class="form-control @error('total') is-invalid @enderror" id="total" value="{{ old('total') }}" name="total" readonly >
-                                @error('total')
+                                <label class="text-uppercase" style="font-weight: bold" for="sale_price">Total (Precio + Margen):</label>
+                                <input type="double" class="form-control @error('sale_price') is-invalid @enderror" id="sale_price" value="{{ old('sale_price') }}" name="sale_price" readonly >
+                                @error('sale_price')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>
@@ -160,7 +163,7 @@
                             </div>
                         </div>
 
-                        <div class="col-12 form-group ">
+                        <div class="col-12 form-group mt-3">
                             <div class="col-12 form-group">
                                 <div class="row">
                                     <label class="text-uppercase" style="font-weight: bold" for="total">Proveedores:</label>
@@ -171,7 +174,7 @@
                                                 <option value="">-- Seleccione proveedor--</option>
                                                 @if($suppliers)
                                                     @foreach ($suppliers as $supplier)
-                                                        <option value="{{ $supplier->id }}" >{{ $supplier->name }}</option>
+                                                        <option value="{{ $supplier->id }}"  {{$budgetSuppliersSaved->where('option_number',1)->first()->id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
@@ -186,7 +189,7 @@
                                                 <option value="">-- Seleccione proveedor--</option>
                                                 @if($suppliers)
                                                     @foreach ($suppliers as $supplier)
-                                                        <option value="{{ $supplier->id }}" >{{ $supplier->name }}</option>
+                                                        <option value="{{ $supplier->id }}" {{$budgetSuppliersSaved->where('option_number',2)->first()->id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
@@ -201,7 +204,7 @@
                                                 <option value="">-- Seleccione proveedor--</option>
                                                 @if($suppliers)
                                                     @foreach ($suppliers as $supplier)
-                                                        <option value="{{ $supplier->id }}" >{{ $supplier->name }}</option>
+                                                        <option value="{{ $supplier->id }}" {{$budgetSuppliersSaved->where('option_number',3)->first()->id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
@@ -260,11 +263,13 @@
         $('.js-example-basic-single').select2();
         $('.choices').select2();
         // Calcula el total automáticamente
-        $('#units, #price').on('input', function() {
+        $('#units, #purchase_price, #benefit_margin').on('input', function() {
             var units = parseFloat($('#units').val()) || 0;
-            var price = parseFloat($('#price').val()) || 0;
-            var total = units * price;
-            $('#total').val(total.toFixed(2)); // Asumiendo dos decimales
+            var price = parseFloat($('#purchase_price').val()) || 0;
+            var margin = parseFloat($('#benefit_margin').val()) || 0;
+            var preciodeunidades = units * price;
+            var total = preciodeunidades *(1 + margin/100)
+            $('#sale_price').val(total.toFixed(2)); // Asumiendo dos decimales
         });
     });
 
@@ -326,42 +331,7 @@
         textarea.style.height = textarea.scrollHeight + "px"; // Ajusta al contenido actual
     }
 
-
     $(document).ready(function() {
-        // Boton añadir campaña
-        $('#newCampania').click(function(){
-            var clientId = $('select[name="client_id"]').val();
-            if (clientId == '' || clientId == null) {
-                // Alerta Toast de error
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.onmouseenter = Swal.stopTimer;
-                        toast.onmouseleave = Swal.resumeTimer;
-                    }
-                });
-                // Lanzamos la alerta
-                Toast.fire({
-                    icon: "error",
-                    title: "Por favor, selecciona un cliente."
-                });
-                return;
-            }
-
-            // Abrimos pestaña para crear campaña
-            window.open("{{ route('campania.createFromBudget', 0) }}", '_blank');
-        });
-
-        // Boton añadir cliente
-        $('#newClient').click(function(){
-
-            // Abrimos pestaña para crear campaña
-            window.open("{{ route('campania.createFromBudget', 0) }}", '_blank');
-        });
 
         $("#supplierPrice1").inputFilter(function(value) {
             return /^-?\d*[.]?\d{0,2}$/.test(value);

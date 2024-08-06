@@ -1,22 +1,22 @@
 @import './base/color_variables';
- 
+
 
 body.dark-mode  {
     background-color: $bg-dark;
     font-family: "Lato",sans-serif;
 }
-
 body.dark-mode .card-body {
     background-color: $bg-card-dark;
-    border-radius: 0.7rem;
-
 }
 .page-title h3 {
     color: $title-dark;
     font-size: 22px;
-
 }
-
+.top-burguer a i {
+    font-size: 2rem;
+    padding-left: 1rem;
+    color: $title-dark;
+}
 .form-primary label {
     color: $title-dark;
 }
@@ -42,6 +42,9 @@ body.dark-mode .card-body {
     padding-bottom: 0.75rem;
     background-color: $bg-top-dark;
     box-shadow: 0 1px 3px rgba(27, 23, 30, 0.1);
+    display: flex;
+    border-radius: 7px;
+    margin: 1.5rem 1.5rem 0 1.5rem;
 }
 
 .topbar-menu i{
@@ -68,12 +71,6 @@ a:hover {
     background-color: $white;
 }
 
-.top-burguer a i {
-    font-size: 2rem;
-    padding-left: 1rem;
-    color: $title-dark;
-
-}
 
 tbody, td, tfoot, th, thead, tr {
     border-color: $border;

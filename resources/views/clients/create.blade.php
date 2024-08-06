@@ -10,7 +10,7 @@
 
 @section('content')
 
-    <div class="page-heading card">
+    <div class="page-heading card" style="box-shadow: none !important" >
 
         {{-- Titulos --}}
         <div class="page-title card-body p-3">
@@ -28,7 +28,6 @@
                             <li class="breadcrumb-item active" aria-current="page">Crear cliente</li>
                         </ol>
                     </nav>
-
                 </div>
             </div>
         </div>
@@ -43,17 +42,17 @@
                             <div class="row">
                                 <div class="col-sm-12 col-md-4">
                                     <div class="form-group">
-                                        <label for="name">Nombre:</label>
-                                        <input placeholder="Nombre de la compañia" type="text" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name') }}" name="name">
+                                        <label for="name">Nombre del contacto</label>
+                                        <input placeholder="Nombre y Apellildos" type="text" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name') }}" name="name">
                                         @error('name')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
                                         @enderror
                                     </div>
-                                    
+
                                     <div class="form-group mt-2">
-                                        <label for="email">Email:</label>
+                                        <label for="email">Email de contacto:</label>
                                         <input placeholder="Direccion de correo electronico" type="text" class="form-control @error('email') is-invalid @enderror" id="email" value="{{ old('email') }}" name="email">
                                         @error('email')
                                                 <span class="invalid-feedback" role="alert">
@@ -70,10 +69,10 @@
                                                 </span>
                                         @enderror
                                     </div>
-                                    <div class="form-group mt-2">
-                                        <label for="cif">CIF/DNI:</label>
-                                        <input placeholder="CIF/DNI" type="text" class="form-control @error('cif') is-invalid @enderror" id="cif" value="{{ old('cif') }}" name="cif">
-                                        @error('cif')
+                                    <div class="form-group boton-picker mt-2">
+                                        <label for="birthdate">Fecha de alta</label>
+                                        <input autocomplete="no" placeholder="Fecha de alta como cliente..." id="datepicker" type="text" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" value="{{ old('birthdate', Carbon\Carbon::now()->format('d/m/Y')) }}" name="birthdate">
+                                        @error('birthdate')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
@@ -88,18 +87,10 @@
                                                 </span>
                                         @enderror
                                     </div>
-                                    <div class="form-group mt-2">
-                                        <label for="industry">Industria:</label>
-                                        <input placeholder="Industria a la que pertenece..." type="text" class="form-control @error('industry') is-invalid @enderror" id="industry" value="{{ old('industry') }}" name="industry">
-                                        @error('industry')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                        @enderror
-                                    </div>
+
                                 </div>
+
                                 <div class="col-sm-12 col-md-4">
-                                    
                                     <div class="form-group">
                                         <label for="activity">Actividad:</label>
                                         <input placeholder="Actividad de la empresa..." type="text" class="form-control @error('activity') is-invalid @enderror" id="activity" value="{{ old('activity') }}" name="activity">
@@ -110,6 +101,78 @@
                                         @enderror
                                     </div>
                                     <div class="form-group mt-2">
+                                        <label for="phone">Teléfono movil:</label>
+                                        <input placeholder="Telefono movil..." type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" value="{{ old('phone') }}" name="phone">
+                                        @error('phone')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group mt-2">
+                                        <label for="cif">CIF/DNI:</label>
+                                        <input placeholder="CIF/DNI" type="text" class="form-control @error('cif') is-invalid @enderror" id="cif" value="{{ old('cif') }}" name="cif">
+                                        @error('cif')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group mt-2">
+                                        <label for="web">Web:</label>
+                                        <input placeholder="Pagina web..." type="text" class="form-control @error('web') is-invalid @enderror" id="web" value="{{ old('web') }}" name="web">
+                                        @error('web')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                        @enderror
+                                    </div>
+                                    {{-- <h3 class="mt-3 mb-2 text-center uppercase">Cliente Asociado</h3>
+                                    <hr> --}}
+                                    <div class="form-group mt-3">
+                                        <label for="client_id">Cliente Asociado:</label>
+                                        <select class="choices form-select" name="client_id">
+                                            @if ($clientes->count() > 0)
+                                                <option value="{{null}}">Seleccione un cliente asociado</option>
+                                                @foreach ( $clientes as $cliente )
+                                                    <option @if(old('client_id') == $cliente->id) {{'selected'}} @endif value="{{$cliente->id}}">{{$cliente->name}}</option>
+                                                @endforeach
+                                            @else
+                                                <option value="{{null}}">No existen clientes todavia</option>
+                                            @endif
+                                        </select>
+                                    </div>
+                                    <div class="form-group mt-4">
+                                        <div class="form-floating" >
+                                            <textarea class="form-control" placeholder="Escribe la anotación..."
+                                                id="floatingTextarea" name="notes" rows="5">{{old('notes')}}</textarea>
+                                            <label for="floatingTextarea">Notas</label>
+                                        </div>
+                                        @error('notes')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-4">
+                                    <div class="form-group select-wrapper w-100">
+                                        <label for="admin_user_id">Gestor:</label>
+                                        <select class="form-select w-100 @error('admin_user_id') is-invalid @enderror" id="admin_user_id" name="admin_user_id">
+                                            <option value="{{null}}">Seleccione el gestor del cliente</option>
+                                            @foreach ( $gestores as $gestor )
+                                                <option @if( old('admin_user_id') == $gestor->id ) selected @endif value="{{$gestor->id}}">{{$gestor->name}} {{$gestor->surname}}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('admin_user_id')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group mt-2">
                                         <label for="address">Dirección:</label>
                                         <input placeholder="Direccion de la empresa..." type="text" class="form-control @error('address') is-invalid @enderror" id="address" value="{{ old('address') }}" name="address">
                                         @error('address')
@@ -118,15 +181,21 @@
                                                 </span>
                                         @enderror
                                     </div>
-                                    <div class="form-group mt-2">
+
+                                    <div class="form-group mt-3">
                                         <label for="country">Pais:</label>
-                                        <input placeholder="Pais de la empresa..." type="text" class="form-control @error('country') is-invalid @enderror" id="country" value="{{ old('country') }}" name="country">
-                                        @error('country')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                        @enderror
+                                        <select class="choices form-select" name="country">
+                                            @if ($countries->count() > 0)
+                                                <option value="{{null}}">Seleccione un pais </option>
+                                                @foreach ( $countries as $country )
+                                                    <option @if(old('country') == $country->name) {{'selected'}} @endif value="{{$country->name}}" >{{$country->name}}</option>
+                                                @endforeach
+                                            @else
+                                                <option value="{{null}}">No existen clientes todavia</option>
+                                            @endif
+                                        </select>
                                     </div>
+
                                     <div class="form-group mt-2">
                                         <label for="city">Ciudad:</label>
                                         <input placeholder="Ciudad..." type="text" class="form-control @error('city') is-invalid @enderror" id="city" value="{{ old('city') }}" name="city">
@@ -154,83 +223,11 @@
                                                 </span>
                                         @enderror
                                     </div>
-                                    
-                                </div>
-                                <div class="col-sm-12 col-md-4">
-                                    <div class="form-group select-wrapper w-100">
-                                        <label for="admin_user_id">Gestor:</label>
-                                        <select class="form-select w-100 @error('admin_user_id') is-invalid @enderror" id="admin_user_id" name="admin_user_id">
-                                            <option value="{{null}}">Seleccione el gestor del cliente</option>
-                                            @foreach ( $gestores as $gestor )
-                                                <option @if($gestor->id == old('admin_user_id')) selected @endif value="{{$gestor->id}}">{{$gestor->name}} {{$gestor->surname}}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('admin_user_id')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group boton-picker mt-2">
-                                        <label for="birthdate">Fecha de Nacimiento / creación de la empresa:</label>
-                                        <input autocomplete="no" placeholder="Fecha de creacion de la empresa..." id="datepicker" type="text" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" value="{{ old('birthdate') }}" name="birthdate">
-                                        @error('birthdate')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div class="form-group mt-2">
-                                        <label for="phone">Teléfono principal:</label>
-                                        <input placeholder="Telefono principal..." type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" value="{{ old('phone') }}" name="phone">
-                                        @error('phone')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group mt-2">
-                                        <label for="web">Web:</label>
-                                        <input placeholder="Pagina web..." type="text" class="form-control @error('web') is-invalid @enderror" id="web" value="{{ old('web') }}" name="web">
-                                        @error('web')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                        @enderror
-                                    </div>
-                                    {{-- <h3 class="mt-3 mb-2 text-center uppercase">Cliente Asociado</h3>
-                                    <hr> --}}
-                                    <div class="form-group mt-3">
-                                        <label for="client_id">Cliente Asociado:</label>
-                                        <select class="choices form-select" name="client_id">
-                                            @if ($clientes->count() > 0)
-                                                <option value="{{null}}">Seleccione un cliente asociado</option>
-                                                @foreach ( $clientes as $cliente )
-                                                    <option value="{{$cliente->id}}">{{$cliente->name}}</option>
-                                                @endforeach
-                                            @else
-                                                <option value="{{null}}">No existen clientes todavia</option>
-                                            @endif
-                                        </select>
-                                    </div>
-                                    <div class="form-group mt-4">
-                                        <div class="form-floating" >
-                                            <textarea class="form-control" placeholder="Escribe la anotación..."
-                                                id="floatingTextarea" name="notes" rows="5"></textarea>
-                                            <label for="floatingTextarea">Notas</label>
-                                        </div>
-                                        @error('notes')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                        @enderror
-                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        
+
+
                         <div class="row">
                             <div class="col-md-6 col-sm-12">
                                 <div class="w-100">
@@ -247,10 +244,10 @@
                                     <div class="form-group mt-3">
                                         <h5 hidden id="labelAssociateNew" for="associated_contact_new" class="mb-2">Creación de nuevo/s contacto/s:</h5>
                                         <div class="col-12 form-group" id="dynamic_field_associated_contact_new">
-                                            
+
                                         </div>
                                     </div>
-    
+
                                 </div>
                                 <div class="w-100">
                                     <div class="d-flex align-items-center mt-4">
@@ -272,12 +269,12 @@
                                             {{-- <i class="bi bi-telephone text-info fs-4 mr-2"></i>  --}}
                                             Telefonos extra
                                         </h3>
-    
+
                                     </div>
-                                    
+
                                     <div class="col-12 form-group mt-4" id="dynamic_field_phones">
                                     </div>
-    
+
                                 </div>
                                 <div class="w-100">
                                     <div class="d-flex align-items-center mt-4">
@@ -286,11 +283,11 @@
                                             {{-- <i class="bi bi-globe-americas text-info fs-4 mr-2"></i> --}}
                                             Webs extra
                                         </h3>
-    
+
                                     </div>
                                     <div class="col-12 form-group mt-4" id="dynamic_field_webs">
                                     </div>
-                                </div> 
+                                </div>
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <h3 class="mt-3 mb-2 text-center uppercase"><i class="bi bi-share text-color-2 mr-4 fs-4"></i>Redes Sociales</h3>
@@ -343,7 +340,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
 
                         <div class="form-group mt-5">

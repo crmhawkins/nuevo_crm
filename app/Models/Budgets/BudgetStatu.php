@@ -31,4 +31,19 @@ class BudgetStatu extends Model
     protected $dates = [
         'created_at', 'updated_at', 'deleted_at',
     ];
+
+    // Para los ID
+     /**
+     * TIPO CONCEPTO: Proveedor
+     *
+     * @var string
+     */
+    const PENDING_CONFIRMATION = 1;
+
+    /**
+     * TIPO CONCEPTO: Propio
+     *
+     * @var string
+     */
+    const PENDING_ACCEPT = 2;
 }
