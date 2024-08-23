@@ -15,14 +15,12 @@ return new class extends Migration
     {
         Schema::create('jornadas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('admin_user_id');
+            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade');
             $table->timestamp('start_time');
             $table->timestamp('end_time')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('admin_user_id')->references('id')->on('admin_users')->onDelete('cascade');
         });
     }
 

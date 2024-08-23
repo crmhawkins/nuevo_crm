@@ -13,8 +13,7 @@ return new class extends Migration
     {
         //holidays_additions
         Schema::create('holidays_additions', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->id();            $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->double('quantity_before',8,2)->nullable();
             $table->double('quantity_to_add',8,2)->nullable();
             $table->double('quantity_now',8,2)->nullable();
@@ -22,7 +21,7 @@ return new class extends Migration
             $table->tinyInteger('holiday_petition')->nullable();
 
             $table->foreign('admin_user_id')->references('id')->on('admin_users');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

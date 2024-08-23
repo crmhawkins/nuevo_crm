@@ -12,17 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('crm_activities_calls', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->id();            $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->tinyInteger('fail')->nullable();
             $table->string('subject')->nullable();
             $table->date('date')->nullable();
             $table->text('description')->nullable();
- 
+
             $table->foreign('admin_user_id')->references('id')->on('admin_users');
             $table->foreign('client_id')->references('id')->on('clients');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

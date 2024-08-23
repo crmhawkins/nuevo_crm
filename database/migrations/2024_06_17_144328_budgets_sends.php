@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('budgets_sends', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
+            $table->id();
             $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->unsignedBigInteger('budget_id')->nullable();
             $table->unsignedBigInteger('budget_reference')->nullable();
@@ -23,12 +23,12 @@ return new class extends Migration
             $table->string('IP')->nullable();
             $table->tinyInteger('file_delete')->nullable();
             $table->text('emails')->nullable();
- 
+
             $table->foreign('admin_user_id')->references('id')->on('admin_users');
             $table->foreign('budget_id')->references('id')->on('budgets');
             $table->foreign('budget_reference')->references('id')->on('budgets_reference');
             $table->foreign('client_id')->references('id')->on('clients');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

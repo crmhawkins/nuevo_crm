@@ -13,10 +13,9 @@ return new class extends Migration
     {
         //dominios
         Schema::table('dominios', function (Blueprint $table) {
-            
-            $table->unsignedBigInteger('estado_id')->nullable();
-            $table->foreign('estado_id')->references('id')->on('estados_dominios');
-            
+
+            $table->foreignId('estado_id')->constrained('estados_dominios')->onDelete('cascade')->nullable();
+
         });
     }
 

@@ -13,18 +13,19 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('admin_user_id')->unsigned();
+            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade');
+            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade')->nullable();
+            $table->foreignId('project_id')->constrained('budgets')->onDelete('cascade')->nullable();
+            $table->foreignId('budget_id')->constrained('projects')->onDelete('cascade')->nullable();
             $table->string('title');
-            $table->string('url')->nullable();
+            $table->string('descripcion')->nullable();
             $table->string('color')->nullable();
             $table->timestamp('start');
             $table->timestamp('end')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_users')->onDelete('cascade');
         });
-
     }
 
     /**

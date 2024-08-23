@@ -13,8 +13,7 @@ return new class extends Migration
     {
         //holidays_status
         Schema::create('holidays_status', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->string('name')->nullable();
+            $table->id();            $table->string('name')->nullable();
             $table->timestamps();
         });
     }

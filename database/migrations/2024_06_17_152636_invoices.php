@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('client_id')->nullable();
             $table->unsignedBigInteger('project_id')->nullable();
             $table->unsignedBigInteger('payment_method_id')->nullable();
-            $table->unsignedInteger('invoice_status_id')->default(1);
+            $table->foreignId('invoice_status_id')->default(1);
 
             $table->string('concept', 191)->nullable();
             $table->text('description')->nullable();
@@ -50,7 +50,7 @@ return new class extends Migration
             $table->foreign('project_id')->references('id')->on('projects');
             $table->foreign('payment_method_id')->references('id')->on('payment_method');
             $table->foreign('invoice_status_id')->references('id')->on('invoice_status');
-            
+
             $table->timestamps();
             $table->softDeletes();
         });

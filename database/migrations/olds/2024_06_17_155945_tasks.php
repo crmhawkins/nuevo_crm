@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tasks', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('admin_user_id')->nullable();
-            $table->unsignedBigInteger('gestor_id')->nullable();
-            $table->unsignedBigInteger('priority_id')->nullable();
-            $table->unsignedBigInteger('project_id')->nullable();
-            $table->unsignedBigInteger('budget_id')->nullable();
-            $table->unsignedBigInteger('budget_concept_id')->nullable();
-            $table->unsignedBigInteger('task_status_id')->nullable();
-            $table->unsignedBigInteger('split_master_task_id')->nullable();
+            $table->id();
+            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade')->nullable();
+            $table->foreignId('gestor_id')->constrained('admin_users')->onDelete('cascade')->nullable();
+            $table->foreignId('priority_id')->constrained('priority')->onDelete('cascade')->nullable();
+            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade')->nullable();
+            $table->foreignId('budget_id')->constrained('budgets')->onDelete('cascade')->nullable();
+            $table->foreignId('budget_concept_id')->constrained('budget_concepts')->onDelete('cascade')->nullable();
+            $table->foreignId('task_status_id')->constrained('task_status')->onDelete('cascade')->nullable();
+            $table->foreignId('split_master_task_id')->constrained('tasks')->onDelete('cascade')->nullable();
 
             $table->tinyInteger('duplicated')->nullable();
             $table->text('description')->nullable();
@@ -28,15 +28,6 @@ return new class extends Migration
             $table->time('real_time')->nullable();
             $table->string('title')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
-            $table->foreign('gestor_id')->references('id')->on('admin_users');
-            $table->foreign('priority_id')->references('id')->on('priority');
-            $table->foreign('project_id')->references('id')->on('projects');
-            $table->foreign('budget_id')->references('id')->on('budgets');
-            $table->foreign('budget_concept_id')->references('id')->on('budget_concepts');
-            $table->foreign('task_status_id')->references('id')->on('task_status');
-            $table->foreign('split_master_task_id')->references('id')->on('tasks');
- 
             $table->timestamps();
             $table->softDeletes();
         });

@@ -46,4 +46,10 @@ class Project extends Model
     public function prioridad() {
         return $this->belongsTo(\App\Models\Prioritys\Priority::class,'priority_id');
     }
+    public function presupuestos(){
+        return $this->hasMany(\App\Models\Budgets\Budget::class, 'project_id');
+    }
+    public function presupuestosPorEstado($estadoId) {
+        return $this->presupuestos()->where('budget_status_id', $estadoId)->get();
+    }
 }

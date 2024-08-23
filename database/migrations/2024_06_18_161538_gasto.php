@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('gastos', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('payment_method_id')->nullable();
-            $table->unsignedInteger('bank_id')->nullable();
+            $table->id();
+            $table->foreignId('payment_method_id')->constrained('payment_method')->onDelete('cascade')->nullable();
+            $table->foreignId('bank_id')->constrained('bank_accounts')->onDelete('cascade')->nullable();
             $table->string('title')->collation('utf8_unicode_ci')->nullable();
             $table->float('quantity',10,2)->nullable();
             $table->date('received_date')->nullable();
@@ -22,9 +22,6 @@ return new class extends Migration
             $table->string('reference')->nullable();
             $table->enum('state',['PAGADO','PENDIENTE']);
             $table->string('state');
-
-            $table->foreign('bank_id')->references('id')->on('bank_accounts');
-            $table->foreign('payment_method_id')->references('id')->on('payment_method');
 
             $table->timestamps();
             $table->softDeletes();

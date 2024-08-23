@@ -4,6 +4,14 @@ namespace App\Models\Users;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Clients\Client;
+use App\Models\Contratos\Contrato;
+use App\Models\Holidays\Holidays;
+use App\Models\Holidays\HolidaysPetitions;
+use App\Models\Nominas\Nomina;
+use App\Models\Projects\Project;
+use App\Models\Todo\Todo;
+use App\Models\Todo\TodoUsers;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -73,14 +81,35 @@ class User extends Authenticatable
     public function tareas(){
         return $this->hasMany(\App\Models\Tasks\Task::class, 'admin_user_id');
     }
+    public function nominas(){
+        return $this->hasMany(Nomina::class, 'admin_user_id');
+    }
+    public function contratos(){
+        return $this->hasMany(Contrato::class, 'admin_user_id');
+    }
+    public function vacaciones(){
+        return $this->hasMany(HolidaysPetitions::class, 'admin_user_id');
+    }
+    public function vacacionesDias(){
+        return $this->hasMany(Holidays::class, 'admin_user_id');
+    }
     public function tareasGestor(){
         return $this->hasMany(\App\Models\Tasks\Task::class, 'gestor_id');
     }
     public function presupuestos(){
         return $this->hasMany(\App\Models\Budgets\Budget::class, 'admin_user_id');
     }
+    public function campañas(){
+        return $this->hasMany(Project::class, 'admin_user_id');
+    }
+    public function clientes(){
+        return $this->hasMany(Client::class, 'admin_user_id');
+    }
     public function peticiones(){
         return $this->hasMany(\App\Models\Petitions\Petition::class, 'admin_user_id');
+    }
+    public function todos() {
+        return $this->hasManyThrough(Todo::class,TodoUsers::class,'admin_user_id', 'id', 'id','todo_id');
     }
 
     public function presupuestosPorEstado($estadoId) {

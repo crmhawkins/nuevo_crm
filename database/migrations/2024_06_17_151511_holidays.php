@@ -12,13 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('holidays', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->id();            $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->double('quantity',8,2)->nullable();
             $table->tinyInteger('first_period')->nullable();
 
             $table->foreign('admin_user_id')->references('id')->on('admin_users');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

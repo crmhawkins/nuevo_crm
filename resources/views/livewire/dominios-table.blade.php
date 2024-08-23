@@ -64,15 +64,10 @@
                     <th class="" style="font-size:0.75rem">FECHA CONTRATACION</th>
                     <th class="" style="font-size:0.75rem">FECHA VENCIMIENTO</th>
                     <th class="" style="font-size:0.75rem">ESTADO</th>
-                    {{-- <th class="" style="font-size:0.75rem">CAMPAÑA</th>
-                    <th class="" style="font-size:0.75rem">ESTADO</th>
-                    <th class="" style="font-size:0.75rem">TOTAL</th>
-                    <th class="" style="font-size:0.75rem">GESTOR</th> --}}
                     <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
                     @foreach ( $dominios as $dominio )
-
                         <tr>
                             <td>{{$dominio->dominio}}</td>
                             <td>{{$dominio->cliente->name}}</td>
@@ -89,11 +84,6 @@
                             @elseif($dominio->estado_id == 5)
                                 <td><span class="badge bg-primary">{{$dominio->estadoName->name}}</span></td>
                             @endif
-                            
-                            {{-- <td>{{$dominio->creation_date}}</td>
-                            <td>{{$dominio->estadoPresupuesto->name}}</td>
-                            <td>{{$dominio->total}} €</td>
-                            <td>{{$dominio->usuario->name}}</td> --}}
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{route('presupuesto.show', $dominio->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar dominio"></a>
                                 <a class="" href="{{route('dominios.edit', $dominio->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
@@ -110,10 +100,8 @@
     @else
         <div class="text-center py-4">
             <h3 class="text-center fs-3">No se encontraron registros de <strong>DOMINIOS</strong></h3>
-            {{-- <p class="mt-2">Pulse el boton superior para crear algun usuario.</p> --}}
         </div>
     @endif
-    {{-- {{$users}} --}}
 </div>
 @section('scripts')
 
@@ -127,7 +115,7 @@
                 e.preventDefault();
                 let id = $(this).data('id'); // Usa $(this) para obtener el atributo data-id
                 botonAceptar(id);
-                
+
             });
         });
 

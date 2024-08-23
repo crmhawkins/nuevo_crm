@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('survey_clients', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
+            $table->id();
             $table->unsignedBigInteger('budget_id')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
 
@@ -26,11 +26,11 @@ return new class extends Migration
             $table->text('quest8')->nullable();
             $table->text('valoracion_final')->nullable();
 
-     
+
 
             $table->foreign('budget_id')->references('id')->on('budgets');
             $table->foreign('client_id')->references('id')->on('clients');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

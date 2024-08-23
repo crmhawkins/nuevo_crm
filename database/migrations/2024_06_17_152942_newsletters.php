@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('newsletters', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedInteger('newsletter_id')->nullable();
+            $table->id();
+            $table->foreignId('newsletter_id')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->text('campaign')->nullable();
             $table->text('email')->nullable();
@@ -24,7 +24,7 @@ return new class extends Migration
 
             $table->foreign('newsletter_id')->references('id')->on('newsletters_manual');
             $table->foreign('client_id')->references('id')->on('clients');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

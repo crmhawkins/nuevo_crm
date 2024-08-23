@@ -32,7 +32,7 @@
         <section class="section mt-4">
             <div class="card">
                 <div class="card-body">
-                    <form action="{{route('budgetConcepts.storeTypeSupplier', $presupuesto->id)}}" method="POST">
+                    <form action="{{route('budgetConcepts.updateTypeSupplier', $budgetConcept->id)}}" method="POST">
                         @csrf
 
                         {{-- Observaciones --}}
@@ -113,12 +113,14 @@
                         </div>
                         {{-- Enviar Email --}}
                         <div class="row my-5">
-                            <div class="form-check col-md-6">
-                                <label class="text-uppercase" style="font-weight: bold; display:block" for="em">Enviar email a todos los proveedores:</label>
-                                <input class="form-check-input" type="checkbox" id="checkMail" name="checkMail" value="true" style="height:20px;width:20px;">
-                                <label class="form-check-label" for="checkMail">
-                                    Si
-                                </label>
+                            <div class="col-md-6">
+                                <label class="text-uppercase mb-2" style="font-weight: bold; display:block" for="em">Enviar email a todos los proveedores:</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkMail" name="checkMail" value="true" >
+                                    <label class="form-check-label" for="checkMail">
+                                        Si
+                                    </label>
+                                </div>
                                 <small class="text-muted d-block">Enviara el email a la lista de proveedores con los archivos adjuntos de la opcion de arriba.</small>
                                 @error('checkMail')
                                         <span class="invalid-feedback" role="alert">
@@ -174,12 +176,12 @@
                                                 <option value="">-- Seleccione proveedor--</option>
                                                 @if($suppliers)
                                                     @foreach ($suppliers as $supplier)
-                                                        <option value="{{ $supplier->id }}"  {{$budgetSuppliersSaved->where('option_number',1)->first()->id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
+                                                        <option value="{{ $supplier->id }}"  {{$budgetSuppliersSaved->where('option_number',1)->first()->supplier_id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
-                                            &nbsp;&nbsp;<input class="form-control " id="supplierEmail1" name="supplierEmail1" type="text" placeholder="Email" >
-                                            &nbsp;&nbsp;<input class="form-control " id="supplierPrice1" placeholder="Formato: 0.00" name="supplierPrice1">
+                                            &nbsp;&nbsp;<input class="form-control" value="{{old('supplierEmail1',$budgetSuppliersSaved->where('option_number',1)->first()->mail)}}" id="supplierEmail1" name="supplierEmail1" type="text" placeholder="Email" >
+                                            &nbsp;&nbsp;<input class="form-control"  value="{{old('supplierPrice1',$budgetSuppliersSaved->where('option_number',1)->first()->price)}}" id="supplierPrice1" placeholder="Formato: 0.00" name="supplierPrice1">
                                         </div>
                                         <br>
                                     </div>
@@ -189,12 +191,12 @@
                                                 <option value="">-- Seleccione proveedor--</option>
                                                 @if($suppliers)
                                                     @foreach ($suppliers as $supplier)
-                                                        <option value="{{ $supplier->id }}" {{$budgetSuppliersSaved->where('option_number',2)->first()->id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
+                                                        <option value="{{ $supplier->id }}" {{$budgetSuppliersSaved->where('option_number',2)->first()->supplier_id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
-                                            &nbsp;&nbsp;<input  id="supplierEmail2" name="supplierEmail2" type="text" placeholder="Email" class="form-control">
-                                            &nbsp;&nbsp;<input class="form-control"  id="supplierPrice2" placeholder="Formato: 0.00" name="supplierPrice2">
+                                            &nbsp;&nbsp;<input  id="supplierEmail2" value="{{old('supplierEmail2',$budgetSuppliersSaved->where('option_number',2)->first()->mail)}}" name="supplierEmail2" type="text" placeholder="Email" class="form-control">
+                                            &nbsp;&nbsp;<input class="form-control"  value="{{old('supplierPrice2',$budgetSuppliersSaved->where('option_number',2)->first()->price)}}" id="supplierPrice2" placeholder="Formato: 0.00" name="supplierPrice2">
                                         </div>
                                         <br>
                                     </div>
@@ -204,12 +206,12 @@
                                                 <option value="">-- Seleccione proveedor--</option>
                                                 @if($suppliers)
                                                     @foreach ($suppliers as $supplier)
-                                                        <option value="{{ $supplier->id }}" {{$budgetSuppliersSaved->where('option_number',3)->first()->id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
+                                                        <option value="{{ $supplier->id }}" {{$budgetSuppliersSaved->where('option_number',3)->first()->supplier_id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
-                                            &nbsp;&nbsp;<input id="supplierEmail3"  name="supplierEmail3" type="text" placeholder="Email" class="form-control">
-                                            &nbsp;&nbsp;<input class="form-control" id="supplierPrice3" placeholder="Formato: 0.00" name="supplierPrice3">
+                                            &nbsp;&nbsp;<input id="supplierEmail3" value="{{old('supplierEmail3',$budgetSuppliersSaved->where('option_number',3)->first()->mail)}}"  name="supplierEmail3" type="text" placeholder="Email" class="form-control">
+                                            &nbsp;&nbsp;<input class="form-control" value="{{old('supplierPrice3',$budgetSuppliersSaved->where('option_number',3)->first()->price)}}" id="supplierPrice3" placeholder="Formato: 0.00" name="supplierPrice3">
                                         </div>
                                         <br>
                                     </div>
@@ -268,7 +270,7 @@
             var price = parseFloat($('#purchase_price').val()) || 0;
             var margin = parseFloat($('#benefit_margin').val()) || 0;
             var preciodeunidades = units * price;
-            var total = preciodeunidades *(1 + margin/100)
+            var total = price *(1 + margin/100)
             $('#sale_price').val(total.toFixed(2)); // Asumiendo dos decimales
         });
     });

@@ -7,6 +7,7 @@
 @endsection
 
 @section('content')
+
     <div class="page-heading card" style="box-shadow: none !important" >
         <div class="page-title card-body" >
             <div class="row">
@@ -71,17 +72,12 @@
                                                             @endforeach
                                                 </select>
                                             </div>
-                                            @error('project_id')
-                                                <p class="invalid-feedback d-block" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </p>
-                                            @enderror
                                         </div>
                                         <div class="form-group mb-3">
                                             <label class="mb-2 text-left" for="budget_status_id">Estado:</label>
                                             <select class="form-control @error('budget_status_id') is-invalid @enderror" id="budget_status_id" name="budget_status_id">
                                                 @foreach ( $estadoPresupuesto as $estado )
-                                                    <option value="{{ $estado->id }}" {{ $presupuesto->budget_status_id == $estado->id ? 'selected' : '' }}>{{ $estado->name }}</option>
+                                                    <option value="{{ $estado->id }}" {{ $presupuesto->budget_status_id == $estado->id ? 'selected' : '' }}>{{ $estado->name }} </option>
 
                                                 @endforeach
                                             </select>
@@ -127,7 +123,7 @@
                                             <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor">
                                                 @if ($gestores->count() > 0)
                                                     @foreach ( $gestores as $gestor )
-                                                        <option @if($presupuesto->admin_user_id == $gestor->id) {{'selected'}} @endif  value="{{$gestor->id}}">{{$gestor->name}}</option>
+                                                        <option  {{ old('admin_user_id',$presupuesto->admin_user_id)  == $gestor->id ? 'selected' : '' }}  value="{{$gestor->id}}">{{$gestor->name}}</option>
                                                     @endforeach
                                                 @else
                                                     <option value="{{null}}">No existen gestores todavia</option>
@@ -210,7 +206,7 @@
                                                     $purchasePriceWithoutMarginBenefit = $budgetConcept->purchase_price;
                                                     $benefitMargin = $budgetConcept->benefit_margin;
                                                     $marginBenefitToAdd  =  ($purchasePriceWithoutMarginBenefit*$benefitMargin)/100;
-                                                    $purchasePriceWithMarginBenefit  =  $purchasePriceWithoutMarginBenefit+ $marginBenefitToAdd;
+                                                    $purchasePriceWithMarginBenefit  =  $purchasePriceWithoutMarginBenefit + $marginBenefitToAdd;
                                                 }
                                             ?>
                                                 <tr class="budgetRow" data-child-value="{{$budgetConcept->concept}}">
@@ -231,9 +227,7 @@
                                                     <!--<td>{{ $budgetConcept->concept }}</td>-->
                                                     <td >
                                                         @if($budgetConcept->concept_type_id == 1)
-                                                            @if($budgetConcept->purchase_price != null)
-                                                                {{ $budgetConcept->units }}
-                                                            @endif
+                                                            {{ $budgetConcept->units }}
                                                         @else
                                                             {{ $budgetConcept->units }}
                                                         @endif
@@ -715,7 +709,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Ocurrió un error al generar la tarea. Por favor, inténtalo de nuevo.',
+                        text: 'Ocurrió un error al generar el PDF. Por favor, inténtalo de nuevo.',
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,

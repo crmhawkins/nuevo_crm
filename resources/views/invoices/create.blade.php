@@ -97,7 +97,7 @@
                                         <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id">
                                             @if ($gestores->count() > 0)
                                                 @foreach ( $gestores as $gestor )
-                                                    <option value="{{$gestor->id}}">{{$gestor->name}}</option>
+                                                    <option {{ old('admin_user_id',Auth::user()->id) == $gestor->id ? 'selected' : ''}} value="{{$gestor->id}}">{{$gestor->name}}</option>
                                                 @endforeach
                                             @else
                                                 <option value="{{null}}">No existen gestores todavia</option>

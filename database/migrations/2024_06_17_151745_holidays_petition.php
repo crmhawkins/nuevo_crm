@@ -13,9 +13,9 @@ return new class extends Migration
     {
         //holidays_petition
         Schema::create('holidays_petition', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
+            $table->id();
             $table->unsignedBigInteger('admin_user_id')->nullable();
-            $table->unsignedInteger('holidays_status_id')->nullable();
+            $table->foreignId('holidays_status_id')->nullable();
             $table->date('from')->nullable();
             $table->date('to')->nullable();
             $table->double('total_days',8,2)->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
 
             $table->foreign('admin_user_id')->references('id')->on('admin_users');
             $table->foreign('holidays_status_id')->references('id')->on('holidays_status');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

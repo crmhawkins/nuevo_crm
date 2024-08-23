@@ -12,16 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('company_passwords', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('client_id')->nullable();
+            $table->id();
+            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade')->nullable();
             $table->string('title')->nullable();
             $table->string('website')->nullable();
             $table->string('user')->nullable();
             $table->string('password')->nullable();
-     
 
-            $table->foreign('client_id')->references('id')->on('clients');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

@@ -207,4 +207,10 @@ class ProjectController extends Controller
         $campanias = Project::where('client_id', $client->id)->get();
         return response($campanias);
     }
+    public function getProjectById(Request $request)
+    {
+        $project = Project::find($request->input('project_id'));
+        return response($project);
+    }
+
 }

@@ -97,6 +97,7 @@
                                     </span>
                             @enderror
                         </div>
+
                         {{-- Precio --}}
                         <div class="form-group">
                             <label class="text-uppercase" style="font-weight: bold" for="sale_price">Precio:</label>
@@ -106,6 +107,11 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                             @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="text-uppercase" style="font-weight: bold" for="precio_medio">Precio  Sugerido:</label>
+                            <input type="text" class="form-control" id="precio_medio" readonly>
                         </div>
 
                         {{-- Total --}}
@@ -140,6 +146,8 @@
 <script>
     // In your Javascript (external .js resource or <script> tag)
     $(document).ready(function() {
+        $('#precio_medio').closest('.form-group').hide();
+
         $('.js-example-basic-single').select2();
 
         // Calcula el total automáticamente
@@ -199,6 +207,13 @@
 
                     adjustTextareaHeight(document.getElementById('concept'));
 
+                     // Mostrar precio medio si está disponible
+                    if (selectedService.preciomedi > 0) {
+                        $('#precio_medio').val(1*selectedService.preciomedi);
+                        $('#precio_medio').closest('.form-group').show();
+                    } else {
+                        $('#precio_medio').closest('.form-group').hide();
+                    }
                 }
             }
         });

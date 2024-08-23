@@ -74,7 +74,7 @@
             if (loader) {
                 setTimeout(() => {
                     loader.style.display = 'none';
-                }, 2000);
+                }, 1000);
             }
         });
 

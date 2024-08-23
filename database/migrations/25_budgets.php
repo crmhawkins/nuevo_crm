@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('budgets', function (Blueprint $table) {
             $table->id();
             $table->string('reference')->unique()->nullable();
-            $table->unsignedBigInteger('reference_autoincrement_id')->nullable();
-            $table->unsignedBigInteger('admin_user_id');
-            $table->unsignedBigInteger('client_id')->nullable();
-            $table->unsignedBigInteger('project_id')->nullable();
-            $table->unsignedBigInteger('payment_method_id')->nullable();
-            $table->unsignedBigInteger('budget_status_id')->nullable();
+            $table->foreignId('reference_autoincrement_id')->constrained('budget_reference_autoincrements')->onDelete('cascade')->nullable();
+            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade');
+            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade')->nullable();
+            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade')->nullable();
+            $table->foreignId('payment_method_id')->constrained('payment_method')->onDelete('cascade')->nullable();
+            $table->foreignId('budget_status_id')->constrained('budget_status')->onDelete('cascade')->nullable();
             $table->string('concept')->nullable();
             $table->date('creation_date')->nullable();
             $table->text('description')->nullable();
@@ -46,12 +46,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('reference_autoincrement_id')->references('id')->on('budget_reference_autoincrements');
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
-            $table->foreign('client_id')->references('id')->on('clients');
-            $table->foreign('project_id')->references('id')->on('projects');
-            $table->foreign('payment_method_id')->references('id')->on('payment_method');
-            $table->foreign('budget_status_id')->references('id')->on('budget_status');
 
         });
     }

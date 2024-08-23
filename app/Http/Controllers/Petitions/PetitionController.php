@@ -7,6 +7,8 @@ use App\Models\Petitions\Petition;
 use App\Models\Clients\Client;
 use App\Models\PaymentMethods\PaymentMethod;
 use App\Models\Projects\Project;
+use App\Models\Todo\Todo;
+use App\Models\Todo\TodoUsers;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -38,6 +40,7 @@ class PetitionController extends Controller
 
         $gestores = User::all();
         $clientes = Client::orderBy('id', 'asc')->get();
+
 
         return view('petitions.create', compact('gestores', 'clientes', 'clienteId','gestorId'));
     }
@@ -79,7 +82,16 @@ class PetitionController extends Controller
         $data['finished '] = 0;
 
         $petitionCreado = Petition::create($data);
-
+        $todoCreado = Todo::create([
+            'titulo' => 'Peticion de '.Client::find( $data['client_id'])->name,
+            'descripcion' =>  $data['note'],
+            'admin_user_id' => $request['admin_user_id'],
+        ]);
+        TodoUsers::create([
+            'todo_id' => $todoCreado->id,
+            'admin_user_id' => $request['admin_user_id'],
+            'completada' => false  // Asumimos que la tarea no está completada por los usuarios al inicio
+        ]);
 
         return redirect(route('peticion.edit', $petitionCreado->id));
 

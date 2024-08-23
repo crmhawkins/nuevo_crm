@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            task_status::class,
         ]);
     }
 }

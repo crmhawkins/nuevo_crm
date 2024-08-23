@@ -262,14 +262,14 @@
             </div>
         </li>
 
-       <li class="dropdown">
+       {{-- <li class="dropdown">
             <a class="nav-link dropdown-toggle arrow-none nav-user" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                 <span class="account-user-avatar">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png" alt="user-image" width="32" class="rounded-circle">
                 </span>
-                {{-- <span class="d-lg-block d-none">
+                <span class="d-lg-block d-none">
                     <h5 class="my-0 fw-normal">Thomson <i class="ri-arrow-down-s-line d-none d-sm-inline-block align-middle"></i></h5>
-                </span> --}}
+                </span>
             </a>
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated profile-dropdown">
                 <!-- item-->
@@ -307,7 +307,7 @@
                     <span>Logout</span>
                 </a>
             </div>
-        </li>
+        </li> --}}
     </ul>
 </nav>
 

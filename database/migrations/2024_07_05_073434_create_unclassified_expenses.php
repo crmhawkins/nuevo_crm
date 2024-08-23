@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('unclassified_expenses', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
+            $table->id();
             $table->string('pdf_file_name')->nullable();
             $table->string('company_name')->nullable();
             $table->string('bank')->nullable();

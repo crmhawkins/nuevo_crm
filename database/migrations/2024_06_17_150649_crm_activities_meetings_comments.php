@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('crm_activities_meetings_comments', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
+            $table->id();
             $table->unsignedBigInteger('admin_user_id')->nullable();
-            $table->unsignedInteger('meeting_id')->nullable();
+            $table->foreignId('meeting_id')->nullable();
             $table->text('description')->nullable();
 
             $table->foreign('admin_user_id')->references('id')->on('admin_users');
             $table->foreign('meeting_id')->references('id')->on('crm_activities_meetings');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

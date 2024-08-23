@@ -20,7 +20,7 @@
                         <p class="text-subtitle text-muted">Listado de mis vacaciones</p>
                     </div>
                     <div class="col-auto">
-                        <a class="btn btn-outline-primary" href="{{route('holiday.create')}}">
+                        <a class="btn btn-outline-secondary" href="{{route('holiday.create')}}">
                             <i class="fa-solid fa-plus"></i> Petición de vacaciones
                         </a>
                     </div>

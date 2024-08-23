@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('purchase_order', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('supplier_id')->nullable();
-            $table->unsignedBigInteger('budget_concept_id')->nullable();
-            $table->unsignedBigInteger('client_id')->nullable();
-            $table->unsignedBigInteger('project_id')->nullable();
-            $table->unsignedBigInteger('payment_method_id')->nullable();
-            $table->unsignedInteger('bank_id')->nullable();
+            $table->id();
+            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade')->nullable();
+            $table->foreignId('budget_concept_id')->constrained('budget_concepts')->onDelete('cascade')->nullable();
+            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade')->nullable();
+            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade')->nullable();
+            $table->foreignId('payment_method_id')->constrained('payment_method')->onDelete('cascade')->nullable();
+            $table->foreignId('bank_id')->constrained('bank_accounts')->onDelete('cascade')->nullable();
 
             $table->integer('units')->nullable();
             $table->double('amount',10,2)->nullable();
@@ -27,14 +27,6 @@ return new class extends Migration
             $table->tinyInteger('sent')->nullable();
             $table->tinyInteger('cancelled')->nullable();
             $table->integer('status')->nullable();
-
-
-            $table->foreign('supplier_id')->references('id')->on('suppliers');
-            $table->foreign('budget_concept_id')->references('id')->on('budget_concepts');
-            $table->foreign('client_id')->references('id')->on('clients');
-            $table->foreign('project_id')->references('id')->on('projects');
-            $table->foreign('payment_method_id')->references('id')->on('payment_method');
-            $table->foreign('bank_id')->references('id')->on('bank_accounts');
 
             $table->timestamps();
             $table->softDeletes();

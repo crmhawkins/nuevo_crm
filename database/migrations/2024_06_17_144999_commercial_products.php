@@ -12,9 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('commercial_products', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->string('name')->nullable();
-             
+            $table->id();            $table->string('name')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });

@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Http\Controllers\Nominas;
+
+use App\Http\Controllers\Controller;
+use App\Models\Dominios\estadosDominios;
+use App\Models\Nominas\Nomina;
+use App\Models\Users\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+class NominasController extends Controller
+{
+    public function index()
+    {
+        $nominas = Nomina::paginate(2);
+        return view('nominas.index', compact('nominas'));
+    }
+    public function indexUser($id)
+    {
+        return view('nominas.index_user', compact('id'));
+    }
+    public function show($id)
+    {
+        $nomina = Nomina::find($id);
+        return view('nominas.show', compact('nomina'));
+    }
+    public function edit($id)
+    {
+        $nomina = Nomina::find($id);
+        $usuarios = User::all();
+        return view('nominas.edit', compact('nomina','usuarios'));
+    }
+    public function create()
+    {
+        $usuarios = User::all();
+        return view('nominas.create', compact('usuarios'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'admin_user_id' => 'required|exists:admin_users,id',
+            'fecha' => 'required|date',
+            'archivo' => 'required|file|mimes:pdf|max:2048', // Asegura que sea un PDF y no supere los 2MB
+        ]);
+
+        // Procesar archivo
+        $file = $request->file('archivo');
+        $filename = 'Nomina_'.$request->admin_user_id.'_'.today()->format('Y_m_d').'.'.$file->getClientOriginalExtension();
+        $path = $file->storeAs('nominas', $filename, 'public');
+
+        // Crear la nómina
+        $nomina = new Nomina;
+        $nomina->admin_user_id = $request->admin_user_id;
+        $nomina->fecha = $request->fecha;
+        $nomina->archivo = $path;
+        $nomina->save();
+
+        return redirect()->route('nominas.edit',$nomina->id)->with('toast', [
+                'icon' => 'success',
+                'mensaje' => 'La nomina se creo correctamente'
+            ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'admin_user_id' => 'required|exists:admin_users,id',
+            'fecha' => 'required|date',
+            'archivo' => 'nullable|file|mimes:pdf|max:2048',
+        ]);
+
+        $nomina = Nomina::findOrFail($id);
+
+        if ($request->hasFile('archivo')) {
+            // Eliminar el archivo anterior si existe
+            Storage::delete('public/' . $nomina->archivo);
+
+            // Subir el nuevo archivo
+            $file = $request->file('archivo');
+            $filename = 'Nomina_'.$request->admin_user_id.'_'.today()->format('Y_m_d').'.'.$file->getClientOriginalExtension();
+            $path = $file->storeAs('nominas', $filename, 'public');
+            $nomina->archivo = $path;
+        }
+
+        // Actualizar otros campos
+        $nomina->admin_user_id = $request->admin_user_id;
+        $nomina->fecha = $request->fecha;
+        $nomina->save();
+
+        return redirect()->route('nominas.index')->with('toast', [
+            'icon' => 'success',
+            'mensaje' => 'La nomina se actualizo correctamente'
+        ]);
+    }
+
+    public function destroy(Request $request)
+    {
+        $nomina = Nomina::find($request->id);
+
+        if (!$nomina) {
+            return response()->json([
+                'status' => false,
+                'mensaje' => "Error en el servidor, intentelo mas tarde."
+            ]);
+        }
+
+        $nomina->delete();
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'La Nomina fue borrada correctamente'
+        ]);
+    }
+}

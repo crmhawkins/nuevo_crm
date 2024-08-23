@@ -161,7 +161,7 @@
                                         <select class="form-select w-100 @error('admin_user_id') is-invalid @enderror" id="admin_user_id" name="admin_user_id">
                                             <option value="{{null}}">Seleccione el gestor del cliente</option>
                                             @foreach ( $gestores as $gestor )
-                                                <option @if($gestor->id == old('admin_user_id')) selected @endif value="{{$gestor->id}}">{{$gestor->name}} {{$gestor->surname}}</option>
+                                            <option {{ old('admin_user_id') != null ? (old('admin_user_id') == $gestor->id ? 'selected' : '') : ( Auth::user()->id == $gestor->id ? 'selected' : '') }} value="{{$gestor->id}}">{{$gestor->name}} {{$gestor->surname}}</option>
                                             @endforeach
                                         </select>
                                         @error('admin_user_id')

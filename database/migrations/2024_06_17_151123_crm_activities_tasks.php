@@ -13,8 +13,7 @@ return new class extends Migration
     {
         //crm_activities_tasks
         Schema::create('crm_activities_tasks', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->id();            $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->tinyInteger('done')->nullable();
             $table->string('subject')->nullable();
@@ -23,7 +22,7 @@ return new class extends Migration
 
             $table->foreign('admin_user_id')->references('id')->on('admin_users');
             $table->foreign('client_id')->references('id')->on('clients');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

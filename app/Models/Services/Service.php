@@ -53,4 +53,32 @@ class Service extends Model
 
         return $presupuestos;
     }
+    public function calcularPrecioMedio($precioPorHora)
+    {
+        $totalPrecio = 0;
+        $totalTareas = 0;
+        // Obtener todos los conceptos de presupuesto relacionados con este servicio
+        $budgetConcepts = $this->budgetConcepts()->with('task')->get();
+        // Recorrer cada concepto de presupuesto y sus tareas
+        foreach ($budgetConcepts as $budgetConcept) {
+            foreach ($budgetConcept->task as $task) {
+                if ($task->real_time) {
+                    // Convertir el tiempo a segundos
+                    $tiempo = explode(':', $task->real_time);
+                    $segundos = ($tiempo[0] * 3600) + ($tiempo[1] * 60) + $tiempo[2];
+                    // Convertir los segundos a horas
+                    $horas = $segundos / 3600;
+                    // Calcular el precio basado en las horas reales y el precio por hora
+                    $precio = $horas * $precioPorHora;
+                    $totalPrecio += $precio;
+                    $totalTareas++;
+                }
+            }
+        }
+        // Calcular el precio medio
+        if ($totalTareas > 0) {
+            return $totalPrecio / $totalTareas;
+        }
+        return 0; // Si no hay tareas, el precio medio es 0
+    }
 }

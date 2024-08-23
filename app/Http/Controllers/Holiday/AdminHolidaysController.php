@@ -140,11 +140,12 @@ class AdminHolidaysController extends Controller
      * @param  HolidaysPetitions  $holidayPetition
      *
      */
-    public function managePetition(HolidaysPetitions $holidayPetition)
+    public function managePetition(string $id)
     {
+        $holidayPetition = HolidaysPetitions::find($id);
         $userId = Auth::id();
         $usuario = User::find($userId);
-        return view('admin.admin_holidays.managePetition', compact('holidayPetition', 'usuario'));
+        return view('holidays.managePetitions', compact('holidayPetition', 'usuario'));
     }
 
     /**
@@ -154,8 +155,9 @@ class AdminHolidaysController extends Controller
      * @param  HolidaysPetitions  $holidayPetition
      *
      */
-    public function acceptHolidays(Request $request, HolidaysPetitions $holidayPetition)
+    public function acceptHolidays(Request $request)
     {
+        $holidayPetition = HolidaysPetitions::find($request->id);
         $fechaNow = Carbon::now();
 
         $data = $request->all();
@@ -167,31 +169,31 @@ class AdminHolidaysController extends Controller
 
             if($holidaySaved){
                 //Alerta resuelta
-                $alertHoliday = Alert::where('reference_id', $holidayPetition->id)->get()->first();
-                $alertHoliday->status_id = 2;
-                $alertHoliday->save();
+                //$alertHoliday = Alert::where('reference_id', $holidayPetition->id)->get()->first();
+                //$alertHoliday->status_id = 2;
+                //$alertHoliday->save();
 
                 //Crear alerta para avisar al usuario
-                $data = [
-                    'admin_user_id' => $holidayPetition->admin_user_id,
-                    'stage_id' => 17,
-                    'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
-                    'status_id' => 1,
-                    'reference_id' => $holidayPetition->id
-                ];
+                // $data = [
+                //     'admin_user_id' => $holidayPetition->admin_user_id,
+                //     'stage_id' => 17,
+                //     'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
+                //     'status_id' => 1,
+                //     'reference_id' => $holidayPetition->id
+                // ];
 
-                $alert = Alert::create($data);
-                $alertSaved = $alert->save();
+                // $alert = Alert::create($data);
+                // $alertSaved = $alert->save();
 
-                $mailBudget = new \stdClass();
-                $mailBudget->usuario = Auth::user()->name." ".Auth::user()->surname;
-                $mailBudget->usuarioMail = Auth::user()->email;
-                $mailBudget->from = $holidayPetition->from;
-                $mailBudget->to = $holidayPetition->to;
+                // $mailBudget = new \stdClass();
+                // $mailBudget->usuario = Auth::user()->name." ".Auth::user()->surname;
+                // $mailBudget->usuarioMail = Auth::user()->email;
+                // $mailBudget->from = $holidayPetition->from;
+                // $mailBudget->to = $holidayPetition->to;
 
 
-                $allHolidays = Holidays::all();
-                $mailBudget->usuarios = $allHolidays;
+                // $allHolidays = Holidays::all();
+                // $mailBudget->usuarios = $allHolidays;
 
                 // Mail::to("ivan@lchawkins.com")
                 // ->cc(Auth::user()->email)
@@ -202,19 +204,17 @@ class AdminHolidaysController extends Controller
                 $this->sendEmail($empleado);
 
                 // Respuesta
-                return redirect()->route('holiday.petitions')->with('toast', [
+                return redirect()->route('holiday.admin.petitions')->with('toast', [
                     'icon' => 'success',
                     'mensaje' => 'Petición de vacaciones aceptada'
-                  ]
-              );
+                ]);
             }
         } catch (\Exception $e) {
              // Respuesta
              return redirect()->back()->with('toast', [
                 'icon' => 'error',
-                'mensaje' => '$e'
-              ]
-          );
+                'mensaje' => 'Error'
+            ]);
         }
     }
 
@@ -241,7 +241,9 @@ class AdminHolidaysController extends Controller
      * @param  HolidaysPetitions  $holidayPetition
      *
      */
-    public function denyHolidays(HolidaysPetitions $holidayPetition){
+    public function denyHolidays(Request $request){
+
+        $holidayPetition = HolidaysPetitions::find($request->id);
 
         try {
             //Denegar petición
@@ -252,39 +254,43 @@ class AdminHolidaysController extends Controller
             	$RecoveryDays = Holidays::where('admin_user_id', $holidayPetition->admin_user_id)->get()->first();
 
             	$RecoveryDays->quantity += $holidayPetition->total_days;
-            	$RecoveryDays->save();
+            	$addrecord = $RecoveryDays->save();
+                if($addrecord){
+                    HolidaysAdditions::create([
+                        'admin_user_id' => $holidayPetition->admin_user_id,
+                        'quantity_before' => $RecoveryDays->quantity - $holidayPetition->total_days,
+                        'quantity_to_add' => $holidayPetition->total_days,
+                        'quantity_now' => $RecoveryDays->quantity,
+                        'manual' => 0,
+                        'holiday_petition' => 0,
+                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
 
-                //Alerta resuelta
-                $alertHoliday = Alert::where('reference_id', $holidayPetition->id)->get()->first();
-                $alertHoliday->status_id = 2;
-                $alertHoliday->save();
-                $fechaNow = Carbon::now();
-                //Crear alerta para avisar al usuario
-                $data = [
-                    'admin_user_id' => $holidayPetition->admin_user_id,
-                    'stage_id' => 18,
-                    'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
-                    'status_id' => 1,
-                    'reference_id' => $holidayPetition->id
-                ];
+                // //Alerta resuelta
+                // $alertHoliday = Alert::where('reference_id', $holidayPetition->id)->get()->first();
+                // $alertHoliday->status_id = 2;
+                // $alertHoliday->save();
+                // $fechaNow = Carbon::now();
+                // //Crear alerta para avisar al usuario
+                // $data = [
+                //     'admin_user_id' => $holidayPetition->admin_user_id,
+                //     'stage_id' => 18,
+                //     'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
+                //     'status_id' => 1,
+                //     'reference_id' => $holidayPetition->id
+                // ];
 
-                $alert = Alert::create($data);
-                $alertSaved = $alert->save();
+                // $alert = Alert::create($data);
+                // $alertSaved = $alert->save();
 
                 // Respuesta
-                return redirect()->route('holiday.petitions')->with('toast', [
-                    'icon' => 'success',
-                    'mensaje' => 'Petición de vacaciones denegada'
-                  ]
-              );
+                return response()->json(['status' => 'success', 'mensaje' => 'Petición de vacaciones denegada']);
             }
         } catch (\Exception $e) {
              // Respuesta
-             return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'El estado de la petición no pudo actualziarse.Pruebe más tarde.'
-              ]
-          );
+             return response()->json(['status' => 'error', 'mensaje' => $e]);
+
         }
     }
 
@@ -355,9 +361,5 @@ class AdminHolidaysController extends Controller
           );
         }
     }
-
-
-
-
 
 }

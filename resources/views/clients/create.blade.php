@@ -19,7 +19,6 @@
                     <h3><i class="bi bi-person"></i> Crear Cliente</h3>
                     <p class="text-subtitle text-muted">Formulario para registrar a un cliente/leads.</p>
                 </div>
-
                 <div class="col-12 col-md-6 order-md-2 order-first">
                     <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                         <ol class="breadcrumb">
@@ -162,7 +161,7 @@
                                         <select class="form-select w-100 @error('admin_user_id') is-invalid @enderror" id="admin_user_id" name="admin_user_id">
                                             <option value="{{null}}">Seleccione el gestor del cliente</option>
                                             @foreach ( $gestores as $gestor )
-                                                <option @if( old('admin_user_id') == $gestor->id ) selected @endif value="{{$gestor->id}}">{{$gestor->name}} {{$gestor->surname}}</option>
+                                                <option {{ old('admin_user_id') != null ? (old('admin_user_id') == $gestor->id ? 'selected' : '') : ( Auth::user()->id == $gestor->id ? 'selected' : '') }} value="{{$gestor->id}}">{{$gestor->name}} {{$gestor->surname}}</option>
                                             @endforeach
                                         </select>
                                         @error('admin_user_id')
@@ -360,6 +359,7 @@
 {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/i18n/datepicker-es.min.js"></script>
+<script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 
 <script>
     $(function() {
@@ -429,8 +429,48 @@
         });
     });
 </script>
+<script>
+    $(document).ready(function() {
+        $('form').on('submit', function(e) {
+            e.preventDefault();
 
-<script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
+            var name = $('#name').val();
+            var company = $('#company').val();
+            var form = this;
+
+            $.ajax({
+                url: '{{ route("cliente.verificarExistente") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    name: name,
+                    company: company
+                },
+                success: function(cliente) {
+                    if (cliente) {
+                        Swal.fire({
+                            title: 'Cliente existente',
+                            html: `Ya existe un cliente con este nombre o nombre de empresa.<br><br>
+                                   <strong>Nombre del contacto:</strong> ${cliente.name}<br>
+                                   <strong>Nombre de la empresa:</strong> ${cliente.company}<br><br>
+                                   ¿Estás seguro de que quieres crear uno nuevo?`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí, crear nuevo',
+                            cancelButtonText: 'Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.submit(); // Enviar el formulario si el usuario confirma
+                            }
+                        });
+                    } else {
+                        form.submit(); // No existe cliente con el mismo nombre, enviar el formulario
+                    }
+                }
+            });
+        });
+    });
+</script>
 <script>
     $(document).ready(function() {
         var i=1;

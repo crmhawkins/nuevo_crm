@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Budgets\Budget;
+use App\Models\Clients\Client;
 use App\Models\Jornada\Jornada;
 use App\Models\Jornada\Pause;
+use App\Models\Projects\Project;
+use App\Models\Tasks\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Users\User;
@@ -15,6 +19,12 @@ class DashboardController extends Controller
     {
         $id = Auth::user()->id;
         $user = User::find($id);
+        $users = User::all();
+        $clientes = Client::all();
+        $budgets = Budget::all();
+        $projects = Project::all();
+        $tareas = Task::all();
+        $to_dos = $user->todos->where('finalizada',false);
         $timeWorkedToday = $this->calculateTimeWorkedToday($user);
         $jornadaActiva = $user->activeJornada();
         $events = $user->eventos->map(function ($event) {
@@ -25,7 +35,7 @@ class DashboardController extends Controller
             $pausaActiva = $jornadaActiva->pausasActiva();
         }
 
-        return view('dashboard', compact('user','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+        return view('dashboard', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
     }
 
     public function startJornada()

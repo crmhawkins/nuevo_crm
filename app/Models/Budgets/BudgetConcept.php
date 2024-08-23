@@ -2,6 +2,7 @@
 
 namespace App\Models\Budgets;
 
+use App\Models\Tasks\Task;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -32,6 +33,7 @@ class BudgetConcept extends Model
         'discount',
         'total',
         'total_no_discount',
+        'is_facturado',
     ];
 
      /**
@@ -64,5 +66,9 @@ class BudgetConcept extends Model
     public function unidades()
     {
         return $this->hasMany(BudgetConceptSupplierUnits::class,'budget_concept_id');
+    }
+    public function task()
+    {
+        return $this->hasMany(Task::class,'budget_concept_id');
     }
 }

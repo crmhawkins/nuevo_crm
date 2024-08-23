@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('newsletters_favourites', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
+            $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedInteger('newsletter_id')->nullable();
+            $table->foreignId('newsletter_id')->nullable();
 
             $table->foreign('user_id')->references('id')->on('admin_users');
             $table->foreign('newsletter_id')->references('id')->on('newsletters');

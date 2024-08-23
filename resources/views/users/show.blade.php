@@ -248,7 +248,85 @@
                                             </div>
                                             <div class="tab-pane" id="list-vacaciones" role="tabpanel"
                                                 aria-labelledby="list-vacaciones-list">
-                                                <h5>No tienes vacaciones</h5>
+                                                <h3 class="mb-2 fs-4 text-uppercase">Vacaciones</h3>
+                                                <hr class="border mb-4" >
+                                                <div class="card">
+                                                        <div class="row justify-center my-4">
+                                                        <div class="col-auto">
+                                                            @if($usuario->vacacionesDias->first())
+                                                                @if($usuario->vacacionesDias->first()->quantity == 1)
+                                                                    <p for="have">Tienes <span style="color:green"><strong>{{$usuario->vacacionesDias->first()->quantity}}</strong></span> día de vacaciones</p>
+                                                                @endif
+                                                                @if($usuario->vacacionesDias->first()->quantity >1 )
+                                                                    <p for="have">Tienes <span style="color:green"><strong>{{$usuario->vacacionesDias->first()->quantity}}</strong></span> días de vacaciones</p>
+                                                                @endif
+                                                            @else
+                                                                <p for="have">No tienes días de vacaciones</p>
+                                                            @endif
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            @if($usuario->vacaciones->where('holidays_status_id',3))
+                                                                @if(count($usuario->vacaciones->where('holidays_status_id',3)) == 1)
+                                                                    <p for="pendant">Tienes <span style="color:orange"><strong>{{count($usuario->vacaciones->where('holidays_status_id',3))}}</strong></span> petición pendiente</p>
+                                                                @endif
+                                                                @if(count($usuario->vacaciones->where('holidays_status_id',3)) >1 )
+                                                                    <p for="pendant">Tienes <span style="color:orange"><strong>{{count($usuario->vacaciones->where('holidays_status_id',3))}}</strong></span> peticiones pendientes</p>
+                                                                @endif
+                                                            @else
+                                                                <p for="pendant">No tienes peticiones pendientes</p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if (count($usuario->vacaciones) > 0)
+                                                    <div class="table-responsive">
+                                                        <table class="table">
+                                                            <thead class="header-table-other">
+                                                                <th class="px-3" style="font-size:0.75rem">DÍA/S PEDIDOS</th>
+                                                                <th class="" style="font-size:0.75rem">MEDIO DÍA</th>
+                                                                <th class="" style="font-size:0.75rem">DÍAS EN TOTAL</th>
+                                                                <th class="" style="font-size:0.75rem">ESTADO</th>
+                                                                <th class="" style="font-size:0.75rem">FECHA DE PETICIÓN</th>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ( $usuario->vacaciones as $vacacion )
+                                                                    @if($vacacion->holidays_status_id == 3)
+                                                                        <tr class="table-warning" style="background-color:#FFDD9E">
+                                                                    @endif
+                                                                    @if($vacacion->holidays_status_id == 1)
+                                                                        <tr class="table-success" style="background-color:#C3EBC4">
+                                                                    @endif
+                                                                    @if($vacacion->holidays_status_id == 2)
+                                                                        <tr class="table-danger" style="background-color:#FBC4C4">
+                                                                    @endif
+                                                                    <td>{{ Carbon\Carbon::parse($vacacion->from)->format('d/m/Y') . ' - ' .  Carbon\Carbon::parse($vacacion->to)->format('d/m/Y') }}</td>
+                                                                    @if($vacacion->half_day)
+                                                                        <td><i class="fas fa-check"></i></td>
+                                                                    @else
+                                                                        <td><i class="fas fa-times"></i></td>
+                                                                    @endif
+                                                                    <td>{{ $vacacion->total_days }}</td>
+                                                                    @if($vacacion->holidays_status_id == 1)
+                                                                        <td>Aceptada</td>
+                                                                    @elseif($vacacion->holidays_status_id == 2)
+                                                                        <td>Denegada</td>
+                                                                    @elseif($vacacion->holidays_status_id == 3)
+                                                                        <td>Pendiente</td>
+                                                                    @endif
+                                                                    <td>{{ Carbon\Carbon::parse($vacacion->created_at)->format('d/m/Y H:i:s') }}</td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                        <a class="btn btn-outline-primary w-100" href="{{route('holiday.create')}}">
+                                                            <i class="fa-solid fa-plus"></i> Petición de vacaciones
+                                                        </a>
+                                                    </div>
+                                                @else
+                                                    <div class="text-center py-4">
+                                                        <h3 class="text-center fs-4">No se encontraron registros de <strong>Vacaciones</strong></h3>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

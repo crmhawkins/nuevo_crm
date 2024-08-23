@@ -2,6 +2,7 @@
 
 namespace App\Models\Clients;
 
+use App\Models\Projects\Project;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -83,12 +84,18 @@ class Client extends Model
         return $this->hasMany(\App\Models\Clients\ClientWeb::class);
     }
     public function presupuestos() {
-        return $this->hasMany(\App\Models\Budgets\Budget::class);
+        return $this->hasMany(\App\Models\Budgets\Budget::class,'client_id');
+    }
+    public function presupuestosPorEstado($estadoId) {
+        return $this->presupuestos()->where('budget_status_id', $estadoId)->get();
     }
     public function facturas(){
         return $this->hasMany(\App\Models\Invoices\Invoice::class, 'client_id');
     }
     public function dominios(){
         return $this->hasMany(\App\Models\Dominios\Dominio::class, 'client_id');
+    }
+    public function campañas() {
+        return $this->hasMany(Project::class,'client_id');
     }
 }

@@ -4,17 +4,19 @@
 
 @section('css')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 @endsection
 
 @section('content')
- <div class="page-heading card" style="box-shadow: none !important" >
+
+<div class="page-heading card" style="box-shadow: none !important" >
+
     <div class="page-title card-body">
         <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
                 <h3>Crear Petición</h3>
                 <p class="text-subtitle text-muted">Formulario para registrar una petición</p>
             </div>
-
             <div class="col-12 col-md-6 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
@@ -70,7 +72,7 @@
                                         @if ($gestores->count() > 0)
                                         <option value="">Seleccione un Gestor</option>
                                         @foreach ( $gestores as $gestor )
-                                        <option @if($gestorId != null || $gestorId == $gestor->id) {{'selected'}} @endif  value="{{$gestor->id}}">{{$gestor->name}}</option>
+                                        <option {{$gestorId != null ? ($gestorId == $gestor->id ? 'selected' : '') : (old('admin_user_id',Auth::user()->id) == $gestor->id ? 'selected' : '')}}  value="{{$gestor->id}}">{{$gestor->name}}</option>
                                         @endforeach
                                         @else
                                         <option value="{{null}}">No existen gestores todavia</option>

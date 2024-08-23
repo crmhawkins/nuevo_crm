@@ -14,7 +14,10 @@ class EventController extends Controller
         // Validamos los campos
         $data = $this->validate($request, [
             'title' => 'required|max:200',
-            'url' => 'nullable',
+            'descripcion' => 'nullable',
+            'client_id' => 'nullable',
+            'budget_id' => 'nullable',
+            'project_id' => 'nullable',
             'color' => 'nullable',
             'admin_user_id' => 'required|exists:admin_users,id',
             'start' => 'required',

@@ -8,6 +8,7 @@ use App\Models\Budgets\BudgetConcept;
 use App\Models\Budgets\BudgetConceptSupplierRequest;
 use App\Models\Budgets\BudgetConceptSupplierUnits;
 use App\Models\Clients\Client;
+use App\Models\Company\CompanyDetails;
 use App\Models\Services\Service;
 use App\Models\Services\ServiceCategories;
 use App\Models\Suppliers\Supplier;
@@ -129,8 +130,7 @@ class BudgetConceptsController extends Controller
 
     public function updateTypeOwn(Request $request, $budget)
     {
-        // dd($budget);
-        // Validamos los campos
+
         $this->validate($request, [
             'services_category_id' => 'required|filled',
             'service_id' => 'required',
@@ -172,7 +172,36 @@ class BudgetConceptsController extends Controller
             foreach ($budgetConcepts as $key => $concept) {
                 // Si el concepto es PROVEEDOR
                 if ($concept->concept_type_id === 1) {
+                    if ($concept->discount === null) {
+                        // Calculamos el Bruto del concepto (unidades * precio del concepto)
+                        $grossConcept = $concept->sale_price;
+                        // Calculamos las Base del Concepto
+                        $baseConcept = $grossConcept;
+                        // Añadimos la informacion a las variables globales para actualizar presupuesto
+                        $gross += $grossConcept;
+                        $base += $baseConcept;
+                        $concept->total_no_discount = $grossConcept;
+                        $concept->total = $baseConcept;
+                        $concept->save();
 
+                    }else {
+                        // Calculamos el Bruto del concepto (unidades * precio del concepto)
+                        $grossConcept =  $concept->sale_price;
+                        // Descuento del concepto
+                        $descuentoConcept = $concept->discount;
+                        // Calculamos el descuento del concepto
+                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+                        // Calculamos las Base del Concepto
+                        $baseConcept = $grossConcept - $importeConceptDescuento;
+                        // Añadimos la informacion a las variables globales para actualizar presupuesto
+                        $descuento += $importeConceptDescuento;
+                        $gross += $grossConcept;
+                        $base += $baseConcept;
+                        // Actualizar el concepto
+                        $concept->total_no_discount = $grossConcept;
+                        $concept->total = $baseConcept;
+                        $concept->save();
+                    }
                 }
                 // Si el concepto es PROPIO
                 elseif($concept->concept_type_id === 2){
@@ -294,71 +323,72 @@ class BudgetConceptsController extends Controller
         $data['budget_id'] = $budget;
         $data['concept_type_id'] = 1;
 
-        // Guardar
-        $budgetConcept = BudgetConcept::create([
-            'budget_id' => $budget,
-            'concept_type_id' => 1,
-            'services_category_id' => $data['services_category_id'],
-            'service_id' => $data['service_id'],
-            'title' => $data['title'],
-            'concept' => $data['concept'],
-
-        ]);
-
-        $budgetConceptSaved = $budgetConcept->save();
-
         // Guarda las unidadesº
         foreach( $data['units'] as $unit ) {
+            $budgetConcept = BudgetConcept::create([
+                'budget_id' => $budget,
+                'concept_type_id' => 1,
+                'services_category_id' => $data['services_category_id'],
+                'service_id' => $data['service_id'],
+                'units' => $unit,
+                'title' => $data['title'],
+                'concept' => $data['concept'],
+
+            ]);
+
+            $budgetConceptSaved = $budgetConcept->save();
+
             $crearFilaUniadades = BudgetConceptSupplierUnits::create([
                 'budget_concept_id' => $budgetConcept->id,
                 'units' => $unit,
                 'selected' => null
             ]);
+
             $crearFilaUniadades->save();
+            // Guardar las opciones de proveedores
+             if( $budgetConceptSaved ) {
+                // Proveedor 1
+                $newSupplierOpt1 = array(
+                    "_token" => $data['_token'],
+                    "budget_concept_id" =>$budgetConcept->id,
+                    "supplier_id" => $data['supplierId1'],
+                    "mail" => $data['supplierEmail1'],
+                    "price" => $data['supplierPrice1'],
+                    "option_number" => 1,
+                );
+                $budgetSupplierRequest1 = BudgetConceptSupplierRequest::create($newSupplierOpt1);
+                $budgetSupplierRequest1Saved = $budgetSupplierRequest1->save();
+                // Proveedor 2
+                $newSupplierOpt2 = array(
+                    "_token" => $data['_token'],
+                    "budget_concept_id" =>$budgetConcept->id,
+                    "supplier_id" => $data['supplierId2'],
+                    "mail" => $data['supplierEmail2'],
+                    "price" => $data['supplierPrice2'],
+                    "option_number" => 2,
+                );
+                $budgetSupplierRequest2 = BudgetConceptSupplierRequest::create($newSupplierOpt2);
+                $budgetSupplierRequest2Saved = $budgetSupplierRequest2->save();
+                // Proveedor 3
+
+                $newSupplierOpt3 = array(
+                    "_token" => $data['_token'],
+                    "budget_concept_id" =>$budgetConcept->id,
+                    "supplier_id" => $data['supplierId3'],
+                    "mail" => $data['supplierEmail3'],
+                    "price" => $data['supplierPrice3'],
+                    "option_number" => 3,
+                );
+                $budgetSupplierRequest3 = BudgetConceptSupplierRequest::create($newSupplierOpt3);
+                $budgetSupplierRequest3Saved = $budgetSupplierRequest3->save();
+            } else {
+                return session()->flash('toast', [
+                    'icon' => 'error',
+                    'mensaje' => "Error en el servidor, intentelo mas tarde."
+                ]);
+            }
         }
 
-        // Guardar las opciones de proveedores
-         if( $budgetConceptSaved ) {
-            // Proveedor 1
-            $newSupplierOpt1 = array(
-                "_token" => $data['_token'],
-                "budget_concept_id" =>$budgetConcept->id,
-                "supplier_id" => $data['supplierId1'],
-                "mail" => $data['supplierEmail1'],
-                "price" => $data['supplierPrice1'],
-                "option_number" => 1,
-            );
-            $budgetSupplierRequest1 = BudgetConceptSupplierRequest::create($newSupplierOpt1);
-            $budgetSupplierRequest1Saved = $budgetSupplierRequest1->save();
-            // Proveedor 2
-            $newSupplierOpt2 = array(
-                "_token" => $data['_token'],
-                "budget_concept_id" =>$budgetConcept->id,
-                "supplier_id" => $data['supplierId2'],
-                "mail" => $data['supplierEmail2'],
-                "price" => $data['supplierPrice2'],
-                "option_number" => 2,
-            );
-            $budgetSupplierRequest2 = BudgetConceptSupplierRequest::create($newSupplierOpt2);
-            $budgetSupplierRequest2Saved = $budgetSupplierRequest2->save();
-            // Proveedor 3
-
-            $newSupplierOpt3 = array(
-                "_token" => $data['_token'],
-                "budget_concept_id" =>$budgetConcept->id,
-                "supplier_id" => $data['supplierId3'],
-                "mail" => $data['supplierEmail3'],
-                "price" => $data['supplierPrice3'],
-                "option_number" => 3,
-            );
-            $budgetSupplierRequest3 = BudgetConceptSupplierRequest::create($newSupplierOpt3);
-            $budgetSupplierRequest3Saved = $budgetSupplierRequest3->save();
-        } else {
-            return session()->flash('toast', [
-                'icon' => 'error',
-                'mensaje' => "Error en el servidor, intentelo mas tarde."
-            ]);
-        }
 
         if(isset($data['checkMail'])) {
             return $this->saveAndSend($budgetConcept,$data['file']);
@@ -394,6 +424,175 @@ class BudgetConceptsController extends Controller
         return view('budgets-concepts.editTypeSupplier', compact('budgetConcept', 'presupuesto','suppliers', 'budgetSuppliersSaved', 'budgetSupplierSelectedOption', 'services', 'categorias', 'client', 'arrayEmails'));
     }
 
+    public function updateTypeSupplier(Request $request, $budget)
+    {
+
+
+        // Validamos los campos
+        $this->validate($request, [
+            'services_category_id' => 'required|filled',
+            'service_id' => 'required',
+            'title' => 'required',
+            'concept' => 'required',
+            'units' => 'required',
+            'supplierId1' => 'required',
+            'supplierId2' => 'required',
+            'supplierId3' => 'required',
+        ], [
+            'services_category_id.required' => 'La categoria del servicio es requerido para continuar',
+            'service_id.required' => 'El servicio es requerido para continuar',
+            'title.required' => 'El titulo debe ser valido para continuar',
+            'concept.required' => 'El concepto es requerido para continuar',
+            'units.required' => 'Al menos una unidad es requerida para continuar',
+            'supplierId1.required' => 'El proveedor 1 es requerido para continuar',
+            'supplierId2.required' => 'El proveedor 2 es requerido para continuar',
+            'supplierId3.required' => 'El proveedor 3 es requerido para continuar',
+        ]);
+
+        $data = $request->all();
+
+        $data['total_no_discount'] =  $data['sale_price'];
+        $data['total'] =  $data['sale_price'];
+
+        $conceptoactualizado = BudgetConcept::where('id', $budget)->first()->update($data);
+        $budgetConceptActualizado = BudgetConcept::where('id', $budget)->first();
+
+        if($conceptoactualizado){
+            // Proveedor 1
+            $newSupplierOpt1 = array(
+                "supplier_id" => $data['supplierId1'],
+                "mail" => $data['supplierEmail1'],
+                "price" => $data['supplierPrice1'],
+            );
+            BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConceptActualizado->id)->where('option_number', 1 )->update($newSupplierOpt1);
+            // Proveedor 2
+            $newSupplierOpt2 = array(
+                "supplier_id" => $data['supplierId2'],
+                "mail" => $data['supplierEmail2'],
+                "price" => $data['supplierPrice2'],
+            );
+            BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConceptActualizado->id)->where('option_number',  )->update($newSupplierOpt2);
+
+            // Proveedor 3
+            $newSupplierOpt3 = array(
+                "supplier_id" => $data['supplierId3'],
+                "mail" => $data['supplierEmail3'],
+                "price" => $data['supplierPrice3'],
+            );
+            BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConceptActualizado->id)->where('option_number', 3 )->update($newSupplierOpt3);
+
+        } else {
+            return session()->flash('toast', [
+                'icon' => 'error',
+                'mensaje' => "Error en el servidor, intentelo mas tarde."
+            ]);
+        }
+
+
+        if(isset($data['checkMail'])) {
+            return $this->saveAndSend($budgetConceptActualizado,$data['file']);
+        } else {
+
+        }
+
+         // Variables
+         $ivaTotal = 0;
+         $total = 0;
+         $gross = 0;
+         $descuento = 0;
+         $base = 0;
+
+         // Obtenemos el presupuesto para Actualizar
+         $budgetToUpdate = Budget::where('id', $budgetConceptActualizado->budget_id)->first();
+         // Obtenemos todos los conceptos de este presupuesto
+         $budgetConcepts = BudgetConcept::where('budget_id', $budgetConceptActualizado->budget_id)->get();
+
+         if (count($budgetConcepts) >= 1) {
+             // Recorremos los conceptos
+             foreach ($budgetConcepts as $key => $concept) {
+                 // Si el concepto es PROVEEDOR
+                 if ($concept->concept_type_id === 1) {
+                    if ($concept->discount === null) {
+                        // Calculamos el Bruto del concepto (unidades * precio del concepto)
+                        $grossConcept = $concept->sale_price;
+                        // Calculamos las Base del Concepto
+                        $baseConcept = $grossConcept;
+                        // Añadimos la informacion a las variables globales para actualizar presupuesto
+                        $gross += $grossConcept;
+                        $base += $baseConcept;
+                        $concept->total_no_discount = $grossConcept;
+                        $concept->total = $baseConcept;
+                        $concept->save();
+
+                    }else {
+                        // Calculamos el Bruto del concepto (unidades * precio del concepto)
+                        $grossConcept =  $concept->sale_price;
+                        // Descuento del concepto
+                        $descuentoConcept = $concept->discount;
+                        // Calculamos el descuento del concepto
+                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+                        // Calculamos las Base del Concepto
+                        $baseConcept = $grossConcept - $importeConceptDescuento;
+                        // Añadimos la informacion a las variables globales para actualizar presupuesto
+                        $descuento += $importeConceptDescuento;
+                        $gross += $grossConcept;
+                        $base += $baseConcept;
+                        // Actualizar el concepto
+                        $concept->total_no_discount = $grossConcept;
+                        $concept->total = $baseConcept;
+                        $concept->save();
+                    }
+                 }
+                 // Si el concepto es PROPIO
+                 elseif($concept->concept_type_id === 2){
+                     if ($concept->discount === null) {
+                         // Calculamos el Bruto del concepto (unidades * precio del concepto)
+                         $grossConcept = $concept->units * $concept->sale_price;
+                         // Calculamos las Base del Concepto
+                         $baseConcept = $grossConcept;
+                         // Añadimos la informacion a las variables globales para actualizar presupuesto
+                         $gross += $grossConcept;
+                         $base += $baseConcept;
+
+                     }else {
+                         // Calculamos el Bruto del concepto (unidades * precio del concepto)
+                         $grossConcept = $concept->units * $concept->sale_price;
+                         // Descuento del concepto
+                         $descuentoConcept = $concept->discount;
+                         // Calculamos el descuento del concepto
+                         $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+                         // Calculamos las Base del Concepto
+                         $baseConcept = $grossConcept - $importeConceptDescuento;
+                         // Añadimos la informacion a las variables globales para actualizar presupuesto
+                         $descuento += $importeConceptDescuento;
+                         $gross += $grossConcept;
+                         $base += $baseConcept;
+                         // Actualizar el concepto
+                         $concept->total_no_discount = $grossConcept;
+                         $concept->total = $baseConcept;
+                         $concept->save();
+                     }
+                 }
+             }
+             // Calculamos el Iva y el Total
+             $ivaTotal += ( $base * 21 ) /100;
+             $total += $base + $ivaTotal;
+
+             $budgetUpdate = $budgetToUpdate->update([
+                 'discount' => $descuento,
+                 'gross' => $gross,
+                 'base' => $base,
+                 'iva' => $ivaTotal,
+                 'total' => $total,
+
+             ]);
+         }
+        session()->flash('toast', [
+            'icon' => 'success',
+            'mensaje' => 'El concepto se creo correctamente'
+        ]);
+        return redirect(route('presupuesto.edit', $budgetConceptActualizado->budget_id));
+    }
     /**** FUNCIONES GLOBALES ****/
 
     public function deleteConceptsType(Request $request) {
@@ -502,7 +701,36 @@ class BudgetConceptsController extends Controller
             foreach ($budgetConcepts as $key => $concept) {
                 // Si el concepto es PROVEEDOR
                 if ($concept->concept_type_id === 1) {
+                    if ($concept->discount === null) {
+                        // Calculamos el Bruto del concepto (unidades * precio del concepto)
+                        $grossConcept = $concept->sale_price;
+                        // Calculamos las Base del Concepto
+                        $baseConcept = $grossConcept;
+                        // Añadimos la informacion a las variables globales para actualizar presupuesto
+                        $gross += $grossConcept;
+                        $base += $baseConcept;
+                        $concept->total_no_discount = $grossConcept;
+                        $concept->total = $baseConcept;
+                        $concept->save();
 
+                    }else {
+                        // Calculamos el Bruto del concepto (unidades * precio del concepto)
+                        $grossConcept =  $concept->sale_price;
+                        // Descuento del concepto
+                        $descuentoConcept = $concept->discount;
+                        // Calculamos el descuento del concepto
+                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+                        // Calculamos las Base del Concepto
+                        $baseConcept = $grossConcept - $importeConceptDescuento;
+                        // Añadimos la informacion a las variables globales para actualizar presupuesto
+                        $descuento += $importeConceptDescuento;
+                        $gross += $grossConcept;
+                        $base += $baseConcept;
+                        // Actualizar el concepto
+                        $concept->total_no_discount = $grossConcept;
+                        $concept->total = $baseConcept;
+                        $concept->save();
+                    }
                 }
                 // Si el concepto es PROPIO
                 elseif($concept->concept_type_id === 2){
@@ -571,10 +799,17 @@ class BudgetConceptsController extends Controller
     public function getInfoByServices(Request $request)
     {
         $categoryId = $request->input('categoryId');
-
+        $service = Service::find( $categoryId);
+        $empresa = CompanyDetails::find(1);
+        $preciomedi  = $service->calcularPrecioMedio($empresa->price_hour);
         $services = Service::where('id', $categoryId)
             ->get(['id', 'title', 'concept', 'price'])
             ->toArray();
+        if($preciomedi > 0){
+             $services['0']['preciomedi'] = $preciomedi;
+        }else{
+             $services['0']['preciomedi'] = null;
+        }
 
         return response()->json($services);
     }

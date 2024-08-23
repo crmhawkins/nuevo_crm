@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
+            $table->boolean('antiguo')->default(false);
             $table->string('name')->nullable();
             $table->string('dni')->nullable();
             $table->string('cif')->nullable();

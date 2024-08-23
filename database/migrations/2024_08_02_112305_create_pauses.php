@@ -15,13 +15,11 @@ return new class extends Migration
     {
         Schema::create('pauses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('jornada_id');
+            $table->foreignId('jornada_id')->constrained('jornadas')->onDelete('cascade');
             $table->timestamp('start_time');
             $table->timestamp('end_time')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('jornada_id')->references('id')->on('jornadas')->onDelete('cascade');
         });
     }
 

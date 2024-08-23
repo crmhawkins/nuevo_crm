@@ -90,7 +90,7 @@ class Invoice extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function client()
+    public function cliente()
     {
         return $this->belongsTo(Client::class,'client_id');
     }

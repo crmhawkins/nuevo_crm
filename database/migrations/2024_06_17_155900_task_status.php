@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('task_status', function (Blueprint $table) {
-            $table->bigIncrements('id')->unsigned();
+            $table->id();
             $table->string('name')->nullable();
             $table->timestamps();
         });

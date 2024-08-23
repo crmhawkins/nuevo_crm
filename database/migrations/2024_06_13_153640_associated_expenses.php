@@ -13,11 +13,11 @@ return new class extends Migration
     {
 
         Schema::create('associated_expenses', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('budget_id')->nullable();
-            $table->unsignedInteger('bank_id')->nullable();
-            $table->unsignedInteger('purchase_order_id')->nullable();
-            $table->unsignedBigInteger('payment_method_id')->nullable();
+            $table->id();
+            $table->foreignId('budget_id')->constrained('budgets')->onDelete('cascade')->nullable();
+            $table->foreignId('bank_id')->constrained('bank_accounts')->onDelete('cascade')->nullable();
+            $table->foreignId('purchase_order_id')->constrained('purchase_order')->onDelete('cascade')->nullable();
+            $table->foreignId('payment_method_id')->constrained('payment_method')->onDelete('cascade')->nullable();
             $table->string('title')->collation('utf8_unicode_ci')->nullable();
             $table->float('quantity',10,2)->nullable();
             $table->date('received_date')->nullable();
@@ -26,10 +26,6 @@ return new class extends Migration
             $table->enum('state',['PAGADO','PENDIENTE']);
             $table->tinyInteger('aceptado_gestor')->nullable();
 
-            $table->foreign('budget_id')->references('id')->on('budgets');
-            $table->foreign('bank_id')->references('id')->on('bank_accounts');
-            $table->foreign('purchase_order_id')->references('id')->on('purchase_order');
-            $table->foreign('payment_method_id')->references('id')->on('payment_method');
 
             $table->timestamps();
             $table->softDeletes();

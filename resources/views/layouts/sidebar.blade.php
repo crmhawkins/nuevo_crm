@@ -31,6 +31,10 @@
                     $peticionesActive = request()->routeIs('peticion.*');
                     $personalActive = request()->routeIs('users.*') ;
                     $tareaActive = request()->routeIs('tareas.*') ;
+                    $vacacionesActive = request()->routeIs('holiday.admin.*') ;
+                    $nominasActive = request()->routeIs('nominas.*') ;
+                    $contratosActive = request()->routeIs('contratos.*') ;
+                    $poveedoresActive= request()->routeIs('proveedores.*');
                     $tesoreriaActive = request()->routeIs('ingresos.*') || request()->routeIs('gastos.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
                 @endphp
 
@@ -61,6 +65,7 @@
                 <li class="sidebar-item has-sub {{ $presupuestoActive ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
                         <i class="fa-solid fa-file-invoice-dollar fs-5"></i>
+
                         <span>Presupuestos</span>
                     </a>
                     <ul class="submenu" style="{{ $presupuestoActive ? 'display:block;' : 'display:none;' }}">
@@ -84,7 +89,7 @@
                 </li>
                 <li class="sidebar-item has-sub {{ $peticionesActive ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
-                        <i class="fa-solid fa-clipboard"></i>
+                        <i class="fa-solid fa-clipboard fs-5"></i>
                         <span>Peticiones</span>
                     </a>
                     <ul class="submenu" style="{{ $peticionesActive ? 'display:block;' : 'display:none;' }}">
@@ -218,7 +223,7 @@
                 </li>
                 <li class="sidebar-item has-sub {{ $personalActive ? 'active' : '' }}">
                     <a href="#" class='sidebar-link'>
-                        <i class="fa-solid fa-user-group"></i>
+                        <i class="fa-solid fa-user-group fs-5"></i>
                         <span>Personal</span>
                     </a>
                     <ul class="submenu" style="{{ $personalActive ? 'display:block;' : 'display:none;' }}">
@@ -262,6 +267,95 @@
                                 </span>
                             </a>
                         </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item has-sub {{ $contratosActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
+                        <i class="fa-solid fa-file-invoice fs-5"></i>
+                            <span>Contratos</span>
+                    </a>
+                    <ul class="submenu" style="{{ $contratosActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('contratos.index') ? 'active' : '' }}">
+                            <a href="{{route('contratos.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('contratos.create') ? 'active' : '' }}">
+                            <a href="{{route('contratos.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear contrato
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item has-sub {{ $nominasActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
+                        <i class="fa-solid fa-file-invoice-dollar fs-5"></i>
+                        <span>Nominas</span>
+                    </a>
+                    <ul class="submenu" style="{{ $nominasActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('nominas.index') ? 'active' : '' }}">
+                            <a href="{{route('nominas.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('nominas.create') ? 'active' : '' }}">
+                            <a href="{{route('nominas.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear nomina
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item has-sub {{ $poveedoresActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
+                        <i class="fa-solid fa-user-tie fs-5"></i>
+                        <span>Proveedores</span>
+                    </a>
+                    <ul class="submenu" style="{{ $poveedoresActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('proveedores.index') ? 'active' : '' }}">
+                            <a href="{{route('proveedores.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('proveedores.create') ? 'active' : '' }}">
+                            <a href="{{route('proveedores.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear nuevo
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item has-sub {{ $vacacionesActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
+                        <i class="fa-solid fa-umbrella-beach fs-5"></i>
+                        <span>Vacaciones</span>
+                    </a>
+                    <ul class="submenu" style="{{ $vacacionesActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('holiday.admin.petitions') ? 'active' : '' }}">
+                            <a href="{{route('holiday.admin.petitions')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Gestinar
+                                </span>
+                            </a>
+                        </li>
+
                     </ul>
                 </li>
                 <li class="sidebar-item has-sub {{ $tesoreriaActive ? 'active' : '' }}">

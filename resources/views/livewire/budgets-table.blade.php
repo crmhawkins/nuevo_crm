@@ -58,10 +58,7 @@
             </div>
         </div>
     </div>
-    {{-- {{dd($users)}} --}}
     @if ( $budgets )
-        {{-- Filtros --}}
-        {{-- Tabla --}}
         <div class="table-responsive">
             <table class="table">
                 <thead class="header-table">

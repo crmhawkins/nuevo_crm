@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('crm_activities_meetings', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->id();            $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->unsignedBigInteger('contact_by_id')->nullable();
             $table->string('subject')->nullable();

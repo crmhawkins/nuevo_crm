@@ -12,10 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('newsletters_automatic', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->text('id_newsletters_list')->nullable();
+            $table->id();            $table->text('id_newsletters_list')->nullable();
             $table->tinyInteger('current_sent')->nullable();
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

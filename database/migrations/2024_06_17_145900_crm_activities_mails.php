@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('crm_activities_mails', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->id();            $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->string('subject')->nullable();
             $table->text('content')->nullable();
@@ -21,10 +20,10 @@ return new class extends Migration
             $table->tinyInteger('newsletter')->nullable();
             $table->tinyInteger('only_save')->nullable();
             $table->date('date')->nullable();
- 
+
             $table->foreign('admin_user_id')->references('id')->on('admin_users');
             $table->foreign('client_id')->references('id')->on('clients');
- 
+
             $table->timestamps();
             $table->softDeletes();
         });

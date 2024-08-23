@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('logs_email', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->string('mail_emisor')->nullable();
+            $table->id();            $table->string('mail_emisor')->nullable();
             $table->string('mail_receptor')->nullable();
             $table->tinyInteger('status')->nullable();
             $table->text('mensaje')->nullable();

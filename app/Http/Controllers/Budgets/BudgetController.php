@@ -40,6 +40,14 @@ class BudgetController extends Controller
         return view('budgets.index', compact('budgets'));
     }
 
+    public function statusProjects()
+    {
+        $userId = Auth::user()->id;
+        $usuario = User::find($userId);
+
+        return view('budgets.status', compact('usuario',));
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -167,7 +175,7 @@ class BudgetController extends Controller
         $budgetConcepts = BudgetConcept::where("budget_id", $id)->get();
         $thisBudgetStatus = BudgetStatu::where('id',$presupuesto->budget_status_id)->get()->first();
 
-        if($presupuesto->budget_status_id = 7 && $presupuesto->total > 0){
+        if($presupuesto->budget_status_id == 7 && $presupuesto->total > 0){
             $totalFacturado = Invoice::where('budget_id',$presupuesto->id)->get()->sum('total');
             $porcentaje = ($totalFacturado / $presupuesto->total) * 100;
         }else{ $porcentaje = 0;}
@@ -835,6 +843,244 @@ class BudgetController extends Controller
         $referenceGenerationResult = $this->generateInvoiceReference($budget);
 
 
+        $grossfacturado=0;
+        $basefacturada=0;
+        $descuento=0;
+        $ivaTotalfacturado=0;
+        $totalfacturado=0;
+
+        if(count(BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get()) >= 1){
+
+            $budgetConcepts = BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get();
+
+
+            foreach ($budgetConcepts as $key => $concept) {
+                // Si el concepto es PROVEEDOR
+                if ($concept->concept_type_id === 1) {
+                    if ($concept->discount === null) {
+                        $grossConcept = $concept->sale_price;
+                        $baseConcept = $grossConcept;
+                        $grossfacturado += $grossConcept;
+                        $basefacturada += $baseConcept;
+                    }else {
+                        $grossConcept =  $concept->sale_price;
+                        $descuentoConcept = $concept->discount;
+                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+                        $baseConcept = $grossConcept - $importeConceptDescuento;
+                        $descuento += $importeConceptDescuento;
+                        $grossfacturado += $grossConcept;
+                        $basefacturada += $baseConcept;
+                    }
+                }
+                elseif($concept->concept_type_id === 2){
+                    if ($concept->discount === null) {
+                        $grossConcept = $concept->units * $concept->sale_price;
+                        $baseConcept = $grossConcept;
+                        $grossfacturado += $grossConcept;
+                        $basefacturada += $baseConcept;
+                    }else {
+                        $grossConcept = $concept->units * $concept->sale_price;
+                        $descuentoConcept = $concept->discount;
+                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+                        $baseConcept = $grossConcept - $importeConceptDescuento;
+                        $descuento += $importeConceptDescuento;
+                        $grossfacturado += $grossConcept;
+                        $basefacturada += $baseConcept;
+                    }
+                }
+            }
+            // Calculamos el Iva y el Total
+            $ivaTotalfacturado += ( $basefacturada * 21 ) /100;
+            $totalfacturado += $basefacturada + $ivaTotalfacturado;
+
+        }
+
+        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
+            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
+            $porcentaje = 1 - ($totalFacturado / $budget->total);
+            if($porcentaje == 0){
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
+                ]);
+            }
+        }else{ $porcentaje = 1;}
+
+        $data = [
+            'budget_id' => $budget->id,
+            'reference' => $referenceGenerationResult['reference'],
+            'reference_autoincrement_id' => $referenceGenerationResult['reference_autoincrement'],
+            'admin_user_id' => Auth::user()->id ?? 1,
+            'client_id' => $budget->client_id,
+            'project_id' => $budget->project_id,
+            'payment_method_id' => $budget->payment_method_id,
+            'invoice_status_id' => 1, //abierta
+            'concept' => $budget->concept,
+            'gross' => ($budget->gross - $grossfacturado ) * $porcentaje,
+            'base' => ($budget->base - $basefacturada) * $porcentaje,
+            'iva' => ($budget->iva - $ivaTotalfacturado) * $porcentaje,
+            'iva_percentage' => ($budget->iva_percentage),
+            'discount' => ($budget->discount - $descuento) * $porcentaje,
+            'discount_percentage' => $discountPercentage,
+            'total' => ($budget->total - $totalfacturado) * $porcentaje,
+        ];
+
+        // Creación de la factura
+        $invoice = Invoice::create($data);
+
+        if(!isset($invoice)){
+            return response()->json([
+                'status' => false,
+                'mensaje' => "Error en la creacion de la factura. "
+            ]);
+        }
+
+        if(isset($invoice)){
+            $budget->budget_status_id = 6;
+            $budget->save();
+            //////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////         CONCEPTOS PROPIOS         ///////////////////////////
+            //////////////////////////////////////////////////////////////////////////////////////////////
+            $budgetHasOwnTypeConcepts = $this->budgetHasOwnTypeConcepts($budget);
+
+            if($budgetHasOwnTypeConcepts){
+                // Obtener los conceptos propios de presupuesto
+                $thisBudgetOwnTypeConcepts = BudgetConcept::where('budget_id', $budget->id)
+                    ->where('is_facturado', false)
+                    ->where('concept_type_id',BudgetConceptType::TYPE_OWN )
+                    ->get();
+
+                foreach( $thisBudgetOwnTypeConcepts as $thisBudgetOwnTypeConcept ){
+                    $conceptOwnData = [
+                        'invoice_id' => $invoice->id,
+                        'concept_type_id' => BudgetConceptType::TYPE_OWN,
+                        'service_id' => $thisBudgetOwnTypeConcept->service_id,
+                        'services_category_id' => $thisBudgetOwnTypeConcept->services_category_id,
+                        'title' => $thisBudgetOwnTypeConcept->title,
+                        'concept' => $thisBudgetOwnTypeConcept->concept,
+                        'units' => $thisBudgetOwnTypeConcept->units,
+                        'purchase_price' => $thisBudgetOwnTypeConcept->purchase_price,
+                        'benefit_margin' => $thisBudgetOwnTypeConcept->benefit_margin,
+                        'sale_price' => $thisBudgetOwnTypeConcept->sale_price * $porcentaje,
+                        'discount' => $thisBudgetOwnTypeConcept->discount * $porcentaje,
+                        'total' => $thisBudgetOwnTypeConcept->total * $porcentaje,
+                        'total_no_discount' => $thisBudgetOwnTypeConcept->total_no_discount * $porcentaje,
+                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    ];
+
+                    $conceptOwnCreate = InvoiceConcepts::create($conceptOwnData);
+                    $conceptOwnSaved = $conceptOwnCreate->save();
+                    $thisBudgetOwnTypeConcept->update(['is_facturado' => true]);
+
+                    if(!$conceptOwnSaved){
+                            $generationSuccess = false;
+                    }
+                }
+            }
+
+            if(!$generationSuccess){
+                foreach( $thisBudgetOwnTypeConcepts as $thisBudgetOwnTypeConcept ){
+                    $thisBudgetOwnTypeConcept->delete();
+                }
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Error al generar factura en conceptos propios."
+                ]);
+            }
+
+            //////////////////////////////////////////////////////////////////////////////////////////////
+            /////////////////////////////         CONCEPTOS PROVEEDORES           ////////////////////////
+            //////////////////////////////////////////////////////////////////////////////////////////////
+
+            $budgetHasSupplierTypeConcepts = $this->budgetHasSupplierTypeConcepts($budget);
+
+            if($budgetHasSupplierTypeConcepts){
+                // Obtener los conceptos de proveedor de presupuesto
+                $thisBudgetSupplierTypeConcepts = BudgetConcept::where('budget_id', $budget->id)
+                ->where('concept_type_id', BudgetConceptType::TYPE_SUPPLIER )
+                ->where('is_facturado', false)
+                ->get();
+
+                if($thisBudgetSupplierTypeConcepts){
+                    foreach ($thisBudgetSupplierTypeConcepts as $thisBudgetSupplierTypeConcept){
+                        $conceptSupplierData = [
+                            'invoice_id' => $invoice->id,
+                            'concept_type_id' => BudgetConceptType::TYPE_SUPPLIER,
+                            'service_id' => $thisBudgetSupplierTypeConcept->service_id,
+                            'services_category_id' => $thisBudgetSupplierTypeConcept->services_category_id,
+                            'title' => $thisBudgetSupplierTypeConcept->title,
+                            'concept' => $thisBudgetSupplierTypeConcept->concept,
+                            'units' => $thisBudgetSupplierTypeConcept->units,
+                            'purchase_price' => $thisBudgetSupplierTypeConcept->purchase_price,
+                            'benefit_margin' => $thisBudgetSupplierTypeConcept->benefit_margin,
+                            'sale_price' => $thisBudgetSupplierTypeConcept->sale_price * $porcentaje,
+                            'discount' => $thisBudgetSupplierTypeConcept->discount * $porcentaje,
+                            'total' => $thisBudgetSupplierTypeConcept->total * $porcentaje,
+                            'total_no_discount' => $thisBudgetSupplierTypeConcept->total_no_discount * $porcentaje,
+                            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                        ];
+
+                        $conceptSupplierCreate = InvoiceConcepts::create($conceptSupplierData);
+                        $conceptSupplierSaved = $conceptSupplierCreate->save();
+                        $thisBudgetSupplierTypeConcept->update(['is_facturado' => true]);
+
+                        if(!$conceptSupplierSaved){
+                                $generationSuccess = false;
+                        }
+                    }
+                }
+            }
+
+            if(!$generationSuccess){
+                foreach( $thisBudgetSupplierTypeConcepts as $thisBudgetSupplierTypeConcept ){
+                    $thisBudgetSupplierTypeConcept->delete();
+                }
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Error al generar factura en conceptos proveedor."
+                ]);
+
+            }
+
+            // Respuesta
+            return response()->json([
+                'status' => true,
+                'mensaje' => "Factura generada correctamente"
+            ]);
+        }
+    }
+    public function generateInvoiceConcept(Request $request){
+        $budget = Budget::find($request->id);
+
+        $generationSuccess = true;
+
+        //  No se puede generar factura un presupuesto temporal
+         if($budget->temp){
+
+            return response()->json([
+                'status' => false,
+                'mensaje' => "Un presupuesto temporal no puede generar factura."
+            ]);
+        }
+
+        // No se puede generar factura de un presupuesto sin conceptos
+        $budgetHasConcepts = $this->budgetHasConcepts($budget);
+        if(!$budgetHasConcepts){
+            return response()->json([
+                'status' => false,
+                'mensaje' => "Un presupuesto sin conceptos no puede generar factura."
+            ]);
+        }
+
+        // Validación campos array data
+        if( $budget->discount_percentage){
+            $discountPercentage =  $budget->discount_percentage;
+        }else{
+            $discountPercentage = 0;
+        }
+        $referenceGenerationResult = $this->generateInvoiceReference($budget);
+
+
         if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
             $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
             $porcentaje = 1 - ($totalFacturado / $budget->total);
@@ -1210,6 +1456,7 @@ class BudgetController extends Controller
 
     public function generatePDF(Request $request){
         $budget = Budget::find($request->id);
+
         $sumatorio = $budget->sumatorio;
         // Los conceptos de este presupuesto
         $thisBudgetConcepts = BudgetConcept::where('budget_id', $budget->id)->get();
@@ -1288,4 +1535,24 @@ class BudgetController extends Controller
         return $pdf->download('presupuesto_' . $budget['reference'] . '_' . Carbon::now()->format('Y-m-d') . '.pdf');
 
     }
+
+    public function getBudgetsByClientId(Request $request)
+    {
+        $clientId = $request->input('client_id');
+        $budgets = Budget::where('client_id', $clientId)->get();
+        return response($budgets);
+    }
+    public function getBudgetsByprojectId(Request $request)
+    {
+        $budgets = Budget::where('project_id',$request->input('project_id'))->get();
+        return response($budgets);
+    }
+
+    public function getBudgetById(Request $request)
+    {
+        $id = $request->input('budget_id');
+        $budget = Budget::find($id);
+        return response()->json($budget);
+    }
+
 }

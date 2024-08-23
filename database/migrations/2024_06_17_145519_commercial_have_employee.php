@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('commercial_have_employee', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
-            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->id();            $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->unsignedBigInteger('commercial_id')->nullable();
 
 

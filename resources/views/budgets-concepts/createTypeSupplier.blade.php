@@ -115,12 +115,14 @@
                         </div>
                         {{-- Enviar Email --}}
                         <div class="row my-5">
-                            <div class="form-check col-md-6">
+                            <div class="col-md-6">
                                 <label class="text-uppercase mb-2" style="font-weight: bold; display:block" for="em">Enviar email a todos los proveedores:</label>
-                                <input class="form-check-input" type="checkbox" id="checkMail" name="checkMail" value="true" style="height:20px;width:20px;">
-                                <label class="form-check-label" for="checkMail">
-                                   Si
-                                </label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkMail" name="checkMail" value="true" >
+                                    <label class="form-check-label" for="checkMail">
+                                        Si
+                                    </label>
+                                </div>
                                 <small class="text-muted d-block mt-2">Enviara el email a la lista de proveedores con los archivos adjuntos de la opcion de arriba.</small>
                                 @error('checkMail')
                                         <span class="invalid-feedback" role="alert">
