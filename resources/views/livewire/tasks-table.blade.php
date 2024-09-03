@@ -39,6 +39,15 @@
                     </select>
                 </div>
                 <div class="mr-3">
+                    <label for="">Departamento</label>
+                    <select wire:model="selectedDepartamento" name="" id="" class="form-select ">
+                        <option value="">-- Departamento --</option>
+                        @foreach ($departamentos as $departamento)
+                            <option value="{{$departamento->id}}">{{$departamento->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mr-3">
                     <label for="">Empleado</label>
                     <select wire:model="selectedEmpleado" name="" id="" class="form-select ">
                         <option value="">-- Empleados --</option>
@@ -64,30 +73,41 @@
 
         {{-- Tabla --}}
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
-                        <th class="px-3" style="font-size:0.75rem">TITULO</th>
-                        <th class="" style="font-size:0.75rem">PRIORIDAD</th>
-                        <th class="" style="font-size:0.75rem">CLIENTE</th>
-                        <th class="" style="font-size:0.75rem">DEPARTAMENTO</th>
-                        <th class="" style="font-size:0.75rem">EMPLEADO ASIGNADO</th>
-                        <th class="" style="font-size:0.75rem">GESTOR</th>
-                        <th class="" style="font-size:0.75rem">FECHA DE CREACION</th>
-                        <th class="" style="font-size:0.75rem">FECHA DE ENTREGA</th>
+                        @foreach ([
+                            'title' => 'TITULO',
+                            'prioridad' => 'PRIORIDAD',
+                            'cliente' => 'CLIENTE',
+                            'departamento' => 'DEPARTAMENTO',
+                            'empleado' => 'EMPLEADO ASIGNADO',
+                            'gestor' => 'GESTOR',
+                            'created_at' => 'FECHA DE CREACION',
+                            // 'created_at' => 'FECHA DE ENTREGA',
+                        ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
+                        <th class="text-center" style="font-size:0.75rem">FECHA DE ENTREGA</th>
                         <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
-                    </tr>
                 </thead>
                 <tbody>
                     {{-- Recorremos los servicios --}}
                     @foreach ( $tareas as $tarea )
-                        <tr class="clickable-row" data-href="{{route('tarea.edit', $tarea->id)}}" style="cursor: pointer;">
+                        <tr class="clickable-row" data-href="{{route('tarea.edit', $tarea->id)}}" >
                             <td class="px-3">{{$tarea->title}}</td>
-                            <td class="">{{$tarea->prioridad ? $tarea->prioridad->name : 'Prioridad no asignada'}}</td>
+                            <td class="">{{$tarea->prioridad ? $tarea->prioridad : 'Prioridad no asignada'}}</td>
                             <td class="">{{$tarea->presupuesto->cliente->name ?? 'No definido'}}</td>
-                            <td class="">{{$tarea->split_master_task_id ? ($tarea->usuario ? ($tarea->usuario->departamento ? $tarea->usuario->departamento->name : 'Usuario sin departamento'  ) : 'Usuario no asignado') : ''}}</td>
-                            <td class="">{{$tarea->split_master_task_id ? ($tarea->usuario->name ?? 'No definido') : 'Tarea Maestra'}}</td>
-                            <td class="">{{$tarea->gestor->name ?? 'No definido'}}</td>
+                            <td class="">{{$tarea->split_master_task_id ? ($tarea->usuario ? ($tarea->departamento ?? 'Usuario sin departamento'  ) : 'Usuario no asignado') : ''}}</td>
+                            <td class="">{{$tarea->split_master_task_id ? ($tarea->empleado ?? 'No definido') : 'Tarea Maestra'}}</td>
+                            <td class="">{{$tarea->gestor ?? 'No definido'}}</td>
                             <td class="">{{Carbon\Carbon::parse($tarea->created_at)->format('d/m/Y')}}</td>
                             <td class="">{{Carbon\Carbon::parse($tarea->created_at)->format('d/m/Y')}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
@@ -123,36 +143,7 @@
     @include('partials.toast')
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const rows = document.querySelectorAll("tr.clickable-row");
 
-            // Agregar evento de clic a las filas
-            rows.forEach(row => {
-                row.addEventListener("click", () => {
-                    const href = row.dataset.href;
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
-            });
-
-            // Detener la propagación de los eventos de clic en los enlaces dentro de las filas
-            const links = document.querySelectorAll("tr.clickable-row a");
-
-            links.forEach(link => {
-                link.addEventListener("click", (event) => {
-                    event.stopPropagation(); // Detiene la propagación del evento
-                });
-            });
-
-            // Si tienes botones o cualquier otro elemento interactivo, repite el proceso anterior para ellos
-            const buttons = document.querySelectorAll("tr.clickable-row button");
-            buttons.forEach(button => {
-                button.addEventListener("click", (event) => {
-                    event.stopPropagation();
-                });
-            });
-        });
         $(document).ready(() => {
             $('.delete').on('click', function(e) {
                 e.preventDefault();

@@ -2,22 +2,17 @@
 
 namespace App\Models\Budgets;
 
+use App\Models\Tasks\Task;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Budget extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'budgets';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'reference',
         'reference_autoincrement_id',
@@ -51,37 +46,36 @@ class Budget extends Model
         'order_column',
     ];
 
-     /**
-     * Mutaciones de fecha.
-     *
-     * @var array
-     */
-    protected $dates = [
-        'created_at', 'updated_at', 'deleted_at',
-    ];
+    protected $dates = ['created_at', 'updated_at', 'deleted_at'];
 
-    public function usuario() {
-        return $this->belongsTo(\App\Models\Users\User::class,'admin_user_id');
+    public function usuario()
+    {
+        return $this->belongsTo(\App\Models\Users\User::class, 'admin_user_id');
     }
 
-    public function referencia() {
-        return $this->belongsTo(\App\Models\Budgets\BudgetReferenceAutoincrement::class,'reference_autoincrement_id');
+    public function referencia()
+    {
+        return $this->belongsTo(\App\Models\Budgets\BudgetReferenceAutoincrement::class, 'reference_autoincrement_id');
     }
 
-    public function estadoPresupuesto() {
-        return $this->belongsTo(\App\Models\Budgets\BudgetStatu::class,'budget_status_id');
+    public function estadoPresupuesto()
+    {
+        return $this->belongsTo(\App\Models\Budgets\BudgetStatu::class, 'budget_status_id');
     }
 
-    public function cliente() {
-        return $this->belongsTo(\App\Models\Clients\Client::class,'client_id');
+    public function cliente()
+    {
+        return $this->belongsTo(\App\Models\Clients\Client::class, 'client_id');
     }
 
-    public function proyecto() {
-        return $this->belongsTo(\App\Models\Projects\Project::class,'project_id');
+    public function proyecto()
+    {
+        return $this->belongsTo(\App\Models\Projects\Project::class, 'project_id');
     }
 
-    public function metodoPago() {
-        return $this->belongsTo(\App\Models\PaymentMethods\PaymentMethod::class,'payment_method_id');
+    public function metodoPago()
+    {
+        return $this->belongsTo(\App\Models\PaymentMethods\PaymentMethod::class, 'payment_method_id');
     }
 
     public function budgetConcepts()
@@ -89,5 +83,15 @@ class Budget extends Model
         return $this->hasMany(BudgetConcept::class, 'budget_id');
     }
 
+    public function cambiarEstadoPresupuesto($nuevoEstadoId)
+    {
+        if ($nuevoEstadoId == 4) {
+            $this->tasks()->update(['task_status_id' => 4]);
+        }
+    }
 
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'budget_id');
+    }
 }

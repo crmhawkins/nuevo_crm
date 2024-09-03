@@ -45,25 +45,38 @@
         {{-- Filtros --}}
         {{-- Tabla --}}
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
-                    <th class="px-3" style="font-size:0.75rem">AVATAR</th>
-                    <th class="" style="font-size:0.75rem">NOMBRE</th>
-                    <th class="" style="font-size:0.75rem">NIVEL DE ACCESO</th>
-                    <th class="" style="font-size:0.75rem">DEPARTAMENTOS</th>
-                    <th class="" style="font-size:0.75rem">CARGO</th>
-                    <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
+                    <tr>
+                        <th class="text-center" style="font-size:0.75rem">AVATAR</th>
+                        @foreach ([
+                            'name' => 'NOMBRE',
+                            'acceso' => 'NIVEL DE ACCESO',
+                            'departamento' => 'DEPARTAMENTO',
+                            'cargo' => 'CARGO',
+                        ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
+                        <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
+
                 <tbody>
                     @foreach ( $users as $user )
-                        <tr>
+                        <tr class="clickable-row" data-href="{{route('users.edit', $user->id)}}">
                             <td>
 
                             </td>
                             <td>{{$user->name}}</td>
-                            <td>{{$user->acceso->name}}</td>
-                            <td>{{$user->departamento->name}}</td>
-                            <td>{{$user->posicion->name}}</td>
+                            <td>{{$user->acceso}}</td>
+                            <td>{{$user->departamento}}</td>
+                            <td>{{$user->cargo}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{route('users.show', $user->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar usuario"></a>
                                 <a class="" href="{{route('users.edit', $user->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Mostrar usuario"></a>

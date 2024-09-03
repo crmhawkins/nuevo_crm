@@ -20,6 +20,7 @@ use App\Models\Invoices\InvoiceReferenceAutoincrement;
 use App\Models\PaymentMethods\PaymentMethod;
 use App\Models\Petitions\Petition;
 use App\Models\Projects\Project;
+use App\Models\Users\ClientUserOrder;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use DateTime;
@@ -45,9 +46,35 @@ class BudgetController extends Controller
         $userId = Auth::user()->id;
         $usuario = User::find($userId);
 
-        return view('budgets.status', compact('usuario',));
+        // Obtener los clientes ordenados por el usuario
+        $clientes = $usuario->orderedClients()
+                            ->orderBy('order')
+                            ->with('client')
+                            ->get()
+                            ->pluck('client');
+
+        // Si no hay un orden guardado, mostrar los clientes por defecto
+        if ($clientes->isEmpty()) {
+            $clientes = $usuario->clientes()->orderBy('name')->get();
+        }
+
+        return view('budgets.status', compact('clientes'));
     }
 
+    public function saveOrder(Request $request)
+    {
+        $userId = Auth::user()->id;
+        $order = $request->input('order');
+
+        foreach ($order as $index => $clientId) {
+            ClientUserOrder::updateOrCreate(
+                ['user_id' => $userId, 'client_id' => $clientId],
+                ['order' => $index + 1]
+            );
+        }
+
+        return response()->json(['success' => true]);
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -130,7 +157,7 @@ class BudgetController extends Controller
         $petitionId = $request->petitionId;
 
         $budgetCreado = Budget::create($data);
-        if($budgetCreado || $petitionId){
+        if($budgetCreado && $petitionId){
             $petition = Petition::find($petitionId);
             if($petition->client_id == $budgetCreado->client_id){
                 $petition->finished = true;
@@ -275,6 +302,7 @@ class BudgetController extends Controller
             $data['iva'] = $updateBudgetQuantities['iva'];
         }
         $budgetupdated=$budget->update($data);
+        $budget->cambiarEstadoPresupuesto($budget->budget_status_id);
 
         if($budgetupdated){
             return redirect()->route('presupuestos.index')->with('toast', [
@@ -303,7 +331,8 @@ class BudgetController extends Controller
             if ($budget != null) {
                 // Actualizar 'reference' si 'temp' es true
                 if ($budget->temp) {
-                    $newReference = 'delete_' . substr($budget->reference, 5); // asumiendo que el formato es 'temp_xx'
+                    $budgetsDeleted = Budget::onlyTrashed()->where('reference', 'like', 'delete_%')->orderBy('deleted_at', 'desc')->first();
+                    $newReference = $budgetsDeleted === null ? 'delete_00' : $this->generateReferenceDelete($budgetsDeleted->reference);
                     $budget->reference = $newReference;
                     $budget->save();
                 }
@@ -388,6 +417,7 @@ class BudgetController extends Controller
 
         $budget->budget_status_id = 4;
         $cancelado = $budget->save();
+        $budget->cambiarEstadoPresupuesto($budget->budget_status_id);
         if($cancelado){
             return response( [
                 'icon' => 'success',
@@ -551,12 +581,25 @@ class BudgetController extends Controller
          // Extrae los dos dígitos del final de la cadena usando expresiones regulares
          preg_match('/temp_(\d{2})/', $reference, $matches);
         // Incrementa el número primero
-
-        $incrementedNumber = intval($matches[1]) + 1;
-        // Asegura que el número tenga dos dígitos
-        $formattedNumber = str_pad($incrementedNumber, 2, '0', STR_PAD_LEFT);
-        // Concatena con la cadena "temp_"
-        return "temp_" . $formattedNumber;
+        if(count($matches) >= 1){
+            $incrementedNumber = intval($matches[1]) + 1;
+            // Asegura que el número tenga dos dígitos
+            $formattedNumber = str_pad($incrementedNumber, 2, '0', STR_PAD_LEFT);
+            // Concatena con la cadena "temp_"
+            return "temp_" . $formattedNumber;
+        }
+    }
+    private function generateReferenceDelete($reference){
+         // Extrae los dos dígitos del final de la cadena usando expresiones regulares
+         preg_match('/delete_(\d{2})/', $reference, $matches);
+        // Incrementa el número primero
+        if(count($matches) >= 1){
+            $incrementedNumber = intval($matches[1]) + 1;
+            // Asegura que el número tenga dos dígitos
+            $formattedNumber = str_pad($incrementedNumber, 2, '0', STR_PAD_LEFT);
+            // Concatena con la cadena "temp_"
+            return "delete_" . $formattedNumber;
+        }
     }
 
     public function generateBudgetReference(Budget $budget) {

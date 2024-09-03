@@ -18,7 +18,8 @@ class UsersTable extends Component
     public $selectedDepartamento = '';
     public $selectedNivel = '';
     public $perPage = 10;
-
+    public $sortColumn = 'name'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
     protected $users; // Propiedad protegida para los usuarios
 
     public function mount(){
@@ -47,10 +48,16 @@ class UsersTable extends Component
             })
             ->when($this->selectedNivel, function ($query) {
                 $query->where('access_level_id', $this->selectedNivel);
-            });
+            })
+            ->join('admin_user_access_level', 'admin_users.access_level_id', '=', 'admin_user_access_level.id')
+            ->join('admin_user_department', 'admin_users.admin_user_department_id', '=', 'admin_user_department.id')
+            ->join('admin_user_position', 'admin_users.admin_user_position_id', '=', 'admin_user_position.id')
+            ->select('admin_users.*', 'admin_user_position.name as cargo', 'admin_user_department.name as departamento','admin_user_access_level.name as acceso');
 
-        // Verifica si se seleccionó 'all' para mostrar todos los registros
-        $this->users = $this->perPage === 'all' ? $query->get() : $query->paginate($this->perPage);
+            $query->orderBy($this->sortColumn, $this->sortDirection);
+
+            // Verifica si se seleccionó 'all' para mostrar todos los registros
+            $this->users = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getUsers()
@@ -67,7 +74,16 @@ class UsersTable extends Component
 
         $this->actualizarUsuarios(); // Luego actualizas la lista de usuarios basada en los filtros
     }
-
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
     public function updating($propertyName)
     {
         if ($propertyName === 'buscar' || $propertyName === 'selectedDepartamento' || $propertyName === 'selectedNivel' || $propertyName === 'perPage') {

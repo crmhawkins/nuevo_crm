@@ -37,19 +37,29 @@
 
         {{-- Tabla --}}
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
-                        <th class="px-3" style="font-size:0.75rem">NOMBRE</th>
-                        <th class="" style="font-size:0.75rem">CATEGORIA</th>
-                        <th class="" style="font-size:0.75rem">PRECIO</th>
+                        @foreach ([
+                            'title' => 'NOMBRE',
+                            'categoria_nombre' => 'CATEGORIA',
+                            'price' => 'PRECIO',
+                        ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
                         <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
-                    </tr>
                 </thead>
                 <tbody>
                     {{-- Recorremos los servicios --}}
                     @foreach ( $servicios as $servicio )
-                        <tr>
+                        <tr class="clickable-row" data-href="{{route('servicios.edit', $servicio->id)}}">
                             <td class="px-3" style="width: 60%">{{$servicio->title}}</td>
                             <td style="width: 20%">{{$servicio->servicoNombre->name}}</td>
                             <td style="width: 10%; text-align: right; padding-right: 2rem"><strong>{{ number_format($servicio->price, 2, ',', '') }} €</strong></td>

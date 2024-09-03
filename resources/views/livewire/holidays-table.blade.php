@@ -27,16 +27,16 @@
 
                 @if ($holidays->count())
                     <div class="table-responsive">
-                        <table class="table">
+                         <table class="table table-hover">
                             <thead class="header-table">
                                 <tr>
-                                    <th class="px-3" style="font-size:0.75rem">Usuario</th>
-                                    <th class="" style="font-size:0.75rem">Dias Disponibles</th>
+                                    <th class="px-3" style="font-size:0.75rem">USUARIO</th>
+                                    <th class="" style="font-size:0.75rem">DIAS DISPONIBLES</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($holidays as $holiday)
-                                    <tr>
+                                    <tr >
                                         <td>{{$holiday->adminUser->name}}</td>
                                         <td>{{ number_format($holiday->quantity, 2) }}</td>
                                     </tr>

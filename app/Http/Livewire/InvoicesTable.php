@@ -22,7 +22,8 @@ class InvoicesTable extends Component
     public $selectedGestor = '';
     public $selectedEstados = '';
     public $perPage = 10;
-
+    public $sortColumn = 'reference'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
     protected $budgets; // Propiedad protegida para los usuarios
 
     public function mount(){
@@ -51,10 +52,6 @@ class InvoicesTable extends Component
                 $subQuery->where('name', 'like', '%' . $this->buscar . '%');
             });
             })
-            // when($this->buscar, function ($query) {
-            //     $query->where('name', 'like', '%' . $this->buscar . '%')
-            //         ->orWhere('email', 'like', '%' . $this->buscar . '%');
-            // })
             ->when($this->selectedGestor, function ($query) {
                 $query->where('admin_user_id', $this->selectedGestor);
             })
@@ -62,14 +59,28 @@ class InvoicesTable extends Component
                 $query->where('invoice_status_id', $this->selectedEstados);
             });
 
-        // Verifica si se seleccionó 'all' para mostrar todos los registros
-        $this->budgets = $this->perPage === 'all' ? $query->get() : $query->paginate($this->perPage);
+       // Aplica la ordenación
+       $query->orderBy($this->sortColumn, $this->sortDirection);
+
+       // Verifica si se seleccionó 'all' para mostrar todos los registros
+       $this->budgets = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getBudgets()
     {
         // Si es necesario, puedes incluir lógica adicional aquí antes de devolver los usuarios
         return $this->budgets;
+    }
+
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
     }
 
     // Supongamos que tienes un método para actualizar los filtros

@@ -7,22 +7,41 @@
 
 <style>
     /* Estilos básicos */
+    span.tarea-gestor {
+        display: block;
+        font-size: 0.9rem;
+        color: gray;
+    }
+
     .input-group-text {
         position: relative;
+        background-color: white;
+        cursor: pointer;
+        width: 40px;
+        border: 1px solid #afb0b0;
+        box-shadow: 0 0 3px #afb0b0;
     }
+
+    .input-group-text i {
+        color: #6c757d;
+    }
+
     .file-icon {
-        text-align: center; /* Centra el ícono del archivo */
-        margin-bottom: 5px; /* Espacio entre el ícono y el texto del mensaje */
+        text-align: center;
+        margin-bottom: 5px;
     }
+
     .file-icon i {
-        font-size: 50px; /* Ajusta el tamaño del ícono */
+        font-size: 50px;
     }
+
     #file-icon {
         position: absolute;
-        right: 10px; /* Ajusta según necesites */
+        right: 10px;
         top: 50%;
         transform: translateY(-50%);
     }
+
     .chat-container {
         max-height: 400px;
         min-height: 200px;
@@ -31,34 +50,28 @@
         padding: 8px;
         border-radius: 5px;
     }
+
     .message {
         margin-bottom: 5px;
         border-radius: 5px;
-        display: inline-block; /* Esto hace que el div se ajuste al contenido */
+        display: inline-block;
         max-width: 80%;
     }
+
     .mine {
         background-color: #dcf8c6;
         text-align: left;
-        float: right; /* Alinea los mensajes del usuario a la derecha */
-        clear: both; /* Asegura que los mensajes no se superpongan */
+        float: right;
+        clear: both;
     }
+
     .theirs {
         background-color: #f1f0f0;
         text-align: left;
-        float: left; /* Alinea los mensajes de otros usuarios a la izquierda */
-        clear: both; /* Asegura que los mensajes no se superpongan */
+        float: left;
+        clear: both;
     }
-    .input-group-text {
-        background: white;
-        cursor: pointer;
-        width: 40px;
-        border: 1px solid rgb(175, 175, 175);
-        box-shadow: 0 0 3px rgb(175, 175, 175);
-    }
-    .input-group-text i {
-        color: #6c757d; /* Color gris para el ícono, ajustable según necesidades */
-    }
+
     @keyframes pulse-animation {
         0% {
             text-shadow: 0 0 0px #ffffff;
@@ -71,52 +84,57 @@
     }
 
     .pulse {
-        color: rgb(255, 255, 255);
+        color: #fff;
         font-size: 12px;
         animation: pulse-animation 2s infinite;
-        text-shadow: 0px 0px 10px  #ffffff;
+        text-shadow: 0 0 10px #ffffff;
         background-color: #ff0000c9;
         width: 25px;
         height: 25px;
         border-radius: 50%;
-        box-shadow: 0px 0px 1px 1px #ff0000;
+        box-shadow: 0 0 1px 1px #ff0000;
         display: flex;
+        align-items: center;
+        justify-content: center;
     }
+
     #to-do {
         max-height: 600px;
         overflow-y: auto;
         border-radius: 10px;
         padding: 15px;
     }
+
     #to-do-container {
         max-height: 600px;
         min-height: 600px;
         margin-top: 0.75rem;
         margin-bottom: 0.75rem;
         overflow: hidden;
-        border-color:black;
-        border-width: thin;
+        border: 1px solid black;
         border-radius: 20px;
     }
 
     .info {
         display: none;
-        padding: 10px;
-        background-color: #fcfcfc; /* Fondo para los detalles */
+        padding: 15px;
+        background-color: #fcfcfc;
         margin-top: 5px;
     }
+
     .tooltip.custom-tooltip .tooltip-inner {
-        background-color: #343a40; /* Color de fondo del tooltip */
-        color: #fff; /* Color del texto */
-        font-size: 1.2rem; /* Tamaño de la fuente */
-        padding: 15px; /* Espaciado interno */
-        border-radius: 5px; /* Bordes redondeados */
-        max-width: 500px; /* Ancho máximo */
+        background-color: #343a40;
+        color: #fff;
+        font-size: 1.2rem;
+        padding: 15px;
+        border-radius: 5px;
+        max-width: 500px;
     }
 
     .tooltip.custom-tooltip .tooltip-arrow {
-        border-top-color: #343a40; /* Color de la flecha del tooltip */
+        border-top-color: #343a40;
     }
+
     .card-header {
         background-color: #f8f9fa;
         color: #333;
@@ -148,23 +166,23 @@
         padding: 10px;
     }
 
-    #to-do::-webkit-scrollbar,.chat-container::-webkit-scrollbar {
-        width: 8px; /* Ancho del scrollbar */
-
+    /* Estilo personalizado para scrollbars */
+    ::-webkit-scrollbar {
+        width: 8px;
     }
 
-    #to-do::-webkit-scrollbar-track,.chat-container::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.1); /* Fondo semi-translúcido */
-        border-radius: 10px; /* Bordes redondeados */
+    ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
     }
 
-    #to-do::-webkit-scrollbar-thumb,.chat-container::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.5); /* Pulgar negro semi-translúcido */
-        border-radius: 10px; /* Bordes redondeados */
+    ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
     }
 
-    #to-do::-webkit-scrollbar-thumb:hover,.chat-container::-webkit-scrollbar-thumb:hover {
-        background: rgba(0, 0, 0, 0.7); /* Pulgar más oscuro cuando se desplaza */
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.7);
     }
 
     /* Estilos para la responsividad del calendario */
@@ -179,7 +197,7 @@
     }
 
     .calendar-month-view {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Hace que las columnas sean más flexibles */
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     }
 
     .calendar-day {
@@ -197,28 +215,56 @@
         margin: 5px 0;
         padding: 10px;
     }
+
     .clickable {
         cursor: pointer;
     }
 
+    .tareas_revision, .tareas {
+        height: 50% !important;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+     .tarea{
+        border: 1px solid black;
+        border-radius: 20px;
+    }
     .info {
         display: none;
         padding: 15px;
+        background-color: white;
+        margin-top: 5px;
+        transition: all 0.3s ease; /* Agregar transición para el efecto visual */
+        overflow: hidden; /* Asegura que el contenido no se desborde */
+    }
+
+    .scroll{
+        overflow: auto; /* Asegura que el contenido no se desborde */
+    }
+    .side-column{
+        max-height: 915px;
+        min-height: 100%;
     }
 
     @media (max-width: 768px) {
         .calendar-month-view {
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Ajusta las columnas para pantallas pequeñas */
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        }
+        .side-column {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         .view-selector button,
         .jornada {
-            font-size: 0.9rem; /* Reduce el tamaño de la fuente para ajustarse a pantallas más pequeñas */
+            font-size: 0.9rem;
         }
 
         .side-column,
         .card-body {
-            padding: 5px; /* Reduce el padding para más espacio */
+            padding: 5px;
         }
     }
 </style>
@@ -234,7 +280,7 @@
 
             <div class="col-12 col-md-6 order-md-2 order-first">
                 <div class="row justify-end ">
-                     <h2 id="timer" class="display-6 font-weight-bold col-4">00:00:00</h2>
+                     <h2 id="timer" class="display-6 fw-bolder col-4">00:00:00</h2>
                     <button id="startJornadaBtn" class="btn jornada btn-primary mx-2 col-3" onclick="startJornada()">Inicio Jornada</button>
                     <button id="startPauseBtn" class="btn jornada btn-secondary mx-2 col-3" onclick="startPause()" style="display:none;">Iniciar Pausa</button>
                     <button id="endPauseBtn" class="btn jornada btn-secondary mx-2 col-3" onclick="endPause()" style="display:none;">Finalizar Pausa</button>
@@ -246,91 +292,338 @@
     <div class="card2 mt-4">
         <div class="card-body2">
             <div class="row justify-between">
-                <div class="col-md-6">
-                    <div class="side-column">
-                        <div class="mb-3 card-body">
-                            <h5 class="card-title fw-bold">Presupuestos</h5>
-                            <div class="row row-cols-1 row-cols-3 g-4 mb-3 ">
-                                <div class="col">
-                                    <div class="card h-100">
-                                        <div class="card-body p-3">
-                                            <h5 class="card-title m-0 text-color-4 fw-bold">Pendientes de confirmar</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->presupuestosPorEstado(1))}}</b></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="card h-100">
-                                        <div class="card-body p-3">
-                                            <h5 class="card-title m-0 text-color-4 fw-bold">Pendientes de aceptar</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->presupuestosPorEstado(2))}}</b></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="card h-100">
-                                        <div class="card-body p-3">
-                                            <h5 class="card-title m-0 text-color-4 fw-bold">Aceptados</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->presupuestosPorEstado(3))}}</b></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="{{route('presupuesto.create')}}" class="btn btn-outline-primary">Nuevo Presupuesto</a>
-                            <a href="{{route('presupuestos.index')}}" class="btn btn-outline-secondary">Ver Presupuestos</a>
-                        </div>
-                        <div class="row row-cols-1 row-cols-md-2 g-4">
-                            <div class="col">
-                                <div class="card2">
-                                    <div class="mb-3 card-body">
-                                        <h5 class="card-title fw-bold">Petición</h5>
-                                        <div class="row mb-3 ">
-                                            <div class="col">
-                                                <div class="card">
-                                                    <div class="card-body p-3">
-                                                        <h5 class="card-title m-0 text-color-4  fw-bold">Pendientes</h5>
-                                                        <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <a href="{{route('peticion.create')}}" class="btn btn-outline-primary">Nueva Petición</a>
-                                        <a href="{{route('peticion.index')}}" class="btn btn-outline-secondary">Ver Peticiones</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="card2">
-                                    <div class="mb-3 card-body">
-                                        <h5 class="card-title fw-bold">Ordenes</h5>
-                                        <div class="row mb-3 ">
-                                            <div class="col">
-                                                <div class="card">
-                                                    <div class="card-body p-3">
-                                                        <h5 class="card-title m-0 text-color-4  fw-bold">Pendientes</h5>
-                                                        <span class="display-6 m-0"><b>{{count($user->presupuestosPorEstado(1))}}</b></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <a  class="btn btn-outline-primary">Nueva Orden</a>
-                                        <a  class="btn btn-outline-secondary">Ver Ordenes</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3 card-body">
-                            <a href="{{route('clientes.index')}}" class="btn btn-outline-primary mb-2">Ver Clientes</a>
-                            <a href="{{route('presupuestos.status')}}" class="btn btn-outline-primary mb-2">Ver Status Proyectos</a>
-                            <a href="{{route('tareas.cola')}}" class="btn btn-outline-primary mb-2">Ver Cola de producción</a>
-                            <a href="{{route('tareas.index')}}" class="btn btn-outline-primary mb-2">Ver Tareas</a>
-                            <a href="{{route('tareas.index')}}" class="btn btn-outline-primary mb-2">Ver Producción</a>
-                            <a href="{{route('proveedores.index')}}" class="btn btn-outline-primary mb-2">Ver Proveedores</a>
-                        </div>
+                <div class="col-md-7">
+                    <div class="side-column d-flex" style="min-height: 100%">
+                        <div class="card mb-3" style="flex:1;" >
+                            <div class="card-body">
+                                <h3 class="card-title h4">Tareas</h3>
+                                <ul class="nav nav-tabs" id="taskTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link {{ $tasks['taskPlay'] ? 'active' : '' }}" id="active-task-tab" data-bs-toggle="tab" data-bs-target="#active-task" type="button" role="tab" aria-controls="active-task" aria-selected="{{ $tasks['taskPlay'] ? 'true' : 'false' }}">
+                                            Tarea Activa
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link {{ !$tasks['taskPlay'] ? 'active' : '' }}" id="pending-tasks-tab" data-bs-toggle="tab" data-bs-target="#pending-tasks" type="button" role="tab" aria-controls="pending-tasks" aria-selected="{{ !$tasks['taskPlay'] ? 'true' : 'false' }}">
+                                            Tareas Pendientes
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="revision-tasks-tab" data-bs-toggle="tab" data-bs-target="#revision-tasks" type="button" role="tab" aria-controls="revision-tasks" aria-selected="false">
+                                            Tareas en Revisión
+                                        </button>
+                                    </li>
+                                </ul>
 
+                                <div class="tab-content mt-3 ">
+                                    <!-- Tarea Activa -->
+                                    <div class=" scroll tab-pane p-3 fade {{ $tasks['taskPlay'] ? 'show active' : '' }}" id="active-task" role="tabpanel" aria-labelledby="active-task-tab">
+                                        @if ($tasks['taskPlay'])
+                                            <div class="card2 tarea tarea-activa mb-3 p-2">
+                                                <div id="{{ $tasks['taskPlay']->id }}" class="tarea-sing card-body2">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="col-2 text-center">
+                                                            <span class="tarea-numero">
+                                                                <i class="fas fa-caret-square-right" style="color: black; font-size: 3rem;"></i>
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-10">
+                                                            <span class="d-block tarea-cliente status_{{ $tasks['taskPlay']->estado->name }}">
+                                                                Cliente: @if ($tasks['taskPlay']->presupuesto && $tasks['taskPlay']->presupuesto->cliente)
+                                                                    {{ $tasks['taskPlay']->presupuesto->cliente->name }}
+                                                                @endif
+                                                            </span>
+                                                            <span class="d-block tarea-nombre fw-bolder fs-4">{{ $tasks['taskPlay']->title }}</span>
+                                                            <span class="d-block tarea-gestor">
+                                                                Gestor: @if ($tasks['taskPlay']->gestor)
+                                                                    {{ $tasks['taskPlay']->gestor->name }}
+                                                                @endif | {{ $tasks['taskPlay']->id }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="info">
+                                                    <!-- Información Detallada de la Tarea -->
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="text-center">
+                                                <h3>No hay tareas activas</h3>
+                                            </div>
+                                        @endif
+                                    </div>
+                                     <!-- Tareas Pendientes -->
+                                    <div class="scroll tab-pane p-4 fade {{ !$tasks['taskPlay'] ? 'show active' : '' }}" id="pending-tasks" role="tabpanel" aria-labelledby="pending-tasks-tab">
+                                        <?php
+                                        if (!function_exists('fechaEstimadaDashboard')) {
+                                            function fechaEstimadaDashboard($horasFaltan)
+                                            {
+                                                $arrayHoras = explode(':', $horasFaltan);
+                                                $horas = $arrayHoras['0'];
+                                                $minutos = $arrayHoras['1'];
+                                                $segundos = $arrayHoras['2'];
+                                                $dia = 0;
+
+                                                if ($horas > 8) {
+                                                    $horas -= 8;
+                                                    $dia += 1;
+                                                }
+
+                                                return $dia . ':' . $horas . ':' . $minutos . ':' . $segundos;
+                                            }
+                                        }
+                                        ?>
+                                        <?php
+                                            $acumuladorTiempo = 0;
+                                            $diasAcumulados = 0;
+                                            $bufferTiempo = 0;
+                                            $segundosAlDia = 28800;
+                                            $inicioJornadaLaboral = '09:00:00';
+                                            $paradaJornadaLaboral = '14:00:00';
+                                            $vueltaJornadaLaboral = '16:00:00';
+                                            $finJornadaLaboral = '19:00:00';
+                                            $fechaEstimada;
+                                            $diasAcumulados = 0;
+                                            $horasAcumulados = 0;
+                                            $minutosAcumulados = 0;
+                                            $segundosAcumulados = 0;
+
+                                            $prioridad = "";
+
+                                            $actualFecha;
+
+                                            $paso = 0;
+                                            $contador = 1;
+                                            $fechaCalendario = [];
+
+                                        ?>
+                                        @if ($tasks['tasksPause']->isNotEmpty())
+                                            @php($numero = 1)
+                                            @foreach ($tasks['tasksPause'] as $tarea)
+                                                <?php
+                                                // TIEMPO ESTIMADO
+                                                $tiempoEstimado = explode(':', $tarea->estimated_time);
+                                                // PASAR EL TIEMPO ESTIPADO A SEGUNDOS
+                                                $minutosASegundos = $tiempoEstimado['1'] * 60;
+
+                                                $horasAMinutos = $tiempoEstimado['0'] * 60;
+                                                $horasASegundos = $horasAMinutos * 60;
+                                                // TOTAL DE SEGUNDOS DE TIEMPO ESTIMADO
+                                                $segundosTotalEstimado = $horasASegundos + $minutosASegundos + intval($tiempoEstimado['2']);
+
+                                                // TIEMPO CONSUMIDO
+                                                $tiempoConsumido = explode(':', $tarea->real_time);
+
+                                                // PASAR EL TIEMPO ESTIPADO A SEGUNDOS
+                                                if (! isset($tiempoConsumido['1'])) {
+                                                    dd($tarea);
+                                                }
+                                                $minutosASegundosConsumido = $tiempoConsumido['1'] * 60;
+
+                                                $horasAMinutosConsumido = $tiempoConsumido['0'] * 60;
+                                                $horasASegundosConsumido = $horasAMinutosConsumido * 60;
+                                                // TOTAL DE SEGUNDOS DE TIEMPO ESTIMADO
+                                                $segundosTotalConsumido = $horasASegundosConsumido + $minutosASegundosConsumido + intval($tiempoConsumido['2']);
+
+                                                $tiempoRestante = $segundosTotalEstimado - $segundosTotalConsumido;
+
+                                                $bufferTiempo += $tiempoRestante;
+
+                                                $hoy;
+
+                                                $horasHoy = date('H:i:s');
+                                                $horasHoyArray = explode(':', $horasHoy);
+
+                                                //$prueba = date('H:i:s', $ts_fin);
+                                                //$prueba2 = date('H:i:s', $ts_ini);
+
+                                                $horas = floor($tiempoRestante / 3600);
+                                                $minutos = floor(($tiempoRestante - $horas * 3600) / 60);
+                                                $segundos = $tiempoRestante - $horas * 3600 - $minutos * 60;
+                                                $horaImprimir = $horas . ':' . $minutos . ':' . $segundos;
+
+                                                $actual = date('Y-m-d H:i:s');
+                                                $fecha = date('Y-m-d');
+                                                $hora = date('H:i:s');
+                                                $diasAcumulador = 0;
+
+                                                $tiempoACaclcular = fechaEstimadaDashboard($horaImprimir);
+                                                $tiempoACaclcularArray = explode(':', $tiempoACaclcular);
+
+                                                $diasAcumulados = $tiempoACaclcularArray['0'];
+                                                $horasAcumulados = $tiempoACaclcularArray['1'];
+                                                $minutosAcumulados = $tiempoACaclcularArray['2'];
+                                                $segundosAcumulados = $tiempoACaclcularArray['3'];
+                                                $dia = 0;
+
+                                                if ($horasAcumulados >= 24) {
+                                                    $dia += 1;
+                                                    $horasAcumulados -= 24;
+                                                }
+                                                if ($minutosAcumulados >= 60) {
+                                                    $horasAcumulados += 1;
+                                                    $minutosAcumulados -= 60;
+                                                }
+                                                if ($segundosAcumulados >= 60) {
+                                                    $minutosAcumulados += 1;
+                                                    $segundosAcumulados -= 60;
+                                                }
+
+                                                if ($horasAcumulados < 0) {
+                                                    $horasAcumulados = $tiempoEstimado['0'];
+                                                }
+
+                                                $dia += $tiempoACaclcularArray['0'];
+                                                $param = $dia . 'days';
+                                                $paramHoras = $horasAcumulados . 'hour';
+                                                $paramMinutos = $minutosAcumulados . 'minute';
+                                                $paramSegundos = $segundosAcumulados . 'second';
+
+                                                if ($paso == 0) {
+                                                    $actualNew = strtotime($param, strtotime($actual));
+                                                    $actualNew = strtotime($paramHoras, $actualNew);
+                                                    $actualNew = strtotime($paramMinutos, $actualNew);
+                                                    $actualNew = strtotime($paramSegundos, $actualNew);
+
+                                                    while (date('N', $actualNew) >= 6) {
+                                                        $actualNew = strtotime('+1 day', $actualNew);
+                                                    }
+
+
+                                                    $newActualFechaFinal = date('d-m-Y H:i:s', $actualNew);
+
+                                                    $actualFecha = $newActualFechaFinal;
+                                                    $paso = 1;
+                                                    $actualFechaArray = explode(' ', $newActualFechaFinal);
+                                                    $actualFechaFinal = $actualFechaArray[0];
+                                                    $fechaCalendario[$contador] = date('Y-m-d', $actualNew);
+                                                } else {
+                                                    $newActualFecha = strtotime($param, strtotime($actualFecha));
+                                                    $newActualFecha = strtotime($paramHoras, $newActualFecha);
+                                                    $newActualFecha = strtotime($paramMinutos, $newActualFecha);
+                                                    $newActualFecha = strtotime($paramSegundos, $newActualFecha);
+
+                                                    while (date('N', $newActualFecha) >= 6) {
+                                                        $newActualFecha = strtotime('+1 day', $newActualFecha);
+                                                    }
+
+                                                    $newActualFechaFinal = date('d-m-Y H:i:s', $newActualFecha);
+
+                                                    $actualFecha = $newActualFechaFinal;
+
+                                                    $actualFechaArray = explode(' ', $newActualFechaFinal);
+                                                    $actualFechaFinal = $actualFechaArray[0];
+                                                    $fechaCalendario[$contador] = date('Y-m-d', $newActualFecha);
+                                                    //var_dump($actualFechaFinal );
+                                                }
+
+                                                switch ($tarea->priority_id) {
+                                                    case 1:
+                                                        $prioridad = "Baja";
+                                                        break;
+                                                    case 2:
+                                                        $prioridad = "Media";
+                                                        break;
+                                                    case 3:
+                                                        $prioridad = "Alta";
+                                                        break;
+                                                    case 4:
+                                                        $prioridad = "Urgente";
+                                                        break;
+                                                    default:
+                                                        $prioridad = "n/a";
+                                                        break;
+                                                }
+
+                                                $fechaNow = getdate();
+                                                $fechaCalendario[0] = $fechaNow['year'] . '-0' . $fechaNow['mon'] . '-' . $fechaNow['mday'];
+                                                $tareaCalendar[$contador] = ['id' => $tarea->id, 'title' => $tarea->title, 'start' => $fechaCalendario[$contador - 1], 'end' => $fechaCalendario[$contador], 'horas_estimadas' => $tarea->estimated_time, 'horas_reales' => $tarea->real_time, 'prioridad' => $prioridad, 'fecha_descripcion' => $actualFechaFinal];
+                                                $tareaDesc[$tarea->id] = ['description' => $tarea->description];
+                                                $contador += 1;
+
+                                                ?>
+                                                <div class="card2 tarea mb-3 p-2">
+                                                    <div id="{{ $tarea->id }}" class="tarea-sing card-body2 ">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="col-2 text-center">
+                                                                <span class="tarea-numero">{{ $numero }}ª</span>
+                                                            </div>
+                                                            <div class="col-10">
+                                                                <span class="d-block tarea-cliente status_{{ $tarea->priority_id }}">
+                                                                    Cliente: @if ($tarea->presupuesto && $tarea->presupuesto->cliente)
+                                                                        {{ $tarea->presupuesto->cliente->name }}
+                                                                    @endif
+                                                                </span>
+                                                                <span class="d-block tarea-nombre fw-bolder fs-4">{{ $tarea->title }}</span>
+                                                                <span class="d-block tarea-gestor">
+                                                                    Gestor: @if ($tarea->gestor)
+                                                                        {{ $tarea->gestor->name }}
+                                                                    @endif | {{ $tarea->id }}
+                                                                </span>
+                                                                <span class="tarea-gestor text-success fw-bolder animate__animated animate__pulse animate__infinite" style="color:green; font-weight:bold; !important">
+                                                                    Fecha estimada entrega: {{ $actualFechaFinal }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="info">
+                                                        <!-- Información Detallada de la Tarea -->
+                                                    </div>
+                                                </div>
+                                                @php($numero += 1)
+                                            @endforeach
+                                        @else
+                                            <div class="text-center">
+                                                <h3>No hay tareas en pendientes</h3>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <!-- Tareas en Revisión -->
+                                    <div class="scroll tab-pane fade" id="revision-tasks" role="tabpanel" aria-labelledby="revision-tasks-tab">
+                                        <div class="accordion" id="revisionTasksAccordion">
+                                            @if ($tasks['tasksRevision']->isNotEmpty())
+                                                @php($nombre = 1)
+                                                @foreach ($tasks['tasksRevision'] as $tarea)
+                                                    <div class="card2 tarea mb-3 p-2">
+                                                        <div id="{{ $tarea->id }}" class="tarea-sing card-body2">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="col-2 text-center">
+                                                                    <span class="tarea-numero">{{ $nombre }}ª</span>
+                                                                </div>
+                                                                <div class="col-10">
+                                                                    <span class="d-block tarea-cliente status_{{ $tarea->estado->name }}">
+                                                                        Cliente: @if ($tarea->presupuesto && $tarea->presupuesto->cliente)
+                                                                            {{ $tarea->presupuesto->cliente->name }}
+                                                                        @endif
+                                                                    </span>
+                                                                    <span class="d-block tarea-nombre fw-bolder fs-4">{{ $tarea->title }}</span>
+                                                                    <span class="d-block tarea-gestor">
+                                                                        Gestor: @if ($tarea->gestor)
+                                                                            {{ $tarea->gestor->name }}
+                                                                        @endif | {{ $tarea->id }}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="info">
+                                                            <!-- Información Detallada de la Tarea -->
+                                                        </div>
+                                                    </div>
+                                                    @php($nombre += 1)
+                                                @endforeach
+                                            @else
+                                                <div class="text-center">
+                                                    <h3>No hay tareas en revisión</h3>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-5">
                     <div class="side-column">
                         <div class="card mb-3">
                             <div class="card-body">
@@ -464,11 +757,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class=" d-flex justify-content-center">
-                                    <button class="btn btn-primary mx-2">Enviar Archivos</button>
-                                    <button class="btn btn-secondary mx-2">Correo</button>
-                                    <button class="btn btn-primary mx-2">Llamadas</button>
                                 </div>
                             </div>
                         </div>
@@ -1086,153 +1374,6 @@
         });
     });
 
-    // document.addEventListener('DOMContentLoaded', function() {
-    //     const selects = document.querySelectorAll('.choices');
-
-    //     const validSelects = Array.from(selects).filter(select => {
-    //         console.log(select.tagName, select.type); // Para depurar el tipo de cada elemento seleccionado
-    //         return (select.tagName === 'SELECT' || (select.tagName === 'INPUT' && select.type === 'text'));
-    //     });
-    //     const choicesInstances = Array.from(validSelects).map(select => new Choices(select));
-    //     // const clientSelect = document.getElementById('client_id');
-    //     // const budgetSelect = document.getElementById('budget_id');
-    //     // const projectSelect = document.getElementById('project_id');
-
-    //      // Obtén referencias a los selects por índice
-    //     const clientSelect = validSelects[1]; // Elemento HTML del primer select
-    //     const budgetSelect = validSelects[2]; // Instancia Choice.js del segundo select
-    //     const projectSelect = validSelects[3]; // Instancia Choice.js del segundo select
-
-    //     const clientChoices = choicesInstances[1]; // Elemento HTML del primer select
-    //     const budgetChoices = choicesInstances[2]; // Instancia Choice.js del segundo select
-    //     const projectChoices = choicesInstances[3]; // Instancia Choice.js del segundo select
-
-    //     // Función para actualizar presupuestos basados en el cliente seleccionado
-    //     function updateBudgets(clientId) {
-    //         fetch('/budgets-by-client', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //             },
-    //             body: JSON.stringify({ client_id: clientId })
-    //         })
-    //         .then(response => response.json())
-    //         .then(budgets => {
-    //             budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-    //             budgets.forEach(budget => {
-    //                 budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
-    //             });
-    //             budgetSelect.disabled = false;
-    //         });
-    //     }
-
-    //     function updateBudgetsbyproyects(clientId) {
-    //         fetch('/budgets-by-client', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //             },
-    //             body: JSON.stringify({ client_id: clientId })
-    //         })
-    //         .then(response => response.json())
-    //         .then(budgets => {
-    //             budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-    //             budgets.forEach(budget => {
-    //                 budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
-    //             });
-    //             budgetSelect.disabled = false;
-    //         });
-    //     }
-
-    //     // Función para actualizar campañas basadas en el cliente seleccionado
-    //     function updateProjects(clientId) {
-    //         fetch('/projects-from-client', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //             },
-    //             body: JSON.stringify({ client_id: clientId })
-    //         })
-    //         .then(response => response.json())
-    //         .then(projects => {
-    //             projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
-    //             projects.forEach(project => {
-    //                 projectSelect.innerHTML += `<option value="${project.id}">${project.name}</option>`;
-    //             });
-    //             projectSelect.disabled = false;
-    //         });
-    //     }
-
-    //     //Cuando se selecciona un cliente, actualiza presupuestos y campañas
-    //     clientSelect.addEventListener('change', function() {
-    //         const clientId = this.value;
-    //         if (clientId) {
-    //             updateBudgets(clientId);
-    //             updateProjects(clientId);
-    //         } else {
-    //             budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-    //             projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
-    //             budgetSelect.disabled = true;
-    //             projectSelect.disabled = true;
-    //         }
-    //     });
-
-    //     //Cuando se selecciona un presupuesto, actualiza el cliente y la campaña
-    //     budgetSelect.addEventListener('change', function() {
-    //         const budgetId = this.value;
-    //         if (budgetId) {
-    //             fetch('/budget-by-id', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                 },
-    //                 body: JSON.stringify({ budget_id: budgetId })
-    //             })
-    //             .then(response => response.json())
-    //             .then(budget => {
-    //                 clientSelect.value = budget.client_id;
-    //                 projectSelect.value = budget.project_id;
-
-    //             });
-    //         }
-    //     });
-    //     console.log('select', selects[7]);
-
-    //     // Cuando se selecciona una campaña, actualiza el cliente y el presupuesto
-    //     selects[7].addEventListener('change', function() {
-
-    //         console.log('entra');
-
-    //         const projectId = this.value;
-    //         console.log(projectId);
-
-    //         if (projectId) {
-    //             fetch('/project-by-id', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                 },
-    //                 body: JSON.stringify({ project_id: projectId })
-    //             })
-    //             .then(response => response.json())
-    //             .then(project => {
-    //                 console.log(project.client_id);
-    //                 console.log(toString(project.client_id));
-    //                 clientChoices.setChoiceByValue(toString(project.client_id));
-    //                 //clientSelect.setChoiceByValue(newValue);
-    //                 //clientSelect.value = project.client_id;
-    //                 //updateBudgets(project.client_id);
-    //                 //budgetSelect.value = ''; // O puedes poner una lógica para seleccionar un presupuesto por defecto
-    //             });
-    //         }
-    //     });
-    // });
-
 </script>
 <script>
     function showTodoModal() {
@@ -1299,13 +1440,20 @@
     });
 </script>
 <script>
-    document.getElementById('file-input').addEventListener('change', function() {
-        if (this.files.length > 0) {
-            document.getElementById('file-icon').style.display = 'inline-block';
-            document.getElementById('file-clip').style.display = 'none';
-        } else {
-            document.getElementById('file-icon').style.display = 'none';
-            document.getElementById('file-clip').style.display = 'inline-block';
+    document.addEventListener('DOMContentLoaded', function() {
+        var inputFile = document.getElementById('file-input');
+        if (inputFile) {
+            inputFile.addEventListener('change', function() {
+                var fileIcon = document.getElementById('file-icon');
+                var fileClip = document.getElementById('file-clip');
+                if (this.files.length > 0) {
+                    fileIcon.style.display = 'inline-block';
+                    fileClip.style.display = 'none';
+                } else {
+                    fileIcon.style.display = 'none';
+                    fileClip.style.display = 'inline-block';
+                }
+            });
         }
     });
 
@@ -1397,6 +1545,288 @@
         }).catch(error => console.error('Error:', error));
     }
 </script>
+<script>
+    $(document).on("click", '.tarea-sing', function() {
+                var id = $(this).attr("id");
+                showTaskInfoNew(id);
+    });
+    function revisarTarea(id) {
+            console.log(id);
+            $.when(getDataTask(id)).then(function(data, textStatus, jqXHR) {
+                estado = "Revision";
+                $.when(setStatusTask(id, estado)).then(function(data, textStatus, jqXHR) {
+                    if (data.estado == "OK") {
+                        refreshTasks();
+                        Swal.fire(
+                            'Éxito',
+                            'Tarea en revisión.',
+                            'success',
+                        ).then((result) => {
+                            if (result.value) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            'Error en la tarea.',
+                            'error'
+                        );
+                    }
+                });
+            });
+    }
 
+    function renaudarTarea(id) {
+            console.log(id);
+            $.when(getDataTask(id)).then(function(data, textStatus, jqXHR) {
+
+                estado = "Reanudar";
+                $.when(setStatusTask(id, estado)).then(function(data, textStatus, jqXHR) {
+                    if (data.estado == "OK") {
+                        refreshTasks();
+                        Swal.fire(
+                            'Éxito',
+                            'Tarea Reanudada',
+                            'success',
+                        )
+                        location.reload();
+                        // showTaskInfoNew(id);
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            'Error en la tarea.',
+                            'error'
+                        );
+                    }
+                });
+            });
+    }
+
+    function pausarTarea(id) {
+            console.log(id);
+            $.when(getDataTask(id)).then(function(data, textStatus, jqXHR) {
+                estado = "Pausada";
+                $.when(setStatusTask(id, estado)).then(function(data, textStatus, jqXHR) {
+                    if (data.estado == "OK") {
+                        refreshTasks();
+                        Swal.fire(
+                            'Éxito',
+                            'Tarea Pausada',
+                            'success',
+                        )
+                        location.reload();
+                        // showTaskInfoNew(id);
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            'Error en la tarea.',
+                            'error'
+                        );
+                    }
+                });
+            });
+    }
+
+
+     $(document).ready(function() {
+            $.when(getTasksRefresh()).then(function(data, textStatus, jqXHR) {
+
+                if (data.taskPlay != null) {
+                    console.log(data.taskPlay);
+                    var id = data.taskPlay.id;
+                    showTaskInfoNew(id);
+                }
+
+            });
+    })
+    function ocultarVentana() {
+            var contenedor = $('#contenidoMostrar');
+            contenedor.html('')
+    }
+        function decodeHTML(str) {
+            return str.replace(/&#([0-9]+);/g, function(full, int) {
+                return String.fromCharCode(parseInt(int));
+            });
+        }
+
+        function showTaskInfoNew(id) {
+            $.when(getDataTask(id)).then(function(data) {
+                var contenedor = $('.info');
+                var descripcionFinal = '';
+                if (data.descripcion) {
+                    var des = data.descripcion.split('.');
+                    des.forEach(function(ele) {
+                        var template = `<span class="descripcionLineas">${ele}</span>`;
+                        descripcionFinal += template;
+                    });
+                }
+
+                function colorClass(dataEstimada, dataReal) {
+                    var tiempoEstimado = dataEstimada.split(":");
+                    var tiempoReal = dataReal.split(":");
+                    var diferencia = tiempoReal[0] - tiempoEstimado[0];
+                    if (diferencia < 0) {
+                        return 'bg-success';
+                    } else if (diferencia === 0 || diferencia === 2) {
+                        return 'bg-warning text-dark';
+                    } else {
+                        return 'bg-danger';
+                    }
+                }
+
+                var activarDisabled = 'disabled';
+                var pausarDisabled = 'disabled';
+                var revisarDisabled = 'disabled';
+                  // Control de botones según el estado de la tarea
+                  switch (data.estado) {
+                        case 'Reanudada':
+                            pausarDisabled = ''; // Activar solo el botón de pausar
+                            break;
+                        case 'Pausada':
+                            activarDisabled = '';
+                            revisarDisabled = ''; // Activar los botones de activar y revisar
+                            break;
+                        case 'Revisión':
+                            activarDisabled = ''; // Activar solo el botón de activar
+                            break;
+                    }
+                    contenedor.html(
+                        `<div class="container mt-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="head-proceso">PROCESO</h3>
+                                <span class="badge bg-secondary mx-2">TIEMPO ESTIMADO: ${data.estimado}</span>
+                                <span class="badge ${colorClass(data.estimado, data.real)} mx-2">LLEVAS: ${data.real}</span>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-sm-12 col-md-5">
+                                    <h5 class="tarea-cliente text-primary fs-6">Cliente: ${data.cliente}</h5>
+                                    <p class="tarea-nombre fw-bolder fs-3 mt-2">${data.titulo}</p>
+                                </div>
+                                <div class="col-sm-12 col-md-2">
+                                    <h6 class="text-secondary">Gestor: ${data.gestor}</h6>
+                                </div>
+                                <div class="col-sm-12 col-md-5 text-right">
+                                    <button id="btnActivar" type="button" class="btn btn-success btn-sm mx-1" ${activarDisabled} onclick="renaudarTarea(${data.id})">Activar</button>
+                                    <button id="btnPausar" type="button" class="btn btn-warning btn-sm mx-1" ${pausarDisabled} onclick="pausarTarea(${data.id})">Pausar</button>
+                                    <button id="btnRevisar" type="button" class="btn btn-info btn-sm mx-1" ${revisarDisabled} onclick="revisarTarea(${data.id})">Revisar</button>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <p class="text-muted">${descripcionFinal}</p>
+                                </div>
+                            </div>
+                            <div id="notas" class="mt-4">
+                                <!-- Notas dinámicas se insertarán aquí -->
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <form method="post" action="">
+                                        <input type="hidden" name="gestor" value="${data.gestorid}">
+                                        <input type="hidden" name="tareaId" value="${data.id}">
+                                        <input type="hidden" name="user" value="${data.user}">
+                                        <div class="form-group">
+                                            <textarea id="editor" class="form-control" name="descripcion" placeholder="Escriba su mensaje..." rows="3"></textarea>
+                                        </div>
+                                        <button id="enviar" type="submit" class="btn btn-primary btn-block mt-4">Enviar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>`
+                    );
+
+                // Evento para manejar el despliegue de la información
+                $('.tarea-sing').off('click').on('click', function() {
+                    var infoContainer = $(this).next('.info');
+                    if (infoContainer.is(':visible')) {
+                        infoContainer.slideUp();
+                    } else {
+                        $('.info').slideUp(); // Cierra otros contenedores abiertos
+                        infoContainer.slideDown();
+                    }
+                });
+            });
+        }
+
+
+        function refreshTasks() {
+            $.when(getTasksRefresh()).then(function(data, textStatus, jqXHR) {
+                var datos = "";
+                $(".TareaActivada").empty();
+                $(".TareasPausadas").empty();
+                $(".TareasRevision").empty();
+
+
+                if (data.taskPlay != null) {
+                    datos += "<li id=" + data.taskPlay.id + " class='tarea'>";
+                    datos += "<p>" + data.taskPlay.title + "</p>";
+                    datos += "</li>";
+                    $(".TareaActivada").append(datos);
+                }
+
+                if (data.tasksPause != null) {
+                    datos = "";
+                    $.each(data.tasksPause, function(key, value) {
+                        datos += "<li id=" + value.id + " class='tarea'>";
+                        datos += "<p>" + value.title + "</p>";
+                        datos += "</li>";
+                    });
+                    $(".TareasPausadas").append(datos);
+                }
+
+                if (data.tasksRevision != null) {
+                    datos = "";
+                    $.each(data.tasksRevision, function(key, value) {
+                        datos += "<li id=" + value.id + " class='tarea'>";
+                        datos += "<p>" + value.title + "</p>";
+                        datos += "</li>";
+                    });
+                    $(".TareasRevision").append(datos);
+                }
+
+            });
+        }
+
+        function getTasksRefresh() {
+            return $.ajax({
+                type: "POST",
+                url: '/dashboard/getTasksRefresh',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                dataType: "json"
+            });
+        }
+
+        function getDataTask(id) {
+            return $.ajax({
+                type: "POST",
+                url: '/dashboard/getDataTask',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: {
+                    'id': id
+                },
+                dataType: "json"
+            });
+        }
+
+        function setStatusTask(id, estado) {
+            return $.ajax({
+                type: "POST",
+                url: '/dashboard/setStatusTask',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: {
+                    'id': id,
+                    'estado': estado
+                },
+                dataType: "json"
+            });
+        }
+
+</script>
 @endsection
-

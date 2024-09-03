@@ -62,15 +62,11 @@ class BudgetsTable extends Component
                 $query->whereHas('cliente', function ($subQuery) {
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%')
                             ->orWhere('email', 'like', '%' . $this->buscar . '%');
+                })
+                ->orWhereHas('proyecto', function ($subQuery) { // Busca en los conceptos de presupuesto
+                    $subQuery->where('name', 'like', '%' . $this->buscar . '%');
+                });
             })
-            ->orWhereHas('proyecto', function ($subQuery) { // Busca en los conceptos de presupuesto
-                $subQuery->where('name', 'like', '%' . $this->buscar . '%');
-            });
-            })
-            // when($this->buscar, function ($query) {
-            //     $query->where('name', 'like', '%' . $this->buscar . '%')
-            //         ->orWhere('email', 'like', '%' . $this->buscar . '%');
-            // })
             ->when($this->selectedGestor, function ($query) {
                 $query->where('admin_user_id', $this->selectedGestor);
             })
@@ -89,7 +85,7 @@ class BudgetsTable extends Component
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
         // Verifica si se seleccionó 'all' para mostrar todos los registros
-        $this->budgets = $this->perPage === 'all' ? $query->get() : $query->paginate($this->perPage);
+        $this->budgets = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getBudgets()

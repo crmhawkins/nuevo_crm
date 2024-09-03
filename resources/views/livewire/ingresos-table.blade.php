@@ -25,21 +25,32 @@
 
     @if ($ingresos->count())
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
-                        <th class="px-3" style="font-size:0.75rem">Banco</th>
-                        <th class="" style="font-size:0.75rem">Titulo</th>
-                        <th class="" style="font-size:0.75rem">Cantidad</th>
-                        <th class="" style="font-size:0.75rem">Factura asociada</th>
-                        <th class="" style="font-size:0.75rem">Fecha</th>
-                        <th class="text-center" style="font-size:0.75rem">Acciones</th>
-                    </tr>
+                        @foreach ([
+                            'bank_id' => 'BANCO',
+                            'title' => 'TITULO',
+                            'quantity' => 'CANTIDAD',
+                            'invoice_id' => 'FACTURA ASOCIADA',
+                            'date' => 'FECHA',
+
+                        ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
+                        <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
                     @foreach ($ingresos as $ingreso)
-                        <tr>
-                            <td>{{$ingreso->bankAccount->name ?? ($ingreso->bank_id ? 'Banco Eliminado' : 'Banco No Asignado')}}</td>
+                    <tr class="clickable-row" data-href="{{route('ingreso.edit', $ingreso->id)}}">
+                        <td>{{$ingreso->bankAccount->name ?? ($ingreso->bank_id ? 'Banco Eliminado' : 'Banco No Asignado')}}</td>
                             <td>{{$ingreso->title}}</td>
                             <td>{{ number_format($ingreso->quantity, 2) }}€</td>
                             <td ><a href="{{route('factura.edit',$ingreso->invoice_id)}}">{{$ingreso->invoice_id}}</a> </td>

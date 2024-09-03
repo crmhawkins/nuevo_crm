@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('admin_users_notes', function (Blueprint $table) {
-            $table->id();            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->id();
+            $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->string('title')->nullable();
             $table->text('content')->nullable();
             $table->integer('completed')->nullable();

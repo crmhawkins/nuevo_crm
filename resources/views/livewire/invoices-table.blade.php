@@ -40,27 +40,37 @@
             </div>
         </div>
     </div>
-    {{-- {{dd($users)}} --}}
     @if ( $invoices )
-        {{-- Filtros --}}
-        {{-- Tabla --}}
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
-                    <th class="px-3" style="font-size:0.75rem">REFERENCIA</th>
-                    <th class="" style="font-size:0.75rem">CLIENTE</th>
-                    <th class="" style="font-size:0.75rem">CAMPAÑA</th>
-                    <th class="" style="font-size:0.75rem">FECHA CREACION</th>
-                    <th class="" style="font-size:0.75rem">ESTADO</th>
-                    <th class="" style="font-size:0.75rem">TOTAL</th>
-                    <th class="" style="font-size:0.75rem">GESTOR</th>
-                    <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
+                    <tr>
+                        @foreach ([
+                            'reference' => 'REFERENCIA',
+                            'client_id' => 'CLIENTE',
+                            'project_id' => 'CAMPAÑA',
+                            'created_at' => 'FECHA CREACION',
+                            'invoice_status_id' => 'ESTADO',
+                            'total' => 'TOTAL',
+                            'admin_user_id' => 'GESTOR',
+
+                        ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
+                        <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
                     @foreach ( $invoices as $invoice )
-                        <tr>
-                            <td>{{$invoice->reference}}</td>
-                            <td>{{$invoice->client->name ??  ($invoice->client_id ? 'Cliente borrado' : 'Sin cliente asignado')}}</td>
+                    <tr class="clickable-row" data-href="{{route('factura.edit', $invoice->id)}}">
+                        <td>{{$invoice->reference}}</td>
+                            <td>{{$invoice->cliente->name ??  ($invoice->client_id ? 'Cliente borrado' : 'Sin cliente asignado')}}</td>
                             <td>{{$invoice->project->name ?? ($invoice->project_id ? 'Campaña borrada' : 'Sin campaña asignada')}}</td>
                             <td>{{Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y')}}</td>
                             <td>{{$invoice->invoiceStatus->name ?? ($invoice->invoice_status_id ? 'Estado borrado' : 'Sin estado asignado')}}</td>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Events\RecargarPagina;
+use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Suppliers\SuppliersController;
 use App\Http\Controllers\Tesoreria\CuadroController;
 use App\Http\Controllers\To_do\To_doController;
@@ -12,6 +13,10 @@ use App\Http\Controllers\Petitions\PetitionController;
 use App\Http\Controllers\Budgets\BudgetController;
 use App\Http\Controllers\Tasks\TasksController;
 use App\Http\Controllers\Budgets\BudgetConceptsController;
+use App\Http\Controllers\Contabilidad\CuentasContableController;
+use App\Http\Controllers\Contabilidad\SubCuentasContableController;
+use App\Http\Controllers\Contabilidad\SubCuentasHijoController;
+use App\Http\Controllers\Contabilidad\SubGrupoContabilidadController;
 use App\Http\Controllers\Contratos\ContratosController;
 use App\Http\Controllers\Passwords\PasswordsController;
 use App\Http\Controllers\Projects\ProjectController;
@@ -23,10 +28,15 @@ use App\Http\Controllers\Settings\SettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dominios\DominiosController;
 use App\Http\Controllers\Events\EventController;
+use App\Http\Controllers\GrupoContabilidadController;
 use App\Http\Controllers\Holiday\HolidayController;
 use App\Http\Controllers\Holiday\AdminHolidaysController;
+use App\Http\Controllers\Incidence\IncidenceController;
 use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
+use App\Http\Controllers\Statistics\StatisticsController;
+use App\Http\Controllers\Users\DepartamentController;
+use App\Http\Controllers\Users\PositionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,7 +58,12 @@ Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+//Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::post('/dashboard/getDataTask', [DashboardController::class, 'getDataTask'])->name('dashboard.getDataTask');
+Route::post('/dashboard/getTasksRefresh', [DashboardController::class, 'getTasksRefresh'])->name('dashboard.getTasksRefresh');
+Route::post('/dashboard/setStatusTask', [DashboardController::class, 'setStatusTask'])->name('dashboard.setStatusTask');
+
 Route::post('/start-jornada', [DashboardController::class, 'startJornada'])->name('dashboard.startJornada');
 Route::post('/end-jornada', [DashboardController::class, 'endJornada'])->name('dashboard.endJornada');
 Route::post('/start-pause', [DashboardController::class, 'startPause'])->name('dashboard.startPause');
@@ -61,6 +76,15 @@ Route::post('/todos/finish/{id}', [To_doController::class, 'finish'])->name('tod
 Route::post('/todos/complete/{id}', [To_doController::class, 'complete'])->name('todos.completar');
 Route::post('/message/store', [MessageController::class, 'store'])->name('message.store');
 Route::post('/mark-as-read/{todoId}', [MessageController::class,'markAsRead']);
+
+
+//Meetings(Reuniosnes)
+Route::get('/meeting', [CrmActivityMeetingController::class, 'index'])->name('reunion.index');
+Route::get('/meeting/create', [CrmActivityMeetingController::class, 'createMeetingFromAllUsers'])->name('reunion.create');
+Route::get('/view-meeting/{id}', [CrmActivityMeetingController::class, 'viewMeeting'])->name('reunion.view');
+Route::post('/meeting/store', [CrmActivityMeetingController::class, 'storeMeetingFromAllUsers'])->name('reunion.store');
+Route::post('/meeting/alreadyRead/{id}', [CrmActivityMeetingController::class, 'alreadyRead'])->name('reunion.alreadyRead');
+Route::post('/meeting/addComments/{id}', [CrmActivityMeetingController::class, 'addCommentsToMeeting'])->name('reunion.addComments');
 
 
 //Holidays(Vacaciones users)
@@ -108,6 +132,7 @@ Route::post('/client/store-from-budget', [ClientController::class, 'storeFromBud
 Route::get('/client/create-from-petition', [ClientController::class, 'createFromPetition'])->name('cliente.createFromPetition');
 Route::post('/client/store-from-petition', [ClientController::class, 'storeFromPetition'])->name('cliente.storeFromPetition');
 Route::post('/client/get-gestor', [ClientController::class, 'getGestorFromClient'])->name('cliente.getGestor');
+Route::post('/client/get-contacts', [ClientController::class, 'getContactsFromClient'])->name('cliente.getContacts');
 Route::post('/client/verificar-existente', [ClientController::class, 'verificarClienteExistente'])->name('cliente.verificarExistente');
 
 
@@ -248,6 +273,22 @@ Route::post('/nominas/store', [NominasController::class, 'store'])->name('nomina
 Route::post('/nominas/update/{id}', [NominasController::class, 'update'])->name('nominas.update');
 Route::post('/nominas/destroy', [NominasController::class, 'destroy'])->name('nominas.delete');
 
+//Departamentos
+Route::get('/departament', [DepartamentController::class, 'index'])->name('departamento.index');
+Route::get('/departament/create', [DepartamentController::class, 'create'])->name('departamento.create');
+Route::get('/departament/edit/{id}', [DepartamentController::class, 'edit'])->name('departamento.edit');
+Route::post('/departament/store', [DepartamentController::class, 'store'])->name('departamento.store');
+Route::post('/departament/update/{id}', [DepartamentController::class, 'update'])->name('departamento.update');
+Route::post('/departament/destroy', [DepartamentController::class, 'destroy'])->name('departamento.delete');
+
+//Cargos
+Route::get('/position', [PositionController::class, 'index'])->name('cargo.index');
+Route::get('/position/create', [PositionController::class, 'create'])->name('cargo.create');
+Route::get('/position/edit/{id}', [PositionController::class, 'edit'])->name('cargo.edit');
+Route::post('/position/store', [PositionController::class, 'store'])->name('cargo.store');
+Route::post('/position/update/{id}', [PositionController::class, 'update'])->name('cargo.update');
+Route::post('/position/destroy', [PositionController::class, 'destroy'])->name('cargo.delete');
+
 //Contratos
 Route::get('/contratos', [ContratosController::class, 'index'])->name('contratos.index');
 Route::get('/contratos/{id}', [ContratosController::class, 'indexUser'])->name('contratos.index_user');
@@ -300,6 +341,13 @@ Route::post('/gasto-asociado/store', [TesoreriaController::class, 'storeAssociat
 Route::post('/gasto-asociado/update/{id}', [TesoreriaController::class, 'updateAssociatedExpenses'])->name('gasto-asociado.update');
 Route::post('/gasto-asociado/destroy', [TesoreriaController::class, 'destroyAssociatedExpenses'])->name('gasto-asociado.delete');
 
+Route::get('/incidencias', [IncidenceController::class, 'index'])->name('incidencias.index');
+Route::get('/incidencias/create', [IncidenceController::class, 'create'])->name('incidencias.create');
+Route::get('/incidencias/edit/{id}', [IncidenceController::class, 'edit'])->name('incidencias.edit');
+Route::post('/incidencias/store', [IncidenceController::class, 'storeAssociatedExpenses'])->name('incidencias.store');
+Route::post('/incidencias/update/{id}', [IncidenceController::class, 'updateAssociatedExpenses'])->name('incidencias.update');
+Route::post('/incidencias/destroy', [IncidenceController::class, 'destroyAssociatedExpenses'])->name('incidencias.delete');
+
 // Gastos sin clasificar (TESORERIA)
 Route::get('/gastos-sin-clasificar', [TesoreriaController::class, 'indexUnclassifiedExpensese'])->name('gastos-sin-clasificar.index');
 Route::get('/gastos-sin-clasificar/edit/{id}', [TesoreriaController::class, 'editUnclassifiedExpensese'])->name('gasto-sin-clasificar.edit');
@@ -321,10 +369,59 @@ Route::get('/treasury/{year}', [CuadroController::class,'indexYear'])->name('adm
 // Configuracion
 
 
+Route::get('/statistics', [StatisticsController::class, 'index'])->name('estadistica.index');
+
 Route::get('/configuracion', [SettingsController::class, 'index'])->name('configuracion.index');
 Route::post('/configuracion/update/{id}', [SettingsController::class, 'update'])->name('configuracion.update');
 Route::post('/configuracion/store', [SettingsController::class, 'store'])->name('configuracion.store');
+
+
+Route::get('/cuentas-contables', [CuentasContableController::class, 'index'])->name('cuentasContables.index');
+Route::get('/cuentas-contables/create', [CuentasContableController::class, 'create'])->name('cuentasContables.create');
+Route::post('/cuentas-contables/store', [CuentasContableController::class, 'store'])->name('cuentasContables.store');
+Route::get('/cuentas-contables/{id}/edit', [CuentasContableController::class, 'edit'])->name('cuentasContables.edit');
+Route::post('/cuentas-contables/updated', [CuentasContableController::class, 'updated'])->name('cuentasContables.updated');
+Route::delete('/cuentas-contables/destroy/{id}', [CuentasContableController::class, 'destroy'])->name('cuentasContables.destroy');
+
+Route::get('/cuentas-contables/get-cuentas', [CuentasContableController::class, 'getCuentasByDataTables'])->name('cuentasContables.getClients');
+
+// Sub-Cuentas Contables
+Route::get('/sub-cuentas-contables', [SubCuentasContableController::class, 'index'])->name('subCuentasContables.index');
+Route::get('/sub-cuentas-contables/create', [SubCuentasContableController::class, 'create'])->name('subCuentasContables.create');
+Route::post('/sub-cuentas-contables/store', [SubCuentasContableController::class, 'store'])->name('subCuentasContables.store');
+Route::get('/sub-cuentas-contables/{id}/edit', [SubCuentasContableController::class, 'edit'])->name('subCuentasContables.edit');
+Route::post('/sub-cuentas-contables/updated', [SubCuentasContableController::class, 'updated'])->name('subCuentasContables.updated');
+Route::delete('/sub-cuentas-contables/destroy/{id}', [SubCuentasContableController::class, 'destroy'])->name('subCuentasContables.destroy');
+
+// Sub-Cuentas Hijas Contables
+Route::get('/sub-cuentas-hijas-contables', [SubCuentasHijoController::class, 'index'])->name('subCuentasHijaContables.index');
+Route::get('/sub-cuentas-hijas-contables/create', [SubCuentasHijoController::class, 'create'])->name('subCuentasHijaContables.create');
+Route::post('/sub-cuentas-hijas-contables/store', [SubCuentasHijoController::class, 'store'])->name('subCuentasHijaContables.store');
+Route::get('/sub-cuentas-hijas-contables/{id}/edit', [SubCuentasHijoController::class, 'edit'])->name('subCuentasHijaContables.edit');
+Route::post('/sub-cuentas-hijas-contables/updated', [SubCuentasHijoController::class, 'updated'])->name('subCuentasHijaContables.updated');
+Route::delete('/sub-cuentas-hijas-contables/destroy/{id}', [SubCuentasHijoController::class, 'destroy'])->name('subCuentasHijaContables.destroy');
+
+// Grupos Contables
+Route::get('/grupo-contable', [GrupoContabilidadController::class, 'index'])->name('grupoContabilidad.index');
+Route::get('/grupo-contable/create', [GrupoContabilidadController::class, 'create'])->name('grupoContabilidad.create');
+Route::post('/grupo-contable/store', [GrupoContabilidadController::class, 'store'])->name('grupoContabilidad.store');
+Route::get('/grupo-contable/{id}/edit', [GrupoContabilidadController::class, 'edit'])->name('grupoContabilidad.edit');
+Route::post('/grupo-contable/updated', [GrupoContabilidadController::class, 'updated'])->name('grupoContabilidad.updated');
+Route::delete('/grupo-contable/destroy/{id}', [GrupoContabilidadController::class, 'destroy'])->name('grupoContabilidad.destroy');
+
+// Sub-Grupos Contables
+Route::get('/sub-grupo-contable', [SubGrupoContabilidadController::class, 'index'])->name('subGrupoContabilidad.index');
+Route::get('/sub-grupo-contable/create', [SubGrupoContabilidadController::class, 'create'])->name('subGrupoContabilidad.create');
+Route::post('/sub-grupo-contable/store', [SubGrupoContabilidadController::class, 'store'])->name('subGrupoContabilidad.store');
+Route::get('/sub-grupo-contable/{id}/edit', [SubGrupoContabilidadController::class, 'edit'])->name('subGrupoContabilidad.edit');
+Route::post('/sub-grupo-contable/updated', [SubGrupoContabilidadController::class, 'updated'])->name('subGrupoContabilidad.updated');
+Route::delete('/sub-grupo-contable/destroy/{id}', [SubGrupoContabilidadController::class, 'destroy'])->name('subGrupoContabilidad.destroy');
+
+Route::post('/save-order', [BudgetController::class, 'saveOrder'])->name('save.order');
+
 });
+
+
 
 Route::get('/ruta-prueba', function () {
     event(new RecargarPagina(50));

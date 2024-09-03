@@ -41,13 +41,13 @@ class CrmActivitiesMeetings extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at', 
+        'created_at', 'updated_at', 'deleted_at',
     ];
-    
+
 
     /**
      * Obtener el usuario
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function adminUser()
@@ -57,7 +57,7 @@ class CrmActivitiesMeetings extends Model
 
     /**
      * Obtener el cliente
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function client()
@@ -67,7 +67,7 @@ class CrmActivitiesMeetings extends Model
 
     /**
      * Obtener como se le contactó
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function contactBy()

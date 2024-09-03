@@ -60,7 +60,7 @@
     </div>
     @if ( $budgets )
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
                         @foreach ([
@@ -86,7 +86,7 @@
                 </thead>
                 <tbody>
                     @foreach ( $budgets as $budget )
-                        <tr>
+                        <tr class="clickable-row" data-href="{{route('presupuesto.edit', $budget->id)}}">
                             <td>{{$budget->reference}}</td>
                             <td>{{$budget->cliente->name ??  ($budget->client_id ? 'Cliente borrado' : 'Sin cliente asignado') }}</td>
                             <td>{{$budget->proyecto->name ?? ($budget->project_id ? 'Campaña borrada' : 'Sin campaña asignada') }}</td>

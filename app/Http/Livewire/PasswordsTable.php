@@ -18,7 +18,8 @@ class PasswordsTable extends Component
     public $clientes;
     public $estados;
     public $perPage = 10;
-
+    public $sortColumn = 'id'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
     protected $passwords; // Propiedad protegida para los usuarios
 
     public function mount(){
@@ -36,26 +37,18 @@ class PasswordsTable extends Component
 
     protected function actualizarDominios()
     {
-        // Comprueba si se ha seleccionado "Todos" para la paginación
-        if ($this->perPage === 'all') {
-            $this->passwords = CompanyPassword::when($this->buscar, function ($query) {
+        $query = CompanyPassword::when($this->buscar, function ($query) {
                     $query->where('website', 'like', '%' . $this->buscar . '%');
                 })
                 ->when($this->selectedCliente, function ($query) {
                     $query->where('client_id', $this->selectedCliente);
-                })
-                ->get(); // Obtiene todos los registros sin paginación
-        } else {
-            // dd($this->perPage);
-            // Usa paginación con la cantidad especificada por $this->perPage
-            $this->passwords = CompanyPassword::when($this->buscar, function ($query) {
-                    $query->where('website', 'like', '%' . $this->buscar . '%');
-                })
-                ->when($this->selectedCliente, function ($query) {
-                    $query->where('client_id', $this->selectedCliente);
-                })
-                ->paginate(is_numeric($this->perPage) ? $this->perPage : 10); // Se asegura de que $this->perPage sea numérico
-        }
+                }); // Obtiene todos los registros sin paginación
+
+         // Aplica la ordenación
+         $query->orderBy($this->sortColumn, $this->sortDirection);
+
+         // Verifica si se seleccionó 'all' para mostrar todos los registros
+         $this->passwords = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getCategorias()
@@ -71,7 +64,16 @@ class PasswordsTable extends Component
 
         $this->actualizarDominios(); // Luego actualizas la lista de usuarios basada en los filtros
     }
-
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
     public function updating($propertyName)
     {
         if ($propertyName === 'buscar' || $propertyName === 'selectedCliente') {

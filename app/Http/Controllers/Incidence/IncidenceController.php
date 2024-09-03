@@ -3,127 +3,127 @@
 namespace App\Http\Controllers\Incidence;
 
 use App\Http\Controllers\Controller;
+use App\Models\Budgets\Budget;
+use App\Models\Clients\Client;
+use App\Models\Incidence\Incidences;
+use App\Models\Users\User;
+use App\Models\Suppliers\Supplier;
+use App\Models\Incidence\IncidenceStatus;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class IncidenceController extends Controller
 {
     public function index()
     {
-        $dominios = Dominio::paginate(2);
-        return view('dominios.index', compact('dominios'));
+        $incidences = Incidences::paginate(10);
+        return view('incidences.index', compact('incidences'));
     }
 
-    public function edit($id)
-    {
-        $dominio = Dominio::find($id);
-        $clientes = Client::all();
-        $estados = estadosDominios::all();
-
-        return view('dominios.edit', compact('dominio','clientes','estados'));
-    }
     public function create()
     {
         $clientes = Client::all();
-        return view('dominios.create', compact('clientes'));
+        $presupuestos = Budget::all();
+        $suppliers = Supplier::all();
+        $users = User::all();
+        $estados = IncidenceStatus::all();
+
+        return view('incidences.create', compact('clientes', 'presupuestos', 'suppliers', 'users', 'estados'));
     }
 
     public function store(Request $request)
     {
         // Validamos los campos
         $this->validate($request, [
-            'dominio' => 'required|max:200',
-            'client_id' => 'required',
-            'date' => 'required',
-
+            'titulo' => 'required|max:255',
+            'descripcion' => 'required',
+            'client_id' => 'required|exists:clients,id',
+            'budget_id' => 'nullable|exists:budgets,id',
+            'supplier_id' => 'nullable|exists:suppliers,id',
+            'gestor_id' => 'required|exists:users,id',
+            'admin_user_id' => 'required|exists:users,id',
+            'status_id' => 'required|exists:incidence_statuses,id',
         ], [
-            'dominio.required' => 'El nombre es requerido para continuar',
+            'titulo.required' => 'El título es requerido para continuar',
+            'descripcion.required' => 'La descripción es requerida para continuar',
             'client_id.required' => 'El cliente es requerido para continuar',
-            'date.required' => 'La fecha de contratación es requerido para continuar',
-
+            'gestor_id.required' => 'El gestor es requerido para continuar',
+            'admin_user_id.required' => 'El usuario administrador es requerido para continuar',
+            'status_id.required' => 'El estado es requerido para continuar',
         ]);
 
         $data = $request->all();
-
-        // Crear una instancia de Carbon para la fecha de inicio
-        $dateStart = Carbon::parse($request->input('date'));
-
-        // Calcular la fecha de finalización agregando un año
-        // $data['data_start'] = $dateStart->format('Y-m-d');
-        // Calcular la fecha de finalización agregando un año
-        $data['date_end'] = $dateStart->addYear()->format('Y-m-d H:i:s'); // Formato DATETIME
-
-        // Formatear date_start para asegurarse que sea en el formato correcto
-        $data['date_start'] = Carbon::parse($request->input('date_start'))->format('Y-m-d H:i:s');
-        $data['estado_id'] = 5;
-
-        $crearDominio = Dominio::create($data);
-
+        $incidence = Incidences::create($data);
 
         session()->flash('toast', [
             'icon' => 'success',
-            'mensaje' => 'El dominio se creo correctamente'
+            'mensaje' => 'La incidencia se creó correctamente'
         ]);
 
-        return redirect()->route('dominios.index');
+        return redirect()->route('incidences.index');
+    }
+
+    public function edit($id)
+    {
+        $incidencia = Incidences::findOrFail($id);
+        $clientes = Client::all();
+        $presupuestos = Budget::all();
+        $suppliers = Supplier::all();
+        $users = User::all();
+        $estados = IncidenceStatus::all();
+
+        return view('incidences.edit', compact('incidencia', 'clientes', 'presupuestos', 'suppliers', 'users', 'estados'));
     }
 
     public function update(Request $request, $id)
     {
+        $incidencia = Incidences::findOrFail($id);
 
-        $dominio = Dominio::find($id);
         // Validamos los campos
         $this->validate($request, [
-            'dominio' => 'required|max:200',
-            'client_id' => 'required',
-            'date' => 'required',
-
+            'titulo' => 'required|max:255',
+            'descripcion' => 'required',
+            'client_id' => 'required|exists:clients,id',
+            'budget_id' => 'nullable|exists:budgets,id',
+            'supplier_id' => 'nullable|exists:suppliers,id',
+            'gestor_id' => 'required|exists:users,id',
+            'admin_user_id' => 'required|exists:users,id',
+            'status_id' => 'required|exists:incidence_statuses,id',
         ], [
-            'dominio.required' => 'El nombre es requerido para continuar',
+            'titulo.required' => 'El título es requerido para continuar',
+            'descripcion.required' => 'La descripción es requerida para continuar',
             'client_id.required' => 'El cliente es requerido para continuar',
-            'date.required' => 'La fecha de contratación es requerido para continuar',
-
+            'gestor_id.required' => 'El gestor es requerido para continuar',
+            'admin_user_id.required' => 'El usuario administrador es requerido para continuar',
+            'status_id.required' => 'El estado es requerido para continuar',
         ]);
 
         $data = $request->all();
-
-        // Crear una instancia de Carbon para la fecha de inicio
-        $dateStart = Carbon::parse($request->input('date'));
-        // dd($dateStart);
-
-        // Calcular la fecha de finalización agregando un año
-        // $data['data_start'] = $dateStart->format('Y-m-d');
-        // Calcular la fecha de finalización agregando un año
-        $data['date_end'] = $dateStart->addYear()->format('Y-m-d H:i:s'); // Formato DATETIME
-
-        // Formatear date_start para asegurarse que sea en el formato correcto
-        $data['date_start'] = Carbon::parse($request->input('date_start'))->format('Y-m-d H:i:s');
-        $data['estado_id'] = 5;
-        $dominio->update($data);
-
+        $incidencia->update($data);
 
         session()->flash('toast', [
             'icon' => 'success',
-            'mensaje' => 'El dominio se creo correctamente'
+            'mensaje' => 'La incidencia se actualizó correctamente'
         ]);
 
-        return redirect()->route('dominios.index');
+        return redirect()->route('incidences.index');
     }
 
     public function destroy(Request $request)
     {
-        $domino = Dominio::find($request->id);
+        $incidencia = Incidences::find($request->id);
 
-        if (!$domino) {
+        if (!$incidencia) {
             return response()->json([
                 'error' => true,
-                'mensaje' => "Error en el servidor, intentelo mas tarde."
+                'mensaje' => "Error en el servidor, intentelo más tarde."
             ]);
         }
 
-        $domino->delete();
+        $incidencia->delete();
         return response()->json([
             'error' => false,
-            'mensaje' => 'El usuario fue borrado correctamente'
+            'mensaje' => 'La incidencia fue borrada correctamente'
         ]);
     }
 }

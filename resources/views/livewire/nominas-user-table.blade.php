@@ -48,7 +48,7 @@
         {{-- Filtros --}}
         {{-- Tabla --}}
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <th class="px-3">
                         <a href="#" wire:click.prevent="sortBy('admin_user_id')">
@@ -70,8 +70,8 @@
                 </thead>
                 <tbody>
                     @foreach ( $nominas as $nomina )
-                        <tr>
-                            <td>{{$nomina->usuario ? ($nomina->usuario->name.' '.$nomina->usuario->surname) : 'Usuario no encontrado'}}</td>
+                    <tr class="clickable-row" data-href="{{route('nominas.edit', $nomina->id)}}">
+                        <td>{{$nomina->usuario ? ($nomina->usuario->name.' '.$nomina->usuario->surname) : 'Usuario no encontrado'}}</td>
                             <td>{{ \Carbon\Carbon::parse($nomina->fecha)->format('d/m/Y') }}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{route('nominas.show', $nomina->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar nomina"></a>

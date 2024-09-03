@@ -18,7 +18,7 @@ class PetitionsTable extends Component
     public $selectedGestor = '';
     public $selectedEstados = 0;
     public $perPage = 10;
-    public $sortColumn = 'id'; // Columna por defecto
+    public $sortColumn = 'client_id'; // Columna por defecto
     public $sortDirection = 'asc'; // Dirección por defecto
     protected $petitions; // Propiedad protegida para los usuarios
 
@@ -58,7 +58,7 @@ class PetitionsTable extends Component
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
         // Verifica si se seleccionó 'all' para mostrar todos los registros
-        $this->petitions = $this->perPage === 'all' ? $query->get() : $query->paginate($this->perPage);
+        $this->petitions = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getPetitioms()

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Budgets;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MailConcept;
 use App\Models\Budgets\Budget;
 use App\Models\Budgets\BudgetConcept;
 use App\Models\Budgets\BudgetConceptSupplierRequest;
@@ -13,6 +14,9 @@ use App\Models\Services\Service;
 use App\Models\Services\ServiceCategories;
 use App\Models\Suppliers\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class BudgetConceptsController extends Controller
 {
@@ -427,7 +431,6 @@ class BudgetConceptsController extends Controller
     public function updateTypeSupplier(Request $request, $budget)
     {
 
-
         // Validamos los campos
         $this->validate($request, [
             'services_category_id' => 'required|filled',
@@ -459,25 +462,45 @@ class BudgetConceptsController extends Controller
 
         if($conceptoactualizado){
             // Proveedor 1
+            if( $data['radioOpt'] == 1){
+                $selected = 1;
+            }else{
+                $selected = 0;
+            }
             $newSupplierOpt1 = array(
                 "supplier_id" => $data['supplierId1'],
                 "mail" => $data['supplierEmail1'],
                 "price" => $data['supplierPrice1'],
+                "selected" => $selected
+
             );
             BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConceptActualizado->id)->where('option_number', 1 )->update($newSupplierOpt1);
             // Proveedor 2
+            if( $data['radioOpt'] == 2){
+                $selected = 1;
+            }else{
+                $selected = 0;
+            }
             $newSupplierOpt2 = array(
                 "supplier_id" => $data['supplierId2'],
                 "mail" => $data['supplierEmail2'],
                 "price" => $data['supplierPrice2'],
+                "selected" => $selected
+
             );
-            BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConceptActualizado->id)->where('option_number',  )->update($newSupplierOpt2);
+            BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConceptActualizado->id)->where('option_number', 2 )->update($newSupplierOpt2);
 
             // Proveedor 3
+            if( $data['radioOpt'] == 3){
+                $selected = 1;
+            }else{
+                $selected = 0;
+            }
             $newSupplierOpt3 = array(
                 "supplier_id" => $data['supplierId3'],
                 "mail" => $data['supplierEmail3'],
                 "price" => $data['supplierPrice3'],
+                "selected" => $selected
             );
             BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConceptActualizado->id)->where('option_number', 3 )->update($newSupplierOpt3);
 
@@ -597,6 +620,14 @@ class BudgetConceptsController extends Controller
 
     public function deleteConceptsType(Request $request) {
         $budgetConcept = BudgetConcept::find($request->id);
+        if($budgetConcept->concept_type_id == 1){
+            if ($budgetConcept->orden) {
+                return session()->flash('toast', [
+                    'icon' => 'error',
+                    'mensaje' => 'No se puede eliminar el concepto porque tiene una orden de compra asociada.'
+                ]);
+             }
+        }
         $budgetID = $budgetConcept->budget_id;
 
         $budgetConcept->delete();
@@ -609,20 +640,20 @@ class BudgetConceptsController extends Controller
          $base = 0;
 
          // Obtenemos el presupuesto para Actualizar
-         $budgetToUpdate = Budget::where('id', $budgetID)->first();
+        $budgetToUpdate = Budget::where('id', $budgetID)->first();
          // Obtenemos todos los conceptos de este presupuesto
-         $budgetConcepts = BudgetConcept::where('budget_id', $budgetID)->get();
+        $budgetConcepts = BudgetConcept::where('budget_id', $budgetID)->get();
 
-         if (count($budgetConcepts) >= 1) {
+        if (count($budgetConcepts) >= 1) {
              // Recorremos los conceptos
-             foreach ($budgetConcepts as $key => $concept) {
+            foreach ($budgetConcepts as $key => $concept) {
                  // Si el concepto es PROVEEDOR
-                 if ($concept->concept_type_id === 1) {
+                if ($concept->concept_type_id === 1) {
 
-                 }
+                }
                  // Si el concepto es PROPIO
-                 elseif($concept->concept_type_id === 2){
-                     if ($concept->discount === null) {
+                elseif($concept->concept_type_id === 2){
+                    if ($concept->discount === null) {
                          // Calculamos el Bruto del concepto (unidades * precio del concepto)
                          $grossConcept = $concept->units * $concept->sale_price;
                          // Calculamos las Base del Concepto
@@ -631,7 +662,7 @@ class BudgetConceptsController extends Controller
                          $gross += $grossConcept;
                          $base += $baseConcept;
 
-                     }else {
+                    }else {
                         // Calculamos el Bruto del concepto (unidades * precio del concepto)
                         $grossConcept = $concept->units * $concept->sale_price;
                         // Descuento del concepto
@@ -649,21 +680,21 @@ class BudgetConceptsController extends Controller
                         $concept->total_no_discount = $grossConcept;
                         $concept->total = $baseConcept;
                         $concept->save();
-                     }
-                 }
-             }
-             // Calculamos el Iva y el Total
-             $ivaTotal += ( $base * 21 ) /100;
-             $total += $base + $ivaTotal;
+                    }
+                }
+            }
+            // Calculamos el Iva y el Total
+            $ivaTotal += ( $base * 21 ) /100;
+            $total += $base + $ivaTotal;
 
-             $budgetUpdate = $budgetToUpdate->update([
-                 'discount' => $descuento,
-                 'gross' => $gross,
-                 'base' => $base,
-                 'iva' => $ivaTotal,
-                 'total' => $total,
+            $budgetUpdate = $budgetToUpdate->update([
+                'discount' => $descuento,
+                'gross' => $gross,
+                'base' => $base,
+                'iva' => $ivaTotal,
+                'total' => $total,
 
-             ]);
+            ]);
 
         }
         return session()->flash('toast', [
@@ -812,5 +843,47 @@ class BudgetConceptsController extends Controller
         }
 
         return response()->json($services);
+    }
+
+    public function saveAndSend(BudgetConcept $budgetConcept,$file){
+        //Enviar los emails
+        $budgetSuppliersSaved = BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConcept->id)->get();
+
+        $mailConcept = new \stdClass();
+        $mailConcept->gestor = Auth::user()->name." ".Auth::user()->surname;
+        $mailConcept->gestorMail = Auth::user()->email;
+        $mailConcept->gestorTel = '956 662 942';
+        $mailConcept->cantidad = $budgetConcept->units;
+        $mailConcept->titulo = $budgetConcept->title;
+        $mailConcept->concepto = $budgetConcept->concept;
+        $mailConcept->files = false;
+
+        foreach($budgetSuppliersSaved as $budgetSupplier)
+        {
+            $mailsBCC[] = $budgetSupplier->mail;
+        }
+
+        // $mailsBCC[] = "emma@lchawkins.com";
+        // $mailsBCC[] = "ivan@lchawkins.com";
+
+        $data = [];
+        if($file[0] !== null)
+        {
+            foreach($file as $fileNew)
+            {
+                $path = Storage::putFileAs('app',$fileNew, 'supplier-'.time().'.'.$fileNew->getClientOriginalExtension());
+                $data[] = "/home/crmhawki/public_html/storage/app/".$path;
+            }
+            $mailConcept->files = true;
+        }
+
+        $email = new MailConcept($mailConcept,$data);
+
+
+        Mail::to($mailConcept->gestorMail)
+        ->bcc($mailsBCC)
+        ->cc([])
+        ->send($email);
+
     }
 }

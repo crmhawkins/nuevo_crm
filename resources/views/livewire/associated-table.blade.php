@@ -25,20 +25,31 @@
 
     @if ($gastos->count())
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
-                        <th class="px-3" style="font-size:0.75rem">Titulo</th>
-                        <th class="" style="font-size:0.75rem">Cantidad</th>
-                        <th class="" style="font-size:0.75rem">Fecha de recepcion</th>
-                        <th class="" style="font-size:0.75rem">Documento</th>
-                        <th class="" style="font-size:0.75rem">Estado</th>
-                        <th class="text-center" style="font-size:0.75rem">Acciones</th>
-                    </tr>
+                        @foreach ([
+                            'title' => 'TITULO',
+                            'quantity' => 'CANTIDAD',
+                            'received_date' => 'FECHA DE RECEPCION',
+                            'state' => 'ESTADO',
+
+                        ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
+                        <th class="" style="font-size:0.75rem">DOCUMENTO</th>
+                        <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
                     @foreach ($gastos as $gasto)
-                        <tr>
+                        <tr class="clickable-row" data-href="{{route('gasto-asociado.edit', $gasto->id)}}">
                             <td>{{$gasto->title}}</td>
                             <td>{{ number_format($gasto->quantity, 2) }}€</td>
                             <td>{{ \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') }}</td>

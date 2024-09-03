@@ -36,19 +36,29 @@
         {{-- Filtros --}}
         {{-- Tabla --}}
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
-                        <th class="px-3" style="font-size:0.75rem">NOMBRE</th>
-                        <th class="" style="font-size:0.75rem">DESCRIPCIÓN</th>
-                        <th class="" style="font-size:0.75rem">CLIENTE</th>
-                        <th class="" style="font-size:0.75rem">GESTOR</th>
+                        @foreach ([
+                            'name' => 'NOMBRE',
+                            'description' => 'DESCRIPCIÓN',
+                            'client_id' => 'CLIENTE',
+                            'admin_user_id' => 'GESTOR',
+                        ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
                         <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
-                    </tr>
                 </thead>
                 <tbody>
                     @foreach ( $projects as $project )
-                        <tr>
+                        <tr class="clickable-row" data-href="{{route('campania.edit', $project->id)}}">
                             <td class="px-3">{{$project->name}}</td>
                             <td>{{$project->description}}</td>
                             <td>{{$project->cliente->name}}</td>

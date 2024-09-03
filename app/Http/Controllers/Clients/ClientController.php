@@ -510,6 +510,11 @@ class ClientController extends Controller
         $gestor = $client->gestor->id;
         return response($gestor);
     }
+    public function getContactsFromClient(Request $request){
+        $client = Client::find($request->input('client_id'));
+        $contactos = $client->contacto;
+        return response($contactos);
+    }
 
     public function verificarClienteExistente(Request $request)
 {

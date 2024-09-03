@@ -56,11 +56,8 @@ class NominasUserTable extends Component
 
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
-        if ($this->perPage === 'all') {
-            $this->nominas = $query->get();
-        } else {
-            $this->nominas = $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
-        }
+        // Verifica si se seleccionó 'all' para mostrar todos los registros
+        $this->nominas = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
     public function sortBy($column)
     {

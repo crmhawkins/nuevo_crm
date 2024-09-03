@@ -39,20 +39,31 @@
         {{-- Filtros --}}
         {{-- Tabla --}}
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
-                    <th class="px-3" style="font-size:0.75rem">WEB</th>
-                    <th class="" style="font-size:0.75rem">USUARIO</th>
-                    <th class="" style="font-size:0.75rem">CLIENTE ASOCIADO</th>
-                    <th class="" style="font-size:0.75rem">CONTRASEÑA</th>
+                    <tr>
+                        @foreach ([
+                            'website' => 'WEB',
+                            'user' => 'USUARIO',
+                            'client_id' => 'CLIENTE ASOCIADO',
+                            'password' => 'CONTRASEÑA',
 
-                    <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
+                        ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
+                        <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
                     @foreach ( $passwords as $password )
-
-                        <tr>
-                            <td>{{$password->website}}</td>
+                    <tr class="clickable-row" data-href="{{route('passwords.edit', $password->id)}}">
+                        <td>{{$password->website}}</td>
                             <td>{{$password->user}}</td>
                             <td>{{$password->cliente->name ?? ''}}</td>
                             <td>

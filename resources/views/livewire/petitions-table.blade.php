@@ -41,11 +41,10 @@
     </div>
     @if ( $petitions )
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
                         @foreach ([
-                            'id' => 'Id',
                             'client_id' => 'CLIENTE',
                             'admin_user_id' => 'GESTOR',
                             'created_at' => 'FECHA CREACION',
@@ -66,8 +65,7 @@
                 </thead>
                 <tbody>
                     @foreach ( $petitions as $petition )
-                        <tr>
-                            <td>{{$petition->id}}</td>
+                        <tr class="clickable-row" data-href="{{route('peticion.edit', $petition->id)}}">
                             <td>{{$petition->cliente->name}}</td>
                             <td>{{$petition->usuario->name}}</td>
                             <td>{{$petition->created_at->format('Y-m-d')}}</td>
@@ -92,7 +90,7 @@
         </div>
     @else
         <div class="text-center py-4">
-            <h3 class="text-center fs-3">No se encontraron registros de <strong>USUARIOS</strong></h3>
+            <h3 class="text-center fs-3">No se encontraron registros de <strong>PETICIONES</strong></h3>
             <p class="mt-2">Pulse el boton superior para crear algun usuario.</p>
         </div>
     @endif

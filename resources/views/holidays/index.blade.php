@@ -41,7 +41,7 @@
                 <div class="card2">
                     <div class="card-body ">
                         <div class="col-12" style="text-align: center">
-                                @if($userHolidaysQuantity->quantity)
+                                @if($userHolidaysQuantity)
                                     @if($userHolidaysQuantity->quantity == 1)
                                         <p for="have">Tienes <span style="color:green"><strong>{{$userHolidaysQuantity->quantity}}</strong></span> día de vacaciones</p>
                                     @endif

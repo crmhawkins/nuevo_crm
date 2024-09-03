@@ -17,7 +17,8 @@ class UnclassifiedTable extends Component
     public $clientes;
     public $estados;
     public $perPage = 10;
-
+    public $sortColumn = 'id'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
     protected $gastos; // Propiedad protegida para los gastosbusqueda
 
 
@@ -31,23 +32,17 @@ class UnclassifiedTable extends Component
 
     protected function actualizargastos()
     {
-        // Comprueba si se ha seleccionado "Todos" para la paginación
-        if ($this->perPage === 'all') {
-            $this->gastos = UnclassifiedExpenses::where('accepted', '!=', 1)
+        $query = UnclassifiedExpenses::where('accepted', '!=', 1)
                 ->orWhereNull('accepted')
                 ->when($this->buscar, function ($query) {
                     $query->where('company_name', 'like', '%' . $this->buscar . '%');
-                })
-                ->get(); // Obtiene todos los registros sin paginación
-        } else {
-            // Usa paginación con la cantidad especificada por $this->perPage
-            $this->gastos = UnclassifiedExpenses::where('accepted', '!=', 1)
-                ->orWhereNull('accepted')
-                ->when($this->buscar, function ($query) {
-                    $query->where('company_name', 'like', '%' . $this->buscar . '%');
-                })
-                ->paginate(is_numeric($this->perPage) ? $this->perPage : 10); // Se asegura de que $this->perPage sea numérico
-        }
+                }); // Obtiene todos los registros sin paginación
+
+
+        $query->orderBy($this->sortColumn, $this->sortDirection);
+
+        // Verifica si se seleccionó 'all' para mostrar todos los registros
+        $this->gastos = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getGastos()
@@ -56,6 +51,16 @@ class UnclassifiedTable extends Component
         return $this->gastos;
     }
 
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
     public function aplicarFiltro()
     {
         // Aquí aplicarías los filtros

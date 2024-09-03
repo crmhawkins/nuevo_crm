@@ -46,14 +46,10 @@ class ClientsTable extends Component
                 $query->where('admin_user_id', $this->selectedGestor);
             });
 
-        // Aplica la ordenación
-        $query->orderBy($this->sortColumn, $this->sortDirection);
+            $query->orderBy($this->sortColumn, $this->sortDirection);
 
-        if ($this->perPage === 'all') {
-            $this->clients = $query->get();
-        } else {
-            $this->clients = $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
-        }
+            // Verifica si se seleccionó 'all' para mostrar todos los registros
+            $this->clients = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function sortBy($column)

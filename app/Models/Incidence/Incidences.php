@@ -2,6 +2,9 @@
 
 namespace App\Models\Incidence;
 
+use App\Models\Budgets\Budget;
+use App\Models\Clients\Client;
+use App\Models\Suppliers\Supplier;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +15,7 @@ class Incidences extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'holidays';
+    protected $table = 'incidences';
 
     /**
      * Atributos asignados en masa.
@@ -23,7 +26,11 @@ class Incidences extends Model
         'titulo',
         'descripcion',
         'budget_id',
-
+        'supplier_id',
+        'gestor_id',
+        'admin_user_id',
+        'client_id',
+        'status_id'
     ];
 
     /**
@@ -45,4 +52,25 @@ class Incidences extends Model
     {
         return $this->belongsTo(User::class, 'admin_user_id');
     }
+    public function gestor_id()
+    {
+        return $this->belongsTo(User::class, 'admin_user_id');
+    }
+    public function presupuesto()
+    {
+        return $this->belongsTo(Budget::class, 'budget_id');
+    }
+    public function cliente()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
+    }
+    public function proveedor()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
+    }
+    public function estado()
+    {
+        return $this->belongsTo(IncidenceStatus::class, 'status_id');
+    }
+
 }

@@ -64,31 +64,41 @@
 
         {{-- Tabla --}}
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
-                        <th class="px-3" style="font-size:0.75rem">REF</th>
-                        <th class="" style="font-size:0.75rem">TITULO</th>
-                        <th class="" style="font-size:0.75rem">CATEGORIA</th>
-                        <th class="" style="font-size:0.75rem">CONCEPTO</th>
-                        <th class="" style="font-size:0.75rem">CLIENTE</th>
-                        <th class="" style="font-size:0.75rem">EMPLEADO ASIGNADO</th>
-                        <th class="" style="font-size:0.75rem">GESTOR</th>
-                        <th class="" style="font-size:0.75rem">FECHA DE CREACION</th>
+                        @foreach ([
+                            'id' => 'REF',
+                            'title' => 'TITULO',
+                            'categoria_nombre' => 'CATEGORIA',
+                            'concept' => 'CONCEPTO',
+                            'cliente' => 'CLIENTE',
+                            'empleado' => 'EMPLEADO ASIGNADO',
+                            'gestor' => 'GESTOR',
+                            'created_at' => 'FECHA DE CREACION',
+                        ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
                         <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
-                    </tr>
                 </thead>
                 <tbody>
                     {{-- Recorremos los servicios --}}
                     @foreach ( $tareas as $tarea )
-                        <tr>
+                        <tr class="clickable-row" data-href="{{route('tarea.edit', $tarea->id)}}">
                             <td class="px-3">{{$tarea->id}}</td>
                             <td class="">{{$tarea->title}}</td>
                             <td class="">{{$tarea->presupuestoConcepto->servicioCategoria->name ?? 'No definido' }}</td>
                             <td class="">{{$tarea->presupuestoConcepto->title ?? 'No definido'}}</td>
                             <td class="">{{$tarea->presupuesto->cliente->name ?? 'No definido'}}</td>
                             <td class="">{{$tarea->split_master_task_id ? ($tarea->usuario->name ?? 'No definido') : 'Tarea Maestra'}}</td>
-                            <td class="">{{$tarea->gestor->name ?? 'No definido'}}</td>
+                            <td class="">{{$tarea->gestor ?? 'No definido'}}</td>
                             <td class="">{{Carbon\Carbon::parse($tarea->created_at)->format('d/m/Y')}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{route('tarea.edit', $tarea->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar servicio"></a>

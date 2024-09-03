@@ -81,7 +81,7 @@
 
                                             <div class="inv--product-table-section">
                                                 <div class="table-responsive">
-                                                    <table class="table">
+                                                     <table class="table table-hover">
                                                         <thead class="">
                                                             <tr>
                                                                 <th scope="col">S.No</th>

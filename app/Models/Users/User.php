@@ -139,4 +139,11 @@ class User extends Authenticatable
 
         return $totalWorkedSeconds;
     }
+
+    public function orderedClients()
+    {
+        return $this->belongsToMany(Client::class, 'client_user_order')
+                    ->withPivot('order')
+                    ->orderBy('client_user_order.order');
+    }
 }

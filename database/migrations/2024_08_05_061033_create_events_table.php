@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade');
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade')->nullable();
-            $table->foreignId('project_id')->constrained('budgets')->onDelete('cascade')->nullable();
-            $table->foreignId('budget_id')->constrained('projects')->onDelete('cascade')->nullable();
+            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
+            $table->foreignId('project_id')->nullable()->constrained('budgets')->onDelete('cascade');
+            $table->foreignId('budget_id')->nullable()->constrained('projects')->onDelete('cascade');
             $table->string('title');
             $table->string('descripcion')->nullable();
             $table->string('color')->nullable();

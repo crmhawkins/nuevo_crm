@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titulo', 'Crear Concepto Propio')
+@section('titulo', 'Editar Concepto Proveedor')
 
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
@@ -9,235 +9,253 @@
 
 @section('content')
 
-    <div class="page-heading card" style="box-shadow: none !important" >
-        <div class="page-title card-body">
-            <div class="row">
-                <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>Crear Concepto de Proveedor</h3>
-                    <p class="text-subtitle text-muted">Formulario para registrar un concepto de proveedor</p>
-                </div>
+<div class="page-heading card" style="box-shadow: none !important" >
+    <div class="page-title card-body">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>Editar Concepto de Proveedor</h3>
+                <p class="text-subtitle text-muted">Formulario para editar un concepto de proveedor</p>
+            </div>
 
-                <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{route('presupuestos.index')}}">Conceptos de Proveedor</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Crear concepto de proveedor</li>
-                        </ol>
-                    </nav>
-                </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('presupuestos.index')}}">Conceptos de Proveedor</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Editar concepto de proveedor</li>
+                    </ol>
+                </nav>
             </div>
         </div>
+    </div>
+    <section class="section mt-4">
+        <div class="row">
+            <div class="col-9">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="formActualizar" action="{{route('budgetConcepts.updateTypeSupplier', $budgetConcept->id)}}" method="POST">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <label class="text-uppercase" style="font-weight: bold" for="services_category_id">Categoría:</label>
+                                <select class="js-example-basic-single form-control @error('services_category_id') is-invalid @enderror" name="services_category_id" >
+                                    <option value="{{null}}">Seleccione una categoria</option>
 
-        <section class="section mt-4">
-            <div class="card">
-                <div class="card-body">
-                    <form action="{{route('budgetConcepts.updateTypeSupplier', $budgetConcept->id)}}" method="POST">
-                        @csrf
-
-                        {{-- Observaciones --}}
-                        <div class="form-group mb-3">
-                            <label class="text-uppercase" style="font-weight: bold" for="services_category_id">Categoría:</label>
-                            <select class="js-example-basic-single form-control @error('services_category_id') is-invalid @enderror" name="services_category_id" >
-                                <option value="{{null}}">Seleccione una categoria</option>
-
-                                @foreach ($categorias as $categoria)
-                                    <option value="{{$categoria->id}}" {{$budgetConcept->services_category_id == $categoria->id ? 'selected' : ''}}>{{$categoria->name}}</option>
-                                @endforeach
-                            </select>
-                            @error('services_category_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-
-                        {{-- Servicios --}}
-                        <div class="form-group mb-3">
-                            <label class="text-uppercase" style="font-weight: bold" for="service_id">Servicio:</label>
-                            <select class="js-example-basic-single form-control @error('service_id') is-invalid @enderror" name="service_id" >
-                                <option value="{{null}}">Seleccione un servicio</option>
-                                    @foreach ($services as $service)
-                                        <option value="{{$service->id}}" {{$budgetConcept->service_id == $service->id ? 'selected' : ''}}>{{$service->title}}</option>
+                                    @foreach ($categorias as $categoria)
+                                        <option value="{{$categoria->id}}" {{$budgetConcept->services_category_id == $categoria->id ? 'selected' : ''}}>{{$categoria->name}}</option>
                                     @endforeach
-                            </select>
-                            @error('service_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-
-                        {{-- Titulo --}}
-                        <div class="form-group mb-3">
-                            <label class="text-uppercase" style="font-weight: bold" for="title">Titulo:</label>
-                            <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" value="{{old('title', $budgetConcept->title)}}" name="title">
-                            @error('title')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-
-                        {{-- Concepto --}}
-                        <div class="form-group mb-3">
-                            <label class="text-uppercase" style="font-weight: bold" for="concept">Concepto:</label>
-                            <textarea class="form-control @error('concept') is-invalid @enderror" id="concept"  name="concept">{{ old('concept', $budgetConcept->concept) }}</textarea>
-                            @error('concept')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-
-                        {{-- Unidades --}}
-                        <div class="form-group mb-3">
-                            <label class="text-uppercase" style="font-weight: bold" for="units">Unidades:</label>
-                            <input type="double" class="form-control @error('units') is-invalid @enderror" id="units" value="{{old('units', $budgetConcept->units)}}" name="units">
-                            @error('units')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-
-                        {{-- Adjunto --}}
-                        <div class="form-group">
-                            <label class="text-uppercase" style="font-weight: bold" for="file">Archivo Adjunto:</label>
-                            <input type="file" class="form-control" id="file" name="file[]" multiple>
-                            @error('file')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                            @enderror
-                        </div>
-                        {{-- Enviar Email --}}
-                        <div class="row my-5">
-                            <div class="col-md-6">
-                                <label class="text-uppercase mb-2" style="font-weight: bold; display:block" for="em">Enviar email a todos los proveedores:</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="checkMail" name="checkMail" value="true" >
-                                    <label class="form-check-label" for="checkMail">
-                                        Si
-                                    </label>
-                                </div>
-                                <small class="text-muted d-block">Enviara el email a la lista de proveedores con los archivos adjuntos de la opcion de arriba.</small>
-                                @error('checkMail')
+                                </select>
+                                @error('services_category_id')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>
                                 @enderror
                             </div>
-                            <div class="col-md-6">
-                                {{-- Precio --}}
-                                <div class="form-group">
-                                    <label class="text-uppercase" style="font-weight: bold" for="purchase_price">Precio:</label>
-                                    <input type="double" class="form-control @error('purchase_price') is-invalid @enderror" id="purchase_price" value="{{ old('purchase_price') }}" name="purchase_price">
-                                    @error('purchase_price')
+
+                            <div class="form-group mb-3">
+                                <label class="text-uppercase" style="font-weight: bold" for="service_id">Servicio:</label>
+                                <select class="js-example-basic-single form-control @error('service_id') is-invalid @enderror" name="service_id" >
+                                    <option value="{{null}}">Seleccione un servicio</option>
+                                        @foreach ($services as $service)
+                                            <option value="{{$service->id}}" {{$budgetConcept->service_id == $service->id ? 'selected' : ''}}>{{$service->title}}</option>
+                                        @endforeach
+                                </select>
+                                @error('service_id')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                @enderror
+                            </div>
+
+                            {{-- Titulo --}}
+                            <div class="form-group mb-3">
+                                <label class="text-uppercase" style="font-weight: bold" for="title">Titulo:</label>
+                                <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" value="{{old('title', $budgetConcept->title)}}" name="title">
+                                @error('title')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                @enderror
+                            </div>
+
+                            {{-- Concepto --}}
+                            <div class="form-group mb-3">
+                                <label class="text-uppercase" style="font-weight: bold" for="concept">Concepto:</label>
+                                <textarea class="form-control @error('concept') is-invalid @enderror" id="concept"  name="concept">{{ old('concept', $budgetConcept->concept) }}</textarea>
+                                @error('concept')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                @enderror
+                            </div>
+
+                            {{-- Unidades --}}
+                            <div class="form-group mb-3">
+                                <label class="text-uppercase" style="font-weight: bold" for="units">Unidades:</label>
+                                <input type="double" class="form-control @error('units') is-invalid @enderror" id="units" value="{{old('units', $budgetConcept->units)}}" name="units">
+                                @error('units')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                @enderror
+                            </div>
+
+                            {{-- Adjunto --}}
+                            <div class="form-group">
+                                <label class="text-uppercase" style="font-weight: bold" for="file">Archivo Adjunto:</label>
+                                <input type="file" class="form-control" id="file" name="file[]" multiple>
+                                @error('file')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                @enderror
+                            </div>
+                            {{-- Enviar Email --}}
+                            <div class="row my-5">
+                                <div class="col-md-6">
+                                    <label class="text-uppercase mb-2" style="font-weight: bold; display:block" for="em">Enviar email a todos los proveedores:</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="checkMail" name="checkMail" value="true" >
+                                        <label class="form-check-label" for="checkMail">
+                                            Si
+                                        </label>
+                                    </div>
+                                    <small class="text-muted d-block">Enviara el email a la lista de proveedores con los archivos adjuntos de la opcion de arriba.</small>
+                                    @error('checkMail')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    {{-- Precio --}}
+                                    <div class="form-group">
+                                        <label class="text-uppercase" style="font-weight: bold" for="purchase_price">Precio:</label>
+                                        <input type="double" class="form-control @error('purchase_price') is-invalid @enderror" id="purchase_price" value="{{ old('purchase_price') }}" name="purchase_price">
+                                        @error('purchase_price')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                {{-- Margen --}}
+                                <div class="form-group col-md-6">
+                                    <label class="text-uppercase" style="font-weight: bold" for="total">Margen %:</label>
+                                    <input type="double" class="form-control @error('benefit_margin') is-invalid @enderror" id="benefit_margin" value="{{ old('benefit_margin', 50) }}" name="benefit_margin">
+                                    @error('benefit_margin')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                    @enderror
+                                </div>
+                                {{-- Total --}}
+                                <div class="form-group col-md-6">
+                                    <label class="text-uppercase" style="font-weight: bold" for="sale_price">Total (Precio + Margen):</label>
+                                    <input type="double" class="form-control @error('sale_price') is-invalid @enderror" id="sale_price" value="{{ old('sale_price') }}" name="sale_price" readonly >
+                                    @error('sale_price')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
                                             </span>
                                     @enderror
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row">
-                            {{-- Margen --}}
-                            <div class="form-group col-md-6">
-                                <label class="text-uppercase" style="font-weight: bold" for="total">Margen %:</label>
-                                <input type="double" class="form-control @error('benefit_margin') is-invalid @enderror" id="benefit_margin" value="{{ old('benefit_margin', 50) }}" name="benefit_margin">
-                                @error('benefit_margin')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                @enderror
-                            </div>
-                            {{-- Total --}}
-                            <div class="form-group col-md-6">
-                                <label class="text-uppercase" style="font-weight: bold" for="sale_price">Total (Precio + Margen):</label>
-                                <input type="double" class="form-control @error('sale_price') is-invalid @enderror" id="sale_price" value="{{ old('sale_price') }}" name="sale_price" readonly >
-                                @error('sale_price')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="col-12 form-group mt-3">
-                            <div class="col-12 form-group">
-                                <div class="row">
-                                    <label class="text-uppercase" style="font-weight: bold" for="total">Proveedores:</label>
-                                    <input id="selectedSupplierId" name="selectedSupplierId" type="hidden">
-                                    <div class="col-12" >
-                                        <div class="input-group list-row-supplier">
-                                            <select id="supplierId1" name="supplierId1" class="choices form-control supplier-list-row-select selectSupplier" width="auto" data-supplier-number="1" data-show-subtext="true" data-live-search="true">
-                                                <option value="">-- Seleccione proveedor--</option>
-                                                @if($suppliers)
-                                                    @foreach ($suppliers as $supplier)
-                                                        <option value="{{ $supplier->id }}"  {{$budgetSuppliersSaved->where('option_number',1)->first()->supplier_id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                            &nbsp;&nbsp;<input class="form-control" value="{{old('supplierEmail1',$budgetSuppliersSaved->where('option_number',1)->first()->mail)}}" id="supplierEmail1" name="supplierEmail1" type="text" placeholder="Email" >
-                                            &nbsp;&nbsp;<input class="form-control"  value="{{old('supplierPrice1',$budgetSuppliersSaved->where('option_number',1)->first()->price)}}" id="supplierPrice1" placeholder="Formato: 0.00" name="supplierPrice1">
+                            <div class="col-12 form-group mt-3">
+                                <div class="col-12 form-group">
+                                    <div class="row">
+                                        <label class="text-uppercase" style="font-weight: bold" for="total">Proveedores:</label>
+                                        <input id="selectedSupplierId" name="selectedSupplierId" type="hidden">
+                                        <div class="col-12 mt-2" >
+                                            <div class="input-group list-row-supplier">
+                                                <div class="form-check d-flex align-items-center pr-2 pl-0">
+                                                    <input id="supplierRadio1" @if($budgetSuppliersSaved[0]->selected == 1) checked=checked @endif type="radio" name="radioOpt" class="form-check-input m-1" style="height: 25px; width: 25px;" value="1">
+                                                </div>
+                                                <select id="supplierId1" name="supplierId1" class="choices form-control supplier-list-row-select selectSupplier" width="auto" data-supplier-number="1" data-show-subtext="true" data-live-search="true">
+                                                    <option value="">-- Seleccione proveedor--</option>
+                                                    @if($suppliers)
+                                                        @foreach ($suppliers as $supplier)
+                                                            <option value="{{ $supplier->id }}"  {{$budgetSuppliersSaved->where('option_number',1)->first()->supplier_id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                                &nbsp;&nbsp;<input class="form-control" value="{{old('supplierEmail1',$budgetSuppliersSaved->where('option_number',1)->first()->mail)}}" id="supplierEmail1" name="supplierEmail1" type="text" placeholder="Email" >
+                                                &nbsp;&nbsp;<input class="form-control"  value="{{old('supplierPrice1',$budgetSuppliersSaved->where('option_number',1)->first()->price)}}" id="supplierPrice1" placeholder="Formato: 0.00" name="supplierPrice1">
+                                            </div>
+                                            <br>
                                         </div>
-                                        <br>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="input-group list-row-supplier" >
-                                            <select id="supplierId2" name="supplierId2" class="choices selectpicker select2 form-control supplier-list-row-select selectSupplier" width="auto" data-supplier-number="2" data-show-subtext="true" data-live-search="true">
-                                                <option value="">-- Seleccione proveedor--</option>
-                                                @if($suppliers)
-                                                    @foreach ($suppliers as $supplier)
-                                                        <option value="{{ $supplier->id }}" {{$budgetSuppliersSaved->where('option_number',2)->first()->supplier_id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                            &nbsp;&nbsp;<input  id="supplierEmail2" value="{{old('supplierEmail2',$budgetSuppliersSaved->where('option_number',2)->first()->mail)}}" name="supplierEmail2" type="text" placeholder="Email" class="form-control">
-                                            &nbsp;&nbsp;<input class="form-control"  value="{{old('supplierPrice2',$budgetSuppliersSaved->where('option_number',2)->first()->price)}}" id="supplierPrice2" placeholder="Formato: 0.00" name="supplierPrice2">
+                                        <div class="col-12">
+                                            <div class="input-group list-row-supplier" >
+                                                <div class="form-check d-flex align-items-center pr-2 pl-0">
+                                                    <input id="supplierRadio2" @if($budgetSuppliersSaved[1]->selected == 1) checked=checked @endif type="radio" name="radioOpt" class="form-check-input m-1" style="height: 25px; width: 25px;" value="2">
+                                                </div>
+                                                <select id="supplierId2" name="supplierId2" class="choices selectpicker select2 form-control supplier-list-row-select selectSupplier" width="auto" data-supplier-number="2" data-show-subtext="true" data-live-search="true">
+                                                    <option value="">-- Seleccione proveedor--</option>
+                                                    @if($suppliers)
+                                                        @foreach ($suppliers as $supplier)
+                                                            <option value="{{ $supplier->id }}" {{$budgetSuppliersSaved->where('option_number',2)->first()->supplier_id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                                &nbsp;&nbsp;<input  id="supplierEmail2" value="{{old('supplierEmail2',$budgetSuppliersSaved->where('option_number',2)->first()->mail)}}" name="supplierEmail2" type="text" placeholder="Email" class="form-control">
+                                                &nbsp;&nbsp;<input class="form-control"  value="{{old('supplierPrice2',$budgetSuppliersSaved->where('option_number',2)->first()->price)}}" id="supplierPrice2" placeholder="Formato: 0.00" name="supplierPrice2">
+                                            </div>
+                                            <br>
                                         </div>
-                                        <br>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="input-group list-row-supplier" >
-                                            <select id="supplierId3" name="supplierId3" class="choices selectpicker select2 form-control supplier-list-row-select selectSupplier" width="auto" data-supplier-number="3" data-show-subtext="true" data-live-search="true">
-                                                <option value="">-- Seleccione proveedor--</option>
-                                                @if($suppliers)
-                                                    @foreach ($suppliers as $supplier)
-                                                        <option value="{{ $supplier->id }}" {{$budgetSuppliersSaved->where('option_number',3)->first()->supplier_id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                            &nbsp;&nbsp;<input id="supplierEmail3" value="{{old('supplierEmail3',$budgetSuppliersSaved->where('option_number',3)->first()->mail)}}"  name="supplierEmail3" type="text" placeholder="Email" class="form-control">
-                                            &nbsp;&nbsp;<input class="form-control" value="{{old('supplierPrice3',$budgetSuppliersSaved->where('option_number',3)->first()->price)}}" id="supplierPrice3" placeholder="Formato: 0.00" name="supplierPrice3">
+                                        <div class="col-12">
+                                            <div class="input-group list-row-supplier" >
+                                                <div class="form-check d-flex align-items-center pr-2 pl-0">
+                                                    <input id="supplierRadio3" @if($budgetSuppliersSaved[2]->selected == 1) checked=checked @endif type="radio" name="radioOpt" class="form-check-input m-1" style="height: 25px; width: 25px;" value="3">
+                                                </div>
+                                                <select id="supplierId3" name="supplierId3" class="choices selectpicker select2 form-control supplier-list-row-select selectSupplier" width="auto" data-supplier-number="3" data-show-subtext="true" data-live-search="true">
+                                                    <option value="">-- Seleccione proveedor--</option>
+                                                    @if($suppliers)
+                                                        @foreach ($suppliers as $supplier)
+                                                            <option value="{{ $supplier->id }}" {{$budgetSuppliersSaved->where('option_number',3)->first()->supplier_id == $supplier->id ? 'selected' : ''}}>{{ $supplier->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                                &nbsp;&nbsp;<input id="supplierEmail3" value="{{old('supplierEmail3',$budgetSuppliersSaved->where('option_number',3)->first()->mail)}}"  name="supplierEmail3" type="text" placeholder="Email" class="form-control">
+                                                &nbsp;&nbsp;<input class="form-control" value="{{old('supplierPrice3',$budgetSuppliersSaved->where('option_number',3)->first()->price)}}" id="supplierPrice3" placeholder="Formato: 0.00" name="supplierPrice3">
+                                            </div>
+                                            <br>
                                         </div>
-                                        <br>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        {{-- Boton --}}
-                        <div class="form-group mt-5">
-                            <button type="submit" class="btn btn-primary">
-                                {{ __('Registrar') }}
-                            </button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </section>
-    </div>
-<style>
-    .select2-container--default .select2-selection--single {
-        height: 100%;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-    }
-</style>
+            <div class="col-3">
+                <div class="card-body ">
+                    <div class="card-title">
+                        Acciones
+                        <hr>
+                    </div>
+                    <div class="card-body">
+                        <a href="" id="actualizar" class="btn btn-success mt-3 btn-block">Actualizar</a>
+                        @if(!$budgetConcept->presupuesto->temp)
+                            <a type="button" style="color:white" id="generatePurchaseOrder" class="btn btn-primary mt-3 btn-block">Generar Orden Compra</a>
+                        @endif
+                        <a id="ordenCompra" style="color:white" class="btn btn-dark mt-3 btn-block" style="display:none"> Enviar Orden de Compra</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 @endsection
 
 @section('scripts')
@@ -245,6 +263,78 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
+ // Boton Actualizar presupuesto
+    $('#actualizar').click(function(e){
+        e.preventDefault(); // Esto previene que el enlace navegue a otra página.
+        $('#formActualizar').submit(); // Esto envía el formulario.
+    });
+        $("#ordenCompra").hide();
+
+
+     $( "#supplierRadio1, #supplierRadio2, #supplierRadio3" ).click(function() {
+        $("#ordenCompra").show();
+        if($(this).is('#supplierRadio1')){
+            // valor submit del marcado
+            $('#selectedSupplierId').val(1);
+            // Precio del proveedor seleccionado
+            var optPrice= $('#supplierPrice1').val();
+            if( !$('#supplierPrice1').val() ){
+                $('#purchase_price').val(0);
+                $('#total_no_discount').val(0);
+            }else{
+                $('#purchase_price').val(optPrice);
+            }
+        }
+        if($(this).is('#supplierRadio2')){
+            // valor submit del marcado
+            $('#selectedSupplierId').val(2);
+            // Precio del proveedor seleccionado
+            var optPrice= $('#supplierPrice2').val();
+            if( !$('#supplierPrice2').val() ){
+                $('#purchase_price').val(0);
+                $('#total_no_discount').val(0);
+            }else{
+                $('#purchase_price').val(optPrice);
+            }
+        }
+        if($(this).is('#supplierRadio3')){
+            // valor submit del marcado
+            $('#selectedSupplierId').val(3);
+            // Precio del proveedor seleccionado
+            var optPrice= $('#supplierPrice3').val();
+            if( !$('#supplierPrice3').val() ){
+                $('#purchase_price').val(0);
+                $('#total_no_discount').val(0);
+            }else{
+                $('#purchase_price').val(optPrice);
+            }
+        }
+        // Si hay margen en el input que calcule el precio + margen
+        if( $('#benefit_margin').val()  != ''){
+           // alert(optPrice);
+            if(optPrice == ''){
+                optPrice = 0;
+            }
+            var units = $("#units").val();
+            var purchasePrice = $('#purchase_price').val();
+            var margin = $("#benefit_margin").val();
+
+            var marginPercentage = (purchasePrice * margin) / 100;
+            var priceMarginResult = parseFloat(purchasePrice) + parseFloat(marginPercentage);
+            var total_no_discount =  parseFloat(priceMarginResult);
+            var total_no_discountFormated =   parseFloat(total_no_discount);
+            var total_no_discountFormated = Math.round(total_no_discountFormated * 100) / 100
+            $("#total_no_discount").val(total_no_discount);
+
+        }else{
+            var units = $("#units").val();
+            var purchasePrice = $('#purchase_price').val();
+            var total_no_discount =  parseFloat(purchasePrice) * units;
+            var total_no_discount = Math.round(total_no_discount * 100) / 100;
+            $("#total_no_discount").val(total_no_discount);
+        }
+    });
+
     (function($) {
     $.fn.inputFilter = function(inputFilter) {
         return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function() {

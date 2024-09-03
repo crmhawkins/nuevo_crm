@@ -271,7 +271,7 @@
                                                             {{-- <a class="btn btn-success" href="{{ route('admin.budget_concepts.editTypeOwn',$budgetConcept->id) }}"><i class="fas fa-pencil-alt"></i></a> --}}
                                                         @endif
                                                         @if($budgetConcept->concept_type_id == 1)
-                                                            <a class="btn btn-danger destroyConceptSupplier" data-concept-id="{{$budgetConcept->id}}" style="color:white" ><i class="fas fa-times"></i></a>
+                                                            <a id="deleteOwn" data-id="{{$budgetConcept->id}}" class="btn btn-danger destroyConceptOwn" data-concept-id="{{$budgetConcept->id}}" style="color:white" ><i class="fas fa-times"></i></a>
                                                         @else
                                                             <a id="deleteOwn" data-id="{{$budgetConcept->id}}" class="btn btn-danger destroyConceptOwn" data-concept-id="{{$budgetConcept->id}}" style="color:white" ><i class="fas fa-times"></i></a>
                                                         @endif
@@ -768,7 +768,7 @@
                 // Lanzamos la alerta
                 Toast.fire({
                     icon: "success",
-                    title: "El concepto se ha elimino correctamente a su estado Aceptado"
+                    title: "El concepto se ha elimino correctamente"
                 });
                 return;
         });

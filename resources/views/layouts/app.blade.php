@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{ asset('assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.svg') }}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
     <!-- CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -66,15 +67,21 @@
 
     <script src="{{ asset('assets/js/main.js') }}"></script>
     @yield('scripts')
-
     @laravelViewsScripts
     <script>
+         document.addEventListener('DOMContentLoaded', function() {
+            let accessLevel = {{ auth()->user()->access_level_id}};
+console.log(accessLevel);
+            // Verificar si el nivel de acceso del usuario es 4
+            if (accessLevel == 5) {
+                $("#sidebar").remove();
+                $("#main").css("margin-left", "0px");
+            }
+        });
         document.addEventListener("DOMContentLoaded", function() {
             var loader = document.getElementById('loadingOverlay');
             if (loader) {
-                setTimeout(() => {
                     loader.style.display = 'none';
-                }, 1000);
             }
         });
 
@@ -116,11 +123,41 @@
         }
 
         // Evento para cambiar el tema
-        document.getElementById('light-dark-mode').addEventListener('click', function() {
-            const body = document.getElementById('body');
-            const isDark = body.classList.toggle('dark-mode');
-            saveThemePreference(isDark);
-            console.log(isDark)
+        // document.getElementById('light-dark-mode').addEventListener('click', function() {
+        //     const body = document.getElementById('body');
+        //     const isDark = body.classList.toggle('dark-mode');
+        //     saveThemePreference(isDark);
+        //     console.log(isDark)
+        // });
+        document.addEventListener("DOMContentLoaded", function() {
+            const rows = document.querySelectorAll("tr.clickable-row");
+
+            // Agregar evento de clic a las filas
+            rows.forEach(row => {
+                row.addEventListener("click", () => {
+                    const href = row.dataset.href;
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+
+            // Detener la propagación de los eventos de clic en los enlaces dentro de las filas
+            const links = document.querySelectorAll("tr.clickable-row a");
+
+            links.forEach(link => {
+                link.addEventListener("click", (event) => {
+                    event.stopPropagation(); // Detiene la propagación del evento
+                });
+            });
+
+            // Si tienes botones o cualquier otro elemento interactivo, repite el proceso anterior para ellos
+            const buttons = document.querySelectorAll("tr.clickable-row button");
+            buttons.forEach(button => {
+                button.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                });
+            });
         });
     </script>
 </body>

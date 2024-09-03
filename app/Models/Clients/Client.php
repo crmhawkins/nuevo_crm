@@ -3,6 +3,7 @@
 namespace App\Models\Clients;
 
 use App\Models\Projects\Project;
+use App\Models\Users\ClientUserOrder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -97,5 +98,10 @@ class Client extends Model
     }
     public function campañas() {
         return $this->hasMany(Project::class,'client_id');
+    }
+
+    public function userOrders()
+    {
+        return $this->hasMany(ClientUserOrder::class);
     }
 }

@@ -23,6 +23,8 @@ class TasksAsignarTable extends Component
     public $selectedEmpleado = '';
     public $selectedGestor = '';
     public $perPage = 10;
+    public $sortColumn = 'id'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
     protected $tasks;
 
     public function mount(){
@@ -42,8 +44,7 @@ class TasksAsignarTable extends Component
 
 
     protected function actualizartareas(){
-        if ($this->perPage === 'all') {
-            $this->tasks = Task::where('split_master_task_id',null)->where('duplicated',0)
+            $query = Task::where('split_master_task_id',null)->where('duplicated',0)
             ->when($this->buscar, function ($query) {
                     $query->where('title', 'like', '%' . $this->buscar . '%')
                           ->orWhere('description', 'like', '%' . $this->buscar . '%');
@@ -64,34 +65,30 @@ class TasksAsignarTable extends Component
                 ->when($this->selectedGestor, function ($query) {
                     $query->where('gestor_id', $this->selectedGestor);
                 })
-                ->get();
-        } else {
-            $this->tasks = Task::where('split_master_task_id',null)->where('duplicated',0)
-            ->when($this->buscar, function ($query) {
-                    $query->where('title', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('description', 'like', '%' . $this->buscar . '%');
-                })
-                ->when($this->selectedCategoria, function ($query) {
-                    $query->whereHas('presupuestoConcepto', function ($query) {
-                        $query->where('services_category_id', $this->selectedCategoria);
-                    });
-                })
-                ->when($this->selectedCliente, function ($query) {
-                    $query->whereHas('presupuesto', function ($query) {
-                        $query->where('client_id', $this->selectedCliente);
-                    });
-                })
-                ->when($this->selectedEmpleado, function ($query) {
-                    $query->where('admin_user_id', $this->selectedEmpleado);
-                })
-                ->when($this->selectedGestor, function ($query) {
-                    $query->where('gestor_id', $this->selectedGestor);
-                })
-                ->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
-        }
+                ->join('budget_concepts', 'tasks.budget_concept_id', '=', 'budget_concepts.id')
+                ->join('services_categories', 'budget_concepts.services_category_id', '=', 'services_categories.id')
+                ->join('budgets', 'tasks.budget_id', '=', 'budgets.id')
+                ->join('clients', 'budgets.client_id', '=', 'clients.id')
+                ->join('admin_users', 'tasks.gestor_id', '=', 'admin_users.id')
+                 ->select('tasks.*', 'services_categories.name as categoria_nombre','budget_concepts.title as concept', 'clients.name as cliente', 'admin_users.name as gestor');
+
+
+        $query->orderBy($this->sortColumn, $this->sortDirection);
+
+        // Verifica si se seleccionó 'all' para mostrar todos los registros
+        $this->tasks = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
-
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
 
     public function updating($propertyName)
     {

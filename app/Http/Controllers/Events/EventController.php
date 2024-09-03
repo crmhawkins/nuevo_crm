@@ -39,7 +39,7 @@ class EventController extends Controller
         }else{
             return redirect()->back()->with(
               'toast', [
-                'icon' => 'Error',
+                'icon' => 'error',
                 'mensaje' => 'Error al crear el evento'
             ]);
         }

@@ -31,10 +31,10 @@
             </div>
         </div>
     </div>
-    
+
     @if ($clients)
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
                         <th class="px-3">
@@ -90,7 +90,7 @@
                 </thead>
                 <tbody>
                     @foreach ($clients as $client)
-                        <tr>
+                        <tr class="clickable-row" data-href="{{route('clientes.edit', $client->id)}}">
                             <td class="px-3">{{ $client->name }}</td>
                             <td>{{ $client->cif }}</td>
                             <td>{{ $client->identifier }}</td>

@@ -79,7 +79,7 @@
                                 @foreach ( $usuario->tareas as $tarea )
                                     <tr>
                                         <td>{{$tarea->title}}</td>
-                                        <td>{{$tarea->presupuesto->cliente->name}}</td>
+                                        <td>{{$tarea->presupuesto ? $tarea->presupuesto->cliente->name : 'Presupuesto Borrado'}}</td>
                                         <td>{{$tarea->estimated_time}}</td>
                                         <td>{{$tarea->real_time}}</td>
                                     </tr>

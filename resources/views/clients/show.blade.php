@@ -348,7 +348,7 @@
                                                 <hr class="border mb-4" >
                                                 @if (count($cliente->presupuestos) > 0)
                                                     <div class="table-responsive">
-                                                        <table class="table">
+                                                         <table class="table table-hover">
                                                             <thead class="header-table-other">
                                                                 <th class="px-3" style="font-size:0.75rem">CAMPAÑA</th>
                                                                 <th class="" style="font-size:0.75rem">ESTADO</th>
@@ -383,7 +383,7 @@
                                                 <hr class="border mb-4" >
                                                 @if (count($cliente->facturas) > 0)
                                                     <div class="table-responsive">
-                                                        <table class="table">
+                                                         <table class="table table-hover">
                                                             <thead class="header-table-other">
                                                                 <th class="px-3" style="font-size:0.75rem">CAMPAÑA</th>
                                                                 <th class="" style="font-size:0.75rem">ESTADO</th>
@@ -418,7 +418,7 @@
                                                 <hr class="border mb-4" >
                                                 @if (count($cliente->dominios) > 0)
                                                     <div class="table-responsive">
-                                                        <table class="table">
+                                                         <table class="table table-hover">
                                                             <thead class="header-table-other">
                                                                 <th class="px-3" style="font-size:0.75rem">DOMINIO</th>
                                                                 <th class="" style="font-size:0.75rem">CONTRARACIÓN</th>

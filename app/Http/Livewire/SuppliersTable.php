@@ -14,7 +14,7 @@ class SuppliersTable extends Component
 
     public $buscar;
     public $perPage = 10;
-    public $sortColumn = 'dni'; // Columna por defecto
+    public $sortColumn = 'cif'; // Columna por defecto
     public $sortDirection = 'asc'; // Dirección por defecto
 
     protected $suppliers; // Propiedad protegida para los usuarios
@@ -43,7 +43,7 @@ class SuppliersTable extends Component
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
         // Verifica si se seleccionó 'all' para mostrar todos los registros
-        $this->suppliers = $this->perPage === 'all' ? $query->get() : $query->paginate($this->perPage);
+        $this->suppliers = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getBudgets()

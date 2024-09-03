@@ -57,18 +57,31 @@
         {{-- Filtros --}}
         {{-- Tabla --}}
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
-                    <th class="px-3" style="font-size:0.75rem">DOMINIO</th>
-                    <th class="" style="font-size:0.75rem">CLIENTE</th>
-                    <th class="" style="font-size:0.75rem">FECHA CONTRATACION</th>
-                    <th class="" style="font-size:0.75rem">FECHA VENCIMIENTO</th>
-                    <th class="" style="font-size:0.75rem">ESTADO</th>
-                    <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
+                    <tr>
+                        @foreach ([
+                            'dominio' => 'DOMINIO',
+                            'client_id' => 'CLIENTE',
+                            'date_start' => 'FECHA CONTRATACION',
+                            'date_end' => 'FECHA VENCIMIENTO',
+                            'estado_id' => 'ESTADO',
+
+                        ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
+                        <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
                     @foreach ( $dominios as $dominio )
-                        <tr>
+                        <tr class="clickable-row" data-href="{{route('presupuesto.edit', $dominio->id)}}">
                             <td>{{$dominio->dominio}}</td>
                             <td>{{$dominio->cliente->name}}</td>
                             <td>{{ \Carbon\Carbon::parse($dominio->date_start)->format('d/m/Y') }}</td>

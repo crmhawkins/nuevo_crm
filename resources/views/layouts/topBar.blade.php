@@ -256,13 +256,24 @@
 
             </div>
         </li>
-        <li class="d-none d-sm-inline-block">
+        {{-- <li class="d-none d-sm-inline-block">
             <div class="nav-link" >
                 <i id="light-dark-mode" class="bi @if($isDarkMode) bi-brightness-high @else bi-moon @endif" style="cursor: pointer;"></i>
             </div>
+        </li> --}}
+        <li class="d-none d-sm-inline-block">
+            <div class="nav-link" >
+                <a class="dropdown-item" href="{{ route('logout') }}"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fa-solid fa-arrow-right-from-bracket "></i>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            </div>
         </li>
 
-       {{-- <li class="dropdown">
+        {{-- <li class="dropdown">
             <a class="nav-link dropdown-toggle arrow-none nav-user" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                 <span class="account-user-avatar">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png" alt="user-image" width="32" class="rounded-circle">
@@ -308,33 +319,35 @@
                 </a>
             </div>
         </li> --}}
+
     </ul>
 </nav>
 
 <script>
-    document.getElementById('light-dark-mode').addEventListener('click', function() {
-        const body = document.body;
-        body.classList.toggle('dark-mode');
-        const isDarkMode = body.classList.contains('dark-mode');
+    // document.getElementById('light-dark-mode').addEventListener('click', function() {
+    //     const body = document.body;
+    //     body.classList.toggle('dark-mode');
+    //     const isDarkMode = body.classList.contains('dark-mode');
 
-        // Guardar preferencia en la base de datos
-        fetch('/save-theme-preference', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ is_dark: isDarkMode })
-        }).then(response => {
-            if (response.ok) {
-                console.log('Preferencia de tema guardada.');
-                console.log(isDarkMode)
-                console.log(this)
-                window.location.reload();
-            } else {
-                console.error('Error al guardar la preferencia de tema.');
-            }
-        });
-    });
+    //     // Guardar preferencia en la base de datos
+    //     fetch('/save-theme-preference', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    //         },
+    //         body: JSON.stringify({ is_dark: isDarkMode })
+    //     }).then(response => {
+    //         if (response.ok) {
+    //             console.log('Preferencia de tema guardada.');
+    //             console.log(isDarkMode)
+    //             console.log(this)
+    //             window.location.reload();
+    //         } else {
+    //             console.error('Error al guardar la preferencia de tema.');
+    //         }
+    //     });
+    // });
+
 </script>
 

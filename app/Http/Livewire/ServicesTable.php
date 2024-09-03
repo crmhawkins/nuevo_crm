@@ -15,6 +15,8 @@ class ServicesTable extends Component
     public $buscar;
     public $selectedCategoria = '';
     public $perPage = 10;
+    public $sortColumn = 'title'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
     protected $services; // Propiedad protegida para los usuarios
 
     public function mount(){
@@ -31,9 +33,7 @@ class ServicesTable extends Component
 
     protected function actualizarServicios()
     {
-        // Comprueba si se ha seleccionado "Todos" para la paginación
-        if ($this->perPage === 'all') {
-            $this->services = Service::when($this->buscar, function ($query) {
+        $query = Service::when($this->buscar, function ($query) {
                     $query->where('title', 'like', '%' . $this->buscar . '%')
                           ->orWhere('concept', 'like', '%' . $this->buscar . '%')
                           ->orWhere('price', 'like', '%' . $this->buscar . '%')
@@ -42,22 +42,13 @@ class ServicesTable extends Component
                 })
                 ->when($this->selectedCategoria, function ($query) {
                     $query->where('services_categories_id', $this->selectedCategoria);
-                })
-                ->get(); // Obtiene todos los registros sin paginación
-        } else {
-            // Usa paginación con la cantidad especificada por $this->perPage
-            $this->services = Service::when($this->buscar, function ($query) {
-                    $query->where('title', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('concept', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('price', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('estado', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('order', 'like', '%' . $this->buscar . '%');
-                })
-                ->when($this->selectedCategoria, function ($query) {
-                    $query->where('services_categories_id', $this->selectedCategoria);
-                })
-                ->paginate(is_numeric($this->perPage) ? $this->perPage : 10); // Se asegura de que $this->perPage sea numérico
-        }
+                }) ->join('services_categories', 'services.services_categories_id', '=', 'services_categories.id')
+                ->select('services.*', 'services_categories.name as categoria_nombre');
+
+        $query->orderBy($this->sortColumn, $this->sortDirection);
+
+        // Verifica si se seleccionó 'all' para mostrar todos los registros
+        $this->services = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getServices()
@@ -73,7 +64,16 @@ class ServicesTable extends Component
 
         $this->actualizarServicios(); // Luego actualizas la lista de usuarios basada en los filtros
     }
-
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
     public function updating($propertyName)
     {
         if ($propertyName === 'buscar' || $propertyName === 'selectedCategoria') {

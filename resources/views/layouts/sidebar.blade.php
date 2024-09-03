@@ -35,6 +35,9 @@
                     $nominasActive = request()->routeIs('nominas.*') ;
                     $contratosActive = request()->routeIs('contratos.*') ;
                     $poveedoresActive= request()->routeIs('proveedores.*');
+                    $actasActive= request()->routeIs('reunion.*');
+                    $cargoActive= request()->routeIs('cargo.*');
+                    $departamentoActive= request()->routeIs('departamento.*');
                     $tesoreriaActive = request()->routeIs('ingresos.*') || request()->routeIs('gastos.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
                 @endphp
 
@@ -203,19 +206,67 @@
                                 </span>
                             </a>
                         </li>
-                        <li class="submenu-item {{ request()->routeIs('tareas.cola') ? 'active' : '' }}">
+                        {{-- <li class="submenu-item {{ request()->routeIs('tareas.cola') ? 'active' : '' }}">
                             <a href="{{route('tareas.cola')}}">
                                 <i class="fa-solid fa-list"></i>
                                 <span>
                                     En Cola
                                 </span>
                             </a>
-                        </li>
+                        </li> --}}
                         <li class="submenu-item {{ request()->routeIs('tareas.revision') ? 'active' : '' }}">
                             <a href="{{route('tareas.revision')}}">
                                 <i class="fa-solid fa-list"></i>
                                 <span>
                                     En Revisión
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item has-sub {{ $departamentoActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
+                        <i class="fa-solid fa-user-group fs-5"></i>
+                        <span>Departamentos</span>
+                    </a>
+                    <ul class="submenu" style="{{ $departamentoActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('departamento.index') ? 'active' : '' }}">
+                            <a href="{{route('departamento.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('departamento.create') ? 'active' : '' }}">
+                            <a href="{{route('departamento.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear departamento
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item has-sub {{ $cargoActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
+                        <i class="fa-solid fa-user-group fs-5"></i>
+                        <span>Cargos</span>
+                    </a>
+                    <ul class="submenu" style="{{ $cargoActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('cargo.index') ? 'active' : '' }}">
+                            <a href="{{route('cargo.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('cargo.create') ? 'active' : '' }}">
+                            <a href="{{route('cargo.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear cargo
                                 </span>
                             </a>
                         </li>
@@ -333,6 +384,30 @@
                         </li>
                         <li class="submenu-item {{ request()->routeIs('proveedores.create') ? 'active' : '' }}">
                             <a href="{{route('proveedores.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear nuevo
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item has-sub {{ $actasActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
+                        <i class="fa-solid fa-address-book fs-5"></i>
+                        <span>Actas de reunion</span>
+                    </a>
+                    <ul class="submenu" style="{{ $actasActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('reunion.index') ? 'active' : '' }}">
+                            <a href="{{route('reunion.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('reunion.create') ? 'active' : '' }}">
+                            <a href="{{route('reunion.create')}}">
                                 <i class="fa-solid fa-plus"></i>
                                 <span>
                                     Crear nuevo

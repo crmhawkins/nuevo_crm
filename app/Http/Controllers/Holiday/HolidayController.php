@@ -270,24 +270,24 @@ class HolidayController extends Controller
 
         $empleado = Auth::user();
 
-        // Se pasa la petición de vacaciones a sendEmail, el cual se encarga de enviar un email cuando se solicitan unas vacaciones
-        $envioEmail = $this->sendEmail($empleado);
+        // // Se pasa la petición de vacaciones a sendEmail, el cual se encarga de enviar un email cuando se solicitan unas vacaciones
+        // $envioEmail = $this->sendEmail($empleado);
 
-        if($envioEmail != 200){
-            return "Error";
-        }
-        if($envioEmail == 200){
-            $mailEmisor = "holidays@crmhawkins.com";
-            $logData = [
-                'mailEmisor' => $mailEmisor,
-                'mailReceptor' => "ivan@lchawkins.com",
-                'status' => 3, // Tipo de log, en el caso 3 son las vacaciones
-                'mensaje' => "El usuario ".$empleado->name." ha realizado una nueva petición de vacaciones",
-            ];
-        $logEmail = $this->getLogEmails($logData);
-    }
+        // if($envioEmail != 200){
+        //     return "Error";
+        // }
+        // if($envioEmail == 200){
+        //     $mailEmisor = "holidays@crmhawkins.com";
+        //     $logData = [
+        //         'mailEmisor' => $mailEmisor,
+        //         'mailReceptor' => "ivan@lchawkins.com",
+        //         'status' => 3, // Tipo de log, en el caso 3 son las vacaciones
+        //         'mensaje' => "El usuario ".$empleado->name." ha realizado una nueva petición de vacaciones",
+        //     ];
+        // $logEmail = $this->getLogEmails($logData);
+        //}
         // Respuesta
-        return redirect()->route('holiday.edit',$holidayPetition->id)->with('toast', [
+        return redirect()->route('holiday.index',)->with('toast', [
             'icon' => 'success',
             'mensaje' => 'La petición de vacaciones se realizó correctamente'
           ]

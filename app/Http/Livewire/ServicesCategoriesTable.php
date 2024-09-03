@@ -14,6 +14,8 @@ class ServicesCategoriesTable extends Component
     public $selectedCategoria = '';
     public $perPage = 10;
 
+    public $sortColumn = 'name'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
     protected $categorias; // Propiedad protegida para los usuarios
     public function render()
     {
@@ -25,19 +27,15 @@ class ServicesCategoriesTable extends Component
 
     protected function actualizarServiciosCategoria()
     {
-        // Comprueba si se ha seleccionado "Todos" para la paginación
-        if ($this->perPage === 'all') {
-            $this->categorias = ServiceCategories::when($this->buscar, function ($query) {
+
+        $query = ServiceCategories::when($this->buscar, function ($query) {
                     $query->where('name', 'like', '%' . $this->buscar . '%');
-                })
-                ->get(); // Obtiene todos los registros sin paginación
-        } else {
-            // Usa paginación con la cantidad especificada por $this->perPage
-            $this->categorias = ServiceCategories::when($this->buscar, function ($query) {
-                    $query->where('name', 'like', '%' . $this->buscar . '%');
-                })
-                ->paginate(is_numeric($this->perPage) ? $this->perPage : 10); // Se asegura de que $this->perPage sea numérico
-        }
+                });
+
+        $query->orderBy($this->sortColumn, $this->sortDirection);
+
+        // Verifica si se seleccionó 'all' para mostrar todos los registros
+        $this->categorias = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getCategorias()
@@ -53,7 +51,16 @@ class ServicesCategoriesTable extends Component
 
         $this->actualizarServiciosCategoria(); // Luego actualizas la lista de usuarios basada en los filtros
     }
-
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
     public function updating($propertyName)
     {
         if ($propertyName === 'buscar' || $propertyName === 'selectedCategoria') {

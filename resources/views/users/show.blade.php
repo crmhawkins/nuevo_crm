@@ -206,7 +206,7 @@
                                                 <hr class="border mb-4" >
                                                 @if (count($usuario->tareas) > 0)
                                                     <div class="table-responsive">
-                                                        <table class="table">
+                                                         <table class="table table-hover">
                                                             <thead class="header-table-other">
                                                                 <th class="px-3" style="font-size:0.75rem">TITULO</th>
                                                                 <th class="" style="font-size:0.75rem">CLIENTE</th>
@@ -217,7 +217,7 @@
                                                             </thead>
                                                             <tbody>
                                                                 @foreach ( $usuario->tareas as $tarea )
-                                                                    <tr>
+                                                                    <tr class="clickable-row" data-href="{{route('tarea.edit', $tarea->id)}}">
                                                                         <td>{{$tarea->title}}</td>
                                                                         <td>{{$tarea->presupuesto->cliente->name}}</td>
                                                                         <td>{{$tarea->estimated_time}}</td>
@@ -280,7 +280,7 @@
                                                 </div>
                                                 @if (count($usuario->vacaciones) > 0)
                                                     <div class="table-responsive">
-                                                        <table class="table">
+                                                         <table class="table table-hover">
                                                             <thead class="header-table-other">
                                                                 <th class="px-3" style="font-size:0.75rem">DÍA/S PEDIDOS</th>
                                                                 <th class="" style="font-size:0.75rem">MEDIO DÍA</th>

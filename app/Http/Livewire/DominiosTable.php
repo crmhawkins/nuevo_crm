@@ -23,7 +23,8 @@ class DominiosTable extends Component
     public $clientes;
     public $estados;
     public $perPage = 10;
-
+    public $sortColumn = 'dominio'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
     protected $dominios; // Propiedad protegida para los usuarios
 
     public function mount(){
@@ -43,32 +44,21 @@ class DominiosTable extends Component
 
     protected function actualizarDominios()
     {
-        // Comprueba si se ha seleccionado "Todos" para la paginación
-        if ($this->perPage === 'all') {
-            $this->dominios = Dominio::when($this->buscar, function ($query) {
-                    $query->where('name', 'like', '%' . $this->buscar . '%');
+        $query = Dominio::when($this->buscar, function ($query) {
+                    $query->where('dominio', 'like', '%' . $this->buscar . '%');
                 })
                 ->when($this->selectedCliente, function ($query) {
                     $query->where('client_id', $this->selectedCliente);
                 })
                 ->when($this->selectedEstado, function ($query) {
                     $query->where('estado_id', $this->selectedEstado);
-                })
-                ->get(); // Obtiene todos los registros sin paginación
-        } else {
-            // dd($this->perPage);
-            // Usa paginación con la cantidad especificada por $this->perPage
-            $this->dominios = Dominio::when($this->buscar, function ($query) {
-                    $query->where('name', 'like', '%' . $this->buscar . '%');
-                })
-                ->when($this->selectedCliente, function ($query) {
-                    $query->where('client_id', $this->selectedCliente);
-                })
-                ->when($this->selectedEstado, function ($query) {
-                    $query->where('estado_id', $this->selectedEstado);
-                })
-                ->paginate(is_numeric($this->perPage) ? $this->perPage : 10); // Se asegura de que $this->perPage sea numérico
-        }
+                });
+
+         // Aplica la ordenación
+         $query->orderBy($this->sortColumn, $this->sortDirection);
+
+         // Verifica si se seleccionó 'all' para mostrar todos los registros
+         $this->dominios = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getCategorias()
@@ -84,7 +74,16 @@ class DominiosTable extends Component
 
         $this->actualizarDominios(); // Luego actualizas la lista de usuarios basada en los filtros
     }
-
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
     public function updating($propertyName)
     {
         if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado') {

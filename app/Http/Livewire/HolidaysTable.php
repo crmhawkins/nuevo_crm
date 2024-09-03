@@ -21,7 +21,8 @@ class HolidaysTable extends Component
     public $perPage = 10;
     public $numberOfholidaysPetitions;
     public $holydayEvents;
-
+    public $sortColumn = 'id'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
     protected $holidays; // Propiedad protegida para los gastosbusqueda
 
 
@@ -66,26 +67,29 @@ class HolidaysTable extends Component
     protected function actualizargastos()
     {
         // Comprueba si se ha seleccionado "Todos" para la paginación
-        if ($this->perPage === 'all') {
-            $this->holidays = Holidays::when($this->buscar, function ($query) {
+        $query = Holidays::when($this->buscar, function ($query) {
                     $query->whereHas('adminUser', function ($query) {
                         $query->where('name', 'like', '%' . $this->buscar . '%')
                         ->where('inactive', 0);
                     });
-                })
-                ->get(); // Obtiene todos los registros sin paginación
-        } else {
-            // Usa paginación con la cantidad especificada por $this->perPage
-            $this->holidays = Holidays::when($this->buscar, function ($query) {
-                    $query->whereHas('adminUser', function ($query) {
-                        $query->where('name', 'like', '%' . $this->buscar . '%')
-                        ->where('inactive', 0);
-                    });
-                })
-                ->paginate(is_numeric($this->perPage) ? $this->perPage : 10); // Se asegura de que $this->perPage sea numérico
-        }
-    }
+                }); // Obtiene todos los registros sin paginación
 
+         // Aplica la ordenación
+         $query->orderBy($this->sortColumn, $this->sortDirection);
+
+         // Verifica si se seleccionó 'all' para mostrar todos los registros
+         $this->holidays = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+    }
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
     public function updating($propertyName)
     {
         if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado') {

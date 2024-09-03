@@ -25,7 +25,7 @@
     </div>
     @if ( $suppliers )
         <div class="table-responsive">
-            <table class="table">
+             <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
                         @foreach ([
@@ -48,13 +48,13 @@
                 </thead>
                 <tbody>
                     @foreach ( $suppliers as $supplier )
-                        <tr>
+                        <tr class="clickable-row" data-href="{{route('proveedores.edit', $supplier->id)}}">
                             <td>{{$supplier->cif }}</td>
                             <td>{{$supplier->name}}</td>
                             <td>{{$supplier->email }}</td>
                             <td>{{$supplier->phone }}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
-                                <a class="" href="{{route('proveedores.show', $supplier->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar usuario"></a>
+                                {{-- <a class="" href="{{route('proveedores.show', $supplier->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar usuario"></a> --}}
                                 <a class="" href="{{route('proveedores.edit', $supplier->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Mostrar usuario"></a>
                                 <a class="delete" data-id="{{$supplier->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Mostrar usuario"></a>
                             </td>

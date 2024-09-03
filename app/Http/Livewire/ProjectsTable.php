@@ -17,7 +17,8 @@ class ProjectsTable extends Component
     public $perPage = 10;
 
     protected $projects; // Propiedad protegida para las Campañas
-
+    public $sortColumn = 'name'; // Columna por defecto
+    public $sortDirection = 'asc'; // Dirección por defecto
     public function mount(){
         $this->gestores = User::where('access_level_id', 4)->get();
     }
@@ -32,29 +33,19 @@ class ProjectsTable extends Component
 
     protected function actualizarProjects()
     {
-        // Comprueba si se ha seleccionado "Todos" para la paginación
-        if ($this->perPage === 'all') {
-            $this->projects = Project::when($this->buscar, function ($query) {
+        $query = Project::when($this->buscar, function ($query) {
                     $query->where('name', 'like', '%' . $this->buscar . '%')
                           ->orWhere('description', 'like', '%' . $this->buscar . '%')
                           ->orWhere('notes', 'like', '%' . $this->buscar . '%');
                 })
                 ->when($this->selectedGestor, function ($query) {
                     $query->where('admin_user_id', $this->selectedGestor);
-                })
-                ->get(); // Obtiene todos los registros sin paginación
-        } else {
-            // Usa paginación con la cantidad especificada por $this->perPage
-            $this->projects = Project::when($this->buscar, function ($query) {
-                    $query->where('name', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('description', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('notes', 'like', '%' . $this->buscar . '%');
-                })
-                ->when($this->selectedGestor, function ($query) {
-                    $query->where('admin_user_id', $this->selectedGestor);
-                })
-                ->paginate(is_numeric($this->perPage) ? $this->perPage : 10); // Se asegura de que $this->perPage sea numérico
-        }
+                }); // Obtiene todos los registros sin paginación
+
+        $query->orderBy($this->sortColumn, $this->sortDirection);
+
+        // Verifica si se seleccionó 'all' para mostrar todos los registros
+        $this->projects = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function aplicarFiltro()
@@ -67,7 +58,16 @@ class ProjectsTable extends Component
         // Si es necesario, puedes incluir lógica adicional aquí antes de devolver los usuarios
         return $this->projects;
     }
-
+    public function sortBy($column)
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
     public function updating($propertyName)
     {
         if ($propertyName === 'buscar' || $propertyName === 'selectedGestor') {

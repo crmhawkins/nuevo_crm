@@ -348,7 +348,7 @@
                                                 <hr class="border mb-4" >
                                                 @if (count($cliente->presupuestos) > 0)
                                                     <div class="table-responsive">
-                                                        <table class="table">
+                                                         <table class="table table-hover">
                                                             <thead class="header-table-other">
                                                                 <th class="px-3" style="font-size:0.75rem">CAMPAÑA</th>
                                                                 <th class="" style="font-size:0.75rem">ESTADO</th>
@@ -358,7 +358,7 @@
                                                             </thead>
                                                             <tbody>
                                                                 @foreach ( $cliente->presupuestos as $budget )
-                                                                    <tr>
+                                                                    <tr class="clickable-row" data-href="{{route('presupuesto.show', $budget->id)}}">
                                                                         <td>{{$budget->proyecto->name ?? ($budget->project_id ? 'Campaña borrada' : 'Sin campaña asignada')}}</td>
                                                                         <td>{{$budget->estadoPresupuesto->name ?? ($budget->budget_status_id ? 'Estado borrado' : 'Sin estado asignado')}}</td>
                                                                         <td>{{$budget->total}} €</td>
@@ -383,7 +383,7 @@
                                                 <hr class="border mb-4" >
                                                 @if (count($cliente->facturas) > 0)
                                                     <div class="table-responsive">
-                                                        <table class="table">
+                                                         <table class="table table-hover">
                                                             <thead class="header-table-other">
                                                                 <th class="px-3" style="font-size:0.75rem">CAMPAÑA</th>
                                                                 <th class="" style="font-size:0.75rem">ESTADO</th>
@@ -393,7 +393,7 @@
                                                             </thead>
                                                             <tbody>
                                                                 @foreach ( $cliente->facturas as $invoice )
-                                                                    <tr>
+                                                                    <tr class="clickable-row" data-href="{{route('factura.show', $invoice->id)}}">
                                                                         <td>{{$invoice->project->name ?? ($invoice->project_id ? 'Campaña borrada' : 'Sin campaña asignada')}}</td>
                                                                         <td>{{$invoice->invoiceStatus->name ?? ($invoice->invoice_status_id ? 'Estado borrado' : 'Sin estado asignado')}}</td>
                                                                         <td>{{$invoice->total}} €</td>
@@ -418,7 +418,7 @@
                                                 <hr class="border mb-4" >
                                                 @if (count($cliente->dominios) > 0)
                                                     <div class="table-responsive">
-                                                        <table class="table">
+                                                         <table class="table table-hover">
                                                             <thead class="header-table-other">
                                                                 <th class="px-3" style="font-size:0.75rem">DOMINIO</th>
                                                                 <th class="" style="font-size:0.75rem">CONTRARACIÓN</th>
@@ -428,7 +428,7 @@
                                                             </thead>
                                                             <tbody>
                                                                 @foreach ( $cliente->dominios as $dominio )
-                                                                    <tr>
+                                                                    <tr class="clickable-row" data-href="{{route('dominios.edit', $dominio->id)}}">
                                                                         <td>{{$dominio->dominio}}</td>
                                                                         <td>{{$dominio->date_start}}</td>
                                                                         <td>{{$dominio->date_end}}</td>

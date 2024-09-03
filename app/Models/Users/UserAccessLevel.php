@@ -23,5 +23,9 @@ class UserAccessLevel extends Authenticatable
     protected $fillable = [
         'name',
     ];
-
+    const FULL_ADMINISTRATOR = 1;
+    const ACCESS_LEVEL_GERENTE = 2;
+    const ACCESS_LEVEL_CONTABLE = 3;
+    const ACCESS_LEVEL_GESTOR = 4;
+    const ACCESS_LEVEL_PERSONAL = 5;
 }

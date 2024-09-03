@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titulo', 'Crear Concepto Propio')
+@section('titulo', 'Crear Concepto Proveedor')
 
 @section('css')
 {{-- <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" /> --}}
