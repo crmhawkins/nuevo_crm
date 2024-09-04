@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('invoice_concepts', function (Blueprint $table) {
-            $table->id();            $table->unsignedBigInteger('invoice_id')->nullable();
+            $table->id();            
+            $table->unsignedBigInteger('invoice_id')->nullable();
             $table->unsignedBigInteger('concept_type_id')->nullable();
             $table->unsignedBigInteger('service_id')->nullable();
             $table->unsignedBigInteger('services_category_id')->nullable();
@@ -26,10 +27,10 @@ return new class extends Migration
             $table->double('total',20,2)->nullable();
             $table->double('total_no_discount',20,2)->nullable();
 
-            $table->foreign('invoice_id')->references('id')->on('invoices');
-            $table->foreign('concept_type_id')->references('id')->on('budget_concept_type');
-            $table->foreign('service_id')->references('id')->on('services');
-            $table->foreign('services_category_id')->references('id')->on('services_categories');
+            // $table->foreign('invoice_id')->references('id')->on('invoices');
+            // $table->foreign('concept_type_id')->references('id')->on('budget_concept_type');
+            // $table->foreign('service_id')->references('id')->on('services');
+            // $table->foreign('services_category_id')->references('id')->on('services_categories');
 
             $table->timestamps();
             $table->softDeletes();

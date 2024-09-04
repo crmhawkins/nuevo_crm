@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('newsletters_manual', function (Blueprint $table) {
-            $table->id();            $table->text('clients_array_id')->nullable();
+            $table->id();            
+            $table->text('clients_array_id')->nullable();
             $table->tinyInteger('category')->nullable();
             $table->dateTime('date_sent')->nullable();
             $table->text('first_title_newsletter')->nullable();

@@ -15,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('jornadas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
+            $table->unsignedBigInteger('admin_user_id')->nullable();
+            // $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
             $table->timestamp('start_time');
             $table->timestamp('end_time')->nullable();
             $table->boolean('is_active')->default(true);

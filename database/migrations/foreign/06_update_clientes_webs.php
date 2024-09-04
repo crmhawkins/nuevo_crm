@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('ingresos', function (Blueprint $table) {
-            $table->foreignId('categoria_id')->nullable()->constrained('categoria_ingresos')->onDelete('cascade');
-            $table->foreignId('estado_id')->nullable()->constrained('estados_ingresos')->onDelete('cascade');
+        Schema::table('clients_webs', function (Blueprint $table) {
+
+            $table->foreign('client_id')->references('id')->on('clients');
 
         });
     }
@@ -23,6 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('clients_webs');
+
     }
 };

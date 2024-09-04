@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('newsletters_favourites', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->foreignId('newsletter_id')->nullable();
+            $table->unsignedBigInteger('newsletter_id')->nullable();
 
-            $table->foreign('user_id')->references('id')->on('admin_user');
-            $table->foreign('newsletter_id')->references('id')->on('newsletters');
+            // $table->foreign('user_id')->references('id')->on('admin_user');
+            // $table->foreign('newsletter_id')->references('id')->on('newsletters');
 
             $table->timestamps();
             $table->softDeletes();

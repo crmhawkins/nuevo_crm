@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('settings_id')->constrained()->onDelete('cascade'); // Relación con la configuración
+            $table->unsignedBigInteger('settings_id')->nullable(); // Relación con la configuración
             $table->string('tipo'); // Verano o Invierno
             $table->string('dia'); // Día de la semana
             $table->time('inicio'); // Hora de inicio

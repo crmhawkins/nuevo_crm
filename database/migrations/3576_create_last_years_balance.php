@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('last_years_balance', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bank_id')->constrained('bank_accounts')->onDelete('cascade');
+            $table->unsignedBigInteger('bank_id')->nullable();
+
+            // $table->foreignId('bank_id')->constrained('bank_accounts')->onDelete('cascade');
             $table->string('year')->nullable();
             $table->float('quantity',10,2)->nullable();
 

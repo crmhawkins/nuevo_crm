@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('clients', function (Blueprint $table) {
-            $table->unsignedBigInteger('commercial_id')->nullable();
+        Schema::table('alerts', function (Blueprint $table) {
 
-            $table->foreign('commercial_id')->references('id')->on('admin_user');
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            $table->foreign('stage_id')->references('id')->on('stages');
+            $table->foreign('status_id')->references('id')->on('alert_status');
 
         });
     }
@@ -24,7 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('clients');
-
+        Schema::dropIfExists('alerts');
     }
 };

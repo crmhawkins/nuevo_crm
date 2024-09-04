@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('llamadas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('admin_user');
+            $table->unsignedBigInteger('admin_user_id')->nullable();
+
+            // $table->foreignId('admin_user_id')->constrained('admin_user');
             $table->timestamp('start_time');
             $table->timestamp('end_time')->nullable();
             $table->boolean('is_active')->default(true);

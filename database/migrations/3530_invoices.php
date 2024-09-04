@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('budget_id')->nullable();
             $table->string('reference', 191)->nullable();
+            $table->unsignedBigInteger('budget_id')->nullable();
             $table->unsignedBigInteger('reference_autoincrement_id')->nullable();
             $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->unsignedBigInteger('project_id')->nullable();
             $table->unsignedBigInteger('payment_method_id')->nullable();
-            $table->foreignId('invoice_status_id')->default(1);
+            $table->unsignedBigInteger('invoice_status_id')->default(1);
 
             $table->string('concept', 191)->nullable();
             $table->text('description')->nullable();
@@ -44,12 +44,12 @@ return new class extends Migration
             $table->integer('partial_number')->nullable();
             $table->integer('show_summary')->default(1);
 
-            $table->foreign('budget_id')->references('id')->on('budgets');
-            $table->foreign('admin_user_id')->references('id')->on('admin_user');
-            $table->foreign('client_id')->references('id')->on('clients');
-            $table->foreign('project_id')->references('id')->on('projects');
-            $table->foreign('payment_method_id')->references('id')->on('payment_method');
-            $table->foreign('invoice_status_id')->references('id')->on('invoice_status');
+            // $table->foreign('budget_id')->references('id')->on('budgets');
+            // $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            // $table->foreign('client_id')->references('id')->on('clients');
+            // $table->foreign('project_id')->references('id')->on('projects');
+            // $table->foreign('payment_method_id')->references('id')->on('payment_method');
+            // $table->foreign('invoice_status_id')->references('id')->on('invoice_status');
 
             $table->timestamps();
             $table->softDeletes();

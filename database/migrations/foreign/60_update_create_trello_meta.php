@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('admin_user', function (Blueprint $table) {
-           $table->foreignId('commercial_id')->nullable()->constrained('admin_user');
+        Schema::table('trello_meta', function (Blueprint $table) {
+        
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            $table->foreign('budget_id')->references('id')->on('budgets');
         });
     }
 
@@ -21,9 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('admin_user', function (Blueprint $table) {
-            $table->dropColumn('commercial_id');
-
-        });
+        Schema::dropIfExists('trello_meta');
     }
 };

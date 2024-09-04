@@ -13,14 +13,15 @@ return new class extends Migration
     {
         //dominios
         Schema::create('dominios', function (Blueprint $table) {
-            $table->id();            $table->unsignedBigInteger('client_id')->nullable();
+            $table->id();            
+            $table->unsignedBigInteger('client_id')->nullable();
             $table->string('dominio')->nullable();
             $table->date('date_start')->nullable();
             $table->date('date_end')->nullable();
             $table->tinyInteger('estado')->nullable();
             $table->text('comentario')->nullable();
 
-            $table->foreign('client_id')->references('id')->on('clients');
+            // $table->foreign('client_id')->references('id')->on('clients');
 
             $table->timestamps();
             $table->softDeletes();

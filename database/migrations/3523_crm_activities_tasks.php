@@ -13,15 +13,16 @@ return new class extends Migration
     {
         //crm_activities_tasks
         Schema::create('crm_activities_tasks', function (Blueprint $table) {
-            $table->id();            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->id();            
+            $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->tinyInteger('done')->nullable();
             $table->string('subject')->nullable();
             $table->date('date')->nullable();
             $table->text('description')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_user');
-            $table->foreign('client_id')->references('id')->on('clients');
+            // $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            // $table->foreign('client_id')->references('id')->on('clients');
 
             $table->timestamps();
             $table->softDeletes();

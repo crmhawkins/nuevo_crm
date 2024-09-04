@@ -16,7 +16,7 @@ return new class extends Migration
             $table->double('quantity',8,2)->nullable();
             $table->tinyInteger('first_period')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            // $table->foreign('admin_user_id')->references('id')->on('admin_user');
 
             $table->timestamps();
             $table->softDeletes();

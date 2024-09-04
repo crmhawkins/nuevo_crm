@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('titulo');
             $table->string('descripcion');
-            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
-            $table->foreignId('project_id')->nullable()->constrained('projects')->onDelete('cascade');
-            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
-            $table->foreignId('budget_id')->nullable()->constrained('budgets')->onDelete('cascade');
-            $table->foreignId('task_id')->nullable()->constrained('tasks')->onDelete('cascade');
+
+            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->unsignedBigInteger('project_id')->nullable();
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->unsignedBigInteger('budget_id')->nullable();
+            $table->unsignedBigInteger('task_id')->nullable();
             $table->boolean('finalizada')->default(false);
             $table->timestamps();
             $table->softDeletes();

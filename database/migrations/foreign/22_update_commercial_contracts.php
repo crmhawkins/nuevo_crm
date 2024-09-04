@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('budget_concepts', function (Blueprint $table) {
+        Schema::table('commercial_contracts', function (Blueprint $table) {
+            
 
-            $table->boolean('is_facturado')->default(false);
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
+
         });
     }
 
@@ -22,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('budget_concepts', function (Blueprint $table) {
-            //
-        });
+        //
     }
 };

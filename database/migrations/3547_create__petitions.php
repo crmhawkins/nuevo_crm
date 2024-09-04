@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('petitions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');  // Relación con el modelo User
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');      // Relación con el modelo Client
+            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->unsignedBigInteger('client_id')->nullable();
             $table->text('note')->nullable();             // Campo para notas
             $table->boolean('finished')->default(false);  // Estado de finalización, por defecto es falso
 

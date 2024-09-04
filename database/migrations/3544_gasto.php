@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('gastos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('payment_method_id')->nullable()->constrained('payment_method')->onDelete('cascade');
-            $table->foreignId('bank_id')->nullable()->constrained('bank_accounts')->onDelete('cascade');
+            $table->unsignedBigInteger('payment_method_id')->nullable();
+            $table->unsignedBigInteger('bank_id')->nullable();
             $table->string('title')->collation('utf8_unicode_ci')->nullable();
             $table->float('quantity',10,2)->nullable();
             $table->date('received_date')->nullable();

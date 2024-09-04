@@ -21,8 +21,8 @@ return new class extends Migration
             $table->double('total_days',8,2)->nullable();
             $table->tinyInteger('half_day')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_user');
-            $table->foreign('holidays_status_id')->references('id')->on('holidays_status');
+            // $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            // $table->foreign('holidays_status_id')->references('id')->on('holidays_status');
 
             $table->timestamps();
             $table->softDeletes();

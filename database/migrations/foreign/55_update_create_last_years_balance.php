@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //dominios
-        Schema::table('dominios', function (Blueprint $table) {
+        Schema::table('last_years_balance', function (Blueprint $table) {
 
-            $table->foreignId('estado_id')->nullable()->constrained('estados_dominios')->onDelete('cascade');
+            $table->foreign('bank_id')->references('id')->on('bank_accounts');
 
         });
     }
@@ -24,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('last_years_balance');
     }
 };

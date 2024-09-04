@@ -26,11 +26,6 @@ return new class extends Migration
             $table->text('quest8')->nullable();
             $table->text('valoracion_final')->nullable();
 
-
-
-            $table->foreign('budget_id')->references('id')->on('budgets');
-            $table->foreign('client_id')->references('id')->on('clients');
-
             $table->timestamps();
             $table->softDeletes();
         });

@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('admin_user', function (Blueprint $table) {
-            $table->boolean('is_dark')->default(false);
+        Schema::table('contacts_emails', function (Blueprint $table) {
+
+            $table->foreign('contact_id')->references('id')->on('contacts');
+
         });
     }
 
@@ -21,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('budgets');
+        Schema::dropIfExists('contacts_emails');
 
     }
 };

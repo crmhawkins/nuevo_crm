@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('admin_user_id');
             $table->integer('client_id')->nullable();
+            $table->integer('commercial_id')->nullable();
+            $table->integer('contact_id')->nullable();
             $table->string('name')->nullable();
             $table->string('email')->nullable();
             $table->string('company')->nullable();
@@ -23,6 +25,7 @@ return new class extends Migration
             $table->string('cif')->nullable();
             $table->date('birthdate')->nullable();
             $table->string('country')->nullable();
+            $table->string('industry')->nullable();
             $table->string('address')->nullable();
             $table->string('city')->nullable();
             $table->string('province')->nullable();

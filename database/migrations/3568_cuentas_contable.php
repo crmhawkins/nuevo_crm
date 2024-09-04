@@ -10,7 +10,9 @@ return new class extends Migration
     {
         Schema::create('cuentas_contable', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sub_grupo_id')->nullable();
+            $table->unsignedBigInteger('sub_grupo_id')->nullable();
+            
+            // $table->foreignId('sub_grupo_id')->nullable();
             $table->string('numero', 254);
             $table->string('nombre', 254);
             $table->text('descripcion')->nullable();

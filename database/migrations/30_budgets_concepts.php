@@ -29,10 +29,10 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('budget_id')->references('id')->on('budgets');
-            $table->foreign('concept_type_id')->references('id')->on('budget_concept_type');
-            $table->foreign('service_id')->references('id')->on('services');
-            $table->foreign('services_category_id')->references('id')->on('services_categories');
+            // $table->foreign('budget_id')->references('id')->on('budgets');
+            // $table->foreign('concept_type_id')->references('id')->on('budget_concept_type');
+            // $table->foreign('service_id')->references('id')->on('services');
+            // $table->foreign('services_category_id')->references('id')->on('services_categories');
 
         });
     }

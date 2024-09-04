@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('todo_users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('todo_id')->constrained('to-do')->onDelete('cascade');
-            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
+            $table->unsignedBigInteger('todo_id')->nullable();
+            $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->boolean('completada')->default(false);
             $table->timestamps();
             $table->softDeletes();

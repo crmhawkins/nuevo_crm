@@ -8,22 +8,24 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::table('budgets', function (Blueprint $table) {
-
-            $table->double('beneficio', 20, 2)->nullable();
+        Schema::table('jornadas', function (Blueprint $table) {
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
 
         });
     }
 
     /**
      * Reverse the migrations.
+     *
+     * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('budgets');
-
+        Schema::dropIfExists('jornadas');
     }
 };

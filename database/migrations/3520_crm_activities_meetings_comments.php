@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('meeting_id')->nullable();
             $table->text('description')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_user');
-            $table->foreign('meeting_id')->references('id')->on('crm_activities_meetings');
+            // $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            // $table->foreign('meeting_id')->references('id')->on('crm_activities_meetings');
 
             $table->timestamps();
             $table->softDeletes();

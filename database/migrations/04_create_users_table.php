@@ -18,6 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('access_level_id');
             $table->unsignedBigInteger('admin_user_department_id');
             $table->unsignedBigInteger('admin_user_position_id');
+            $table->integer('commercial_id')->nullable();
+            
             $table->string('name');
             $table->string('surname')->nullable();
             $table->string('username');

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('budget_concept_id')->references('id')->on('budget_concepts');
+            // $table->foreign('budget_concept_id')->references('id')->on('budget_concepts');
         });
     }
 

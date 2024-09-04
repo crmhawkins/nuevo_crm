@@ -17,9 +17,6 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('client_id')->references('id')->on('clients');
-
         });
     }
 

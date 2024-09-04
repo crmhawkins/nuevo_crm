@@ -22,8 +22,8 @@ return new class extends Migration
             $table->float('quantity_propio',10,2)->nullable();
             $table->float('quantity_plus_propio',10,2)->nullable();
 
-            $table->foreign('commercial_level_id')->references('id')->on('commercial_level');
-            $table->foreign('commercial_product_id')->references('id')->on('commercial_products');
+            // $table->foreign('commercial_level_id')->references('id')->on('commercial_level');
+            // $table->foreign('commercial_product_id')->references('id')->on('commercial_products');
 
             $table->timestamps();
             $table->softDeletes();

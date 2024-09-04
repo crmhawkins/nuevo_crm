@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('company_passwords', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
+            $table->unsignedBigInteger('client_id')->nullable();
             $table->string('title')->nullable();
             $table->string('website')->nullable();
             $table->string('user')->nullable();

@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
-            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
-            $table->foreignId('project_id')->nullable()->constrained('budgets')->onDelete('cascade');
-            $table->foreignId('budget_id')->nullable()->constrained('projects')->onDelete('cascade');
+
+            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->unsignedBigInteger('project_id')->nullable();
+            $table->unsignedBigInteger('budget_id')->nullable();
+
             $table->string('title');
             $table->string('descripcion')->nullable();
             $table->string('color')->nullable();

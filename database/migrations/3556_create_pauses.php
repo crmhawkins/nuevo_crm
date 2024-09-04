@@ -15,7 +15,9 @@ return new class extends Migration
     {
         Schema::create('pauses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('jornada_id')->constrained('jornadas')->onDelete('cascade');
+            $table->unsignedBigInteger('jornada_id')->nullable();
+
+            // $table->foreignId('jornada_id')->constrained('jornadas')->onDelete('cascade');
             $table->timestamp('start_time');
             $table->timestamp('end_time')->nullable();
             $table->timestamps();

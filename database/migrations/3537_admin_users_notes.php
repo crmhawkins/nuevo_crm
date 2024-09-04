@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('completed')->nullable();
             $table->text('files')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            // $table->foreign('admin_user_id')->references('id')->on('admin_user');
 
             $table->timestamps();
             $table->softDeletes();

@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('purchase_order', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
-            $table->foreignId('budget_concept_id')->constrained('budget_concepts')->onDelete('cascade');
-            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');;
-            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
-            $table->foreignId('payment_method_id')->constrained('payment_method')->onDelete('cascade');
-            $table->foreignId('bank_id')->nullable()->constrained('bank_accounts')->onDelete('cascade');;
+            
+            $table->unsignedBigInteger('supplier_id')->nullable();
+            $table->unsignedBigInteger('budget_concept_id')->nullable();
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->unsignedBigInteger('project_id')->nullable();
+            $table->unsignedBigInteger('payment_method_id')->nullable();
+            $table->unsignedBigInteger('bank_id')->nullable();
 
             $table->integer('units');
             $table->float('amount',10,2)->nullable();

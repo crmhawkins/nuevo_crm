@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('alerts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
-            $table->foreignId('stage_id')->constrained('stages')->onDelete('cascade');
-            $table->foreignId('status_id')->constrained('alert_status')->onDelete('cascade');
+            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->unsignedBigInteger('stage_id')->nullable();
+            $table->unsignedBigInteger('status_id')->nullable();
             $table->dateTime('activation_datetime');
             $table->integer('reference_id')->nullable();
             $table->integer('cont_postpone')->nullable();

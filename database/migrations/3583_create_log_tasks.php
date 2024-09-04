@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('log_tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->nullable()->constrained('admin_user');
-            $table->foreignId('task_id')->nullable()->constrained('tasks');
+            $table->unsignedBigInteger('admin_user_id')->nullable();
+            $table->unsignedBigInteger('task_id')->nullable();
+
+            // $table->foreignId('admin_user_id')->nullable()->constrained('admin_user');
+            // $table->foreignId('task_id')->nullable()->constrained('tasks');
             $table->dateTime('date_start')->nullable();
             $table->dateTime('date_end')->nullable();
             $table->string('status')->nullable();

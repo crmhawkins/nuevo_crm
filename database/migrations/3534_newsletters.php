@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('newsletters', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('newsletter_id')->nullable();
+            $table->unsignedBigInteger('newsletter_id')->nullable();
             $table->unsignedBigInteger('client_id')->nullable();
             $table->text('campaign')->nullable();
             $table->text('email')->nullable();
@@ -22,8 +22,8 @@ return new class extends Migration
             $table->integer('times_opened')->nullable();
             $table->timestamp('date_sent')->nullable();
 
-            $table->foreign('newsletter_id')->references('id')->on('newsletters_manual');
-            $table->foreign('client_id')->references('id')->on('clients');
+            // $table->foreign('newsletter_id')->references('id')->on('newsletters_manual');
+            // $table->foreign('client_id')->references('id')->on('clients');
 
             $table->timestamps();
             $table->softDeletes();
