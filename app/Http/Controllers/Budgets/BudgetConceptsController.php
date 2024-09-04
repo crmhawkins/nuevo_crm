@@ -1158,7 +1158,6 @@ class BudgetConceptsController extends Controller
         ->send($email);
 
         //Mail::to("ismael@lchawkins.com")->send($email);
-        //Mail::to("ismael@lchawkins.com")->send($email);
 
         foreach($pathFiles as $file){
             \File::delete($file);

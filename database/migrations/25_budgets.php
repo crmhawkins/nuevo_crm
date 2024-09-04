@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('budgets', function (Blueprint $table) {
             $table->id();
             $table->string('reference')->unique()->nullable();
-            $table->foreignId('reference_autoincrement_id')->constrained('budget_reference_autoincrements')->onDelete('cascade')->nullable();
+            $table->foreignId('reference_autoincrement_id')->nullable()->constrained('budget_reference_autoincrements')->onDelete('cascade');
             $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade')->nullable();
-            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade')->nullable();
-            $table->foreignId('payment_method_id')->constrained('payment_method')->onDelete('cascade')->nullable();
-            $table->foreignId('budget_status_id')->constrained('budget_status')->onDelete('cascade')->nullable();
+            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
+            $table->foreignId('project_id')->nullable()->constrained('projects')->onDelete('cascade');
+            $table->foreignId('payment_method_id')->nullable()->constrained('payment_method')->onDelete('cascade');
+            $table->foreignId('budget_status_id')->nullable()->constrained('budget_status')->onDelete('cascade');
             $table->string('concept')->nullable();
             $table->date('creation_date')->nullable();
             $table->text('description')->nullable();
