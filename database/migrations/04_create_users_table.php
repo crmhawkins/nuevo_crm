@@ -31,7 +31,6 @@ return new class extends Migration
             $table->integer('seniority_months')->nullable();
             $table->double('holidays_days', 3, 1)->nullable();
             $table->tinyInteger('inactive');
-            $table->foreignId('commercial_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

@@ -42,9 +42,6 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->date('last_survey')->nullable();
             $table->date('last_newsletter')->nullable();
-            $table->foreignId('commercial_id')->nullable();
-            $table->string('industry')->nullable();;
-            $table->integer('contact_id')->nullable();;
             $table->timestamps();
             $table->softDeletes();
 
