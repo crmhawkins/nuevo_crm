@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('client_id')->nullable();
             $table->unsignedBigInteger('project_id')->nullable();
             $table->unsignedBigInteger('payment_method_id')->nullable();
+            $table->unsignedBigInteger('bank_id')->nullable();
 
             $table->integer('units')->nullable();
             $table->double('amount',10,2)->nullable();
