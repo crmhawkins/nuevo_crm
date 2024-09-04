@@ -20,7 +20,6 @@ return new class extends Migration
             $table->date('received_date')->nullable();
             $table->date('date')->nullable();
             $table->string('reference')->nullable();
-            $table->enum('state',['PAGADO','PENDIENTE']);
             $table->string('state');
 
             $table->timestamps();
