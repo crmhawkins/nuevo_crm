@@ -14,7 +14,7 @@ return new class extends Migration
         //dominios
         Schema::table('dominios', function (Blueprint $table) {
 
-            $table->foreignId('estado_id')->constrained('estados_dominios')->onDelete('cascade')->nullable();
+            $table->foreignId('estado_id')->nullable()->constrained('estados_dominios')->onDelete('cascade');
 
         });
     }

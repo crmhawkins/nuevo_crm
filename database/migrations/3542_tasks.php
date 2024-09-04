@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade')->nullable();
-            $table->foreignId('gestor_id')->constrained('admin_user')->onDelete('cascade')->nullable();
-            $table->foreignId('priority_id')->constrained('priority')->onDelete('cascade')->nullable();
-            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade')->nullable();
-            $table->foreignId('budget_id')->constrained('budgets')->onDelete('cascade')->nullable();
-            $table->foreignId('budget_concept_id')->constrained('budget_concepts')->onDelete('cascade')->nullable();
-            $table->foreignId('task_status_id')->constrained('task_status')->onDelete('cascade')->nullable();
-            $table->foreignId('split_master_task_id')->constrained('tasks')->onDelete('cascade')->nullable();
+            $table->foreignId('admin_user_id')->nullable()->constrained('admin_user')->onDelete('cascade');
+            $table->foreignId('gestor_id')->nullable()->constrained('admin_user')->onDelete('cascade');
+            $table->foreignId('priority_id')->nullable()->constrained('priority')->onDelete('cascade');
+            $table->foreignId('project_id')->nullable()->constrained('projects')->onDelete('cascade');
+            $table->foreignId('budget_id')->nullable()->constrained('budgets')->onDelete('cascade');
+            $table->foreignId('budget_concept_id')->nullable()->constrained('budget_concepts')->onDelete('cascade');
+            $table->foreignId('task_status_id')->nullable()->constrained('task_status')->onDelete('cascade');
+            $table->foreignId('split_master_task_id')->nullable()->constrained('tasks')->onDelete('cascade');
 
             $table->tinyInteger('duplicated')->nullable();
             $table->text('description')->nullable();

@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
             $table->foreignId('budget_concept_id')->constrained('budget_concepts')->onDelete('cascade');
-            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
+            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');;
             $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
             $table->foreignId('payment_method_id')->constrained('payment_method')->onDelete('cascade');
-            $table->foreignId('bank_id')->nullable()->constrained('bank_accounts')->onDelete('cascade');
+            $table->foreignId('bank_id')->nullable()->constrained('bank_accounts')->onDelete('cascade');;
 
             $table->integer('units');
             $table->float('amount',10,2)->nullable();

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('ingresos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('invoice_id')->constrained('invoices')->onDelete('cascade')->nullable();
-            $table->foreignId('bank_id')->constrained('bank_accounts')->onDelete('cascade')->nullable();
+            $table->foreignId('invoice_id')->nullable()->constrained('invoices')->onDelete('cascade');
+            $table->foreignId('bank_id')->nullable()->constrained('bank_accounts')->onDelete('cascade');
             $table->string('title')->collation('utf8_unicode_ci')->nullable();
             $table->float('quantity',10,2)->nullable();
             $table->date('budget_date')->nullable();
