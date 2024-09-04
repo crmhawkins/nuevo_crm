@@ -83,6 +83,8 @@
                             'departamento' => 'DEPARTAMENTO',
                             'empleado' => 'EMPLEADO ASIGNADO',
                             'gestor' => 'GESTOR',
+                            'estimated_time' => 'TIEMPO ESTIMADO',
+                            'real_time' => 'TIEMPO REAL',
                             'created_at' => 'FECHA DE CREACION',
                             // 'created_at' => 'FECHA DE ENTREGA',
                         ] as $field => $label)
@@ -108,6 +110,8 @@
                             <td class="">{{$tarea->split_master_task_id ? ($tarea->usuario ? ($tarea->departamento ?? 'Usuario sin departamento'  ) : 'Usuario no asignado') : ''}}</td>
                             <td class="">{{$tarea->split_master_task_id ? ($tarea->empleado ?? 'No definido') : 'Tarea Maestra'}}</td>
                             <td class="">{{$tarea->gestor ?? 'No definido'}}</td>
+                            <td class="">{{$tarea->estimated_time}}</td>
+                            <td class="">{{$tarea->real_time}}</td>
                             <td class="">{{Carbon\Carbon::parse($tarea->created_at)->format('d/m/Y')}}</td>
                             <td class="">{{Carbon\Carbon::parse($tarea->created_at)->format('d/m/Y')}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">

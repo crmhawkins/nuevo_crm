@@ -23,11 +23,9 @@ use App\Models\Projects\Project;
 use App\Models\Users\ClientUserOrder;
 use App\Models\Users\User;
 use Carbon\Carbon;
-use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use IntlDateFormatter;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class BudgetController extends Controller
@@ -39,6 +37,11 @@ class BudgetController extends Controller
     {
         $budgets = Budget::all();
         return view('budgets.index', compact('budgets'));
+    }
+    public function indexUser()
+    {
+        $budgets = Budget::where('admin_user_id',auth()->user()->id)->get();
+        return view('budgets.indexUser', compact('budgets'));
     }
 
     public function statusProjects()
@@ -75,6 +78,7 @@ class BudgetController extends Controller
 
         return response()->json(['success' => true]);
     }
+
     /**
      * Show the form for creating a new resource.
      */

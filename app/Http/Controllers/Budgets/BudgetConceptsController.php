@@ -4,17 +4,23 @@ namespace App\Http\Controllers\Budgets;
 
 use App\Http\Controllers\Controller;
 use App\Mail\MailConcept;
+use App\Mail\MailConceptSupplier;
 use App\Models\Budgets\Budget;
 use App\Models\Budgets\BudgetConcept;
 use App\Models\Budgets\BudgetConceptSupplierRequest;
 use App\Models\Budgets\BudgetConceptSupplierUnits;
+use App\Models\Budgets\BudgetCustomPDF;
 use App\Models\Clients\Client;
 use App\Models\Company\CompanyDetails;
+use App\Models\PurcharseOrde\PurcharseOrder;
 use App\Models\Services\Service;
 use App\Models\Services\ServiceCategories;
 use App\Models\Suppliers\Supplier;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
@@ -886,4 +892,381 @@ class BudgetConceptsController extends Controller
         ->send($email);
 
     }
+
+    public function generatePurchaseOrder( $id){
+
+        $budgetConcept = BudgetConcept::find($id);
+        if ($budgetConcept->id){
+
+            $searchOrder = PurcharseOrder::where("budget_concept_id", $budgetConcept->id)->first();
+            if($searchOrder){
+                $budgetConceptSupplier = BudgetConceptSupplierRequest::where("budget_concept_id", $budgetConcept->id)->where("selected", 1)->first();
+
+                $searchOrder->supplier_id = $budgetConceptSupplier->supplier_id;
+                $searchOrder->client_id = $budgetConcept->presupuesto->client_id;
+                $searchOrder->project_id = $budgetConcept->presupuesto->project_id;
+                $searchOrder->payment_method_id = $budgetConcept->presupuesto->payment_method_id;
+                $searchOrder->units = $budgetConcept->units;
+                $searchOrder->amount = $budgetConcept->total;
+                $searchOrder->note = $budgetConcept->concept;
+                $searchOrder->sent = 0;
+                $searchOrder->cancelled = 0;
+
+                $searchOrder->save();
+
+
+                return response()->json([
+                    'message' => 'Orden de compra actualizada',
+                    'entryUrl' => route('purchase_order.purchaseOrderPDF',  $searchOrder),
+                    ]);
+
+            }else{
+                $hoy = Carbon::now();
+                $hoy->format('d/m/Y');
+                $parseHoy = Carbon::parse($hoy);
+                $budgetConceptSupplier = BudgetConceptSupplierRequest::where("budget_concept_id", $budgetConcept->id)->where("selected", 1)->first();
+
+                $savedPurchaseOrder = new PurcharseOrder;
+                $savedPurchaseOrder->supplier_id = $budgetConceptSupplier->supplier_id;
+                $savedPurchaseOrder->budget_concept_id = $budgetConcept->id;
+                $savedPurchaseOrder->client_id = $budgetConcept->presupuesto->client_id;
+                $savedPurchaseOrder->project_id = $budgetConcept->presupuesto->project_id;
+                $savedPurchaseOrder->payment_method_id = $budgetConcept->presupuesto->payment_method_id;
+                // $savedPurchaseOrder->bank_id = ???
+                $savedPurchaseOrder->units = $budgetConcept->units;
+                $savedPurchaseOrder->amount = $budgetConcept->total;
+                $savedPurchaseOrder->shipping_date = $parseHoy;
+                $savedPurchaseOrder->note = $budgetConcept->concept;
+                $savedPurchaseOrder->sent = 0;
+                $savedPurchaseOrder->cancelled = 0;
+
+                $savedPurchaseOrder->save();
+
+                return response()->json([
+                    'message' => 'Orden de compra generada',
+                    'entryUrl' => route('purchase_order.purchaseOrderPDF',  $savedPurchaseOrder),
+                    ]);
+            }
+        }else{
+            return response()->json("Error en la generación de la orden de compra", "Error");
+        }
+    }
+
+
+    public function saveOrderForSend(Request $request){
+
+        $budgetConcept = BudgetConcept::where("id",$request->id)->first();
+
+        if ($budgetConcept->id){
+
+            $searchOrder = PurcharseOrder::where("budget_concept_id", $budgetConcept->id)->first();
+            if($searchOrder){
+                $budgetConceptSupplier = BudgetConceptSupplierRequest::where("budget_concept_id", $budgetConcept->id)->where("selected", 1)->first();
+
+                $searchOrder->supplier_id = $budgetConceptSupplier->supplier_id;
+                $searchOrder->client_id = $budgetConcept->presupuesto->client_id;
+                $searchOrder->project_id = $budgetConcept->presupuesto->project_id;
+                $searchOrder->payment_method_id = $budgetConcept->presupuesto->payment_method_id;
+                $searchOrder->units = $budgetConcept->units;
+                $searchOrder->amount = $budgetConcept->total;
+                $searchOrder->note = $budgetConcept->concept;
+                $searchOrder->sent = 0;
+                $searchOrder->cancelled = 0;
+
+                $searchOrder->save();
+
+                return $this->generatePDFAndSend($searchOrder, $request);
+
+            }else{
+                $hoy = Carbon::now();
+                $hoy->format('d/m/Y');
+                $parseHoy = Carbon::parse($hoy);
+                $budgetConceptSupplier = BudgetConceptSupplierRequest::where("budget_concept_id", $budgetConcept->id)->where("selected", 1)->first();
+
+                $savedPurchaseOrder = new PurcharseOrder;
+                $savedPurchaseOrder->supplier_id = $budgetConceptSupplier->supplier_id;
+                $savedPurchaseOrder->budget_concept_id = $budgetConcept->id;
+                $savedPurchaseOrder->client_id = $budgetConcept->presupuesto->client_id;
+                $savedPurchaseOrder->project_id = $budgetConcept->presupuesto->project_id;
+                $savedPurchaseOrder->payment_method_id = $budgetConcept->presupuesto->payment_method_id;
+                // $savedPurchaseOrder->bank_id = ???
+                $savedPurchaseOrder->units = $budgetConcept->units;
+                $savedPurchaseOrder->amount = $budgetConcept->total;
+                $savedPurchaseOrder->shipping_date = $parseHoy;
+                $savedPurchaseOrder->note = $budgetConcept->concept;
+                $savedPurchaseOrder->sent = 0;
+                $savedPurchaseOrder->cancelled = 0;
+
+                $savedPurchaseOrder->save();
+
+                return $this->generatePDFAndSend($savedPurchaseOrder, $request);
+
+
+            }
+        }else{
+            return response()->json("Error en la generación de la orden de compra", "Error");
+        }
+    }
+
+
+    public function generatePDFAndSend(PurcharseOrder $order, Request $request){
+
+        $pathFiles = array();
+        $mailConcept = new \stdClass();
+
+        $request->validate([
+            'files.*' => 'max:10000'
+        ]);
+
+        $preForm = $request->all();
+
+        foreach($preForm as $key => $item){
+            if(!$item){
+                $preForm[$key] = "";
+            }
+        }
+
+        // PDF personalización
+        $budgetCustomPDF = BudgetCustomPDF::where('id', 1)->get()->first();
+
+        $supplier = Supplier::where('id',$order->supplier_id)->get()->first();
+
+        $name = $budgetCustomPDF->company_name;
+
+        $proveedor = $order->Proveedor->name;
+
+        $referencia = DB::table('budgets')
+                                ->join('budget_concepts', 'budget_concepts.budget_id', '=', 'budgets.id')
+                                ->join('purchase_order', 'purchase_order.budget_concept_id', '=', 'budget_concepts.id')
+                                ->where('purchase_order.id', '=', $order->id)
+                                ->value('reference');
+
+        $logoURL =  config('app.appUrl') . $budgetCustomPDF['logo_image'];
+
+        $arrayConceptStringsAndBreakLines = explode(PHP_EOL, $order->concepto->concept);
+
+        $maxLineLength = 50;
+        $charactersInALineCounter = 0;
+        $arrayWordsFormated = array();
+        $counter = 0;
+        $firstWordTempRow = true;
+
+        $counterTempRowsToFormated = 0;
+        $stringItemJump = false;
+        foreach($arrayConceptStringsAndBreakLines as $stringItem){
+            // Una de las cadenas del array que recorremos
+            $rowWords = explode(' ', $stringItem);
+            $lastWordOfStringArray = end($rowWords);
+            $lastWordOfStringArrayKey = key($rowWords);
+            // Row temporal
+            $tempRow = '';
+            // Llenar un array en el que cada elemento será una linea y contara 50 caracteres y no parta una palabra
+            foreach($rowWords as $key => $word){
+                // Tamaño de la palabra
+                $wordLength = strlen($word);
+                if($firstWordTempRow == false){
+                    if($charactersInALineCounter <=  $maxLineLength ){
+                        $tempRow = $tempRow . ' ' . $word;
+                        $charactersInALineCounter = $charactersInALineCounter +  $wordLength;
+                    }else{
+                        // Aquí esta tempRow se mete en el array formated de este concepto
+                        // Hasta 50 chars meto en el array la cadena
+                        $arrayWordsFormated[$counter] = $tempRow;
+                        $counter = $counter + 1;
+                        // Lo que sobra lo meto en $tempRow
+                        $tempRow =  $word; /*GGGGGG*/
+                        $charactersInALineCounter = $wordLength;
+                    }
+                }else{
+                    $tempRow = $word;
+                    $charactersInALineCounter = $charactersInALineCounter +  $wordLength;
+                    $firstWordTempRow = false;
+                }
+                if($lastWordOfStringArrayKey == $key ){
+                    $arrayWordsFormated[$counter] = $tempRow;
+                    $counter = $counter + 1;
+                    $charactersInALineCounter = 0;
+                    $firstWordTempRow == true;
+                }
+            }
+        }
+
+        $formatedConcept = $arrayWordsFormated;
+        $amount = (float)$order->concepto->purchase_price;
+        $precio = number_format($amount, 2, ',', '');
+
+        $data = [
+            'name' => $name,
+            'supplier' => $proveedor,
+            'date' => $order->shipping_date,
+            'reference' => $referencia,
+            'pay_method' => $order->payMethod->name,
+            "ref_order" => $order->id,
+            "concept" => $formatedConcept,
+            "units" => $order->units,
+            "import_order" => $precio,
+            "concept_budget" => $order->concepto->concept,
+            "title_budget" => $order->concepto->title,
+            "client_name" => $preForm['name_empresa'],
+            "company" => $preForm['company'],
+            "phone" => $preForm['telefono'],
+            "address" => $preForm['address'],
+            "city" => $preForm['ciudad'],
+            "province" => $preForm['provincia'],
+            "cp" => $preForm['cp'],
+        ];
+
+        $name = 'orden_compra_' .$order->id . '_' . Carbon::now()->format('Y-m-d');
+
+        $encrypted = $this->encrypt_decrypt('encrypt', $name);
+
+        $pathToSaveSupplier = '/home/crmhawki/public_html/storage/app/app/'. $encrypted . '.pdf';
+        $pathFiles[] = $pathToSaveSupplier;
+        $pdf = PDF::loadView('purchase_order.purchaseOrderPDF', compact('data','logoURL', 'budgetCustomPDF'))->save($pathToSaveSupplier);
+
+        $nameAlbaran = 'albaran_' .$order->id . '_' . Carbon::now()->format('Y-m-d');
+        $pathToSaveAlbaran = '/home/crmhawki/public_html/storage/app/app/'. $nameAlbaran . '.pdf';
+        $pathFiles[] = $pathToSaveAlbaran;
+        $albaran = PDF::loadView('purchase_order.deliveryOrderPDF', compact('data','logoURL', 'budgetCustomPDF'))->save($pathToSaveAlbaran);
+
+        if($request->url){
+            $mailConcept->url = $request->url;
+        }else{
+            $mailConcept->url = null;
+        }
+
+        $mailConcept->gestor = Auth::user()->name." ".Auth::user()->surname;
+        $mailConcept->gestorMail = Auth::user()->email;
+        $mailConcept->gestorTel = '956 662 942';
+
+        if($request->hasFile('files')){
+            foreach($request->file('files') as $fileNew){
+                Storage::disk('temp')->put($fileNew->getClientOriginalName(), \File::get($fileNew));
+                $path = Storage::disk('temp')->path($fileNew->getClientOriginalName());
+                $pathFiles[] = $path;
+            }
+        }
+
+        $mailsBCC[] = "emma@lchawkins.com";
+        $mailsBCC[] = "ivan@lchawkins.com";
+
+        $email = new MailConceptSupplier($mailConcept, $pathFiles);
+
+        Mail::to($supplier->email)
+        ->bcc($mailsBCC)
+        ->cc([])
+        ->send($email);
+
+        //Mail::to("ismael@lchawkins.com")->send($email);
+
+        foreach($pathFiles as $file){
+            \File::delete($file);
+        }
+
+        if( count(Mail::failures()) > 0 ) {
+
+           echo "There was one or more failures. They were: <br />";
+
+           foreach(Mail::failures() as $email_address) {
+               echo " - $email_address <br />";
+            }
+
+        } else {
+            return 200;
+        }
+    }
+
+    public function generatePDF($id){
+        // PDF personalización
+        $order = PurcharseOrder::find($id);
+        $budgetCustomPDF = BudgetCustomPDF::where('id', 1)->get()->first();
+
+        $name = $budgetCustomPDF->company_name;
+
+        $proveedor = $order->Proveedor->name;
+
+        $referencia = Budget::join('budget_concepts', 'budget_concepts.budget_id', '=', 'budgets.id')
+            ->join('purchase_order', 'purchase_order.budget_concept_id', '=', 'budget_concepts.id')
+            ->where('purchase_order.id', '=', $order->id)
+            ->value('reference');
+
+        $logoURL =  config('app.appUrl') . $budgetCustomPDF['logo_image'];
+
+        $arrayConceptStringsAndBreakLines = explode(PHP_EOL, $order->concepto->concept);
+
+        $maxLineLength = 50;
+        $charactersInALineCounter = 0;
+        $arrayWordsFormated = array();
+        $counter = 0;
+        $firstWordTempRow = true;
+
+        $counterTempRowsToFormated = 0;
+        $stringItemJump = false;
+        foreach($arrayConceptStringsAndBreakLines as $stringItem){
+            // Una de las cadenas del array que recorremos
+            $rowWords = explode(' ', $stringItem);
+            $lastWordOfStringArray = end($rowWords);
+            $lastWordOfStringArrayKey = key($rowWords);
+            // Row temporal
+            $tempRow = '';
+            // Llenar un array en el que cada elemento será una linea y contara 50 caracteres y no parta una palabra
+            foreach($rowWords as $key => $word){
+                // Tamaño de la palabra
+                $wordLength = strlen($word);
+                if($firstWordTempRow == false){
+                    if($charactersInALineCounter <=  $maxLineLength ){
+                        $tempRow = $tempRow . ' ' . $word;
+                        $charactersInALineCounter = $charactersInALineCounter +  $wordLength;
+                    }else{
+                        // Aquí esta tempRow se mete en el array formated de este concepto
+                        // Hasta 50 chars meto en el array la cadena
+                        $arrayWordsFormated[$counter] = $tempRow;
+                        $counter = $counter + 1;
+                        // Lo que sobra lo meto en $tempRow
+                        $tempRow =  $word; /*GGGGGG*/
+                        $charactersInALineCounter = $wordLength;
+                    }
+                }else{
+                    $tempRow = $word;
+                    $charactersInALineCounter = $charactersInALineCounter +  $wordLength;
+                    $firstWordTempRow = false;
+                }
+                if($lastWordOfStringArrayKey == $key ){
+                    $arrayWordsFormated[$counter] = $tempRow;
+                    $counter = $counter + 1;
+                    $charactersInALineCounter = 0;
+                    $firstWordTempRow == true;
+                }
+            }
+        }
+
+        $formatedConcept = $arrayWordsFormated;
+
+
+        $amount = (float)$order->concepto->purchase_price;
+
+        $precio = number_format($amount, 2, ',', '');
+
+        $data = [
+            'name' => $name,
+            'supplier' => $proveedor,
+            'date' => $order->shipping_date,
+            'reference' => $referencia,
+            'pay_method' => $order->payMethod->name,
+            "ref_order" => $order->id,
+            "concept" => $formatedConcept,
+            "units" => $order->units,
+            "import_order" => $precio,
+            "concept_budget" => $order->concepto->concept,
+            "title_budget" => $order->concepto->title,
+        ];
+
+
+        $pdf = PDF::loadView('purchase_order.purchaseOrderPDF', compact('data','logoURL', 'budgetCustomPDF'));
+
+        return $pdf->download('orden_compra_' .$order->id . '_' . Carbon::now()->format('Y-m-d') . '.pdf');
+
+
+    }
+
 }

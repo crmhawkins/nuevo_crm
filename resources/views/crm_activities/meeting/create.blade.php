@@ -150,6 +150,9 @@
                     <button id="guardar" type="submit" class="btn btn-success btn-block" >
                         Guardar
                     </button>
+                    <button  type="button" class="btn btn-dark btn-block" >
+                        Iniciar Reunion
+                    </button>
                 </div>
             </div>
         </div>

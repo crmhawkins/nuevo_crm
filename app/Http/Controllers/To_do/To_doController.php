@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\To_do;
 
 use App\Http\Controllers\Controller;
+use App\Models\Events\Event;
 use App\Models\Todo\Todo;
 use App\Models\Todo\TodoUsers;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class To_doController extends Controller
     {
 
         $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
+            'titulo' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'task_id' => 'nullable|exists:tasks,id',
             'client_id' => 'nullable|exists:clients,id',
@@ -25,16 +26,8 @@ class To_doController extends Controller
             'admin_user_id' =>'required'
         ]);
 
-        $todo = Todo::create([
-            'titulo' => $validatedData['title'],
-            'descripcion' => $validatedData['descripcion'],
-            'task_id' => $validatedData['task_id'],
-            'client_id' => $validatedData['client_id'],
-            'budget_id' => $validatedData['budget_id'],
-            'project_id' => $validatedData['project_id'],
-            'admin_user_id' => $validatedData['admin_user_id'],
-            'finalizada' => false  // Asumimos que la tarea no está finalizada al crearse
-        ]);
+        $validatedData['finalizada'] = false;
+        $todo = Todo::create($validatedData);
 
         TodoUsers::create([
             'todo_id' => $todo->id,
@@ -50,6 +43,27 @@ class To_doController extends Controller
                 'completada' => false  // Asumimos que la tarea no está completada por los usuarios al inicio
             ]);
         }
+
+
+        if($request->agendar == true){
+
+            foreach($todo->TodoUsers as $user){
+                $data = $this->validate($request, [
+                    'descripcion' => 'nullable',
+                    'client_id' => 'nullable',
+                    'budget_id' => 'nullable',
+                    'project_id' => 'nullable',
+                    'color' => 'nullable',
+                    'start' => 'nullable',
+                    'end' => 'nullable',
+                ]);
+                $data['title'] = $request->titulo;
+                $data['admin_user_id'] = $user->admin_user_id;
+
+                Event::create($data);
+            }
+       }
+
         return redirect()->back()->with('toast', [
             'icon' => 'success',
             'mensaje' => 'Tarea creada exitosamente!'

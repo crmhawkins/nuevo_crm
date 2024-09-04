@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('client_user_order', function (Blueprint $table) {
+        Schema::create('trello_config_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('admin_users')->onDelete('cascade');
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
-            $table->integer('order')->default(0);
+            $table->foreignId('admin_user_id')->constrained('admin_users');
+            $table->longText('order_column');
             $table->timestamps();
-
         });
     }
 
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('client_user_order');
+        Schema::dropIfExists('trello_config_user');
     }
 };

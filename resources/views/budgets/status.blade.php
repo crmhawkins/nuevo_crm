@@ -4,59 +4,54 @@
 
 @section('css')
 <link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <style>
-    .user-card {
-        width: 100%;
-        height: auto;
-        overflow: hidden;
-        margin-bottom: 20px;
-        cursor: move;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    @media (min-width: 576px) {
-        .user-card {
-            width: calc(50% - 1rem);
-        }
-    }
-    @media (min-width: 992px) {
-        .user-card {
-            width: calc(25% - 1rem);
-        }
-    }
-    .card-body {
-        position: relative;
-        padding: 15px;
+    .drag-container {
         display: flex;
-        flex-direction: column;
+        flex-wrap: nowrap; /* Allows horizontal scrolling */
+        gap: 20px;
+        padding: 20px;
+        align-items: flex-start;
+        overflow-x: auto; /* Enables horizontal scrolling */
+        justify-content: flex-start;
     }
-    .card-title {
-        font-size: 1.25rem;
-        margin-bottom: .5rem;
-        font-weight: 600;
+    .drag-column {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        width: 300px;
+        min-width: 300px; /* Ensures consistent width */
+        padding: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
     }
-    .table-responsive {
-        flex-grow: 1;
+    .drag-column-header {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
     }
-    .tables {
-        overflow-y: auto;
+    .drag-column-content {
+        margin-top: 10px;
     }
-    .table {
-        margin-bottom: 0;
-    }
-    .presupuesto-header {
-        font-size: 1rem;
-        padding: 0.5rem 0;
+    .drag-item {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 8px 12px;
+        margin-bottom: 8px;
         cursor: pointer;
-        border-bottom: 1px solid #ddd;
+        font-size: 14px;
     }
-    .presupuesto-header:hover {
-        background-color: #f8f9fa;
+    .drag-item:hover {
+        background-color: #f0f0f0;
     }
-    .presupuesto-details {
-        display: none;
-        padding: 0.75rem 1.25rem;
-        background-color: #f1f1f1;
+    .status-indicator {
+        width: 30px;
+        height: 8px;
+        border-radius: 10px;
+        display: inline-block;
+        margin-right: 0.4rem;
+        margin-top: 0.2rem;
     }
 </style>
 @endsection
@@ -72,7 +67,7 @@
             <div class="col-12 col-md-4 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Estados de proyectos</li>
                     </ol>
                 </nav>
@@ -80,73 +75,64 @@
         </div>
     </div>
 
-    <section class="section d-flex flex-wrap justify-content-between mt-4" id="sortable-container">
-        @foreach ($clientes as $cliente)
-            @if(count($cliente->presupuestosPorEstado(3)) > 0)
-                <div class="card user-card" id="cliente-{{$cliente->id}}">
-                    <div class="card-body">
-                        <p class="card-title">{{$cliente->name}}</p>
-                        <div class="tables">
-                            @foreach ($cliente->presupuestosPorEstado(3) as $presupuesto)
-                                <div class="presupuesto-header" data-presupuesto-id="{{$presupuesto->id}}">
-                                    {{$presupuesto->reference}} - {{$presupuesto->usuario ? $presupuesto->usuario->name.' '.$presupuesto->usuario->surname : 'Gestor no encontrado'}}
+    <section class="section mt-4">
+        <div class="drag-container" id="sortable-container">
+            @foreach ($clientes as $cliente)
+            <div class="drag-column ui-widget-content">
+                <div class="drag-column-header">{{ $cliente->name }}</div>
+                <div class="drag-column-content">
+                    @foreach ($cliente->presupuestos as $presupuesto)
+                    <div class="drag-item" data-toggle="modal" data-target="#modalPresupuesto-{{ $presupuesto->id }}">
+                        <p>{{ $presupuesto->reference }}</p>
+                        <p>
+                            <span class="status-indicator" style="background-color: {{ $presupuesto->getStatusColor() }}"></span>
+                            {{ $presupuesto->estadoPresupuesto->name }}
+                        </p>
+                    </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="modalPresupuesto-{{ $presupuesto->id }}" tabindex="-1" aria-labelledby="modalLabel-{{ $presupuesto->id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalLabel-{{ $presupuesto->id }}">Details for {{ $presupuesto->reference }}</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
-                                <div class="presupuesto-details" id="presupuesto-details-{{$presupuesto->id}}">
-                                    <p><strong>Estado:</strong> {{$presupuesto->estadoPresupuesto->name ?? 'Estado no encontrado'}}</p>
-                                    <p><strong>Descripción:</strong> {{$presupuesto->descripcion ?? 'Sin descripción'}}</p>
-                                    <p><strong>Fecha de creación:</strong> {{ $presupuesto->created_at}}</p>
-                                    <p><strong>Fecha de entrega:</strong> {{ $presupuesto->fecha_entrega ? $presupuesto->fecha_entrega->format('d/m/Y') : 'Sin fecha' }}</p>
+                                <div class="modal-body">
+                                    <p><strong>Status:</strong> {{ $presupuesto->status }}</p>
+                                    <p><strong>Description:</strong> {{ $presupuesto->description }}</p>
+                                    <p><strong>Creation Date:</strong> {{ $presupuesto->created_at }}</p>
+                                    <p><strong>Due Date:</strong> {{ $presupuesto->due_date }}</p>
                                 </div>
-                            @endforeach
+                            </div>
                         </div>
                     </div>
+                    @endforeach
                 </div>
-            @endif
-        @endforeach
+            </div>
+            @endforeach
+        </div>
     </section>
 </div>
 @endsection
 
 @section('scripts')
-    @include('partials.toast')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script>
-        $(function() {
-            // Inicializa la funcionalidad de arrastrar y soltar
-            $('#sortable-container').sortable({
-                placeholder: "ui-state-highlight",
-                update: function(event, ui) {
-                    var sortedIDs = $('#sortable-container .user-card').map(function() {
-                        return $(this).attr('id').replace('cliente-', '');
-                    }).get();
-
-                    // Enviar la nueva orden al servidor
-                    $.ajax({
-                        url: '{{ route("save.order") }}',
-                        method: 'POST',
-                        data: {
-                            order: sortedIDs,
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            console.log('Orden guardado');
-                        }
-                    });
-                }
-            });
-
-            // Mostrar/ocultar detalles de presupuesto al hacer clic
-            $('.presupuesto-header').click(function() {
-                var presupuestoId = $(this).data('presupuesto-id');
-                var details = $('#presupuesto-details-' + presupuestoId);
-
-                // Ocultar otros detalles
-                $('.presupuesto-details').not(details).slideUp();
-
-                // Alternar visibilidad del actual
-                details.slideToggle();
-            });
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#sortable-container').sortable({
+            axis: 'x', // Only allow horizontal dragging
+            containment: 'parent' // Contain within the parent element
         });
-    </script>
+        $('#sortable-container').disableSelection();
+
+        $('[data-toggle="modal"]').on('click', function() {
+            var modalId = $(this).data('target');
+            $(modalId).modal('show');
+        });
+    });
+</script>
 @endsection

@@ -8,6 +8,7 @@ use App\Models\Clients\Client;
 use App\Models\Contratos\Contrato;
 use App\Models\Holidays\Holidays;
 use App\Models\Holidays\HolidaysPetitions;
+use App\Models\Llamadas\Llamada;
 use App\Models\Nominas\Nomina;
 use App\Models\Projects\Project;
 use App\Models\Todo\Todo;
@@ -68,6 +69,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function llamadas() {
+        return $this->hasMany(Llamada::class,'admin_user_position_id');
+    }
 
     public function posicion() {
         return $this->belongsTo(\App\Models\Users\UserPosition::class,'admin_user_position_id');

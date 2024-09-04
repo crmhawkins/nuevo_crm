@@ -6,6 +6,7 @@ use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
 use App\Models\Jornada\Jornada;
 use App\Models\Jornada\Pause;
+use App\Models\Llamadas\Llamada;
 use App\Models\Projects\Project;
 use App\Models\Tasks\LogTasks;
 use App\Models\Tasks\Task;
@@ -54,7 +55,41 @@ class DashboardController extends Controller
         }
     }
 
+    public function llamada(){
 
+        $user = Auth::user();
+        $llamada =  Llamada::create([
+            'admin_user_id' => $user->id,
+            'start_time' => now(),
+            'is_active' => true,
+        ]);
+        if($llamada){
+            return response()->json(['success' => true]);
+        }else{
+            return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+        }
+    }
+
+    public function finalizar()
+    {
+        $user = Auth::user();
+        $llamada = Llamada::where('admin_user_id', $user->id)->where('is_active', true)->first();
+        if ($llamada) {
+            $finllamada = $llamada->update([
+                'end_time' => now(),
+                'is_active' => false,
+            ]);
+
+            if($finllamada){
+                return response()->json(['success' => true]);
+            }else{
+                return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+            }
+        }else{
+            return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+        }
+
+    }
 
     public function startJornada()
     {

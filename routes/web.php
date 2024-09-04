@@ -59,10 +59,13 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 //Dashboard
+
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::post('/dashboard/getDataTask', [DashboardController::class, 'getDataTask'])->name('dashboard.getDataTask');
 Route::post('/dashboard/getTasksRefresh', [DashboardController::class, 'getTasksRefresh'])->name('dashboard.getTasksRefresh');
 Route::post('/dashboard/setStatusTask', [DashboardController::class, 'setStatusTask'])->name('dashboard.setStatusTask');
+Route::post('/dashboard/llamada', [DashboardController::class, 'llamada'])->name('llamada.store');
+
 
 Route::post('/start-jornada', [DashboardController::class, 'startJornada'])->name('dashboard.startJornada');
 Route::post('/end-jornada', [DashboardController::class, 'endJornada'])->name('dashboard.endJornada');
@@ -147,6 +150,7 @@ Route::post('/supplier/destroy', [SuppliersController::class, 'destroy'])->name(
 
 // Petition (PETICIONES)
 Route::get('/petition', [PetitionController::class, 'index'])->name('peticion.index');
+Route::get('/petition-for-user', [PetitionController::class, 'indexUser'])->name('peticion.indexUser');
 Route::get('/petition/create', [PetitionController::class, 'create'])->name('peticion.create');
 Route::get('/petition/edit/{id}', [PetitionController::class, 'edit'])->name('peticion.edit');
 Route::post('/petition/store', [PetitionController::class, 'store'])->name('peticion.store');
@@ -154,8 +158,10 @@ Route::post('/budpetitionget/update/{id}', [PetitionController::class, 'update']
 Route::post('/petition/destroy', [PetitionController::class, 'destroy'])->name('peticion.delete');
 
 
+
 // Budgets (PRESUPUESTOS)
 Route::get('/budgets', [BudgetController::class, 'index'])->name('presupuestos.index');
+Route::get('/budgets-for-user', [BudgetController::class, 'indexUser'])->name('presupuestos.indexUser');
 Route::get('/budget/create', [BudgetController::class, 'create'])->name('presupuesto.create');
 Route::get('/budget/create-from-petition/{id}', [BudgetController::class, 'createFromPetition'])->name('presupuesto.createFromPetition');
 Route::get('/budget/edit/{id}', [BudgetController::class, 'edit'])->name('presupuesto.edit');
@@ -195,6 +201,10 @@ Route::get('/budget-concepts/{categoryId}', [BudgetConceptsController::class, 'g
 Route::post('/budget-concepts/category-service', [BudgetConceptsController::class, 'getInfoByServices'])->name('budgetConcepts.getInfoByServices');
 Route::post('/budget-concepts/delete', [BudgetConceptsController::class, 'deleteConceptsType'])->name('budgetConcepts.delete');
 Route::post('/budget-concepts/discount-update', [BudgetConceptsController::class, 'discountUpdate'])->name('budgetConcepts.discountUpdate');
+
+Route::post('/budget-concept-supplier/saveOrderForSend', [BudgetConceptsController::class, 'saveOrderForSend'])->name('budgetConcepts.saveOrderForSend');
+Route::post('/budget-concept-supplier/generatePurchaseOrder/{id}', [BudgetConceptsController::class, 'generatePurchaseOrder'])->name('budgetConcepts.generatePurchaseOrder');
+Route::get('/budget-concept-supplier/preview-pdf/{id}', [BudgetConceptsController::class, 'generatePDF'])->name('purchase_order.purchaseOrderPDF');
 
 // Projects (CAMPAÑAS)
 Route::get('/projects', [ProjectController::class, 'index'])->name('campania.index');

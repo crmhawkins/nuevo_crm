@@ -94,4 +94,20 @@ class Budget extends Model
     {
         return $this->hasMany(Task::class, 'budget_id');
     }
+
+    public function getStatusColor()
+    {
+        $statusColors = [
+            1 => '#FFA500', // Pendiente de confirmar: orange
+            2 => '#FF6347', // Pendiente de aceptar: tomato red
+            3 => '#008000', // Aceptado: green
+            4 => '#808080', // Cancelado: grey
+            5 => '#4682B4', // Finalizado: steel blue
+            6 => '#0000FF', // Facturado: blue
+            7 => '#8B4513', // Facturado parcialmente: saddle brown
+        ];
+
+        return $statusColors[$this->budget_status_id] ?? '#CCCCCC'; // Default to grey if not found
+    }
+
 }

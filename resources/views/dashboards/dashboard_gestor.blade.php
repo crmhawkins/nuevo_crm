@@ -205,6 +205,45 @@
         display: none;
         padding: 15px;
     }
+    .progress-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--progress-color) calc(var(--percentage, 0) * 1%),
+        #e0e0e0 calc(var(--percentage, 0) * 1%)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.progress-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--progress-color);
+    position: absolute;
+}
+
+.progress-circle::before {
+    content: '';
+    width: 100px;
+    height: 100px;
+    background-color: #fff;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 1;
+}
+
+.progress-circle::after {
+    content: attr(data-percentage) '%';
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--progress-color);
+    position: absolute;
+    z-index: 2;
+}
 
     @media (max-width: 768px) {
         .calendar-month-view {
@@ -277,7 +316,8 @@
                                 </div>
                             </div>
                             <a href="{{route('presupuesto.create')}}" class="btn btn-outline-primary">Nuevo Presupuesto</a>
-                            <a href="{{route('presupuestos.index')}}" class="btn btn-outline-secondary">Ver Presupuestos</a>
+                            <a href="{{route('presupuestos.indexUser')}}" class="btn btn-outline-secondary">Ver mis Presupuestos</a>
+                            <a href="{{route('presupuestos.index')}}" class="btn btn-outline-secondary">Ver todos los Presupuestos</a>
                         </div>
                         <div class="row row-cols-1 row-cols-md-2 g-4">
                             <div class="col">
@@ -295,14 +335,14 @@
                                             </div>
                                         </div>
                                         <a href="{{route('peticion.create')}}" class="btn btn-outline-primary">Nueva Petición</a>
-                                        <a href="{{route('peticion.index')}}" class="btn btn-outline-secondary">Ver Peticiones</a>
+                                        <a href="{{route('peticion.indexUser')}}" class="btn btn-outline-secondary">Ver Mis Peticiones</a>
                                     </div>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="card2">
                                     <div class="mb-3 card-body">
-                                        <h5 class="card-title fw-bold">Ordenes</h5>
+                                        <h5 class="card-title fw-bold">Ordenes de Compra</h5>
                                         <div class="row mb-3 ">
                                             <div class="col">
                                                 <div class="card">
@@ -313,18 +353,16 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <a  class="btn btn-outline-primary">Nueva Orden</a>
-                                        <a  class="btn btn-outline-secondary">Ver Ordenes</a>
+                                        <a {{-- href="{{route('reunion.create')}}" --}} class="btn btn-outline-secondary">Ver Ordenes</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="mb-3 card-body">
-                            <a href="{{route('reunion.create')}}" class="btn btn-outline-primary mb-2">Nueva Acta de reunion</a>
+                            <a href="{{route('reunion.create')}}" class="btn btn-outline-primary mb-2">Nueva Reunion</a>
                             <a href="{{route('reunion.index')}}" class="btn btn-outline-secondary mb-2">Ver Actas de reunion</a>
                             <a href="{{route('clientes.index')}}" class="btn btn-outline-secondary mb-2">Ver Clientes</a>
                             <a href="{{route('presupuestos.status')}}" class="btn btn-outline-secondary mb-2">Ver Status Proyectos</a>
-                            <a href="{{route('tareas.cola')}}" class="btn btn-outline-secondary mb-2">Ver Cola de producción</a>
                             <a href="{{route('tareas.index')}}" class="btn btn-outline-secondary mb-2">Ver Tareas</a>
                             <a href="{{route('tareas.index')}}" class="btn btn-outline-secondary mb-2">Ver Producción</a>
                             <a href="{{route('proveedores.index')}}" class="btn btn-outline-secondary mb-2">Ver Proveedores</a>
@@ -353,6 +391,11 @@
                                             @else
                                                 <img alt="avatar" class="rounded-circle img-fluid  m-auto" style="width: 150px;" src="{{ asset('/storage/avatars/'.$user->image) }}" />
                                             @endif
+                                        </div>
+                                        <div class="mx-4 text-center">
+                                            <h1 class="fs-4 fw-bold">Productividad</h1>
+                                            <div class="progress-circle" data-percentage="70">
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-12 d-flex flex-wrap justify-content-center">
@@ -470,7 +513,7 @@
                                 <div class=" d-flex justify-content-center">
                                     <button class="btn btn-primary mx-2">Enviar Archivos</button>
                                     <button class="btn btn-secondary mx-2">Correo</button>
-                                    <button class="btn btn-primary mx-2">Llamadas</button>
+                                    <button class="btn btn-primary mx-2" onclick="showLlamadaModal()">Iniciar LLamada</button>
                                 </div>
                             </div>
                         </div>
@@ -479,45 +522,20 @@
             </div>
         </div>
     </div>
-    <!-- Modal -->
-    <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal fade" id="llamadaModal" tabindex="-1" aria-labelledby="llamadaModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg"> <!-- Cambio a modal-lg para mayor ancho -->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="eventModalLabel">Nuevo Evento</h5>
+                    <h5 class="modal-title" id="todoLlamadaLabel">Iniciar Llamada</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="eventform" action="{{ route('event.store') }}" method="POST">
+                <form id="todoform" action="{{ route('llamada.store') }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12 mb-3">
-                                <label for="title" class="form-label">Título</label>
-                                <input type="text" class="form-control" id="title" name="title" required>
-                            </div>
-                            <div class="col-md-12 mb-3">
-                                <label for="descripcion" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="descripcion" name="descripcion" rows="4"></textarea>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="admin_user_id" class="form-label">Usuario</label>
-                                <select class="form-select choices" id="admin_user_id" name="admin_user_id">
-                                    <option value="">Seleccione usuario</option>
-                                    @foreach ($users as $gestor)
-                                        <option value="{{ $gestor->id }}" {{ old('admin_user_id') == $gestor->id ? 'selected' : '' }}>
-                                            {{ $gestor->name }} {{ $gestor->surname }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('admin_user_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
                                 <label for="client_id" class="form-label">Cliente</label>
-                                <select class="form-select" id="client_id" name="client_id">
+                                <select class="form-select choices" id="client" name="client_id">
                                     <option value="">Seleccione cliente</option>
                                     @foreach ($clientes as $cliente)
                                         <option value="{{ $cliente->id }}" {{ old('client_id') == $cliente->id ? 'selected' : '' }}>
@@ -531,55 +549,12 @@
                                     </span>
                                 @enderror
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="budget_id" class="form-label">Presupuesto</label>
-                                <select class="form-select" id="budget_id" name="budget_id">
-                                    <option value="">Seleccione presupuesto</option>
-                                    @foreach ($budgets as $budget)
-                                        <option value="{{ $budget->id }}" {{ old('budget_id') == $budget->id ? 'selected' : '' }}>
-                                            {{ $budget->reference }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('budget_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="project_id" class="form-label">Campaña</label>
-                                <select class="form-select" id="project_id" name="project_id">
-                                    <option value="">Seleccione campaña</option>
-                                    @foreach ($projects as $project)
-                                        <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>
-                                            {{ $project->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('project_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="start" class="form-label">Inicio</label>
-                                <input type="datetime-local" class="form-control" id="start" name="start" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="end" class="form-label">Fin</label>
-                                <input type="datetime-local" class="form-control" id="end" name="end">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="color" class="form-label">Color</label>
-                                <input type="color" style="padding: 0.4rem" class="form-control form-control-color" id="color" name="color">
-                            </div>
+                            <input type="hidden" name="admin_user_id" value="{{ $user->id }}">
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button id="eventbutton" type="buttom" class="btn btn-primary">Guardar</button>
+                        <button id="iniciarllamada" type="button" class="btn btn-primary">Iniciar</button>
                     </div>
                 </form>
             </div>
@@ -597,8 +572,8 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12 mb-3">
-                                <label for="title" class="form-label">Título</label>
-                                <input type="text" class="form-control" id="title" name="title" required>
+                                <label for="titulo" class="form-label">Título</label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" required>
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label for="descripcion" class="form-label">Descripción</label>
@@ -642,7 +617,7 @@
                                     <option value="">Seleccione presupuesto</option>
                                     @foreach ($budgets as $budget)
                                         <option value="{{ $budget->id }}" {{ old('budget_id') == $budget->id ? 'selected' : '' }}>
-                                            {{ $budget->reference }}
+                                            {{ $budget->concept }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -685,6 +660,22 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="start" class="form-label">Inicio</label>
+                                <input type="datetime-local" class="form-control" id="start" name="start" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="end" class="form-label">Fin</label>
+                                <input type="datetime-local" class="form-control" id="end" name="end">
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-center justify-content-center">
+                                <input type="color" style="padding: 0.4rem" class="form-control form-control-color" id="color1" name="color">
+                                <label for="color1" class="form-label ml-2">Color</label>
+                            </div>
+                            <div class=" col-md-6 mb-3 d-flex align-items-center justify-content-center">
+                                <input type="checkbox" style="height:25px; width:25px; " class="form-check-input" id="agendar" name="agendar">
+                                <label for="agendar" class="form-check-label ml-2">Agendar</label>
                             </div>
                             <input type="hidden" name="admin_user_id" value="{{ $user->id }}">
                         </div>
@@ -847,12 +838,6 @@
     });
 </script>
 <script>
-        $('#eventbutton').click(function(e){
-            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
-            $('#eventform').submit(); // Esto envía el formulario.
-        });
-
-
         $('#todoboton').click(function(e){
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
             $('#todoform').submit(); // Esto envía el formulario.
@@ -877,19 +862,9 @@
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'myCustomButton dayGridMonth,timeGridDay,listWeek'
+                    right: 'dayGridMonth,timeGridDay,listWeek'
                 },
                 events: events,
-                customButtons: {
-                    myCustomButton: {
-                        icon: 'bi bi-plus',
-                        text: 'Add event',
-                        click: function() {
-                            var eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
-                            eventModal.show();
-                        }
-                    }
-                },
                 eventClick: function(info) {
                     var event = info.event;
                     var clientId = event.extendedProps.client_id;
@@ -962,138 +937,161 @@
 
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const clientSelect = document.getElementById('client_id');
-        const budgetSelect = document.getElementById('budget_id');
-        const projectSelect = document.getElementById('project_id');
+    //     document.addEventListener('DOMContentLoaded', function() {
+    //         const clientSelect = document.getElementById('client_id');
+    //         const budgetSelect = document.getElementById('budget_id');
+    //         const projectSelect = document.getElementById('project_id');
 
-        // Función para actualizar presupuestos basados en el cliente seleccionado
-        function updateBudgets(clientId) {
-            fetch('/budgets-by-client', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ client_id: clientId })
-            })
-            .then(response => response.json())
-            .then(budgets => {
-                budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-                budgets.forEach(budget => {
-                    budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
-                });
-                budgetSelect.disabled = false;
-            });
-        }
-        // Función para actualizar presupuestos basados en el cliente seleccionado
-        function updateBudgetsbyprojects(projectId) {
-            fetch('/budgets-by-project', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ project_id: projectId })
-            })
-            .then(response => response.json())
-            .then(budgets => {
-                budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-                budgets.forEach(budget => {
-                    budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
-                });
-                budgetSelect.disabled = false;
-            });
-        }
+    //         // Función para actualizar presupuestos basados en el cliente seleccionado
+    //         function updateBudgets(clientId) {
+    //             fetch('/budgets-by-client', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    //                 },
+    //                 body: JSON.stringify({ client_id: clientId })
+    //             })
+    //             .then(response => response.json())
+    //             .then(budgets => {
+    //                 budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
+    //                 budgets.forEach(budget => {
+    //                     budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
+    //                 });
+    //                 budgetSelect.disabled = false;
+    //             });
+    //         }
+    //         // Función para actualizar presupuestos basados en el cliente seleccionado
+    //         function updateBudgetsbyprojects(projectId) {
+    //             fetch('/budgets-by-project', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    //                 },
+    //                 body: JSON.stringify({ project_id: projectId })
+    //             })
+    //             .then(response => response.json())
+    //             .then(budgets => {
+    //                 budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
+    //                 budgets.forEach(budget => {
+    //                     budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
+    //                 });
+    //                 budgetSelect.disabled = false;
+    //             });
+    //         }
 
-        // Función para actualizar campañas basadas en el cliente seleccionado
-        function updateProjects(clientId) {
-            fetch('/projects-from-client', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ client_id: clientId })
-            })
-            .then(response => response.json())
-            .then(projects => {
-                projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
-                projects.forEach(project => {
-                    projectSelect.innerHTML += `<option value="${project.id}">${project.name}</option>`;
-                });
-                projectSelect.disabled = false;
-            });
-        }
+    //         // Función para actualizar campañas basadas en el cliente seleccionado
+    //         function updateProjects(clientId) {
+    //             fetch('/projects-from-client', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    //                 },
+    //                 body: JSON.stringify({ client_id: clientId })
+    //             })
+    //             .then(response => response.json())
+    //             .then(projects => {
+    //                 projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
+    //                 projects.forEach(project => {
+    //                     projectSelect.innerHTML += `<option value="${project.id}">${project.name}</option>`;
+    //                 });
+    //                 projectSelect.disabled = false;
+    //             });
+    //         }
 
-        // Cuando se selecciona un cliente, actualiza presupuestos y campañas
-        clientSelect.addEventListener('change', function() {
-            const clientId = this.value;
-            if (clientId) {
-                updateBudgets(clientId);
-                updateProjects(clientId);
-            } else {
-                budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-                projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
-                budgetSelect.disabled = true;
-                projectSelect.disabled = true;
-            }
-        });
+    //         // Cuando se selecciona un cliente, actualiza presupuestos y campañas
+    //         clientSelect.addEventListener('change', function() {
+    //             const clientId = this.value;
+    //             if (clientId) {
+    //                 updateBudgets(clientId);
+    //                 updateProjects(clientId);
+    //             } else {
+    //                 budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
+    //                 projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
+    //                 budgetSelect.disabled = true;
+    //                 projectSelect.disabled = true;
+    //             }
+    //         });
 
-        // Cuando se selecciona un presupuesto, actualiza el cliente y la campaña
-        budgetSelect.addEventListener('change', function() {
-            const budgetId = this.value;
-            if (budgetId) {
-                fetch('/budget-by-id', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ budget_id: budgetId })
-                })
-                .then(response => response.json())
-                .then(budget => {
-                    clientSelect.value = budget.client_id;
-                    //updateProjects(budget.client_id);
-                    projectSelect.value = budget.project_id;
-                    //console.log(budget.project_id;);
+    //         // Cuando se selecciona un presupuesto, actualiza el cliente y la campaña
+    //         budgetSelect.addEventListener('change', function() {
+    //             const budgetId = this.value;
+    //             if (budgetId) {
+    //                 fetch('/budget-by-id', {
+    //                     method: 'POST',
+    //                     headers: {
+    //                         'Content-Type': 'application/json',
+    //                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    //                     },
+    //                     body: JSON.stringify({ budget_id: budgetId })
+    //                 })
+    //                 .then(response => response.json())
+    //                 .then(budget => {
+    //                     clientSelect.value = budget.client_id;
+    //                     //updateProjects(budget.client_id);
+    //                     projectSelect.value = budget.project_id;
+    //                     //console.log(budget.project_id;);
 
-                });
-            }
-        });
+    //                 });
+    //             }
+    //         });
 
-        // Cuando se selecciona una campaña, actualiza el cliente y el presupuesto
-        projectSelect.addEventListener('change', function() {
-            const projectId = this.value;
-            if (projectId) {
-                fetch('/project-by-id', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ project_id: projectId })
-                })
-                .then(response => response.json())
-                .then(project => {
-                    clientSelect.value = project.client_id;
-                    updateBudgetsbyprojects(project.id);
-                    budgetSelect.value = ''; // O puedes poner una lógica para seleccionar un presupuesto por defecto
-                });
-            }
-        });
-    });
-
+    //         // Cuando se selecciona una campaña, actualiza el cliente y el presupuesto
+    //         projectSelect.addEventListener('change', function() {
+    //             const projectId = this.value;
+    //             if (projectId) {
+    //                 fetch('/project-by-id', {
+    //                     method: 'POST',
+    //                     headers: {
+    //                         'Content-Type': 'application/json',
+    //                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    //                     },
+    //                     body: JSON.stringify({ project_id: projectId })
+    //                 })
+    //                 .then(response => response.json())
+    //                 .then(project => {
+    //                     clientSelect.value = project.client_id;
+    //                     updateBudgetsbyprojects(project.id);
+    //                     budgetSelect.value = ''; // O puedes poner una lógica para seleccionar un presupuesto por defecto
+    //                 });
+    //             }
+    //         });
+    //     });
 </script>
 <script>
     function showTodoModal() {
         var todoModal = new bootstrap.Modal(document.getElementById('todoModal'));
         todoModal.show();
     }
+    function showLlamadaModal() {
+        var llamadaModal = new bootstrap.Modal(document.getElementById('llamadaModal'));
+        llamadaModal.show();
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+    const progressCircles = document.querySelectorAll('.progress-circle');
+
+    progressCircles.forEach(circle => {
+        const percentage = circle.getAttribute('data-percentage');
+        circle.style.setProperty('--percentage', percentage);
+
+        let progressColor;
+
+        if (percentage < 50) {
+            progressColor = '#ff0000'; // Rojo
+        } else if (percentage < 75) {
+            progressColor = '#ffa500'; // Naranja
+        } else {
+            progressColor = '#4caf50'; // Verde
+        }
+
+        circle.style.setProperty('--progress-color', progressColor);
+    });
+});
+
 </script>
 <script>
-// Manejo de clic en elementos "clickable"
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.clickable').forEach(function(element) {
             element.addEventListener('click', function(event) {
@@ -1161,105 +1159,138 @@
     });
 
 
-// Completar tarea
-function completeTask(event, todoId) {
-    event.stopPropagation();
-    const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-        },
+    // Completar tarea
+    function completeTask(event, todoId) {
+        event.stopPropagation();
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            },
+        });
+
+        fetch(`/todos/complete/${todoId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            }
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const card = document.getElementById(`todo-card-body-${todoId}`);
+                if (card) {
+                    card.style.backgroundColor = '#CDFEA4'; // Color verde claro
+                }
+
+                const completeButton = document.getElementById(`complete-button-${todoId}`);
+                if (completeButton) {
+                    completeButton.style.display = 'none';
+                }
+                Toast.fire({
+                    icon: "success",
+                    title: "Tarea completada con éxito!"
+                });
+            } else {
+                Toast.fire({
+                    icon: "error",
+                    title: "Error al completar la tarea!"
+                });
+            }
+        }).catch(error => console.error('Error:', error));
+    }
+
+    // Finalizar tarea
+    function finishTask(event, todoId) {
+        event.stopPropagation();
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            },
+        });
+
+        fetch(`/todos/finish/${todoId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            }
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const card = document.getElementById(`todo-card-${todoId}`);
+                if (card) {
+                    card.style.display = 'none';
+                }
+                Toast.fire({
+                    icon: "success",
+                    title: "Tarea finalizada con éxito!"
+                });
+            } else {
+                Toast.fire({
+                    icon: "error",
+                    title: "Error al finalizar la tarea!"
+                });
+            }
+        }).catch(error => console.error('Error:', error));
+    }
+
+    // Enviar mensaje
+    document.querySelectorAll('#enviar').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            this.closest('form').submit();
+        });
     });
 
-    fetch(`/todos/complete/${todoId}`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Content-Type': 'application/json'
-        }
-    }).then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const card = document.getElementById(`todo-card-body-${todoId}`);
-            if (card) {
-                card.style.backgroundColor = '#CDFEA4'; // Color verde claro
-            }
+    function showTodoModal() {
+        var todoModal = new bootstrap.Modal(document.getElementById('todoModal'));
+        todoModal.show();
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const taskSelect = document.getElementById('task_id');
+        const clientSelect = document.getElementById('client_id');
+        const budgetSelect = document.getElementById('budget_id');
+        const projectSelect = document.getElementById('project_id');
 
-            const completeButton = document.getElementById(`complete-button-${todoId}`);
-            if (completeButton) {
-                completeButton.style.display = 'none';
-            }
-            Toast.fire({
-                icon: "success",
-                title: "Tarea completada con éxito!"
-            });
-        } else {
-            Toast.fire({
-                icon: "error",
-                title: "Error al completar la tarea!"
+        function disableOtherFields(selectedField) {
+            const fields = [taskSelect, clientSelect, budgetSelect, projectSelect];
+            fields.forEach(field => {
+                if (field !== selectedField) {
+                    field.disabled = true;
+                    field.value = ''; // Limpiar selección en otros campos
+                }
             });
         }
-    }).catch(error => console.error('Error:', error));
-}
 
-// Finalizar tarea
-function finishTask(event, todoId) {
-    event.stopPropagation();
-    const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-        },
+        function enableAllFields() {
+            [taskSelect, clientSelect, budgetSelect, projectSelect].forEach(field => {
+                field.disabled = false;
+            });
+        }
+
+        // Añadir eventos a cada campo
+        [taskSelect, clientSelect, budgetSelect, projectSelect].forEach(field => {
+            field.addEventListener('change', function() {
+                if (this.value) {
+                    disableOtherFields(this);
+                } else {
+                    enableAllFields(); // Si no se selecciona nada, habilitar todos los campos
+                }
+            });
+        });
     });
-
-    fetch(`/todos/finish/${todoId}`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Content-Type': 'application/json'
-        }
-    }).then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const card = document.getElementById(`todo-card-${todoId}`);
-            if (card) {
-                card.style.display = 'none';
-            }
-            Toast.fire({
-                icon: "success",
-                title: "Tarea finalizada con éxito!"
-            });
-        } else {
-            Toast.fire({
-                icon: "error",
-                title: "Error al finalizar la tarea!"
-            });
-        }
-    }).catch(error => console.error('Error:', error));
-}
-
-// Enviar mensaje
-document.querySelectorAll('#enviar').forEach(function(button) {
-    button.addEventListener('click', function(e) {
-        e.preventDefault();
-        this.closest('form').submit();
-    });
-});
-
-function showTodoModal() {
-    var todoModal = new bootstrap.Modal(document.getElementById('todoModal'));
-    todoModal.show();
-}
 </script>
 
 

@@ -342,7 +342,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="info">
+                                                <div class="infotask">
                                                     <!-- Información Detallada de la Tarea -->
                                                 </div>
                                             </div>
@@ -566,7 +566,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="info">
+                                                    <div class="infotask">
                                                         <!-- Información Detallada de la Tarea -->
                                                     </div>
                                                 </div>
@@ -605,7 +605,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div class="info">
+                                                        <div class="infotask">
                                                             <!-- Información Detallada de la Tarea -->
                                                         </div>
                                                     </div>
@@ -1138,9 +1138,11 @@
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
             $('#eventform').submit(); // Esto envía el formulario.
         });
-        $('#enviar').click(function(e){
-            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
-            $('#mensaje').submit(); // Esto envía el formulario.
+        document.querySelectorAll('#enviar').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.closest('form').submit();
+            });
         });
         $('#todoboton').click(function(e){
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
@@ -1166,19 +1168,9 @@
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'myCustomButton dayGridMonth,timeGridDay,listWeek'
+                    right: 'dayGridMonth,timeGridDay,listWeek'
                 },
                 events: events,
-                customButtons: {
-                    myCustomButton: {
-                        icon: 'bi bi-plus',
-                        text: 'Add event',
-                        click: function() {
-                            var eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
-                            eventModal.show();
-                        }
-                    }
-                },
                 eventClick: function(info) {
                     var event = info.event;
                     var clientId = event.extendedProps.client_id;
@@ -1382,33 +1374,25 @@
     }
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Seleccionar el contenedor que tiene todos los elementos clickable
-        var container = document.getElementById('to-do');
+     document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.clickable').forEach(function(element) {
+            element.addEventListener('click', function(event) {
+                event.stopPropagation();
 
-        // Delegación de eventos para manejar clics en elementos clickable
-        container.addEventListener('click', function(event) {
-            // Comprobar si el elemento clickeado o sus padres tienen la clase 'clickable'
-            var target = event.target;
-            while (target !== container) {
-                if (target.classList.contains('clickable')) {
-                    // Cambiar la visibilidad del siguiente hermano (div.info)
-                    var info = target.nextElementSibling;
-                    var isVisible = info.style.display === 'block';
 
-                    // Si la información está oculta, vamos a mostrarla y marcar los mensajes como leídos
-                    if (!isVisible) {
-                        info.style.display = 'block'; // Mostrar info
+                var info = this.nextElementSibling;
+                var isVisible = info.style.display === 'block';
 
-                        // Marcar mensajes como leídos solo si estamos expandiendo la información
-                        markMessagesAsRead(target.getAttribute('data-todo-id'));
-                    } else {
-                        info.style.display = 'none'; // Ocultar info
-                    }
-                    break;
+                if (!isVisible) {
+                    document.querySelectorAll('.info').forEach(function(infoElement) {
+                        infoElement.style.display = 'none';
+                    });
+                    info.style.display = 'block';
+                    markMessagesAsRead(this.getAttribute('data-todo-id'));
+                } else {
+                    info.style.display = 'none';
                 }
-                target = target.parentNode;
-            }
+            });
         });
 
         // Función para marcar mensajes como leídos
@@ -1440,22 +1424,23 @@
     });
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var inputFile = document.getElementById('file-input');
-        if (inputFile) {
-            inputFile.addEventListener('change', function() {
-                var fileIcon = document.getElementById('file-icon');
-                var fileClip = document.getElementById('file-clip');
+           document.querySelectorAll('#file-input').forEach(function(inputElement) {
+            inputElement.addEventListener('change', function() {
+                console.log('File input changed'); // Verifica que el evento se activa
+                const fileIcon = this.closest('.input-group-text').querySelector('#file-icon');
+                const fileClip = this.closest('.input-group-text').querySelector('#file-clip');
+
                 if (this.files.length > 0) {
+                    console.log('File selected'); // Verifica que se ha seleccionado un archivo
                     fileIcon.style.display = 'inline-block';
                     fileClip.style.display = 'none';
                 } else {
+                    console.log('No file selected'); // Verifica que no hay archivo seleccionado
                     fileIcon.style.display = 'none';
                     fileClip.style.display = 'inline-block';
                 }
             });
-        }
-    });
+        });
 
     function completeTask(event, todoId) {
         event.stopPropagation();  // Detiene la propagación del evento
@@ -1652,7 +1637,7 @@
 
         function showTaskInfoNew(id) {
             $.when(getDataTask(id)).then(function(data) {
-                var contenedor = $('.info');
+                var contenedor = $('.infotask');
                 var descripcionFinal = '';
                 if (data.descripcion) {
                     var des = data.descripcion.split('.');
@@ -1729,7 +1714,7 @@
                                         <div class="form-group">
                                             <textarea id="editor" class="form-control" name="descripcion" placeholder="Escriba su mensaje..." rows="3"></textarea>
                                         </div>
-                                        <button id="enviar" type="submit" class="btn btn-primary btn-block mt-4">Enviar</button>
+                                        <button id="enviar1" type="submit" class="btn btn-primary btn-block mt-4">Enviar</button>
                                     </form>
                                 </div>
                             </div>

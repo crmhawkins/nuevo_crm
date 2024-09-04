@@ -23,6 +23,11 @@ class PetitionController extends Controller
         $petitions = Petition::all();
         return view('petitions.index', compact('petitions'));
     }
+    public function indexUser()
+    {
+        $petitions = Petition::where('admin_user_id',Auth()->user()->id)->get();
+        return view('petitions.indexUser', compact('petitions'));
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -93,7 +98,7 @@ class PetitionController extends Controller
             'completada' => false  // Asumimos que la tarea no está completada por los usuarios al inicio
         ]);
 
-        return redirect(route('peticion.edit', $petitionCreado->id));
+        return redirect(route('peticion.index'));
 
     }
 
