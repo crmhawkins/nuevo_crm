@@ -37,9 +37,9 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('access_level_id')->references('id')->on('admin_user_access_level');
-            $table->foreign('admin_user_department_id')->references('id')->on('admin_user_department');
-            $table->foreign('admin_user_position_id')->references('id')->on('admin_user_position');
+            // $table->foreign('access_level_id')->references('id')->on('admin_user_access_level');
+            // $table->foreign('admin_user_department_id')->references('id')->on('admin_user_department');
+            // $table->foreign('admin_user_position_id')->references('id')->on('admin_user_position');
 
 
         });

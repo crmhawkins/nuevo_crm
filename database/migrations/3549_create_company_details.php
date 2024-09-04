@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('price_hour', 8, 2)->nullable();
             $table->string('paypal')->nullable();
             $table->string('telephone')->nullable();
-            $table->string('email')->unique();
+            $table->string('email')->nullable()->unique();
             $table->string('website')->nullable();
             $table->string('facebook')->nullable();
             $table->string('twitter')->nullable();

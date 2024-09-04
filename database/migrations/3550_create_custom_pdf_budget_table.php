@@ -23,6 +23,9 @@ return new class extends Migration
             $table->string('footer_string_1')->nullable();
             $table->string('footer_string_2')->nullable();
             $table->text('terms')->nullable();
+            $table->tinyInteger('only_general_terms')->nullable();
+            $table->tinyInteger('only_categories_terms')->nullable();
+            $table->tinyInteger('general_categories_terms')->nullable();
             $table->timestamps();
         });
     }

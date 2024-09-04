@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('custom_pdf_budget_terms', function (Blueprint $table) {
-            $table->id();
-            $table->string('term_condition');
+        Schema::table('commercial_have_employee', function (Blueprint $table) {
+    
+
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            $table->foreign('commercial_id')->references('id')->on('admin_user');
+
         });
     }
 
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('custom_pdf_budget_terms');
+        //
     }
 };

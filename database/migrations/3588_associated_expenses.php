@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('reference')->nullable();
             $table->enum('state',['PAGADO','PENDIENTE']);
             $table->tinyInteger('aceptado_gestor')->nullable();
+            $table->integer('aprobado')->nullable();
 
 
             $table->timestamps();

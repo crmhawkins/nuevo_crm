@@ -43,6 +43,7 @@ return new class extends Migration
             $table->boolean('rectification')->default(0);
             $table->integer('partial_number')->nullable();
             $table->integer('show_summary')->default(1);
+            $table->integer('empresa_factura_id')->default(1);
 
             // $table->foreign('budget_id')->references('id')->on('budgets');
             // $table->foreign('admin_user_id')->references('id')->on('admin_user');

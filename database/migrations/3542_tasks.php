@@ -27,6 +27,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->time('estimated_time')->nullable();
             $table->time('real_time')->nullable();
+            $table->time('total_time_budget')->nullable();
             $table->string('title')->nullable();
 
             $table->timestamps();

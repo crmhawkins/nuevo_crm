@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('invoice_reference_autoincrements', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('reference_autoincrement');
+            $table->unsignedBigInteger('empresa_id');
             $table->unsignedInteger('year');
             $table->unsignedInteger('month_num');
             $table->string('month', 10);
