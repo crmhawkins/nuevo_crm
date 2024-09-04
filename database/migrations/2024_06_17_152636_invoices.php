@@ -45,7 +45,7 @@ return new class extends Migration
             $table->integer('show_summary')->default(1);
 
             $table->foreign('budget_id')->references('id')->on('budgets');
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
             $table->foreign('client_id')->references('id')->on('clients');
             $table->foreign('project_id')->references('id')->on('projects');
             $table->foreign('payment_method_id')->references('id')->on('payment_method');

@@ -77,8 +77,8 @@ class TasksTable extends Component
                 ->leftJoin('priority', 'tasks.priority_id', '=', 'priority.id')
                 ->leftJoin('budgets', 'tasks.budget_id', '=', 'budgets.id')
                 ->leftJoin('clients', 'budgets.client_id', '=', 'clients.id')
-                ->leftJoin('admin_users as gestor', 'tasks.gestor_id', '=', 'gestor.id')
-                ->leftJoin('admin_users as empleado', 'tasks.admin_user_id', '=', 'empleado.id')
+                ->leftJoin('admin_user as gestor', 'tasks.gestor_id', '=', 'gestor.id')
+                ->leftJoin('admin_user as empleado', 'tasks.admin_user_id', '=', 'empleado.id')
                 ->leftJoin('admin_user_department', 'empleado.admin_user_department_id', '=', 'admin_user_department.id')
                 ->select('tasks.*', 'priority.name as prioridad', 'admin_user_department.name as departamento','budget_concepts.title as concept', 'clients.name as cliente', 'gestor.name as gestor','empleado.name as empleado');
 

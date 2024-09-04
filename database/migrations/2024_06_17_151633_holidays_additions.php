@@ -20,7 +20,7 @@ return new class extends Migration
             $table->tinyInteger('manual')->nullable();
             $table->tinyInteger('holiday_petition')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
 
             $table->timestamps();
             $table->softDeletes();

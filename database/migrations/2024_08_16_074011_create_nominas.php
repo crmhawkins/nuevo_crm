@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('nominas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade');
+            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
             $table->date('fecha');
             $table->string('archivo');
             $table->timestamps();

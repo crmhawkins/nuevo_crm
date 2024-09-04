@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('alerts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade');
+            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
             $table->foreignId('stage_id')->constrained('stages')->onDelete('cascade');
             $table->foreignId('status_id')->constrained('alert_status')->onDelete('cascade');
             $table->dateTime('activation_datetime');

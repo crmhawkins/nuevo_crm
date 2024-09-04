@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('date')->nullable();
             $table->text('description')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
             $table->foreign('client_id')->references('id')->on('clients');
 
             $table->timestamps();

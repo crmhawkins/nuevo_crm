@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('admin_users_notes', function (Blueprint $table) {
+        Schema::create('admin_user_notes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('admin_user_id')->nullable();
             $table->string('title')->nullable();
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('completed')->nullable();
             $table->text('files')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
 
             $table->timestamps();
             $table->softDeletes();

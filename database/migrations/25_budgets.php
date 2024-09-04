@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('reference')->unique()->nullable();
             $table->foreignId('reference_autoincrement_id')->constrained('budget_reference_autoincrements')->onDelete('cascade')->nullable();
-            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade');
+            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade')->nullable();
             $table->foreignId('project_id')->constrained('projects')->onDelete('cascade')->nullable();
             $table->foreignId('payment_method_id')->constrained('payment_method')->onDelete('cascade')->nullable();

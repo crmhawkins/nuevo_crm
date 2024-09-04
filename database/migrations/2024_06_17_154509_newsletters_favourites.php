@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreignId('newsletter_id')->nullable();
 
-            $table->foreign('user_id')->references('id')->on('admin_users');
+            $table->foreign('user_id')->references('id')->on('admin_user');
             $table->foreign('newsletter_id')->references('id')->on('newsletters');
 
             $table->timestamps();

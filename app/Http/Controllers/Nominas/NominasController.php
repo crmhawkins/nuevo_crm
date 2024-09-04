@@ -41,7 +41,7 @@ class NominasController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'admin_user_id' => 'required|exists:admin_users,id',
+            'admin_user_id' => 'required|exists:admin_user,id',
             'fecha' => 'required|date',
             'archivo' => 'required|file|mimes:pdf|max:2048', // Asegura que sea un PDF y no supere los 2MB
         ]);
@@ -67,7 +67,7 @@ class NominasController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'admin_user_id' => 'required|exists:admin_users,id',
+            'admin_user_id' => 'required|exists:admin_user,id',
             'fecha' => 'required|date',
             'archivo' => 'nullable|file|mimes:pdf|max:2048',
         ]);

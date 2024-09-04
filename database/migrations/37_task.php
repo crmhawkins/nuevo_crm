@@ -30,8 +30,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
-            $table->foreign('gestor_id')->references('id')->on('admin_users');
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            $table->foreign('gestor_id')->references('id')->on('admin_user');
             $table->foreign('priority_id')->references('id')->on('priority');
             $table->foreign('project_id')->references('id')->on('projects');
             $table->foreign('budget_id')->references('id')->on('budgets');

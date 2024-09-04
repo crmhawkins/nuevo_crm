@@ -69,8 +69,8 @@ class TasksAsignarTable extends Component
                 ->join('services_categories', 'budget_concepts.services_category_id', '=', 'services_categories.id')
                 ->join('budgets', 'tasks.budget_id', '=', 'budgets.id')
                 ->join('clients', 'budgets.client_id', '=', 'clients.id')
-                ->join('admin_users', 'tasks.gestor_id', '=', 'admin_users.id')
-                 ->select('tasks.*', 'services_categories.name as categoria_nombre','budget_concepts.title as concept', 'clients.name as cliente', 'admin_users.name as gestor');
+                ->join('admin_user', 'tasks.gestor_id', '=', 'admin_user.id')
+                 ->select('tasks.*', 'services_categories.name as categoria_nombre','budget_concepts.title as concept', 'clients.name as cliente', 'admin_user.name as gestor');
 
 
         $query->orderBy($this->sortColumn, $this->sortDirection);

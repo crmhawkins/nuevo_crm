@@ -16,8 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('commercial_id')->nullable();
 
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
-            $table->foreign('commercial_id')->references('id')->on('admin_users');
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
+            $table->foreign('commercial_id')->references('id')->on('admin_user');
 
             $table->timestamps();
             $table->softDeletes();

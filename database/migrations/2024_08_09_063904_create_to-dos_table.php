@@ -15,14 +15,20 @@ return new class extends Migration
             $table->id();
             $table->string('titulo');
             $table->string('descripcion');
-            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade');
-            $table->foreignId('project_id')->nullable()->constrained('projects')->onDelete('cascade');
-            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
-            $table->foreignId('budget_id')->nullable()->constrained('budgets')->onDelete('cascade');
-            $table->foreignId('task_id')->nullable()->constrained('tasks')->onDelete('cascade');
+            $table->unsignedInteger('admin_user_id');
+            $table->unsignedInteger('project_id')->nullable();
+            $table->unsignedInteger('client_id')->nullable();
+            $table->unsignedInteger('budget_id')->nullable();
+            $table->unsignedInteger('task_id')->nullable();
             $table->boolean('finalizada')->default(false);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('admin_user_id')->references('id')->on('admin_user')->onDelete('cascade');
+            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $table->foreign('budget_id')->references('id')->on('budgets')->onDelete('cascade');
+            $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
         });
     }
     /**

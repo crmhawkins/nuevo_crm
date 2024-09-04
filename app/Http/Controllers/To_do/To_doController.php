@@ -22,7 +22,7 @@ class To_doController extends Controller
             'budget_id' => 'nullable|exists:budgets,id',
             'project_id' => 'nullable|exists:projects,id',
             'admin_user_ids' => 'required|array',
-            'admin_user_ids.*' => 'exists:admin_users,id',
+            'admin_user_ids.*' => 'exists:admin_user,id',
             'admin_user_id' =>'required'
         ]);
 

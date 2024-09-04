@@ -46,7 +46,7 @@ class ClientController extends Controller
         // Validamos los campos
         $this->validate($request, [
             'name' => 'required|max:200',
-            'admin_user_id' => 'required|exists:admin_users,id',
+            'admin_user_id' => 'required|exists:admin_user,id',
             'email' => 'required|email:filter',
             'company' => 'required|max:200',
             'cif' => 'required|max:200',
@@ -167,7 +167,7 @@ class ClientController extends Controller
         // Validamos los campos
         $this->validate($request, [
             'name' => 'required|max:200',
-            'admin_user_id' => 'required|exists:admin_users,id',
+            'admin_user_id' => 'required|exists:admin_user,id',
             'email' => 'required|email:filter',
             'company' => 'required|max:200',
             'cif' => 'required|max:200',
@@ -286,7 +286,7 @@ class ClientController extends Controller
         //Validamos los campos
         $this->validate($request, [
             'name' => 'required|max:200',
-            'admin_user_id' => 'required|exists:admin_users,id',
+            'admin_user_id' => 'required|exists:admin_user,id',
             'email' => 'required|email:filter',
             'phone' => 'required',
         ], [
@@ -340,7 +340,7 @@ class ClientController extends Controller
         // Validamos los campos
         $this->validate($request, [
             'name' => 'required|max:200',
-            'admin_user_id' => 'required|exists:admin_users,id',
+            'admin_user_id' => 'required|exists:admin_user,id',
             'email' => 'required|email:filter',
             'company' => 'required|max:200',
             'cif' => 'required|max:200',

@@ -49,10 +49,10 @@ class UsersTable extends Component
             ->when($this->selectedNivel, function ($query) {
                 $query->where('access_level_id', $this->selectedNivel);
             })
-            ->join('admin_user_access_level', 'admin_users.access_level_id', '=', 'admin_user_access_level.id')
-            ->join('admin_user_department', 'admin_users.admin_user_department_id', '=', 'admin_user_department.id')
-            ->join('admin_user_position', 'admin_users.admin_user_position_id', '=', 'admin_user_position.id')
-            ->select('admin_users.*', 'admin_user_position.name as cargo', 'admin_user_department.name as departamento','admin_user_access_level.name as acceso');
+            ->join('admin_user_access_level', 'admin_user.access_level_id', '=', 'admin_user_access_level.id')
+            ->join('admin_user_department', 'admin_user.admin_user_department_id', '=', 'admin_user_department.id')
+            ->join('admin_user_position', 'admin_user.admin_user_position_id', '=', 'admin_user_position.id')
+            ->select('admin_user.*', 'admin_user_position.name as cargo', 'admin_user_department.name as departamento','admin_user_access_level.name as acceso');
 
             $query->orderBy($this->sortColumn, $this->sortDirection);
 

@@ -69,8 +69,8 @@ class TasksRevisionTable extends Component
                 ->join('services_categories', 'budget_concepts.services_category_id', '=', 'services_categories.id')
                 ->join('budgets', 'tasks.budget_id', '=', 'budgets.id')
                 ->join('clients', 'budgets.client_id', '=', 'clients.id')
-                ->join('admin_users as gestor', 'tasks.gestor_id', '=', 'gestor.id')
-                ->join('admin_users as empleado', 'tasks.admin_user_id', '=', 'empleado.id')
+                ->join('admin_user as gestor', 'tasks.gestor_id', '=', 'gestor.id')
+                ->join('admin_user as empleado', 'tasks.admin_user_id', '=', 'empleado.id')
                 ->select('tasks.*', 'services_categories.name as categoria_nombre','budget_concepts.title as concept', 'clients.name as cliente', 'gestor.name as gestor','empleado.name as empleado');
 
 

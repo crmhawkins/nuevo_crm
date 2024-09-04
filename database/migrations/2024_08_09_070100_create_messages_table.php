@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('todo_id')->constrained('to-do')->onDelete('cascade');
-            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade');
+            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
             $table->longText('mensaje');
             $table->string('archivo')->nullable();
             $table->timestamps();

@@ -58,7 +58,7 @@ class PetitionController extends Controller
         if ($request['client_id'] == 0){
             $dataClient = $this->validate($request, [
                 'name' => 'required|max:200',
-                'admin_user_id' => 'required|exists:admin_users,id',
+                'admin_user_id' => 'required|exists:admin_user,id',
                 'email' => 'required|email:filter',
                 'phone' => 'required',
             ], [

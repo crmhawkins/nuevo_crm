@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('clients', function (Blueprint $table) {
             $table->unsignedBigInteger('commercial_id')->nullable();
 
-            $table->foreign('commercial_id')->references('id')->on('admin_users');
+            $table->foreign('commercial_id')->references('id')->on('admin_user');
 
         });
     }

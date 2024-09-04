@@ -24,8 +24,8 @@ class RequestStore extends FormRequest
         return [
             'name' => 'required|max:25',
             'surname' => 'required',
-            'username' => 'required|unique:admin_users',
-            'email' => 'required|email|unique:admin_users',
+            'username' => 'required|unique:admin_user',
+            'email' => 'required|email|unique:admin_user',
         ];
     }
 

@@ -46,7 +46,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
             $table->foreign('civil_status_id')->references('id')->on('civil_status');
             $table->foreign('client_id')->references('id')->on('clients');
 

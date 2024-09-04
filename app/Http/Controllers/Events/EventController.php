@@ -19,7 +19,7 @@ class EventController extends Controller
             'budget_id' => 'nullable',
             'project_id' => 'nullable',
             'color' => 'nullable',
-            'admin_user_id' => 'required|exists:admin_users,id',
+            'admin_user_id' => 'required|exists:admin_user,id',
             'start' => 'required',
             'end' => 'nullable',
         ], [

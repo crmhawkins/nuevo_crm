@@ -24,7 +24,7 @@ return new class extends Migration
             $table->tinyInteger('file_delete')->nullable();
             $table->text('emails')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
             $table->foreign('budget_id')->references('id')->on('budgets');
             $table->foreign('budget_reference')->references('id')->on('budgets_reference');
             $table->foreign('client_id')->references('id')->on('clients');

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('trello_config_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('admin_users');
+            $table->foreignId('admin_user_id')->constrained('admin_user');
             $table->longText('order_column');
             $table->timestamps();
         });

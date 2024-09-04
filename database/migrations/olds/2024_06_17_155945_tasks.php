@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade')->nullable();
-            $table->foreignId('gestor_id')->constrained('admin_users')->onDelete('cascade')->nullable();
+            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade')->nullable();
+            $table->foreignId('gestor_id')->constrained('admin_user')->onDelete('cascade')->nullable();
             $table->foreignId('priority_id')->constrained('priority')->onDelete('cascade')->nullable();
             $table->foreignId('project_id')->constrained('projects')->onDelete('cascade')->nullable();
             $table->foreignId('budget_id')->constrained('budgets')->onDelete('cascade')->nullable();

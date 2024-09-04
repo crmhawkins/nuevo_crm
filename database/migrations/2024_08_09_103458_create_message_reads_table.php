@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('message_reads', function (Blueprint $table) {
             $table->id();
             $table->foreignId('message_id')->constrained('messages')->onDelete('cascade');
-            $table->foreignId('admin_user_id')->constrained('admin_users')->onDelete('cascade');
+            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade');
             $table->boolean('is_read')->default(false);
             $table->timestamp('read_at')->nullable();
             $table->timestamps();

@@ -49,8 +49,8 @@ class ActasTable extends Component
             ->orWhere('date', 'like', '%' . $this->buscar . '%');
         })
         ->join('clients', 'crm_activities_meetings.client_id', '=', 'clients.id')
-        ->join('admin_users', 'crm_activities_meetings.admin_user_id', '=', 'admin_users.id')
-        ->select('crm_activities_meetings.*', 'clients.name as cliente','admin_users.name as usuario');
+        ->join('admin_user', 'crm_activities_meetings.admin_user_id', '=', 'admin_user.id')
+        ->select('crm_activities_meetings.*', 'clients.name as cliente','admin_user.name as usuario');
 
         $query->orderBy($this->sortColumn, $this->sortDirection);
 

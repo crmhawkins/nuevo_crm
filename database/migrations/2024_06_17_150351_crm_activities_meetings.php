@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->text('files')->nullable();
 
-            $table->foreign('admin_user_id')->references('id')->on('admin_users');
+            $table->foreign('admin_user_id')->references('id')->on('admin_user');
             $table->foreign('client_id')->references('id')->on('clients');
             $table->foreign('contact_by_id')->references('id')->on('contact_by');
 

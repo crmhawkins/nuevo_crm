@@ -61,7 +61,7 @@ class UserController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:admin_users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:admin_user'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
@@ -88,7 +88,7 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required|max:200',
             'surname' => 'required|max:200',
-            'username' => 'required|unique:admin_users',
+            'username' => 'required|unique:admin_user',
             'email' => 'required|email:filter',
             'password' => 'required|min:8',
             'access_level_id' => 'required|exists:admin_user_access_level,id',
@@ -167,7 +167,7 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required|max:200',
             'surname' => 'required|max:200',
-            'username' => 'required|unique:admin_users',
+            'username' => 'required|unique:admin_user',
             'email' => 'required|email:filter',
             'password' => 'required|min:8',
             'access_level_id' => 'required|exists:admin_user_access_level,id',

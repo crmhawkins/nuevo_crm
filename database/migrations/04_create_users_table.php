@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('admin_users', function (Blueprint $table) {
+        Schema::create('admin_user', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('access_level_id');
             $table->unsignedBigInteger('admin_user_department_id');

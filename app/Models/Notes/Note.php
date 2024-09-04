@@ -12,7 +12,7 @@ class Note extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'admin_users_notes';
+    protected $table = 'admin_user_notes';
 
     /**
      * Atributos asignados en masa.
@@ -33,12 +33,12 @@ class Note extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at', 
+        'created_at', 'updated_at', 'deleted_at',
     ];
 
     /**
      * Obtener el usuario
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function adminUser()
