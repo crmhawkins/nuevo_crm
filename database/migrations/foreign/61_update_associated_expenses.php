@@ -13,6 +13,9 @@ return new class extends Migration
     {
 
         Schema::table('associated_expenses', function (Blueprint $table) {
+
+            $table->text('documents')->nullable();
+            
             $table->foreign('budget_id')->references('id')->on('budgets');
             $table->foreign('bank_id')->references('id')->on('bank_accounts');
             $table->foreign('purchase_order_id')->references('id')->on('purchase_order');
