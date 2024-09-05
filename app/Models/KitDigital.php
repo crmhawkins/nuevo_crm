@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Clients\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -62,7 +63,13 @@ class KitDigital extends Model
     ];
 
     public function Client() {
-        return $this->belongsTo(\App\Models\Clients\Client::class,'cliente_id');
+        return $this->belongsTo(Client::class,'cliente_id');
     }
-    
+    public function estado() {
+        return $this->belongsTo(KitDigitalEstados::class,'estado');
+    }
+    public function servicios() {
+        return $this->belongsTo(KitDigitalServicios::class,'servicio_id');
+    }
+
 }

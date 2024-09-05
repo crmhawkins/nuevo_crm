@@ -27,7 +27,7 @@
                     <select wire:model="selectedEstado" name="" id="" class="form-select">
                         <option value="">-- Seleccione un estado --</option>
                         @foreach ($estados as $estado)
-                            <option value="{{$estado->id}}">{{$estado->name}}</option>
+                            <option value="{{$estado->id}}">{{$estado->nombre}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -84,7 +84,6 @@
                                 </a>
                             </th>
                         @endforeach
-                  <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
                     @foreach ( $kitDigitals as $item )
@@ -99,8 +98,8 @@
                           <td>{{$item->telefono}}</td>
                           <td>{{$item->expediente}}</td>
                           <td>{{$item->contratos}}</td>
-                          <td>{{$item->servicio_id}}</td>
-                          <td>{{$item->estado}}</td>
+                          <td>{{$item->servicios->name}}</td>
+                          <td>{{$item->estado->nombre}}</td>
                           <td>{{$item->fecha_actualizacion}}</td>
                           <td>{{$item->importe}}</td>
                           <td>{{$item->estado_factura}}</td>
@@ -111,11 +110,6 @@
                           <td>{{$item->comercial_id}}</td>
                           <td>{{$item->comentario}}</td>
                           <td>{{$item->nuevo_comentario}}</td>
-                          <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
-                              {{-- <a class="" href="{{route('presupuesto.show', $item->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar dominio"></a>
-                              <a class="" href="{{route('dominios.edit', $item->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
-                              <a class="delete" data-id="{{$item->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar dominio"></a> --}}
-                          </td>
                         </tr>
                     @endforeach
                 </tbody>
