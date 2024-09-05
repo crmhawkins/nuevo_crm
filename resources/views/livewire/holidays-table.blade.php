@@ -37,7 +37,7 @@
                             <tbody>
                                 @foreach ($holidays as $holiday)
                                     <tr >
-                                        <td>{{$holiday->adminUser->name}}</td>
+                                        <td>{{$holiday->adminUser->name ?? 'Usuario Borrado'}}</td>
                                         <td>{{ number_format($holiday->quantity, 2) }}</td>
                                     </tr>
                                 @endforeach
