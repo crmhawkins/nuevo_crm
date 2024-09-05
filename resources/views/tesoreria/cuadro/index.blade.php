@@ -242,7 +242,7 @@
                                         @foreach($ingresos as $ingreso)
                                         <tr>
                                             @if($ingreso->getInvoice)
-                                                <td style="text-align:center;" data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name}}">{{ $ingreso->title }}</td>
+                                                <td style="text-align:center;" data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name ?? 'Cliente Borrado '}}">{{ $ingreso->title }}</td>
                                                 <?php $dia = Carbon\Carbon::parse($ingreso->date)->format('d'); ?>
                                             @else
                                                 <?php $dia = Carbon\Carbon::parse($ingreso->date)->format('d'); ?>
@@ -252,20 +252,20 @@
                                                 @if($i<=$dia)
                                                     @if($i==$dia)
                                                         @if($ingreso->getInvoice)
-                                                            <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name}}" value="{{$i}}" data-value="{{$ingreso->id}}" style="background-color:#76F380;">{{ number_format($ingreso->quantity, 2, ',', '.') }}</td>
+                                                            <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$ingreso->id}}" style="background-color:#76F380;">{{ number_format($ingreso->quantity, 2, ',', '.') }}</td>
                                                         @else
                                                             <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" data-value="{{$ingreso->id}}" style="background-color:#76F380;">{{ number_format($ingreso->quantity, 2, ',', '.') }}</td>
                                                         @endif
                                                     @else
                                                         @if($ingreso->getInvoice)
-                                                            <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name}}" value="{{$i}}" data-value="{{$ingreso->id}}" data-type="ingreso" class="clickIngresos" style="background-color:#76F380;"></td>
+                                                            <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$ingreso->id}}" data-type="ingreso" class="clickIngresos" style="background-color:#76F380;"></td>
                                                         @else
                                                             <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" data-value="{{$ingreso->id}}" data-type="ingreso" class="clickIngresos" style="background-color:#76F380;"></td>
                                                         @endif
                                                     @endif
                                                 @else
                                                     @if($ingreso->getInvoice)
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name}}" value="{{$i}}" class="clickIngresos" data-type="ingreso" data-value="{{$ingreso->id}}"> </td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" class="clickIngresos" data-type="ingreso" data-value="{{$ingreso->id}}"> </td>
                                                     @else
                                                         <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" class="clickIngresos" data-type="ingreso" data-value="{{$ingreso->id}}"> </td>
                                                     @endif
