@@ -276,7 +276,7 @@ Route::post('/dominios/destroy', [DominiosController::class, 'destroy'])->name('
 
 //Nominas
 Route::get('/nominas', [NominasController::class, 'index'])->name('nominas.index');
-Route::get('/nominas/{id}', [NominasController::class, 'indexUser'])->name('nominas.index_user');
+Route::get('/nominas/user/{id}', [NominasController::class, 'indexUser'])->name('nominas.index_user');
 Route::get('/nominas/create', [NominasController::class, 'create'])->name('nominas.create');
 Route::get('/nominas/edit/{id}', [NominasController::class, 'edit'])->name('nominas.edit');
 Route::get('/nominas/show/{id}', [NominasController::class, 'show'])->name('nominas.show');
@@ -304,8 +304,8 @@ Route::post('/position/destroy', [PositionController::class, 'destroy'])->name('
 
 //Contratos
 Route::get('/contratos', [ContratosController::class, 'index'])->name('contratos.index');
-Route::get('/contratos/{id}', [ContratosController::class, 'indexUser'])->name('contratos.index_user');
-Route::get('/contratos/create', [ContratosController::class, 'create'])->name('contratos.create');
+Route::get('/contratos/user/{id}', [ContratosController::class, 'indexUser'])->name('contratos.index_user');
+Route::get('/contratos/creates', [ContratosController::class, 'create'])->name('contratos.create');
 Route::get('/contratos/edit/{id}', [ContratosController::class, 'edit'])->name('contratos.edit');
 Route::get('/contratos/show/{id}', [ContratosController::class, 'show'])->name('contratos.show');
 Route::post('/contratos/store', [ContratosController::class, 'store'])->name('contratos.store');

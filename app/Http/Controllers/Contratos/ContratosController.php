@@ -34,6 +34,8 @@ class ContratosController extends Controller
     }
     public function create()
     {
+        dd('create');
+
         $usuarios = User::all();
         return view('contratos.create', compact('usuarios'));
     }
