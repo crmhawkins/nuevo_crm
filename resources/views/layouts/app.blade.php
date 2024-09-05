@@ -34,9 +34,9 @@
         @endif --}}
         @yield('css')
         @laravelViewsStyles
-        <link rel="stylesheet" href="{{ asset('build/assets/app-e3b0c442.css') }}" crossorigin="anonymous" referrerpolicy="no-referrer">
-        <script src="{{ asset('build/assets/app-bf7e6802.js') }}"></script>
-        {{-- @vite(['resources/sass/app.scss', 'resources/js/app.js']) --}}
+        {{-- <link rel="stylesheet" href="{{ asset('build/assets/app-e3b0c442.css') }}" crossorigin="anonymous" referrerpolicy="no-referrer">
+        <script src="{{ asset('build/assets/app-bf7e6802.js') }}"></script> --}}
+        @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     
 
 </head>
