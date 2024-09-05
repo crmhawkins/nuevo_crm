@@ -1,6 +1,6 @@
 <div>
     <div class="filtros row mb-4">
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md-3 col-sm-12">
             <div class="flex flex-row justify-start">
                 <div class="mr-3">
                     <label for="">Nª por paginas</label>
@@ -11,14 +11,40 @@
                         <option value="all">Todo</option>
                     </select>
                 </div>
-                <div class="w-75">
+                <div class="w-50">
                     <label for="">Buscar</label>
                     <input wire:model.debounce.300ms="buscar" type="text" class="form-control w-100" placeholder="Escriba la palabra a buscar...">
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md-9 col-sm-12">
             <div class="flex flex-row justify-end">
+
+                <div class="mr-3 w-50">
+                    <label for="">Año</label>
+                    <select wire:model="selectedYear" class="form-select">
+                        <option value=""> Año </option>
+                        @for ($year = date('Y'); $year >= 2000; $year--)
+                            <option value="{{ $year }}">{{ $year }}</option>
+                        @endfor
+                    </select>
+                </div>
+                <div class="mr-3">
+                    <label for="">Importe min</label>
+                    <input wire:model="minImporte" type="number" step="0.01" class="form-control" placeholder="Importe mínimo">
+                </div>
+                <div class="mr-3">
+                    <label for="">Importe max</label>
+                    <input wire:model="maxImporte" type="number" step="0.01" class="form-control" placeholder="Importe máximo">
+                </div>
+                <div class="mr-3">
+                    <label for="">Fecha inicio</label>
+                    <input wire:model="startDate" type="date" class="form-control" placeholder="Fecha de inicio">
+                </div>
+                <div class="mr-3">
+                    <label for="">Fecha fin</label>
+                    <input wire:model="endDate" type="date" class="form-control" placeholder="Fecha de fin">
+                </div>
                 <div class="mr-3">
                     <label for="">Gestores</label>
                     <select wire:model="selectedGestor" name="" id="" class="form-select ">
@@ -37,6 +63,7 @@
                         @endforeach
                     </select>
                 </div>
+
             </div>
         </div>
     </div>
@@ -87,7 +114,7 @@
                     <tr>
                         <td colspan="4"></td>
                         <th>Sumatorio:</th>
-                        <td>{{number_format((float)$invoice->sum('total'), 2, '.', '') }} €</td>
+                        <td>{{number_format((float)$invoices->sum('total'), 2, '.', '') }} €</td>
                         <td colspan="2"></td>
 
                     </tr>

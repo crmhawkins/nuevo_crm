@@ -9,6 +9,7 @@ use App\Models\Invoices\InvoiceStatus;
 use App\Models\Users\User;
 use App\Models\Users\UserAccessLevel;
 use App\Models\Users\UserDepartament;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -19,6 +20,11 @@ class InvoicesTable extends Component
     public $gestores;
     public $estados;
     public $buscar;
+    public $selectedYear;
+    public $maxImporte;
+    public $minImporte;
+    public $startDate;
+    public $endDate;
     public $selectedGestor = '';
     public $selectedEstados = '';
     public $perPage = 10;
@@ -29,6 +35,7 @@ class InvoicesTable extends Component
     public function mount(){
         $this->gestores = User::where('access_level_id', 4)->get();
         $this->estados = InvoiceStatus::all();
+        $this->selectedYear = Carbon::now()->year;
     }
 
     public function render()
@@ -57,6 +64,20 @@ class InvoicesTable extends Component
             })
             ->when($this->selectedEstados, function ($query) {
                 $query->where('invoice_status_id', $this->selectedEstados);
+            }) ->when($this->selectedYear, function ($query) {
+                $query->whereYear('created_at', $this->selectedYear);
+            })
+            ->when($this->minImporte, function ($query) {
+                $query->where('total', '>=', $this->minImporte);
+            })
+            ->when($this->maxImporte, function ($query) {
+                $query->where('total', '<=', $this->maxImporte);
+            })
+            ->when($this->startDate, function ($query) {
+                $query->whereDate('created_at', '>=', Carbon::parse($this->startDate));
+            })
+            ->when($this->endDate, function ($query) {
+                $query->whereDate('created_at', '<=', Carbon::parse($this->endDate));
             });
 
        // Aplica la ordenación
