@@ -27,12 +27,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    @if ($isDarkMode)
-        @vite(['resources/sass/dark-mode.scss'])
-    @else
-        @vite(['resources/sass/light-mode.scss'])
-    @endif
-    @yield('css')
+        @if ($isDarkMode)
+            @vite(['resources/sass/dark-mode.scss'])
+        @else
+            @vite(['resources/sass/light-mode.scss'])
+        @endif
+        @yield('css')
     @laravelViewsStyles
 
 </head>
