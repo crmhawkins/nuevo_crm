@@ -58,7 +58,7 @@
                 <tbody>
                     @foreach ( $kitDigitals as $item )
                         <tr>
-                          <td>{{$item->client->name ?? 'Sin cliente'}}</td>
+                          <td>{{$item->Client->name ?? 'Sin cliente'}}</td>
                           <td>{{$item->cliente}}</td>
                           <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                               {{-- <a class="" href="{{route('presupuesto.show', $item->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar dominio"></a>
