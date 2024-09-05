@@ -39,7 +39,7 @@
         {{-- @vite(['resources/sass/app.scss', 'resources/js/app.js']) --}}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/choices.js/1.1.6/choices.min.js" integrity="sha512-7PQ3MLNFhvDn/IQy12+1+jKcc1A/Yx4KuL62Bn6+ztkiitRVW1T/7ikAh675pOs3I+8hyXuRknDpTteeptw4Bw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/choices.js/1.1.6/styles/css/base.css" integrity="sha512-Am/2bbv2qivU11QVLRLepSHQjZ98V1DWpWlwNyFF5XRYNlHLrKUusGYrVocdIko13v4Nl6AbvfJb87wQJyxyQA==" crossorigin="anonymous" referrerpolicy="no-referrer" /></head>
-<body class="@if ($isDarkMode) dark-mode @endif" style="overflow-x: hidden">
+<body class="" style="overflow-x: hidden">
     <div id="app">
         <div id="loadingOverlay" style="display: block; position: fixed; width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.5); z-index: 50000; cursor: pointer;">
             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
