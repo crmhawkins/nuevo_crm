@@ -429,6 +429,10 @@ Route::delete('/sub-grupo-contable/destroy/{id}', [SubGrupoContabilidadControlle
 
 Route::post('/save-order', [BudgetController::class, 'saveOrder'])->name('save.order');
 
+
+// Kit Digital
+Route::get('/kit-digital', [KitDigitalController::class, 'index'])->name('kitDigital.index');
+
 });
 
 
