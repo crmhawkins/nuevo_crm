@@ -30,6 +30,7 @@ class KitDigitalListarClienteTable extends Component
 
     public function mount(){
         $this->estados = KitDigitalEstados::all();
+        $this->clientes = Client::all();
     }
 
 

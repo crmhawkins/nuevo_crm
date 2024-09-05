@@ -19,7 +19,7 @@ class KitDigitalEstados extends Model
         'color',
         'text_color',
     ];
-    
+
     /**
      * Mutaciones de fecha.
      *
