@@ -36,7 +36,7 @@ class KitDigitalListarClienteTable extends Component
     {
         $this->actualizarKitDigital(); // Ahora se llama directamente en render para refrescar los clientes.
         return view('livewire.kit-digital-listar', [
-            'dominios' => $this->dominios
+            'kitDigitals' => $this->kitDigitals
         ]);
     }
 
@@ -73,7 +73,7 @@ class KitDigitalListarClienteTable extends Component
     public function getCategorias()
     {
         // Si es necesario, puedes incluir lógica adicional aquí antes de devolver los usuarios
-        return $this->dominios;
+        return $this->kitDigitals;
     }
 
     public function aplicarFiltro()
