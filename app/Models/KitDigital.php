@@ -65,7 +65,7 @@ class KitDigital extends Model
     public function Client() {
         return $this->belongsTo(Client::class,'cliente_id');
     }
-    public function estado() {
+    public function estados() {
         return $this->belongsTo(KitDigitalEstados::class,'estado');
     }
     public function servicios() {

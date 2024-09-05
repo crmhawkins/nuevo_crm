@@ -98,8 +98,8 @@
                           <td>{{$item->telefono}}</td>
                           <td>{{$item->expediente}}</td>
                           <td>{{$item->contratos}}</td>
-                          <td>{{$item->servicios->name ?? $item->servicios}}</td>
-                          <td>{{$item->estado->nombre}}</td>
+                          <td>{{$item->servicios->name ?? $item->servicio_id}}</td>
+                          <td>{{$item->estados->nombre ?? $item->estado}}</td>
                           <td>{{$item->fecha_actualizacion}}</td>
                           <td>{{$item->importe}}</td>
                           <td>{{$item->estado_factura}}</td>
