@@ -145,6 +145,21 @@ class User extends Authenticatable
         return $totalWorkedSeconds;
     }
 
+    public function ordenes()
+    {
+        $ordenes = collect([]);
+
+        $this->presupuestos->each(function ($presupuesto) use ($ordenes) {
+            $presupuesto->budgetConcepts->each(function ($concepto) use ($ordenes) {
+                if ($concepto->orden) {
+                    $ordenes->push($concepto->orden);
+                }
+            });
+        });
+
+        return $ordenes;
+    }
+
     public function orderedClients()
     {
         return $this->belongsToMany(Client::class, 'client_user_order')

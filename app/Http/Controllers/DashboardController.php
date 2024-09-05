@@ -20,8 +20,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-
-
         $id = Auth::user()->id;
         $acceso = Auth::user()->access_level_id;
         $user = User::find($id);
@@ -48,6 +46,7 @@ class DashboardController extends Controller
             case(3):
                 return view('dashboards.dashboard_contable', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(4):
+                $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;
                 return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(5):
                 $tasks = $this->getTasks($user->id);
@@ -90,6 +89,7 @@ class DashboardController extends Controller
         }
 
     }
+
 
     public function startJornada()
     {
