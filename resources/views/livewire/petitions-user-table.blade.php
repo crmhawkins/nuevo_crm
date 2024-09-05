@@ -60,7 +60,7 @@
                             <td>@if (isset($petition->cliente->name))
                                 {{$petition->cliente->name}}
                                 @else
-                                {{'Cliente no encontrado'}}
+                                Cliente no encontrado
                             @endif</td>
                             <td>{{$petition->usuario->name}}</td>
                             <td>{{$petition->created_at->format('Y-m-d')}}</td>
