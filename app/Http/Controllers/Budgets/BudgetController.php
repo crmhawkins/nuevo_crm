@@ -50,16 +50,16 @@ class BudgetController extends Controller
         $usuario = User::find($userId);
 
         // Obtener los clientes ordenados por el usuario
-        $clientes = $usuario->orderedClients()
-                            ->orderBy('order')
-                            ->with('client')
-                            ->get()
-                            ->pluck('client');
+        // $clientes = $usuario->orderedClients()
+        //                     ->orderBy('order')
+        //                     ->with('client')
+        //                     ->get()
+        //                     ->pluck('client');
 
-        // Si no hay un orden guardado, mostrar los clientes por defecto
-        if ($clientes->isEmpty()) {
+        // // Si no hay un orden guardado, mostrar los clientes por defecto
+        // if ($clientes->isEmpty()) {}
             $clientes = $usuario->clientes()->orderBy('name')->get();
-        }
+
 
         return view('budgets.status', compact('clientes'));
     }
