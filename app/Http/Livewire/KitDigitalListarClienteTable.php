@@ -8,6 +8,7 @@ use App\Models\Clients\Client;
 use App\Models\Dominios\Dominio;
 use App\Models\Dominios\estadosDominios;
 use App\Models\KitDigital;
+use App\Models\KitDigitalEstados;
 use App\Models\Users\User;
 use App\Models\Users\UserAccessLevel;
 use App\Models\Users\UserDepartament;
@@ -28,7 +29,7 @@ class KitDigitalListarClienteTable extends Component
     protected $kitDigitals; // Propiedad protegida para los usuarios
 
     public function mount(){
-        // $this->actualizarServicios(); // Inicializa los usuarios
+        $this->estados = KitDigitalEstados::all();
     }
 
 

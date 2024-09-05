@@ -40,15 +40,7 @@
                         @endforeach
                     </select>
                 </div>
-                {{-- <div>
-                    <label for="">Estados</label>
-                    <select wire:model="selectedEstados" name="" id="" class="form-select ">
-                        <option value="">-- Seleccione un Estado --</option>
-                        @foreach ($estados as $estado)
-                            <option value="{{$estado->id}}">{{$estado->name}}</option>
-                        @endforeach
-                    </select>
-                </div> --}}
+
             </div>
         </div>
     </div>
@@ -66,7 +58,7 @@
                 <tbody>
                     @foreach ( $kitDigitals as $item )
                         <tr>
-                          <td>{{$item->clientes->name}}</td>
+                          <td>{{$item->clientes->name ?? 'Sin cliente'}}</td>
                           <td>{{$item->cliente}}</td>
                           <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                               {{-- <a class="" href="{{route('presupuesto.show', $item->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar dominio"></a>
