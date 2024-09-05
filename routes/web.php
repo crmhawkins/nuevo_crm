@@ -32,6 +32,7 @@ use App\Http\Controllers\GrupoContabilidadController;
 use App\Http\Controllers\Holiday\HolidayController;
 use App\Http\Controllers\Holiday\AdminHolidaysController;
 use App\Http\Controllers\Incidence\IncidenceController;
+use App\Http\Controllers\KitDigitalController;
 use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
 use App\Http\Controllers\Statistics\StatisticsController;
@@ -282,6 +283,8 @@ Route::get('/nominas/show/{id}', [NominasController::class, 'show'])->name('nomi
 Route::post('/nominas/store', [NominasController::class, 'store'])->name('nominas.store');
 Route::post('/nominas/update/{id}', [NominasController::class, 'update'])->name('nominas.update');
 Route::post('/nominas/destroy', [NominasController::class, 'destroy'])->name('nominas.delete');
+
+Route::get('/nominas', [NominasController::class, 'index'])->name('nominas.index');
 
 //Departamentos
 Route::get('/departament', [DepartamentController::class, 'index'])->name('departamento.index');
