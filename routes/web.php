@@ -434,7 +434,7 @@ Route::post('/save-order', [BudgetController::class, 'saveOrder'])->name('save.o
 
 
 // Kit Digital
-Route::get('/kit-digital', [KitDigitalController::class, 'index'])->name('kitDigital.index');
+Route::get('/kit-digital', [KitDigitalController::class, 'listarClientes'])->name('kitDigital.index');
 
 });
 
