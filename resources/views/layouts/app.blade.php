@@ -32,12 +32,12 @@
         @else
             @vite(['resources/sass/light-mode.scss'])
         @endif --}}
+        @yield('css')
+        @laravelViewsStyles
         <link rel="stylesheet" href="{{ asset('build/assets/app-744ea31a.css') }}" crossorigin="anonymous" referrerpolicy="no-referrer">
         <script src="{{ asset('build/assets/app-bf7e6802.js') }}"></script>
-        
+        @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     
-        @yield('css')
-    @laravelViewsStyles
 
 </head>
 <body class="@if ($isDarkMode) dark-mode @endif" style="overflow-x: hidden">
