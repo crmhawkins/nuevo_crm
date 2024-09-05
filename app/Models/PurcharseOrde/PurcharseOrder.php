@@ -20,18 +20,19 @@ class PurcharseOrder extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'payment_method_id',
-        'project_id',
-        'client_id',
-        'budget_concept_id',
         'supplier_id',
-        'amount',
-        'units',
-        'quantity',
+        'budget_concept_id',
+        'client_id',
+        'project_id',
+        'payment_method_id',
         'bank_id',
+        'units',
+        'amount',
         'shipping_date',
-        'sent',
         'note',
+        'sent',
+        'cancelled',
+        'status',
     ];
     /**
      * Mutaciones de fecha.

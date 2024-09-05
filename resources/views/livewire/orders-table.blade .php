@@ -30,12 +30,15 @@
                 <thead class="header-table">
                     <tr>
                         @foreach ([
-                            'cliente' => 'CLIENTE',
-                            'usuario' => 'CREADA POR',
-                            'subject' => 'ASUNTO',
+                            'cliente' => 'PRESUPUESTO',
+                            'usuario' => 'PROVEEDOR',
+                            'subject' => 'CONCEPTO',
+                            'date' => 'CLIENTE',
                             'date' => 'FECHA',
-
-                        ] as $field => $label)
+                            'date' => 'IMPORTE',
+                            'date' => 'ESTADO',
+                            'date' => 'ACEPTADA POR GESTOR',
+                            ] as $field => $label)
                             <th class="px-3" style="font-size:0.75rem">
                                 <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
                                     {{ $label }}
@@ -45,6 +48,7 @@
                                 </a>
                             </th>
                         @endforeach
+                        <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
                     @foreach ( $contratos as $acta )

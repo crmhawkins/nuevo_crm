@@ -51,15 +51,66 @@
         <div class="table-responsive">
             <table class="table">
                 <thead class="header-table">
-                  <th class="" style="font-size:0.75rem">CLIENTE ASOCIADO</th>
-                  <th class="px-3" style="font-size:0.75rem">CLIENTE KIT</th>
+                    @foreach ([
+                            'empresa' => 'EMPRESA',
+                            'segmento' => 'SEGMENTO',
+                            'cliente_id' => 'CLIENTE ASOCIADO',
+                            'cliente' => 'CLIENTE KIT',
+                            'mensaje_interpretado' => 'INTERESADO',
+                            'mensaje' => 'CONVERSACION IA',
+                            'contacto' => 'CONTACTO',
+                            'telefono' => 'TELEFONO',
+                            'expediente' => 'EXPEDIENTE',
+                            'contratos' => 'CONTRATOS',
+                            'servicio_id' => 'SERVICIOS',
+                            'estado' => 'ESTADO',
+                            'fecha_actualizacion' => 'FECHA ACTUALIZACION',
+                            'importe' => 'IMPORTE',
+                            'estado_factura' => 'ESTADO FACTURA',
+                            'banco' => 'EN BANCO',
+                            'fecha_acuerdo' => 'FECHA DEL ACUERDO',
+                            'plazo_maximo_entrega' => 'PLAZO MÁXIMO DE ENTREGA',
+                            'gestor' => 'GESTOR',
+                            'comercial_id' => 'COMERCIAL',
+                            'comentario' => 'COMENTARIO',
+                            'nuevo_comentario' => 'NUEVO COMENTARIO',
+                            ] as $field => $label)
+                            <th class="px-3" style="font-size:0.75rem">
+                                <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                    {{ $label }}
+                                    @if ($sortColumn == $field)
+                                        <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                    @endif
+                                </a>
+                            </th>
+                        @endforeach
                   <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
                     @foreach ( $kitDigitals as $item )
                         <tr>
+                          <td>{{$item->empresa}}</td>
+                          <td>{{$item->segmento}}</td>
                           <td>{{$item->Client->name ?? 'Sin cliente'}}</td>
                           <td>{{$item->cliente}}</td>
+                          <td>{{$item->mensaje_interpretado}}</td>
+                          <td>{{$item->mensaje}}</td>
+                          <td>{{$item->contacto}}</td>
+                          <td>{{$item->telefono}}</td>
+                          <td>{{$item->expediente}}</td>
+                          <td>{{$item->contratos}}</td>
+                          <td>{{$item->servicio_id}}</td>
+                          <td>{{$item->estado}}</td>
+                          <td>{{$item->fecha_actualizacion}}</td>
+                          <td>{{$item->importe}}</td>
+                          <td>{{$item->estado_factura}}</td>
+                          <td>{{$item->banco}}</td>
+                          <td>{{$item->fecha_acuerdo}}</td>
+                          <td>{{$item->plazo_maximo_entrega}}</td>
+                          <td>{{$item->gestor}}</td>
+                          <td>{{$item->comercial_id}}</td>
+                          <td>{{$item->comentario}}</td>
+                          <td>{{$item->nuevo_comentario}}</td>
                           <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                               {{-- <a class="" href="{{route('presupuesto.show', $item->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar dominio"></a>
                               <a class="" href="{{route('dominios.edit', $item->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
