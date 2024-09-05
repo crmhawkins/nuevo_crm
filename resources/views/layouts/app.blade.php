@@ -26,12 +26,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-        @if ($isDarkMode)
+    {{-- @vite(['resources/sass/app.scss', 'resources/js/app.js']) --}}
+        {{-- @if ($isDarkMode)
             @vite(['resources/sass/dark-mode.scss'])
         @else
             @vite(['resources/sass/light-mode.scss'])
-        @endif
+        @endif --}}
+        <link rel="stylesheet" href="{{ asset('build/assets/app-744ea31a.css') }}" crossorigin="anonymous" referrerpolicy="no-referrer">
+        <script src="{{ asset('build/assets/app-bf7e6802.js') }}"></script>
+        
+    
         @yield('css')
     @laravelViewsStyles
 
