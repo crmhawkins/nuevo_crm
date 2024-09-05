@@ -654,7 +654,7 @@ class CuadroController extends Controller
 
         $dataNoPagadas = Invoice::whereNull('paid_date')
         ->where('invoice_status_id', '<>', '5')
-        //->whereYear('paid_date', '=', $year)
+        ->whereYear('paid_date', '=', $year)
         ->orderBy('created_at', 'asc')
         ->get();
 
