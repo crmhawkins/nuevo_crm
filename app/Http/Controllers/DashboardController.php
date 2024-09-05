@@ -25,6 +25,7 @@ class DashboardController extends Controller
         $user = User::find($id);
         $users = User::all();
         $clientes = Client::where('is_client', 1);
+        $clientes = Client::where('is_client',true);
         $budgets = Budget::all();
         $projects = Project::all();
         $tareas = Task::all();
