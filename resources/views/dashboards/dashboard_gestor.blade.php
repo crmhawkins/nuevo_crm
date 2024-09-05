@@ -288,7 +288,7 @@
                     <h5 class="modal-title" id="todoLlamadaLabel">Iniciar Llamada</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="todoform" action="{{ route('llamada.store') }}" method="POST">
+                <form id="Llamadaform" action="{{ route('llamada.store') }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="row">
