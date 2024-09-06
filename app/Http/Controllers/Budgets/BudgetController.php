@@ -191,7 +191,7 @@ class BudgetController extends Controller
     public function edit(string $id)
     {
         $presupuesto = Budget::find($id);
-        $clientes = Client::orderBy('id', 'asc')->get();
+        $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
 
         $gestores = User::all();
         if (!$presupuesto) {
