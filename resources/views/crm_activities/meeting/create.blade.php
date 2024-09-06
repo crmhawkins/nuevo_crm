@@ -39,7 +39,7 @@
                                 <!-- Client Selection -->
                                 <div class="col-md-12 my-2 form-group">
                                     <label class="form-label" for="client_id">Clientes</label>
-                                    <select name="client_id" id="client_id" class="form-select" >
+                                    <select name="client_id" id="client_id" class="form-select choices" >
                                         <option value="">-- Seleccione --</option>
                                         @if($clients)
                                             @foreach ($clients as $client)
@@ -53,9 +53,8 @@
                                 <!-- Contact Persons -->
                                 <div class="col-md-12 my-2 form-group">
                                     <label for="contacts" class="form-label">Personas de contacto</label>
-                                    <select class="form-select" id="contacts" name="contacts[]" multiple >
+                                    <select class="form-select"  id="contacts" name="contacts[]" multiple >
                                         <option value="">Buscar ...</option>
-
                                     </select>
                                 </div>
 

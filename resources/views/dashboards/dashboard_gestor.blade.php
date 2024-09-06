@@ -347,7 +347,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="task_id" class="form-label">Tareas</label>
-                                <select class="form-select" id="task_id" name="task_id">
+                                <select class="form-select choices" id="task_id" name="task_id">
                                     <option value="">Seleccione una tarea</option>
                                     @foreach ($tareas as $tarea)
                                         <option value="{{ $tarea->id }}" {{ old('task_id') == $tarea->id ? 'selected' : '' }}>
@@ -363,7 +363,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="client_id" class="form-label">Cliente</label>
-                                <select class="form-select" id="client_id" name="client_id">
+                                <select class="form-select choices" id="client_id" name="client_id">
                                     <option value="">Seleccione cliente</option>
                                     @foreach ($clientes as $cliente)
                                         <option value="{{ $cliente->id }}" {{ old('client_id') == $cliente->id ? 'selected' : '' }}>
@@ -379,7 +379,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="budget_id" class="form-label">Presupuesto</label>
-                                <select class="form-select" id="budget_id" name="budget_id">
+                                <select class="form-select choices" id="budget_id" name="budget_id">
                                     <option value="">Seleccione presupuesto</option>
                                     @foreach ($budgets as $budget)
                                         <option value="{{ $budget->id }}" {{ old('budget_id') == $budget->id ? 'selected' : '' }}>
@@ -395,7 +395,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="project_id" class="form-label">Campaña</label>
-                                <select class="form-select" id="project_id" name="project_id">
+                                <select class="choices form-select" id="project_id" name="project_id">
                                     <option value="">Seleccione campaña</option>
                                     @foreach ($projects as $project)
                                         <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>

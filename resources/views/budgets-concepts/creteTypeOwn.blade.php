@@ -38,7 +38,7 @@
                         {{-- Observaciones --}}
                         <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="services_category_id">Categoría:</label>
-                            <select class="js-example-basic-single form-control @error('services_category_id') is-invalid @enderror" name="services_category_id" >
+                            <select class="js-example-basic-single choices form-control @error('services_category_id') is-invalid @enderror" name="services_category_id" >
                                 <option value="{{null}}">Seleccione una categoria</option>
 
                                 @foreach ($categorias as $categoria)

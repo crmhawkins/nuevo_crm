@@ -39,6 +39,7 @@
                     $cargoActive= request()->routeIs('cargo.*');
                     $departamentoActive= request()->routeIs('departamento.*');
                     $tesoreriaActive = request()->routeIs('ingresos.*') || request()->routeIs('gastos.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
+                    $admin = (Auth::user()->access_level_id == 1) ? true : false ;
                 @endphp
 
                 <li class="sidebar-item has-sub {{ $clientesActive ? 'active' : '' }}">

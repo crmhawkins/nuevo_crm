@@ -44,7 +44,7 @@
                         {{-- Nombre --}}
                         <div class="form-group">
                             <label class="text-uppercase" style="font-weight: bold" for="name">Nombre:</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name') }}" name="name">
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name',$cliente->name) }}" name="name">
                             @error('name')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>

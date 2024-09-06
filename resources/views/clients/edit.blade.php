@@ -99,7 +99,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="admin_user_id">Gestor:</label>
-                                    <select class="form-select @error('admin_user_id') is-invalid @enderror" id="admin_user_id" name="admin_user_id">
+                                    <select class="choices form-select @error('admin_user_id') is-invalid @enderror" id="admin_user_id" name="admin_user_id">
                                         <option value="">Seleccione el gestor del cliente</option>
                                         @foreach ($gestores as $gestor)
                                             <option value="{{ $gestor->id }}"

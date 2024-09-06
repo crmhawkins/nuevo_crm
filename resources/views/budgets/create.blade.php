@@ -98,7 +98,7 @@
                                     {{-- Gestor model:User --}}
                                     <div class="form-group mb-3">
                                         <label class="mb-2 text-left">Gestor</label>
-                                        <select class="form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor">
+                                        <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor">
                                             @if ($gestores->count() > 0)
                                                 @foreach ( $gestores as $gestor )
                                                     <option {{ $gestorId != null ? ($gestorId == $gestor->id ? 'selected' : '') : ( Auth::user()->id == $gestor->id ? 'selected' : '') }}  value="{{$gestor->id}}">{{$gestor->name}}</option>
