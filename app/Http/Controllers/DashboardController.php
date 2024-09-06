@@ -93,7 +93,18 @@ class DashboardController extends Controller
 
     public function startJornada()
     {
-        $user = Auth::user();
+        $user = User::find(Auth::user()->id);
+
+        $activeJornada = $user->activeJornada();
+
+        if ($activeJornada) {
+            // Si ya hay una jornada activa, retornar un mensaje indicando que no se puede iniciar otra
+            return response()->json([
+                'success' => false,
+                'message' => 'Ya existe una jornada activa.'
+            ]);
+        }
+
         $jornada =  Jornada::create([
             'admin_user_id' => $user->id,
             'start_time' => now(),
