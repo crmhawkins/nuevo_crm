@@ -200,7 +200,7 @@
         </section>
     </div>
 @php
-    $peticionexiste = iseet($petitionId) ? @json($petitionId) : null;
+    $peticionexiste = isset($petitionId) ? @json($petitionId) : null;
 @endphp
 @endsection
 
