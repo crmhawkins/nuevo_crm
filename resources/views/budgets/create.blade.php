@@ -199,7 +199,9 @@
             </div>
         </section>
     </div>
-
+@php
+    $peticionexiste = iseet($petitionId) ? @json($petitionId) : null;
+@endphp
 @endsection
 
 @section('scripts')
@@ -216,7 +218,7 @@
 <script>
     $(document).ready(function() {
 
-        var petitionId = {{iseet($petitionId) ? @json($petitionId) : null}};
+        var petitionId = @json($peticionexiste);
 
         // Ahora puedes usar petitionId como necesites
         console.log(petitionId);
