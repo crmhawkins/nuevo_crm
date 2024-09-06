@@ -44,7 +44,7 @@ class PetitionController extends Controller
         }
 
         $gestores = User::all();
-        $clientes = Client::orderBy('id', 'asc')->get();
+        $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
 
 
         return view('petitions.create', compact('gestores', 'clientes', 'clienteId','gestorId'));
