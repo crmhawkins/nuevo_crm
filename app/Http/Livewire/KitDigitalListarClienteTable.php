@@ -9,6 +9,7 @@ use App\Models\Dominios\Dominio;
 use App\Models\Dominios\estadosDominios;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
+use App\Models\KitDigitalServicios;
 use App\Models\Users\User;
 use App\Models\Users\UserAccessLevel;
 use App\Models\Users\UserDepartament;
@@ -22,8 +23,18 @@ class KitDigitalListarClienteTable extends Component
     public $buscar;
     public $selectedCliente = '';
     public $selectedEstado;
+    public $selectedGestor;
+    public $selectedSegmento;
+    public $selectedServicio;
+    public $selectedEstadoFactura;
+    public $selectedComerciales;
     public $clientes;
     public $estados;
+    public $gestores;
+    public $servicios;
+    public $comerciales;
+    public $estados_facturas;
+    public $segmentos;
     public $perPage = 10;
     public $sortColumn = 'cliente_id'; // Columna por defecto
     public $sortDirection = 'asc'; // Dirección por defecto
@@ -31,8 +42,27 @@ class KitDigitalListarClienteTable extends Component
     protected $kitDigitals; // Propiedad protegida para los usuarios
 
     public function mount(){
+
+        $this->gestores = User::Where('access_level_id',4)->get();
+        $this->comerciales = User::Where('access_level_id',6)->get();
+        $this->servicios = KitDigitalServicios::all();
         $this->estados = KitDigitalEstados::all();
         $this->clientes = Client::where('is_client',true)->get();
+        $this->estados_facturas = [
+            ['id' => '0', 'nombre' => 'No abonada'],
+            ['id' => '1', 'nombre' => 'Abonada'],
+        ];
+        $this->segmentos = [
+            ['id' => '1', 'nombre' => 'Segmento 1'],
+            ['id' => '2', 'nombre' => 'Segmento 2'],
+            ['id' => '3', 'nombre' => 'Segmento 3'],
+            ['id' => '30', 'nombre' => 'Segmento 3 Extra'],
+            ['id' => '4', 'nombre' => 'Segmento 4'],
+            ['id' => '5', 'nombre' => 'Segmento 5'],
+            ['id' => 'A', 'nombre' => 'Segmento A'],
+            ['id' => 'B', 'nombre' => 'Segmento B'],
+            ['id' => 'C', 'nombre' => 'Segmento C']
+        ];
     }
 
 
@@ -49,14 +79,33 @@ class KitDigitalListarClienteTable extends Component
         // Comprueba si se ha seleccionado "Todos" para la paginación
 
         $query = KitDigital::when($this->buscar, function ($query) {
-                    $query->where('contratos', 'like', '%' . $this->buscar . '%');
+                    $query->where('contratos', 'like', '%' . $this->buscar . '%')
+                        ->orWhere('cliente', 'like', '%' . $this->buscar . '%')
+                        ->orWhere('expediente', 'like', '%' . $this->buscar . '%')
+                        ->orWhere('contacto', 'like', '%' . $this->buscar . '%')
+                        ->orWhere('telefono', 'like', '%' . $this->buscar . '%');
+                })
+                ->when($this->selectedComerciales, function ($query) {
+                    $query->where('comercial_id', $this->selectedComerciales);
+                })
+                ->when($this->selectedEstadoFactura, function ($query) {
+                    $query->where('estado_factura', $this->selectedEstadoFactura);
+                })
+                ->when($this->selectedServicio, function ($query) {
+                    $query->where('servicio_id', $this->selectedServicio);
+                })
+                ->when($this->selectedSegmento, function ($query) {
+                    $query->where('segmento', $this->selectedSegmento);
+                })
+                ->when($this->selectedGestor, function ($query) {
+                    $query->where('gestor', $this->selectedGestor);
                 })
                 ->when($this->selectedCliente, function ($query) {
                     $query->where('cliente_id', $this->selectedCliente);
                 })
                 ->when($this->selectedEstado, function ($query) {
                     $query->where('estado', $this->selectedEstado);
-                }); // Obtiene todos los registros sin paginación
+                });
 
 
         $query->orderBy($this->sortColumn, $this->sortDirection);

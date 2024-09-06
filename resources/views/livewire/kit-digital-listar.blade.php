@@ -40,6 +40,51 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="mr-3">
+                    <label for="">Gesto</label>
+                    <select wire:model="selectedGestor" name="" id="" class="form-select choices">
+                        <option value="">-- Gestor --</option>
+                        @foreach ($gestores as $gestor)
+                            <option value="{{$gestor->id}}">{{$gestor->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mr-3">
+                    <label for="">Comercial</label>
+                    <select wire:model="selectedComerciales" name="" id="" class="form-select choices">
+                        <option value="">-- Comercial --</option>
+                        @foreach ($comerciales as $comercial)
+                            <option value="{{$comercial->id}}">{{$comercial->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mr-3">
+                    <label for="">Servicios</label>
+                    <select wire:model="selectedServicio" name="" id="" class="form-select choices">
+                        <option value="">-- Seleccione un cliente --</option>
+                        @foreach ($servicios as $servicio)
+                            <option value="{{$servicio->id}}">{{$servicio->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mr-3">
+                    <label for="">Estado de la Factura</label>
+                    <select wire:model="selectedEstadoFactura" name="" id="" class="form-select choices">
+                        <option value="">-- Estado --</option>
+                        @foreach ($estados_facturas as $estadofactura)
+                            <option value="{{$estadofactura['id']}}">{{$estadofactura['nombre']}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mr-3">
+                    <label for="">Segmento</label>
+                    <select wire:model="selectedSegmento" name="" id="" class="form-select choices">
+                        <option value="">-- Segmento --</option>
+                        @foreach ($segmentos as $segmento)
+                            <option value="{{$segmento['id']}}">{{$segmento['nombre']}}</option>
+                        @endforeach
+                    </select>
+                </div>
 
             </div>
         </div>
@@ -90,10 +135,10 @@
                         <tr>
                           <td>{{$item->empresa}}</td>
                           <td>{{$item->segmento}}</td>
-                          <td>{{$item->Client->name ?? 'Sin cliente'}}</td>
-                          <td>{{$item->cliente}}</td>
-                          <td>{{$item->mensaje_interpretado}}</td>
-                          <td>{{$item->mensaje}}</td>
+                          <td style="width:250px;">{{$item->Client->name ?? 'Sin cliente'}}</td>
+                          <td style="width:250px;">{{$item->cliente}}</td>
+                          <td >{{$item->mensaje_interpretado}}</td>
+                          <td style="width:300px;">{{$item->mensaje}}</td>
                           <td>{{$item->contacto}}</td>
                           <td>{{$item->telefono}}</td>
                           <td>{{$item->expediente}}</td>
@@ -108,8 +153,8 @@
                           <td>{{$item->plazo_maximo_entrega}}</td>
                           <td>{{$item->gestor}}</td>
                           <td>{{$item->comercial_id}}</td>
-                          <td>{{$item->comentario}}</td>
-                          <td>{{$item->nuevo_comentario}}</td>
+                          <td style="width:300px;" >{{$item->comentario}}</td>
+                          <td style="width:300px;">{{$item->nuevo_comentario}}</td>
                         </tr>
                     @endforeach
                 </tbody>
