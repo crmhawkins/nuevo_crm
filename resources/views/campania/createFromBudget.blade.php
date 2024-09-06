@@ -36,6 +36,7 @@
                         @csrf
                         <input type="text" name="client_id" value="{{$cliente->id}}" hidden>
                         @if (isset($petitionid))
+                        {{dd($petitionid);}}
                         <input type="text" name="petition_id" value="{{$petitionid}}" hidden>
                         @endif
 
