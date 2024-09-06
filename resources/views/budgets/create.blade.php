@@ -216,7 +216,7 @@
 <script>
     $(document).ready(function() {
 
-        var petitionId = @json($petitionId);
+        var petitionId = {{iseet($petitionId) ? @json($petitionId) : null}};
 
         // Ahora puedes usar petitionId como necesites
         console.log(petitionId);
