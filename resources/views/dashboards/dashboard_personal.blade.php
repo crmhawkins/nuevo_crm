@@ -645,6 +645,16 @@
                                                 <img alt="avatar" class="rounded-circle img-fluid  m-auto" style="width: 150px;" src="{{ asset('/storage/avatars/'.$user->image) }}" />
                                             @endif
                                         </div>
+                                        <div class="mx-4 text-center">
+                                            <h1 class="fs-4 fw-bold">Productividad</h1>
+                                            <div class="progress-circle" data-percentage="70">
+                                            </div>
+                                        </div>
+                                        <div class="mx-4 text-center">
+                                            <h1 class="fs-4 fw-bold">Productividad</h1>
+                                            <div class="progress-circle" data-percentage="70">
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="col-12 d-flex flex-wrap justify-content-center">
                                         <div class="my-2 text-center">
@@ -766,111 +776,6 @@
         </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg"> <!-- Cambio a modal-lg para mayor ancho -->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="eventModalLabel">Nuevo Evento</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="eventform" action="{{ route('event.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label for="title" class="form-label">Título</label>
-                                <input type="text" class="form-control" id="title" name="title" required>
-                            </div>
-                            <div class="col-md-12 mb-3">
-                                <label for="descripcion" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="descripcion" name="descripcion" rows="4"></textarea>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="admin_user_id" class="form-label">Usuario</label>
-                                <select class="form-select choices" id="admin_user_id" name="admin_user_id">
-                                    <option value="">Seleccione usuario</option>
-                                    @foreach ($users as $gestor)
-                                        <option value="{{ $gestor->id }}" {{ old('admin_user_id') == $gestor->id ? 'selected' : '' }}>
-                                            {{ $gestor->name }} {{ $gestor->surname }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('admin_user_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="client_id" class="form-label">Cliente</label>
-                                <select class="form-select" id="client_id" name="client_id">
-                                    <option value="">Seleccione cliente</option>
-                                    @foreach ($clientes as $cliente)
-                                        <option value="{{ $cliente->id }}" {{ old('client_id') == $cliente->id ? 'selected' : '' }}>
-                                            {{ $cliente->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('client_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="budget_id" class="form-label">Presupuesto</label>
-                                <select class="form-select" id="budget_id" name="budget_id">
-                                    <option value="">Seleccione presupuesto</option>
-                                    @foreach ($budgets as $budget)
-                                        <option value="{{ $budget->id }}" {{ old('budget_id') == $budget->id ? 'selected' : '' }}>
-                                            {{ $budget->reference }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('budget_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="project_id" class="form-label">Campaña</label>
-                                <select class="form-select" id="project_id" name="project_id">
-                                    <option value="">Seleccione campaña</option>
-                                    @foreach ($projects as $project)
-                                        <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>
-                                            {{ $project->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('project_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="start" class="form-label">Inicio</label>
-                                <input type="datetime-local" class="form-control" id="start" name="start" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="end" class="form-label">Fin</label>
-                                <input type="datetime-local" class="form-control" id="end" name="end">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="color" class="form-label">Color</label>
-                                <input type="color" style="padding: 0.4rem" class="form-control form-control-color" id="color" name="color">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button id="eventbutton" type="buttom" class="btn btn-primary">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
     <div class="modal fade" id="todoModal" tabindex="-1" aria-labelledby="todoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg"> <!-- Cambio a modal-lg para mayor ancho -->
             <div class="modal-content">
@@ -983,8 +888,6 @@
             </div>
         </div>
     </div>
-    <!-- Modal para Mensajes -->
-
 </div>
 @endsection
 
@@ -1134,10 +1037,6 @@
     });
 </script>
 <script>
-        $('#eventbutton').click(function(e){
-            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
-            $('#eventform').submit(); // Esto envía el formulario.
-        });
         document.querySelectorAll('#enviar').forEach(function(button) {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1531,10 +1430,14 @@
     }
 </script>
 <script>
+
+
+
     $(document).on("click", '.tarea-sing', function() {
                 var id = $(this).attr("id");
                 showTaskInfoNew(id);
     });
+
     function revisarTarea(id) {
             console.log(id);
             $.when(getDataTask(id)).then(function(data, textStatus, jqXHR) {
@@ -1615,20 +1518,27 @@
 
 
      $(document).ready(function() {
-            $.when(getTasksRefresh()).then(function(data, textStatus, jqXHR) {
 
-                if (data.taskPlay != null) {
-                    console.log(data.taskPlay);
-                    var id = data.taskPlay.id;
-                    showTaskInfoNew(id);
-                }
-
-            });
+        $.when(getTasksRefresh()).then(function(data, textStatus, jqXHR) {
+            if (data.taskPlay != null) {
+                console.log(data.taskPlay);
+                var id = data.taskPlay.id;
+                showTaskInfoNew(id);
+            }else{
+                $('.infotask').hide();
+                $('.tarea-sing').off('click').on('click', function() {
+                    var infoContainer = $(this).next('.infotask');
+                    if (infoContainer.is(':visible')){
+                        infoContainer.slideUp();
+                    } else {
+                        $('.infotask').slideUp(); // Cierra otros contenedores abiertos
+                        infoContainer.slideDown();
+                    }
+                });
+            }
+        });
     })
-    function ocultarVentana() {
-            var contenedor = $('#contenidoMostrar');
-            contenedor.html('')
-    }
+
         function decodeHTML(str) {
             return str.replace(/&#([0-9]+);/g, function(full, int) {
                 return String.fromCharCode(parseInt(int));
@@ -1723,11 +1633,11 @@
 
                 // Evento para manejar el despliegue de la información
                 $('.tarea-sing').off('click').on('click', function() {
-                    var infoContainer = $(this).next('.info');
-                    if (infoContainer.is(':visible')) {
+                    var infoContainer = $(this).next('.infotask');
+                    if (infoContainer.is(':visible')){
                         infoContainer.slideUp();
                     } else {
-                        $('.info').slideUp(); // Cierra otros contenedores abiertos
+                        $('.infotask').slideUp(); // Cierra otros contenedores abiertos
                         infoContainer.slideDown();
                     }
                 });

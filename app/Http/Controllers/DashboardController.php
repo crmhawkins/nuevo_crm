@@ -24,7 +24,7 @@ class DashboardController extends Controller
         $acceso = Auth::user()->access_level_id;
         $user = User::find($id);
         $users = User::all();
-        $clientes = Client::where('is_client',true);
+        $clientes = Client::where('is_client',true)->get();
         $budgets = Budget::all();
         $projects = Project::all();
         $tareas = Task::all();

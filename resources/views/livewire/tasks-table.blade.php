@@ -113,8 +113,13 @@
                             <td class="">{{$tarea->estimated_time}}</td>
                             <td class="">{{$tarea->real_time}}</td>
                             <td class="">{{Carbon\Carbon::parse($tarea->created_at)->format('d/m/Y')}}</td>
-                            <td class="">{{Carbon\Carbon::parse($tarea->created_at)->format('d/m/Y')}}</td>
-                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
+                            <td>
+                                @if (isset($fechasEstimadas[$tarea->id]))
+                                    {{ $fechasEstimadas[$tarea->id]['fecha_estimada'] }}
+                                @else
+                                    No calculada
+                                @endif
+                            </td>                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{route('tarea.edit', $tarea->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar servicio"></a>
                                 <a class="delete" data-id="{{$tarea->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar servicio"></a>
                             </td>
