@@ -96,7 +96,7 @@
                             <td>{{ $client->identifier }}</td>
                             <td>{{ $client->activity }}</td>
                             <td>{{ $client->company }}</td>
-                            <td>{{ $client->gestor->name }}</td>
+                            <td>{{ $client->gestor->name ?? 'Gestor Borrado' }}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{ route('clientes.show', $client->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar usuario"></a>
                                 <a class="" href="{{ route('clientes.edit', $client->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Mostrar usuario"></a>
