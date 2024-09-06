@@ -157,6 +157,7 @@ class ProjectController extends Controller
     }
     public function storeFromBudget(Request $request)
     {
+        dd($request->petitionId);
         // Validamos los campos
         $data = $this->validate($request, [
             'client_id' => 'required|integer',
