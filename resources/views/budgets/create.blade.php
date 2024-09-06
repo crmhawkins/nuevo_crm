@@ -215,15 +215,8 @@
 
 <script>
     $(document).ready(function() {
-            // Extrae la URL actual
-        var currentUrl = window.location.pathname;
 
-        // Divide la URL en segmentos basados en '/'
-        var segments = currentUrl.split('/');
-
-        // El petitionId es el último segmento en tu estructura de URL
-        // Asegúrate de que el índice sea correcto según tu estructura URL
-        var petitionId = segments[segments.length - 1];
+        var petitionId = @json($petitionId);
 
         // Ahora puedes usar petitionId como necesites
         console.log(petitionId);

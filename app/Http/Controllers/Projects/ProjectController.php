@@ -156,10 +156,7 @@ class ProjectController extends Controller
         return view('campania.createFromBudget', compact('cliente','petitionid'));
     }
     public function storeFromBudget(Request $request)
-    {
-
-        dd($request->petition_id,);
-        // Validamos los campos
+    {        // Validamos los campos
         $data = $this->validate($request, [
             'client_id' => 'required|integer',
             'name' => 'required|max:200',
