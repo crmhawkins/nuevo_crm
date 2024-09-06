@@ -370,11 +370,13 @@ class CrmActivityMeetingController extends Controller
 
         }
 
-        foreach ($request->contacts as $contact) {
-            $usuario = Contact::find($contact);
-            if($usuario){
-                $userEmails[] = $usuario->email;
-                $userNames[] = $usuario->name;
+        if(isset($request->contacts)){
+            foreach ($request->contacts as $contact) {
+                $usuario = Contact::find($contact);
+                if($usuario){
+                    $userEmails[] = $usuario->email;
+                    $userNames[] = $usuario->name;
+                }
             }
         }
 

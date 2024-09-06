@@ -35,7 +35,7 @@ class AssociatedTable extends Component
     {
         // Comprueba si se ha seleccionado "Todos" para la paginación
         $query= AssociatedExpenses::when($this->buscar, function ($query) {
-                    $query->where('company_name', 'like', '%' . $this->buscar . '%');
+                    $query->where('title', 'like', '%' . $this->buscar . '%');
                 });
 
 
