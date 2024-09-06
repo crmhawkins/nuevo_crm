@@ -4,23 +4,6 @@
 <div>
     <div class="filtros row mb-4">
         <div class="col-md-6 col-sm-12">
-            <div class="flex flex-row justify-start">
-                <div class="mr-3">
-                    <label for="">Nª por paginas</label>
-                    <select wire:model="perPage" class="form-select">
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="15">50</option>
-                        <option value="all">Todo</option>
-                    </select>
-                </div>
-                <div class="w-75">
-                    <label for="">Buscar</label>
-                    <input wire:model.debounce.300ms="buscar" type="text" class="form-control w-100" placeholder="Escriba la palabra a buscar...">
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-sm-12">
             <div class="flex flex-row justify-end">
                 <div class="mr-3">
                     <label for="">Estados</label>
@@ -88,6 +71,25 @@
 
             </div>
         </div>
+
+        <div class="col-md-12 col-sm-12">
+            <div class="flex flex-row justify-start">
+                <div class="mr-3">
+                    <label for="">Nª por paginas</label>
+                    <select wire:model="perPage" class="form-select">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="15">50</option>
+                        <option value="all">Todo</option>
+                    </select>
+                </div>
+                <div class="w-75">
+                    <label for="">Buscar</label>
+                    <input wire:model.debounce.300ms="buscar" type="text" class="form-control w-100" placeholder="Escriba la palabra a buscar...">
+                </div>
+            </div>
+        </div>
+
     </div>
     {{-- {{dd($users)}} --}}
     @if ( $kitDigitals )
