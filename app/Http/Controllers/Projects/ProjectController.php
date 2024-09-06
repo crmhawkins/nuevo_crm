@@ -159,7 +159,7 @@ class ProjectController extends Controller
     {
         $petitionId = $request->petition_id;
 
-        dd($petitionId , isset($petitionId));
+        dd($request->petition_id, $petitionId , isset($petitionId));
         // Validamos los campos
         $data = $this->validate($request, [
             'client_id' => 'required|integer',
