@@ -40,11 +40,11 @@
                         @endif
 
                         <h3 class="mb-2 text-left uppercase">Cliente Asociado</h3>
-                        <div class="form-control mb-4">{{$cliente->company}}</div>
+                        <div class="form-control mb-4">{{$cliente->name}}</div>
                         {{-- Nombre --}}
                         <div class="form-group">
                             <label class="text-uppercase" style="font-weight: bold" for="name">Nombre:</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name',$cliente->name) }}" name="name">
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name'}}" name="name">
                             @error('name')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
