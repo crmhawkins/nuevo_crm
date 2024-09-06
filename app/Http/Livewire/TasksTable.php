@@ -33,7 +33,7 @@ class TasksTable extends Component
 
     public function mount(){
         $this->categorias = ServiceCategories::all();
-        $this->clientes = Client::All();
+        $this->clientes = Client::where('is_client',true)->get();
         $this->empleados = User::all();
         $this->gestores = User::all();
         $this->departamentos = UserDepartament::all();

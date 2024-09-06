@@ -113,7 +113,7 @@ class BudgetController extends Controller
         session('projectId') != null ? $projectId = session('projectId') : $projectId = null;
 
         $campanias = [];
-        $clientes = Client::orderBy('id', 'asc')->get();
+        $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
         $gestores = User::all();
         $formasPago = PaymentMethod::all();
 
