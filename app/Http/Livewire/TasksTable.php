@@ -153,6 +153,10 @@ class TasksTable extends Component
                 $horaActual = ($fechaActual->hour * 3600) + ($fechaActual->minute * 60) + $fechaActual->second;
             }
 
+            if (empty($tarea->estimated_time) || empty($tarea->real_time)) {
+                continue;
+            }
+
             // Convertir tiempo estimado y real en segundos
             $tiempoEstimado = explode(':', $tarea->estimated_time);
             $tiempoConsumido = explode(':', $tarea->real_time);
