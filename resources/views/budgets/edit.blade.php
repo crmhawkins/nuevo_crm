@@ -863,7 +863,7 @@
                     setTimeout(() => {
                         $('#loadingOverlay').css('display', 'none');
                         location.reload()
-                    }, 2000);
+                    }, 0);
                 },
                 error: function(xhr, status, error) {
                     $('#loadingOverlay').css('display', 'none');
@@ -897,7 +897,7 @@
                     setTimeout(() => {
                         $('#loadingOverlay').css('display', 'none');
                         location.reload()
-                    }, 2000);
+                    }, 0);
                 },
                 error: function(xhr, status, error) {
                     $('#loadingOverlay').css('display', 'none');
