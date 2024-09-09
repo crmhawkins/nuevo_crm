@@ -326,7 +326,7 @@
                                 </a>
                             </li>
                             <li class="submenu-item {{ request()->routeIs('admin.treasury.index') ? 'active' : '' }}">
-                                <a href="{{route('admin.treasury.index')}}">
+                                <a target="_blank" href="{{route('admin.treasury.index')}}">
                                     <i class="fa-solid fa-list"></i>
                                     <span>
                                         Cuadro de Tesoreria

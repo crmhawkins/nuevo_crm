@@ -13,10 +13,6 @@ use App\Models\Other\BankAccounts;
 use App\Models\Invoices\Invoice;
 use App\Models\Alerts\Alert;
 use App\Models\Budgets\Budget;
-use App\Models\Budgets\BudgetConcepts;
-use App\Models\Commercial\CommercialCommission;
-use App\Models\Commercial\CommercialHaveEmployee;
-use App\Models\Invoices\InvoiceCommercial;
 use Carbon\Carbon;
 
 class CuadroController extends Controller

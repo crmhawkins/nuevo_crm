@@ -122,7 +122,7 @@
                                         <a href="{{route('clientes.index')}}" class="btn btn-outline-secondary mb-2">Ver Clientes</a>
                                         <a href="{{route('proveedores.index')}}" class="btn btn-outline-secondary mb-2">Ver Proveedores</a>
                                         <a {{-- href="{{route('proveedores.index')}}" --}} class="btn btn-outline-secondary mb-2">Tramitar Subvención</a>
-                                        <a href="{{route('kitDigital.index')}}" class="btn btn-outline-secondary mb-2">Kit Digital</a>
+                                        <a target="_blank" href="{{route('kitDigital.index')}}" class="btn btn-outline-secondary mb-2">Kit Digital</a>
                                     </div>
                                 </div>
                             </div>

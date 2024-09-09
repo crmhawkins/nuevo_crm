@@ -646,13 +646,15 @@
                                             @endif
                                         </div>
                                         <div class="mx-4 text-center">
-                                            <h1 class="fs-4 fw-bold">Productividad</h1>
+                                            <h1 class="fs-5 ">Productividad</h1>
                                             <div class="progress-circle" data-percentage="70">
                                             </div>
                                         </div>
                                         <div class="mx-4 text-center">
-                                            <h1 class="fs-4 fw-bold">Productividad</h1>
-                                            <div class="progress-circle" data-percentage="70">
+                                            <div class="card" style="border: 1px solid {{ $user->bono > 0 ? 'green' : 'gray' }}; padding: 10px;">
+                                                <h5 class="m-0" style="color: {{ $user->bono > 0 ? 'green' : 'gray' }};">
+                                                    {{ $user->bono > 0 ? 'Bono: ' . $user->bono.' €' : 'Sin bono' }}
+                                                </h5>
                                             </div>
                                         </div>
                                     </div>
@@ -1679,6 +1681,25 @@
                 dataType: "json"
             });
         }
+        document.addEventListener('DOMContentLoaded', function() {
+        const progressCircles = document.querySelectorAll('.progress-circle');
 
+        progressCircles.forEach(circle => {
+            const percentage = circle.getAttribute('data-percentage');
+            circle.style.setProperty('--percentage', percentage);
+
+            let progressColor;
+
+            if (percentage < 50) {
+                progressColor = '#ff0000'; // Rojo
+            } else if (percentage < 75) {
+                progressColor = '#ffa500'; // Naranja
+            } else {
+                progressColor = '#4caf50'; // Verde
+            }
+
+            circle.style.setProperty('--progress-color', progressColor);
+        });
+    });
 </script>
 @endsection
