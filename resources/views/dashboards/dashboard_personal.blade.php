@@ -7,6 +7,46 @@
 
 <style>
     /* Estilos básicos */
+
+    .progress-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: conic-gradient(
+            var(--progress-color) calc(var(--percentage, 0) * 1%),
+            #e0e0e0 calc(var(--percentage, 0) * 1%)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .progress-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--progress-color);
+        position: absolute;
+    }
+
+    .progress-circle::before {
+        content: '';
+        width: 100px;
+        height: 100px;
+        background-color: #fff;
+        border-radius: 50%;
+        position: absolute;
+        z-index: 1;
+    }
+
+    .progress-circle::after {
+        content: attr(data-percentage) '%';
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--progress-color);
+        position: absolute;
+        z-index: 2;
+    }
     span.tarea-gestor {
         display: block;
         font-size: 0.9rem;
@@ -1242,6 +1282,26 @@
         var todoModal = new bootstrap.Modal(document.getElementById('todoModal'));
         todoModal.show();
     }
+    document.addEventListener('DOMContentLoaded', function() {
+        const progressCircles = document.querySelectorAll('.progress-circle');
+
+        progressCircles.forEach(circle => {
+            const percentage = circle.getAttribute('data-percentage');
+            circle.style.setProperty('--percentage', percentage);
+
+            let progressColor;
+
+            if (percentage < 50) {
+                progressColor = '#ff0000'; // Rojo
+            } else if (percentage < 75) {
+                progressColor = '#ffa500'; // Naranja
+            } else {
+                progressColor = '#4caf50'; // Verde
+            }
+
+            circle.style.setProperty('--progress-color', progressColor);
+        });
+    });
 </script>
 <script>
      document.addEventListener('DOMContentLoaded', function() {
@@ -1681,25 +1741,6 @@
                 dataType: "json"
             });
         }
-        document.addEventListener('DOMContentLoaded', function() {
-        const progressCircles = document.querySelectorAll('.progress-circle');
 
-        progressCircles.forEach(circle => {
-            const percentage = circle.getAttribute('data-percentage');
-            circle.style.setProperty('--percentage', percentage);
-
-            let progressColor;
-
-            if (percentage < 50) {
-                progressColor = '#ff0000'; // Rojo
-            } else if (percentage < 75) {
-                progressColor = '#ffa500'; // Naranja
-            } else {
-                progressColor = '#4caf50'; // Verde
-            }
-
-            circle.style.setProperty('--progress-color', progressColor);
-        });
-    });
 </script>
 @endsection
