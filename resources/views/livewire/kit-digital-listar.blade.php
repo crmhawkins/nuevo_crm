@@ -19,9 +19,9 @@
                     <label class="titulo_filtros" for="">Buscar</label>
                     <input wire:model.debounce.300ms="buscar" type="text" class="form-control w-100" placeholder="Escriba la palabra a buscar...">
                 </div>
-                <div class="mb-3 px-2 flex-fill" style="width: 200px">
+                <div wire:ignore  class="mb-3 px-2 flex-fill" style="width: 200px">
                     <label class="titulo_filtros" for="">Clientes</label>
-                    <select wire:model="selectedCliente" name="selectedCliente" id="selectedCliente" class="form-select choices">
+                    <select wire:key="{{rand()}}" wire:model="selectedCliente" name="selectedCliente" id="selectedCliente" class="form-select choices">
                         <option value=""> Seleccione un cliente </option>
                         @foreach ($clientes as $cliente)
                             <option value="{{$cliente->id}}">{{$cliente->name}}</option>
@@ -216,37 +216,58 @@
             <h3 class="text-center fs-3">No se encontraron registros de <strong>DOMINIOS</strong></h3>
         </div>
     @endif
+    <style>
+        /* Estilos específicos para la tabla */
+    .table-responsive {
+        overflow-x: auto; /* Asegura un desplazamiento suave en pantallas pequeñas */
+    }
+    
+    .header-table th {
+        vertical-align: bottom; /* Alinea el texto de los encabezados en la parte inferior */
+        white-space: nowrap; /* Evita que los encabezados se rompan en líneas */
+        font-size: 0.85rem; /* Ajusta el tamaño del texto para los encabezados */
+    }
+    
+    .table td, .table th {
+        padding: 0.5rem; /* Ajusta el padding para las celdas */
+    }
+    
+    .long-text {
+        max-width: 250px; /* Máximo ancho para el texto largo */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    th {
+      white-space: nowrap !important;
+    }
+    .titulo_filtros {
+      white-space: nowrap !important;
+    }
+    </style>
 </div>
-<style>
-    /* Estilos específicos para la tabla */
-.table-responsive {
-    overflow-x: auto; /* Asegura un desplazamiento suave en pantallas pequeñas */
-}
-
-.header-table th {
-    vertical-align: bottom; /* Alinea el texto de los encabezados en la parte inferior */
-    white-space: nowrap; /* Evita que los encabezados se rompan en líneas */
-    font-size: 0.85rem; /* Ajusta el tamaño del texto para los encabezados */
-}
-
-.table td, .table th {
-    padding: 0.5rem; /* Ajusta el padding para las celdas */
-}
-
-.long-text {
-    max-width: 250px; /* Máximo ancho para el texto largo */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-th {
-  white-space: nowrap !important;
-}
-.titulo_filtros {
-  white-space: nowrap !important;
-}
-</style>
 @section('scripts')
+<script>
+    // const observer = new MutationObserver(() => {
+    //     initializeChoices();
+    // });
+
+    // observer.observe(document.body, { childList: true, subtree: true });
+
+    // function initializeChoices() {
+    //     const elements = document.querySelectorAll('.choices');
+    //     elements.forEach(element => {
+    //         if (!element.choices) {
+    //         new Choices(element, {
+    //             // Configuración de Choices.js
+    //         });
+    //         }
+    //     });
+    // }
+
+        // Llama a esta función después de cada renderizado o filtrado
+        // initializeChoices();
+</script>
 
 
     @include('partials.toast')
