@@ -2,17 +2,11 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Budgets\Budget;
-use App\Models\Budgets\BudgetStatu;
 use App\Models\Clients\Client;
-use App\Models\Dominios\Dominio;
-use App\Models\Dominios\estadosDominios;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
 use App\Models\KitDigitalServicios;
 use App\Models\Users\User;
-use App\Models\Users\UserAccessLevel;
-use App\Models\Users\UserDepartament;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -24,7 +18,7 @@ class KitDigitalListarClienteTable extends Component
     public $selectedCliente = '';
     public $selectedEstado;
     public $selectedGestor;
-    public $selectedSegmento;
+    public $selected;
     public $selectedServicio;
     public $selectedEstadoFactura;
     public $selectedComerciales;
@@ -35,6 +29,7 @@ class KitDigitalListarClienteTable extends Component
     public $comerciales;
     public $estados_facturas;
     public $segmentos;
+    public $Sumatorio;
     public $perPage = 10;
     public $sortColumn = 'cliente_id'; // Columna por defecto
     public $sortDirection = 'asc'; // Dirección por defecto
@@ -52,16 +47,16 @@ class KitDigitalListarClienteTable extends Component
             ['id' => '0', 'nombre' => 'No abonada'],
             ['id' => '1', 'nombre' => 'Abonada'],
         ];
-        $this->segmentos = [
-            ['id' => '1', 'nombre' => 'Segmento 1'],
-            ['id' => '2', 'nombre' => 'Segmento 2'],
-            ['id' => '3', 'nombre' => 'Segmento 3'],
-            ['id' => '30', 'nombre' => 'Segmento 3 Extra'],
-            ['id' => '4', 'nombre' => 'Segmento 4'],
-            ['id' => '5', 'nombre' => 'Segmento 5'],
-            ['id' => 'A', 'nombre' => 'Segmento A'],
-            ['id' => 'B', 'nombre' => 'Segmento B'],
-            ['id' => 'C', 'nombre' => 'Segmento C']
+        $this->segmentos  = [
+            ['id' => '1', 'nombre' => '1'],
+            ['id' => '2', 'nombre' => '2'],
+            ['id' => '3', 'nombre' => '3'],
+            ['id' => '30', 'nombre' => '3 Extra'],
+            ['id' => '4', 'nombre' => '4'],
+            ['id' => '5', 'nombre' => '5'],
+            ['id' => 'A', 'nombre' => 'A'],
+            ['id' => 'B', 'nombre' => 'B'],
+            ['id' => 'C', 'nombre' => 'C']
         ];
     }
 
@@ -95,8 +90,8 @@ class KitDigitalListarClienteTable extends Component
                 ->when($this->selectedServicio, function ($query) {
                     $query->where('servicio_id', $this->selectedServicio);
                 })
-                ->when($this->selectedSegmento, function ($query) {
-                    $query->where('segmento', $this->selectedSegmento);
+                ->when($this->selected, function ($query) {
+                    $query->where('', $this->selected);
                 })
                 ->when($this->selectedGestor, function ($query) {
                     $query->where('gestor', $this->selectedGestor);
@@ -113,6 +108,11 @@ class KitDigitalListarClienteTable extends Component
 
         // Verifica si se seleccionó 'all' para mostrar todos los registros
         $this->kitDigitals = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+        $this->Sumatorio = $this->kitDigitals->reduce(function ($carry, $item) {
+            $cleanImporte = preg_replace('/[^\d,]/', '', $item->importe); // Elimina todo excepto números y coma
+            $cleanImporte = str_replace(',', '.', $cleanImporte); // Convierte comas a puntos para decimales
+            return $carry + (float)$cleanImporte;
+        }, 0);
     }
 
     public function getCategorias()

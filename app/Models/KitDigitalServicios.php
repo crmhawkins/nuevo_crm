@@ -17,7 +17,7 @@ class KitDigitalServicios extends Model
     protected $fillable = [
         'name'
     ];
-    
+
     /**
      * Mutaciones de fecha.
      *

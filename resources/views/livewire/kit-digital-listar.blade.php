@@ -106,8 +106,8 @@
                     </select>
                 </div>
             </div>
-            <div>
-                {{ number_format((float)DB::table('ayudas')->sum(DB::raw("CAST(importe AS UNSIGNED)")), 2, '.', '') }} €
+            <div class="col-md-12 col-sm-12 text-center">
+                <span class="fs-3">Sumatorio: <b>{{$Sumatorio.' €'}}</b></span>
             </div>
         </div>
     </div>
@@ -116,24 +116,24 @@
         <table class="table table-sm">
             <thead class="header-table">
                 @foreach ([
-                    'empresa' => 'EMPRESA',
-                    'segmento' => 'SEGMENTO',
-                    'cliente_id' => 'CLIENTE ASOCIADO',
-                    'cliente' => 'CLIENTE KIT',
+                    'empresa' => 'EMP',
+                    'segmento' => 'SEG',
+                    'cliente_id' => 'CLIENTE A.',
+                    'cliente' => 'CLIENTE',
                     'mensaje_interpretado' => 'INTERESADO',
-                    'mensaje' => 'CONVERSACION IA',
+                    'mensaje' => 'IA',
                     'contacto' => 'CONTACTO',
                     'telefono' => 'TELEFONO',
                     'expediente' => 'EXPEDIENTE',
                     'contratos' => 'CONTRATOS',
                     'servicio_id' => 'SERVICIOS',
                     'estado' => 'ESTADO',
-                    'fecha_actualizacion' => 'FECHA ACTUALIZACION',
+                    'fecha_actualizacion' => 'FECHA ACT.',
                     'importe' => 'IMPORTE',
                     'estado_factura' => 'ESTADO FACTURA',
                     'banco' => 'EN BANCO',
                     'fecha_acuerdo' => 'FECHA DEL ACUERDO',
-                    'plazo_maximo_entrega' => 'PLAZO MÁXIMO DE ENTREGA',
+                    'plazo_maximo_entrega' => 'PLAZO MAX ENTREGA',
                     'gestor' => 'GESTOR',
                     'comercial_id' => 'COMERCIAL',
                     'comentario' => 'COMENTARIO',
@@ -151,21 +151,100 @@
             </thead>
             <tbody>
                 @foreach ($kitDigitals as $item)
+                <tr style="--bs-table-bg: {{$item->estados->color}} !important; --bs-table-color: {{$item->estados->text_color}} !important">
+                    <td class="exclude" style="max-width: 50px"> <input data-id="{{$item->id}}" type="text" name="empresa" id="empresa" value="{{ $item->empresa }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none; margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                    <td class="exclude" style="max-width: 30px">
+                        <select name="segmento" id="segmento" style="padding: 0.1rem 0.1rem 0.1rem 0.2rem; margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;" data-id="{{$item->id}}">
+                            @foreach ($segmentos as $segmento)
+                                <option value="{{$segmento['id']}}">{{$segmento['nombre']}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td style="width: 50px !important; ">
+                        <select data-id="{{$item->id}}" name="cliente_id" id="cliente_id" style="width: 50px !important; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}};margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;">
+                            <option value="">SC</option>
+                            @foreach ($clientes as $cliente)
+                                <option value="{{$cliente->id}}" @if($item->cliente_id == $cliente->id) selected  @endif>{{$cliente->name}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td style="max-width: 70px !important"><input data-id="{{$item->id}}" type="text" name="cliente" id="cliente" value="{{ $item->cliente }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem"></td>
+                    <td style="max-width: 50px"><input disabled data-id="{{$item->id}}" type="text" name="mensaje_interpretado" id="mensaje_interpretado" value="{{ $item->mensaje_interpretado == 1 ? 'Si' : ($item->mensaje_interpretado == 2 ? 'No se' : ( $item->mensaje_interpretado === 0 ? 'No' : ($item->mensaje_interpretado === 3 ? 'Error' : '' ))) }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                    <td style="max-width: 50px"><textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea></td>
+                    <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                    <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="telefono" id="telefono" value="{{ $item->telefono }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                    <td style="max-width: 50px" class="exclude"><input data-id="{{$item->id}}" type="text" name="expediente" id="expediente" value="{{ $item->expediente }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                    <td style="max-width: 50px" class="exclude"><input data-id="{{$item->id}}" type="text" name="contratos" id="contratos" value="{{ $item->contratos }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;width: 50px"></td>
+                    <td style="max-width: 50px">
+                        <select name="servicio_id" id="servicio_id" data-id="{{$item->id}}" style="background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}};margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;max-width: 60px">
+                            @foreach($servicios as $servicio)
+                                <option @if($item->servicio_id == $servicio->id) selected  @endif value="{{$servicio->id}}">{{$servicio->name}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td>
+                        <select name="estado" id="estado" data-id="{{$item->id}}" style="background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}};margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;max-width: 60px">
+                            <option value="">Seleccione un estado</option>
+                            @foreach($estados as $estado)
+                                <option @if($item->estado == $estado->id) selected  @endif value="{{$estado->id}}">{{$estado->nombre}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td style="max-width: 50px"><input data-id="{{$item->id}}" type="date" name="fecha_actualizacion" id="fecha_actualizacion" value="{{ $item->fecha_actualizacion }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                    <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="importe" id="importe" value="{{ $item->importe }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                    <td style="max-width: 50px" @if($item->estado_factura == 0) style="background-color: #f25757; color: white;" @else style="background-color: #2cbc09; color: white;" @endif >
+                        <select name="estado_factura" id="estado_factura" data-id="{{$item->id}}" style="background-color: {{$item->estado_factura == 1 ? '#2cbc09': '#f25757'}}; color: white;margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem; width: 66px;">
+                            <option value="">Seleccione un estado</option>
+                                <option @if($item->estado_factura == 1) selected style="height: fit-content;background-color: #2cbc09; color: white;" @endif value="1">Abonada</option>
+                                <option @if($item->estado_factura == 0) selected style="height: fit-content;background-color: #f25757; color: white;" @endif value="0">No Abonada</option>
+                        </select>
+                    </td>
+                    <td style="max-width: 80px"><input  data-id="{{$item->id}}" type="date" name="banco" id="banco" value="{{ $item->banco }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;max-width: 80px"></td>
+                    <td style="max-width: 80px"><input data-id="{{$item->id}}" type="date" name="fecha_acuerdo" id="fecha_acuerdo" value="{{ $item->fecha_acuerdo }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;max-width: 80px"></td>
+                    <td style="max-width: 80px"><input data-id="{{$item->id}}" type="date" name="plazo_maximo_entrega" id="plazo_maximo_entrega" value="{{ $item->plazo_maximo_entrega }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;max-width: 80px"></td>
+                    <td style="max-width: 80px" class="exclude">
+                        <select name="gestor" id="gestor" data-id="{{$item->id}}" style="background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;max-width: 80px">
+                            <option value="">Seleccione un gestor</option>
+                            @foreach($gestores as $gestor)
+                                <option @if($item->gestor == $gestor->id) selected  @endif value="{{$gestor->id}}">{{$gestor->name}} {{$gestor->surname}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td style="max-width: 80px" class="exclude">
+                        <select name="comercial_id" id="comercial_id" data-id="{{$item->id}}" style="background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;max-width: 80px">
+                            <option value="">Seleccione un comercial</option>
+                            @foreach($comerciales as $comercial)
+                                <option @if($item->comercial_id == $comercial->id) selected  @endif value="{{$comercial->id}}">{{$comercial->name}} {{$comercial->surname}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td style="max-width: 80px !important"><textarea name="comentario" data-id="{{$item->id}}" cols="30" rows="1" style=" background-color: rgba(255, 255, 255, 0.123) ;margin-bottom: 0; width:100%;">{{ $item->comentario }}</textarea></td>
+                    <td style="max-width: 80px !important"><textarea name="nuevo_comentario" data-id="{{$item->id}}" cols="30" rows="1"  style="background-color: rgba(255, 255, 255, 0.123) ; margin-bottom: 0; width:100%;">{{ $item->nuevo_comentario }}</textarea></td>
+                </tr>
+
+{{--
                     <tr style="--bs-table-bg: {{$item->estados->color}} !important; --bs-table-color: {{$item->estados->text_color}} !important">
-                        <td class="exclude"> <input data-id="{{$item->id}}" type="text" name="empresa" id="empresa" value="{{ $item->empresa }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none; margin-bottom: 0 !important;font-size: 0.75rem;"></td>
-                        <td class="exclude">
-                            <select name="segmento" id="segmento" style="padding: 0.1rem 0.1rem 0.1rem 0.2rem; margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;" data-id="{{$item->id}}">
+                        <td style="max-width: 100px !important" > <input data-id="{{$item->id}}" type="text" name="empresa" id="empresa" value="{{ $item->empresa }}" style="max-width: 100px !important;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none; margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                        <td style="max-width: 100px !important" >
+                            <select  name="segmento" id="segmento" style="max-width: 100px !important; padding: 0.1rem 0.1rem 0.1rem 0.2rem; margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;" data-id="{{$item->id}}">
                                 @foreach ($segmentos as $segmento)
                                     <option value="{{$segmento['id']}}">{{$segmento['nombre']}}</option>
                                 @endforeach
                             </select>
                         </td>
-                        <td style="min-width: 170px !important; ">{{ $item->Client->name ?? 'Sin cliente' }}</td>
-                        <td style="min-width: 250px !important"><input data-id="{{$item->id}}" type="text" name="cliente" id="cliente" value="{{ $item->cliente }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
-                        <td style="min-width: 100px !important"><input disabled data-id="{{$item->id}}" type="text" name="mensaje_interpretado" id="mensaje_interpretado" value="{{ $item->mensaje_interpretado == 1 ? 'Si' : ($item->mensaje_interpretado == 2 ? 'No se' : ( $item->mensaje_interpretado === 0 ? 'No' : ($item->mensaje_interpretado === 3 ? 'Error' : '' ))) }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
-                        <td style="min-width: 300px !important;"><textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea></td>
-                        <td style="min-width: 125px !important"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
-                        <td style="min-width: 125px !important"><input data-id="{{$item->id}}" type="text" name="telefono" id="telefono" value="{{ $item->telefono }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                        <td style="max-width: 100px !important; ">
+                            <select data-id="{{$item->id}}" name="cliente_id" id="cliente_id" style="max-width: 100px !important;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}};margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;">
+                                <option value="">sin cliente</option>
+                                @foreach ($clientes as $cliente)
+                                    <option value="{{$cliente->id}}" @if($item->cliente_id == $cliente->id) selected  @endif>{{$cliente->name}}</option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td style="max-width: 100px !important"><input data-id="{{$item->id}}" type="text" name="cliente" id="cliente" value="{{ $item->cliente }}" style="max-width: 100px !important; height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                        <td style="max-width: 100px !important"><input disabled data-id="{{$item->id}}" type="text" name="mensaje_interpretado" id="mensaje_interpretado" value="{{ $item->mensaje_interpretado == 1 ? 'Si' : ($item->mensaje_interpretado == 2 ? 'No se' : ( $item->mensaje_interpretado === 0 ? 'No' : ($item->mensaje_interpretado === 3 ? 'Error' : '' ))) }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                        <td style="max-width: 150px !important;"><textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea></td>
+                        <td style="max-width: 100px !important"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                        <td style="max-width: 100px !important"><input data-id="{{$item->id}}" type="text" name="telefono" id="telefono" value="{{ $item->telefono }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                         <td class="exclude"><input data-id="{{$item->id}}" type="text" name="expediente" id="expediente" value="{{ $item->expediente }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                         <td class="exclude"><input data-id="{{$item->id}}" type="text" name="contratos" id="contratos" value="{{ $item->contratos }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                         <td>
@@ -213,13 +292,17 @@
                         </td>
                         <td style="min-width: 300px !important"><textarea name="comentario" data-id="{{$item->id}}" cols="30" rows="1" style=" background-color: rgba(255, 255, 255, 0.123) ;margin-bottom: 0; width:100%;">{{ $item->comentario }}</textarea></td>
                         <td style="min-width: 300px !important"><textarea name="nuevo_comentario" data-id="{{$item->id}}" cols="30" rows="1"  style="background-color: rgba(255, 255, 255, 0.123) ; margin-bottom: 0; width:100%;">{{ $item->nuevo_comentario }}</textarea></td>
-                    </tr>
+                    </tr> --}}
                 @endforeach
             </tbody>
         </table>
+
         @if($perPage !== 'all')
         {{ $kitDigitals->links() }}
-    @endif
+        @endif
+        <div class="col-md-12 col-sm-12 text-center">
+            <span class="fs-3">Sumatorio: <b>{{$Sumatorio.' €'}}</b></span>
+        </div>
     </div>
 
     @else
