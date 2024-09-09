@@ -128,16 +128,14 @@ class TasksController extends Controller
                     $data['priority_id'] = $request['priority'];
                     $data['project_id'] = $loadTask->project_id;
                     $data['budget_id'] = $loadTask->budget_id;
-                    $data['budget_concept_id'] =
-                        $loadTask->budget_concept_id;
-                    $data['task_status_id'] = $request['status' . $i];
+                    $data['budget_concept_id'] = $loadTask->budget_concept_id;
+                    $data['task_status_id'] = $request['status' . $i] ?? 2;
                     $data['split_master_task_id'] = $loadTask->id;
                     $data['duplicated'] = 0;
                     $data['description'] = $request['description'];
                     $data['title'] = $request['title'];
-                    $data['estimated_time'] =
-                        $request['estimatedTime' . $i];
-                    $data['real_time'] = $request['realTime' . $i];
+                    $data['estimated_time'] = $request['estimatedTime' . $i];
+                    $data['real_time'] = $request['realTime' . $i] ?? '00:00:00';
 
                     $newtask = Task::create($data);
                     $taskSaved = $newtask->save();
