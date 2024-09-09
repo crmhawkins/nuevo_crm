@@ -1177,14 +1177,16 @@
 
         function loadSpinner(){
             $(".fa-spinner").css("display", "block");
-            $(".ocultar").css("display", "none");
+            $(".table-banks").css("display", "none");
+            // $(".ocultar").css("display", "none");
             $(".title-Prevision").hide();
             $(".title-Facturas").hide();
         }
 
         function stopSpinner(){
             $(".fa-spinner").css("display", "none");
-            $(".ocultar").css("display", "block");
+            $(".table-bankss").css("display", "block");
+            // $(".ocultar").css("display", "block");
             $(".title-Prevision").show();
             $(".title-Facturas").show();
         }
@@ -1207,6 +1209,7 @@
                 var tabla = "<tr>";
                 tabla += "<td>"+value.name+"</td>";
                 $.each(data.BigArray['meses'][data.month]['bancos'][value.id]['Balance'], function (key2, value2){
+                    console.log(value2);
                     tabla += "<td>"+number_format(value2, 2, ',', '.');+"</td>";
                 });
                 tabla += "</tr>";

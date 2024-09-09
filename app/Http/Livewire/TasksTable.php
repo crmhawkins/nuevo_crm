@@ -26,6 +26,7 @@ class TasksTable extends Component
     public $selectedEmpleado = '';
     public $selectedGestor = '';
     public $selectedDepartamento = '';
+    public $selectedYear;
     public $perPage = 10;
     public $sortColumn = 'title'; // Columna por defecto
     public $sortDirection = 'asc'; // Dirección por defecto
@@ -37,6 +38,8 @@ class TasksTable extends Component
         $this->empleados = User::all();
         $this->gestores = User::all();
         $this->departamentos = UserDepartament::all();
+        $this->selectedYear = Carbon::now()->year;
+
     }
 
     public function render()
@@ -69,6 +72,9 @@ class TasksTable extends Component
                     $query->whereHas('usuario', function ($query) {
                         $query->where('admin_user_department_id', $this->selectedDepartamento);
                     });
+                })
+                ->when($this->selectedYear, function ($query) {
+                    $query->whereYear('tasks.created_at', $this->selectedYear);
                 })
                 ->when($this->selectedEmpleado, function ($query) {
                     $query->where('tasks.admin_user_id', $this->selectedEmpleado);

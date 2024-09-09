@@ -48,7 +48,7 @@ class PurcharseOrder extends Model
         return $this->belongsTo(\App\Models\Budgets\BudgetConcept::class,'budget_concept_id');
     }
     public function cliente() {
-        return $this->belongsTo(Client::class,'budget_concept_id');
+        return $this->belongsTo(Client::class,'client_id');
     }
     public function payMethod() {
         return $this->belongsTo(PaymentMethod::class,'payment_method_id');

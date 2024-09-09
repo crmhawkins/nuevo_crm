@@ -78,4 +78,18 @@ class OrdersTable extends Component
         }
     }
 
+    public function postStatusChange($id){
+
+        $gasto = AssociatedExpenses::find($id);
+        $gasto->aceptado_gestor = true;
+
+        $gastoSaved = $gasto->save();
+
+
+        $this->emit('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Orden Aceptada'
+        ]);
+}
+
 }

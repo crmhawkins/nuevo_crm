@@ -21,6 +21,19 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-6 col-sm-12">
+            <div class="flex flex-row justify-end">
+                <div class="mr-3">
+                    <label for="">Año</label>
+                    <select wire:model="selectedYear" class="form-select">
+                        <option value=""> Año </option>
+                        @for ($year = date('Y'); $year >= 2000; $year--)
+                            <option value="{{ $year }}">{{ $year }}</option>
+                        @endfor
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if ($gastos->count())

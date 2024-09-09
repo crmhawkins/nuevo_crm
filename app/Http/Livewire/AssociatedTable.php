@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Clients\Client;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,6 +15,8 @@ class AssociatedTable extends Component
     public $buscar;
     public $selectedCliente = '';
     public $selectedEstado;
+    public $selectedYear;
+
     public $clientes;
     public $estados;
     public $perPage = 10;
@@ -23,6 +26,10 @@ class AssociatedTable extends Component
     protected $gastos; // Propiedad protegida para los gastosbusqueda
 
 
+    public function mount(){
+        $this->selectedYear = Carbon::now()->year;
+
+    }
     public function render()
     {
         $this->actualizargastos(); // Ahora se llama directamente en render para refrescar los gastos.
@@ -36,6 +43,9 @@ class AssociatedTable extends Component
         // Comprueba si se ha seleccionado "Todos" para la paginación
         $query= AssociatedExpenses::when($this->buscar, function ($query) {
                     $query->where('title', 'like', '%' . $this->buscar . '%');
+                })
+                ->when($this->selectedYear, function ($query) {
+                    $query->whereYear('created_at', $this->selectedYear);
                 });
 
 

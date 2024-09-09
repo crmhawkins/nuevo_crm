@@ -14,6 +14,7 @@ class GastosTable extends Component
     public $buscar;
     public $selectedCliente = '';
     public $selectedEstado;
+    public $selectedYear;
     public $clientes;
     public $estados;
     public $perPage = 10;
@@ -35,7 +36,10 @@ class GastosTable extends Component
         // Comprueba si se ha seleccionado "Todos" para la paginación
 
         $query = Gasto::when($this->buscar, function ($query) {
-                    $query->where('company_name', 'like', '%' . $this->buscar . '%');
+                    $query->where('title', 'like', '%' . $this->buscar . '%');
+                })
+                ->when($this->selectedYear, function ($query) {
+                    $query->whereYear('created_at', $this->selectedYear);
                 }); // Obtiene todos los registros sin paginación
 
          // Aplica la ordenación

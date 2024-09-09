@@ -191,11 +191,9 @@ class DashboardController extends Controller
 
         foreach ($todayJornadas as $jornada) {
             $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? Carbon::now());
-
             $totalPauseSeconds = $jornada->pauses->sum(function ($pause) {
                 return Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? Carbon::now());
             });
-
             $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
         }
 
