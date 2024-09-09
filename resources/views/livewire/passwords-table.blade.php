@@ -68,7 +68,7 @@
                             <td>{{$password->cliente->name ?? ''}}</td>
                             <td>
                                 <span class="password" style="display:none">{{ $password->password }}</span>
-                                <a class="showPassword"><i class="showPassword fa-solid fa-eye ml-2"></i></a>
+                                <a class="showPassword"><i class="ojo fa-solid fa-eye ml-2"></i></a>
 
                             </td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
@@ -101,7 +101,7 @@
         $(document).ready(function() {
             $( ".showPassword" ).click(function(){
                 $(this).prev('.password').toggle('500');
-                $(this).toggleClass('fa-eye fa-eye-slash');
+                $(this).next('.ojo').toggleClass('fa-eye fa-eye-slash');
             });
         });
         $(document).ready(() => {
