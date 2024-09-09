@@ -53,7 +53,7 @@ class DashboardController extends Controller
                 $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;
                 return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(5):
-                $tareas = $user->tareas;
+                $tareas = $user->tareas->whereIn('task_status_id', [1, 2, 5]);
 
                 $tasks = $this->getTasks($user->id);
                 return view('dashboards.dashboard_personal', compact('user','tasks','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
