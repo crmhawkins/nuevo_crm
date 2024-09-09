@@ -148,7 +148,11 @@
                     </td>
                     <td style="max-width: 70px !important"><input data-id="{{$item->id}}" type="text" name="cliente" id="cliente" value="{{ $item->cliente }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem"></td>
                     <td style="max-width: 50px"><input disabled data-id="{{$item->id}}" type="text" name="mensaje_interpretado" id="mensaje_interpretado" value="{{ $item->mensaje_interpretado == 1 ? 'Si' : ($item->mensaje_interpretado == 2 ? 'No se' : ( $item->mensaje_interpretado === 0 ? 'No' : ($item->mensaje_interpretado === 3 ? 'Error' : '' ))) }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem; text-align:center;width: 56px;"></td>
-                    <td style="max-width: 50px"><textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea></td>
+                    <td style="max-width: 50px">
+                        {{-- <textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea> --}}
+                        <button type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="mensaje" data-content="{{ $item->mensaje }}">Ver</button>
+
+                    </td>
                     <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                     <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="telefono" id="telefono" value="{{ $item->telefono }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                     <td style="max-width: 50px" class="exclude"><input data-id="{{$item->id}}" type="text" name="expediente" id="expediente" value="{{ $item->expediente }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
@@ -196,18 +200,44 @@
                             @endforeach
                         </select>
                     </td>
-                    <td style="max-width: 80px !important"><textarea name="comentario" data-id="{{$item->id}}" cols="30" rows="1" style=" background-color: rgba(255, 255, 255, 0.123) ;margin-bottom: 0; width:100%;">{{ $item->comentario }}</textarea></td>
-                    <td style="max-width: 80px !important"><textarea name="nuevo_comentario" data-id="{{$item->id}}" cols="30" rows="1"  style="background-color: rgba(255, 255, 255, 0.123) ; margin-bottom: 0; width:100%;">{{ $item->nuevo_comentario }}</textarea></td>
+                    <td style="max-width: 80px !important">
+                        <button type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="comentario" data-content="{{ $item->comentario }}">Editar</button>
+                    </td>
+                    <td style="max-width: 80px !important">
+                        <button type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="nuevo_comentario" data-content="{{ $item->nuevo_comentario }}">Editar</button>
+                    </td>
+                    {{-- <td style="max-width: 80px !important"><textarea name="comentario" data-id="{{$item->id}}" cols="30" rows="1" style=" background-color: rgba(255, 255, 255, 0.123) ;margin-bottom: 0; width:100%;">{{ $item->comentario }}</textarea></td>
+                    <td style="max-width: 80px !important"><textarea name="nuevo_comentario" data-id="{{$item->id}}" cols="30" rows="1"  style="background-color: rgba(255, 255, 255, 0.123) ; margin-bottom: 0; width:100%;">{{ $item->nuevo_comentario }}</textarea></td> --}}
                 </tr>
                 @endforeach
             </tbody>
         </table>
+        <!-- Modal Structure -->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Editar</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <textarea id="modal-textarea" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" id="saveChanges">Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 
         @if($perPage !== 'all')
         {{ $kitDigitals->links() }}
         @endif
-        <div class="col-md-12 col-sm-12 text-center">
-            <span class="fs-3">Sumatorio: <b>{{$Sumatorio.' €'}}</b></span>
+        <div class="col-md-12 col-sm-12 text-center" style="margin: 1rem 0">
+            <span class="fs-3" >Sumatorio: <b>{{$Sumatorio.' €'}}</b></span>
         </div>
     </div>
 
@@ -248,25 +278,67 @@
 </div>
 @section('scripts')
 <script>
-    // const observer = new MutationObserver(() => {
-    //     initializeChoices();
-    // });
+$(document).ready(function() {
+    $('.edit-textarea').on('click', function() {
+        var id = $(this).data('id');
+        var field = $(this).data('field');
+        var content = $(this).data('content');
+        $('#modal-textarea').val(content).data('id', id).data('field', field);
+        $('#editModalLabel').text('Editar ' + field.replace('_', ' ').toUpperCase());
+    });
 
-    // observer.observe(document.body, { childList: true, subtree: true });
+    $('#saveChanges').on('click', function() {
+        var id = $('#modal-textarea').data('id');
+        var field = $('#modal-textarea').data('field');
+        var value = $('#modal-textarea').val();
+        $('[data-id="' + id + '"][data-field="' + field + '"]').data('content', value);
+        handleDataUpdate(id, value, field);
+    });
+});
 
-    // function initializeChoices() {
-    //     const elements = document.querySelectorAll('.choices');
-    //     elements.forEach(element => {
-    //         if (!element.choices) {
-    //         new Choices(element, {
-    //             // Configuración de Choices.js
-    //         });
-    //         }
-    //     });
-    // }
+// Función para manejar la actualización de datos
+function handleDataUpdate(id, value, key) {
+    $.ajax({
+        type: "POST",
+        url: "{{ route('kitDigital.updateData') }}", // Asegúrate de que esta es la ruta correcta
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+        },
+        data: {
+            id: id,
+            value: value,
+            key: key
+        },
+        success: function(data) {
+            // Cierra el modal explícitamente después de actualizar
+            $('#editModal').modal('hide');
+            $('.modal-backdrop').remove();
+            // Opcionalmente muestra una notificación de éxito
+            const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
 
-        // Llama a esta función después de cada renderizado o filtrado
-        // initializeChoices();
+                    Toast.fire({
+                        icon: data.icon, // Corregido: Se agregó una coma al final
+                        title: data.mensaje // Corregido: Se agregó una coma al final
+                    });
+        },
+        error: function(xhr, status, error) {
+            // Opcionalmente muestra una notificación de error
+            $('#editModal').modal('hide'); // Cierra el modal también en caso de error si lo prefieres
+        }
+    });
+}
+
+
 </script>
 
 

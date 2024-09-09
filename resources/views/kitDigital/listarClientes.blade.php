@@ -13,7 +13,7 @@
     <div class="page-heading card" style="box-shadow: none !important" >
 
         {{-- Titulos --}}
-        <div class="page-title card-body">
+        {{-- <div class="page-title card-body">
             <div class="row justify-content-between">
                 <div class="col-sm-12 col-md-4 order-md-1 order-last">
                     <h3><i class="bi bi-globe-americas"></i> Kit Digital</h3>
@@ -29,7 +29,7 @@
 
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <section class="section pt-4">
             <div class="card">
