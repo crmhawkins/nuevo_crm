@@ -788,8 +788,8 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12 mb-3">
-                                <label for="title" class="form-label">Título</label>
-                                <input type="text" class="form-control" id="title" name="title" required>
+                                <label for="titulo" class="form-label">Título</label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" required>
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label for="descripcion" class="form-label">Descripción</label>
@@ -797,7 +797,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="task_id" class="form-label">Tareas</label>
-                                <select class="form-select" id="task_id" name="task_id">
+                                <select class="form-select choices" id="task_id" name="task_id">
                                     <option value="">Seleccione una tarea</option>
                                     @foreach ($tareas as $tarea)
                                         <option value="{{ $tarea->id }}" {{ old('task_id') == $tarea->id ? 'selected' : '' }}>
@@ -806,54 +806,6 @@
                                     @endforeach
                                 </select>
                                 @error('client_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="client_id" class="form-label">Cliente</label>
-                                <select class="form-select" id="client_id" name="client_id">
-                                    <option value="">Seleccione cliente</option>
-                                    @foreach ($clientes as $cliente)
-                                        <option value="{{ $cliente->id }}" {{ old('client_id') == $cliente->id ? 'selected' : '' }}>
-                                            {{ $cliente->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('client_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="budget_id" class="form-label">Presupuesto</label>
-                                <select class="form-select" id="budget_id" name="budget_id">
-                                    <option value="">Seleccione presupuesto</option>
-                                    @foreach ($budgets as $budget)
-                                        <option value="{{ $budget->id }}" {{ old('budget_id') == $budget->id ? 'selected' : '' }}>
-                                            {{ $budget->reference }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('budget_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="project_id" class="form-label">Campaña</label>
-                                <select class="form-select" id="project_id" name="project_id">
-                                    <option value="">Seleccione campaña</option>
-                                    @foreach ($projects as $project)
-                                        <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>
-                                            {{ $project->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('project_id')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -876,6 +828,22 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="start" class="form-label">Inicio</label>
+                                <input type="datetime-local" class="form-control" id="start" name="start" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="end" class="form-label">Fin</label>
+                                <input type="datetime-local" class="form-control" id="end" name="end">
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-center justify-content-center">
+                                <input type="color" style="padding: 0.4rem" class="form-control form-control-color" id="color1" name="color">
+                                <label for="color1" class="form-label ml-2">Color</label>
+                            </div>
+                            <div class=" col-md-6 mb-3 d-flex align-items-center justify-content-center">
+                                <input type="checkbox" style="height:25px; width:25px; " class="form-check-input" id="agendar" name="agendar">
+                                <label for="agendar" class="form-check-label ml-2">Agendar</label>
                             </div>
                             <input type="hidden" name="admin_user_id" value="{{ $user->id }}">
                         </div>
@@ -1043,6 +1011,7 @@
                 this.closest('form').submit();
             });
         });
+
         $('#todoboton').click(function(e){
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
             $('#todoform').submit(); // Esto envía el formulario.
@@ -1323,7 +1292,7 @@
     });
 </script>
 <script>
-           document.querySelectorAll('#file-input').forEach(function(inputElement) {
+        document.querySelectorAll('#file-input').forEach(function(inputElement) {
             inputElement.addEventListener('change', function() {
                 console.log('File input changed'); // Verifica que el evento se activa
                 const fileIcon = this.closest('.input-group-text').querySelector('#file-icon');
@@ -1615,19 +1584,7 @@
                             <div id="notas" class="mt-4">
                                 <!-- Notas dinámicas se insertarán aquí -->
                             </div>
-                            <div class="row mt-4">
-                                <div class="col-12">
-                                    <form method="post" action="">
-                                        <input type="hidden" name="gestor" value="${data.gestorid}">
-                                        <input type="hidden" name="tareaId" value="${data.id}">
-                                        <input type="hidden" name="user" value="${data.user}">
-                                        <div class="form-group">
-                                            <textarea id="editor" class="form-control" name="descripcion" placeholder="Escriba su mensaje..." rows="3"></textarea>
-                                        </div>
-                                        <button id="enviar1" type="submit" class="btn btn-primary btn-block mt-4">Enviar</button>
-                                    </form>
-                                </div>
-                            </div>
+
                         </div>`
                     );
 

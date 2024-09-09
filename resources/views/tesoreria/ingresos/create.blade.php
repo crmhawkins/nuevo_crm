@@ -66,7 +66,7 @@
                                 </div>
                                 <div class="col-md-6 mt-4">
                                     <label for="invoice_id" class="mb-2">Factura:</label>
-                                    <select class="form-select" id="invoice_id" name="invoice_id">
+                                    <select class="form-select choices" id="invoice_id" name="invoice_id">
                                         <option value="">-- Selecciona una factura --</option>
                                         @if (count($invoices) > 0)
                                             @foreach($invoices as $invoice)

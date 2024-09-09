@@ -52,8 +52,8 @@ class TasksTable extends Component
 
     protected function actualizartareas(){
         $query = Task::when($this->buscar, function ($query) {
-                    $query->where('title', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('description', 'like', '%' . $this->buscar . '%');
+                    $query->where('tasks.title', 'like', '%' . $this->buscar . '%')
+                          ->orWhere('tasks.description', 'like', '%' . $this->buscar . '%');
                 })
                 ->when($this->selectedCategoria, function ($query) {
                     $query->whereHas('presupuestoConcepto', function ($query) {
