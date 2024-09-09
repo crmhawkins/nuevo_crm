@@ -68,7 +68,8 @@
                             <td>{{$password->cliente->name ?? ''}}</td>
                             <td>
                                 <span class="password" style="display:none">{{ $password->password }}</span>
-                                <i class="showPassword fa-solid fa-eye ml-2"></i>
+                                <a><i class="showPassword fa-solid fa-eye ml-2"></i></a>
+
                             </td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{route('passwords.edit', $password->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
