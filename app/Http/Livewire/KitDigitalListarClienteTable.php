@@ -70,49 +70,54 @@ class KitDigitalListarClienteTable extends Component
     }
 
     protected function actualizarKitDigital()
-    {
-        // Comprueba si se ha seleccionado "Todos" para la paginación
-        $buscarLower = mb_strtolower($this->buscar);
+{
+    // Comprueba si se ha seleccionado "Todos" para la paginación
+    $buscarLower = mb_strtolower($this->buscar);
 
-        $query = KitDigital::when($this->buscar, function ($query) use ($buscarLower) {
-            $query->whereRaw('LOWER(contratos) LIKE ?', ["%{$buscarLower}%"])
-                ->orWhereRaw('LOWER(cliente) LIKE ?', ["%{$buscarLower}%"])
-                ->orWhereRaw('LOWER(expediente) LIKE ?', ["%{$buscarLower}%"])
-                ->orWhereRaw('LOWER(contacto) LIKE ?', ["%{$buscarLower}%"])
-                ->orWhereRaw('LOWER(telefono) LIKE ?', ["%{$buscarLower}%"]);
+    // Construye la consulta base para filtrar registros
+    $query = KitDigital::when($this->buscar, function ($query) use ($buscarLower) {
+        $query->whereRaw('LOWER(contratos) LIKE ?', ["%{$buscarLower}%"])
+            ->orWhereRaw('LOWER(cliente) LIKE ?', ["%{$buscarLower}%"])
+            ->orWhereRaw('LOWER(expediente) LIKE ?', ["%{$buscarLower}%"])
+            ->orWhereRaw('LOWER(contacto) LIKE ?', ["%{$buscarLower}%"])
+            ->orWhereRaw('LOWER(telefono) LIKE ?', ["%{$buscarLower}%"]);
+    })
+        ->when($this->selectedComerciales, function ($query) {
+            $query->where('comercial_id', $this->selectedComerciales);
         })
-                ->when($this->selectedComerciales, function ($query) {
-                    $query->where('comercial_id', $this->selectedComerciales);
-                })
-                ->when($this->selectedEstadoFactura, function ($query) {
-                    $query->where('estado_factura', $this->selectedEstadoFactura);
-                })
-                ->when($this->selectedServicio, function ($query) {
-                    $query->where('servicio_id', $this->selectedServicio);
-                })
-                ->when($this->selected, function ($query) {
-                    $query->where('', $this->selected);
-                })
-                ->when($this->selectedGestor, function ($query) {
-                    $query->where('gestor', $this->selectedGestor);
-                })
-                ->when($this->selectedCliente, function ($query) {
-                    $query->where('cliente_id', $this->selectedCliente);
-                })
-                ->when($this->selectedEstado, function ($query) {
-                    $query->where('estado', $this->selectedEstado);
-                });
+        ->when($this->selectedEstadoFactura, function ($query) {
+            $query->where('estado_factura', $this->selectedEstadoFactura);
+        })
+        ->when($this->selectedServicio, function ($query) {
+            $query->where('servicio_id', $this->selectedServicio);
+        })
+        ->when($this->selected, function ($query) {
+            $query->where('', $this->selected);
+        })
+        ->when($this->selectedGestor, function ($query) {
+            $query->where('gestor', $this->selectedGestor);
+        })
+        ->when($this->selectedCliente, function ($query) {
+            $query->where('cliente_id', $this->selectedCliente);
+        })
+        ->when($this->selectedEstado, function ($query) {
+            $query->where('estado', $this->selectedEstado);
+        });
 
-                $query->orderBy($this->sortColumn, $this->sortDirection);
-          
-        // Verifica si se seleccionó 'all' para mostrar todos los registros
-        $this->kitDigitals = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
-        $this->Sumatorio = $this->kitDigitals->reduce(function ($carry, $item) {
-            $cleanImporte = preg_replace('/[^\d,]/', '', $item->importe); // Elimina todo excepto números y coma
-            $cleanImporte = str_replace(',', '.', $cleanImporte); // Convierte comas a puntos para decimales
-            return $carry + (float)$cleanImporte;
-        }, 0);
-    }
+    // Calcula el sumatorio sobre todos los registros filtrados
+    $this->Sumatorio = $query->get()->reduce(function ($carry, $item) {
+        $cleanImporte = preg_replace('/[^\d,]/', '', $item->importe); // Elimina todo excepto números y coma
+        $cleanImporte = str_replace(',', '.', $cleanImporte); // Convierte comas a puntos para decimales
+        return $carry + (float)$cleanImporte;
+    }, 0);
+
+    // Aplica el orden
+    $query->orderBy($this->sortColumn, $this->sortDirection);
+
+    // Verifica si se seleccionó 'all' para mostrar todos los registros
+    $this->kitDigitals = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+}
+
 
     public function getCategorias()
     {
