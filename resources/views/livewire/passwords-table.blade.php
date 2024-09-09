@@ -101,7 +101,7 @@
         $(document).ready(function() {
             $( ".showPassword" ).click(function(){
                 $(this).prev('.password').toggle('500');
-                $(this).next('.ojo').toggleClass('fa-eye fa-eye-slash');
+                $(this).find('.ojo').toggleClass('fa-eye fa-eye-slash');
             });
         });
         $(document).ready(() => {
