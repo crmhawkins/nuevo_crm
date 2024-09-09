@@ -77,14 +77,15 @@ class KitDigitalListarClienteTable extends Component
     protected function actualizarKitDigital()
     {
         // Comprueba si se ha seleccionado "Todos" para la paginación
+        $buscarLower = mb_strtolower($this->buscar);
 
-        $query = KitDigital::when($this->buscar, function ($query) {
-                    $query->where('contratos', 'like', '%' . $this->buscar . '%')
-                        ->orWhere('cliente', 'like', '%' . $this->buscar . '%')
-                        ->orWhere('expediente', 'like', '%' . $this->buscar . '%')
-                        ->orWhere('contacto', 'like', '%' . $this->buscar . '%')
-                        ->orWhere('telefono', 'like', '%' . $this->buscar . '%');
-                })
+        $query = KitDigital::when($this->buscar, function ($query) use ($buscarLower) {
+            $query->whereRaw('LOWER(contratos) LIKE ?', ["%{$buscarLower}%"])
+                ->orWhereRaw('LOWER(cliente) LIKE ?', ["%{$buscarLower}%"])
+                ->orWhereRaw('LOWER(expediente) LIKE ?', ["%{$buscarLower}%"])
+                ->orWhereRaw('LOWER(contacto) LIKE ?', ["%{$buscarLower}%"])
+                ->orWhereRaw('LOWER(telefono) LIKE ?', ["%{$buscarLower}%"]);
+        })
                 ->when($this->selectedComerciales, function ($query) {
                     $query->where('comercial_id', $this->selectedComerciales);
                 })

@@ -106,6 +106,9 @@
                     </select>
                 </div>
             </div>
+            <div>
+                {{ number_format((float)DB::table('ayudas')->sum(DB::raw("CAST(importe AS UNSIGNED)")), 2, '.', '') }} €
+            </div>
         </div>
     </div>
     @if ( $kitDigitals )
