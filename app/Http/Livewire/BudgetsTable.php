@@ -7,6 +7,7 @@ use App\Models\Budgets\BudgetStatu;
 use App\Models\Users\User;
 use App\Models\Users\UserAccessLevel;
 use App\Models\Users\UserDepartament;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -34,6 +35,7 @@ class BudgetsTable extends Component
     public $selectedGestor = '';
     public $selectedEstados = '';
     public $perPage = 10;
+
     public $sortColumn = 'reference'; // Columna por defecto
     public $sortDirection = 'asc'; // Dirección por defecto
     public $selectedMonth;
@@ -44,6 +46,8 @@ class BudgetsTable extends Component
     public function mount(){
         $this->gestores = User::where('access_level_id', 4)->get();
         $this->estados = BudgetStatu::all();
+        $this->selectedYear = Carbon::now()->year;
+
     }
 
     public function render()

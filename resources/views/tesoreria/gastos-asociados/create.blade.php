@@ -90,11 +90,11 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label for="purchase_order_id">Orden de compra:</label>
-                                    <select class="form-select" id="purchase_order_id" name="purchase_order_id">
+                                    <select class="form-select choices" id="purchase_order_id" name="purchase_order_id">
                                         <option value="">-- Selecciona un Orden de compra --</option>
                                         @if (count($purchaseOrders) > 0)
                                             @foreach($purchaseOrders as $order)
-                                                <option value="{{ $order->id }}">Nº {{ $order->id }} - {{ $order->concepto->concept ?? '' }} - {{ $order->concepto->total ?? '' }} €</option>
+                                                <option value="{{ $order->id }}">Nº {{ $order->id }} - {{ $order->concepto->total ?? '' }} €</option>
                                             @endforeach
                                         @endif
                                     </select>

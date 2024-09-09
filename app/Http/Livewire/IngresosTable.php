@@ -14,10 +14,12 @@ class IngresosTable extends Component
     public $buscar;
     public $selectedCliente = '';
     public $selectedEstado;
+    public $selectedYear;
+
     public $clientes;
     public $estados;
     public $perPage = 10;
-    public $sortColumn = 'bank_id'; // Columna por defecto
+    public $sortColumn = 'title'; // Columna por defecto
     public $sortDirection = 'asc'; // Dirección por defecto
     protected $ingresos; // Propiedad protegida para los gastosbusqueda
 
@@ -33,7 +35,10 @@ class IngresosTable extends Component
     protected function actualizargastos()
     {
         $query = Ingreso::when($this->buscar, function ($query) {
-                    $query->where('company_name', 'like', '%' . $this->buscar . '%');
+                    $query->where('title', 'like', '%' . $this->buscar . '%');
+                })
+                ->when($this->selectedYear, function ($query) {
+                    $query->whereYear('created_at', $this->selectedYear);
                 });
 
          // Aplica la ordenación

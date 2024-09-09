@@ -1148,15 +1148,15 @@
         }
         /************* TESORERIA ******************/
         function number_format(number, decimals, dec_point, thousands_sep){
-            number =  parseFloat(number).toFixed(decimals);
-            var nstr = number.toString();
-            nstr += '';
-            x = nstr.split('.');
-            x1 = x[0];
-            x2 = x.length > 1 ? dec_point + x[1] : '';
-            var rgx = /(\d+)(\d{3})/;
-            while (rgx.test(x1))
+            let formattedNumber = parseFloat(number).toFixed(decimals);
+            let nstr = formattedNumber.toString();
+            let x = nstr.split('.');
+            let x1 = x[0];
+            let x2 = x.length > 1 ? dec_point + x[1] : '';
+            let rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) {
                 x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+            }
             return x1 + x2;
         }
 
@@ -1177,6 +1177,7 @@
 
         function loadSpinner(){
             $(".fa-spinner").css("display", "block");
+            //$(".table-banks").css("display", "none");
             $(".ocultar").css("display", "none");
             $(".title-Prevision").hide();
             $(".title-Facturas").hide();
@@ -1184,6 +1185,7 @@
 
         function stopSpinner(){
             $(".fa-spinner").css("display", "none");
+            //$(".table-bankss").css("display", "block");
             $(".ocultar").css("display", "block");
             $(".title-Prevision").show();
             $(".title-Facturas").show();
@@ -1207,6 +1209,7 @@
                 var tabla = "<tr>";
                 tabla += "<td>"+value.name+"</td>";
                 $.each(data.BigArray['meses'][data.month]['bancos'][value.id]['Balance'], function (key2, value2){
+                    console.log(value2);
                     tabla += "<td>"+number_format(value2, 2, ',', '.');+"</td>";
                 });
                 tabla += "</tr>";

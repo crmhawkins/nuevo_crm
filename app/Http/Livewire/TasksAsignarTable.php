@@ -46,8 +46,8 @@ class TasksAsignarTable extends Component
     protected function actualizartareas(){
             $query = Task::where('split_master_task_id',null)->where('duplicated',0)
             ->when($this->buscar, function ($query) {
-                    $query->where('title', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('description', 'like', '%' . $this->buscar . '%');
+                    $query->where('tasks.title', 'like', '%' . $this->buscar . '%')
+                          ->orWhere('tasks.description', 'like', '%' . $this->buscar . '%');
                 })
                 ->when($this->selectedCategoria, function ($query) {
                     $query->whereHas('presupuestoConcepto', function ($query) {
@@ -56,11 +56,11 @@ class TasksAsignarTable extends Component
                 })
                 ->when($this->selectedCliente, function ($query) {
                     $query->whereHas('presupuesto', function ($query) {
-                        $query->where('client_id', $this->selectedCliente);
+                        $query->where('budgets.client_id', $this->selectedCliente);
                     });
                 })
                 ->when($this->selectedEmpleado, function ($query) {
-                    $query->where('admin_user_id', $this->selectedEmpleado);
+                    $query->where('tasks.admin_user_id', $this->selectedEmpleado);
                 })
                 ->when($this->selectedGestor, function ($query) {
                     $query->where('gestor_id', $this->selectedGestor);
