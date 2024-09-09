@@ -37,7 +37,7 @@
                         <option value="all">Todo</option>
                     </select>
                 </div>
-                <div class="w-40 mb-3 px-2 flex-fill">
+                <div class="w-20 mb-3 px-2 flex-fill">
                     <label for="">Buscar</label>
                     <input wire:model.debounce.300ms="buscar" type="text" class="form-control w-100" placeholder="Escriba la palabra a buscar...">
                 </div>
@@ -68,12 +68,11 @@
                         @endforeach
                     </select>
                 </div>
-            </div>
-            <div class="flex flex-row justify-center">
+
                 <div class="mb-3 px-2 flex-fill">
                     <label for="">Estados</label>
                     <select wire:model="selectedEstado" name="" id="" class="form-select choices">
-                        <option value=""> Seleccione un estado </option>
+                        <option value=""> Estado </option>
                         @foreach ($estados as $estado)
                             <option value="{{$estado->id}}">{{$estado->nombre}}</option>
                         @endforeach
@@ -82,7 +81,7 @@
                 <div class="mb-3 px-2 flex-fill">
                     <label for="">Servicios</label>
                     <select wire:model="selectedServicio" name="" id="" class="form-select choices">
-                        <option value=""> Seleccione un servicio </option>
+                        <option value=""> Servicio </option>
                         @foreach ($servicios as $servicio)
                             <option value="{{$servicio->id}}">{{$servicio->name}}</option>
                         @endforeach
@@ -111,7 +110,7 @@
     </div>
     @if ( $kitDigitals )
     <div class="table-responsive">
-        <table class="table">
+        <table class="table table-sm">
             <thead class="header-table">
                 @foreach ([
                     'empresa' => 'EMPRESA',
@@ -161,7 +160,7 @@
                         <td style="min-width: 170px !important; ">{{ $item->Client->name ?? 'Sin cliente' }}</td>
                         <td style="min-width: 250px !important"><input data-id="{{$item->id}}" type="text" name="cliente" id="cliente" value="{{ $item->cliente }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                         <td style="min-width: 100px !important"><input disabled data-id="{{$item->id}}" type="text" name="mensaje_interpretado" id="mensaje_interpretado" value="{{ $item->mensaje_interpretado == 1 ? 'Si' : ($item->mensaje_interpretado == 2 ? 'No se' : ( $item->mensaje_interpretado === 0 ? 'No' : ($item->mensaje_interpretado === 3 ? 'Error' : '' ))) }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
-                        <td style="min-width: 300px !important;"><textarea disabled cols="30" rows="3"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea></td>
+                        <td style="min-width: 300px !important;"><textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea></td>
                         <td style="min-width: 125px !important"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                         <td style="min-width: 125px !important"><input data-id="{{$item->id}}" type="text" name="telefono" id="telefono" value="{{ $item->telefono }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                         <td class="exclude"><input data-id="{{$item->id}}" type="text" name="expediente" id="expediente" value="{{ $item->expediente }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
@@ -209,8 +208,8 @@
                                 @endforeach
                             </select>
                         </td>
-                        <td style="min-width: 300px !important"><textarea name="comentario" data-id="{{$item->id}}" cols="30" rows="3" style=" background-color: rgba(255, 255, 255, 0.123) ;margin-bottom: 0; width:100%;">{{ $item->comentario }}</textarea></td>
-                        <td style="min-width: 300px !important"><textarea name="nuevo_comentario" data-id="{{$item->id}}" cols="30" rows="3"  style="background-color: rgba(255, 255, 255, 0.123) ; margin-bottom: 0; width:100%;">{{ $item->nuevo_comentario }}</textarea></td>
+                        <td style="min-width: 300px !important"><textarea name="comentario" data-id="{{$item->id}}" cols="30" rows="1" style=" background-color: rgba(255, 255, 255, 0.123) ;margin-bottom: 0; width:100%;">{{ $item->comentario }}</textarea></td>
+                        <td style="min-width: 300px !important"><textarea name="nuevo_comentario" data-id="{{$item->id}}" cols="30" rows="1"  style="background-color: rgba(255, 255, 255, 0.123) ; margin-bottom: 0; width:100%;">{{ $item->nuevo_comentario }}</textarea></td>
                     </tr>
                 @endforeach
             </tbody>
@@ -234,6 +233,8 @@
 
     <script>
     $(document).ready(function() {
+        $("#sidebar").remove();
+        $("#main").css("margin-left", "0px");
         // Función para manejar la actualización de datos
         function handleDataUpdate(id, value, key) {
             $.ajax({
