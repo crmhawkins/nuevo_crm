@@ -55,7 +55,7 @@ th {
                 </div>
                 <div class="mb-3 px-2 flex-fill">
                     <label for="">Gesto</label>
-                    <select wire:model="selectedGestor" name="" id="" class="form-select choices">
+                    <select wire:model="selectedGestor" name="" id="" class="form-select">
                         <option value=""> Gestor </option>
                         @foreach ($gestores as $gestor)
                             <option value="{{$gestor->id}}">{{$gestor->name}}</option>
@@ -64,7 +64,7 @@ th {
                 </div>
                 <div class="mb-3 px-2 flex-fill">
                     <label for="">Comercial</label>
-                    <select wire:model="selectedComerciales" name="" id="" class="form-select choices">
+                    <select wire:model="selectedComerciales" name="" id="" class="form-select">
                         <option value=""> Comercial </option>
                         @foreach ($comerciales as $comercial)
                             <option value="{{$comercial->id}}">{{$comercial->name}}</option>
@@ -74,7 +74,7 @@ th {
 
                 <div class="mb-3 px-2 flex-fill">
                     <label for="">Estados</label>
-                    <select wire:model="selectedEstado" name="" id="" class="form-select choices">
+                    <select wire:model="selectedEstado" name="" id="" class="form-select">
                         <option value=""> Estado </option>
                         @foreach ($estados as $estado)
                             <option value="{{$estado->id}}">{{$estado->nombre}}</option>
@@ -83,7 +83,7 @@ th {
                 </div>
                 <div class="mb-3 px-2 flex-fill">
                     <label for="">Servicios</label>
-                    <select wire:model="selectedServicio" name="" id="" class="form-select choices">
+                    <select wire:model="selectedServicio" name="" id="" class="form-select">
                         <option value=""> Servicio </option>
                         @foreach ($servicios as $servicio)
                             <option value="{{$servicio->id}}">{{$servicio->name}}</option>
@@ -92,7 +92,7 @@ th {
                 </div>
                 <div class="mb-3 px-2 flex-fill">
                     <label for="">Estado de la Factura</label>
-                    <select wire:model="selectedEstadoFactura" name="" id="" class="form-select choices">
+                    <select wire:model="selectedEstadoFactura" name="" id="" class="form-select">
                         <option value=""> Estado </option>
                         @foreach ($estados_facturas as $estadofactura)
                             <option value="{{$estadofactura['id']}}">{{$estadofactura['nombre']}}</option>
@@ -101,7 +101,7 @@ th {
                 </div>
                 <div class="mb-3 px-2 flex-fill">
                     <label for="">Segmento</label>
-                    <select wire:model="selectedSegmento" name="" id="" class="form-select choices">
+                    <select wire:model="selectedSegmento" name="" id="" class="form-select">
                         <option value=""> Segmento </option>
                         @foreach ($segmentos as $segmento)
                             <option value="{{$segmento['id']}}">{{$segmento['nombre']}}</option>
