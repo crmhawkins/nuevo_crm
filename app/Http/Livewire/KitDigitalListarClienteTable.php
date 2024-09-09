@@ -141,7 +141,7 @@ class KitDigitalListarClienteTable extends Component
     }
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado') {
+        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado' || $propertyName === 'selectedGestor' || $propertyName === 'selectedServicio' || $propertyName === 'selectedEstadoFactura' || $propertyName === 'selectedComerciales') {
             $this->resetPage(); // Resetear la paginación solo cuando estos filtros cambien.
         }
     }

@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\CrmActivities\CrmActivitiesMeetings;
 use App\Models\Users\User;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -13,7 +14,7 @@ class ActasTable extends Component
 
     public $buscar;
     public $selectedUser;
-    public $selectedAnio;
+    public $selectedYear;
     public $selectedMes;
     public $usuarios;
     public $perPage = 10;
@@ -24,6 +25,8 @@ class ActasTable extends Component
 
     public function mount(){
         $this->usuarios = User::all();
+        $this->selectedYear = Carbon::now()->year;
+
     }
 
 
@@ -44,6 +47,9 @@ class ActasTable extends Component
             ->orWhereHas('adminUser', function ($subQuery) { // Busca en los conceptos de presupuesto
                 $subQuery->where('name', 'like', '%' . $this->buscar . '%')
                     ->orWhere('surname', 'like', '%' . $this->buscar . '%');
+            })
+            ->when($this->selectedYear, function ($query) {
+                $query->whereYear('created_at', $this->selectedYear);
             })
             ->orWhere('subject', 'like', '%' . $this->buscar . '%')
             ->orWhere('date', 'like', '%' . $this->buscar . '%');

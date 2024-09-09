@@ -51,12 +51,21 @@
                         <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
-                    @foreach ( $contratos as $acta )
-                        <tr class="clickable-row" data-href="{{ route('reunion.view', $acta->id) }}">
-                            <td>{{$acta->cliente ?? 'Error' }}</td>
-                            <td>{{($acta->adminUser->name.' '.$acta->adminUser->surname ) ?? 'Error' }}</td>
-                            <td>{{$acta->subject }}</td>
-                            <td>{{ \Carbon\Carbon::parse($acta->date)->format('d/m/Y') }}</td>
+                    @foreach ( $orders as $order )
+                        <tr class="clickable-row" data-href="{{ route('gasto-asociado.edit', $order->id) }}">
+                            <td>{{$order->reference}}</td>
+                            <td>{{$order->OrdenCompra->Proveedor->name ?? 'Proveedor no definido' }}</td>
+                            <td>{{$order->title }}</td>
+                            <td>{{$order->cliente->name ?? 'Cliente no definido' }}</td>
+                            <td>{{$order->created_at }}</td>
+                            <td>{{$order->quantity }}</td>
+                            <td>{{$order->state }}</td>
+                            <td>{{$order->state }}</td>
+                            <td style="text-align: center;">@if($order->aceptado_gestor == 1) SI @else NO @endif</td>
+                            <td>
+                            <a class="" href="{{route('gasto-asociado.edit', $order->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
+
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

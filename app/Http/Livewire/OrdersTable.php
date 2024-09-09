@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\Accounting\AssociatedExpenses;
 use App\Models\CrmActivities\CrmActivitiesMeetings;
 use App\Models\Users\User;
 use Livewire\Component;
@@ -20,7 +21,7 @@ class OrdersTable extends Component
     public $sortColumn = 'admin_user_id'; // Columna por defecto
     public $sortDirection = 'asc'; // Dirección por defecto
 
-    protected $contratos; // Propiedad protegida para los usuarios
+    protected $orders; // Propiedad protegida para los usuarios
 
     public function mount(){
         $this->usuarios = User::all();
@@ -31,13 +32,13 @@ class OrdersTable extends Component
     {
         $this->actualizarNominas(); // Ahora se llama directamente en render para refrescar los clientes.
         return view('livewire.orders-table', [
-            'contratos' => $this->contratos
+            'orders' => $this->orders
         ]);
     }
 
     protected function actualizarNominas()
     {
-        $query = CrmActivitiesMeetings::when($this->buscar, function ($query) {
+        $query = AssociatedExpenses::when($this->buscar, function ($query) {
             $query->whereHas('client', function ($subQuery) {
                 $subQuery->where('name', 'like', '%' . $this->buscar . '%');
             })
@@ -55,7 +56,7 @@ class OrdersTable extends Component
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
         // Verifica si se seleccionó 'all' para mostrar todos los registros
-        $this->contratos = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+        $this->orders = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
     public function sortBy($column)
     {

@@ -2,6 +2,7 @@
 
 namespace App\Models\PurcharseOrde;
 
+use App\Models\Clients\Client;
 use App\Models\PaymentMethods\PaymentMethod;
 use App\Models\Suppliers\Supplier;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,6 +46,9 @@ class PurcharseOrder extends Model
 
     public function concepto() {
         return $this->belongsTo(\App\Models\Budgets\BudgetConcept::class,'budget_concept_id');
+    }
+    public function cliente() {
+        return $this->belongsTo(Client::class,'budget_concept_id');
     }
     public function payMethod() {
         return $this->belongsTo(PaymentMethod::class,'payment_method_id');
