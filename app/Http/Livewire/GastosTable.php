@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\Accounting\Gasto;
 use App\Models\Clients\Client;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -23,6 +24,9 @@ class GastosTable extends Component
     protected $gastos; // Propiedad protegida para los gastosbusqueda
 
 
+    public function mount(){
+        $this->selectedYear = Carbon::now()->year;
+    }
     public function render()
     {
         $this->actualizargastos(); // Ahora se llama directamente en render para refrescar los gastos.
