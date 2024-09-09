@@ -387,6 +387,8 @@ Route::get('/treasury/{year}', [CuadroController::class,'indexYear'])->name('adm
 
 // Actas de Reunion
 Route::post('/transcribir-acta', [CrmActivityMeetingController::class,'transcripcion'])->name('admin.trascricion.update');
+Route::post('/registrar-acta', [CrmActivityMeetingController::class,'register'])->name('admin.acta.register');
+
 // Configuracion
 Route::get('/statistics', [StatisticsController::class, 'index'])->name('estadistica.index');
 

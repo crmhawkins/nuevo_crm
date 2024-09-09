@@ -224,7 +224,8 @@
         clientSelect.addEventListener('change', function() {
             const clientId = this.value;
             if (clientId) {
-                getContacts(clientId);
+                var contactos = getContacts(clientId);
+                console.log(contactos)
             } else {
                 choicesContacts.clearChoices();
                 choicesContacts.setChoices([{ value: '', label: 'Seleccione un Contacto' }]);

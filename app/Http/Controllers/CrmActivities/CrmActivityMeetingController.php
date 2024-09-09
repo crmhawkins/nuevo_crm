@@ -286,6 +286,16 @@ class CrmActivityMeetingController extends Controller
         return response()->json($contacts);
     }
 
+    public function register(Request $request){
+        $request->validate([
+            'client_id' => 'required',
+            'contacts' => 'required',
+            'date' => 'required',
+            'time_start' => 'required',
+            'contact_by_id' => 'required',
+        ]);
+
+    }
 
     public function storeMeetingFromAllUsers(Request $request){
         $userEmails = array();
