@@ -383,9 +383,11 @@ Route::post('/treasury/getIngresos',[CuadroController::class,'getIngresos'])->na
 Route::post('/treasury/getGastos',[CuadroController::class,'getGastos'])->name('admin.treasury.getGastos');
 Route::post('/treasury/getGastosAsociados',[CuadroController::class,'getGastosAsociados'])->name('admin.treasury.getGastosAsociados');
 Route::get('/treasury/{year}', [CuadroController::class,'indexYear'])->name('admin.treasury.indexYear');
+
+
+// Actas de Reunion
+Route::post('/transcribir-acta', [CrmActivityMeetingController::class,'transcripcion'])->name('admin.trascricion.update');
 // Configuracion
-
-
 Route::get('/statistics', [StatisticsController::class, 'index'])->name('estadistica.index');
 
 Route::get('/configuracion', [SettingsController::class, 'index'])->name('configuracion.index');
