@@ -65,7 +65,7 @@
                         <tr class="clickable-row" data-href="{{route('gasto.edit', $gasto->id)}}">
                             <td>{{$gasto->title}}</td>
                             <td>{{ number_format($gasto->quantity, 2) }}€</td>
-                            <td>{{ \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($gasto->date)->format('d/m/Y') }}</td>
                             <td>{{$gasto->state}}</td>
                             <td>
                                 @if (isset($gasto->documents))
