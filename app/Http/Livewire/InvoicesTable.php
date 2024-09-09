@@ -55,7 +55,7 @@ class InvoicesTable extends Component
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%')
                             ->orWhere('email', 'like', '%' . $this->buscar . '%');
             })
-            ->orWhereHas('proyecto', function ($subQuery) { // Busca en los conceptos de presupuesto
+            ->orWhereHas('project', function ($subQuery) { // Busca en los conceptos de presupuesto
                 $subQuery->where('name', 'like', '%' . $this->buscar . '%');
             });
             })

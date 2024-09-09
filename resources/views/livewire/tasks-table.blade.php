@@ -65,6 +65,15 @@
                         @endforeach
                     </select>
                 </div>
+                <div>
+                    <label for="">Año</label>
+                    <select wire:model="selectedYear" class="form-select">
+                        <option value="">-- Seleccione un Año --</option>
+                        @foreach (range(date('Y'), date('Y') - 5, -1) as $year)
+                            <option value="{{ $year }}">{{ $year }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
     </div>

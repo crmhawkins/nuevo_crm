@@ -62,9 +62,6 @@ class TasksAsignarTable extends Component
                 ->when($this->selectedEmpleado, function ($query) {
                     $query->where('tasks.admin_user_id', $this->selectedEmpleado);
                 })
-                ->when($this->selectedYear, function ($query) {
-                    $query->whereYear('tasks.created_at', $this->selectedYear);
-                })
                 ->when($this->selectedGestor, function ($query) {
                     $query->where('gestor_id', $this->selectedGestor);
                 })
