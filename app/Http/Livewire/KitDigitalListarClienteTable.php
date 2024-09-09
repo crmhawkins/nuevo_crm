@@ -38,8 +38,8 @@ class KitDigitalListarClienteTable extends Component
 
     public function mount(){
 
-        $this->gestores = User::Where('access_level_id',4)->get();
-        $this->comerciales = User::Where('access_level_id',6)->get();
+        $this->gestores = User::Where('access_level_id',4)->where('inactive', 0)->get();
+        $this->comerciales = User::Where('access_level_id',6)->where('inactive', 0)->get();
         $this->servicios = KitDigitalServicios::all();
         $this->estados = KitDigitalEstados::all();
         $this->clientes = Client::where('is_client',true)->get();
@@ -103,9 +103,8 @@ class KitDigitalListarClienteTable extends Component
                     $query->where('estado', $this->selectedEstado);
                 });
 
-
-        $query->orderBy($this->sortColumn, $this->sortDirection);
-
+                $query->orderBy($this->sortColumn, $this->sortDirection);
+          
         // Verifica si se seleccionó 'all' para mostrar todos los registros
         $this->kitDigitals = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
         $this->Sumatorio = $this->kitDigitals->reduce(function ($carry, $item) {

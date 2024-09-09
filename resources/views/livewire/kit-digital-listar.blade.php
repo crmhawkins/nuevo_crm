@@ -1,38 +1,13 @@
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
 @endsection
-<style>
-    /* Estilos específicos para la tabla */
-.table-responsive {
-    overflow-x: auto; /* Asegura un desplazamiento suave en pantallas pequeñas */
-}
 
-.header-table th {
-    vertical-align: bottom; /* Alinea el texto de los encabezados en la parte inferior */
-    white-space: nowrap; /* Evita que los encabezados se rompan en líneas */
-    font-size: 0.85rem; /* Ajusta el tamaño del texto para los encabezados */
-}
-
-.table td, .table th {
-    padding: 0.5rem; /* Ajusta el padding para las celdas */
-}
-
-.long-text {
-    max-width: 250px; /* Máximo ancho para el texto largo */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-th {
-  white-space: nowrap !important;
-}
-</style>
 <div>
     <div class="filtros row mb-4">
         <div class="col-md-12 col-sm-12">
             <div class="flex flex-row justify-center">
-                <div class="mb-3 px-2 ">
-                    <label for="">Nª por paginas</label>
+                <div class="mb-3 px-2" style="width: 85px">
+                    <label class="titulo_filtros" for="" >Nª</label>
                     <select wire:model="perPage" class="form-select">
                         <option value="10">10</option>
                         <option value="25">25</option>
@@ -40,31 +15,31 @@ th {
                         <option value="all">Todo</option>
                     </select>
                 </div>
-                <div class="w-20 mb-3 px-2 flex-fill">
-                    <label for="">Buscar</label>
+                <div class="w-20 mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros" for="">Buscar</label>
                     <input wire:model.debounce.300ms="buscar" type="text" class="form-control w-100" placeholder="Escriba la palabra a buscar...">
                 </div>
-                <div class="mb-3 px-2 flex-fill">
-                    <label for="">Clientes</label>
-                    <select wire:model="selectedCliente" name="" id="" class="form-select choices">
+                <div class="mb-3 px-2 flex-fill" style="width: 200px">
+                    <label class="titulo_filtros" for="">Clientes</label>
+                    <select wire:model="selectedCliente" name="selectedCliente" id="selectedCliente" class="form-select choices">
                         <option value=""> Seleccione un cliente </option>
                         @foreach ($clientes as $cliente)
                             <option value="{{$cliente->id}}">{{$cliente->name}}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="mb-3 px-2 flex-fill">
-                    <label for="">Gesto</label>
-                    <select wire:model="selectedGestor" name="" id="" class="form-select choices">
+                <div class="mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros" for="">Gestor</label>
+                    <select wire:model="selectedGestor" name="selectedGestor" id="selectedGestor" class="form-select">
                         <option value=""> Gestor </option>
                         @foreach ($gestores as $gestor)
                             <option value="{{$gestor->id}}">{{$gestor->name}}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="mb-3 px-2 flex-fill">
-                    <label for="">Comercial</label>
-                    <select wire:model="selectedComerciales" name="" id="" class="form-select choices">
+                <div class="mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros"for="">Comercial</label>
+                    <select wire:model="selectedComerciales" name="selectedComerciales" id="selectedComerciales" class="form-select">
                         <option value=""> Comercial </option>
                         @foreach ($comerciales as $comercial)
                             <option value="{{$comercial->id}}">{{$comercial->name}}</option>
@@ -72,36 +47,36 @@ th {
                     </select>
                 </div>
 
-                <div class="mb-3 px-2 flex-fill">
-                    <label for="">Estados</label>
-                    <select wire:model="selectedEstado" name="" id="" class="form-select choices">
+                <div class="mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros" for="">Estados</label>
+                    <select wire:model="selectedEstado" name="selectedEstado" id="selectedEstado" class="form-select">
                         <option value=""> Estado </option>
                         @foreach ($estados as $estado)
                             <option value="{{$estado->id}}">{{$estado->nombre}}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="mb-3 px-2 flex-fill">
-                    <label for="">Servicios</label>
-                    <select wire:model="selectedServicio" name="" id="" class="form-select choices">
+                <div class="mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros" for="">Servicios</label>
+                    <select wire:model="selectedServicio" name="selectedServicio" id="selectedServicio" class="form-select">
                         <option value=""> Servicio </option>
                         @foreach ($servicios as $servicio)
                             <option value="{{$servicio->id}}">{{$servicio->name}}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="mb-3 px-2 flex-fill">
-                    <label for="">Estado de la Factura</label>
-                    <select wire:model="selectedEstadoFactura" name="" id="" class="form-select choices">
+                <div class="mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros" for="">Estado de la Factura</label>
+                    <select wire:model="selectedEstadoFactura" name="selectedEstadoFactura" id="selectedEstadoFactura" class="form-select">
                         <option value=""> Estado </option>
                         @foreach ($estados_facturas as $estadofactura)
                             <option value="{{$estadofactura['id']}}">{{$estadofactura['nombre']}}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="mb-3 px-2 flex-fill">
-                    <label for="">Segmento</label>
-                    <select wire:model="selectedSegmento" name="" id="" class="form-select choices">
+                <div class="mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros" for="">Segmento</label>
+                    <select wire:model="selectedSegmento" name="selectedSegmento" id="selectedSegmento" class="form-select">
                         <option value=""> Segmento </option>
                         @foreach ($segmentos as $segmento)
                             <option value="{{$segmento['id']}}">{{$segmento['nombre']}}</option>
@@ -242,6 +217,35 @@ th {
         </div>
     @endif
 </div>
+<style>
+    /* Estilos específicos para la tabla */
+.table-responsive {
+    overflow-x: auto; /* Asegura un desplazamiento suave en pantallas pequeñas */
+}
+
+.header-table th {
+    vertical-align: bottom; /* Alinea el texto de los encabezados en la parte inferior */
+    white-space: nowrap; /* Evita que los encabezados se rompan en líneas */
+    font-size: 0.85rem; /* Ajusta el tamaño del texto para los encabezados */
+}
+
+.table td, .table th {
+    padding: 0.5rem; /* Ajusta el padding para las celdas */
+}
+
+.long-text {
+    max-width: 250px; /* Máximo ancho para el texto largo */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+th {
+  white-space: nowrap !important;
+}
+.titulo_filtros {
+  white-space: nowrap !important;
+}
+</style>
 @section('scripts')
 
 
