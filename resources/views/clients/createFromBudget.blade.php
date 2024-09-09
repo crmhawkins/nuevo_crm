@@ -172,7 +172,7 @@
                                     </div>
                                     <div class="form-group boton-picker mt-2">
                                         <label for="birthdate">Fecha de Nacimiento / creación de la empresa:</label>
-                                        <input autocomplete="no" placeholder="Fecha de creacion de la empresa..." id="datepicker" type="text" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" value="{{ old('birthdate') }}" name="birthdate">
+                                        <input autocomplete="no" placeholder="Fecha de creacion de la empresa..." type="date" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" value="{{ old('birthdate') }}" name="birthdate">
                                         @error('birthdate')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
