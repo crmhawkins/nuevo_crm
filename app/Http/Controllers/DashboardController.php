@@ -23,11 +23,10 @@ class DashboardController extends Controller
         $id = Auth::user()->id;
         $acceso = Auth::user()->access_level_id;
         $user = User::find($id);
-        $users = User::all();
+        $users = User::where('inactive',0)->get();
         $clientes = Client::where('is_client',true)->get();
         $budgets = Budget::all();
         $projects = Project::all();
-        $tareas = Task::all();
         $to_dos = $user->todos->where('finalizada',false);
         $timeWorkedToday = $this->calculateTimeWorkedToday($user);
         $jornadaActiva = $user->activeJornada();
@@ -40,15 +39,22 @@ class DashboardController extends Controller
         }
         switch($acceso){
             case(1):
+                $tareas = Task::all();
                 return view('dashboards.dashboard', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(2):
+                $tareas = Task::all();
                 return view('dashboards.dashboard_gerente', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(3):
+                $tareas = Task::all();
+
                 return view('dashboards.dashboard_contable', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(4):
+                $tareas = Task::all();
                 $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;
                 return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(5):
+                $tareas = $user->tareas;
+
                 $tasks = $this->getTasks($user->id);
                 return view('dashboards.dashboard_personal', compact('user','tasks','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
         }
