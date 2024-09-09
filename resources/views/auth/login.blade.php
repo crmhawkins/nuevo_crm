@@ -44,9 +44,9 @@
                         <label class="form-check-label" for="remember">Recordar contraseña</label>
                     </div>
                     <button type="submit" class="btn btn-dark w-100">Iniciar sesión</button>
-                    @if (Route::has('password.request'))
+                    {{-- @if (Route::has('password.request'))
                         <a class="btn btn-link" href="{{ route('password.request') }}">¿Olvidaste tu contraseña?</a>
-                    @endif
+                    @endif --}}
                 </form>
             </div>
         </div>
