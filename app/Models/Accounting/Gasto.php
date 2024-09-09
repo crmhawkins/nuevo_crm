@@ -20,16 +20,21 @@ class Gasto extends Model
      * @var array
      */
     protected $fillable = [
-        'title',
-        'reference',
-        'quantity',
-        'bank_id',
-        'date',
-        'received_date',
+        'invoice_id',
         'payment_method_id',
-        'transfer_movement',
+        'bank_id',
+        'title',
+        'quantity',
+        'received_date',
+        'date',
+        'reference',
         'state',
-        'documents'
+        'budget_date',
+        'documents',
+        'transfer_movement',
+        'aprobado',
+        'iva',
+
     ];
 
     /**
