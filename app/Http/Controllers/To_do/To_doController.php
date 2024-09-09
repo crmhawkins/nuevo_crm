@@ -36,12 +36,14 @@ class To_doController extends Controller
         ]);
 
         // Asociar múltiples usuarios a la tarea
-        foreach ($validatedData['admin_user_ids'] as $userId) {
-            TodoUsers::create([
-                'todo_id' => $todo->id,
-                'admin_user_id' => $userId,
-                'completada' => false  // Asumimos que la tarea no está completada por los usuarios al inicio
-            ]);
+        if(isset($validatedData['admin_user_ids'])){
+            foreach ($validatedData['admin_user_ids'] as $userId) {
+                TodoUsers::create([
+                    'todo_id' => $todo->id,
+                    'admin_user_id' => $userId,
+                    'completada' => false  // Asumimos que la tarea no está completada por los usuarios al inicio
+                ]);
+            }
         }
 
 
