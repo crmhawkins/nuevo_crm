@@ -70,7 +70,7 @@
                                     </div>
                                     <div class="form-group boton-picker mt-2">
                                         <label for="birthdate">Fecha de alta</label>
-                                        <input autocomplete="no" placeholder="Fecha de alta como cliente..." id="datepicker" type="text" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" value="{{ old('birthdate', Carbon\Carbon::now()->format('d/m/Y')) }}" name="birthdate">
+                                        <input autocomplete="no" placeholder="Fecha de alta como cliente..."  type="date" class="form-control @error('birthdate') is-invalid @enderror" id="birthdate" value="{{ old('birthdate', Carbon\Carbon::now()->format('d/m/Y')) }}" name="birthdate">
                                         @error('birthdate')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>

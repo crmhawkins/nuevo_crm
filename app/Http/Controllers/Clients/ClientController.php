@@ -53,7 +53,7 @@ class ClientController extends Controller
             'identifier' => 'required|max:200',
             'activity' => 'required|max:200',
             'address' => 'required|max:200',
-            'country' => 'required|max:200',
+            'country' => 'nullable|max:200',
             'city' => 'required|max:200',
             'province' => 'required|max:200',
             'zipcode' => 'required|max:200',
@@ -78,6 +78,7 @@ class ClientController extends Controller
         ]);
 
         $data = $request->all();
+        $data['is_client'] = true;
         $data['is_client'] = true;
         $clienteCreado = Client::create($data);
         // dd($clienteCreado);
