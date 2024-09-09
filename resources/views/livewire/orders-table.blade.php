@@ -22,7 +22,7 @@
         </div>
     </div>
     {{-- {{dd($users)}} --}}
-    @if ( $contratos )
+    @if ( $orders )
         {{-- Filtros --}}
         {{-- Tabla --}}
         <div class="table-responsive">
@@ -30,14 +30,14 @@
                 <thead class="header-table">
                     <tr>
                         @foreach ([
-                            'cliente' => 'PRESUPUESTO',
-                            'usuario' => 'PROVEEDOR',
-                            'subject' => 'CONCEPTO',
-                            'date' => 'CLIENTE',
-                            'date' => 'FECHA',
-                            'date' => 'IMPORTE',
-                            'date' => 'ESTADO',
-                            'date' => 'ACEPTADA POR GESTOR',
+                            'reference' => 'PRESUPUESTO',
+                            'proveedorNombre' => 'PROVEEDOR',
+                            'title' => 'CONCEPTO',
+                            'clienteNombre' => 'CLIENTE',
+                            'created_at' => 'FECHA',
+                            'quantity' => 'IMPORTE',
+                            'state' => 'ESTADO',
+                            'aceptado_gestor' => 'ACEPTADA POR GESTOR',
                             ] as $field => $label)
                             <th class="px-3" style="font-size:0.75rem">
                                 <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
@@ -56,10 +56,9 @@
                             <td>{{$order->reference}}</td>
                             <td>{{$order->OrdenCompra->Proveedor->name ?? 'Proveedor no definido' }}</td>
                             <td>{{$order->title }}</td>
-                            <td>{{$order->cliente->name ?? 'Cliente no definido' }}</td>
+                            <td>{{$order->OrdenCompra->cliente->name ?? 'Cliente no definido' }}</td>
                             <td>{{$order->created_at }}</td>
                             <td>{{$order->quantity }}</td>
-                            <td>{{$order->state }}</td>
                             <td>{{$order->state }}</td>
                             <td style="text-align: center;">@if($order->aceptado_gestor == 1) SI @else NO @endif</td>
                             <td>
@@ -71,7 +70,7 @@
                 </tbody>
             </table>
             @if($perPage !== 'all')
-                {{ $contratos->links() }}
+                {{ $orders->links() }}
             @endif
         </div>
     @else
@@ -132,22 +131,7 @@
                 }
             });
         }
-        function getDelete(id) {
-            // Ruta de la peticion
-            const url = '{{route("contratos.delete")}}'
-            // Peticion
-            return $.ajax({
-                type: "POST",
-                url: url,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                },
-                data: {
-                    'id': id,
-                },
-                dataType: "json"
-            });
-        }
+
 
     </script>
 @endsection

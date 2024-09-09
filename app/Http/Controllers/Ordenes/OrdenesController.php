@@ -16,4 +16,5 @@ class OrdenesController extends Controller
         return view('orders.index', compact('orders'));
     }
 
+
 }

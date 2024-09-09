@@ -47,7 +47,7 @@
                                                 @if ($clientes->count() > 0)
                                                 <option value="">Seleccione un Cliente</option>
                                                     @foreach ( $clientes as $cliente )
-                                                        <option @if($clienteId == $cliente->id) {{'selected'}} @endif data-id="{{$cliente->id}}" value="{{$cliente->id}}">{{$cliente->name}}</option>
+                                                        <option @if(old('client_id', $clienteId) == $cliente->id) {{'selected'}} @endif data-id="{{$cliente->id}}" value="{{$cliente->id}}">{{$cliente->name}}</option>
                                                     @endforeach
                                                 @else
                                                     <option value="">No existen clientes todavia</option>
@@ -100,6 +100,7 @@
                                         <label class="mb-2 text-left">Gestor</label>
                                         <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor">
                                             @if ($gestores->count() > 0)
+                                                <option value="">Seleccione gestor</option>
                                                 @foreach ( $gestores as $gestor )
                                                     <option {{ $gestorId != null ? ($gestorId == $gestor->id ? 'selected' : '') : ( Auth::user()->id == $gestor->id ? 'selected' : '') }}  value="{{$gestor->id}}">{{$gestor->name}}</option>
                                                 @endforeach
@@ -119,12 +120,13 @@
                                     <div class="form-group mb-3">
                                         <label class="mb-2 text-left">Comercial</label>
                                         <select class="choices form-select w-75" name="commercial_id">
-                                            @if ($gestores->count() > 0)
-                                                @foreach ( $gestores as $gestor )
-                                                    <option value="{{$gestor->id}}">{{$gestor->name}}</option>
+                                            @if ($comerciales->count() > 0)
+                                            <option value="">S.Comercial</option>
+                                                @foreach ( $comerciales as $comercial )
+                                                    <option value="{{$comercial->id}}">{{$comercial->name}}</option>
                                                 @endforeach
                                             @else
-                                                <option value="{{null}}">No existen gestores todavia</option>
+                                                <option value="{{null}}">No existen comerciales todavia</option>
                                             @endif
                                         </select>
                                     </div>
@@ -149,7 +151,7 @@
                                 <div class="col-sm-12 col-md-6">
                                     {{-- Concepto --}}
                                     <div class="form-group mb-3">
-                                        <label class="mb-2 text-left" for="concept">Concepto:</label>
+                                        <label class="mb-2 text-left" for="concept">Titulo:</label>
                                         <input type="text" class="form-control @error('concept') is-invalid @enderror" id="concept" value="{{ old('concept') }}" name="concept">
                                         @error('concept')
                                                 <span class="invalid-feedback" role="alert">

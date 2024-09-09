@@ -98,7 +98,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <a {{-- href="{{route('reunion.create')}}" --}} class="btn btn-outline-secondary">Ver Ordenes</a>
+                                        <a href="{{route('order.index')}}"  class="btn btn-outline-secondary">Ver Ordenes</a>
                                     </div>
                                 </div>
                             </div>
@@ -110,7 +110,6 @@
                                         <h5 class="card-title fw-bold">Producción</h5>
                                         <a href="{{route('presupuestos.status')}}" class="btn btn-outline-secondary mb-2">Ver Status Proyectos</a>
                                         <a href="{{route('tareas.index')}}" class="btn btn-outline-secondary mb-2">Ver Tareas</a>
-                                        <a href="{{route('tareas.index')}}" class="btn btn-outline-secondary mb-2">Ver Producción Proveedores</a>
                                     </div>
                                 </div>
                             </div>
@@ -122,7 +121,7 @@
                                         <a href="{{route('reunion.index')}}" class="btn btn-outline-secondary mb-2">Ver Actas de reunion</a>
                                         <a href="{{route('clientes.index')}}" class="btn btn-outline-secondary mb-2">Ver Clientes</a>
                                         <a href="{{route('proveedores.index')}}" class="btn btn-outline-secondary mb-2">Ver Proveedores</a>
-                                        <a href="{{route('proveedores.index')}}" class="btn btn-outline-secondary mb-2">Tramitar Subvención</a>
+                                        <a {{-- href="{{route('proveedores.index')}}" --}} class="btn btn-outline-secondary mb-2">Tramitar Subvención</a>
                                         <a href="{{route('kitDigital.index')}}" class="btn btn-outline-secondary mb-2">Kit Digital</a>
                                     </div>
                                 </div>

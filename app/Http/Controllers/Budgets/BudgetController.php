@@ -89,7 +89,9 @@ class BudgetController extends Controller
         session('projectId') != null ? $projectId = session('projectId') : $projectId = null;
 
         $campanias = [];
-        $gestores = User::all();
+
+        $gestores = User::Where('access_level_id',4)->where('inactive', 0)->get();
+        $comerciales = User::Where('access_level_id',6)->where('inactive', 0)->get();
         $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
         $formasPago = PaymentMethod::all();
 
@@ -101,7 +103,7 @@ class BudgetController extends Controller
         }
 
 
-        return view('budgets.create', compact('gestores', 'clientes', 'campanias', 'formasPago', 'clienteId','gestorId', 'projectId'));
+        return view('budgets.create', compact('gestores','comerciales', 'clientes', 'campanias', 'formasPago', 'clienteId','gestorId', 'projectId'));
     }
 
     public function createFromPetition(string $id)
@@ -1469,6 +1471,8 @@ class BudgetController extends Controller
                     $dataTask['title'] = $con->title;
                     $dataTask['description'] = $con->concept;
                     $dataTask['total_time_budget'] = $time_hour;
+                    $dataTask['estimated_time'] = $time_hour;
+                    $dataTask['real_time'] = '00:00:00';
                     $task = Task::create($dataTask);
                     $taskSaved = $task->save();
                 }else{

@@ -35,6 +35,7 @@ use App\Http\Controllers\Incidence\IncidenceController;
 use App\Http\Controllers\KitDigitalController;
 use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
+use App\Http\Controllers\Ordenes\OrdenesController;
 use App\Http\Controllers\Statistics\StatisticsController;
 use App\Http\Controllers\Users\DepartamentController;
 use App\Http\Controllers\Users\PositionController;
@@ -159,6 +160,7 @@ Route::post('/budpetitionget/update/{id}', [PetitionController::class, 'update']
 Route::post('/petition/destroy', [PetitionController::class, 'destroy'])->name('peticion.delete');
 
 
+Route::get('/order', [OrdenesController::class, 'index'])->name('order.index');
 
 // Budgets (PRESUPUESTOS)
 Route::get('/budgets', [BudgetController::class, 'index'])->name('presupuestos.index');

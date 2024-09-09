@@ -18,7 +18,7 @@ class OrdersTable extends Component
     public $selectedMes;
     public $usuarios;
     public $perPage = 10;
-    public $sortColumn = 'admin_user_id'; // Columna por defecto
+    public $sortColumn = 'reference'; // Columna por defecto
     public $sortDirection = 'asc'; // Dirección por defecto
 
     protected $orders; // Propiedad protegida para los usuarios
@@ -38,20 +38,23 @@ class OrdersTable extends Component
 
     protected function actualizarNominas()
     {
-        $query = AssociatedExpenses::when($this->buscar, function ($query) {
-            $query->whereHas('client', function ($subQuery) {
+        $query = AssociatedExpenses::where('state', 'PENDIENTE')
+            ->where('aceptado_gestor', null)
+            ->when($this->buscar, function ($query) {
+            $query->whereHas('cliente', function ($subQuery) {
                 $subQuery->where('name', 'like', '%' . $this->buscar . '%');
             })
-            ->orWhereHas('adminUser', function ($subQuery) { // Busca en los conceptos de presupuesto
-                $subQuery->where('name', 'like', '%' . $this->buscar . '%')
-                    ->orWhere('surname', 'like', '%' . $this->buscar . '%');
+            ->orWhereHas('OrdenCompra', function ($subQuery) { // Busca en los conceptos de presupuesto
+                $subQuery->where('reference', 'like', '%' . $this->buscar . '%')
+                    ->orWhere('quantity', 'like', '%' . $this->buscar . '%');
             })
             ->orWhere('subject', 'like', '%' . $this->buscar . '%')
             ->orWhere('date', 'like', '%' . $this->buscar . '%');
         })
-        ->join('clients', 'crm_activities_meetings.client_id', '=', 'clients.id')
-        ->join('admin_user', 'crm_activities_meetings.admin_user_id', '=', 'admin_user.id')
-        ->select('crm_activities_meetings.*', 'clients.name as cliente','admin_user.name as usuario');
+        ->join('purchase_order', 'associated_expenses.purchase_order_id', '=', 'purchase_order.id')
+        ->join('clients', 'purchase_order.client_id', '=', 'clients.id')
+        ->join('suppliers', 'purchase_order.supplier_id', '=', 'suppliers.id')
+        ->select('associated_expenses.*', 'clients.name as clienteNombre','suppliers.name as proveedorNombre');
 
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
