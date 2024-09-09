@@ -79,6 +79,7 @@
                         @foreach ([
                             'title' => 'TITULO',
                             'prioridad' => 'PRIORIDAD',
+                            'task_status_id' => 'ESTADO',
                             'cliente' => 'CLIENTE',
                             'departamento' => 'DEPARTAMENTO',
                             'empleado' => 'EMPLEADO ASIGNADO',
@@ -106,6 +107,7 @@
                         <tr class="clickable-row" data-href="{{route('tarea.edit', $tarea->id)}}" >
                             <td class="px-3">{{$tarea->title}}</td>
                             <td class="">{{$tarea->prioridad ? $tarea->prioridad : 'Prioridad no asignada'}}</td>
+                            <td class="">{{$tarea->estado ? $tarea->estado->name  : 'Estado no asignado'}}</td>
                             <td class="">{{$tarea->presupuesto->cliente->name ?? 'No definido'}}</td>
                             <td class="">{{$tarea->split_master_task_id ? ($tarea->usuario ? ($tarea->departamento ?? 'Usuario sin departamento'  ) : 'Usuario no asignado') : ''}}</td>
                             <td class="">{{$tarea->split_master_task_id ? ($tarea->empleado ?? 'No definido') : 'Tarea Maestra'}}</td>
