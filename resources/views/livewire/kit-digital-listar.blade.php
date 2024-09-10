@@ -85,7 +85,7 @@
                 </div>
             </div>
             <div class="col-md-12 col-sm-12 text-center">
-                <span class="fs-3">Sumatorio: <b>{{$Sumatorio.' €'}}</b></span>
+                <span class="fs-3" >Sumatorio: <b>{{ number_format($Sumatorio, 2, ',', '.') .' €'}}</b></span>
             </div>
         </div>
     </div>
@@ -237,7 +237,7 @@
         {{ $kitDigitals->links() }}
         @endif
         <div class="col-md-12 col-sm-12 text-center" style="margin: 1rem 0">
-            <span class="fs-3" >Sumatorio: <b>{{$Sumatorio.' €'}}</b></span>
+            <span class="fs-3" >Sumatorio: <b>{{ number_format($Sumatorio, 2, ',', '.') .' €'}}</b></span>
         </div>
     </div>
 
@@ -251,17 +251,17 @@
     .table-responsive {
         overflow-x: auto; /* Asegura un desplazamiento suave en pantallas pequeñas */
     }
-    
+
     .header-table th {
         vertical-align: bottom; /* Alinea el texto de los encabezados en la parte inferior */
         white-space: nowrap; /* Evita que los encabezados se rompan en líneas */
         font-size: 0.85rem; /* Ajusta el tamaño del texto para los encabezados */
     }
-    
+
     .table td, .table th {
         padding: 0.5rem; /* Ajusta el padding para las celdas */
     }
-    
+
     .long-text {
         max-width: 250px; /* Máximo ancho para el texto largo */
         overflow: hidden;
