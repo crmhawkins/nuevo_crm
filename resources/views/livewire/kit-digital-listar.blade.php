@@ -129,7 +129,7 @@
             </thead>
             <tbody>
                 @foreach ($kitDigitals as $item)
-                <tr style="--bs-table-bg: {{$item->estados->color}} !important; --bs-table-color: {{$item->estados->text_color}} !important">
+                <tr  wire:key='{{rand()}}' style="--bs-table-bg: {{$item->estados->color}} !important; --bs-table-color: {{$item->estados->text_color}} !important">
                     <td class="exclude" style="max-width: 50px"> <input data-id="{{$item->id}}" type="text" name="empresa" id="empresa" value="{{ $item->empresa }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none; margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                     <td class="exclude" style="max-width: 50px">
                         <select name="segmento" id="segmento" style="max-width: 50px;padding: 0.1rem 0.1rem 0.1rem 0.2rem; margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;" data-id="{{$item->id}}">
@@ -150,7 +150,7 @@
                     <td style="max-width: 50px"><input disabled data-id="{{$item->id}}" type="text" name="mensaje_interpretado" id="mensaje_interpretado" value="{{ $item->mensaje_interpretado == 1 ? 'Si' : ($item->mensaje_interpretado == 2 ? 'No se' : ( $item->mensaje_interpretado === 0 ? 'No' : ($item->mensaje_interpretado === 3 ? 'Error' : '' ))) }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem; text-align:center;width: 56px;"></td>
                     <td style="max-width: 50px">
                         {{-- <textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea> --}}
-                        <button wire:key='{{rand()}}' type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="mensaje" data-content="{{ $item->mensaje }}">Ver</button>
+                        <button type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="mensaje" data-content="{{ $item->mensaje }}">Ver</button>
 
                     </td>
                     <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
@@ -201,10 +201,10 @@
                         </select>
                     </td>
                     <td style="max-width: 80px !important">
-                        <button wire:key='{{rand()}}' type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="comentario" data-content="{{ $item->comentario }}">Editar</button>
+                        <button type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="comentario" data-content="{{ $item->comentario }}">Editar</button>
                     </td>
                     <td style="max-width: 80px !important">
-                        <button  wire:key='{{rand()}}' type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="nuevo_comentario" data-content="{{ $item->nuevo_comentario }}">Editar</button>
+                        <button  type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="nuevo_comentario" data-content="{{ $item->nuevo_comentario }}">Editar</button>
                     </td>
                     {{-- <td style="max-width: 80px !important"><textarea name="comentario" data-id="{{$item->id}}" cols="30" rows="1" style=" background-color: rgba(255, 255, 255, 0.123) ;margin-bottom: 0; width:100%;">{{ $item->comentario }}</textarea></td>
                     <td style="max-width: 80px !important"><textarea name="nuevo_comentario" data-id="{{$item->id}}" cols="30" rows="1"  style="background-color: rgba(255, 255, 255, 0.123) ; margin-bottom: 0; width:100%;">{{ $item->nuevo_comentario }}</textarea></td> --}}
