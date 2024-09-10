@@ -44,11 +44,12 @@ class MessageController extends Controller
             'is_read' => true,
             'read_at' => now(),
         ]);
+        return response()->json(['success' => true]);
 
-        return redirect()->back()->with('toast', [
-            'icon' => 'success',
-            'mensaje' => 'Mensaje enviado con éxito!'
-        ]);
+        // return redirect()->back()->with('toast', [
+        //     'icon' => 'success',
+        //     'mensaje' => 'Mensaje enviado con éxito!'
+        // ]);
     }
 
     public function markAsRead($todoId, Request $request) {
@@ -71,5 +72,17 @@ class MessageController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function getMessages($todoId){
+        // Obtenemos los mensajes relacionados al todo
+        $messages = Messages::where('todo_id', $todoId)
+        ->with('user') // Incluye la relación del usuario
+        ->orderBy('created_at', 'asc')
+        ->get();
+        return response()->json($messages);
+    }
+
+
+
 
 }

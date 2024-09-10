@@ -110,14 +110,17 @@ class To_doController extends Controller
             ]);
         }
     }
+    public function getUnreadMessagesCount($todoId){
+        $userId = auth()->user()->id;
+        $toDo = Todo::find($todoId);
 
-    public function getTodosForUser()
-    {
-        $user = auth()->user(); // Obtener el usuario autenticado
-        $to_dos = $user->todos()->with(['proyecto', 'cliente', 'presupuesto', 'TodoUsers', 'mensajes'])
-        ->get();
+        if (!$toDo) {
+            return response()->json(['unreadCount' => 0], 404);
+        }
 
-    // Formatear los To-Dos en un formato JSON que pueda ser utilizado en JavaScript
-    return response()->json($to_dos);
+        $unreadCount = $toDo->unreadMessagesCountByUser($userId);
+
+        return response()->json(['unreadCount' => $unreadCount]);
     }
+
 }

@@ -79,9 +79,10 @@ Route::post('/event/store', [EventController::class, 'store'])->name('event.stor
 Route::post('/todos/store', [To_doController::class, 'store'])->name('todos.store');
 Route::post('/todos/finish/{id}', [To_doController::class, 'finish'])->name('todos.finalizar');
 Route::post('/todos/complete/{id}', [To_doController::class, 'complete'])->name('todos.completar');
+Route::get('/todos/unread-messages-count/{todoId}', [To_doController::class, 'getUnreadMessagesCount']);
 Route::post('/message/store', [MessageController::class, 'store'])->name('message.store');
 Route::post('/mark-as-read/{todoId}', [MessageController::class,'markAsRead']);
-Route::get('/todos/user', [To_doController::class, 'getTodosForUser']);
+Route::get('/todos/getMessages/{todoId}', [MessageController::class, 'getMessages']);
 
 
 //Meetings(Reuniosnes)

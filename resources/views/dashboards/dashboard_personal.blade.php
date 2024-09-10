@@ -742,7 +742,7 @@
                                                                         <button onclick="finishTask(event,{{ $to_do->id }})" class="btn btn-danger btn-sm">Finalizar</button>
                                                                         @endif
                                                                     </div>
-                                                                    <div class="pulse justify-center align-items-center" style="{{ $to_do->unreadMessagesCountByUser($user->id) > 0 ? 'display: flex;' : 'display: none;' }}">
+                                                                    <div id="todo-card-{{ $to_do->id }}" class="pulse justify-center align-items-center" style="{{ $to_do->unreadMessagesCountByUser($user->id) > 0 ? 'display: flex;' : 'display: none;' }}">
                                                                         {{ $to_do->unreadMessagesCountByUser($user->id) }}
                                                                     </div>
                                                                 </div>
@@ -1459,6 +1459,69 @@
             }
         }).catch(error => console.error('Error:', error));
     }
+
+    function updateUnreadMessagesCount(todoId) {
+        fetch(`/todos/unread-messages-count/${todoId}`)
+            .then(response => response.json())
+            .then(data => {
+                const pulseDiv = document.querySelector(`#todo-card-${todoId} .pulse`);
+
+                if (data.unreadCount > 0) {
+                    pulseDiv.style.display = 'flex';
+                    pulseDiv.textContent = data.unreadCount;
+                } else {
+                    pulseDiv.style.display = 'none';
+                    pulseDiv.textContent = '';
+                }
+            });
+    }
+
+    function loadMessages() {
+        let todoId = '{{ $to_do->id }}'; // El id del todo
+
+        $.ajax({
+            url: `/todos/getMessages/${todoId}`,
+            type: 'GET',
+            success: function(data) {
+                let messagesContainer = $('.chat-container');
+                messagesContainer.html(''); // Limpiamos el contenedor
+                data.forEach(function(message) {
+                    let fileIcon = '';
+                    if (message.archivo) {
+                        fileIcon = `
+                            <div class="file-icon">
+                                <a href="/storage/${message.archivo}" target="_blank">
+                                    <i class="fa-regular fa-file-lines fa-2x"></i>
+                                </a>
+                            </div>
+                        `;
+                    }
+                    const messageClass = message.admin_user_id == {{ auth()->id() }} ? 'mine' : 'theirs';
+
+                    messagesContainer.append(`
+                        <div class="p-3 message ${messageClass}">
+                            ${fileIcon}
+                            <strong>${message.user.name}:</strong> ${message.mensaje}
+                        </div>
+                    `);
+                });
+            }
+        });
+    }
+
+    function startPolling() {
+        @foreach ($to_dos as $to_do)
+            setInterval(function() {
+                updateUnreadMessagesCount('{{ $to_do->id }}');
+                loadMessages('{{ $to_do->id }}');
+            }, 5000);  // Polling cada 5 segundos para cada todo
+        @endforeach
+    }
+
+    $(document).ready(function() {
+        startPolling();
+    });
+
 </script>
 <script>
 
