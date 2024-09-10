@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\Accounting\Ingreso;
 use App\Models\Clients\Client;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -23,6 +24,9 @@ class IngresosTable extends Component
     public $sortDirection = 'desc'; // Dirección por defecto
     protected $ingresos; // Propiedad protegida para los gastosbusqueda
 
+    public function mount(){
+        $this->selectedYear = Carbon::now()->year;
+    }
 
     public function render()
     {
