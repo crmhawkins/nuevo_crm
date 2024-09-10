@@ -1626,7 +1626,6 @@
                         infoContainer.slideDown();
                     }
                 });
-                showTaskInfoNew(id);
             }else{
                 $('.infotask').hide();
                 $('.tarea-sing').off('click').on('click', function() {
