@@ -52,9 +52,9 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="received_date">Fecha de recepción:</label>
-                                    <input type="date" class="form-control" id="received_date" name="received_date" value="{{Carbon\Carbon::now()->format('Y-m-d')}}">
-                                    @error('received_date')
+                                    <label for="date">Fecha de recepción:</label>
+                                    <input type="date" class="form-control" id="date" name="date" value="{{Carbon\Carbon::now()->format('Y-m-d')}}">
+                                    @error('date')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
                                     @enderror

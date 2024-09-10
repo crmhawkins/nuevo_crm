@@ -40,14 +40,14 @@ class DashboardController extends Controller
         switch($acceso){
             case(1):
                 $tareas = Task::all();
-                return view('dashboards.dashboard', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(2):
                 $tareas = Task::all();
-                return view('dashboards.dashboard_gerente', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(3):
                 $tareas = Task::all();
 
-                return view('dashboards.dashboard_contable', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(4):
                 $tareas = Task::all();
                 $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;

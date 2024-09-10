@@ -44,7 +44,7 @@
                         @foreach ([
                             'title' => 'TITULO',
                             'quantity' => 'CANTIDAD',
-                            'received_date' => 'FECHA DE RECEPCION',
+                            'date' => 'FECHA DE RECEPCION',
                             'state' => 'ESTADO',
 
                         ] as $field => $label)
