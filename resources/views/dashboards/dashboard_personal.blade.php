@@ -285,9 +285,7 @@
     }
     .side-column{
         height: 100% !important;
-
     }
-
     @media (max-width: 768px) {
         .calendar-month-view {
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));

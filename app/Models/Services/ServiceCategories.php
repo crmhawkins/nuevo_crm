@@ -16,7 +16,8 @@ class ServiceCategories extends Model
     protected $fillable = [
         'name',
         'terms',
-        'type'
+        'type',
+        'inactive',
     ];
 
     /**

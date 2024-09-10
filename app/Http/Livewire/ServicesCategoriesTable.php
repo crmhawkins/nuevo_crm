@@ -28,7 +28,8 @@ class ServicesCategoriesTable extends Component
     protected function actualizarServiciosCategoria()
     {
 
-        $query = ServiceCategories::when($this->buscar, function ($query) {
+        $query = ServiceCategories::where('inactive',0)
+        ->when($this->buscar, function ($query) {
                     $query->where('name', 'like', '%' . $this->buscar . '%');
                 });
 

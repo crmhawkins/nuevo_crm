@@ -31,7 +31,7 @@ class BudgetConceptsController extends Controller
     {
         // Obtenemos la informacion a necesaria para mostrar
         $presupuesto = $budget;
-        $categorias = ServiceCategories::all();
+        $categorias = ServiceCategories::where('inactive',0)->get();
 
         return view('budgets-concepts.creteTypeOwn', compact('categorias', 'presupuesto'));
     }
@@ -270,8 +270,9 @@ class BudgetConceptsController extends Controller
     public function editTypeOwn(BudgetConcept $budgetConcept)
     {
         $presupuesto = Budget::where('id', $budgetConcept->budget_id)->get()->first();
-        $services = Service::All();
-        $serviceCategories = ServiceCategories::All();
+        $services = Service::where('inactive',0)->get();
+        $serviceCategories = ServiceCategories::where('inactive',0)->get();
+
 
         return view('budgets-concepts.editTypeOwn', compact('budgetConcept', 'presupuesto', 'services', 'serviceCategories'));
     }
@@ -281,12 +282,12 @@ class BudgetConceptsController extends Controller
     {
         $presupuesto = $budget;
         $budgetSuppliersSaved = BudgetConceptSupplierRequest::where('budget_concept_id', $presupuesto->id)->get();
-        $services = Service::all();
-        $serviceCategories = ServiceCategories::all();
+        $services = Service::where('inactive',0)->get();
+        $serviceCategories = ServiceCategories::where('inactive',0)->get();
         $suppliers = Supplier::all();
         $budgetSupplierSelectedOption = BudgetConceptSupplierRequest::where('budget_concept_id', $presupuesto->id)->where('selected', 1)->get()->first();
 
-        $categorias = ServiceCategories::all();
+        $categorias = ServiceCategories::where('inactive',0)->get();
         return view('budgets-concepts.createTypeSupplier', compact(
             'categorias',
             'presupuesto',
@@ -420,7 +421,7 @@ class BudgetConceptsController extends Controller
         $presupuesto = Budget::where('id', $budgetConcept->budget_id)->get()->first();
         $budgetSuppliersSaved = BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConcept->id)->get();
         $services = Service::where('services_categories_id', $budgetConcept->services_category_id)->get();
-        $categorias = ServiceCategories::all();
+        $categorias = ServiceCategories::where('inactive',0)->get();
         $client = Client::find($presupuesto->client_id);
 
         if(!$client->contacto->isEmpty()){

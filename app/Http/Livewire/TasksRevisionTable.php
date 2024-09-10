@@ -28,7 +28,7 @@ class TasksRevisionTable extends Component
     protected $tasks;
 
     public function mount(){
-        $this->categorias = ServiceCategories::all();
+        $this->categorias = ServiceCategories::where('inactive',0)->get();
         $this->clientes = Client::All();
         $this->empleados = User::all();
         $this->gestores = User::all();

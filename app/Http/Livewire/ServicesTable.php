@@ -20,7 +20,7 @@ class ServicesTable extends Component
     protected $services; // Propiedad protegida para los usuarios
 
     public function mount(){
-        $this->categorias = ServiceCategories::all();
+        $this->categorias = ServiceCategories::where('inactive',0)->get();
         // $this->actualizarServicios(); // Inicializa los usuarios
     }
     public function render()
@@ -33,7 +33,7 @@ class ServicesTable extends Component
 
     protected function actualizarServicios()
     {
-        $query = Service::when($this->buscar, function ($query) {
+        $query = Service::where('inactive',0)->when($this->buscar, function ($query) {
                     $query->where('title', 'like', '%' . $this->buscar . '%')
                           ->orWhere('concept', 'like', '%' . $this->buscar . '%')
                           ->orWhere('price', 'like', '%' . $this->buscar . '%')

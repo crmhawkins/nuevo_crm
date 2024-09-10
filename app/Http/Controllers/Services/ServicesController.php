@@ -16,7 +16,7 @@ class ServicesController extends Controller
     }
 
     public function create() {
-        $categorias = ServiceCategories::all();
+        $categorias = ServiceCategories::where('inactive',0)->get();
         return view('services.create', compact('categorias'));
     }
 
@@ -54,7 +54,7 @@ class ServicesController extends Controller
 
     public function edit(string $id){
         $servicio = Service::find($id);
-        $categorias = ServiceCategories::all();
+        $categorias = ServiceCategories::where('inactive',0)->get();
         if (!$servicio) {
             session()->flash('toast', [
                 'icon' => 'error',
