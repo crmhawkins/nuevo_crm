@@ -1615,8 +1615,8 @@
 
         $.when(getTasksRefresh()).then(function(data, textStatus, jqXHR) {
             if (data.taskPlay != null) {
-                console.log(data.taskPlay);
                 var id = data.taskPlay.id;
+                $('.infotask').hide();
                 $('.tarea-sing').off('click').on('click', function() {
                     var infoContainer = $(this).next('.infotask');
                     if (infoContainer.is(':visible')){
