@@ -16,7 +16,7 @@ class IngresosTable extends Component
     public $selectedCliente = '';
     public $selectedEstado;
     public $selectedYear;
-
+    public $selectedDate;
     public $clientes;
     public $estados;
     public $perPage = 10;
@@ -43,6 +43,9 @@ class IngresosTable extends Component
                 })
                 ->when($this->selectedYear, function ($query) {
                     $query->whereYear('created_at', $this->selectedYear);
+                })
+                ->when($this->selectedDate, function ($query) {
+                    $query->where('date', '=', $this->selectedDate);
                 });
 
          // Aplica la ordenación

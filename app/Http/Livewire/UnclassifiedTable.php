@@ -14,6 +14,7 @@ class UnclassifiedTable extends Component
     public $buscar;
     public $selectedCliente = '';
     public $selectedEstado;
+    public $selectedDate;
     public $clientes;
     public $estados;
     public $perPage = 10;

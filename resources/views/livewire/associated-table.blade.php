@@ -24,6 +24,10 @@
         <div class="col-md-6 col-sm-12">
             <div class="flex flex-row justify-end">
                 <div class="mr-3">
+                    <label for="">Fecha</label>
+                    <input wire:model="selectedDate" type="date" class="form-control">
+                </div>
+                <div class="mr-3">
                     <label for="">Año</label>
                     <select wire:model="selectedYear" class="form-select">
                         <option value=""> Año </option>

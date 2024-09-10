@@ -16,7 +16,7 @@ class AssociatedTable extends Component
     public $selectedCliente = '';
     public $selectedEstado;
     public $selectedYear;
-
+    public $selectedDate;
     public $clientes;
     public $estados;
     public $perPage = 10;
@@ -46,6 +46,9 @@ class AssociatedTable extends Component
                 })
                 ->when($this->selectedYear, function ($query) {
                     $query->whereYear('created_at', $this->selectedYear);
+                })
+                ->when($this->selectedDate, function ($query) {
+                    $query->where('received_date', '=', $this->selectedDate);
                 });
 
 
@@ -82,7 +85,7 @@ class AssociatedTable extends Component
 
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado') {
+        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado' || $propertyName === 'selectedDate') {
             $this->resetPage(); // Resetear la paginación solo cuando estos filtros cambien.
         }
     }

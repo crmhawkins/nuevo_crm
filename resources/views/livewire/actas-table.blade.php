@@ -3,7 +3,7 @@
 @endsection
 <div>
     <div class="filtros row mb-4">
-        <div class="col-md-12 col-sm-12">
+        <div class="col-md-6 col-sm-12">
             <div class="flex flex-row justify-start">
                 <div class="mr-3">
                     <label for="">Nª por paginas</label>
@@ -18,6 +18,10 @@
                     <label for="">Buscar</label>
                     <input wire:model.debounce.300ms="buscar" type="text" class="form-control w-100" placeholder="Escriba la palabra a buscar...">
                 </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12">
+            <div class="flex flex-row justify-end">
                 <div class="mr-3">
                     <label for="">Año</label>
                     <select wire:model="selectedYear" class="form-select">
