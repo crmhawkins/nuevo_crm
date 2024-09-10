@@ -110,4 +110,14 @@ class To_doController extends Controller
             ]);
         }
     }
+
+    public function getTodosForUser()
+    {
+        $user = auth()->user(); // Obtener el usuario autenticado
+        $to_dos = $user->todos()->with(['proyecto', 'cliente', 'presupuesto', 'TodoUsers', 'mensajes'])
+        ->get();
+
+    // Formatear los To-Dos en un formato JSON que pueda ser utilizado en JavaScript
+    return response()->json($to_dos);
+    }
 }

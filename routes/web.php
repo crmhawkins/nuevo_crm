@@ -81,6 +81,7 @@ Route::post('/todos/finish/{id}', [To_doController::class, 'finish'])->name('tod
 Route::post('/todos/complete/{id}', [To_doController::class, 'complete'])->name('todos.completar');
 Route::post('/message/store', [MessageController::class, 'store'])->name('message.store');
 Route::post('/mark-as-read/{todoId}', [MessageController::class,'markAsRead']);
+Route::get('/todos/user', [To_doController::class, 'getTodosForUser']);
 
 
 //Meetings(Reuniosnes)
