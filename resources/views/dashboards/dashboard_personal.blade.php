@@ -280,7 +280,7 @@
     }
 
     .scroll{
-        max-height: 980px;
+        max-height: 770px;
         overflow-y: auto;
     }
     .side-column{
