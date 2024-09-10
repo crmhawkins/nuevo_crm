@@ -20,6 +20,7 @@ class Service extends Model
         'concept',
         'price',
         'estado',
+        'inactive',
         'order'
     ];
 

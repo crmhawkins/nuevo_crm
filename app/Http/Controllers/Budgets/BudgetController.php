@@ -795,7 +795,7 @@ class BudgetController extends Controller
         // Buscar la última referencia autoincremental para el año y mes actual
         $latestReference = InvoiceReferenceAutoincrement::where('year', $year)
                             ->where('month_num', $monthNum)
-                            ->orderBy('reference_autoincrement', 'desc')
+                            ->orderBy('id', 'desc')
                             ->first();
 
         // Si no existe, empezamos desde 1, de lo contrario, incrementamos
