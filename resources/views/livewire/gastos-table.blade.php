@@ -46,6 +46,7 @@
                 <thead class="header-table">
                     <tr>
                         @foreach ([
+                            'bank_id' => 'BANCO',
                             'title' => 'TITULO',
                             'quantity' => 'CANTIDAD',
                             'date' => 'FECHA DE RECEPCION',
@@ -67,6 +68,7 @@
                 <tbody>
                     @foreach ($gastos as $gasto)
                         <tr class="clickable-row" data-href="{{route('gasto.edit', $gasto->id)}}">
+                            <td>{{$gasto->bankAccount->name ?? 'Banco no asignado'}}</td>
                             <td>{{$gasto->title}}</td>
                             <td>{{ number_format($gasto->quantity, 2) }}€</td>
                             <td>{{ \Carbon\Carbon::parse($gasto->date)->format('d/m/Y') }}</td>
