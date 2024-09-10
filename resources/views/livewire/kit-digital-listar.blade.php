@@ -283,6 +283,7 @@ $(document).ready(function() {
         var id = $(this).data('id');
         var field = $(this).data('field');
         var content = $(this).data('content');
+        console.log(content,field,id)
         $('#modal-textarea').val(content).data('id', id).data('field', field);
         $('#editModalLabel').text('Editar ' + field.replace('_', ' ').toUpperCase());
     });
