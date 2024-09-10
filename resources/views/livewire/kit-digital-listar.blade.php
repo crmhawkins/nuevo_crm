@@ -127,7 +127,7 @@
                     </th>
                 @endforeach
             </thead>
-            <tbody>
+            <tbody wire:ignore>
                 @foreach ($kitDigitals as $item)
                 <tr  wire:key='{{rand()}}' style="--bs-table-bg: {{$item->estados->color}} !important; --bs-table-color: {{$item->estados->text_color}} !important">
                     <td class="exclude" style="max-width: 50px"> <input data-id="{{$item->id}}" type="text" name="empresa" id="empresa" value="{{ $item->empresa }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none; margin-bottom: 0 !important;font-size: 0.75rem;"></td>
