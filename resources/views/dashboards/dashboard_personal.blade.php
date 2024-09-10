@@ -280,10 +280,11 @@
     }
 
     .scroll{
-        overflow: auto; /* Asegura que el contenido no se desborde */
+        max-height: 980px;
+        overflow-y: auto;
     }
     .side-column{
-        max-height: 900px !important;
+        height: 100% !important;
 
     }
 
