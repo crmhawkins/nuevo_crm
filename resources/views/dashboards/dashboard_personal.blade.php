@@ -1527,8 +1527,6 @@
 </script>
 <script>
 
-
-
     $(document).on("click", '.tarea-sing', function() {
                 var id = $(this).attr("id");
                 showTaskInfoNew(id);
@@ -1619,6 +1617,15 @@
             if (data.taskPlay != null) {
                 console.log(data.taskPlay);
                 var id = data.taskPlay.id;
+                $('.tarea-sing').off('click').on('click', function() {
+                    var infoContainer = $(this).next('.infotask');
+                    if (infoContainer.is(':visible')){
+                        infoContainer.slideUp();
+                    } else {
+                        $('.infotask').slideUp(); // Cierra otros contenedores abiertos
+                        infoContainer.slideDown();
+                    }
+                });
                 showTaskInfoNew(id);
             }else{
                 $('.infotask').hide();
