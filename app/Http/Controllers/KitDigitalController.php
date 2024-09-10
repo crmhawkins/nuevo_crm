@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Clients\Client;
 use Illuminate\Http\Request;
 use App\Models\KitDigital;
+use App\Models\KitDigitalEstados;
+use App\Models\KitDigitalServicios;
+use App\Models\Users\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class KitDigitalController extends Controller
 {
@@ -44,5 +48,34 @@ class KitDigitalController extends Controller
             'error' => 'error',
             'mensaje' => 'El registro no se encontro.'
         ]);
+    }
+
+    public function create(){
+        $usuario = Auth::user();
+        $servicios = KitDigitalServicios::all();
+        $estados = KitDigitalEstados::all();
+        $gestores = User::where('access_level_id', 4)->where('inactive', 0)->get();
+        $comerciales = User::where('access_level_id', 6)->where('inactive', 0)->orWhere('access_level_id', 11)->get();
+
+        return view('kitDigital.create', compact('usuario','servicios', 'estados', 'gestores','comerciales'));
+    }
+
+    public function store(Request $request){
+
+        Carbon::setLocale("es");
+        $request->validate([
+            'empresa' => 'required',
+            'segmento' => 'required',
+            'cliente' => 'required',
+            'estado' => 'required',
+            'gestor' => 'required',
+        ]);
+
+        $data = $request->all();
+        KitDigital::create($data);
+        return redirect()->route('kitDigital.index')->with('toast', [
+                'icon' => 'success',
+                'mensaje' => 'Nuevo kit digital se guardó correctamente'
+             ]);
     }
 }

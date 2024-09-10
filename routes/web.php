@@ -443,6 +443,8 @@ Route::post('/save-order', [BudgetController::class, 'saveOrder'])->name('save.o
 
 // Kit Digital
 Route::get('/kit-digital', [KitDigitalController::class, 'listarClientes'])->name('kitDigital.index');
+Route::get('/kit-digital/create', [KitDigitalController::class, 'create'])->name('kitDigital.create');
+Route::post('/kit-digital/store', [KitDigitalController::class, 'store'])->name('kitDigital.store');
 Route::post('/kit-digital/updatedata', [KitDigitalController::class, 'updateData'])->name('kitDigital.updateData');
 
 });
