@@ -72,37 +72,41 @@ class KitDigitalListarClienteTable extends Component
     protected function actualizarKitDigital()
 {
     // Comprueba si se ha seleccionado "Todos" para la paginación
-    $buscarLower = mb_strtolower($this->buscar);
+    $buscarLower = mb_strtolower(trim($this->buscar), 'UTF-8');  // Convertir la cadena a minúsculas y eliminar espacios al inicio y al final
+    $searchTerms = explode(" ", $buscarLower);  // Dividir la entrada en términos individuales
 
-    // Construye la consulta base para filtrar registros
-    $query = KitDigital::when($this->buscar, function ($query) use ($buscarLower) {
-        $query->whereRaw('LOWER(contratos) LIKE ?', ["%{$buscarLower}%"])
-            ->orWhereRaw('LOWER(cliente) LIKE ?', ["%{$buscarLower}%"])
-            ->orWhereRaw('LOWER(expediente) LIKE ?', ["%{$buscarLower}%"])
-            ->orWhereRaw('LOWER(contacto) LIKE ?', ["%{$buscarLower}%"])
-            ->orWhereRaw('LOWER(telefono) LIKE ?', ["%{$buscarLower}%"]);
+    $query = KitDigital::when($searchTerms, function ($query) use ($searchTerms) {
+        foreach ($searchTerms as $term) {
+            $query->where(function($q) use ($term) {
+                $q->orWhereRaw('LOWER(contratos) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(cliente) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(expediente) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(contacto) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(telefono) LIKE ?', ["%{$term}%"]);
+            });
+        }
     })
-        ->when($this->selectedComerciales, function ($query) {
-            $query->where('comercial_id', $this->selectedComerciales);
-        })
-        ->when($this->selectedEstadoFactura, function ($query) {
-            $query->where('estado_factura', $this->selectedEstadoFactura);
-        })
-        ->when($this->selectedServicio, function ($query) {
-            $query->where('servicio_id', $this->selectedServicio);
-        })
-        ->when($this->selected, function ($query) {
-            $query->where('', $this->selected);
-        })
-        ->when($this->selectedGestor, function ($query) {
-            $query->where('gestor', $this->selectedGestor);
-        })
-        ->when($this->selectedCliente, function ($query) {
-            $query->where('cliente_id', $this->selectedCliente);
-        })
-        ->when($this->selectedEstado, function ($query) {
-            $query->where('estado', $this->selectedEstado);
-        });
+    ->when($this->selectedComerciales, function ($query) {
+        $query->where('comercial_id', $this->selectedComerciales);
+    })
+    ->when($this->selectedEstadoFactura, function ($query) {
+        $query->where('estado_factura', $this->selectedEstadoFactura);
+    })
+    ->when($this->selectedServicio, function ($query) {
+        $query->where('servicio_id', $this->selectedServicio);
+    })
+    ->when($this->selected, function ($query) {
+        $query->where('', $this->selected);
+    })
+    ->when($this->selectedGestor, function ($query) {
+        $query->where('gestor', $this->selectedGestor);
+    })
+    ->when($this->selectedCliente, function ($query) {
+        $query->where('cliente_id', $this->selectedCliente);
+    })
+    ->when($this->selectedEstado, function ($query) {
+        $query->where('estado', $this->selectedEstado);
+    });
 
     // Calcula el sumatorio sobre todos los registros filtrados
     $this->Sumatorio = $query->get()->reduce(function ($carry, $item) {
