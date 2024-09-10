@@ -279,20 +279,29 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
-    $('.edit-textarea').on('click', function() {
+    // Usar delegación de eventos para asegurar que los nuevos elementos tengan el evento click
+    $(document).on('click', '.edit-textarea', function() {
         var id = $(this).data('id');
         var field = $(this).data('field');
         var content = $(this).data('content');
-        console.log(content,field,id)
+
+        console.log(content, field, id);
+
+        // Configurar el textarea y el título del modal
         $('#modal-textarea').val(content).data('id', id).data('field', field);
         $('#editModalLabel').text('Editar ' + field.replace('_', ' ').toUpperCase());
     });
 
+    // Guardar los cambios cuando el botón "Guardar Cambios" es presionado
     $('#saveChanges').on('click', function() {
         var id = $('#modal-textarea').data('id');
         var field = $('#modal-textarea').data('field');
         var value = $('#modal-textarea').val();
+
+        // Actualizar el contenido visual en el DOM (si es necesario)
         $('[data-id="' + id + '"][data-field="' + field + '"]').data('content', value);
+
+        // Llamar a la función para guardar los datos actualizados en el servidor
         handleDataUpdate(id, value, field);
     });
 });
