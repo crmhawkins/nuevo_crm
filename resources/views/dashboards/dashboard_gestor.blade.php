@@ -1033,14 +1033,12 @@
             });
     }
 
-    function loadMessages() {
-        let todoId = '{{ $to_do->id }}'; // El id del todo
-
+    function loadMessages(todoId) {
         $.ajax({
             url: `/todos/getMessages/${todoId}`,
             type: 'GET',
             success: function(data) {
-                let messagesContainer = $('.chat-container');
+                let messagesContainer = $(`#todo-card-${todoId} .chat-container`);
                 messagesContainer.html(''); // Limpiamos el contenedor
                 data.forEach(function(message) {
                     let fileIcon = '';
@@ -1067,12 +1065,16 @@
     }
 
     function startPolling() {
-        @foreach ($to_dos as $to_do)
-            setInterval(function() {
-                updateUnreadMessagesCount('{{ $to_do->id }}');
-                loadMessages('{{ $to_do->id }}');
-            }, 5000);  // Polling cada 5 segundos para cada todo
-        @endforeach
+        @if (count($to_dos) > 0)
+            @foreach ($to_dos as $to_do)
+                setInterval(function() {
+                    updateUnreadMessagesCount('{{ $to_do->id }}');
+                    loadMessages('{{ $to_do->id }}');
+                }, 5000);  // Polling cada 5 segundos para cada to-do
+            @endforeach
+        @else
+            console.log('No hay to-dos activos.');
+        @endif
     }
 
     $(document).ready(function() {
