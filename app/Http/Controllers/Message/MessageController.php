@@ -44,12 +44,11 @@ class MessageController extends Controller
             'is_read' => true,
             'read_at' => now(),
         ]);
-        return response()->json(['success' => true]);
 
-        // return redirect()->back()->with('toast', [
-        //     'icon' => 'success',
-        //     'mensaje' => 'Mensaje enviado con éxito!'
-        // ]);
+        return redirect()->back()->with('toast', [
+             'icon' => 'success',
+             'mensaje' => 'Mensaje enviado con éxito!'
+         ]);
     }
 
     public function markAsRead($todoId, Request $request) {
