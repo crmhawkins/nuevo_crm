@@ -18,8 +18,8 @@ class UsersTable extends Component
     public $selectedDepartamento = '';
     public $selectedNivel = '';
     public $perPage = 10;
-    public $sortColumn = 'name'; // Columna por defecto
-    public $sortDirection = 'asc'; // Dirección por defecto
+    public $sortColumn = 'created_at'; // Columna por defecto
+    public $sortDirection = 'desc'; // Dirección por defecto
     protected $users; // Propiedad protegida para los usuarios
 
     public function mount(){

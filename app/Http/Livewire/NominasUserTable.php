@@ -19,9 +19,8 @@ class NominasUserTable extends Component
     public $selectedMes;
     public $usuarios;
     public $perPage = 10;
-    public $sortColumn = 'admin_user_id'; // Columna por defecto
-    public $sortDirection = 'asc'; // Dirección por defecto
-
+    public $sortColumn = 'created_at'; // Columna por defecto
+    public $sortDirection = 'desc'; // Dirección por defecto
     protected $nominas; // Propiedad protegida para los usuarios
 
     public function mount(){

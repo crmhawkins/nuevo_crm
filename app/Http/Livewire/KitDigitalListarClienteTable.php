@@ -31,9 +31,8 @@ class KitDigitalListarClienteTable extends Component
     public $segmentos;
     public $Sumatorio;
     public $perPage = 10;
-    public $sortColumn = 'cliente_id'; // Columna por defecto
-    public $sortDirection = 'asc'; // Dirección por defecto
-
+    public $sortColumn = 'created_at'; // Columna por defecto
+    public $sortDirection = 'desc'; // Dirección por defecto
     protected $kitDigitals; // Propiedad protegida para los usuarios
 
     public function mount(){

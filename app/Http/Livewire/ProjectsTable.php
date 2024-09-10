@@ -17,8 +17,9 @@ class ProjectsTable extends Component
     public $perPage = 10;
 
     protected $projects; // Propiedad protegida para las Campañas
-    public $sortColumn = 'name'; // Columna por defecto
-    public $sortDirection = 'asc'; // Dirección por defecto
+    public $sortColumn = 'created_at'; // Columna por defecto
+    public $sortDirection = 'desc'; // Dirección por defecto
+
     public function mount(){
         $this->gestores = User::where('access_level_id', 4)->get();
     }

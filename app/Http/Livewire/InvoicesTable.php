@@ -28,8 +28,8 @@ class InvoicesTable extends Component
     public $selectedGestor = '';
     public $selectedEstados = '';
     public $perPage = 10;
-    public $sortColumn = 'reference'; // Columna por defecto
-    public $sortDirection = 'asc'; // Dirección por defecto
+    public $sortColumn = 'created_at'; // Columna por defecto
+    public $sortDirection = 'desc'; // Dirección por defecto
     protected $budgets; // Propiedad protegida para los usuarios
 
     public function mount(){

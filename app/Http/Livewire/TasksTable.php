@@ -28,8 +28,8 @@ class TasksTable extends Component
     public $selectedDepartamento = '';
     public $selectedYear;
     public $perPage = 10;
-    public $sortColumn = 'title'; // Columna por defecto
-    public $sortDirection = 'asc'; // Dirección por defecto
+    public $sortColumn = 'created_at'; // Columna por defecto
+    public $sortDirection = 'desc'; // Dirección por defecto
     protected $tasks;
 
     public function mount(){

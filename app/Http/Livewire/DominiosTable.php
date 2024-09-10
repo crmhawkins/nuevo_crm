@@ -23,8 +23,8 @@ class DominiosTable extends Component
     public $clientes;
     public $estados;
     public $perPage = 10;
-    public $sortColumn = 'dominio'; // Columna por defecto
-    public $sortDirection = 'asc'; // Dirección por defecto
+    public $sortColumn = 'created_at'; // Columna por defecto
+    public $sortDirection = 'desc'; // Dirección por defecto
     protected $dominios; // Propiedad protegida para los usuarios
 
     public function mount(){

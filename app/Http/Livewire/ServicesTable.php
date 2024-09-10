@@ -15,8 +15,8 @@ class ServicesTable extends Component
     public $buscar;
     public $selectedCategoria = '';
     public $perPage = 10;
-    public $sortColumn = 'title'; // Columna por defecto
-    public $sortDirection = 'asc'; // Dirección por defecto
+    public $sortColumn = 'created_at'; // Columna por defecto
+    public $sortDirection = 'desc'; // Dirección por defecto
     protected $services; // Propiedad protegida para los usuarios
 
     public function mount(){

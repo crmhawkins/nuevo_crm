@@ -18,8 +18,8 @@ class PetitionsTable extends Component
     public $selectedGestor = '';
     public $selectedEstados = 0;
     public $perPage = 10;
-    public $sortColumn = 'client_id'; // Columna por defecto
-    public $sortDirection = 'asc'; // Dirección por defecto
+    public $sortColumn = 'created_at'; // Columna por defecto
+    public $sortDirection = 'desc'; // Dirección por defecto
     protected $petitions; // Propiedad protegida para los usuarios
 
     public function mount(){

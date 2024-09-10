@@ -20,7 +20,7 @@ class ServicesTableView extends TableView
     public $searchBy = ['title', 'concept', 'serviceCategoria.name', 'price'];
 
     protected $paginate = 10;
-    public $sortField = 'title'; // campo predeterminado para la ordenación
+    public $sortField = 'created_at'; // campo predeterminado para la ordenación
     public $sortDirection = 'asc'; // dirección predeterminada para la ordenación
 
     /**
