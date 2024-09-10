@@ -66,7 +66,11 @@
                         <td>{{$ingreso->bankAccount->name ?? ($ingreso->bank_id ? 'Banco Eliminado' : 'Banco No Asignado')}}</td>
                             <td>{{$ingreso->title}}</td>
                             <td>{{ number_format($ingreso->quantity, 2) }}€</td>
-                            <td ><a href="{{route('factura.edit',$ingreso->invoice_id)}}">{{$ingreso->invoice_id}}</a> </td>
+                            @if (isset($ingreso->invoice_id))
+                            <td><a href="{{route('factura.edit', $ingreso->invoice_id)}}">{{$ingreso->invoice_id}}</a> </td>
+                            @else
+                            <td></td>
+                            @endif
                             <td>{{ \Carbon\Carbon::parse($ingreso->date)->format('d/m/Y') }}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{route('ingreso.edit', $ingreso->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar gasto"></a>
