@@ -142,7 +142,7 @@
         }
 
         function getDelete(id) {
-            const url = '{{route("gasto.delete")}}';
+            const url = '{{route("ingreso.delete")}}';
             return $.ajax({
                 type: "POST",
                 url: url,
