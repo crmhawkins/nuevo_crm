@@ -797,7 +797,6 @@ class BudgetController extends Controller
                             ->where('month_num', $monthNum)
                             ->orderBy('id', 'desc')
                             ->first();
-
         // Si no existe, empezamos desde 1, de lo contrario, incrementamos
         $newReferenceAutoincrement = $latestReference ? $latestReference->reference_autoincrement + 1 : 1;
         // Formatear el número autoincremental a 6 dígitos
@@ -810,8 +809,8 @@ class BudgetController extends Controller
             'reference_autoincrement' => $newReferenceAutoincrement,
             'year' => $year,
             'month_num' => $monthNum,
-            // Otros campos pueden ser asignados si son necesarios
         ]);
+
         $referenceToSave->save();
 
         return [
@@ -821,7 +820,6 @@ class BudgetController extends Controller
             'budget_reference_autoincrements' => [
                 'year' => $year,
                 'month_num' => $monthNum,
-                // Añade aquí más si es necesario
             ],
         ];
     }
@@ -863,6 +861,7 @@ class BudgetController extends Controller
     public function generateInvoice(Request $request){
         $budget = Budget::find($request->id);
 
+
         $generationSuccess = true;
 
         //  No se puede generar factura un presupuesto temporal
@@ -889,8 +888,8 @@ class BudgetController extends Controller
         }else{
             $discountPercentage = 0;
         }
-        $referenceGenerationResult = $this->generateInvoiceReference($budget);
 
+        $referenceGenerationResult = $this->generateInvoiceReference($budget);
 
         $grossfacturado=0;
         $basefacturada=0;
@@ -898,51 +897,52 @@ class BudgetController extends Controller
         $ivaTotalfacturado=0;
         $totalfacturado=0;
 
-        if(count(BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get()) >= 1){
+        // if(count(BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get()) >= 1){
 
-            $budgetConcepts = BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get();
+        //     $budgetConcepts = BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get();
 
 
-            foreach ($budgetConcepts as $key => $concept) {
-                // Si el concepto es PROVEEDOR
-                if ($concept->concept_type_id === 1) {
-                    if ($concept->discount === null) {
-                        $grossConcept = $concept->sale_price;
-                        $baseConcept = $grossConcept;
-                        $grossfacturado += $grossConcept;
-                        $basefacturada += $baseConcept;
-                    }else {
-                        $grossConcept =  $concept->sale_price;
-                        $descuentoConcept = $concept->discount;
-                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
-                        $baseConcept = $grossConcept - $importeConceptDescuento;
-                        $descuento += $importeConceptDescuento;
-                        $grossfacturado += $grossConcept;
-                        $basefacturada += $baseConcept;
-                    }
-                }
-                elseif($concept->concept_type_id === 2){
-                    if ($concept->discount === null) {
-                        $grossConcept = $concept->units * $concept->sale_price;
-                        $baseConcept = $grossConcept;
-                        $grossfacturado += $grossConcept;
-                        $basefacturada += $baseConcept;
-                    }else {
-                        $grossConcept = $concept->units * $concept->sale_price;
-                        $descuentoConcept = $concept->discount;
-                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
-                        $baseConcept = $grossConcept - $importeConceptDescuento;
-                        $descuento += $importeConceptDescuento;
-                        $grossfacturado += $grossConcept;
-                        $basefacturada += $baseConcept;
-                    }
-                }
-            }
-            // Calculamos el Iva y el Total
-            $ivaTotalfacturado += ( $basefacturada * 21 ) /100;
-            $totalfacturado += $basefacturada + $ivaTotalfacturado;
+        //     foreach ($budgetConcepts as $key => $concept) {
+        //         // Si el concepto es PROVEEDOR
+        //         if ($concept->concept_type_id === 1) {
+        //             if ($concept->discount === null) {
+        //                 $grossConcept = $concept->sale_price;
+        //                 $baseConcept = $grossConcept;
+        //                 $grossfacturado += $grossConcept;
+        //                 $basefacturada += $baseConcept;
+        //             }else {
+        //                 $grossConcept =  $concept->sale_price;
+        //                 $descuentoConcept = $concept->discount;
+        //                 $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+        //                 $baseConcept = $grossConcept - $importeConceptDescuento;
+        //                 $descuento += $importeConceptDescuento;
+        //                 $grossfacturado += $grossConcept;
+        //                 $basefacturada += $baseConcept;
+        //             }
+        //         }
+        //         elseif($concept->concept_type_id === 2){
+        //             if ($concept->discount === null) {
+        //                 $grossConcept = $concept->units * $concept->sale_price;
+        //                 $baseConcept = $grossConcept;
+        //                 $grossfacturado += $grossConcept;
+        //                 $basefacturada += $baseConcept;
+        //             }else {
+        //                 $grossConcept = $concept->units * $concept->sale_price;
+        //                 $descuentoConcept = $concept->discount;
+        //                 $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+        //                 $baseConcept = $grossConcept - $importeConceptDescuento;
+        //                 $descuento += $importeConceptDescuento;
+        //                 $grossfacturado += $grossConcept;
+        //                 $basefacturada += $baseConcept;
+        //             }
+        //         }
+        //     }
+        //     // Calculamos el Iva y el Total
+        //     $ivaTotalfacturado += ( $basefacturada * 21 ) /100;
+        //     $totalfacturado += $basefacturada + $ivaTotalfacturado;
 
-        }
+        // }
+
 
         if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
             $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
