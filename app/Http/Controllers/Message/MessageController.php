@@ -13,11 +13,18 @@ class MessageController extends Controller
     {
 
         $request->validate([
-            'mensaje' => 'required|string',
-            'archivo' => 'nullable', // Ajusta los MIME types según necesidad
+            'mensaje' => 'nullable|string',
+            'archivo' => 'nullable|file', // Ajusta los MIME types según necesidad
         ],[
-            'mensaje.required' => 'No pùede mandar el mensaje vacio'
+            'mensaje.required_without' => 'Debe enviar al menos un mensaje o un archivo.',
+            'archivo.required_without' => 'Debe enviar al menos un mensaje o un archivo.',
         ]);
+
+        if (!$request->filled('mensaje') && !$request->hasFile('archivo')) {
+            return redirect()->back()->withErrors([
+                'mensaje' => 'Debe enviar al menos un mensaje o un archivo.',
+            ])->withInput();
+        }
 
         $message = new Messages;
         $message->mensaje = $request->mensaje;
