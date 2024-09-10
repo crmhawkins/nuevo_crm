@@ -22,6 +22,7 @@ class KitDigitalListarClienteTable extends Component
     public $selectedServicio;
     public $selectedEstadoFactura;
     public $selectedComerciales;
+    public $selectedSegmento;
     public $clientes;
     public $estados;
     public $gestores;
@@ -94,8 +95,8 @@ class KitDigitalListarClienteTable extends Component
     ->when($this->selectedServicio, function ($query) {
         $query->where('servicio_id', $this->selectedServicio);
     })
-    ->when($this->selected, function ($query) {
-        $query->where('', $this->selected);
+    ->when($this->selectedSegmento, function ($query) {
+        $query->where('segmento', $this->selectedSegmento);
     })
     ->when($this->selectedGestor, function ($query) {
         $query->where('gestor', $this->selectedGestor);
