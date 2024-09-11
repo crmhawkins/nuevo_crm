@@ -14,19 +14,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Users\User;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+
         $id = Auth::user()->id;
         $acceso = Auth::user()->access_level_id;
         $user = User::find($id);
         $users = User::where('inactive',0)->get();
-        $clientes = Client::where('is_client',true)->get();
-        $budgets = Budget::all();
-        $projects = Project::all();
         $to_dos = $user->todos->where('finalizada',false);
         $timeWorkedToday = $this->calculateTimeWorkedToday($user);
         $jornadaActiva = $user->activeJornada();
@@ -39,33 +38,101 @@ class DashboardController extends Controller
         }
         switch($acceso){
             case(1):
-                $tareas = Task::all();
+                $clientes = Client::where('is_client',true)->get();
+                $budgets = Budget::where('admin_user_id',$id)->get();
+                $projects = Project::where('admin_user_id',$id)->get();
+                $tareas = Task::where('gestor_id',$id)->get();
                 return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(2):
-                $tareas = Task::all();
+                $clientes = Client::where('is_client',true)->get();
+                $budgets = Budget::where('admin_user_id',$id)->get();
+                $projects = Project::where('admin_user_id',$id)->get();
+                $tareas = Task::where('gestor_id',$id)->get();
                 return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(3):
-                $tareas = Task::all();
-
+                $clientes = Client::where('is_client',true)->get();
+                $budgets = Budget::where('admin_user_id',$id)->get();
+                $projects = Project::where('admin_user_id',$id)->get();
+                $tareas = Task::where('gestor_id',$id)->get();
                 return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(4):
-                $tareas = Task::all();
+                $clientes = Client::where('is_client',true)->get();
+                $budgets = Budget::where('admin_user_id',$id)->get();
+                $projects = Project::where('admin_user_id',$id)->get();
+                $tareas = Task::where('gestor_id',$id)->get();
                 $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;
                 return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
             case(5):
                 $tareas = $user->tareas->whereIn('task_status_id', [1, 2, 5]);
-
+                $tiempoProducidoHoy = $this->tiempoProducidoHoy();
                 $tasks = $this->getTasks($user->id);
-                return view('dashboards.dashboard_personal', compact('user','tasks','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+                return view('dashboards.dashboard_personal', compact('user','tiempoProducidoHoy','tasks','tareas','to_dos','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
         }
     }
 
-    public function llamada(){
+    public function tiempoProducidoHoy()
+    {
+
+        $hoy = Carbon::today();
+        $tiempoTarea = 0;
+
+        if (Auth::check()) {
+            $userId = Auth::id();
+            $tareasHoy = LogTasks::where('admin_user_id', $userId)
+                ->whereDate('date_start', '=', $hoy)
+                ->get();
+
+            foreach ($tareasHoy as $tarea) {
+                if ($tarea->status == 'Pausada') {
+                    $tiempoInicio = Carbon::parse($tarea->date_start);
+                    $tiempoFinal = Carbon::parse($tarea->date_end);
+                    $tiempoTarea += $tiempoFinal->diffInSeconds($tiempoInicio);
+                }
+            }
+        } else {
+            $result = '00:00:00';
+        }
+
+        // Formatear el tiempo total en horas, minutos y segundos
+        $hours = floor($tiempoTarea / 3600);
+        $minutes = floor(($tiempoTarea % 3600) / 60);
+        $seconds = $tiempoTarea % 60;
+
+        $result = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+
+        // Calcular el porcentaje de tiempo trabajado en relación con el total
+        $horas_dia_porcentaje = $hours + ($minutes / 60);
+        $totalHoras = 7;
+        $porcentaje = ($horas_dia_porcentaje / $totalHoras) * 100;
+
+        $data = [
+            'horas' => $result,
+            'porcentaje' => $porcentaje
+        ];
+
+        return $data;
+    }
+
+    public function timeworked(){
+        $user = Auth::user();
+        $timeWorkedToday = $this->calculateTimeWorkedToday($user);
+        return response()->json(['success' => true ,'time' => $timeWorkedToday]);
+    }
+
+    public function llamada(Request $request){
+
+
 
         $user = Auth::user();
+        $request->validate([
+            '' => 'required|exists:admin_user,id',
+            'fecha' => 'required|date',
+            'archivo' => 'required|file|mimes:pdf|max:2048', // Asegura que sea un PDF y no supere los 2MB
+        ]);
         $llamada =  Llamada::create([
             'admin_user_id' => $user->id,
-            'start_time' => now(),
+            'start_time' => Carbon::now
+(),
             'is_active' => true,
         ]);
         if($llamada){
@@ -77,11 +144,14 @@ class DashboardController extends Controller
 
     public function finalizar()
     {
+
+
         $user = Auth::user();
         $llamada = Llamada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($llamada) {
             $finllamada = $llamada->update([
-                'end_time' => now(),
+                'end_time' => Carbon::now
+(),
                 'is_active' => false,
             ]);
 
@@ -99,6 +169,8 @@ class DashboardController extends Controller
 
     public function startJornada()
     {
+
+
         $user = User::find(Auth::user()->id);
 
         $activeJornada = $user->activeJornada();
@@ -113,7 +185,8 @@ class DashboardController extends Controller
 
         $jornada =  Jornada::create([
             'admin_user_id' => $user->id,
-            'start_time' => now(),
+            'start_time' => Carbon::now
+(),
             'is_active' => true,
         ]);
         if($jornada){
@@ -125,11 +198,14 @@ class DashboardController extends Controller
 
     public function endJornada()
     {
+
+
         $user = Auth::user();
         $jornada = Jornada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($jornada) {
             $finJornada = $jornada->update([
-                'end_time' => now(),
+                'end_time' => Carbon::now
+(),
                 'is_active' => false,
             ]);
 
@@ -146,12 +222,15 @@ class DashboardController extends Controller
 
     public function startPause()
     {
+
+
         $user = Auth::user();
         $jornada = Jornada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($jornada) {
             $pause =  Pause::create([
                 'jornada_id' =>$jornada->id,
-                'start_time' => now(),
+                'start_time' => Carbon::now
+(),
             ]);
 
             if($pause){
@@ -166,13 +245,16 @@ class DashboardController extends Controller
 
     public function endPause()
     {
+
+
         $user = Auth::user();
         $jornada = Jornada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($jornada) {
             $pause = Pause::where('jornada_id', $jornada->id)->whereNull('end_time')->first();
             if ($pause) {
                 $finPause = $pause->update([
-                    'end_time' => now(),
+                    'end_time' => Carbon::now
+(),
                     'is_active' => false,
                 ]);
 
@@ -191,6 +273,8 @@ class DashboardController extends Controller
 
     private function calculateTimeWorkedToday($user)
     {
+
+
         $todayJornadas = $user->jornadas()->whereDate('start_time', Carbon::today())->get();
 
         $totalWorkedSeconds = 0;
@@ -269,6 +353,8 @@ class DashboardController extends Controller
 
     public function setStatusTask(Request $request)
     {
+
+
 
         $tarea = Task::find($request->id);
         $date = Carbon::now();

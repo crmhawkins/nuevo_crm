@@ -79,6 +79,14 @@
                                     <style>.text-danger {color: red;}</style>
                                 @enderror
                                 </div>
+                                <div class="col-md-6  mt-4">
+                                    <label for="date" class="mb-2">Fecha:</label>
+                                    <input type="date" class="form-control" id="date" name="date">
+                                    @error('date')
+                                    <span class="text-danger">{{ $message }}</span>
+                                    <style>.text-danger {color: red;}</style>
+                                    @enderror
+                                </div>
                             </div>
                         </form>
                     </div>

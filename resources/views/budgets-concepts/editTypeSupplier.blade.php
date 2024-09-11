@@ -314,27 +314,25 @@
         }
         // Si hay margen en el input que calcule el precio + margen
         if( $('#benefit_margin').val()  != ''){
-           // alert(optPrice);
+            console.log('entra');
             if(optPrice == ''){
                 optPrice = 0;
             }
-            var units = $("#units").val();
-            var purchasePrice = $('#purchase_price').val();
-            var margin = $("#benefit_margin").val();
 
+            var units = parseFloat($('#units').val()) || 0;
+            var purchasePrice = parseFloat($('#purchase_price').val()) || 0;
+            var margin = parseFloat($('#benefit_margin').val()) || 0;
             var marginPercentage = (purchasePrice * margin) / 100;
-            var priceMarginResult = parseFloat(purchasePrice) + parseFloat(marginPercentage);
-            var total_no_discount =  parseFloat(priceMarginResult);
-            var total_no_discountFormated =   parseFloat(total_no_discount);
-            var total_no_discountFormated = Math.round(total_no_discountFormated * 100) / 100
-            $("#total_no_discount").val(total_no_discount);
+            var priceMarginResult = (purchasePrice) + (marginPercentage);
+            var total =  (priceMarginResult);
+            $("#sale_price").val(total.toFixed(2));
 
         }else{
             var units = $("#units").val();
             var purchasePrice = $('#purchase_price').val();
             var total_no_discount =  parseFloat(purchasePrice) * units;
             var total_no_discount = Math.round(total_no_discount * 100) / 100;
-            $("#total_no_discount").val(total_no_discount);
+            $("#sale_price").val(total_no_discount);
         }
     });
 

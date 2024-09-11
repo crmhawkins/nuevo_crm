@@ -314,6 +314,10 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
+                                <div class="col-md-12 mb-3">
+                                    <label for="phone" class="form-label">Telefono</label>
+                                    <input type="text" class="form-control" id="phone" name="phone" required>
+                                </div>
                             </div>
                             <input type="hidden" name="admin_user_id" value="{{ $user->id }}">
                         </div>
@@ -475,6 +479,24 @@
 <script>
     let timerState = '{{ $jornadaActiva ? "running" : "stopped" }}'
     let timerTime = {{ $timeWorkedToday }}; // In seconds, initialized with the time worked today
+    function getTime() {
+        fetch('/dashboard/timeworked', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    timerTime = data.time
+                    updateTime()
+                }
+            });
+    }
+
 
     function updateTime() {
         let hours = Math.floor(timerTime / 3600);
@@ -522,6 +544,53 @@
     }
 
     function endJornada() {
+    // Obtener el tiempo actualizado
+    getTime();
+
+    let now = new Date();
+    let currentHour = now.getHours();
+    let currentMinute = now.getMinutes();
+
+    // Convertir los segundos trabajados a horas
+    let workedHours = timerTime / 3600;
+
+    // Verificar si es antes de las 18:00 o si ha trabajado menos de 8 horas
+    if (currentHour < 18 || workedHours < 8) {
+        let title = '';
+        let text = '';
+
+        if (currentHour < 18) {
+            title = 'Horario de Salida Prematuro';
+            text = 'Es menos de las 18:00.  ';
+        }else{
+            if(workedHours < 8) {
+            title = ('Jornada Incompleta');
+            text = 'Has trabajado menos de 8 horas. Si no compensas el tiempo faltante,';
+            }
+        }
+
+        text += 'Se te descontará de tus vacaciones al final del mes.';
+
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Finalizar Jornada',
+            cancelButtonText: 'Continuar Jornada'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                finalizarJornada();
+            }
+            // Si elige continuar, no hacemos nada, simplemente mantiene la jornada activa
+        });
+    } else {
+        // Si el tiempo es mayor o igual a 8 horas y es después de las 18:00, finalizamos directamente la jornada
+        finalizarJornada();
+    }
+}
+
+    function finalizarJornada() {
         fetch('/end-jornada', {
             method: 'POST',
             headers: {
@@ -530,16 +599,16 @@
             },
             body: JSON.stringify({})
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    stopTimer();
-                    document.getElementById('startJornadaBtn').style.display = 'block';
-                    document.getElementById('startPauseBtn').style.display = 'none';
-                    document.getElementById('endJornadaBtn').style.display = 'none';
-                    document.getElementById('endPauseBtn').style.display = 'none';
-                }
-            });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                stopTimer();
+                document.getElementById('startJornadaBtn').style.display = 'block';
+                document.getElementById('startPauseBtn').style.display = 'none';
+                document.getElementById('endJornadaBtn').style.display = 'none';
+                document.getElementById('endPauseBtn').style.display = 'none';
+            }
+        });
     }
 
     function startPause() {
@@ -582,6 +651,10 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         updateTime(); // Initialize the timer display
+
+        setInterval(function() {
+            getTime();
+        }, 120000);
 
         // Initialize button states based on jornada and pause
         if ('{{ $jornadaActiva }}') {

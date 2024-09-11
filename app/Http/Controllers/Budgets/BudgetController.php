@@ -311,7 +311,7 @@ class BudgetController extends Controller
         $budget->cambiarEstadoPresupuesto($budget->budget_status_id);
 
         if($budgetupdated){
-            return redirect()->route('presupuestos.index')->with('toast', [
+            return redirect()->route('presupuestos.indexUser')->with('toast', [
                 'icon' => 'success',
                 'mensaje' => 'Presupuesto actualizado correctamente.'
             ]);
@@ -897,51 +897,51 @@ class BudgetController extends Controller
         $ivaTotalfacturado=0;
         $totalfacturado=0;
 
-        // if(count(BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get()) >= 1){
+        if(count(BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get()) >= 1){
 
-        //     $budgetConcepts = BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get();
+            $budgetConcepts = BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get();
 
 
-        //     foreach ($budgetConcepts as $key => $concept) {
-        //         // Si el concepto es PROVEEDOR
-        //         if ($concept->concept_type_id === 1) {
-        //             if ($concept->discount === null) {
-        //                 $grossConcept = $concept->sale_price;
-        //                 $baseConcept = $grossConcept;
-        //                 $grossfacturado += $grossConcept;
-        //                 $basefacturada += $baseConcept;
-        //             }else {
-        //                 $grossConcept =  $concept->sale_price;
-        //                 $descuentoConcept = $concept->discount;
-        //                 $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
-        //                 $baseConcept = $grossConcept - $importeConceptDescuento;
-        //                 $descuento += $importeConceptDescuento;
-        //                 $grossfacturado += $grossConcept;
-        //                 $basefacturada += $baseConcept;
-        //             }
-        //         }
-        //         elseif($concept->concept_type_id === 2){
-        //             if ($concept->discount === null) {
-        //                 $grossConcept = $concept->units * $concept->sale_price;
-        //                 $baseConcept = $grossConcept;
-        //                 $grossfacturado += $grossConcept;
-        //                 $basefacturada += $baseConcept;
-        //             }else {
-        //                 $grossConcept = $concept->units * $concept->sale_price;
-        //                 $descuentoConcept = $concept->discount;
-        //                 $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
-        //                 $baseConcept = $grossConcept - $importeConceptDescuento;
-        //                 $descuento += $importeConceptDescuento;
-        //                 $grossfacturado += $grossConcept;
-        //                 $basefacturada += $baseConcept;
-        //             }
-        //         }
-        //     }
-        //     // Calculamos el Iva y el Total
-        //     $ivaTotalfacturado += ( $basefacturada * 21 ) /100;
-        //     $totalfacturado += $basefacturada + $ivaTotalfacturado;
+            foreach ($budgetConcepts as $key => $concept) {
+                // Si el concepto es PROVEEDOR
+                if ($concept->concept_type_id === 1) {
+                    if ($concept->discount === null) {
+                        $grossConcept = $concept->sale_price;
+                        $baseConcept = $grossConcept;
+                        $grossfacturado += $grossConcept;
+                        $basefacturada += $baseConcept;
+                    }else {
+                        $grossConcept =  $concept->sale_price;
+                        $descuentoConcept = $concept->discount;
+                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+                        $baseConcept = $grossConcept - $importeConceptDescuento;
+                        $descuento += $importeConceptDescuento;
+                        $grossfacturado += $grossConcept;
+                        $basefacturada += $baseConcept;
+                    }
+                }
+                elseif($concept->concept_type_id === 2){
+                    if ($concept->discount === null) {
+                        $grossConcept = $concept->units * $concept->sale_price;
+                        $baseConcept = $grossConcept;
+                        $grossfacturado += $grossConcept;
+                        $basefacturada += $baseConcept;
+                    }else {
+                        $grossConcept = $concept->units * $concept->sale_price;
+                        $descuentoConcept = $concept->discount;
+                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+                        $baseConcept = $grossConcept - $importeConceptDescuento;
+                        $descuento += $importeConceptDescuento;
+                        $grossfacturado += $grossConcept;
+                        $basefacturada += $baseConcept;
+                    }
+                }
+            }
+            // Calculamos el Iva y el Total
+            $ivaTotalfacturado += ( $basefacturada * 21 ) /100;
+            $totalfacturado += $basefacturada + $ivaTotalfacturado;
 
-        // }
+        }
 
 
         if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
@@ -973,6 +973,7 @@ class BudgetController extends Controller
             'discount_percentage' => $discountPercentage,
             'total' => ($budget->total - $totalfacturado) * $porcentaje,
         ];
+
 
         // Creación de la factura
         $invoice = Invoice::create($data);

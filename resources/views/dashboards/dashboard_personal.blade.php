@@ -683,16 +683,27 @@
                                                     <img alt="avatar" class="rounded-circle img-fluid  m-auto" style="width: 150px;" src="{{ asset('/storage/avatars/'.$user->image) }}" />
                                                 @endif
                                             </div>
-                                            <div class="mx-4 text-center">
-                                                <h1 class="fs-5 ">Productividad</h1>
-                                                <div class="progress-circle" data-percentage="70">
+                                            <div>
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <div class="mx-4 text-center">
+                                                        <h1 class="fs-5 ">Productividad</h1>
+                                                        <div class="progress-circle" data-percentage="70">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mx-4 text-center">
+                                                        <div class="card" style="border: 1px solid {{ $user->bono > 0 ? 'green' : 'gray' }}; padding: 10px;">
+                                                            <h5 class="m-0" style="color: {{ $user->bono > 0 ? 'green' : 'gray' }};">
+                                                                {{ $user->bono > 0 ? 'Bono: ' . $user->bono.' €' : 'Sin bono' }}
+                                                            </h5>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="mx-4 text-center">
-                                                <div class="card" style="border: 1px solid {{ $user->bono > 0 ? 'green' : 'gray' }}; padding: 10px;">
-                                                    <h5 class="m-0" style="color: {{ $user->bono > 0 ? 'green' : 'gray' }};">
-                                                        {{ $user->bono > 0 ? 'Bono: ' . $user->bono.' €' : 'Sin bono' }}
-                                                    </h5>
+                                                <div class="mx-4 my-2">
+                                                    <p style="color:#4D989E">Horas Producidas Hoy</p>
+                                                    <p style="font-weight: bold;font-size: 2rem;">{{ $tiempoProducidoHoy['horas'] }}</p>
+                                                    {{-- <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated @if(round($tiempoProducidoHoy['porcentaje'],2) >= 100) @else bg-warning @endif bg-success" style="width: {{round($tiempoProducidoHoy['porcentaje'],2)}}%">{{round($tiempoProducidoHoy['porcentaje'],2)}}%</div>
+                                                    </div> --}}
                                                 </div>
                                             </div>
                                         </div>
@@ -914,6 +925,33 @@
         });
     </script>
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            updateTime(); // Initialize the timer display
+
+            setInterval(function() {
+                getTime();
+            }, 120000);
+
+            // Initialize button states based on jornada and pause
+            if ('{{ $jornadaActiva }}') {
+                document.getElementById('startJornadaBtn').style.display = 'none';
+                document.getElementById('endJornadaBtn').style.display = 'block';
+                if ('{{ $pausaActiva }}') {
+                    document.getElementById('startPauseBtn').style.display = 'none';
+                    document.getElementById('endPauseBtn').style.display = 'block';
+                } else {
+                    document.getElementById('startPauseBtn').style.display = 'block';
+                    document.getElementById('endPauseBtn').style.display = 'none';
+                    startTimer(); // Start timer if not in pause
+                }
+            } else {
+                document.getElementById('startJornadaBtn').style.display = 'block';
+                document.getElementById('endJornadaBtn').style.display = 'none';
+                document.getElementById('startPauseBtn').style.display = 'none';
+                document.getElementById('endPauseBtn').style.display = 'none';
+            }
+        });
+
         let timerState = '{{ $jornadaActiva ? "running" : "stopped" }}'
         let timerTime = {{ $timeWorkedToday }}; // In seconds, initialized with the time worked today
 
@@ -963,6 +1001,53 @@
         }
 
         function endJornada() {
+        // Obtener el tiempo actualizado
+        getTime();
+
+        let now = new Date();
+        let currentHour = now.getHours();
+        let currentMinute = now.getMinutes();
+
+        // Convertir los segundos trabajados a horas
+        let workedHours = timerTime / 3600;
+
+        // Verificar si es antes de las 18:00 o si ha trabajado menos de 8 horas
+        if (currentHour < 18 || workedHours < 8) {
+            let title = '';
+            let text = '';
+
+            if (currentHour < 18) {
+                title = 'Horario de Salida Prematuro';
+                text = 'Es menos de las 18:00.  ';
+            }else{
+                if(workedHours < 8) {
+                title = ('Jornada Incompleta');
+                text = 'Has trabajado menos de 8 horas. Si no compensas el tiempo faltante,';
+                }
+            }
+
+            text += 'Se te descontará de tus vacaciones al final del mes.';
+
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Finalizar Jornada',
+                cancelButtonText: 'Continuar Jornada'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    finalizarJornada();
+                }
+                // Si elige continuar, no hacemos nada, simplemente mantiene la jornada activa
+            });
+        } else {
+            // Si el tiempo es mayor o igual a 8 horas y es después de las 18:00, finalizamos directamente la jornada
+            finalizarJornada();
+        }
+    }
+
+        function finalizarJornada() {
             fetch('/end-jornada', {
                 method: 'POST',
                 headers: {
@@ -971,17 +1056,18 @@
                 },
                 body: JSON.stringify({})
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        stopTimer();
-                        document.getElementById('startJornadaBtn').style.display = 'block';
-                        document.getElementById('startPauseBtn').style.display = 'none';
-                        document.getElementById('endJornadaBtn').style.display = 'none';
-                        document.getElementById('endPauseBtn').style.display = 'none';
-                    }
-                });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    stopTimer();
+                    document.getElementById('startJornadaBtn').style.display = 'block';
+                    document.getElementById('startPauseBtn').style.display = 'none';
+                    document.getElementById('endJornadaBtn').style.display = 'none';
+                    document.getElementById('endPauseBtn').style.display = 'none';
+                }
+            });
         }
+
 
         function startPause() {
             fetch('/start-pause', {
@@ -1021,28 +1107,25 @@
                 });
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            updateTime(); // Initialize the timer display
+        function getTime() {
+            fetch('/dashboard/timeworked', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        timerTime = data.time
+                        updateTime()
+                    }
+                });
+        }
 
-            // Initialize button states based on jornada and pause
-            if ('{{ $jornadaActiva }}') {
-                document.getElementById('startJornadaBtn').style.display = 'none';
-                document.getElementById('endJornadaBtn').style.display = 'block';
-                if ('{{ $pausaActiva }}') {
-                    document.getElementById('startPauseBtn').style.display = 'none';
-                    document.getElementById('endPauseBtn').style.display = 'block';
-                } else {
-                    document.getElementById('startPauseBtn').style.display = 'block';
-                    document.getElementById('endPauseBtn').style.display = 'none';
-                    startTimer(); // Start timer if not in pause
-                }
-            } else {
-                document.getElementById('startJornadaBtn').style.display = 'block';
-                document.getElementById('endJornadaBtn').style.display = 'none';
-                document.getElementById('startPauseBtn').style.display = 'none';
-                document.getElementById('endPauseBtn').style.display = 'none';
-            }
-        });
+
     </script>
     <script>
             document.querySelectorAll('#enviar').forEach(function(button) {
@@ -1524,6 +1607,7 @@
 
     </script>
     <script>
+
 
         $(document).on("click", '.tarea-sing', function() {
                     var id = $(this).attr("id");

@@ -131,9 +131,11 @@ class TesoreriaController extends Controller
             'quantity' => 'required',
             'bank_id' => 'required|integer|exists:bank_accounts,id',
             'invoice_id' => 'nullable|integer|exists:invoices,id',
+            'date' => 'required',
 
         ],[
             'title.required' => 'El título es obligatorio.',
+            'date.required' => 'La fecha es obligatoria.',
             'title.string' => 'El título debe ser una cadena de texto.',
             'title.max' => 'El título no debe exceder los 255 caracteres.',
             'quantity.required' => 'La cantidad es obligatoria.',
@@ -146,8 +148,6 @@ class TesoreriaController extends Controller
         ]);
 
         $ingreso = new Ingreso( $validated);
-        $ingreso->date = Carbon::now();
-        //$ingreso->budget_date = Invoice::find( $ingreso->invoice_id)->expiration_date;
         $ingreso->save();
         return redirect()->route('ingreso.edit', $ingreso->id)->with('toast',[
             'icon' => 'success',
@@ -350,6 +350,7 @@ class TesoreriaController extends Controller
         $validated = $this->validate($request, [
             'title' => 'required|string|max:255',
             'quantity' => 'required',
+            'date' => 'required',
             'bank_id' => 'required|integer|exists:bank_accounts,id',
             'invoice_id' => 'nullable|integer|exists:invoices,id',
 
@@ -357,6 +358,7 @@ class TesoreriaController extends Controller
             'title.required' => 'El título es obligatorio.',
             'title.string' => 'El título debe ser una cadena de texto.',
             'title.max' => 'El título no debe exceder los 255 caracteres.',
+            'date.required' => 'La fecha es obligatoria.',
             'quantity.required' => 'La cantidad es obligatoria.',
             'quantity.numeric' => 'La cantidad debe ser un número.',
             'bank_id.required' => 'El ID del banco es obligatorio.',

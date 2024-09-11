@@ -98,7 +98,7 @@ class PetitionController extends Controller
             'completada' => false  // Asumimos que la tarea no está completada por los usuarios al inicio
         ]);
 
-        return redirect(route('peticion.index'));
+        return redirect(route('peticion.indexUser'));
 
     }
 
@@ -139,7 +139,7 @@ class PetitionController extends Controller
         ]);
 
         $petitionCreado = $peticion->update($data);
-        return redirect(route('peticion.index'));
+        return redirect(route('peticion.indexUser'));
     }
 
     /**

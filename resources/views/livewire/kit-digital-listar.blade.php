@@ -134,7 +134,7 @@
                     <td class="exclude" style="max-width: 50px">
                         <select name="segmento" id="segmento" style="max-width: 50px;padding: 0.1rem 0.1rem 0.1rem 0.2rem; margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;" data-id="{{$item->id}}">
                             @foreach ($segmentos as $segmento)
-                                <option value="{{$segmento['id']}}">{{$segmento['nombre']}}</option>
+                                <option value="{{$segmento['id']}}" @if($item->segmento == $segmento['id']) selected  @endif>{{$segmento['nombre']}}</option>
                             @endforeach
                         </select>
                     </td>
@@ -200,14 +200,14 @@
                             @endforeach
                         </select>
                     </td>
-                    <td style="max-width: 80px !important">
+                    {{-- <td style="max-width: 80px !important">
                         <button type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="comentario" data-content="{{ $item->comentario }}">Editar</button>
                     </td>
                     <td style="max-width: 80px !important">
                         <button  type="button" class="btn btn-sm btn-light edit-textarea" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{$item->id}}" data-field="nuevo_comentario" data-content="{{ $item->nuevo_comentario }}">Editar</button>
-                    </td>
-                    {{-- <td style="max-width: 80px !important"><textarea name="comentario" data-id="{{$item->id}}" cols="30" rows="1" style=" background-color: rgba(255, 255, 255, 0.123) ;margin-bottom: 0; width:100%;">{{ $item->comentario }}</textarea></td>
-                    <td style="max-width: 80px !important"><textarea name="nuevo_comentario" data-id="{{$item->id}}" cols="30" rows="1"  style="background-color: rgba(255, 255, 255, 0.123) ; margin-bottom: 0; width:100%;">{{ $item->nuevo_comentario }}</textarea></td> --}}
+                    </td>--}}
+                     <td style="min-width: 200px !important"><textarea name="comentario" data-id="{{$item->id}}" cols="30" rows="1" style=" background-color: rgba(255, 255, 255, 0.123) ;margin-bottom: 0; width:100%;">{{ $item->comentario }}</textarea></td>
+                    <td style="min-width: 200px !important"><textarea name="nuevo_comentario" data-id="{{$item->id}}" cols="30" rows="1"  style="background-color: rgba(255, 255, 255, 0.123) ; margin-bottom: 0; width:100%;">{{ $item->nuevo_comentario }}</textarea></td>
                 </tr>
                 @endforeach
             </tbody>

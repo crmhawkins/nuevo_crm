@@ -81,9 +81,9 @@
                 </thead>
                 <tbody>
                     @foreach ( $dominios as $dominio )
-                        <tr class="clickable-row" data-href="{{route('presupuesto.edit', $dominio->id)}}">
+                        <tr class="clickable-row" data-href="{{route('dominios.edit', $dominio->id)}}">
                             <td>{{$dominio->dominio}}</td>
-                            <td>{{$dominio->cliente->name}}</td>
+                            <td>{{$dominio->cliente->name ?? 'Cliente no asociado'}}</td>
                             <td>{{ \Carbon\Carbon::parse($dominio->date_start)->format('d/m/Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($dominio->date_end)->format('d/m/Y') }}</td>
                             @if ($dominio->estado_id == 1)
@@ -96,9 +96,11 @@
                                 <td><span class="badge bg-dark">{{$dominio->estadoName->name}}</span></td>
                             @elseif($dominio->estado_id == 5)
                                 <td><span class="badge bg-primary">{{$dominio->estadoName->name}}</span></td>
+                            @else
+                                <td></td>
                             @endif
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
-                                <a class="" href="{{route('presupuesto.show', $dominio->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar dominio"></a>
+                                {{-- <a class="" href="{{route('presupuesto.show', $dominio->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar dominio"></a> --}}
                                 <a class="" href="{{route('dominios.edit', $dominio->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
                                 <a class="delete" data-id="{{$dominio->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar dominio"></a>
                             </td>
