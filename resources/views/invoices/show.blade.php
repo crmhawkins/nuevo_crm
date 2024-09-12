@@ -4,7 +4,7 @@
 
 @section('css')
     <link rel="stylesheet" href="{{asset('assets/vendors/toastify/toastify.css')}}">
-    @vite(['resources/sass/budget-preview.scss'])
+    {{-- @vite(['resources/sass/budget-preview.scss']) --}}
 @endsection
 
 @section('content')

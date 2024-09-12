@@ -181,8 +181,8 @@
                         </tr>
                         </thead>
                         <tbody>
-                            <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                            {{-- <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr> --}}
 
 
                             @foreach($budgetConceptsFormated as $concept)
@@ -205,8 +205,8 @@
                                     @endforeach
 
 
-                                <tr><td></td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td></td><td></td><td></td><td></td><td></td></tr>
+                                {{-- <tr><td></td><td></td><td></td><td></td><td></td></tr>
+                                <tr><td></td><td></td><td></td><td></td><td></td></tr> --}}
 
                             @endforeach
                         </tbody>
@@ -216,7 +216,7 @@
             </div>
 
             <div style="page-break-after: avoid; height: 140px;padding-left:35px">
-                <br><br><br><br>
+                 <br><br>
                 @if(!$sumatorio)
                 <table id="summary" style="border-collapse: collapse;width: 100%;">
                     <tr>

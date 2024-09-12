@@ -101,14 +101,14 @@
                             <p style="font-size:12px">Observaciones: <span style="padding-left:17px;">{{ $invoice->observations }}</span></p>
                         </td>
                         <td align="right" style="width: 50%;padding-right:20px;">
-                                    <h3>{{ $invoice->client->name }}</h3>
-                                    <span style="text-align: left;font-size:12px">{{ $invoice->client->address }}</span>
+                                    <h3>{{ $invoice->cliente->name }}</h3>
+                                    <span style="text-align: left;font-size:12px">{{ $invoice->cliente->address }}</span>
                                     <br>
-                                    <span style="text-align: left;font-size:12px">{{ $invoice->client->city }}</span>
+                                    <span style="text-align: left;font-size:12px">{{ $invoice->cliente->city }}</span>
                                     <br>
-                                    <span style="text-align: left;font-size:12px">{{ $invoice->client->zipcode}}&nbsp;&nbsp;&nbsp;&nbsp;{{ $invoice->client->province }}</span>
+                                    <span style="text-align: left;font-size:12px">{{ $invoice->cliente->zipcode}}&nbsp;&nbsp;&nbsp;&nbsp;{{ $invoice->cliente->province }}</span>
                                     <br>
-                                    <span style="text-align: left;font-size:12px">NIF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $invoice->client->cif }}</span>
+                                    <span style="text-align: left;font-size:12px">NIF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $invoice->cliente->cif }}</span>
                             @if ($invoice->payment_method_id == 9)
                                 <h4>Forma de pago: Transeferencia</h4>
                             @else

@@ -78,109 +78,121 @@ class InvoiceController extends Controller
     }
 
     public function generatePDF(Request $request)
-    {
-        $invoice = Invoice::find($request->id);
-        // Los conceptos de esta factura
-        $thisInvoiceConcepts = InvoiceConcepts::where('invoice_id', $invoice->id)->get();
-        // Título
-        $title = "Factura - ". $invoice->reference;
+{
+    // Buscar la factura por ID
+    $invoice = Invoice::find($request->id);
 
-        // Data, para pasar datos
-        $data = [
-            'title' => $title,
-            'invoice_reference' => $invoice['reference'],
-        ];
-        // Array de conceptos para utilizar en la vista, formatea cadenas para que cuadre
-        $invoiceConceptsFormated = array();
-        $arrayConceptDescriptionRowsFormated = array();
-        foreach($thisInvoiceConcepts as $invoiceConcept){
+    // Validar que la factura exista
+    if (!$invoice) {
+        return response()->json(['error' => 'Factura no encontrada'], 404);
+    }
+
+    // Obtener los conceptos de esta factura
+    $thisInvoiceConcepts = InvoiceConcepts::where('invoice_id', $invoice->id)->get();
+
+    // Título del PDF
+    $title = "Factura - " . $invoice->reference;
+
+    // Datos básicos para pasar a la vista del PDF
+    $data = [
+        'title' => $title,
+        'invoice_reference' => $invoice->reference,
+    ];
+
+    // Formatear los conceptos para usarlos en la vista
+    $invoiceConceptsFormated = [];
+
+    foreach ($thisInvoiceConcepts as $invoiceConcept) {
+        // Validar que tenga unidades mayores a 0 para evitar división por 0
+        if ($invoiceConcept->units > 0) {
             // Título
-            $invoiceConceptsFormated[$invoiceConcept->id]['title'] = $invoiceConcept['title'];
+            $invoiceConceptsFormated[$invoiceConcept->id]['title'] = $invoiceConcept->title ?? 'Título no disponible';
             // Unidades
-            $invoiceConceptsFormated[$invoiceConcept->id]['units'] = $invoiceConcept['units'];
+            $invoiceConceptsFormated[$invoiceConcept->id]['units'] = $invoiceConcept->units;
 
-            $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = round($invoiceConcept['total']/$invoiceConcept['units'], 2);
-            // Precio
-            if($invoiceConcept->concept_type_id == BudgetConceptType::TYPE_OWN){
+            // Precio por unidad
+            $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = round($invoiceConcept->total / $invoiceConcept->units, 2);
 
+            // Calcular subtotal y precio en función del tipo de concepto
+            if ($invoiceConcept->concept_type_id == BudgetConceptType::TYPE_OWN) {
                 $invoiceConceptsFormated[$invoiceConcept->id]['subtotal'] = number_format((float)$invoiceConcept->units * $invoiceConcept->sale_price, 2, '.', '');
                 $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = number_format((float)$invoiceConcept->sale_price, 2, '.', '');
-            }
-            if($invoiceConcept->concept_type_id == BudgetConceptType::TYPE_SUPPLIER){
-
+            } elseif ($invoiceConcept->concept_type_id == BudgetConceptType::TYPE_SUPPLIER) {
                 $purchasePriceWithoutMarginBenefit = $invoiceConcept->purchase_price;
                 $benefitMargin = $invoiceConcept->benefit_margin;
-                $marginBenefitToAdd  =  ($purchasePriceWithoutMarginBenefit*$benefitMargin)/100;
-                $purchasePriceWithMarginBenefit  =  $purchasePriceWithoutMarginBenefit+ $marginBenefitToAdd;
+                $marginBenefitToAdd  = ($purchasePriceWithoutMarginBenefit * $benefitMargin) / 100;
+                $purchasePriceWithMarginBenefit  = $purchasePriceWithoutMarginBenefit + $marginBenefitToAdd;
 
-                if( $purchasePriceWithMarginBenefit != null){
-                    $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = round((number_format((float)$invoiceConcept->purchase_price, 2, '.', '') / $invoiceConcept->units / 100 * number_format((float)$invoiceConcept->benefit_margin, 2, '.', '')) + (number_format((float)$invoiceConcept->purchase_price, 2, '.', '') / $invoiceConcept->units), 2);
-                }
+                $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = round($purchasePriceWithMarginBenefit / $invoiceConcept->units, 2);
                 $invoiceConceptsFormated[$invoiceConcept->id]['subtotal'] = number_format((float)$invoiceConcept->total_no_discount, 2, '.', '');
             }
+
             // Descuento
-            if($invoiceConcept['discount'] == null){
-                $invoiceConceptsFormated[$invoiceConcept->id]['discount'] = "0,00";
-            }else{
-                $invoiceConceptsFormated[$invoiceConcept->id]['discount'] = number_format((float)$invoiceConcept['discount'], 2, ',', '');
-            }
+            $invoiceConceptsFormated[$invoiceConcept->id]['discount'] = number_format((float)($invoiceConcept->discount ?? 0), 2, ',', '');
+
             // Total
-            $invoiceConceptsFormated[$invoiceConcept->id]['total'] = number_format((float)$invoiceConcept['total'], 2, ',', '');
-            // Descripción del concepto tal cual está en base de datos
-            $rawConcepts = $invoiceConcept['concept'];
-            // Descripción dividida en cadenas y saltos de linea
-            $arrayConceptStringsAndBreakLines =  explode(PHP_EOL, $rawConcepts);
-            // Recorro el array arrayConceptStringsAndBreakLines y en cada elemento
-            // corto la cadena cada 50 caracteres sin partir palabras
+            $invoiceConceptsFormated[$invoiceConcept->id]['total'] = number_format((float)$invoiceConcept->total, 2, ',', '');
+
+            // Formatear la descripción dividiendo en líneas
+            $rawConcepts = $invoiceConcept->concept ?? '';
+            $arrayConceptStringsAndBreakLines = explode(PHP_EOL, $rawConcepts);
+
             $maxLineLength = 50;
             $charactersInALineCounter = 0;
-            $arrayWordsFormated = array();
+            $arrayWordsFormated = [];
             $counter = 0;
             $firstWordTempRow = true;
-            $counterTempRowsToFormated = 0;
-            $stringItemJump = false;
-            foreach($arrayConceptStringsAndBreakLines as $stringItem){
-                // Una de las cadenas del array que recorremos
+
+            foreach ($arrayConceptStringsAndBreakLines as $stringItem) {
                 $rowWords = explode(' ', $stringItem);
-                $lastWordOfStringArray = end($rowWords);
-                $lastWordOfStringArrayKey = key($rowWords);
-                // Row temporal
                 $tempRow = '';
-                // Llenar un array en el que cada elemento será una linea y contara 50 caracteres y no parta una palabra
-                foreach($rowWords as $key => $word){
-                    // Tamaño de la palabra
+
+                foreach ($rowWords as $word) {
                     $wordLength = strlen($word);
-                    if($firstWordTempRow == false){
-                        if($charactersInALineCounter <=  $maxLineLength ){
-                            $tempRow = $tempRow . ' ' . $word;
-                            $charactersInALineCounter = $charactersInALineCounter +  $wordLength;
-                        }else{
-                            // Aquí esta tempRow se mete en el array formated de este concepto
-                            // Hasta 50 chars meto en el array la cadena
-                            $arrayWordsFormated[$counter] = $tempRow;
-                            $counter = $counter + 1;
-                            // Lo que sobra lo meto en $tempRow
-                            $tempRow =  $word; /*GGGGGG*/
-                            $charactersInALineCounter = $wordLength;
-                        }
-                    }else{
+
+                    if (!$firstWordTempRow && ($charactersInALineCounter + $wordLength) > $maxLineLength) {
+                        // Guardar la fila actual y reiniciar el contador
+                        $arrayWordsFormated[$counter] = trim($tempRow);
+                        $counter++;
                         $tempRow = $word;
-                        $charactersInALineCounter = $charactersInALineCounter +  $wordLength;
+                        $charactersInALineCounter = $wordLength;
+                    } else {
+                        $tempRow .= ($firstWordTempRow ? '' : ' ') . $word;
+                        $charactersInALineCounter += $wordLength;
                         $firstWordTempRow = false;
                     }
-                    if($lastWordOfStringArrayKey == $key ){
-                        $arrayWordsFormated[$counter] = $tempRow;
-                        $counter = $counter + 1;
-                        $charactersInALineCounter = 0;
-                        $firstWordTempRow == true;
-                    }
                 }
+
+                // Guardar la última fila
+                $arrayWordsFormated[$counter] = trim($tempRow);
+                $counter++;
+                $charactersInALineCounter = 0;
+                $firstWordTempRow = true;
             }
+
             $invoiceConceptsFormated[$invoiceConcept->id]['description'] = $arrayWordsFormated;
+        } else {
+
+            // Manejar casos donde las unidades sean 0 o nulas
+            $invoiceConceptsFormated[$invoiceConcept->id] = [
+                'title' => $invoiceConcept->title ?? 'Título no disponible',
+                'units' => 0,
+                'price_unit' => 0,
+                'subtotal' => 0,
+                'discount' => '0,00',
+                'total' => '0,00',
+                'description' => ['Descripción no disponible']
+            ];
         }
-        $pdf = PDF::loadView('invoices.previewPDF', compact('invoice', 'data', 'invoiceConceptsFormated'));
-        return $pdf->download('factura_' . $invoice['reference'] . '_' . Carbon::now()->format('Y-m-d') . '.pdf');
     }
+
+    // Generar el PDF usando la vista 'invoices.previewPDF'
+    $pdf = PDF::loadView('invoices.previewPDF', compact('invoice', 'data', 'invoiceConceptsFormated'));
+
+    // Descargar el PDF con el nombre 'factura_XYZ_fecha.pdf'
+    return $pdf->download('factura_' . $invoice->reference . '_' . Carbon::now()->format('Y-m-d') . '.pdf');
+}
+
 
     public function rectificateInvoice(Request $request){
         $invoice = Invoice::find($request->id);

@@ -392,7 +392,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Ocurrió un error al generar la tarea. Por favor, inténtalo de nuevo.',
+                        text: 'Ocurrió un error al generar la factura. Por favor, inténtalo de nuevo.',
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,

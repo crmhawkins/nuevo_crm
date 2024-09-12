@@ -4,7 +4,6 @@
 
 @section('css')
     <link rel="stylesheet" href="{{asset('assets/vendors/toastify/toastify.css')}}">
-    {{-- @vite(['resources/sass/budget-preview.scss']) --}}
 @endsection
 
 @section('content')
@@ -156,10 +155,10 @@
     </div>
 </div>
 
-    <!--  BEGIN CUSTOM SCRIPTS FILE  -->
+    {{-- <!--  BEGIN CUSTOM SCRIPTS FILE  -->
     <x-slot:footerFiles>
-        @vite(['resources/assets/js/apps/invoice-preview.js'])
-    </x-slot>
+         @vite(['resources/assets/js/apps/invoice-preview.js'])
+    </x-slot> --}}
 @endsection
 
 @section('scripts')
