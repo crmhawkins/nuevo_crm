@@ -233,6 +233,7 @@
                         <td style="text-align:center">{{ $budget->iva }}&nbsp;€</td>
                         <td style="text-align:right">{{ $budget->total }}&nbsp;€</td>
                     </tr>
+                    <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td> </tr>
                     <tr>
                         <td style="text-align:center"></td>
                         <td style="text-align:center"></td>
