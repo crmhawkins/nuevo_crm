@@ -1,14 +1,14 @@
 <div>
     {{-- Filtros --}}
     <div class="filtros row mb-4">
-        <div class="col-md-5">
+        <div class="col-md-3">
             <div class="flex flex-row justify-start">
                 <div class="mr-3">
-                    <label for="">Nª por paginas</label>
+                    <label for="">Nª</label>
                     <select wire:model="perPage" class="form-select">
-                        <option value="10">10 por página</option>
-                        <option value="25">25 por página</option>
-                        <option value="15">50 por página</option>
+                        <option value="10">10 </option>
+                        <option value="25">25 </option>
+                        <option value="15">50 </option>
                         <option value="all">Todo</option>
                     </select>
                 </div>
@@ -18,57 +18,58 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
+        <div class="col-md-9">
             <div class="flex flex-row justify-end">
-                <div class="mr-3">
+
+                <div wire:ignore  class="mb-3 px-2 flex-fill" style="width: 200px">
+                    <label for="">Clientes</label>
+                    <select  wire:ignore  wire:model="selectedCliente" id="clientesChoices" class="form-select choices">
+                        <option value="">Clientes</option>
+                        @foreach ($clientes as $cliente)
+                            <option value="{{ $cliente->id }}">{{ $cliente->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3 px-2 flex-fill" style="width: 150px">
                     <label for="">Categorías</label>
                     <select wire:model="selectedCategoria" name="" id="" class="form-select ">
-                        <option value="">-- Categorías --</option>
+                        <option value="">Categorías</option>
                         @foreach ($categorias as $categoria)
                             <option value="{{$categoria->id}}">{{$categoria->name}}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="mr-3">
-                    <label for="">Clientes</label>
-                    <select wire:model="selectedCliente" name="" id="" class="form-select ">
-                        <option value="">-- Clientes --</option>
-                        @foreach ($clientes as $cliente)
-                            <option value="{{$cliente->id}}">{{$cliente->name}}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mr-3">
+                <div class="mb-3 px-2 flex-fill" style="width: 150px">
                     <label for="">Departamento</label>
                     <select wire:model="selectedDepartamento" name="" id="" class="form-select ">
-                        <option value="">-- Departamento --</option>
+                        <option value="">Departamento</option>
                         @foreach ($departamentos as $departamento)
                             <option value="{{$departamento->id}}">{{$departamento->name}}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="mr-3">
+                <div class="mb-3 px-2 flex-fill" style="width: 150px">
                     <label for="">Empleado</label>
                     <select wire:model="selectedEmpleado" name="" id="" class="form-select ">
-                        <option value="">-- Empleados --</option>
+                        <option value="">Empleados</option>
                         @foreach ($empleados as $empleado)
                             <option value="{{$empleado->id}}">{{$empleado->name}}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="mr-3">
+                <div class="mb-3 px-2 flex-fill" style="width: 150px">
                     <label for="">Gestor</label>
                     <select wire:model="selectedGestor" name="" id="" class="form-select ">
-                        <option value="">-- Gestores --</option>
+                        <option value="">Gestores</option>
                         @foreach ($gestores as $gestor)
                             <option value="{{$gestor->id}}">{{$gestor->name}}</option>
                         @endforeach
                     </select>
                 </div>
-                <div>
+                <div class="mb-3 px-2 flex-fill" style="width: 100px">
                     <label for="">Año</label>
                     <select wire:model="selectedYear" class="form-select">
-                        <option value="">-- Seleccione un Año --</option>
+                        <option value="">Año --</option>
                         @foreach (range(date('Y'), date('Y') - 5, -1) as $year)
                             <option value="{{ $year }}">{{ $year }}</option>
                         @endforeach
@@ -158,6 +159,10 @@
     {{-- {{$users}} --}}
 </div>
 @section('scripts')
+<!-- Choices.js CSS -->
+<link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
+<script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
+
 
 
     @include('partials.toast')
@@ -224,4 +229,6 @@
             });
         }
     </script>
+
+
 @endsection

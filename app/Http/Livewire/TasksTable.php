@@ -35,8 +35,8 @@ class TasksTable extends Component
     public function mount(){
         $this->categorias = ServiceCategories::where('inactive',0)->get();
         $this->clientes = Client::where('is_client',true)->get();
-        $this->empleados = User::all();
-        $this->gestores = User::all();
+        $this->empleados = User::where('inactive',0)->where('access_level_id', 5)->get();
+        $this->gestores = User::where('inactive',0)->where('access_level_id', 4)->get();
         $this->departamentos = UserDepartament::all();
         $this->selectedYear = Carbon::now()->year;
 
@@ -56,7 +56,10 @@ class TasksTable extends Component
     protected function actualizartareas(){
         $query = Task::when($this->buscar, function ($query) {
                     $query->where('tasks.title', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('tasks.description', 'like', '%' . $this->buscar . '%');
+                          ->orWhere('tasks.description', 'like', '%' . $this->buscar . '%')
+                          ->orWhereHas('presupuesto', function($q) {
+                            $q->where('budgets.reference', 'like', '%' . $this->buscar . '%');
+                        });
                 })
                 ->when($this->selectedCategoria, function ($query) {
                     $query->whereHas('presupuestoConcepto', function ($query) {

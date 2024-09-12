@@ -44,7 +44,7 @@ class BudgetsTable extends Component
     protected $budgets; // Propiedad protegida para los usuarios
 
     public function mount(){
-        $this->gestores = User::where('access_level_id', 4)->get();
+        $this->gestores = User::where('inactive',0)->where('access_level_id', 4)->get();
         $this->estados = BudgetStatu::all();
         $this->selectedYear = Carbon::now()->year;
 
