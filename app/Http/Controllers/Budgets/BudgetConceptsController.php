@@ -305,8 +305,8 @@ class BudgetConceptsController extends Controller
 
         // Validamos los campos
         $this->validate($request, [
-            'services_category_id' => 'required|filled',
-            'service_id' => 'required',
+            'services_category_id' => 'required|exists:services_categories,id',
+            'service_id' => 'required|exists:services,id',
             'title' => 'required',
             'concept' => 'required',
             'units' => 'required|array|min:1',
@@ -317,6 +317,8 @@ class BudgetConceptsController extends Controller
         ], [
             'services_category_id.required' => 'La categoria del servicio es requerido para continuar',
             'service_id.required' => 'El servicio es requerido para continuar',
+            'services_category_id.exists' => 'La categoria del servicio es requerido para continuar',
+            'service_id.exists' => 'El servicio es requerido para continuar',
             'title.required' => 'El titulo debe ser valido para continuar',
             'concept.required' => 'El concepto es requerido para continuar',
             'units.required' => 'Al menos una unidad es requerida para continuar',
@@ -460,7 +462,7 @@ class BudgetConceptsController extends Controller
         ]);
 
         $data = $request->all();
-
+        $data['radioOpt'] = null;
         $data['total_no_discount'] =  $data['sale_price'];
         $data['total'] =  $data['sale_price'];
 

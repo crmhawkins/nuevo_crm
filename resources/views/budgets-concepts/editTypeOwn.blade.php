@@ -38,7 +38,7 @@
                         {{-- Observaciones --}}
                         <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="services_category_id">Categoría:</label>
-                            <select class="js-example-basic-single choices form-control @error('services_category_id') is-invalid @enderror" name="services_category_id" >
+                            <select class="js-example-basic-single form-control @error('services_category_id') is-invalid @enderror" name="services_category_id" >
                                 <option value="{{null}}">Seleccione una categoria</option>
 
                                 @foreach ($serviceCategories as $categoria)
@@ -54,7 +54,7 @@
 
                         {{-- Servicios --}}
                         <div class="form-group mb-3">
-                            <label for="service_id">Servicio:</label>
+                            <label class="text-uppercase" style="font-weight: bold" for="service_id">Servicio:</label>
                             <select class="js-example-basic-single form-control" name="service_id">
                                 <option value="">Seleccione un servicio</option>
                                 @foreach ($services as $service)
@@ -86,7 +86,7 @@
                         </div>
 
                         {{-- Unidades --}}
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="units">Unidades:</label>
                             <input type="double" class="form-control @error('units') is-invalid @enderror" id="units" value="{{ old('units', $budgetConcept->units) }}" name="units">
                             @error('units')
@@ -96,7 +96,7 @@
                             @enderror
                         </div>
                         {{-- Precio --}}
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="sale_price">Precio:</label>
                             <input type="number" step="0.01" class="form-control" id="sale_price" name="sale_price" value="{{ old('sale_price', $budgetConcept->sale_price) }}">
                             @error('sale_price')
@@ -107,7 +107,7 @@
                         </div>
 
                         {{-- Total --}}
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="total">Total:</label>
                             <input type="number" step="0.01" class="form-control" id="total" name="total" value="{{ old('total', $budgetConcept->total) }}" readonly>
                             @error('total')

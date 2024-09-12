@@ -25,8 +25,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
 
-
-
         $schedule->call(function () {
             $value = 1.83;
             $value2 = 0.915;
@@ -37,17 +35,52 @@ class Kernel extends ConsoleKernel
         })->monthlyOn(1, '08:00');
 
         $schedule->call(function () {
-            $users = User::where('inactive',0)->get();
-            foreach($users as $user){
+            $users = User::where('inactive', 0)->where('id', '!=', 101)->get();
 
+            foreach ($users as $user) {
+                // Obtiene el último mes (desde el inicio hasta el fin)
+                $startOfMonth = Carbon::now()->subMonth()->startOfMonth();
+                $endOfMonth = Carbon::now()->subMonth()->endOfMonth();
+
+                $jornadas = $user->jornadas()
+                    ->whereBetween('start_time', [$startOfMonth, $endOfMonth])
+                    ->get();
+
+                // Calcular tiempo trabajado por día
+                $descontar = 0;
+
+                foreach ($jornadas->groupBy(function($jornada) {
+                    return Carbon::parse($jornada->start_time)->format('Y-m-d'); // Agrupar por día
+                }) as $day => $dayJornadas) {
+
+                    $totalWorkedSeconds = 0;
+
+                    foreach ($dayJornadas as $jornada) {
+                        $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? $jornada->start_time);
+                        $totalPauseSeconds = $jornada->pauses->sum(function ($pause) {
+                            return Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? $pause->start_time);
+                        });
+
+                        $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
+                    }
+
+                    // Convertir los segundos trabajados en horas
+                    $workedHours = $totalWorkedSeconds / 3600;
+
+                    // Calcular la diferencia respecto a 8 horas
+                    $difference = 8 - $workedHours;
+
+                    if ($difference > 0) {
+                        // El usuario trabajó menos de 8 horas, debe compensar
+                        $descontar += $difference;
+                    } elseif ($difference < 0) {
+                        $descontar -= $difference;
+                    }
+                }
+                $descontarDias = $descontar / 24;
+                DB::update('UPDATE holidays SET quantity = quantity - ? WHERE user_id = ?', [$descontarDias, $user->id]);
             }
-            $value = 1.83;
-            $value2 = 0.915;
-            $adminUserId = 101;
-            //DB::update('update holidays set quantity=quantity+?', [$value]);
-            DB::update('UPDATE holidays SET quantity = quantity + CASE WHEN admin_user_id = ? THEN ? ELSE ? END', [$adminUserId, $value2, $value]);
-
-        })->monthlyOn(1, '08:00');
+        })->monthlyOn(1, '09:00');
 
         $schedule->call(function () {
             $this->sendEmailHoras();
@@ -128,6 +161,7 @@ class Kernel extends ConsoleKernel
             }
 
         })->weeklyOn(1, '17:20');
+
         $schedule->call(function () {
             $users = User::where('inactive',0)->get();
             $fechaNow = Carbon::now();

@@ -39,7 +39,7 @@
                         <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="services_category_id">Categoría:</label>
                             <select class="choices js-example-basic-single form-control @error('services_category_id') is-invalid @enderror" name="services_category_id" >
-                                <option value="{{null}}">Seleccione una categoria</option>
+                                <option value="">Seleccione una categoria</option>
 
                                 @foreach ($categorias as $categoria)
                                     <option value="{{ $categoria->id }}" {{ old('services_category_id') == $categoria->id ? 'selected' : '' }}>{{ $categoria->name }}</option>
@@ -56,7 +56,7 @@
                         <div class="form-group mb-3">
                             <label class="text-uppercase" style="font-weight: bold" for="service_id">Servicio:</label>
                             <select class="js-example-basic-single form-control @error('service_id') is-invalid @enderror" name="service_id" >
-                                <option value="{{null}}">Seleccione una categoria</option>
+                                <option value="">Seleccione una categoria</option>
                             </select>
                             @error('service_id')
                                     <span class="invalid-feedback" role="alert">

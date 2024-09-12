@@ -233,7 +233,6 @@
                         <td style="text-align:center">{{ $budget->iva }}&nbsp;€</td>
                         <td style="text-align:right">{{ $budget->total }}&nbsp;€</td>
                     </tr>
-                    <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td> </tr>
                     <tr>
                         <td style="text-align:center"></td>
                         <td style="text-align:center"></td>
@@ -252,8 +251,10 @@
                     </tr>
                 </table>
                 @endif
+                @if (isset($budget->description))
                 <h4>Observaciones</h2>
                 <p><small>{{$budget->description}}</small></p>
+                @endif
             </div>
 
             <div class="information" style="display: block; page-break-before: always; margin-top:110px;">

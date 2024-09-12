@@ -21,7 +21,7 @@
                      <h2 id="timer" class="display-6 font-weight-bold col-4">00:00:00</h2>
                     <button id="startJornadaBtn" class="btn jornada btn-primary mx-2 col-3" onclick="startJornada()">Inicio Jornada</button>
                     <button id="startPauseBtn" class="btn jornada btn-secondary mx-2 col-3" onclick="startPause()" style="display:none;">Iniciar Pausa</button>
-                    <button id="endPauseBtn" class="btn jornada btn-secondary mx-2 col-3" onclick="endPause()" style="display:none;">Finalizar Pausa</button>
+                    <button id="endPauseBtn" class="btn jornada btn-dark mx-2 col-3" onclick="endPause()" style="display:none;">Finalizar Pausa</button>
                     <button id="endJornadaBtn" class="btn jornada btn-danger mx-2 col-3" onclick="endJornada()" style="display:none;">Fin de Jornada</button>
                 </div>
             </div>
