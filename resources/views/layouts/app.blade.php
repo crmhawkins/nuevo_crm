@@ -77,7 +77,7 @@
             let accessLevel = {{ auth()->user()->access_level_id}};
 console.log(accessLevel);
             // Verificar si el nivel de acceso del usuario es 4
-            if (accessLevel == 5) {
+            if (accessLevel == 5 || accessLevel == 6) {
                 $("#sidebar").remove();
                 $("#main").css("margin-left", "0px");
             }

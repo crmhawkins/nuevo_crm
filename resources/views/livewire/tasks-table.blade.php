@@ -139,14 +139,11 @@
                     @endforeach
                 </tbody>
             </table>
-            {{-- Si los servicios vienen vacio --}}
             @if( count($tareas) == 0 )
                 <div class="text-center py-4">
                     <h3 class="text-center fs-3">No se encontraron registros de <strong>TAREAS</strong></h3>
                 </div>
             @endif
-
-            {{-- Paginacion --}}
             @if($perPage !== 'all')
                 {{ $tareas->links() }}
             @endif
