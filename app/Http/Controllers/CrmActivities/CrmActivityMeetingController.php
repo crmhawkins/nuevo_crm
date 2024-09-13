@@ -54,6 +54,21 @@ class CrmActivityMeetingController extends Controller
         return view('crm_activities.meeting.show', compact('meeting', 'contactBy', 'comments'));
     }
 
+    public function updateMeeting(Request $request){
+        $data = $request->validate([
+                    'id' => 'required',
+                    'description' => 'required',
+                ]);
+        $meeting = CrmActivitiesMeetings::find($data['id']);
+        if (!$meeting) {
+            return response()->json(['message' => 'Acta no encontrada'], 404);
+        }
+        $meeting->update([
+            'description' =>  $data['description']
+        ]);
+        return response()->json(['message' => 'Acta actualizada correctamente'], 200);
+    }
+
     public function index(){
         $arrayMeetings = array();
 

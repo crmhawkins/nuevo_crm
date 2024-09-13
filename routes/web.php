@@ -67,6 +67,7 @@ Route::post('/dashboard/getDataTask', [DashboardController::class, 'getDataTask'
 Route::post('/dashboard/getTasksRefresh', [DashboardController::class, 'getTasksRefresh'])->name('dashboard.getTasksRefresh');
 Route::post('/dashboard/setStatusTask', [DashboardController::class, 'setStatusTask'])->name('dashboard.setStatusTask');
 Route::post('/dashboard/llamada', [DashboardController::class, 'llamada'])->name('llamada.store');
+Route::post('/dashboard/llamadafin', [DashboardController::class, 'finalizar'])->name('llamada.end');
 Route::post('/dashboard/timeworked', [DashboardController::class, 'timeworked'])->name('user.time');
 
 

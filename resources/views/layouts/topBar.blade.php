@@ -11,7 +11,7 @@
                 <span class="position-absolute top-10 start-80 translate-middle px-2 bg-info rounded-pill">
                   <span class="text-white" style="font-size: 0.85rem">0</span>
                 </span>
-              </a>
+            </a>
 
             {{-- <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
             </a> --}}

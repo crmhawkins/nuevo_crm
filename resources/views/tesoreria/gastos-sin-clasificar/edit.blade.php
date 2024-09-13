@@ -35,52 +35,52 @@
                         <form action="{{ route('gasto-sin-clasificar.update', $unclassifiedExpense->id) }}" method="POST">
                             @csrf
                             <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="title">Título:</label>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="title">Título:</label>
                                     <input type="text" class="form-control" id="title" name="title" value="{{ $unclassifiedExpense->company_name }}">
                                     @error('title')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="quantity">Cantidad:</label>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="quantity">Cantidad:</label>
                                     <input type="number" class="form-control" id="quantity" name="quantity" value="{{ $unclassifiedExpense->amount }}">
                                     @error('quantity')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="received_date">Fecha de recepción:</label>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="received_date">Fecha de recepción:</label>
                                     <input type="date" class="form-control" id="received_date" name="received_date" value="{{ $unclassifiedExpense->formatted_created_at }}">
                                     @error('received_date')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="reference">Referencia:</label>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="reference">Referencia:</label>
                                     <input type="text" class="form-control" id="reference" name="reference" value="{{ $unclassifiedExpense->invoice_number }}">
                                     @error('reference')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="date">Fecha de pago:</label>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="date">Fecha de pago:</label>
                                     <input type="date" class="form-control" id="date" name="date" >
                                     @error('date')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
                                 @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="bank_id">Banco:</label>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="bank_id">Banco:</label>
                                     <select class="form-select" id="bank_id" name="bank_id">
                                         <option value="">-- Seleccione un Banco --</option>
                                         @foreach($banks as $bank)
-                                            <option value="{{ $bank->id }}" {{ $bank->id == $unclassifiedExpense->OrdenCompra->bank_id ? 'selected' : '' }}>{{ $bank->name }}</option>
+                                            <option value="{{ $bank->id }}" {{($unclassifiedExpense->OrdenCompra->bank_id ?? '')== $bank->id   ? 'selected' : '' }}>{{ $bank->name }}</option>
                                         @endforeach
                                     </select>
                                     @error('bank_id')
@@ -88,13 +88,13 @@
                                     <style>.text-danger {color: red;}</style>
                                 @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="purchase_order_id">Orden de compra:</label>
-                                    <select class="form-select" id="purchase_order_id" name="purchase_order_id">
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="purchase_order_id">Orden de compra:</label>
+                                    <select class="form-select choices" id="purchase_order_id" name="purchase_order_id">
                                         <option value="">-- Selecciona un Orden de compra --</option>
                                         @if (count($purchaseOrders) > 0)
                                             @foreach($purchaseOrders as $order)
-                                                <option value="{{ $order->id }}" {{ $order->id == $unclassifiedExpense->order_number ? 'selected' : '' }}>{{ $order->id }} - {{ $order->concepto->concept ?? '' }} - {{ $order->concepto->total ?? ''}} €</option>
+                                                <option value="{{ $order->id }}" {{ $order->id == $unclassifiedExpense->order_number ? 'selected' : '' }}>{{ $order->id }} - {{ $order->concepto->total ?? ''}} €</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -103,8 +103,8 @@
                                     <style>.text-danger {color: red;}</style>
                                 @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="state">Estado:</label>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="state">Estado:</label>
                                     <select class="form-select" id="state" name="state">
                                         <option value="PENDIENTE">Pendiente</option>
                                         <option value="PAGADO">Pagado</option>
@@ -114,8 +114,8 @@
                                     <style>.text-danger {color: red;}</style>
                                 @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="payment_method_id">Método de pago:</label>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="payment_method_id">Método de pago:</label>
                                     <select class="form-select" id="payment_method_id" name="payment_method_id">
                                         @foreach($paymentMethods as $method)
                                             <option value="{{ $method->id }}">{{ $method->name }}</option>
@@ -153,6 +153,8 @@
 @endsection
 
 @section('scripts')
+<script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
+
     <script>
         function submitForm(type) {
             var form = document.querySelector('form');

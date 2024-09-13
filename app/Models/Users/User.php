@@ -71,7 +71,7 @@ class User extends Authenticatable
     ];
 
     public function llamadas() {
-        return $this->hasMany(Llamada::class,'admin_user_position_id');
+        return $this->hasMany(Llamada::class, 'admin_user_id');
     }
 
     public function posicion() {
@@ -84,7 +84,7 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\Users\UserAccessLevel::class,'access_level_id');
     }
     public function tareas(){
-        return $this->hasMany(\App\Models\Tasks\Task::class, 'admin_user_id');
+        return $this->hasMany(\App\Models\Tasks\Task::class,  'admin_user_id');
     }
     public function nominas(){
         return $this->hasMany(Nomina::class, 'admin_user_id');
@@ -130,8 +130,12 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Jornada\Jornada::class, 'admin_user_id');
     }
 
+
     public function activeJornada() {
         return $this->jornadas()->where('is_active', true)->first();
+    }
+    public function activeLlamada() {
+        return $this->llamadas()->where('is_active', true)->first();
     }
 
       public function totalWorkedTimeToday() {

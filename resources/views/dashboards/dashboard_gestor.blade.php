@@ -12,17 +12,18 @@
 <div class="page-heading card" style="box-shadow: none !important" >
     <div class="page-title card-body">
         <div class="row">
-            <div class="col-12 col-md-6 order-md-1 order-last">
+            <div class="col-12 col-md-4 order-md-1 order-last">
                 <h3>Dashboard</h3>
             </div>
 
-            <div class="col-12 col-md-6 order-md-2 order-first">
+            <div class="col-12 col-md-8 order-md-2 order-first">
                 <div class="row justify-end ">
-                     <h2 id="timer" class="display-6 font-weight-bold col-4">00:00:00</h2>
-                    <button id="startJornadaBtn" class="btn jornada btn-primary mx-2 col-3" onclick="startJornada()">Inicio Jornada</button>
-                    <button id="startPauseBtn" class="btn jornada btn-secondary mx-2 col-3" onclick="startPause()" style="display:none;">Iniciar Pausa</button>
-                    <button id="endPauseBtn" class="btn jornada btn-dark mx-2 col-3" onclick="endPause()" style="display:none;">Finalizar Pausa</button>
-                    <button id="endJornadaBtn" class="btn jornada btn-danger mx-2 col-3" onclick="endJornada()" style="display:none;">Fin de Jornada</button>
+                    <button id="endllamadaBtn" class="btn jornada btn-danger mx-2 col-2" onclick="endLlamada()" style="display:none;">Finalizar llamada</button>
+                     <h2 id="timer" class="display-6 font-weight-bold col-3">00:00:00</h2>
+                    <button id="startJornadaBtn" class="btn jornada btn-primary mx-2 col-2" onclick="startJornada()">Inicio Jornada</button>
+                    <button id="startPauseBtn" class="btn jornada btn-secondary mx-2 col-2" onclick="startPause()" style="display:none;">Iniciar Pausa</button>
+                    <button id="endPauseBtn" class="btn jornada btn-dark mx-2 col-2" onclick="endPause()" style="display:none;">Finalizar Pausa</button>
+                    <button id="endJornadaBtn" class="btn jornada btn-danger mx-2 col-2" onclick="endJornada()" style="display:none;">Fin de Jornada</button>
                 </div>
             </div>
         </div>
@@ -316,7 +317,7 @@
                                 @enderror
                                 <div class="col-md-12 mb-3">
                                     <label for="phone" class="form-label">Telefono</label>
-                                    <input type="text" class="form-control" id="phone" name="phone" required>
+                                    <input type="text" class="form-control" id="phone" name="phone">
                                 </div>
                             </div>
                             <input type="hidden" name="admin_user_id" value="{{ $user->id }}">
@@ -324,7 +325,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button id="iniciarllamada" type="button" class="btn btn-primary">Iniciar</button>
+                        <button id="iniciarllamada" type="submit" class="btn btn-primary">Iniciar</button>
                     </div>
                 </form>
             </div>
@@ -413,9 +414,9 @@
                                     </span>
                                 @enderror
                             </div>
-                            <div class="col-md-6 mb-3 choices">
+                            <div class="col-md-6 mb-3">
                                 <label for="admin_user_ids" class="form-label">Usuarios</label>
-                                <select class="form-select choices__inner" id="admin_user_ids" name="admin_user_ids[]" multiple>
+                                <select class="form-select" id="admin_user_ids" name="admin_user_ids[]" multiple>
                                     <option value="">Seleccione usuarios</option>
                                     @foreach ($users as $gestor)
                                         @if ($gestor->id !== auth()->id()) <!-- Excluir al usuario logueado -->
@@ -458,7 +459,6 @@
             </div>
         </div>
     </div>
-
 </div>
 @endsection
 
@@ -649,6 +649,32 @@
             });
     }
 
+    function endLlamada() {
+        fetch('/dashboard/llamadafin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('endllamadaBtn').style.display = 'none';
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.mensaje, // Aquí se muestra el mensaje del JSON
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
+                }
+            });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         updateTime(); // Initialize the timer display
 
@@ -674,7 +700,14 @@
             document.getElementById('startPauseBtn').style.display = 'none';
             document.getElementById('endPauseBtn').style.display = 'none';
         }
-    });
+
+        if ('{{ $llamadaActiva }}'){
+            document.getElementById('endllamadaBtn').style.display = 'block';
+        } else {
+            document.getElementById('endllamadaBtn').style.display = 'none';
+        }
+
+        });
 </script>
 <script>
         $('#todoboton').click(function(e){

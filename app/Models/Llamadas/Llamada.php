@@ -14,7 +14,9 @@ class Llamada extends Model
         'admin_user_id',
         'start_time',
         'end_time',
-        'is_active'
+        'is_active',
+        'phone',
+        'client_id'
     ];
 
     public function user() {

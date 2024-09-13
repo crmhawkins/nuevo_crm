@@ -392,6 +392,23 @@
                                         </div>
                                         <!-- Tareas Pendientes -->
                                         <div class="scroll tab-pane p-4 fade {{ !$tasks['taskPlay'] ? 'show active' : '' }}" id="pending-tasks" role="tabpanel" aria-labelledby="pending-tasks-tab">
+                                            <select class="js-select2 form-control js-select2-enabled select-task" style="width: 100%;"
+                                            data-placeholder="Buscar..." tabindex="-1" aria-hidden="true" name="cliente" id="cliente">
+                                            <option value="0">Seleccion o busque tarea...</option>
+                                            @if ($tasks['tasksPause'])
+                                                @foreach ($tasks['tasksPause'] as $taskSingle)
+                                                    <option value="{{ $taskSingle->id }}">
+                                                        @if ($taskSingle->budget)
+                                                            @if ($taskSingle->budget->client)
+                                                                {{ $taskSingle->budget->client->name }}
+                                                            @endif
+                                                            @endif | {{ $taskSingle->title }} | @if ($taskSingle->gestor)
+                                                                {{ $taskSingle->gestor->name }}
+                                                            @endif
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
                                             <?php
                                             if (!function_exists('fechaEstimadaDashboard')) {
                                                 function fechaEstimadaDashboard($horasFaltan)
@@ -1691,6 +1708,12 @@
 
 
         $(document).ready(function() {
+            $('.js-select2').select2();
+
+            $('.select-task').change(function() {
+                var id = $('.select-task').val();
+                showTaskInfoNew(id);
+            })
 
             $.when(getTasksRefresh()).then(function(data, textStatus, jqXHR) {
                 if (data.taskPlay != null) {

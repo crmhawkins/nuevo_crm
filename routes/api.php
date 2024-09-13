@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Tesoreria\TesoreriaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,4 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::prefix('tesoreria')->group(function () {
     Route::post('/gastos', [TesoreriaController::class, 'storeUnclassifiedExpensese']);
+    Route::post('/acta/description', action: [CrmActivityMeetingController::class, 'updateMeeting']);
 });

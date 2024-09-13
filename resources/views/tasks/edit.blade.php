@@ -144,16 +144,56 @@
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script>
     $(document).ready(function() {
+        var totalTimeBudget = parseFloat('{{ $task->total_time_budget }}'); // Tiempo total estimado de la tarea
+        var i = {{ count($data) }};
+
+        // Función para convertir un número decimal de horas a formato 00:00:00
+        function convertToTimeFormat(hours) {
+            var totalSeconds = Math.floor(hours * 3600); // Convertir horas a segundos
+            var hoursPart = Math.floor(totalSeconds / 3600); // Obtener horas
+            var minutesPart = Math.floor((totalSeconds % 3600) / 60); // Obtener minutos
+            var secondsPart = totalSeconds % 60; // Obtener segundos
+
+            // Formatear a 2 dígitos
+            var formattedTime =
+                String(hoursPart).padStart(2, '0') + ':' +
+                String(minutesPart).padStart(2, '0') + ':' +
+                String(secondsPart).padStart(2, '0');
+
+            return formattedTime;
+        }
+
+        // Función para calcular el tiempo restante
+        function calculateRemainingTime() {
+            var totalAssignedTime = 0;
+
+            // Sumar las horas estimadas ya asignadas a otros empleados
+            $('.table-employees tbody tr').each(function() {
+                var estimatedTime = $(this).find('input[name^="estimatedTime"]').val();
+                if (estimatedTime) {
+                    // Convertir el valor de horas en formato 00:00:00 a decimal para la suma
+                    var timeParts = estimatedTime.split(':');
+                    var timeInHours = parseInt(timeParts[0]) + (parseInt(timeParts[1]) / 60) + (parseInt(timeParts[2]) / 3600);
+                    totalAssignedTime += timeInHours || 0;
+                }
+            });
+
+            // Restar el tiempo asignado del tiempo total disponible
+            var remainingTime = totalTimeBudget - totalAssignedTime;
+            return remainingTime > 0 ? remainingTime : 0;
+        }
+
         $('#actualizarTarea').click(function(e) {
             e.preventDefault();
             $('form').submit();
         });
 
-        var i = {{ count($data) }};
-
         $('#addExtraEmployee').click(function() {
+            var remainingTime = calculateRemainingTime(); // Calcula el tiempo restante en decimal
+
             if (i == 0 || $("#estimatedTime" + i).val() != '') {
                 i++;
+                var formattedTime = convertToTimeFormat(remainingTime); // Convertir el tiempo restante a formato 00:00:00
                 $('.table-employees tbody').append(`
                     <tr id="rowEmployee${i}" class="dynamic-added">
                         <td>
@@ -164,13 +204,13 @@
                                 @endforeach
                             </select>
                         </td>
-                        <td><input type="text" class="form-control" name="estimatedTime${i}" placeholder="Horas estimadas"></td>
-                        <td><input type="text" class="form-control" name="realTime${i}" placeholder="Horas reales"></td>
+                        <td><input type="text" class="form-control" name="estimatedTime${i}" value="${formattedTime}" placeholder="Horas estimadas"></td>
+                        <td><input type="text" class="form-control" name="realTime${i}" value="00:00:00" placeholder="Horas reales"></td>
                         <td>
                             <select class="choices form-select" name="status${i}" class="form-control">
                                 <option value="">-- Seleccione --</option>
                                 @foreach($status as $s)
-                                <option value="{{$s->id}}">{{$s->name}}</option>
+                                <option {{2 == $s->id ? 'selected' : '' }} value="{{$s->id}}">{{$s->name}}</option>
                                 @endforeach
                             </select>
                         </td>

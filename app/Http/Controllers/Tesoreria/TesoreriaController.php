@@ -100,7 +100,7 @@ class TesoreriaController extends Controller
         // Obtener listas de opciones necesarias para el formulario
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
-        $budgets = Budget::all();
+        $budgets = Budget::whereIn('budget_status_id', [3,5,6,7])->get();
         $purchaseOrders = PurcharseOrder::all();
 
         return view('tesoreria.gastos-sin-clasificar.edit', compact('unclassifiedExpense', 'banks', 'paymentMethods', 'budgets', 'purchaseOrders'));

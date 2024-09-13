@@ -31,6 +31,7 @@ class DashboardController extends Controller
         $to_dos = $user->todos->where('finalizada',false);
         $timeWorkedToday = $this->calculateTimeWorkedToday($user);
         $jornadaActiva = $user->activeJornada();
+        $llamadaActiva = $user->activeLlamada();
         $events = $user->eventos->map(function ($event) {
             return $event->nonNullAttributes(); // Usa el método que definimos antes
         });
@@ -44,26 +45,26 @@ class DashboardController extends Controller
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
-                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva'));
             case(2):
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
-                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva'));
             case(3):
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
-                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva'));
             case(4):
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
                 $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;
-                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva'));
             case(5):
                 $tareas = $user->tareas->whereIn('task_status_id', [1, 2, 5]);
                 $tiempoProducidoHoy = $this->tiempoProducidoHoy();
@@ -148,57 +149,42 @@ class DashboardController extends Controller
     }
 
     public function llamada(Request $request){
-
-
-
         $user = Auth::user();
         $request->validate([
-            '' => 'required|exists:admin_user,id',
-            'fecha' => 'required|date',
-            'archivo' => 'required|file|mimes:pdf|max:2048', // Asegura que sea un PDF y no supere los 2MB
+            'client_id' => 'nullable|required_without:phone',
+            'phone' => 'nullable|required_without:client_id',
+        ], [
+            'client_id.required_without' => 'El campo cliente es obligatorio si el teléfono no está presente.',
+            'phone.required_without' => 'El campo teléfono es obligatorio si el cliente no está presente.',
         ]);
         $llamada =  Llamada::create([
             'admin_user_id' => $user->id,
-            'start_time' => Carbon::now
-(),
+            'start_time' => Carbon::now(),
             'is_active' => true,
         ]);
-        if($llamada){
-            return response()->json(['success' => true]);
-        }else{
-            return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
-        }
+        return redirect()->back()->with('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Llamada iniciada'
+        ]);
+
     }
 
     public function finalizar()
     {
-
-
         $user = Auth::user();
         $llamada = Llamada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($llamada) {
             $finllamada = $llamada->update([
-                'end_time' => Carbon::now
-(),
+                'end_time' => Carbon::now(),
                 'is_active' => false,
             ]);
-
-            if($finllamada){
-                return response()->json(['success' => true]);
-            }else{
-                return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
-            }
-        }else{
-            return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+            return response()->json(['success' => true ,'mensaje' => 'Llamada Finalizada']);
         }
 
     }
 
-
     public function startJornada()
     {
-
-
         $user = User::find(Auth::user()->id);
 
         $activeJornada = $user->activeJornada();
@@ -213,8 +199,7 @@ class DashboardController extends Controller
 
         $jornada =  Jornada::create([
             'admin_user_id' => $user->id,
-            'start_time' => Carbon::now
-(),
+            'start_time' => Carbon::now(),
             'is_active' => true,
         ]);
         if($jornada){
