@@ -32,7 +32,6 @@
                 <div class="card-body">
                     <form action="{{ route('dominios.update', $dominio->id) }}" method="POST">
                         @csrf
-                        @method('PUT')
 
                         <h3 class="mb-2 text-left uppercase">Cliente Asociado</h3>
                         <div class="flex flex-col mb-4">
