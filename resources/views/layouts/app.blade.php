@@ -75,7 +75,6 @@
     <script>
          document.addEventListener('DOMContentLoaded', function() {
             let accessLevel = {{ auth()->user()->access_level_id}};
-console.log(accessLevel);
             // Verificar si el nivel de acceso del usuario es 4
             if (accessLevel == 5 || accessLevel == 6) {
                 $("#sidebar").remove();
@@ -90,24 +89,24 @@ console.log(accessLevel);
         });
 
 
-        function saveThemePreference(isDark) {
-            $.ajax({
-                url: '{{ route("saveThemePreference") }}',
-                method: 'POST',
-                data: {
-                    is_dark: isDark,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    console.log(response.message);
-                    // Cambiar dinámicamente el tema
-                    document.getElementById('body').classList.toggle('dark-mode', isDark);
-                },
-                error: function(error) {
-                    console.error('Error guardando la preferencia de tema:', error);
-                }
-            });
-        }
+        // function saveThemePreference(isDark) {
+        //     $.ajax({
+        //         url: '{{ route("saveThemePreference") }}',
+        //         method: 'POST',
+        //         data: {
+        //             is_dark: isDark,
+        //             _token: '{{ csrf_token() }}'
+        //         },
+        //         success: function(response) {
+        //             console.log(response.message);
+        //             // Cambiar dinámicamente el tema
+        //             document.getElementById('body').classList.toggle('dark-mode', isDark);
+        //         },
+        //         error: function(error) {
+        //             console.error('Error guardando la preferencia de tema:', error);
+        //         }
+        //     });
+        // }
 
         // Evento para cambiar el tema
         // document.getElementById('toggleThemeButton').addEventListener('click', function() {
@@ -115,16 +114,16 @@ console.log(accessLevel);
         //     saveThemePreference(isDark);
         // });
 
-        function updateThemeIcon(isDark) {
-            const themeIcon = document.getElementById('theme-icon');
-            if (isDark) {
-                themeIcon.classList.remove('bi-moon');
-                themeIcon.classList.add('bi-brightness-high');
-            } else {
-                themeIcon.classList.remove('bi-brightness-high');
-                themeIcon.classList.add('bi-moon');
-            }
-        }
+        // function updateThemeIcon(isDark) {
+        //     const themeIcon = document.getElementById('theme-icon');
+        //     if (isDark) {
+        //         themeIcon.classList.remove('bi-moon');
+        //         themeIcon.classList.add('bi-brightness-high');
+        //     } else {
+        //         themeIcon.classList.remove('bi-brightness-high');
+        //         themeIcon.classList.add('bi-moon');
+        //     }
+        // }
 
         // Evento para cambiar el tema
         // document.getElementById('light-dark-mode').addEventListener('click', function() {

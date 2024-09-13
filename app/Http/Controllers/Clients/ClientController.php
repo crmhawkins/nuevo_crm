@@ -71,7 +71,6 @@ class ClientController extends Controller
             'address.required' => 'La dirección es requerida para continuar',
             'country.required' => 'El pais es requerido para continuar',
             'city.required' => 'La ciudad es requerida para continuar',
-            'country.required' => 'El pais es requerido para continuar',
             'province.required' => 'La provincia es requerida para continuar',
             'zipcode.required' => 'El codigo postal es requerido para continuar',
             'phone.required' => 'El telefono es requerido para continuar',

@@ -757,10 +757,10 @@
                                                                     </div>
                                                                     <div class="info">
                                                                         <div class="d-flex justify-content-evenly flex-wrap">
-                                                                            @if($to_do->project_id)<a class="btn btn-outline-secondary mb-2" href="{{route('campania.edit',$to_do->project_id)}}"> Campaña {{$to_do->proyecto ? $to_do->proyecto->name : 'borrada'}}</a>@endif
-                                                                            @if($to_do->client_id)<a class="btn btn-outline-secondary mb-2" href="{{route('clientes.show',$to_do->client_id)}}"> Cliente {{$to_do->cliente ? $to_do->cliente->name : 'borrado'}}</a>@endif
-                                                                            @if($to_do->budget_id)<a class="btn btn-outline-secondary mb-2" href="{{route('presupuesto.edit',$to_do->budget_id)}}"> Presupuesto {{$to_do->presupuesto ? $to_do->presupuesto->concept : 'borrado'}}</a>@endif
-                                                                            @if($to_do->task_id) <a class="btn btn-outline-secondary mb-2" href="{{route('tarea.show',$to_do->task_id)}}"> Tarea {{$to_do->tarea ? $to_do->tarea->title : 'borrada'}}</a> @endif
+                                                                            @if($to_do->project_id)<a class="btn btn-outline-secondary mb-2"> Campaña {{$to_do->proyecto ? $to_do->proyecto->name : 'borrada'}}</a>@endif
+                                                                            @if($to_do->client_id)<a class="btn btn-outline-secondary mb-2"> Cliente {{$to_do->cliente ? $to_do->cliente->name : 'borrado'}}</a>@endif
+                                                                            @if($to_do->budget_id)<a class="btn btn-outline-secondary mb-2"> Presupuesto {{$to_do->presupuesto ? $to_do->presupuesto->concept : 'borrado'}}</a>@endif
+                                                                            @if($to_do->task_id) <a class="btn btn-outline-secondary mb-2"> Tarea {{$to_do->tarea ? $to_do->tarea->title : 'borrada'}}</a> @endif
                                                                         </div>
                                                                         <div class="participantes d-flex flex-wrap mt-2">
                                                                             <h3 class="m-2">Participantes</h3>
@@ -1001,51 +1001,51 @@
         }
 
         function endJornada() {
-        // Obtener el tiempo actualizado
-        getTime();
+            // Obtener el tiempo actualizado
+            getTime();
 
-        let now = new Date();
-        let currentHour = now.getHours();
-        let currentMinute = now.getMinutes();
+            let now = new Date();
+            let currentHour = now.getHours();
+            let currentMinute = now.getMinutes();
 
-        // Convertir los segundos trabajados a horas
-        let workedHours = timerTime / 3600;
+            // Convertir los segundos trabajados a horas
+            let workedHours = timerTime / 3600;
 
-        // Verificar si es antes de las 18:00 o si ha trabajado menos de 8 horas
-        if (currentHour < 18 || workedHours < 8) {
-            let title = '';
-            let text = '';
+            // Verificar si es antes de las 18:00 o si ha trabajado menos de 8 horas
+            if (currentHour < 18 || workedHours < 8) {
+                let title = '';
+                let text = '';
 
-            if (currentHour < 18) {
-                title = 'Horario de Salida Prematuro';
-                text = 'Es menos de las 18:00.  ';
-            }else{
-                if(workedHours < 8) {
-                title = ('Jornada Incompleta');
-                text = 'Has trabajado menos de 8 horas. Si no compensas el tiempo faltante,';
+                if (currentHour < 18) {
+                    title = 'Horario de Salida Prematuro';
+                    text = 'Es menos de las 18:00.  ';
+                }else{
+                    if(workedHours < 8) {
+                    title = ('Jornada Incompleta');
+                    text = 'Has trabajado menos de 8 horas. Si no compensas el tiempo faltante,';
+                    }
                 }
+
+                text += 'Se te descontará de tus vacaciones al final del mes.';
+
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Finalizar Jornada',
+                    cancelButtonText: 'Continuar Jornada'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        finalizarJornada();
+                    }
+                    // Si elige continuar, no hacemos nada, simplemente mantiene la jornada activa
+                });
+            } else {
+                // Si el tiempo es mayor o igual a 8 horas y es después de las 18:00, finalizamos directamente la jornada
+                finalizarJornada();
             }
-
-            text += 'Se te descontará de tus vacaciones al final del mes.';
-
-            Swal.fire({
-                title: title,
-                text: text,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Finalizar Jornada',
-                cancelButtonText: 'Continuar Jornada'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    finalizarJornada();
-                }
-                // Si elige continuar, no hacemos nada, simplemente mantiene la jornada activa
-            });
-        } else {
-            // Si el tiempo es mayor o igual a 8 horas y es después de las 18:00, finalizamos directamente la jornada
-            finalizarJornada();
         }
-    }
 
         function finalizarJornada() {
             fetch('/end-jornada', {
@@ -1067,7 +1067,6 @@
                 }
             });
         }
-
 
         function startPause() {
             fetch('/start-pause', {
@@ -1124,8 +1123,6 @@
                     }
                 });
         }
-
-
     </script>
     <script>
             document.querySelectorAll('#enviar').forEach(function(button) {

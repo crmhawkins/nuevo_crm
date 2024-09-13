@@ -63,7 +63,7 @@ class KitDigitalController extends Controller
     public function store(Request $request){
 
         Carbon::setLocale("es");
-        $request->validate([
+        $request->validate( [
             'empresa' => 'required',
             'segmento' => 'required',
             'cliente' => 'required',
@@ -74,6 +74,28 @@ class KitDigitalController extends Controller
         $data = $request->all();
         KitDigital::create($data);
         return redirect()->route('kitDigital.index')->with('toast', [
+                'icon' => 'success',
+                'mensaje' => 'Nuevo kit digital se guardó correctamente'
+             ]);
+    }
+    public function storeComercial(Request $request){
+
+        $this->validate($request,[
+            'cliente' => 'required',
+            'telefono' => 'required',
+            'segmento' => 'required',
+            'estado' => 'required',
+        ],[
+            'cliente.required' => 'El campo es obligatorio.',
+            'telefono.required' => 'El campo es obligatorio.',
+            'segmento.required' => 'El campo es obligatorio.',
+            'estado.required' => 'El campo es obligatorio.',
+        ]);
+        $data = $request->all();
+        $data['comercial_id'] = Auth::user()->id;
+        dd($data);
+        KitDigital::create($data);
+        return redirect()->back()->with('toast', [
                 'icon' => 'success',
                 'mensaje' => 'Nuevo kit digital se guardó correctamente'
              ]);
