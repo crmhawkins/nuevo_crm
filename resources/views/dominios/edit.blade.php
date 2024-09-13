@@ -87,9 +87,9 @@
                         </div>
                         {{-- Fecha contratacion --}}
                         <div class="form-group">
-                            <label class="text-uppercase" style="font-weight: bold" for="date_start">Fecha de Contratacion:</label>
-                            <input type="date" class="form-control @error('date_start') is-invalid @enderror" id="date_start" value="{{ old('date_start', \Carbon\Carbon::parse($dominio->date_start)->format('Y-m-d')) }}" name="date_start">
-                            @error('date_start')
+                            <label class="text-uppercase" style="font-weight: bold" for="date">Fecha de renovacion:</label>
+                            <input type="date" class="form-control @error('date') is-invalid @enderror" id="date" value="{{ old('date_start', \Carbon\Carbon::parse($dominio->date_start)->format('Y-m-d')) }}" name="date">
+                            @error('date')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>
