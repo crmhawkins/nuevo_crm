@@ -21,5 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::prefix('tesoreria')->group(function () {
     Route::post('/gastos', [TesoreriaController::class, 'storeUnclassifiedExpensese']);
-    Route::post('/acta/description', action: [CrmActivityMeetingController::class, 'updateMeeting']);
 });
+Route::post('/acta/description', action: [CrmActivityMeetingController::class, 'updateMeeting']);
