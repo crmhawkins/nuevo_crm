@@ -465,7 +465,6 @@ class BudgetConceptsController extends Controller
         ]);
 
         $data = $request->all();
-        $data['radioOpt'] = null;
         $data['total_no_discount'] =  $data['sale_price'];
         $data['total'] =  $data['sale_price'];
 
@@ -474,6 +473,7 @@ class BudgetConceptsController extends Controller
 
         if($conceptoactualizado){
             // Proveedor 1
+
             if( $data['radioOpt'] == 1){
                 $selected = 1;
             }else{

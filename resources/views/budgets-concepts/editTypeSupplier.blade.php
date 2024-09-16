@@ -459,7 +459,7 @@
         Swal.fire({
             type: 'warning',
             title: 'Atención',
-            text: "Confirme la generación de la orden de compra de éste concepto",
+            text: "Confirme la generación de la orden de compra de este concepto",
             allowEscapeKey: false,
             allowOutsideClick: false,
             allowEnterKey: false,
@@ -470,12 +470,36 @@
             showLoaderOnConfirm: true,
             preConfirm: function() {
                 return new Promise(function(resolve) {
-                    $('.swal2-buttonswrapper > button:not(:first)').remove();
                     $('#generatePurchaseOrderForm').submit();
+                });
+            }
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    type: 'POST', // O GET, dependiendo de tu configuración
+                    url: "{{ route('budgetConcepts.generatePurchaseOrder', $budgetConcept->id) }}",
+                    data: {
+                        // parámetros si son necesarios
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            type: 'success',
+                            title: 'Orden Generada',
+                            html: 'La orden de compra ha sido generada: <a href="' + response.entryUrl + '">Descargar PDF</a>'
+                        });
+                    },
+                    error: function() {
+                        Swal.fire({
+                            type: 'error',
+                            title: 'Error',
+                            text: 'No se pudo generar la orden de compra.'
+                        });
+                    }
                 });
             }
         });
     });
+
 
 
     $('#ordenCompra').click(function() {
