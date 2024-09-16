@@ -72,7 +72,7 @@ class SuppliersController extends Controller
         $proveedor = Supplier::create($data);
 
 
-        return redirect()->route('clientes.show', $proveedor->id)->with('toast', [
+        return redirect()->route('proveedores.index')->with('toast', [
             'icon' => 'success',
             'mensaje' => 'El proveedor se creo correctamente'
         ]);
@@ -121,7 +121,7 @@ class SuppliersController extends Controller
         $proveedor->update($data);
 
 
-        return redirect()->route('clientes.show', $proveedor->id)->with('toast', [
+        return redirect()->route('proveedores.index')->with('toast', [
             'icon' => 'success',
             'mensaje' => 'El proveedor se actualizó correctamente'
         ]);
@@ -145,7 +145,7 @@ class SuppliersController extends Controller
         $proveedor->delete();
         return response()->json([
             'error' => false,
-            'mensaje' => 'El usuario fue borrado correctamente'
+            'mensaje' => 'El proveedor fue borrado correctamente'
         ]);
     }
 

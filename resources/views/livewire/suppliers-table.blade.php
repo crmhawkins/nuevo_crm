@@ -127,7 +127,7 @@
         }
         function getDelete(id) {
             // Ruta de la peticion
-            const url = '{{route("presupuesto.delete")}}'
+            const url = '{{route("proveedores.delete")}}'
             // Peticion
             return $.ajax({
                 type: "POST",
