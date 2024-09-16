@@ -102,7 +102,7 @@
                                             @if ($gestores->count() > 0)
                                                 <option value="">Seleccione gestor</option>
                                                 @foreach ( $gestores as $gestor )
-                                                    <option {{ $gestorId != null ? ($gestorId == $gestor->id ? 'selected' : '') : ( Auth::user()->id == $gestor->id ? 'selected' : '') }}  value="{{$gestor->id}}">{{$gestor->name}}</option>
+                                                    <option {{old('admin_user_id') != null ? (old('admin_user_id') == $gestor->id ? 'selected' : '' ) : ($gestorId != null ? ($gestorId == $gestor->id ? 'selected' : '') : ( Auth::user()->id == $gestor->id ? 'selected' : '')) }}  value="{{$gestor->id}}">{{$gestor->name}}</option>
                                                 @endforeach
                                             @else
                                                 <option value="{{null}}">No existen gestores todavia</option>
@@ -123,7 +123,7 @@
                                             @if ($comerciales->count() > 0)
                                             <option value="">S.Comercial</option>
                                                 @foreach ( $comerciales as $comercial )
-                                                    <option value="{{$comercial->id}}">{{$comercial->name}}</option>
+                                                    <option {{old('commercial_id') == $comercial->id ? 'selected' : '' }} value="{{$comercial->id}}">{{$comercial->name}}</option>
                                                 @endforeach
                                             @else
                                                 <option value="{{null}}">No existen comerciales todavia</option>
@@ -220,10 +220,13 @@
 <script>
     $(document).ready(function() {
 
+    });
+
+    $(document).ready(function() {
+
         var petitionId = @json($peticionexiste);
 
         // Ahora puedes usar petitionId como necesites
-        console.log(petitionId);
         // Boton añadir campaña
         $('#newCampania').click(function(){
             var clientId = $('select[name="client_id"]').val();
@@ -265,73 +268,80 @@
             window.open(urlTemplateCliente, '_self');
         });
 
-        $('#cliente').on( "change", function(){
+               // Ejecutar tanto en el cambio del select como cuando la página carga
+               function cargarDatosCliente(clienteId) {
+            if (clienteId) {
+                // Primera llamada AJAX para obtener los proyectos del cliente
+                $.ajax({
+                    url: '{{ route("campania.postProjectsFromClient") }}', // Asegúrate de que la URL es correcta
+                    type: 'POST',
+                    data: {
+                        client_id: clienteId
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+                    },
+                    success: function(response) {
+                        console.log(response);
+
+                        var select = $('#proyecto');
+                        select.empty(); // Limpia las opciones actuales
+                        if (response.length === 0) {
+                            select.attr("disabled", true);
+                            select.append($('<option></option>').attr('value', null).text('No hay campaña de este cliente'));
+                        } else {
+                            $.each(response, function(key, value) {
+                                select.append($('<option></option>').attr('value', value.id).text(value.name));
+                            });
+                            select.attr("disabled", false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+
+                // Segunda llamada AJAX para obtener el gestor asociado al cliente
+                $.ajax({
+                    url: '{{ route("cliente.getGestor") }}', // Asegúrate de que la URL es correcta
+                    type: 'POST',
+                    data: {
+                        client_id: clienteId
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+                    },
+                    success: function(response) {
+                        console.log(response);
+
+                        var select = $('#gestor');
+                        select.val(null); // Deseleccionar opciones anteriores
+
+                        if (response.length === 0) {
+                            alert('El cliente no tiene gestor asociado');
+                        } else {
+                            var gestorId = response;
+                            select.val(gestorId); // Selecciona automáticamente el gestor
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            }
+        }
+
+        // Ejecutar cuando el cliente cambia
+        $('#cliente').on("change", function() {
             var clienteId = $(this).val();
+            cargarDatosCliente(clienteId);
+        });
 
-
-
-            $.ajax({
-                url: '{{ route("campania.postProjectsFromClient") }}', // Asegúrate de que la URL es correcta
-                type: 'POST',
-                data: {
-                    client_id: clienteId
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
-                },
-                success: function(response) {
-                    console.log(response);
-
-                    var select = $('#proyecto'); // Reemplaza 'tuSelect' con el ID de tu select
-                    select.empty(); // Limpia las opciones actuales
-                    if (response.length === 0) {
-                        select.attr("disabled", true)
-                        select.append($('<option></option>').attr('value', null).text('No hay campaña de este cliente'));
-                    }else{
-                        $.each(response, function(key, value) {
-                            select.append($('<option></option>').attr('value', value.id).text(value.name));
-                        });
-                        select.attr("disabled", false)
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Manejo de errores
-                    console.error(error);
-                }
-            });
-
-            $.ajax({
-                url: '{{ route("cliente.getGestor") }}', // Asegúrate de que la URL es correcta
-                type: 'POST',
-                data: {
-                    client_id: clienteId
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
-                },
-                success: function(response) {
-                    console.log(response);
-
-                    var select = $('#gestor'); // Reemplaza 'tuSelect' con el ID de tu select
-                    select.val(null); // Deselect any previously selected options
-
-                    if (response.length === 0) {
-                        alert('El cliente no tiene gestor asociado');
-                    } else {
-                        var gestorId = response;
-                        select.val(gestorId); // Automatically select the gestor
-                    }
-
-
-                },
-                error: function(xhr, status, error) {
-                    // Manejo de errores
-                    console.error(error);
-                }
-            });
-
-
-        })
+        // Ejecutar cuando la página se carga si hay un cliente ya seleccionado
+        var clienteIdSeleccionado = $('#cliente').val();
+        if (clienteIdSeleccionado) {
+            cargarDatosCliente(clienteIdSeleccionado);
+        }
     });
 
 </script>
