@@ -195,7 +195,6 @@
             success: function(data) {
                 // Asume que 'data' es el array de servicios y que se selecciona el primero
                 if (data.length > 0) {
-                    console.log(data)
                     var selectedService = data[0]; // Asume que quieres usar el primer servicio retornado
 
                     // Actualiza los campos con los datos del servicio seleccionado

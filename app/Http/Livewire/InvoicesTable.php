@@ -51,7 +51,8 @@ class InvoicesTable extends Component
     {
         $query = Invoice::
             when($this->buscar, function ($query) {
-                $query->whereHas('cliente', function ($subQuery) {
+                $query->where('reference', 'like', '%' . $this->buscar . '%')
+                ->whereHas('cliente', function ($subQuery) {
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%')
                             ->orWhere('email', 'like', '%' . $this->buscar . '%');
             })

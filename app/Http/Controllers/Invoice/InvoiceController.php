@@ -219,7 +219,7 @@ class InvoiceController extends Controller
         $new_factura->total = -$new_factura->total;
         $new_factura->gross = -$new_factura->gross;
         $new_factura->base = -$new_factura->base;
-        $new_factura->reference = 'N-' . $invoice->reference;
+        $new_factura->reference = 'N' . $invoice->reference;
         $new_factura->update(array(
             'invoice_status_id' =>  5, //cancelada
             'rectification' =>  1,

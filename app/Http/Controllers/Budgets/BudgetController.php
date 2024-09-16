@@ -299,13 +299,24 @@ class BudgetController extends Controller
             $updateBudgetQuantities = $this->updateBudgetQuantities($budget, $conceptsDiscounts,  $ivaPercentage);
         }
 
+        if(!$data['iva']){
+            $data['iva'] = $updateBudgetQuantities['iva'];
+        }
         $data['discount'] = $updateBudgetQuantities['discount'];
         $data['gross'] = $updateBudgetQuantities['gross'];
         $data['base'] = $updateBudgetQuantities['base'];
         $data['total'] = $data['base'] + $data['iva'];
-
-        if(!$data['iva']){
-            $data['iva'] = $updateBudgetQuantities['iva'];
+        if($data['budget_status_id'] == 3){
+            $referencia = $this->generateBudgetReference($budget);
+            if ($referencia === null) {
+                return response(500);
+            }
+            if($budget->temp == 1 ){
+                $budget->temp = 0;
+                $budget->reference = $referencia['reference'];
+                $budget->reference_autoincrement_id = $referencia['id'];
+            }
+            $budget->save();
         }
         $budgetupdated=$budget->update($data);
         $budget->cambiarEstadoPresupuesto($budget->budget_status_id);
@@ -663,34 +674,18 @@ class BudgetController extends Controller
     public function updateBudgetQuantities(Budget $budgetToUpdate, $conceptsDiscounts = null, $ivaPercentage = null){
 
         // Descuentos que hay que aplicar y actualizar en los conceptos
-        if($conceptsDiscounts){
-            foreach($conceptsDiscounts as $key => $value){
-
-                // Guardar el descuento del concepto y recalcular el total
+        foreach($conceptsDiscounts as $key => $value){
+            if($value > 0){                // Guardar el descuento del concepto y recalcular el total
                 // Encuentro el concepto
-                $budgetConceptsUdpdateDiscount = BudgetConcept::where('id', $key )->get()->first();
+                $budgetConceptsUdpdateDiscount = BudgetConcept::where('id', $key )->first();
+                // Calculo el total
+                $totalNoDiscount = $budgetConceptsUdpdateDiscount->total_no_discount;
+                $discount = $value;
+                $discountToSubstract = ($totalNoDiscount*$discount)/100;
+                $newTotal = $totalNoDiscount - $discountToSubstract;
+                // Actualizo el concepto con el total y el descuento
+                $budgetConceptsUdpdateDiscount->update(array('discount' =>   $discount, 'total' => number_format($newTotal, 2, '.', '')  ));
 
-                if($budgetConceptsUdpdateDiscount->concept_type_id == BudgetConceptType::TYPE_SUPPLIER){
-                     // Calculo el total
-                     $totalNoDiscount = $budgetConceptsUdpdateDiscount->total_no_discount;
-                     $discount = $value;
-                     $discountToSubstract = ($totalNoDiscount*$discount)/100;
-                     $newTotal = $totalNoDiscount - $discountToSubstract;
-                     $newTotalFormated  =  $newTotal*100/100;
-                     // Actualizo el concepto con el total y el descuento
-                     $budgetConceptUdpdateDiscount = BudgetConcept::where('id', $key )->update(array('discount' =>   $discount, 'total' => $newTotalFormated  ));
-
-                }
-                if($budgetConceptsUdpdateDiscount->concept_type_id == BudgetConceptType::TYPE_OWN){
-                    // Calculo el total
-                    $totalNoDiscount = $budgetConceptsUdpdateDiscount->total_no_discount;
-                    $discount = $value;
-                    $discountToSubstract = ($totalNoDiscount*$discount)/100;
-                    $newTotal = $totalNoDiscount - $discountToSubstract;
-                    $newTotalFormated  =  $newTotal*100/100;
-                    // Actualizo el concepto con el total y el descuento
-                    $budgetConceptUdpdateDiscount = BudgetConcept::where('id', $key )->update(array('discount' =>   $discount, 'total' => $newTotalFormated  ));
-                }
             }
         }
 
@@ -706,77 +701,62 @@ class BudgetController extends Controller
                 return false;
             }
         }else{
+
             // Variables que tenemos que ir calculando
             $gross = 0;
-            $grossFormated = 0;
             $base = 0;
-            $baseFormated = 0;
             $discountQuantity = 0;
-            $discountQuantityFormated = 0;
             $iva = 0;
-            $ivaFormated =  0;
-            $total = 0;
-            $totalFormated = 0;
-            // Recorro todos los conceptos y voy realizando los calculos
+            $total = 0;            // Recorro todos los conceptos y voy realizando los calculos
             foreach($thisBudgetConcepts as $concept){
                 // Proveedor
                 if($concept->concept_type_id == BudgetConceptType::TYPE_SUPPLIER){
-                    $units = $concept->units;
                     $purchasePriceWithoutMarginBenefit = $concept->purchase_price;
                     $benefitMargin = $concept->benefit_margin;
                     $marginBenefitToAdd  =  ($purchasePriceWithoutMarginBenefit*$benefitMargin)/100;
                     $purchasePriceWithMarginBenefit  =  $purchasePriceWithoutMarginBenefit+ $marginBenefitToAdd;
                     $gross += $purchasePriceWithMarginBenefit;
-                    $grossFormated =  $gross*100/100;
+                    $grossFormated =  $gross;
                     $base += $concept->total ;
-                    $baseFormated = $base*100/100;
+                    $baseFormated = $base;
                     $salePrice =  $concept->sale_price;
                     $discountPercentage = $concept->discount;
                     if($discountPercentage > 0){
                         $discountQuantity += (($purchasePriceWithMarginBenefit)*$discountPercentage)/100 ;
                         $discountOfThisConcept =  (($purchasePriceWithMarginBenefit)*$discountPercentage)/100 ;
-                        $discountQuantityFormated = $discountQuantity*100/100;
+                        $discountQuantityFormated = $discountQuantity;
                     }else{
-                        $discountQuantityFormated += 0;
+                        $discountQuantity += 0;
                     }
                     $iva += ($concept->total * $ivaPercentage) / 100;
                     $ivaFormated =  $iva*100/100;
                 }
                 // Propio
                 if($concept->concept_type_id == BudgetConceptType::TYPE_OWN){
-                    $units = $concept->units;
-                    $cont=0;
                     $gross += $concept->total_no_discount;
-                    $grossFormated =  $gross*100/100;
                     $base += $concept->total;
-                    $salePrice =  $concept->sale_price;
                     $discountPercentage = $concept->discount;
                     if($discountPercentage > 0){
                         $discountQuantity += ($concept->total_no_discount*$discountPercentage)/100 ;
-                        $discountOfThisConcept =  (($salePrice)*$discountPercentage)/100 ;
-                        $discountQuantityFormated = $discountQuantity*100/100;
+
                     }else{
-                        $discountQuantityFormated += 0;
+                        $discountQuantity += 0;
                     }
                     // Calculo el IVA
                     $iva += ($concept->total * $ivaPercentage) / 100;
-                    $ivaFormated =  $iva*100/100;
-                    //base //menos descuento
-                    $baseFormated = $base*100/100;
                 }
             }
             // Calculo el total
-            $total += $ivaFormated + $baseFormated;
+            $total += $iva + $base;
             $totalFormated = $total*100/100;
             $totalFormated =  number_format((float)$totalFormated, 2, '.', '');
 
-            // $newBudgetQuantitiesToUpdateArray = array();
             $newBudgetQuantitiesToUpdateArray = [
-                'gross' => $grossFormated,
-                'base' => $baseFormated,
-                'discount' => $discountQuantityFormated,
-                'iva' => $ivaFormated,
-                'totalFormated' => $totalFormated,
+                'gross' => $gross,
+                'base' => $base,
+                'discount' => $discountQuantity,
+                'iva' => $iva,
+                'totalFormated' => $total,
             ];
         return $newBudgetQuantitiesToUpdateArray;
         }
@@ -800,15 +780,53 @@ class BudgetController extends Controller
         // Si no existe, empezamos desde 1, de lo contrario, incrementamos
         $newReferenceAutoincrement = $latestReference ? $latestReference->reference_autoincrement + 1 : 1;
         // Formatear el número autoincremental a 6 dígitos
-        $formattedAutoIncrement = str_pad($newReferenceAutoincrement, 6, '0', STR_PAD_LEFT);
+        $formattedAutoIncrement = str_pad($newReferenceAutoincrement, 4, '0', STR_PAD_LEFT);
         // Crear la referencia
-        $reference = $year . '/' . $monthNum . '/' . $formattedAutoIncrement;
-
+        switch ($monthNum) {
+            case 1:
+                $monthLetter = 'A';
+            break;
+            case 2:
+                $monthLetter = 'B';
+            break;
+            case 3:
+                $monthLetter = 'C';
+            break;
+            case 4:
+                $monthLetter = 'D';
+            break;
+            case 5:
+                $monthLetter = 'E';
+            break;
+            case 6:
+                $monthLetter = 'F';
+            break;
+            case 7:
+                $monthLetter = 'G';
+            break;
+            case 8:
+                $monthLetter = 'H';
+            break;
+            case 9:
+                $monthLetter = 'I';
+            break;
+            case 10:
+                $monthLetter = 'J';
+            break;
+            case 11:
+                $monthLetter = 'K';
+            break;
+            case 12:
+                $monthLetter = 'L';
+            break;
+        }
+        $reference = $monthLetter.$year . '-'. $formattedAutoIncrement;
         // Guardar o actualizar la referencia autoincremental en BudgetReferenceAutoincrement
         $referenceToSave = new InvoiceReferenceAutoincrement([
             'reference_autoincrement' => $newReferenceAutoincrement,
             'year' => $year,
             'month_num' => $monthNum,
+            'letter_months' => $monthLetter,
         ]);
 
         $referenceToSave->save();

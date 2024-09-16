@@ -92,8 +92,11 @@ class BudgetConceptsController extends Controller
                         // Calculamos las Base del Concepto
                         $baseConcept = $grossConcept;
                         // Añadimos la informacion a las variables globales para actualizar presupuesto
+                        $concept->total_no_discount = $grossConcept;
                         $gross += $grossConcept;
                         $base += $baseConcept;
+                        $concept->save();
+
 
                     }else {
                         // Calculamos el Bruto del concepto (unidades * precio del concepto)
