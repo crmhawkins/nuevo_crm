@@ -104,8 +104,7 @@
                 if (result.isConfirmed) {
                     // Llamamos a la funcion para borrar el usuario
                     $.when( getDelete(id) ).then(function( data, textStatus, jqXHR ) {
-                        console.log(data)
-                        if (!data.status) {
+                        if (data.error) {
                             // Si recibimos algun error
                             Toast.fire({
                                 icon: "error",

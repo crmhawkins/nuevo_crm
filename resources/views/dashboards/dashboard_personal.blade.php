@@ -398,13 +398,16 @@
                                                     @if ($tasks['tasksPause'])
                                                         @foreach ($tasks['tasksPause'] as $taskSingle)
                                                             <option value="{{ $taskSingle->id }}">
-                                                                @if ($taskSingle->budget)
-                                                                    @if ($taskSingle->budget->client)
-                                                                        {{ $taskSingle->budget->client->name }}
+                                                                @if ($taskSingle->presupuesto)
+                                                                    @if ($taskSingle->presupuesto->cliente)
+                                                                        {{ $taskSingle->presupuesto->cliente->name }}
                                                                     @endif
-                                                                    @endif | {{ $taskSingle->title }} | @if ($taskSingle->gestor)
+                                                                @endif
+                                                                | {{ $taskSingle->title }} |
+                                                                @if ($taskSingle->gestor)
                                                                         {{ $taskSingle->gestor->name }}
-                                                                    @endif
+                                                                @endif
+
                                                             </option>
                                                         @endforeach
                                                     @endif
