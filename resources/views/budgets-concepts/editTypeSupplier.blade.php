@@ -460,45 +460,48 @@
             type: 'warning',
             title: 'Atención',
             text: "Confirme la generación de la orden de compra de este concepto",
-            allowEscapeKey: false,
-            allowOutsideClick: false,
-            allowEnterKey: false,
             showCancelButton: true,
-            confirmButtonColor: '#10ba46',
+            confirmButtonColor: '#3085d6',
             confirmButtonText: 'Generar',
             cancelButtonText: 'Cancelar',
             showLoaderOnConfirm: true,
-            preConfirm: function() {
-                return new Promise(function(resolve) {
-                    $('#generatePurchaseOrderForm').submit();
-                });
-            }
-        }).then((result) => {
-            if (result.value) {
-                $.ajax({
-                    type: 'POST', // O GET, dependiendo de tu configuración
-                    url: "{{ route('budgetConcepts.generatePurchaseOrder', $budgetConcept->id) }}",
-                    data: {
-                        // parámetros si son necesarios
+            preConfirm: () => {
+                return fetch('{{ route('budgetConcepts.generatePurchaseOrder', $budgetConcept->id) }}', {
+                    method: 'POST', // o GET, según tu configuración
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function(response) {
-                        Swal.fire({
-                            type: 'success',
-                            title: 'Orden Generada',
-                            html: 'La orden de compra ha sido generada: <a href="' + response.entryUrl + '">Descargar PDF</a>'
-                        });
-                    },
-                    error: function() {
-                        Swal.fire({
-                            type: 'error',
-                            title: 'Error',
-                            text: 'No se pudo generar la orden de compra.'
-                        });
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(response.statusText)
                     }
+                    return response.json();
+                })
+                .catch(error => {
+                    Swal.showValidationMessage(
+                        `Request failed: ${error}`
+                    )
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: '¡Orden Generada!',
+                    html: '<a href="' + result.value.entryUrl + '" class="btn btn-dark">Descargar PDF</a>',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    focusConfirm: false,
+                    preConfirm: () => window.location.href = result.value.entryUrl
                 });
             }
         });
     });
+
+
 
 
 
