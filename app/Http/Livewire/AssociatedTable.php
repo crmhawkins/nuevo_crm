@@ -41,15 +41,30 @@ class AssociatedTable extends Component
     protected function actualizargastos()
     {
         // Comprueba si se ha seleccionado "Todos" para la paginación
-        $query= AssociatedExpenses::when($this->buscar, function ($query) {
-                    $query->where('title', 'like', '%' . $this->buscar . '%');
-                })
-                ->when($this->selectedYear, function ($query) {
-                    $query->whereYear('created_at', $this->selectedYear);
-                })
-                ->when($this->selectedDate, function ($query) {
-                    $query->where('received_date', '=', $this->selectedDate);
-                });
+        $query = AssociatedExpenses::when($this->buscar, function ($query) {
+            $query->where('associated_expenses.title', 'like', '%' . $this->buscar . '%')
+                  ->orWhereHas('OrdenCompra.Proveedor', function ($subQuery) {
+                      $subQuery->where('suppliers.name', 'like', '%' . $this->buscar . '%');
+                  });
+        })
+        ->when($this->selectedYear, function ($query) {
+            $query->whereYear('associated_expenses.created_at', $this->selectedYear);
+        })
+        ->when($this->selectedDate, function ($query) {
+            $query->where('associated_expenses.received_date', '=', $this->selectedDate);
+        })
+        ->join('purchase_order', 'associated_expenses.purchase_order_id', '=', 'purchase_order.id') // Join con la tabla purchase_order
+        ->join('suppliers', 'purchase_order.supplier_id', '=', 'suppliers.id') // Join con la tabla suppliers
+        ->select('associated_expenses.*', 'suppliers.name as supplier_name');
+        // $query= AssociatedExpenses::when($this->buscar, function ($query) {
+        //             $query->where('title', 'like', '%' . $this->buscar . '%');
+        //         })
+        //         ->when($this->selectedYear, function ($query) {
+        //             $query->whereYear('created_at', $this->selectedYear);
+        //         })
+        //         ->when($this->selectedDate, function ($query) {
+        //             $query->where('received_date', '=', $this->selectedDate);
+        //         });
 
 
          // Aplica la ordenación

@@ -49,23 +49,27 @@ class InvoicesTable extends Component
 
     protected function actualizarPresupuestos()
     {
-        $query = Invoice::
-            when($this->buscar, function ($query) {
-                $query->where('reference', 'like', '%' . $this->buscar . '%')
-                ->whereHas('cliente', function ($subQuery) {
-                    $subQuery->where('name', 'like', '%' . $this->buscar . '%')
-                            ->orWhere('email', 'like', '%' . $this->buscar . '%');
-            })
-            ->orWhereHas('project', function ($subQuery) { // Busca en los conceptos de presupuesto
-                $subQuery->where('name', 'like', '%' . $this->buscar . '%');
-            });
+        $query = Invoice::query()
+            ->when($this->buscar, function ($query) {
+                // Búsqueda por referencia y en relaciones
+                $query->where(function ($query) {
+                    $query->where('reference', 'like', '%' . $this->buscar . '%')
+                        ->orWhereHas('cliente', function ($subQuery) {
+                            $subQuery->where('name', 'like', '%' . $this->buscar . '%')
+                                    ->orWhere('email', 'like', '%' . $this->buscar . '%');
+                        })
+                        ->orWhereHas('project', function ($subQuery) {
+                            $subQuery->where('name', 'like', '%' . $this->buscar . '%');
+                        });
+                });
             })
             ->when($this->selectedGestor, function ($query) {
                 $query->where('admin_user_id', $this->selectedGestor);
             })
             ->when($this->selectedEstados, function ($query) {
                 $query->where('invoice_status_id', $this->selectedEstados);
-            }) ->when($this->selectedYear, function ($query) {
+            })
+            ->when($this->selectedYear, function ($query) {
                 $query->whereYear('created_at', $this->selectedYear);
             })
             ->when($this->minImporte, function ($query) {
@@ -80,6 +84,7 @@ class InvoicesTable extends Component
             ->when($this->endDate, function ($query) {
                 $query->whereDate('created_at', '<=', Carbon::parse($this->endDate));
             });
+
 
        // Aplica la ordenación
        $query->orderBy($this->sortColumn, $this->sortDirection);

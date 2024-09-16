@@ -46,10 +46,14 @@
                 <thead class="header-table">
                     <tr>
                         @foreach ([
-                            'bank_id' => 'BANCO',
+                            'reference' => 'Nº FACTURA',
+                            'purchase_order_id' => 'Nº ORDEN',
+                            'Cliente' => 'CLIENTE',
+                            'supplier_name' => 'PROVEEDOR',
                             'title' => 'TITULO',
                             'quantity' => 'CANTIDAD',
                             'received_date' => 'FECHA DE RECEPCION',
+                            'bank_id' => 'BANCO',
                             'state' => 'ESTADO',
 
                         ] as $field => $label)
@@ -68,10 +72,14 @@
                 <tbody>
                     @foreach ($gastos as $gasto)
                         <tr class="clickable-row" data-href="{{route('gasto-asociado.edit', $gasto->id)}}">
-                            <td>{{$gasto->bankAccount->name ?? 'Banco no asociado'}}</td>
+                            <td>{{$gasto->reference}}</td>
+                            <td>{{$gasto->purchase_order_id}}</td>
+                            <td>{{$gasto->OrdenCompra ? ($gasto->OrdenCompra->cliente ? $gasto->OrdenCompra->cliente->name : 'Sin Cliente Asociado') : 'Sin orden asociada'}}</td>
+                            <td>{{$gasto->OrdenCompra ? ($gasto->OrdenCompra->Proveedor ? $gasto->OrdenCompra->Proveedor->name : 'Sin Proveedor Asociado') : 'Sin orden asociada'}}</td>
                             <td>{{$gasto->title}}</td>
                             <td>{{ number_format($gasto->quantity, 2) }}€</td>
                             <td>{{ \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') }}</td>
+                            <td>{{$gasto->bankAccount->name ?? 'Banco no asociado'}}</td>
                             <td>{{$gasto->state}}</td>
                             <td>
                                 @if (isset($gasto->documents))

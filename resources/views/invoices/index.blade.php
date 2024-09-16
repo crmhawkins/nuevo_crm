@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titulo', 'Presupuestos')
+@section('titulo', 'Facturas')
 
 @section('css')
 <link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
