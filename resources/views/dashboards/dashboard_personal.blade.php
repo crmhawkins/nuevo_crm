@@ -392,23 +392,25 @@
                                         </div>
                                         <!-- Tareas Pendientes -->
                                         <div class="scroll tab-pane p-4 fade {{ !$tasks['taskPlay'] ? 'show active' : '' }}" id="pending-tasks" role="tabpanel" aria-labelledby="pending-tasks-tab">
-                                            <select class="js-select2 form-control js-select2-enabled select-task" style="width: 100%;"
-                                            data-placeholder="Buscar..." tabindex="-1" aria-hidden="true" name="cliente" id="cliente">
-                                            <option value="0">Seleccion o busque tarea...</option>
-                                            @if ($tasks['tasksPause'])
-                                                @foreach ($tasks['tasksPause'] as $taskSingle)
-                                                    <option value="{{ $taskSingle->id }}">
-                                                        @if ($taskSingle->budget)
-                                                            @if ($taskSingle->budget->client)
-                                                                {{ $taskSingle->budget->client->name }}
-                                                            @endif
-                                                            @endif | {{ $taskSingle->title }} | @if ($taskSingle->gestor)
-                                                                {{ $taskSingle->gestor->name }}
-                                                            @endif
-                                                    </option>
-                                                @endforeach
-                                            @endif
-                                        </select>
+                                            <div class="mb-3">
+                                                <select class="js-select2 form-control js-select2-enabled select-task " style="width: 100%;" data-placeholder="Buscar..." tabindex="-1" name="cliente" id="selectTask">
+                                                    <option value="0">Seleccion o busque tarea...</option>
+                                                    @if ($tasks['tasksPause'])
+                                                        @foreach ($tasks['tasksPause'] as $taskSingle)
+                                                            <option value="{{ $taskSingle->id }}">
+                                                                @if ($taskSingle->budget)
+                                                                    @if ($taskSingle->budget->client)
+                                                                        {{ $taskSingle->budget->client->name }}
+                                                                    @endif
+                                                                    @endif | {{ $taskSingle->title }} | @if ($taskSingle->gestor)
+                                                                        {{ $taskSingle->gestor->name }}
+                                                                    @endif
+                                                            </option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+
+                                            </div>
                                             <?php
                                             if (!function_exists('fechaEstimadaDashboard')) {
                                                 function fechaEstimadaDashboard($horasFaltan)
@@ -597,7 +599,7 @@
                                                     $contador += 1;
 
                                                     ?>
-                                                    <div class="card2 tarea mb-3 p-2">
+                                                    <div class="card2 tarea task-item mb-3 p-2" id="task-{{ $tarea->id }}">
                                                         <div id="{{ $tarea->id }}" class="tarea-sing card-body2 ">
                                                             <div class="d-flex align-items-center">
                                                                 <div class="col-2 text-center">
@@ -879,7 +881,7 @@
                                         </span>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 mb-3 choices">
+                                <div class="col-md-6 mb-3">
                                     <label for="admin_user_ids" class="form-label">Usuarios</label>
                                     <select class="form-select choices__inner" id="admin_user_ids" name="admin_user_ids[]" multiple>
                                         <option value="">Seleccione usuarios</option>
@@ -932,6 +934,8 @@
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales-all.global.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var multipleCancelButton = new Choices('#admin_user_ids', {
@@ -1247,131 +1251,7 @@
             });
 
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const clientSelect = document.getElementById('client_id');
-            const budgetSelect = document.getElementById('budget_id');
-            const projectSelect = document.getElementById('project_id');
 
-            // Función para actualizar presupuestos basados en el cliente seleccionado
-            function updateBudgets(clientId) {
-                fetch('/budgets-by-client', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ client_id: clientId })
-                })
-                .then(response => response.json())
-                .then(budgets => {
-                    budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-                    budgets.forEach(budget => {
-                        budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
-                    });
-                    budgetSelect.disabled = false;
-                });
-            }
-            // Función para actualizar presupuestos basados en el cliente seleccionado
-            function updateBudgetsbyprojects(projectId) {
-                fetch('/budgets-by-project', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ project_id: projectId })
-                })
-                .then(response => response.json())
-                .then(budgets => {
-                    budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-                    budgets.forEach(budget => {
-                        budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
-                    });
-                    budgetSelect.disabled = false;
-                });
-            }
-
-            // Función para actualizar campañas basadas en el cliente seleccionado
-            function updateProjects(clientId) {
-                fetch('/projects-from-client', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ client_id: clientId })
-                })
-                .then(response => response.json())
-                .then(projects => {
-                    projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
-                    projects.forEach(project => {
-                        projectSelect.innerHTML += `<option value="${project.id}">${project.name}</option>`;
-                    });
-                    projectSelect.disabled = false;
-                });
-            }
-
-            // Cuando se selecciona un cliente, actualiza presupuestos y campañas
-            clientSelect.addEventListener('change', function() {
-                const clientId = this.value;
-                if (clientId) {
-                    updateBudgets(clientId);
-                    updateProjects(clientId);
-                } else {
-                    budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-                    projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
-                    budgetSelect.disabled = true;
-                    projectSelect.disabled = true;
-                }
-            });
-
-            // Cuando se selecciona un presupuesto, actualiza el cliente y la campaña
-            budgetSelect.addEventListener('change', function() {
-                const budgetId = this.value;
-                if (budgetId) {
-                    fetch('/budget-by-id', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({ budget_id: budgetId })
-                    })
-                    .then(response => response.json())
-                    .then(budget => {
-                        clientSelect.value = budget.client_id;
-                        //updateProjects(budget.client_id);
-                        projectSelect.value = budget.project_id;
-                        //console.log(budget.project_id;);
-
-                    });
-                }
-            });
-
-            // Cuando se selecciona una campaña, actualiza el cliente y el presupuesto
-            projectSelect.addEventListener('change', function() {
-                const projectId = this.value;
-                if (projectId) {
-                    fetch('/project-by-id', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({ project_id: projectId })
-                    })
-                    .then(response => response.json())
-                    .then(project => {
-                        clientSelect.value = project.client_id;
-                        updateBudgetsbyprojects(project.id);
-                        budgetSelect.value = ''; // O puedes poner una lógica para seleccionar un presupuesto por defecto
-                    });
-                }
-            });
-        });
-
-    </script>
     <script>
         function showTodoModal() {
             var todoModal = new bootstrap.Modal(document.getElementById('todoModal'));
@@ -1622,7 +1502,6 @@
     </script>
     <script>
 
-
         $(document).on("click", '.tarea-sing', function() {
                     var id = $(this).attr("id");
                     showTaskInfoNew(id);
@@ -1708,12 +1587,6 @@
 
 
         $(document).ready(function() {
-            $('.js-select2').select2();
-
-            $('.select-task').change(function() {
-                var id = $('.select-task').val();
-                showTaskInfoNew(id);
-            })
 
             $.when(getTasksRefresh()).then(function(data, textStatus, jqXHR) {
                 if (data.taskPlay != null) {
@@ -1742,6 +1615,24 @@
                     });
                 }
             });
+
+            // Evento change para el select2
+            $('#selectTask').on('change', function() {
+                var selectedTaskId = $(this).val();
+                // Oculta todas las tareas
+                $('.task-item').hide();
+                // Muestra la tarea seleccionada
+                if (selectedTaskId > 0) {
+                    $('#task-' + selectedTaskId).show();
+                } else {
+                    // Si no hay tarea seleccionada, muestra todas
+                    $('.task-item').show();
+                }
+            });
+            // Inicializa select2
+            $('.js-select2').select2();
+
+
         })
 
             function decodeHTML(str) {

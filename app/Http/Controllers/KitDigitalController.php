@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Clients\Client;
 use Illuminate\Http\Request;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
@@ -54,10 +55,11 @@ class KitDigitalController extends Controller
         $usuario = Auth::user();
         $servicios = KitDigitalServicios::all();
         $estados = KitDigitalEstados::all();
+        $clientes = Client::where('is_client', true)->get();
         $gestores = User::where('access_level_id', 4)->where('inactive', 0)->get();
         $comerciales = User::where('access_level_id', 6)->where('inactive', 0)->orWhere('access_level_id', 11)->get();
 
-        return view('kitDigital.create', compact('usuario','servicios', 'estados', 'gestores','comerciales'));
+        return view('kitDigital.create', compact('usuario','clientes','servicios', 'estados', 'gestores','comerciales'));
     }
 
     public function store(Request $request){

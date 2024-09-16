@@ -1,6 +1,7 @@
 <?php
 
 use App\Events\RecargarPagina;
+use App\Http\Controllers\Alert\AlertController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Suppliers\SuppliersController;
 use App\Http\Controllers\Tesoreria\CuadroController;
@@ -61,6 +62,9 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 //Dashboard
+
+Route::get('/user/alerts', [AlertController::class, 'getUserAlerts'])->name('user.alerts');
+
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::post('/dashboard/getDataTask', [DashboardController::class, 'getDataTask'])->name('dashboard.getDataTask');

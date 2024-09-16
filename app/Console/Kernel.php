@@ -34,133 +34,134 @@ class Kernel extends ConsoleKernel
 
         })->monthlyOn(1, '08:00');
 
-        $schedule->call(function () {
-            $users = User::where('inactive', 0)->where('id', '!=', 101)->get();
+        // $schedule->call(function () {
+        //     $users = User::where('inactive', 0)->where('id', '!=', 101)->get();
 
-            foreach ($users as $user) {
-                // Obtiene el último mes (desde el inicio hasta el fin)
-                $startOfMonth = Carbon::now()->subMonth()->startOfMonth();
-                $endOfMonth = Carbon::now()->subMonth()->endOfMonth();
+        //     foreach ($users as $user) {
+        //         // Obtiene el último mes (desde el inicio hasta el fin)
+        //         $startOfMonth = Carbon::now()->subMonth()->startOfMonth();
+        //         $endOfMonth = Carbon::now()->subMonth()->endOfMonth();
 
-                $jornadas = $user->jornadas()
-                    ->whereBetween('start_time', [$startOfMonth, $endOfMonth])
-                    ->get();
+        //         $jornadas = $user->jornadas()
+        //             ->whereBetween('start_time', [$startOfMonth, $endOfMonth])
+        //             ->get();
 
-                // Calcular tiempo trabajado por día
-                $descontar = 0;
+        //         // Calcular tiempo trabajado por día
+        //         $descontar = 0;
 
-                foreach ($jornadas->groupBy(function($jornada) {
-                    return Carbon::parse($jornada->start_time)->format('Y-m-d'); // Agrupar por día
-                }) as $day => $dayJornadas) {
+        //         foreach ($jornadas->groupBy(function($jornada) {
+        //             return Carbon::parse($jornada->start_time)->format('Y-m-d'); // Agrupar por día
+        //         }) as $day => $dayJornadas) {
 
-                    $totalWorkedSeconds = 0;
+        //             $totalWorkedSeconds = 0;
+        //             $isFriday = Carbon::parse($day)->isFriday();
 
-                    foreach ($dayJornadas as $jornada) {
-                        $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? $jornada->start_time);
-                        $totalPauseSeconds = $jornada->pauses->sum(function ($pause) {
-                            return Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? $pause->start_time);
-                        });
+        //             foreach ($dayJornadas as $jornada) {
+        //                 $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? $jornada->start_time);
+        //                 $totalPauseSeconds = $jornada->pauses->sum(function ($pause) {
+        //                     return Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? $pause->start_time);
+        //                 });
+        //                 $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
+        //             }
 
-                        $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
-                    }
+        //             // Convertir los segundos trabajados en horas
+        //             $workedHours = $totalWorkedSeconds / 3600;
+        //             // Calcular la diferencia: 7 horas si es viernes, 8 horas en el resto de días
+        //             $targetHours = $isFriday ? 7 : 8;
+        //             $difference = $targetHours - $workedHours;
 
-                    // Convertir los segundos trabajados en horas
-                    $workedHours = $totalWorkedSeconds / 3600;
+        //             if ($difference > 0) {
+        //                 // El usuario trabajó menos de las horas objetivo, debe compensar
+        //                 $descontar += $difference;
+        //             } elseif ($difference < 0) {
+        //                 $descontar -= $difference;
+        //             }
+        //         }
+        //         $descontarDias = $descontar / 24;
+        //         DB::update('UPDATE holidays SET quantity = quantity - ? WHERE user_id = ?', [$descontarDias, $user->id]);
+        //     }
+        // })->monthlyOn(1, '09:00');
 
-                    // Calcular la diferencia respecto a 8 horas
-                    $difference = 8 - $workedHours;
-
-                    if ($difference > 0) {
-                        // El usuario trabajó menos de 8 horas, debe compensar
-                        $descontar += $difference;
-                    } elseif ($difference < 0) {
-                        $descontar -= $difference;
-                    }
-                }
-                $descontarDias = $descontar / 24;
-                DB::update('UPDATE holidays SET quantity = quantity - ? WHERE user_id = ?', [$descontarDias, $user->id]);
-            }
-        })->monthlyOn(1, '09:00');
 
         $schedule->call(function () {
             $this->sendEmailHoras();
+        //})->everyMinute();
         })->weeklyOn(5, '18:30');
+        // $schedule->call(function () {
+        //     $users = User::where('inactive',0)->get();
+        //     $fechaNow = Carbon::now();
+        //     $annio = $fechaNow->format('Y');
+        //     $mes = $fechaNow->format('m');
+        //     $dia = $fechaNow->format('d');
+        //     foreach($users as $user)
+        //     {
+        //         if( $user->access_level_id == 4 || $user->access_level_id == 5 ){
+        //         $fechaFormateada = $fechaNow->format('Y-m-d');
+        //         $hoy2 = $fechaNow->format('l');
+        //         $time = 0;
 
-        $schedule->call(function () {
-            $users = User::where('inactive',0)->get();
-            $fechaNow = Carbon::now();
-            $annio = $fechaNow->format('Y');
-            $mes = $fechaNow->format('m');
-            $dia = $fechaNow->format('d');
-            foreach($users as $user)
-            {
-                if( $user->access_level_id == 4 || $user->access_level_id == 5 ){
-                $fechaFormateada = $fechaNow->format('Y-m-d');
-                $hoy2 = $fechaNow->format('l');
-                $time = 0;
+        //             if ($hoy2 == 'Monday') {
+        //                 $dia = $dia - 3;
+        //                 $time = 2;
+        //             }elseif($hoy2 == 'Tuesday'){
+        //                 $dia = $dia - 1;
+        //                 $time = 2;
 
-                    if ($hoy2 == 'Monday') {
-                        $dia = $dia - 3;
-                        $time = 2;
-                    }elseif($hoy2 == 'Tuesday'){
-                        $dia = $dia - 1;
-                        $time = 2;
+        //             }elseif($hoy2 == 'Wednesday'){
+        //                 $dia = $dia - 1;
+        //                 $time = 2;
 
-                    }elseif($hoy2 == 'Wednesday'){
-                        $dia = $dia - 1;
-                        $time = 2;
+        //             }elseif($hoy2 == 'Thursday'){
+        //                 $dia = $dia - 1;
+        //                 $time = 2;
 
-                    }elseif($hoy2 == 'Thursday'){
-                        $dia = $dia - 1;
-                        $time = 2;
+        //             }elseif($hoy2 == 'Friday'){
+        //                 $dia = $dia - 1;
+        //                 $time = 2;
 
-                    }elseif($hoy2 == 'Friday'){
-                        $dia = $dia - 1;
-                        $time = 2;
+        //             }elseif($hoy2 == 'Saturday'){
+        //                 $dia = $dia - 1;
+        //                 $time = 6;
 
-                    }elseif($hoy2 == 'Saturday'){
-                        $dia = $dia - 1;
-                        $time = 6;
+        //             }elseif($hoy2 == 'Sunday'){
+        //                 $dia = $dia - 2;
+        //                 $time = 7;
 
-                    }elseif($hoy2 == 'Sunday'){
-                        $dia = $dia - 2;
-                        $time = 7;
-
-                    }
+        //             }
 
 
-                    $alert_30 = Alert::where('admin_user_id', $user->id)->where('stage_id', 30)->whereDate('activation_datetime',$fechaFormateada)->get();
-                    $totalMinutos = 0;
-                    $horasProducidas = DB::select("SELECT SUM(TIMESTAMPDIFF(MINUTE,date_start,date_end)) AS minutos FROM `log_tasks` WHERE date_start BETWEEN ($fechaFormateada - INTERVAL $time DAY) AND NOW() AND `admin_user_id` = $user->id");
+        //             $alert_30 = Alert::where('admin_user_id', $user->id)->where('stage_id', 30)->whereDate('activation_datetime',$fechaFormateada)->get();
+        //             $totalMinutos = 0;
+        //             $horasProducidas = DB::select("SELECT SUM(TIMESTAMPDIFF(MINUTE,date_start,date_end)) AS minutos FROM `log_tasks` WHERE date_start BETWEEN ($fechaFormateada - INTERVAL $time DAY) AND NOW() AND `admin_user_id` = $user->id");
 
-                    if(count($alert_30) != 0){
-                        $jornada = Jornada::where('admin_user_id', $user->id)
-                        ->whereYear('date_start', $annio)
-                        ->whereMonth('date_start', $mes)
-                        ->whereDay('date_start', $dia)
-                        ->get();
+        //             if(count($alert_30) != 0){
+        //                 $jornada = Jornada::where('admin_user_id', $user->id)
+        //                 ->whereYear('date_start', $annio)
+        //                 ->whereMonth('date_start', $mes)
+        //                 ->whereDay('date_start', $dia)
+        //                 ->get();
 
-                        foreach($jornada as $item){
-                        $to_time = strtotime($item->date_start);
-                        $from_time = strtotime($item->date_end);
-                        $minutes = ($from_time - $to_time) / 60;
-                        $totalMinutos += $minutes;
-                        }
+        //                 foreach($jornada as $item){
+        //                 $to_time = strtotime($item->date_start);
+        //                 $from_time = strtotime($item->date_end);
+        //                 $minutes = ($from_time - $to_time) / 60;
+        //                 $totalMinutos += $minutes;
+        //                 }
 
-                        $data = [
-                            'admin_user_id' => $user->id,
-                            'stage_id' => 30,
-                            'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
-                            'status_id' => 1,
-                            'descripcion' => $totalMinutos, $horasProducidas
-                        ];
-                        $alert = Alert::create($data);
-                        $alertSaved = $alert->save();
-                    }
-                }
-            }
+        //                 $data = [
+        //                     'admin_user_id' => $user->id,
+        //                     'stage_id' => 30,
+        //                     'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
+        //                     'status_id' => 1,
+        //                     'descripcion' => $totalMinutos, $horasProducidas
+        //                 ];
+        //                 $alert = Alert::create($data);
+        //                 $alertSaved = $alert->save();
+        //             }
+        //         }
+        //     }
 
-        })->weeklyOn(1, '17:20');
+        // })->weeklyOn(1, '17:20');
 
         $schedule->call(function () {
             $users = User::where('inactive',0)->get();
@@ -190,50 +191,50 @@ class Kernel extends ConsoleKernel
 
             }
 
-            ///**** ACTUALIZACION DE BASE DE DATOS MARKETING
-            $fechaNow = Carbon::now();
+            // ///**** ACTUALIZACION DE BASE DE DATOS MARKETING
+            // $fechaNow = Carbon::now();
 
-            $data = [
-                'admin_user_id' => 1,
-                'stage_id' => 27,
-                'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
-                'status_id' => 1,
-                'reference_id' => 0,
-                'description' => "Aviso para actualizacion de base de datos mensual."
-            ];
+            // $data = [
+            //     'admin_user_id' => 1,
+            //     'stage_id' => 27,
+            //     'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
+            //     'status_id' => 1,
+            //     'reference_id' => 0,
+            //     'description' => "Aviso para actualizacion de base de datos mensual."
+            // ];
 
-            $alertIvan = Alert::create($data);
-            $alertSaved = $alertIvan->save();
+            // $alertIvan = Alert::create($data);
+            // $alertSaved = $alertIvan->save();
 
-            $data = [
-                'admin_user_id' => 23,
-                'stage_id' => 27,
-                'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
-                'status_id' => 1,
-                'reference_id' => 0,
-                'description' => "Aviso para actualizacion de base de datos mensual."
-            ];
+            // $data = [
+            //     'admin_user_id' => 23,
+            //     'stage_id' => 27,
+            //     'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
+            //     'status_id' => 1,
+            //     'reference_id' => 0,
+            //     'description' => "Aviso para actualizacion de base de datos mensual."
+            // ];
 
-            $alertLaura = Alert::create($data);
-            $alertSaved = $alertLaura->save();
+            // $alertLaura = Alert::create($data);
+            // $alertSaved = $alertLaura->save();
 
-            $data = [
-                'admin_user_id' => 7,
-                'stage_id' => 27,
-                'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
-                'status_id' => 1,
-                'reference_id' => 0,
-                'description' => "Aviso para actualizacion de base de datos mensual."
-            ];
+            // $data = [
+            //     'admin_user_id' => 7,
+            //     'stage_id' => 27,
+            //     'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
+            //     'status_id' => 1,
+            //     'reference_id' => 0,
+            //     'description' => "Aviso para actualizacion de base de datos mensual."
+            // ];
 
-            $alertJose = Alert::create($data);
-            $alertSaved = $alertJose->save();
+            // $alertJose = Alert::create($data);
+            // $alertSaved = $alertJose->save();
 
         })->monthlyOn(1, '08:00');
 
-        $schedule->command('queue:work --queue=default,newsletter_automatic,newsletter_manual,newsletter_smart --tries=3')
-            ->cron('* * * * *')
-            ->withoutOverlapping();
+        // $schedule->command('queue:work --queue=default,newsletter_automatic,newsletter_manual,newsletter_smart --tries=3')
+        //     ->cron('* * * * *')
+        //     ->withoutOverlapping();
     }
 
     protected function sendEmailHoras(){
@@ -381,7 +382,7 @@ class Kernel extends ConsoleKernel
             });
             $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
         }
-        $horasTrabajadasFinal = $totalWorkedSeconds / 3600;
+        $horasTrabajadasFinal = $totalWorkedSeconds / 60;
 
         return $horasTrabajadasFinal;
     }

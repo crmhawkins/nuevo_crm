@@ -66,7 +66,21 @@
 
                             <!-- Cliente -->
                             <div class="col-12 col-md-6 form-group mt-2">
-                                <label class="form-label" for="cliente">Cliente</label>
+                                <label class="form-label" for="cliente_id">Cliente</label>
+                                <select class="form-control choices" id="cliente_id" name="cliente_id" onchange="setClienteName()">
+                                    <option value="">Seleccione una opción</option>
+                                  @foreach ($clientes as $cliente)
+                                  <option value="{{$cliente->id}}">{{$cliente->name}}</option>
+                                  @endforeach
+                                </select>
+                                @if ($errors->has('cliente_id'))
+                                    <div class="alert alert-danger">{{ $errors->first('cliente_id') }}</div>
+                                @endif
+                            </div>
+
+                            <!-- Cliente -->
+                            <div class="col-12 col-md-6 form-group mt-2">
+                                <label class="form-label" for="cliente">Nombre</label>
                                 <input type="text" class="form-control" id="cliente" name="cliente" value="{{ old('cliente') }}">
                                 @if ($errors->has('cliente'))
                                     <div class="alert alert-danger">{{ $errors->first('cliente') }}</div>
@@ -231,4 +245,21 @@
 
 @section('scripts')
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
+<script>
+
+    const clientes = @json($clientes->pluck('name', 'id'));
+    function setClienteName() {
+        // Obtener el select de cliente
+        var clienteSelect = document.getElementById("cliente_id");
+        // Obtener el nombre del cliente seleccionado desde el atributo data-nombre
+        var selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
+        var nombreCliente = clientes[selectedOption.value]; // Obtener el nombre correspondiente
+        console.log(selectedOption);
+        console.log(nombreCliente);
+
+        // Asignar el nombre del cliente al campo de texto "Nombre"
+        document.getElementById("cliente").value = nombreCliente;
+    }
+
+</script>
 @endsection
