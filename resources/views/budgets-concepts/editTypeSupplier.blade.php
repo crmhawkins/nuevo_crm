@@ -249,6 +249,7 @@
     <form id ="generatePurchaseOrderForm" method="POST"  action="{{ route('budgetConcepts.generatePurchaseOrder', $budgetConcept->id) }}" class="row">
         @csrf
     </form>
+
 </div>
     <style>
         .select2-container--default .select2-selection--single {
@@ -271,11 +272,22 @@
         e.preventDefault(); // Esto previene que el enlace navegue a otra página.
         $('#formActualizar').submit(); // Esto envía el formulario.
     });
-        $("#ordenCompra").hide();
+    $("#ordenCompra").hide();
 
+    $(document).ready(function() {
+        // Función para verificar el estado de los radios y mostrar/ocultar el botón
+        function checkRadiosAndToggleButton() {
+            if ($("#supplierRadio1").is(":checked") || $("#supplierRadio2").is(":checked") || $("#supplierRadio3").is(":checked")) {
+                $("#ordenCompra").show();
+            } else {
+                $("#ordenCompra").hide();
+            }
+        }
+        // Llama a la función al cargar la página
+        checkRadiosAndToggleButton();
+    });
 
      $( "#supplierRadio1, #supplierRadio2, #supplierRadio3" ).click(function() {
-        $("#ordenCompra").show();
         if($(this).is('#supplierRadio1')){
             // valor submit del marcado
             $('#selectedSupplierId').val(1);
@@ -506,14 +518,29 @@
 
 
     $('#ordenCompra').click(function() {
+        var id = {{ $budgetConcept->id }};
         Swal.fire({
             type: 'warning',
             title: 'Atención',
-            html: '<p>Confirmar enviar orden de compra</p>' +
-                  '<label style="text-align:left;" for="attachs">Archivo Adjunto</label>'+
-                  '<input type="file" class="form-control" id="attachs" name="attachs[]" multiple><br>'+
-                  '<label style="text-align:left;" for="url">Enlaces</label>'+
-                  '<input type="text" class="form-control" id="url" name="url" placeholder="Escribe aquí la URL">',
+            html: `
+                <p>Confirmar enviar orden de compra</p>
+                <form id="sendOrderForm">
+                    <label style="text-align:left;" for="attachs">Archivo Adjunto</label>
+                    <input type="file" class="form-control" id="attachs" name="attachs[]" multiple><br>
+                    <label style="text-align:left;" for="url">Enlaces</label>
+                    <input type="text" class="form-control" id="url" name="url" placeholder="Escribe aquí la URL">
+                    <!-- Asegúrate de que estos inputs están definidos en tu HTML o los defines aquí -->
+                    <input type="hidden" id="idSupplier" name="idSupplier" value="${$("#idSupplier").val()}">
+                    <input type="hidden" id="client_empresa" name="client_empresa" value="${$('#client_empresa').val()}">
+                    <input type="hidden" id="marca" name="marca" value="${$('#marca').val()}">
+                    <input type="hidden" id="telefono" name="telefono" value="${$('#telefono').val()}">
+                    <input type="hidden" id="direccion" name="direccion" value="${$('#direccion').val()}">
+                    <input type="hidden" id="ciudad" name="ciudad" value="${$('#ciudad').val()}">
+                    <input type="hidden" id="provincia" name="provincia" value="${$('#provincia').val()}">
+                    <input type="hidden" id="cp" name="cp" value="${$('#cp').val()}">
+                <input type="hidden" id="id" name="id" value="${id}">
+                </form>
+            `,
             allowEscapeKey: false,
             allowOutsideClick: false,
             allowEnterKey: false,
@@ -522,56 +549,37 @@
             confirmButtonText: 'Confirmar',
             cancelButtonText: 'Cancelar',
             showLoaderOnConfirm: true,
-            preConfirm: function() {
-                return new Promise(function(resolve) {
-                    var id = $("#idSupplier").val();
-                    var fileSelect = document.getElementById('attachs');
-                    var files = fileSelect.files;
-                    var formData = new FormData();
-                    // Loop through each of the selected files.
-                    for (var i = 0; i < files.length; i++) {
-                        var file = files[i];
-                        // Add the file to the request.
-                        formData.append('files[]', file, file.name);
-                    }
-                    var name = $('#client_empresa').val();
-                    var company = $('#marca').val();
-                    var telefono = $('#telefono').val();
-                    var address = $('#direccion').val();
-                    var ciudad = $('#ciudad').val();
-                    var provincia = $('#provincia').val();
-                    var cp = $('#cp').val();
-                    var url = $('#url').val();
-
-                    formData.append('url', url);
-                    formData.append('id', id);
-                    formData.append('name_empresa', name);
-                    formData.append('company', company);
-                    formData.append('telefono', telefono);
-                    formData.append('address', address);
-                    formData.append('ciudad', ciudad);
-                    formData.append('provincia', provincia);
-                    formData.append('cp', cp);
-
-                    $.when( saveOrderForSend(formData) ).then(function( data, textStatus, jqXHR ){
-                        if(jqXHR.responseText!=503){
-                            swal(
-                                'Éxito',
-                                'Email enviado.',
-                                'success'
-                            );
-                        }else{
-                            swal(
-                                'Error',
-                                'Error al enviar el email',
-                                'error'
-                            );
+            preConfirm: () => {
+                return new Promise((resolve, reject) => {
+                    var formData = new FormData(document.getElementById('sendOrderForm'));
+                    // Enviar la petición
+                    $.ajax({
+                        type: 'POST',
+                        url: '/budget-concept-supplier/saveOrderForSend',  // Ruta al controlador
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        },
+                        data: formData,
+                        dataType: "json",
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire('Éxito', response.message, 'success').then(() => resolve());
+                            } else {
+                                Swal.fire('Error', response.message, 'error').then(() => reject(new Error(response.message)));
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire('Error', `Error al procesar la solicitud: ${xhr.statusText}`, 'error').then(() => reject(new Error(xhr.statusText)));
                         }
                     });
                 });
             }
         });
     });
+
 
     function saveOrderForSend(formData){
         return  $.ajax({

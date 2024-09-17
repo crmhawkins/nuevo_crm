@@ -1,16 +1,16 @@
 <?php
- 
+
 namespace App\Mail;
- 
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
- 
+
 class MailConceptSupplier extends Mailable
 {
     use Queueable, SerializesModels;
-     
+
     /**
      * The demo object instance.
      *
@@ -18,7 +18,7 @@ class MailConceptSupplier extends Mailable
      */
     public $MailConceptSupplier;
     public $atta;
- 
+
     /**
      * Create a new message instance.
      *
@@ -29,7 +29,7 @@ class MailConceptSupplier extends Mailable
         $this->MailConceptSupplier = $MailConceptSupplier;
         $this->atta = $atta;
     }
- 
+
     /**
      * Build the message.
      *
@@ -37,7 +37,7 @@ class MailConceptSupplier extends Mailable
      */
     public function build()
     {
-        $mail = $this->from($this->MailConceptSupplier->gestorMail)
+        $mail = $this//->from($this->MailConceptSupplier->gestorMail)
         ->subject("Orden de Compra - Los Creativos de Hawkins")
         ->view('mails.mailConceptSupplier');
 

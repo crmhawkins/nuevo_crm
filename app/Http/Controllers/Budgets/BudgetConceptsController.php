@@ -16,6 +16,7 @@ use App\Models\PurcharseOrde\PurcharseOrder;
 use App\Models\Services\Service;
 use App\Models\Services\ServiceCategories;
 use App\Models\Suppliers\Supplier;
+use Illuminate\Support\Facades\File;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -984,6 +985,7 @@ class BudgetConceptsController extends Controller
                 return $this->generatePDFAndSend($searchOrder, $request);
 
             }else{
+
                 $hoy = Carbon::now();
                 $hoy->format('d/m/Y');
                 $parseHoy = Carbon::parse($hoy);
@@ -1017,10 +1019,12 @@ class BudgetConceptsController extends Controller
 
     public function generatePDFAndSend(PurcharseOrder $order, Request $request){
 
+
+
         $pathFiles = array();
         $mailConcept = new \stdClass();
 
-        $request->validate([
+        $request->validate(rules: [
             'files.*' => 'max:10000'
         ]);
 
@@ -1042,10 +1046,10 @@ class BudgetConceptsController extends Controller
         $proveedor = $order->Proveedor->name;
 
         $referencia = DB::table('budgets')
-                                ->join('budget_concepts', 'budget_concepts.budget_id', '=', 'budgets.id')
-                                ->join('purchase_order', 'purchase_order.budget_concept_id', '=', 'budget_concepts.id')
-                                ->where('purchase_order.id', '=', $order->id)
-                                ->value('reference');
+        ->join('budget_concepts', 'budget_concepts.budget_id', '=', 'budgets.id')
+        ->join('purchase_order', 'purchase_order.budget_concept_id', '=', 'budget_concepts.id')
+        ->where('purchase_order.id', '=', $order->id)
+        ->value('reference');
 
         $logoURL =  config('app.appUrl') . $budgetCustomPDF['logo_image'];
 
@@ -1106,35 +1110,42 @@ class BudgetConceptsController extends Controller
             'supplier' => $proveedor,
             'date' => $order->shipping_date,
             'reference' => $referencia,
-            'pay_method' => $order->payMethod->name,
+            'pay_method' => $order->payMethod->name ?? '',
             "ref_order" => $order->id,
             "concept" => $formatedConcept,
             "units" => $order->units,
             "import_order" => $precio,
-            "concept_budget" => $order->concepto->concept,
-            "title_budget" => $order->concepto->title,
-            "client_name" => $preForm['name_empresa'],
-            "company" => $preForm['company'],
-            "phone" => $preForm['telefono'],
-            "address" => $preForm['address'],
-            "city" => $preForm['ciudad'],
-            "province" => $preForm['provincia'],
-            "cp" => $preForm['cp'],
+            "concept_budget" => $order->concepto->concept ?? '',
+            "title_budget" => $order->concepto->title ?? '',
+            "client_name" => $preForm['client_empresa'] ?? '',
+            "company" => $preForm['company'] ?? '',
+            "phone" => $preForm['telefono'] ?? '',
+            "address" => $preForm['address'] ?? '',
+            "city" => $preForm['ciudad'] ?? '',
+            "province" => $preForm['provincia'] ?? '',
+            "cp" => $preForm['cp'] ?? '',
         ];
+
 
         $name = 'orden_compra_' .$order->id . '_' . Carbon::now()->format('Y-m-d');
 
         $encrypted = $this->encrypt_decrypt('encrypt', $name);
 
-        $pathToSaveSupplier = '/home/crmhawki/public_html/storage/app/app/'. $encrypted . '.pdf';
+
+        // Generate the PDF file for the supplier
+        $pathToSaveSupplier = 'Ordenes/' . $encrypted . '.pdf';
+        Storage::put($pathToSaveSupplier, PDF::loadView('purchase_order.purchaseOrderPDF', compact('data', 'logoURL', 'budgetCustomPDF'))->output());
+
+        // Add the supplier file path to the array
         $pathFiles[] = $pathToSaveSupplier;
-        $pdf = PDF::loadView('purchase_order.purchaseOrderPDF', compact('data','logoURL', 'budgetCustomPDF'))->save($pathToSaveSupplier);
 
-        $nameAlbaran = 'albaran_' .$order->id . '_' . Carbon::now()->format('Y-m-d');
-        $pathToSaveAlbaran = '/home/crmhawki/public_html/storage/app/app/'. $nameAlbaran . '.pdf';
+        // Generate the name and path for the delivery order (albarán)
+        $nameAlbaran = 'albaran_' . $order->id . '_' . Carbon::now()->format('Y-m-d');
+        $pathToSaveAlbaran = 'Albaranes/' . $nameAlbaran . '.pdf';
+        Storage::put($pathToSaveAlbaran, PDF::loadView('purchase_order.deliveryOrderPDF', compact('data', 'logoURL', 'budgetCustomPDF'))->output());
+
+        // Add the delivery order path to the array
         $pathFiles[] = $pathToSaveAlbaran;
-        $albaran = PDF::loadView('purchase_order.deliveryOrderPDF', compact('data','logoURL', 'budgetCustomPDF'))->save($pathToSaveAlbaran);
-
         if($request->url){
             $mailConcept->url = $request->url;
         }else{
@@ -1153,7 +1164,21 @@ class BudgetConceptsController extends Controller
             }
         }
 
-        $mailsBCC[] = "emma@lchawkins.com";
+        // if ($request->hasFile('files')) {
+        //     foreach ($request->file('files') as $fileNew) {
+        //         // Generar un nombre único para el archivo
+        //         $fileName = time() . '_' . $fileNew->getClientOriginalName();
+
+        //         // Guardar el archivo en el disco temporal
+        //         $path = Storage::disk('temp')->put($fileName, file_get_contents($fileNew));
+
+        //         // Obtener la ruta absoluta del archivo guardado
+        //         $absolutePath = storage_path('app/temp/' . $fileName);
+        //         $pathFiles[] = $absolutePath;
+        //     }
+        // }
+
+        //$mailsBCC[] = "emma@lchawkins.com";
         $mailsBCC[] = "ivan@lchawkins.com";
 
         $email = new MailConceptSupplier($mailConcept, $pathFiles);
@@ -1166,7 +1191,7 @@ class BudgetConceptsController extends Controller
         //Mail::to("ismael@lchawkins.com")->send($email);
 
         foreach($pathFiles as $file){
-            \File::delete($file);
+            Storage::delete($file);
         }
 
         if( count(Mail::failures()) > 0 ) {
@@ -1273,6 +1298,26 @@ class BudgetConceptsController extends Controller
         return $pdf->download('orden_compra_' .$order->id . '_' . Carbon::now()->format('Y-m-d') . '.pdf');
 
 
+    }
+
+
+    function encrypt_decrypt($action, $string) {
+        $output = false;
+        $encrypt_method = "AES-256-CBC";
+        $secret_key = 'c0c0dr1l0s3n3ln1l0';
+        $secret_iv = 'c0c0dr1l0s3n3ln1l0';
+        // hash
+        $key = hash('sha256', $secret_key);
+
+        // iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
+        $iv = substr(hash('sha256', $secret_iv), 0, 16);
+        if ( $action == 'encrypt' ) {
+            $output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
+            $output = base64_encode($output);
+        } else if( $action == 'decrypt' ) {
+            $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+        }
+        return $output;
     }
 
 }
