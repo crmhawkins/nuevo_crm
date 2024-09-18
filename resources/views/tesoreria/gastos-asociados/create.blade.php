@@ -156,7 +156,16 @@
 @endsection
 
 @section('scripts')
+<script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const purchaseOrderSelect = document.getElementById('purchase_order_id');
+        const choices = new Choices(purchaseOrderSelect, {
+            placeholder: true,
+            searchEnabled: true,  // Habilita la búsqueda en el select
+            itemSelectText: '',   // Texto vacío para el item seleccionado
+        });
+    });
     $('#actualizar').click(function(e){
         e.preventDefault(); // Esto previene que el enlace navegue a otra página.
         $('form').submit(); // Esto envía el formulario.

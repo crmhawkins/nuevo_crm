@@ -395,7 +395,7 @@
 
             alertCountSpan.textContent = totalAlertas;
 
-            if (window.enRutaEspecifica) {
+            if (window.enRutaEspecifica && totalAlertas > 0) {
                 mostrarTiposDeAlertas();
             }
 

@@ -96,7 +96,7 @@ class BudgetController extends Controller
         $formasPago = PaymentMethod::all();
 
         if(isset($clienteId)){
-            $gestorId = Client::find($clienteId)->gestor->id;
+            $gestorId = Client::find($clienteId)->gestor->id ?? null;
             $campanias = Project::where('client_id', $clienteId)->get();
         }else{
             $gestorId = null;
@@ -120,7 +120,7 @@ class BudgetController extends Controller
         $formasPago = PaymentMethod::all();
 
         if(isset($clienteId)){
-            $gestorId = Client::find($clienteId)->gestor->id;
+            $gestorId = Client::find($clienteId)->gestor->id ?? null;
             $campanias = Project::where('client_id', $clienteId)->get();
         }else{
             $gestorId = null;
@@ -876,6 +876,25 @@ class BudgetController extends Controller
         }
     }
 
+    public function budgetHasSuppliersAccepted(Budget $budget)
+    {        // Primero ver si tiene conceptos de proveedor
+        $budgetHasSupplierTypeConcepts = $this->budgetHasSupplierTypeConcepts($budget);
+        if(!$budgetHasSupplierTypeConcepts){
+            return true;
+        }else{
+            // Obtener todos los conceptos de proveedor del presupuesto
+            //$budgetSupplierConcepts = BudgetConcepts::where('concept_type_id', BudgetConceptType::TYPE_SUPPLIER)->get();
+            $budgetSupplierConcepts = BudgetConcept::where('budget_id', $budget->id)->where('concept_type_id', BudgetConceptType::TYPE_SUPPLIER)->get();
+            // Recorrer peticiones y ver si de cada concepto tiene un seleccionado
+            foreach ($budgetSupplierConcepts as $supplierConcept){
+                $supplierRequestAccepted = BudgetConceptSupplierRequest::where('budget_concept_id', $supplierConcept->id)->where('selected', 1)->get()->first();
+                if($supplierRequestAccepted == null){
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
     public function generateInvoice(Request $request){
         $budget = Budget::find($request->id);
 
