@@ -10,6 +10,7 @@ use App\Models\Holidays\Holidays;
 use App\Models\Holidays\HolidaysPetitions;
 use Carbon\Carbon;
 use App\Mail\MailHoliday;
+use App\Models\Alerts\Alert;
 use App\Models\Logs\LogsEmail;
 use Illuminate\Support\Facades\Mail;
 
@@ -262,8 +263,8 @@ class HolidayController extends Controller
                     "description" => "Tienes una nueva petición de vacaciones",
                 ];
 
-            // $alerta = Alert::create($data);
-            //$alerta->save();
+            $alerta = Alert::create($data);
+            $alerta->save();
 
             }
         }

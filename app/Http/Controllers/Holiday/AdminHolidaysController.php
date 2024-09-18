@@ -169,21 +169,21 @@ class AdminHolidaysController extends Controller
 
             if($holidaySaved){
                 //Alerta resuelta
-                //$alertHoliday = Alert::where('reference_id', $holidayPetition->id)->get()->first();
-                //$alertHoliday->status_id = 2;
-                //$alertHoliday->save();
+                $alertHoliday = Alert::where('reference_id', $holidayPetition->id)->get()->first();
+                $alertHoliday->status_id = 2;
+                $alertHoliday->save();
 
-                //Crear alerta para avisar al usuario
-                // $data = [
-                //     'admin_user_id' => $holidayPetition->admin_user_id,
-                //     'stage_id' => 17,
-                //     'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
-                //     'status_id' => 1,
-                //     'reference_id' => $holidayPetition->id
-                // ];
+                // Crear alerta para avisar al usuario
+                $data = [
+                    'admin_user_id' => $holidayPetition->admin_user_id,
+                    'stage_id' => 17,
+                    'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
+                    'status_id' => 1,
+                    'reference_id' => $holidayPetition->id
+                ];
 
-                // $alert = Alert::create($data);
-                // $alertSaved = $alert->save();
+                $alert = Alert::create($data);
+                $alertSaved = $alert->save();
 
                 // $mailBudget = new \stdClass();
                 // $mailBudget->usuario = Auth::user()->name." ".Auth::user()->surname;
@@ -267,22 +267,22 @@ class AdminHolidaysController extends Controller
                     ]);
                 }
 
-                // //Alerta resuelta
-                // $alertHoliday = Alert::where('reference_id', $holidayPetition->id)->get()->first();
-                // $alertHoliday->status_id = 2;
-                // $alertHoliday->save();
-                // $fechaNow = Carbon::now();
-                // //Crear alerta para avisar al usuario
-                // $data = [
-                //     'admin_user_id' => $holidayPetition->admin_user_id,
-                //     'stage_id' => 18,
-                //     'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
-                //     'status_id' => 1,
-                //     'reference_id' => $holidayPetition->id
-                // ];
+                //Alerta resuelta
+                $alertHoliday = Alert::where('reference_id', $holidayPetition->id)->get()->first();
+                $alertHoliday->status_id = 2;
+                $alertHoliday->save();
+                $fechaNow = Carbon::now();
+                //Crear alerta para avisar al usuario
+                $data = [
+                    'admin_user_id' => $holidayPetition->admin_user_id,
+                    'stage_id' => 18,
+                    'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
+                    'status_id' => 1,
+                    'reference_id' => $holidayPetition->id
+                ];
 
-                // $alert = Alert::create($data);
-                // $alertSaved = $alert->save();
+                $alert = Alert::create($data);
+                $alertSaved = $alert->save();
 
                 // Respuesta
                 return response()->json(['status' => 'success', 'mensaje' => 'Petición de vacaciones denegada']);

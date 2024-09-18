@@ -352,6 +352,7 @@
             31: 'Aviso Jornada Laboral',
             33: 'Dominio a punto de expirar',
             40: 'Aviso de Tarea - Se está sobrepasando las horas estimadas'
+            41: 'Tarea en Revision'
         };
 
         // Función para obtener las alertas usando fetch
@@ -534,6 +535,9 @@
 
                     case 40:
                         mensajeDetalle = "Aviso de Tarea: La tarea con ID " + alerta['reference_id'] + " está sobrepasando las horas estimadas";
+                        break;
+                    case 41:
+                        mensajeDetalle = "Tarea en Revision: La tarea con ID " + alerta['reference_id'] + " está en revisión";
                         break;
 
                     default:
@@ -923,6 +927,24 @@
                     break;
 
                 case 40:
+
+                var id = alertaSeleccionada['id'];
+                var status = 2;
+                $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            window.open( "/task/edit/"+ alertaSeleccionada['reference_id'], '_blank');
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                    break;
+
+                    case 41:
 
                 var id = alertaSeleccionada['id'];
                 var status = 2;
