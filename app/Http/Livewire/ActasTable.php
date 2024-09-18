@@ -49,7 +49,7 @@ class ActasTable extends Component
                     ->orWhere('surname', 'like', '%' . $this->buscar . '%');
             })
             ->when($this->selectedYear, function ($query) {
-                $query->whereYear('created_at', $this->selectedYear);
+                $query->whereYear('crm_activities_meetings.created_at', $this->selectedYear);
             })
             ->orWhere('subject', 'like', '%' . $this->buscar . '%')
             ->orWhere('date', 'like', '%' . $this->buscar . '%');

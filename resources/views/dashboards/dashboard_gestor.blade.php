@@ -61,9 +61,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <a href="{{route('presupuesto.create')}}" class="btn btn-outline-primary">Nuevo Presupuesto</a>
-                            <a href="{{route('presupuestos.indexUser')}}" class="btn btn-outline-secondary">Ver mis Presupuestos</a>
-                            <a href="{{route('presupuestos.index')}}" class="btn btn-outline-secondary">Ver todos los Presupuestos</a>
+                            <a href="{{route('presupuesto.create')}}" class="btn btn-outline-primary mb-2">Nuevo Presupuesto</a>
+                            <a href="{{route('presupuestos.indexUser')}}" class="btn btn-outline-secondary mb-2">Ver mis Presupuestos</a>
+                            <a href="{{route('presupuestos.index')}}" class="btn btn-outline-secondary mb-2">Ver todos los Presupuestos</a>
                         </div>
                         <div class="row row-cols-1 row-cols-md-2 g-4">
                             <div class="col">
@@ -80,8 +80,8 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <a href="{{route('peticion.create')}}" class="btn btn-outline-primary">Nueva Petición</a>
-                                        <a href="{{route('peticion.indexUser')}}" class="btn btn-outline-secondary">Ver Mis Peticiones</a>
+                                        <a href="{{route('peticion.create')}}" class="btn btn-outline-primary mb-2">Nueva Petición</a>
+                                        <a href="{{route('peticion.indexUser')}}" class="btn btn-outline-secondary mb-2">Ver Mis Peticiones</a>
                                     </div>
                                 </div>
                             </div>
@@ -94,7 +94,7 @@
                                                 <div class="card">
                                                     <div class="card-body p-3">
                                                         <h5 class="card-title m-0 text-color-4  fw-bold">Pendientes</h5>
-                                                        <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
+                                                        <span class="display-6 m-0"><b>{{count($user->ordenes())}}</b></span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -468,6 +468,7 @@
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales-all.global.min.js"></script>
 <script>
+    var enRutaEspecifica = true;
     document.addEventListener('DOMContentLoaded', function() {
         var multipleCancelButton = new Choices('#admin_user_ids', {
             removeItemButton: true, // Permite a los usuarios eliminar una selección

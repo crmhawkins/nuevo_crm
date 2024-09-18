@@ -90,19 +90,16 @@ class CrmActivityMeetingController extends Controller
     {
         // Buscar la reunión por ID
         $meeting = CrmActivitiesMeetings::find($id);
-
         // Validar que la reunión exista
         if (!$meeting) {
             return response()->json(['error' => 'Reunión no encontrada.'], 404);
         }
-
         // Crear el comentario asociado a la reunión
         $comment = CrmActivitiesMeetingsComments::create([
             'admin_user_id' => Auth::user()->id,
             'meeting_id' => $meeting->id,
             'description' => $request->texto,
         ]);
-
         // Crear una alerta asociada al comentario (opcional)
         $dataAlert = [
             "admin_user_id" => $meeting->admin_user_id,
@@ -113,16 +110,12 @@ class CrmActivityMeetingController extends Controller
             "cont_postpone" => 0,
             "description" => 'Han realizado un comentario en tu acta ' . $meeting->subject,
         ];
-
-        // $alert = Alert::create($dataAlert); // Descomentarlo si se necesita crear la alerta
-
+        $alert = Alert::create($dataAlert); // Descomentarlo si se necesita crear la alerta
         // Preparar y enviar la notificación por correo electrónico
         $mailNotif = new \stdClass();
         $mailNotif->title = "Tienes un comentario de " . $comment->adminUser->name . " en el acta " . $meeting->subject;
         $mailNotif->subject = "[CRMHAWKINS] Tienes un nuevo comentario en un acta";
         $mailNotif->description = "El comentario: " . $comment->description;
-
-
         $email = new MailNotification($mailNotif);
 
         Mail::to($meeting->adminUser->email)->send($email);
@@ -135,12 +128,12 @@ class CrmActivityMeetingController extends Controller
 
         $meeting = CrmActivitiesMeetings::find($id);
 
-        // $alert = Alert::where('stage_id', 29)->where('reference_id', $meeting->id)->get()->first();
+        $alert = Alert::where('stage_id', 29)->where('reference_id', $meeting->id)->get()->first();
 
-        // if($alert){
-        //     $alert->status_id = 2;
-        //     $alert->save();
-        // }
+        if($alert){
+            $alert->status_id = 2;
+            $alert->save();
+        }
 
         // Respuesta
         return redirect()->route('reunion.index')->with(
@@ -461,7 +454,5 @@ class CrmActivityMeetingController extends Controller
           ]);
 
     }
-
-
 
 }

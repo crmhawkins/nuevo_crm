@@ -64,7 +64,8 @@ class BudgetsUserTable extends Component
                 })
                 ->orWhereHas('proyecto', function ($subQuery) { // Busca en los conceptos de presupuesto
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%');
-                });
+                })
+                ->orWhere('reference', 'like', '%' . $this->buscar . '%');
             })
             ->when($this->selectedEstados, function ($query) {
                 $query->where('budget_status_id', $this->selectedEstados);

@@ -21,10 +21,7 @@
             </div>
         </div>
     </div>
-    {{-- {{dd($users)}} --}}
     @if ( $orders )
-        {{-- Filtros --}}
-        {{-- Tabla --}}
         <div class="table-responsive">
              <table class="table table-hover">
                 <thead class="header-table">
@@ -36,6 +33,7 @@
                             'clienteNombre' => 'CLIENTE',
                             'created_at' => 'FECHA',
                             'quantity' => 'IMPORTE',
+                            'gestorNombre' => 'GESTOR',
                             'state' => 'ESTADO',
                             'aceptado_gestor' => 'ACEPTADA POR GESTOR',
                             ] as $field => $label)
@@ -59,6 +57,7 @@
                             <td>{{$order->OrdenCompra->cliente->name ?? 'Cliente no definido' }}</td>
                             <td>{{$order->created_at }}</td>
                             <td>{{$order->quantity }}</td>
+                            <td>{{$order->gestorNombre }}</td>
                             <td>{{$order->state }}</td>
                             <td style="text-align: center;">@if($order->aceptado_gestor == 1) SI @else NO @endif</td>
                             <td class="d-flex flex-row justify-evenly align-middle">

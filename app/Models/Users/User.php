@@ -73,7 +73,6 @@ class User extends Authenticatable
     public function llamadas() {
         return $this->hasMany(Llamada::class, 'admin_user_id');
     }
-
     public function posicion() {
         return $this->belongsTo(\App\Models\Users\UserPosition::class,'admin_user_position_id');
     }
@@ -101,9 +100,6 @@ class User extends Authenticatable
     public function tareasGestor(){
         return $this->hasMany(\App\Models\Tasks\Task::class, 'gestor_id');
     }
-    public function presupuestos(){
-        return $this->hasMany(\App\Models\Budgets\Budget::class, 'admin_user_id');
-    }
     public function campañas(){
         return $this->hasMany(Project::class, 'admin_user_id');
     }
@@ -117,6 +113,9 @@ class User extends Authenticatable
         return $this->hasManyThrough(Todo::class,TodoUsers::class,'admin_user_id', 'id', 'id','todo_id');
     }
 
+    public function presupuestos(){
+        return $this->hasMany(\App\Models\Budgets\Budget::class, 'admin_user_id');
+    }
     public function presupuestosPorEstado($estadoId) {
         return $this->presupuestos()->where('budget_status_id', $estadoId)->get();
     }
@@ -129,8 +128,6 @@ class User extends Authenticatable
     public function jornadas() {
         return $this->hasMany(\App\Models\Jornada\Jornada::class, 'admin_user_id');
     }
-
-
     public function activeJornada() {
         return $this->jornadas()->where('is_active', true)->first();
     }
@@ -138,7 +135,7 @@ class User extends Authenticatable
         return $this->llamadas()->where('is_active', true)->first();
     }
 
-      public function totalWorkedTimeToday() {
+    public function totalWorkedTimeToday() {
         $todayJornadas = $this->jornadas()->whereDate('start_time', Carbon::today())->get();
         $totalWorkedSeconds = 0;
 
@@ -151,23 +148,14 @@ class User extends Authenticatable
 
     public function ordenes()
     {
-        $ordenes = collect([]);
-
-        $this->presupuestos->each(function ($presupuesto) use ($ordenes) {
-            $presupuesto->budgetConcepts->each(function ($concepto) use ($ordenes) {
-                if ($concepto->orden) {
-                    $ordenes->push($concepto->orden);
-                }
-            });
-        });
-
-        return $ordenes;
+        return \App\Models\PurcharseOrde\PurcharseOrder::join('budget_concepts', 'purchase_order.budget_concept_id', '=', 'budget_concepts.id')
+        ->join('budgets', 'budget_concepts.budget_id', '=', 'budgets.id')
+        ->join('associated_expenses', 'purchase_order.id', '=', 'associated_expenses.purchase_order_id')
+        ->where('budgets.admin_user_id', $this->id)
+        ->where('associated_expenses.state', 'PENDIENTE')
+        ->whereNull('associated_expenses.aceptado_gestor')
+        ->select('purchase_order.*' , 'budgets.admin_user_id as gestor')  // Asegúrate de seleccionar los campos de las órdenes de compra
+        ->get();  // Asegúrate de seleccionar los campos de las órdenes de compra
     }
 
-    public function orderedClients()
-    {
-        return $this->belongsToMany(Client::class, 'client_user_order')
-                    ->withPivot('order')
-                    ->orderBy('client_user_order.order');
-    }
 }

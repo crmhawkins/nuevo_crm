@@ -69,7 +69,8 @@ class BudgetsTable extends Component
                 })
                 ->orWhereHas('proyecto', function ($subQuery) { // Busca en los conceptos de presupuesto
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%');
-                });
+                })
+                ->orWhere('reference', 'like', '%' . $this->buscar . '%');
             })
             ->when($this->selectedGestor, function ($query) {
                 $query->where('admin_user_id', $this->selectedGestor);

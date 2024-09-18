@@ -64,6 +64,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 //Dashboard
 
 Route::get('/user/alerts', [AlertController::class, 'getUserAlerts'])->name('user.alerts');
+Route::post('/alert/update', [AlertController::class, 'updateStatusAlert'])->name('alert.update');
 
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

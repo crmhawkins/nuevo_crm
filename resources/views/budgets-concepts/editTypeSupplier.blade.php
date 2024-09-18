@@ -239,8 +239,8 @@
                         <a href="" id="actualizar" class="btn btn-success mt-3 btn-block">Actualizar</a>
                         @if(!$budgetConcept->presupuesto->temp)
                             <a type="button" style="color:white" id="generatePurchaseOrder" class="btn btn-primary mt-3 btn-block">Generar Orden Compra</a>
+                            <a id="ordenCompra" style="color:white" class="btn btn-dark mt-3 btn-block" style="display:none"> Enviar Orden de Compra</a>
                         @endif
-                        <a id="ordenCompra" style="color:white" class="btn btn-dark mt-3 btn-block" style="display:none"> Enviar Orden de Compra</a>
                     </div>
                 </div>
             </div>
@@ -279,6 +279,42 @@
         function checkRadiosAndToggleButton() {
             if ($("#supplierRadio1").is(":checked") || $("#supplierRadio2").is(":checked") || $("#supplierRadio3").is(":checked")) {
                 $("#ordenCompra").show();
+                if($(this).is('#supplierRadio1')){
+            // valor submit del marcado
+            $('#selectedSupplierId').val(1);
+            // Precio del proveedor seleccionado
+            var optPrice= $('#supplierPrice1').val();
+            if( !$('#supplierPrice1').val() ){
+                $('#purchase_price').val(0);
+                $('#total_no_discount').val(0);
+            }else{
+                $('#purchase_price').val(optPrice);
+            }
+        }
+        if($(this).is('#supplierRadio2')){
+            // valor submit del marcado
+            $('#selectedSupplierId').val(2);
+            // Precio del proveedor seleccionado
+            var optPrice= $('#supplierPrice2').val();
+            if( !$('#supplierPrice2').val() ){
+                $('#purchase_price').val(0);
+                $('#total_no_discount').val(0);
+            }else{
+                $('#purchase_price').val(optPrice);
+            }
+        }
+        if($(this).is('#supplierRadio3')){
+            // valor submit del marcado
+            $('#selectedSupplierId').val(3);
+            // Precio del proveedor seleccionado
+            var optPrice= $('#supplierPrice3').val();
+            if( !$('#supplierPrice3').val() ){
+                $('#purchase_price').val(0);
+                $('#total_no_discount').val(0);
+            }else{
+                $('#purchase_price').val(optPrice);
+            }
+        }
             } else {
                 $("#ordenCompra").hide();
             }
@@ -538,7 +574,7 @@
                     <input type="hidden" id="ciudad" name="ciudad" value="${$('#ciudad').val()}">
                     <input type="hidden" id="provincia" name="provincia" value="${$('#provincia').val()}">
                     <input type="hidden" id="cp" name="cp" value="${$('#cp').val()}">
-                <input type="hidden" id="id" name="id" value="${id}">
+                    <input type="hidden" id="id" name="id" value="${id}">
                 </form>
             `,
             allowEscapeKey: false,

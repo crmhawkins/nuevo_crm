@@ -61,7 +61,7 @@ class TesoreriaController extends Controller
                 'icon' => 'error',
                 'mensaje' => 'El Ingreso no existe'
             ]);
-            return redirect()->route('ingreso.index');
+            return redirect()->route('ingresos.index');
         }
         $banks = BankAccounts::all();
         $invoices = Invoice::all();

@@ -1504,6 +1504,7 @@
 
     </script>
     <script>
+    var enRutaEspecifica = true;
 
         $(document).on("click", '.tarea-sing', function() {
                     var id = $(this).attr("id");
