@@ -505,18 +505,18 @@ class DashboardController extends Controller
                 case "Revision":
 
                     //Crear Alerta tarea terminada antes de tiempo
-                    if ($formatEstimated > $formatReal) {
-                        $dataAlert = [
-                            'admin_user_id' => $usuario->id,
-                            'stage_id' => 14,
-                            'activation_datetime' => $date->format('Y-m-d H:i:s'),
-                            'status_id' => 1,
-                            'reference_id' => $tarea->id,
-                        ];
+                    // if ($formatEstimated > $formatReal) {
+                    //     $dataAlert = [
+                    //         'admin_user_id' => $usuario->id,
+                    //         'stage_id' => 14,
+                    //         'activation_datetime' => $date->format('Y-m-d H:i:s'),
+                    //         'status_id' => 1,
+                    //         'reference_id' => $tarea->id,
+                    //     ];
 
-                        $alert = Alert::create($dataAlert);
-                        $alertSaved = $alert->save();
-                    }
+                    //     $alert = Alert::create($dataAlert);
+                    //     $alertSaved = $alert->save();
+                    // }
 
                     $dataAlert = [
                         'admin_user_id' => $tarea->gestor_id,
