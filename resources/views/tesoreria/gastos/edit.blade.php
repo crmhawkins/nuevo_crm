@@ -53,7 +53,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label for="date">Fecha de recepción:</label>
-                                    <input type="date" class="form-control" id="date" name="date" value="{{ $gasto->date }}">
+                                    <input type="date" class="form-control" id="received_date" name="received_date" value="{{ $gasto->received_date }}">
                                     @error('received_date')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
