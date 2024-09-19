@@ -218,11 +218,7 @@
 </script>
 
 <script>
-    $(document).ready(function() {
-
-    });
-
-    $(document).ready(function() {
+      $(document).ready(function() {
 
         var petitionId = @json($peticionexiste);
 

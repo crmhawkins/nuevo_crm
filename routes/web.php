@@ -221,8 +221,8 @@ Route::get('/budget-concept-supplier/preview-pdf/{id}', [BudgetConceptsControlle
 // Projects (CAMPAÑAS)
 Route::get('/projects', [ProjectController::class, 'index'])->name('campania.index');
 Route::get('/projects/create', [ProjectController::class, 'create'])->name('campania.create');
-Route::get('/projects/edit/{id}', [ProjectController::class, 'show'])->name('campania.show');
-Route::get('/projects/show/{id}', [ProjectController::class, 'edit'])->name('campania.edit');
+Route::get('/projects/show/{id}', [ProjectController::class, 'show'])->name('campania.show');
+Route::get('/projects/edit/{id}', [ProjectController::class, 'edit'])->name('campania.edit');
 Route::get('/projects/{cliente}/create-from-budget', [ProjectController::class, 'createFromBudget'])->name('campania.createFromBudget');
 Route::get('/projects/{cliente}/create-from-budget/{petitionid}', [ProjectController::class, 'createFromBudgetAndPetition'])->name('campania.createFromBudgetAndPetition');
 Route::post('/projects/store', [ProjectController::class, 'store'])->name('campania.store');

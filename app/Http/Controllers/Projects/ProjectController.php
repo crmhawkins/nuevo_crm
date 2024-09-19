@@ -58,7 +58,7 @@ class ProjectController extends Controller
                 'mensaje' => 'Ocurrio un error en el servidor, intentelo mas tarde'
             ]);
         }
-        return redirect()->route('campania.show', $proyectoCreado->id);
+        return redirect()->route('campania.edit', parameters: $proyectoCreado->id);
     }
 
     /**
