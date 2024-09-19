@@ -24,7 +24,7 @@ class NominasController extends Controller
             return view('nominas.index_user', compact('id'));
         }else{
             return redirect()->back()->with('toast', [
-                'icon' => 'Error',
+                'icon' => 'error',
                 'mensaje' => 'No tienes permiso para acceder']);
         }
     }
@@ -35,7 +35,7 @@ class NominasController extends Controller
             return view('nominas.show', compact('nomina'));
         }else{
             return redirect()->back()->with('toast', [
-                'icon' => 'Error',
+                'icon' => 'error',
                 'mensaje' => 'No tienes permiso para acceder']);
         }
     }
@@ -47,7 +47,7 @@ class NominasController extends Controller
             return view('nominas.edit', compact('nomina','usuarios'));
         }else{
             return redirect()->back()->with('toast', [
-                'icon' => 'Error',
+                'icon' => 'error',
                 'mensaje' => 'No tienes permiso para acceder']);
         }
     }
