@@ -8,6 +8,7 @@ use App\Models\Nominas\Nomina;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class NominasController extends Controller
@@ -19,18 +20,36 @@ class NominasController extends Controller
     }
     public function indexUser($id)
     {
-        return view('nominas.index_user', compact('id'));
+        if ($id == Auth::user()->id){
+            return view('nominas.index_user', compact('id'));
+        }else{
+            return redirect()->back()->with('toast', [
+                'icon' => 'Error',
+                'mensaje' => 'No tienes permiso para acceder']);
+        }
     }
     public function show($id)
     {
         $nomina = Nomina::find($id);
-        return view('nominas.show', compact('nomina'));
+        if( $nomina->admin_user_id == Auth::user()->id){
+            return view('nominas.show', compact('nomina'));
+        }else{
+            return redirect()->back()->with('toast', [
+                'icon' => 'Error',
+                'mensaje' => 'No tienes permiso para acceder']);
+        }
     }
     public function edit($id)
     {
         $nomina = Nomina::find($id);
         $usuarios = User::all();
-        return view('nominas.edit', compact('nomina','usuarios'));
+        if( $nomina->admin_user_id == Auth::user()->id || Auth::user()->access_level_id == 1 || Auth::user()->access_level_id == 2 || Auth::user()->access_level_id == 3  ){
+            return view('nominas.edit', compact('nomina','usuarios'));
+        }else{
+            return redirect()->back()->with('toast', [
+                'icon' => 'Error',
+                'mensaje' => 'No tienes permiso para acceder']);
+        }
     }
     public function create()
     {

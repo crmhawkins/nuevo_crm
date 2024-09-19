@@ -1134,16 +1134,16 @@ class BudgetConceptsController extends Controller
 
         // Generate the PDF file for the supplier
         $pathToSaveSupplier = 'Ordenes/' . $encrypted . '.pdf';
-        Storage::disk('public')->put($pathToSaveSupplier, PDF::loadView('purchase_order.purchaseOrderPDF', compact('data', 'logoURL', 'budgetCustomPDF'))->output());
-        $fileUrl = env('APP_URL').Storage::url($pathToSaveSupplier);
+        $path = Storage::disk('public')->put($pathToSaveSupplier, PDF::loadView('purchase_order.purchaseOrderPDF', compact('data', 'logoURL', 'budgetCustomPDF'))->output());
+        $fileUrl = Storage::url($pathToSaveSupplier);
         // Add the supplier file path to the array
-        $pathFiles[] =  $fileUrl;
+        $pathFiles[] =  storage_path('app/public/' . $pathToSaveSupplier);
 
         // Generate the name and path for the delivery order (albarán)
         $nameAlbaran = 'albaran_' . $order->id . '_' . Carbon::now()->format('Y-m-d');
         $pathToSaveAlbaran = 'Albaranes/' . $nameAlbaran . '.pdf';
         Storage::disk('public')->put($pathToSaveAlbaran, PDF::loadView('purchase_order.deliveryOrderPDF', compact('data', 'logoURL', 'budgetCustomPDF'))->output());
-        $fileUrl2 = env('APP_URL').Storage::url($pathToSaveAlbaran);
+        $fileUrl2 = storage_path('app/public/' . $pathToSaveAlbaran);
 
         // Add the delivery order path to the array
         $pathFiles[] = $fileUrl2;
@@ -1157,13 +1157,13 @@ class BudgetConceptsController extends Controller
         $mailConcept->gestorMail = Auth::user()->email;
         $mailConcept->gestorTel = '956 662 942';
 
-        // if($request->hasFile('files')){
-        //     foreach($request->file('files') as $fileNew){
-        //         Storage::disk('temp')->put($fileNew->getClientOriginalName(), \File::get($fileNew));
-        //         $path = Storage::disk('temp')->path($fileNew->getClientOriginalName());
-        //         $pathFiles[] = $path;
-        //     }
-        // }
+        if($request->hasFile('files')){
+            foreach($request->file('files') as $fileNew){
+                Storage::disk('temp')->put($fileNew->getClientOriginalName(), \File::get($fileNew));
+                $path = Storage::disk('temp')->path($fileNew->getClientOriginalName());
+                $pathFiles[] = $path;
+            }
+        }
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $fileNew) {
