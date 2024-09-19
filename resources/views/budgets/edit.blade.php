@@ -49,7 +49,7 @@
                                         <div class="form-group mb-3">
                                             <label class="mb-2 text-left">Campañas</label>
                                             <div class="flex flex-row align-items-start mb-0">
-                                                <select class="choices form-select w-100 @error('project_id') is-invalid @enderror" name="project_id"  id="proyecto" @if($campanias != null )@if( $campanias->count() < 0){{'disabled'}} @endif @endif >
+                                                <select class=" form-select w-100 @error('project_id') is-invalid @enderror" name="project_id"  id="proyecto" @if($campanias != null )@if( $campanias->count() < 0){{'disabled'}} @endif @endif >
                                                             <option value="{{null}}">Seleccione una Campaña</option>
                                                             @foreach ( $campanias as $campania )
                                                                 <option @if(old('project_id', $presupuesto->project_id) == $campania->id) {{'selected'}} @endif value="{{$campania->id}}">{{$campania->name}}</option>
@@ -65,7 +65,7 @@
                                         <div class="form-group mb-3">
                                             <label class="mb-2 text-left" for="payment_method_id">Forma de pago:</label>
                                             <div class="flex flex-row align-items-start mb-0">
-                                                <select class="choices form-select w-100 @error('payment_method_id') is-invalid @enderror" name="payment_method_id"  id="payment_method_id" >
+                                                <select class=" form-select w-100 @error('payment_method_id') is-invalid @enderror" name="payment_method_id"  id="payment_method_id" >
                                                             <option value="{{null}}">Seleccione una forma de pago</option>
                                                             @foreach ( $formasPago as $formaPago )
                                                                 <option @if(old('payment_method_id', $presupuesto->payment_method_id) == $formaPago->id) {{'selected'}} @endif value="{{$formaPago->id}}">{{$formaPago->name}}</option>
@@ -101,7 +101,7 @@
                                         <div class="form-group mb-3">
                                             <label class="text-left mb-2">Cliente Asociado:</label>
                                             <div class="flex flex-row align-items-start">
-                                                <select id="cliente" class="choices w-100 form-select @error('client_id') is-invalid @enderror" name="client_id" >
+                                                <select id="cliente" class=" w-100 form-select @error('client_id') is-invalid @enderror" name="client_id" >
                                                     @if ($clientes->count() > 0)
                                                     <option value="">Seleccione un Cliente</option>
                                                         @foreach ( $clientes as $cliente )
@@ -120,7 +120,7 @@
                                         </div>
                                         <div class="form-group mb-3">
                                             <label class="mb-2 text-left">Gestor</label>
-                                            <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor">
+                                            <select class=" form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor">
                                                 @if ($gestores->count() > 0)
                                                     @foreach ( $gestores as $gestor )
                                                         <option  {{ old('admin_user_id',$presupuesto->admin_user_id)  == $gestor->id ? 'selected' : '' }}  value="{{$gestor->id}}">{{$gestor->name}}</option>
@@ -1100,50 +1100,42 @@
         }
 
         actualizarPrecios()
-    });
+        const choicesOptions = { removeItemButton: true };
 
+        // Inicialización de Choices.js para los selects existentes
+        const proyectoSelect = new Choices('#proyecto');
+        const clienteSelect = new Choices('#cliente');
+        const gestorSelect = new Choices('#gestor');
+        const paymentMethodSelect = new Choices('#payment_method_id');
+        const budgetStatusSelect = new Choices('#budget_status_id');
                   // Ejecutar tanto en el cambio del select como cuando la página carga
-            function cargarDatosCliente(clienteId) {
+        $('#cliente').on("change", function() {
+            const clienteId = $(this).val();
             if (clienteId) {
-                // Primera llamada AJAX para obtener los proyectos del cliente
                 $.ajax({
-                    url: '{{ route("campania.postProjectsFromClient") }}', // Asegúrate de que la URL es correcta
+                    url: '{{ route("campania.postProjectsFromClient") }}',
                     type: 'POST',
-                    data: {
-                        client_id: clienteId
-                    },
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
-                    },
+                    data: { client_id: clienteId },
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     success: function(response) {
-                        console.log(response);
-
-                        var select = $('#proyecto');
-                        select.empty(); // Limpia las opciones actuales
-                        if (response.length === 0) {
-                            select.attr("disabled", true);
-                            select.append($('<option></option>').attr('value', null).text('No hay campaña de este cliente'));
-                        } else {
-                            select.append($('<option></option>').attr('value', null).text('Seleccione una Campaña'));
-                            $.each(response, function(key, value) {
-                                select.append($('<option></option>').attr('value', value.id).text(value.name));
+                        proyectoSelect.setChoices(() => {
+                            return response.map((campania) => {
+                                return { value: campania.id, label: campania.name, selected: campania.id === "{{ old('project_id', $presupuesto->project_id) }}" };
                             });
-                            select.attr("disabled", false);
-                        }
+                        }, 'value', 'label', true);
                     },
                     error: function(xhr, status, error) {
-                        console.error(error);
+                        console.error("Error al cargar las campañas: ", error);
                     }
                 });
-
             }
-        }
-
-        // Ejecutar cuando el cliente cambia
-        $('#cliente').on("change", function() {
-            var clienteId = $(this).val();
-            cargarDatosCliente(clienteId);
         });
+
+        // Dispara el cambio al cargar la página si hay un cliente seleccionado
+        if ($('#cliente').val() !== '') {
+            $('#cliente').trigger('change');
+        }
+    });
 
 </script>
 @endsection
