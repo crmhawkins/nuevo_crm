@@ -604,6 +604,7 @@
                             if (response.success) {
                                 Swal.fire('Éxito', response.message, 'success').then(() => resolve());
                             } else {
+                            console.log(response.email,response.supplier);
                                 Swal.fire('Error', response.message, 'error').then(() => reject(new Error(response.message)));
                             }
                         },

@@ -1101,6 +1101,50 @@
 
         actualizarPrecios()
     });
+
+                  // Ejecutar tanto en el cambio del select como cuando la página carga
+            function cargarDatosCliente(clienteId) {
+            if (clienteId) {
+                // Primera llamada AJAX para obtener los proyectos del cliente
+                $.ajax({
+                    url: '{{ route("campania.postProjectsFromClient") }}', // Asegúrate de que la URL es correcta
+                    type: 'POST',
+                    data: {
+                        client_id: clienteId
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+                    },
+                    success: function(response) {
+                        console.log(response);
+
+                        var select = $('#proyecto');
+                        select.empty(); // Limpia las opciones actuales
+                        if (response.length === 0) {
+                            select.attr("disabled", true);
+                            select.append($('<option></option>').attr('value', null).text('No hay campaña de este cliente'));
+                        } else {
+                            select.append($('<option></option>').attr('value', null).text('Seleccione una Campaña'));
+                            $.each(response, function(key, value) {
+                                select.append($('<option></option>').attr('value', value.id).text(value.name));
+                            });
+                            select.attr("disabled", false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+
+            }
+        }
+
+        // Ejecutar cuando el cliente cambia
+        $('#cliente').on("change", function() {
+            var clienteId = $(this).val();
+            cargarDatosCliente(clienteId);
+        });
+
 </script>
 @endsection
 

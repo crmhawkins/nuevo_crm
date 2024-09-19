@@ -479,7 +479,7 @@
             var anio = $(".year").val();
             Swal.fire({
                 title: '¿Estás seguro?',
-                text: "Moverás a mover la factura "+id+ " a la fecha "+anio+"-"+mes+"-"+dia,
+                text: "Moverás la factura "+id+ " a la fecha "+anio+"-"+mes+"-"+dia,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -519,7 +519,7 @@
 
             Swal.fire({
                 title: '¿Estás seguro?',
-                text: "Moverás a mover el ingreso "+id+ " a la fecha "+anio+"-"+mes+"-"+dia,
+                text: "Moverás el ingreso "+id+ " a la fecha "+anio+"-"+mes+"-"+dia,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -535,7 +535,7 @@
                             refreshTableIngresos();
                             Swal.fire(
                                 'Éxito',
-                                'El ingreso a sido movido.',
+                                'El ingreso ha sido movido.',
                                 'success'
                             );
                         }else{
@@ -558,7 +558,7 @@
             var type = $(this).attr("data-type");
             Swal.fire({
                 title: '¿Estás seguro?',
-                text: "Moverás a mover el gasto "+id+ " a la fecha "+anio+"-"+mes+"-"+dia,
+                text: "Moverás el gasto "+id+ " a la fecha "+anio+"-"+mes+"-"+dia,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -597,7 +597,7 @@
             var type = $(this).attr("data-type");
             Swal.fire({
                 title: '¿Estás seguro?',
-                text: "Moverás a mover el gast asociado "+id+ " a la fecha "+anio+"-"+mes+"-"+dia,
+                text: "Moverás el gasto asociado "+id+ " a la fecha "+anio+"-"+mes+"-"+dia,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -613,7 +613,7 @@
                             refreshTableGastosAsociados();
                             Swal.fire(
                                 'Éxito',
-                                'El gasto asociado a sido movido.',
+                                'El gasto asociado ha sido movido.',
                                 'success'
                             );
                         }else{
@@ -680,7 +680,7 @@
                                                 refreshTableIngresos();
                                                 Swal.fire(
                                                     'Éxito',
-                                                    'La factura a sido modificada.',
+                                                    'La factura ha sido modificada.',
                                                     'success'
                                                 );
                                             }else{
@@ -731,7 +731,7 @@
                                                 refreshTableInvoices();
                                                 Swal.fire(
                                                     'Éxito',
-                                                    'La factura a sido modificada.',
+                                                    'La factura ha sido modificada.',
                                                     'success'
                                                 );
                                             }else{
@@ -751,7 +751,7 @@
                                             refreshTableInvoices();
                                             Swal.fire(
                                                 'Éxito',
-                                                'La factura a sido modificada.',
+                                                'La factura ha sido modificada.',
                                                 'success'
                                             );
                                         }else{
