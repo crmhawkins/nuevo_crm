@@ -1019,7 +1019,7 @@ class BudgetConceptsController extends Controller
 
     public function generatePDFAndSend(PurcharseOrder $order, Request $request){
 
-
+        set_time_limit(300);
 
         $pathFiles = array();
         $mailConcept = new \stdClass();
@@ -1169,10 +1169,8 @@ class BudgetConceptsController extends Controller
             foreach ($request->file('files') as $fileNew) {
                 // Generar un nombre único para el archivo
                 $fileName = time() . '_' . $fileNew->getClientOriginalName();
-
                 // Guardar el archivo en el disco temporal
                 $path = Storage::disk('temp')->put($fileName, file_get_contents($fileNew));
-
                 // Obtener la ruta absoluta del archivo guardado
                 $absolutePath = storage_path('app/temp/' . $fileName);
                 $pathFiles[] = $absolutePath;
