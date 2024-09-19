@@ -1134,18 +1134,19 @@ class BudgetConceptsController extends Controller
 
         // Generate the PDF file for the supplier
         $pathToSaveSupplier = 'Ordenes/' . $encrypted . '.pdf';
-        Storage::put($pathToSaveSupplier, PDF::loadView('purchase_order.purchaseOrderPDF', compact('data', 'logoURL', 'budgetCustomPDF'))->output());
-
+        Storage::disk('public')->put($pathToSaveSupplier, PDF::loadView('purchase_order.purchaseOrderPDF', compact('data', 'logoURL', 'budgetCustomPDF'))->output());
+        $fileUrl = env('APP_URL').Storage::url($pathToSaveSupplier);
         // Add the supplier file path to the array
-        $pathFiles[] = $pathToSaveSupplier;
+        $pathFiles[] =  $fileUrl;
 
         // Generate the name and path for the delivery order (albarán)
         $nameAlbaran = 'albaran_' . $order->id . '_' . Carbon::now()->format('Y-m-d');
         $pathToSaveAlbaran = 'Albaranes/' . $nameAlbaran . '.pdf';
-        Storage::put($pathToSaveAlbaran, PDF::loadView('purchase_order.deliveryOrderPDF', compact('data', 'logoURL', 'budgetCustomPDF'))->output());
+        Storage::disk('public')->put($pathToSaveAlbaran, PDF::loadView('purchase_order.deliveryOrderPDF', compact('data', 'logoURL', 'budgetCustomPDF'))->output());
+        $fileUrl2 = env('APP_URL').Storage::url($pathToSaveAlbaran);
 
         // Add the delivery order path to the array
-        $pathFiles[] = $pathToSaveAlbaran;
+        $pathFiles[] = $fileUrl2;
         if($request->url){
             $mailConcept->url = $request->url;
         }else{
@@ -1164,29 +1165,29 @@ class BudgetConceptsController extends Controller
         //     }
         // }
 
-        // if ($request->hasFile('files')) {
-        //     foreach ($request->file('files') as $fileNew) {
-        //         // Generar un nombre único para el archivo
-        //         $fileName = time() . '_' . $fileNew->getClientOriginalName();
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $fileNew) {
+                // Generar un nombre único para el archivo
+                $fileName = time() . '_' . $fileNew->getClientOriginalName();
 
-        //         // Guardar el archivo en el disco temporal
-        //         $path = Storage::disk('temp')->put($fileName, file_get_contents($fileNew));
+                // Guardar el archivo en el disco temporal
+                $path = Storage::disk('temp')->put($fileName, file_get_contents($fileNew));
 
-        //         // Obtener la ruta absoluta del archivo guardado
-        //         $absolutePath = storage_path('app/temp/' . $fileName);
-        //         $pathFiles[] = $absolutePath;
-        //     }
-        // }
+                // Obtener la ruta absoluta del archivo guardado
+                $absolutePath = storage_path('app/temp/' . $fileName);
+                $pathFiles[] = $absolutePath;
+            }
+        }
 
-        $mailsBCC[] = "emma@lchawkins.com";
-        $mailsBCC[] = "ivan@lchawkins.com";
+        //$mailsBCC[] = "emma@lchawkins.com";
+       //$mailsBCC[] = "ivan@lchawkins.com";
         $supplierMail = BudgetConceptSupplierRequest::where('budget_concept_id',$order->budget_concept_id)->where('selected',1)->first()->mail;
         $email = new MailConceptSupplier($mailConcept, $pathFiles);
 
         try {
             Mail::to($supplierMail)
-            ->bcc($mailsBCC)
-            ->cc([])
+           // ->bcc($mailsBCC)
+            //->cc([])
             ->send($email);
         } catch (\Exception $e) {
             return response()->json([
