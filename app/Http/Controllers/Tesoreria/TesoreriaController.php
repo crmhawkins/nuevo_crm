@@ -50,7 +50,7 @@ class TesoreriaController extends Controller
     public function createAssociatedExpenses(){
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
-        $purchaseOrders = PurcharseOrder::all();
+        $purchaseOrders = PurcharseOrder::doesntHave('associatedExpense')->get();
         return view('tesoreria.gastos-asociados.create',compact( 'banks', 'paymentMethods','purchaseOrders'));
     }
 
@@ -101,7 +101,7 @@ class TesoreriaController extends Controller
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
         $budgets = Budget::whereIn('budget_status_id', [3,5,6,7])->get();
-        $purchaseOrders = PurcharseOrder::all();
+        $purchaseOrders = PurcharseOrder::doesntHave('associatedExpense')->get();
 
         return view('tesoreria.gastos-sin-clasificar.edit', compact('unclassifiedExpense', 'banks', 'paymentMethods', 'budgets', 'purchaseOrders'));
     }
@@ -120,8 +120,10 @@ class TesoreriaController extends Controller
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
         $budgets = Budget::all();
-        $purchaseOrders = PurcharseOrder::all();
-
+        $purchaseOrders = PurcharseOrder::where(function($query) use ($gasto) {
+            $query->doesntHave('associatedExpense')
+                  ->orWhere('id', $gasto->purchase_order_id);
+        })->get();
         return view('tesoreria.gastos-asociados.edit',compact('gasto', 'banks', 'paymentMethods', 'budgets', 'purchaseOrders'));
     }
 

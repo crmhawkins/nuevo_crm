@@ -8,29 +8,55 @@ use App\Models\Contratos\Contrato;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ContratosController extends Controller
 {
     public function index()
     {
-        $contratos = Contrato::paginate(2);
-        return view('contratos.index', compact('contratos'));
+        if(Auth::user()->access_level_id == 1 || Auth::user()->access_level_id == 2 || Auth::user()->access_level_id == 3  ){
+
+            $contratos = Contrato::paginate(2);
+            return view('contratos.index', compact('contratos'));
+        }else{
+                return redirect()->back()->with('toast', [
+                    'icon' => 'error',
+                    'mensaje' => 'No tienes permiso para acceder']);
+        }
     }
     public function indexUser($id)
     {
-        return view('contratos.index_user', compact('id'));
+        if ($id == Auth::user()->id){
+            return view('contratos.index_user', compact('id'));
+        }else{
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'No tienes permiso para acceder']);
+        }
     }
     public function show($id)
     {
         $contrato = Contrato::find($id);
-        return view('contratos.show', compact('contrato'));
+        if( $contrato->admin_user_id == Auth::user()->id || Auth::user()->access_level_id == 1 || Auth::user()->access_level_id == 2 || Auth::user()->access_level_id == 3 ){
+            return view('contratos.show', compact('contrato'));
+        }else{
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'No tienes permiso para acceder']);
+        }
     }
     public function edit($id)
     {
         $contrato = Contrato::find($id);
         $usuarios = User::all();
-        return view('contratos.edit', compact('contrato','usuarios'));
+        if( $contrato->admin_user_id == Auth::user()->id || Auth::user()->access_level_id == 1 || Auth::user()->access_level_id == 2 || Auth::user()->access_level_id == 3  ){
+            return view('contratos.edit', compact('contrato','usuarios'));
+        }else{
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'No tienes permiso para acceder']);
+        }
     }
     public function create()
     {

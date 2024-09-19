@@ -56,4 +56,8 @@ class PurcharseOrder extends Model
     public function Proveedor() {
         return $this->belongsTo(Supplier::class,'supplier_id');
     }
+    public function associatedExpense() {
+        return $this->hasOne(\App\Models\Accounting\AssociatedExpenses::class, 'purchase_order_id');
+    }
+
 }

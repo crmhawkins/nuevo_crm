@@ -15,8 +15,16 @@ class NominasController extends Controller
 {
     public function index()
     {
-        $nominas = Nomina::paginate(2);
-        return view('nominas.index', compact('nominas'));
+
+        if(Auth::user()->access_level_id == 1 || Auth::user()->access_level_id == 2 || Auth::user()->access_level_id == 3  ){
+
+            $nominas = Nomina::paginate(2);
+            return view('nominas.index', compact('nominas'));
+        }else{
+                return redirect()->back()->with('toast', [
+                    'icon' => 'error',
+                    'mensaje' => 'No tienes permiso para acceder']);
+        }
     }
     public function indexUser($id)
     {

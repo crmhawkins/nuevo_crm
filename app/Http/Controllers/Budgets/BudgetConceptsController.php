@@ -1183,32 +1183,18 @@ class BudgetConceptsController extends Controller
         $email = new MailConceptSupplier($mailConcept, $pathFiles);
 
         try {
-            Mail::to($supplierMail)
-           // ->bcc($mailsBCC)
-            //->cc([])
-            ->send($email);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-        //Mail::to("ismael@lchawkins.com")->send($email);
+            // Enviar el correo
+            Mail::to($supplierMail)->send($email);
 
-        foreach($pathFiles as $file){
-            Storage::delete($file);
-        }
-
-        if( count(Mail::failures()) > 0 ) {
-
-           echo "There was one or more failures. They were: <br />";
-
-           foreach(Mail::failures() as $email_address) {
-               echo " - $email_address <br />";
+            // Eliminar los archivos temporales después de enviar el correo
+            foreach ($pathFiles as $file) {
+                Storage::delete($file);
             }
 
-        } else {
-            return 200;
+            return response()->json(['success' => true, 'message' => 'Correo enviado exitosamente.']);
+        } catch (\Exception $e) {
+            // Manejo de error al enviar el correo
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
