@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="col-md-6 col-sm-12">
-            <div class="flex flex-row justify-end">
+            <div class="flex flex-row justify-end" wire:ignore>
                 <div class="mr-3">
                     <label for="">Clientes</label>
                     <select wire:model="selectedCliente" name="" id="" class="form-select choices">
