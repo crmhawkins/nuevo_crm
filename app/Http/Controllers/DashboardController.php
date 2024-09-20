@@ -151,7 +151,7 @@ class DashboardController extends Controller
 
     public function llamada(Request $request){
         $user = Auth::user();
-        $request->validate([
+        $data = $request->validate([
             'client_id' => 'nullable|required_without:phone',
             'phone' => 'nullable|required_without:client_id',
         ], [
@@ -162,6 +162,8 @@ class DashboardController extends Controller
             'admin_user_id' => $user->id,
             'start_time' => Carbon::now(),
             'is_active' => true,
+            'client_id' => $data['client_id'] ?? null,
+            'phone'=> $data['phone'] ?? null
         ]);
         return redirect()->back()->with('toast', [
             'icon' => 'success',
