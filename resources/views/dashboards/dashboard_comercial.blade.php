@@ -101,14 +101,15 @@
                                 <div class="col-md-1 col-sm-12 mb-3">
                                     <select name="segmento" class="form-control @error('segmento') is-invalid @enderror">
                                         <option value="">Segmento</option>
-                                        <option value="1">Segmento 1</option>
-                                        <option value="2">Segmento 2</option>
-                                        <option value="30">Segmento 3 extra</option>
-                                        <option value="4">Segmento 4</option>
-                                        <option value="5">Segmento 5</option>
-                                        <option value="A">Segmento A</option>
-                                        <option value="B">Segmento B</option>
-                                        <option value="B">Segmento C</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3 </option>
+                                        <option value="30">3 extra</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="B">C</option>
                                     </select>
                                     @error('segmento')
                                         <span class="invalid-feedback" role="alert">

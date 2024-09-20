@@ -95,7 +95,6 @@ class KitDigitalController extends Controller
         ]);
         $data = $request->all();
         $data['comercial_id'] = Auth::user()->id;
-        dd($data);
         KitDigital::create($data);
         return redirect()->back()->with('toast', [
                 'icon' => 'success',
