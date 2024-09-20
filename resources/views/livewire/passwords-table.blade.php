@@ -24,7 +24,7 @@
             <div class="flex flex-row justify-end" wire:ignore>
                 <div class="mr-3">
                     <label for="">Clientes</label>
-                    <select wire:model="selectedCliente" name="" id="" class="form-select choices">
+                    <select wire:model="selectedCliente" name="" id="" class="form-select choices w-100">
                         <option value="">-- Seleccione un cliente --</option>
                         @foreach ($clientes as $cliente)
                             <option value="{{$cliente->id}}">{{$cliente->name}}</option>
