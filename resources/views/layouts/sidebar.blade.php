@@ -383,6 +383,22 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="sidebar-item has-sub {{ $vacacionesActive ? 'active' : '' }}">
+                        <a href="#" class='sidebar-link'>
+                            <i class="fa-solid fa-umbrella-beach fs-5"></i>
+                            <span>Vacaciones</span>
+                        </a>
+                        <ul class="submenu" style="{{ $vacacionesActive ? 'display:block;' : 'display:none;' }}">
+                            <li class="submenu-item {{ request()->routeIs('holiday.admin.petitions') ? 'active' : '' }}">
+                                <a href="{{route('holiday.admin.petitions')}}">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>
+                                        Gestionar
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     @if ($admin || $gerente )
                         <li class="sidebar-item has-sub {{ $servicesActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
@@ -496,23 +512,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="sidebar-item has-sub {{ $vacacionesActive ? 'active' : '' }}">
-                            <a href="#" class='sidebar-link'>
-                                <i class="fa-solid fa-umbrella-beach fs-5"></i>
-                                <span>Vacaciones</span>
-                            </a>
-                            <ul class="submenu" style="{{ $vacacionesActive ? 'display:block;' : 'display:none;' }}">
-                                <li class="submenu-item {{ request()->routeIs('holiday.admin.petitions') ? 'active' : '' }}">
-                                    <a href="{{route('holiday.admin.petitions')}}">
-                                        <i class="fa-solid fa-list"></i>
-                                        <span>
-                                            Gestinar
-                                        </span>
-                                    </a>
-                                </li>
 
-                            </ul>
-                        </li>
                         <li class="sidebar-item {{ request()->routeIs('configuracion.index') ? 'active' : '' }}">
                             <a href="{{route('configuracion.index')}}" class='sidebar-link'>
                                 <i class="fa-solid fa-gears fs-5"></i>
