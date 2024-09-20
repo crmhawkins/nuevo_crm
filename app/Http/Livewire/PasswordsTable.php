@@ -38,7 +38,8 @@ class PasswordsTable extends Component
     protected function actualizarDominios()
     {
         $query = CompanyPassword::when($this->buscar, function ($query) {
-                    $query->where('website', 'like', '%' . $this->buscar . '%');
+                    $query->where('website', 'like', '%' . $this->buscar . '%')
+                        ->orWhere('user', 'like', '%' . $this->buscar . '%');
                 })
                 ->when($this->selectedCliente, function ($query) {
                     $query->where('client_id', $this->selectedCliente);
