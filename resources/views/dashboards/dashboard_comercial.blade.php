@@ -100,16 +100,16 @@
                                 </div>
                                 <div class="col-md-1 col-sm-12 mb-3">
                                     <select name="segmento" class="form-control @error('segmento') is-invalid @enderror">
-                                        <option value="">Segmento</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3 </option>
-                                        <option value="30">3 extra</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="A">A</option>
-                                        <option value="B">B</option>
-                                        <option value="B">C</option>
+                                        <option  value="">Segmento</option>
+                                        <option {{old('segmento') == '1' ? 'selected' : ''}} value="1">1</option>
+                                        <option {{old('segmento') == '2' ? 'selected' : ''}} value="2">2</option>
+                                        <option {{old('segmento') == '3' ? 'selected' : ''}} value="3">3 </option>
+                                        <option {{old('segmento') == '30' ? 'selected' : ''}} value="30">3 extra</option>
+                                        <option {{old('segmento') == '4' ? 'selected' : ''}} value="4">4</option>
+                                        <option {{old('segmento') == '5' ? 'selected' : ''}} value="5">5</option>
+                                        <option {{old('segmento') == 'A' ? 'selected' : ''}} value="A">A</option>
+                                        <option {{old('segmento') == 'B' ? 'selected' : ''}} value="B">B</option>
+                                        <option {{old('segmento') == 'C' ? 'selected' : ''}} value="C">C</option>
                                     </select>
                                     @error('segmento')
                                         <span class="invalid-feedback" role="alert">
@@ -121,8 +121,8 @@
                                 <div class="col-md-1 col-sm-12 mb-3">
                                     <select name="estado" class="form-control @error('estado') is-invalid @enderror" >
                                         <option value="">Estado</option>
-                                        <option value="24">Interesados</option>
-                                        <option value="18">Leads</option>
+                                        <option {{old('estado') == '24' ? 'selected' : ''}} value="24">Interesados</option>
+                                        <option {{old('estado') == '18' ? 'selected' : ''}} value="18">Leads</option>
                                     </select>
                                     @error('estado')
                                         <span class="invalid-feedback" role="alert">
@@ -131,7 +131,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-4 col-sm-12 mb-3">
-                                    <textarea name="comentario" class="form-control" placeholder="Comentario" rows="1"></textarea>
+                                    <textarea name="comentario" class="form-control" placeholder="Comentario" rows="1">{{old('comentario')}}</textarea>
                                 </div>
                                 <div class="col-md-1 col-sm-12 d-flex align-items-end">
                                     <input id="kit_submit" type="submit" value="Guardar" class="btn btn-primary w-100">
