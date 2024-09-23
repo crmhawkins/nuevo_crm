@@ -83,6 +83,22 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros" for="filterByDate">Filtrar por Fecha</label>
+                    <select wire:model="selectedDateField" name="selectedDateField" id="selectedDateField" class="form-select">
+                        <option value="">Seleccione campo de fecha</option>
+                        <option value="created_at">Fecha de Creación</option>
+                        <option value="fecha_actualizacion">Fecha de Actualización</option>
+                        <option value="fecha_acuerdo">Fecha de Acuerdo</option>
+                        <option value="plazo_maximo_entrega">Plazo Máximo</option>
+                        <option value="banco">En banco</option>
+                        <!-- Puedes agregar más opciones según los campos de fecha disponibles -->
+                    </select>
+                </div>
+                <div class="mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros" for="selectedDate">Fecha</label>
+                    <input wire:model="selectedDate" type="date" name="selectedDate" id="selectedDate" class="form-control">
+                </div>
             </div>
             <div class="col-md-12 col-sm-12 text-center">
                 <span class="fs-3" >Sumatorio: <b>{{ number_format($Sumatorio, 2, ',', '.') .' €'}}</b></span>

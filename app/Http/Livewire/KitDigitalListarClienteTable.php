@@ -23,6 +23,8 @@ class KitDigitalListarClienteTable extends Component
     public $selectedEstadoFactura;
     public $selectedComerciales;
     public $selectedSegmento;
+    public $selectedDateField; // Para almacenar el campo de fecha seleccionado
+    public $selectedDate ;      // Para almacenar la fecha seleccionada
     public $clientes;
     public $estados;
     public $gestores;
@@ -106,6 +108,9 @@ class KitDigitalListarClienteTable extends Component
     })
     ->when($this->selectedEstado, function ($query) {
         $query->where('estado', $this->selectedEstado);
+    })
+    ->when($this->selectedDate && $this->selectedDateField, function ($query) {
+        $query->whereDate($this->selectedDateField, $this->selectedDate);
     });
 
     // Calcula el sumatorio sobre todos los registros filtrados
