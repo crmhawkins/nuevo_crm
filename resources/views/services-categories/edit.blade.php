@@ -73,6 +73,17 @@
                                     @enderror
                                 </div>
                             </div>
+                            <div class="col-sm-12 col-md-12">
+                                <div class="form-group mb-3">
+                                    <label class="mb-2 text-left" for="inactive">Ocultar:</label>
+                                    <input type="checkbox" id="inactive" name="inactive" value="1" {{ old('inactive', $categoria->inactive) ? 'checked' : '' }}>
+                                    @error('antiguo')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group mt-5">

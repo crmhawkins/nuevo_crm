@@ -66,6 +66,7 @@ class ServicesCategoriesController extends Controller
             'name' => 'required|max:255',
             'terms' => 'required',
             'type' => 'required',
+            'inactive' => 'nullable'
         ], [
             'name.required' => 'El titulo es requerido para continuar',
             'name.max' => 'El titulo no pueder tener mas de 255 caracteres',

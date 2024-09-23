@@ -72,6 +72,7 @@ class ServicesController extends Controller
             'services_categories_id' => 'required|integer',
             'concept' => 'required',
             'price' => 'required|numeric',
+            'inactive' => 'nullable'
         ], [
             'title.required' => 'El titulo es requerido para continuar',
             'title.max' => 'El titulo no pueder tener mas de 255 caracteres',
