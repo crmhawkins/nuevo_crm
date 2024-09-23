@@ -288,7 +288,7 @@ class Kernel extends ConsoleKernel
                             $mensajeHorasTrabajadas = "Ha trabajado ". $horaHorasTrabajadas . " Horas y " . $minutoHorasTrabajadas . ' minutos'. ' esta semana.';
                             $mensajeHorasProducidas = "Ha producido ". $horaHorasProducidas . " Horas y " . $minutoHorasProducidas . ' minutos'. ' esta semana.';
                         } else{
-                            $mensajeHorasTrabajadas = "Ha trabajado ". $horaHorasProducidas . " Horas y " . $minutoHorasProducidas . ' minutos'. ' esta semana.';
+                            $mensajeHorasTrabajadas = "Ha trabajado ". $horaHorasTrabajadas . " Horas y " . $minutoHorasTrabajadas . ' minutos'. ' esta semana.';
                             $mensajeHorasProducidas = "";
                         }
 
