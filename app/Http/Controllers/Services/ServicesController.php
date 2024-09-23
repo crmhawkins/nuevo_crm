@@ -28,7 +28,7 @@ class ServicesController extends Controller
             'title' => 'required|max:255',
             'services_categories_id' => 'required|integer',
             'concept' => 'required',
-            'price' => 'required|numeric',
+            'price' => 'required',
         ], [
             'title.required' => 'El titulo es requerido para continuar',
             'title.max' => 'El titulo no pueder tener mas de 255 caracteres',
@@ -36,7 +36,6 @@ class ServicesController extends Controller
             'concept.required' => 'El concepto es requerido para continuar',
             'concept.max' => 'El concepto no pueder tener mas de 255 caracteres',
             'price.required' => 'El precio es requerido para continuar',
-            'price.numeric' => 'El precio deve ser un numero',
         ]);
 
         $data['estado'] = 1;
@@ -71,7 +70,7 @@ class ServicesController extends Controller
             'title' => 'required|max:255',
             'services_categories_id' => 'required|integer',
             'concept' => 'required',
-            'price' => 'required|numeric',
+            'price' => 'required',
             'inactive' => 'nullable'
         ], [
             'title.required' => 'El titulo es requerido para continuar',
@@ -80,7 +79,6 @@ class ServicesController extends Controller
             'concept.required' => 'El concepto es requerido para continuar',
             'concept.max' => 'El concepto no pueder tener mas de 255 caracteres',
             'price.required' => 'El precio es requerido para continuar',
-            'price.numeric' => 'El precio deve ser un numero',
         ]);
 
         $petitionCreado = $servicio->update($data);
