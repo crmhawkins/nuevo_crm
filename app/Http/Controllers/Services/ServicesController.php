@@ -27,7 +27,7 @@ class ServicesController extends Controller
         $data = $this->validate($request, [
             'title' => 'required|max:255',
             'services_categories_id' => 'required|integer',
-            'concept' => 'required|max:255',
+            'concept' => 'required',
             'price' => 'required|numeric',
         ], [
             'title.required' => 'El titulo es requerido para continuar',
@@ -70,7 +70,7 @@ class ServicesController extends Controller
         $data = $this->validate($request, [
             'title' => 'required|max:255',
             'services_categories_id' => 'required|integer',
-            'concept' => 'required|max:255',
+            'concept' => 'required',
             'price' => 'required|numeric',
         ], [
             'title.required' => 'El titulo es requerido para continuar',

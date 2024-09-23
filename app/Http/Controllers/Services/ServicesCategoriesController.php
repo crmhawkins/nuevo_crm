@@ -22,7 +22,7 @@ class ServicesCategoriesController extends Controller
         // Validamos los campos
         $data = $this->validate($request, [
             'name' => 'required|max:255',
-            'terms' => 'required|max:255',
+            'terms' => 'required',
             'type' => 'required',
         ], [
             'name.required' => 'El titulo es requerido para continuar',
@@ -64,7 +64,7 @@ class ServicesCategoriesController extends Controller
         $categoria = ServiceCategories::find($id);
         $data = $this->validate($request, [
             'name' => 'required|max:255',
-            'terms' => 'required|max:255',
+            'terms' => 'required',
             'type' => 'required',
         ], [
             'name.required' => 'El titulo es requerido para continuar',
