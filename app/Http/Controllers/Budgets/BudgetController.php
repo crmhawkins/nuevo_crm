@@ -90,7 +90,7 @@ class BudgetController extends Controller
 
         $campanias = [];
 
-        $gestores = User::Where('access_level_id',4)->where('inactive', 0)->get();
+        $gestores = User::whereIn('access_level_id',[2, 3, 4])->where('inactive', 0)->get();
         $comerciales = User::Where('access_level_id',6)->where('inactive', 0)->get();
         $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
         $formasPago = PaymentMethod::all();
