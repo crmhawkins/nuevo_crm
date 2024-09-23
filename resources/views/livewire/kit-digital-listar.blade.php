@@ -96,9 +96,14 @@
                     </select>
                 </div>
                 <div class="mb-3 px-2 flex-fill" style="width: 140px">
-                    <label class="titulo_filtros" for="selectedDate">Fecha</label>
-                    <input wire:model="selectedDate" type="date" name="selectedDate" id="selectedDate" class="form-control">
+                    <label class="titulo_filtros" for="date_from">Desde</label>
+                    <input wire:model="dateFrom" type="date" name="date_from" id="date_from" class="form-control">
                 </div>
+                <div class="mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros" for="date_to">Hasta</label>
+                    <input wire:model="dateTo" type="date" name="date_to" id="date_to" class="form-control">
+                </div>
+
             </div>
             <div class="col-md-12 col-sm-12 text-center">
                 <span class="fs-3" >Sumatorio: <b>{{ number_format($Sumatorio, 2, ',', '.') .' €'}}</b></span>
