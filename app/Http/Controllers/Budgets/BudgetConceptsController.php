@@ -426,7 +426,7 @@ class BudgetConceptsController extends Controller
         $suppliers = Supplier::all();
         $presupuesto = Budget::where('id', $budgetConcept->budget_id)->get()->first();
         $budgetSuppliersSaved = BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConcept->id)->get();
-        $services = Service::where('services_categories_id', $budgetConcept->services_category_id)->get();
+        $services = Service::where('services_categories_id', $budgetConcept->services_category_id)->where('inactive',0)->get();
         $categorias = ServiceCategories::where('inactive',0)->get();
         $client = Client::find($presupuesto->client_id);
 
@@ -833,7 +833,7 @@ class BudgetConceptsController extends Controller
     /**** Metodos GET ****/
     public function getServicesByCategory($categoryId)
     {
-        $services = Service::where('services_categories_id', $categoryId)
+        $services = Service::where('services_categories_id', $categoryId)->where('inactive',0)
             ->get(['id', 'title', 'concept', 'price'])
             ->toArray();
 
