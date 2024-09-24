@@ -77,7 +77,7 @@
                             <div class="col-sm-12 col-md-12">
                                 <div class="form-group mb-3">
                                     <label for="price">Precio:</label>
-                                    <input placeholder="Precio..." type="text" class="form-control @error('price') is-invalid @enderror" id="phone" value="{{ old('price') }}" name="price">
+                                    <input placeholder="Precio..." type="text" class="form-control @error('price') is-invalid @enderror" id="phone" value="{{ old('price') }}" name="price" step="0.01">
                                     @error('price')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
