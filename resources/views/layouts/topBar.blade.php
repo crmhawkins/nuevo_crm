@@ -262,71 +262,6 @@
     </ul>
 
     <script>
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     const alertsModal = document.getElementById('alertsModal');
-        //     const alertCountSpan = document.querySelector('.countAlertas'); // Span que muestra el número de alertas
-        //     const alertsList = document.getElementById('alertsList'); // Lista donde se mostrarán los stages
-        //     const specificAlertsModal = new bootstrap.Modal(document.getElementById('specificAlertsModal')); // Inicializar el segundo modal
-        //     const specificAlertsList = document.getElementById('specificAlertsList'); // Lista de alertas específicas
-        //     // Función para cargar las alertas agrupadas por `stage_id`
-        //     const loadAlerts = () => {
-        //         fetch("{{ route('user.alerts') }}", { // Ruta para obtener alertas agrupadas por `stage_id`
-        //             method: 'GET',
-        //             headers: {
-        //                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-        //             }
-        //         })
-        //         .then(response => response.json())
-        //         .then(data => {
-        //             alertsList.innerHTML = ''; // Limpiar la lista de stages
-        //             let totalAlerts = 0;
-
-        //             // Mostrar los stages con la cantidad de alertas en cada uno
-        //             Object.keys(data).forEach(stageId => {
-        //                 const stageAlertCount = data[stageId].length;
-        //                 totalAlerts += stageAlertCount; // Acumular total de alertas
-
-        //                 // Obtener el nombre del stage desde la primera alerta
-        //                 const stageName = data[stageId][0].stage.stage;
-
-        //                 // Crear un botón para seleccionar el stage y mostrar sus alertas
-        //                 const stageButton = document.createElement('button');
-        //                 stageButton.classList.add('btn', 'btn-link', 'btn-sm', 'w-100', 'text-left', 'mb-2');
-        //                 stageButton.innerHTML = `Alertas de <strong>${stageName}</strong> (${stageAlertCount})`;
-        //                 stageButton.addEventListener('click', () => {
-        //                     showSpecificAlerts(data[stageId]); // Mostrar alertas del stage seleccionado en el segundo modal
-        //                 });
-        //                 alertsList.appendChild(stageButton);
-        //             });
-
-        //             // Actualizar el contador de alertas en la campana
-        //             alertCountSpan.textContent = totalAlerts;
-        //         })
-        //         .catch(error => console.error('Error al obtener las alertas:', error));
-        //     };
-
-        //     // Función para mostrar las alertas específicas de un stage en el segundo modal
-        //     const showSpecificAlerts = (alerts) => {
-        //         specificAlertsList.innerHTML = ''; // Limpiar las alertas anteriores
-
-        //         if (alerts.length > 0) {
-        //             alerts.forEach(alert => {
-        //                 // Crear el elemento de alerta
-        //                 const listItem = document.createElement('li');
-        //                 listItem.classList.add('list-group-item');
-        //                 listItem.innerHTML = `<strong>Descripción:</strong> ${alert.description}`;
-        //                 specificAlertsList.appendChild(listItem);
-        //             });
-        //         } else {
-        //             specificAlertsList.innerHTML = '<li class="list-group-item">No hay alertas en esta etapa.</li>';
-        //         }
-
-        //         // Mostrar el segundo modal con las alertas específicas
-        //         specificAlertsModal.show();
-        //     };
-        //     loadAlerts();
-        //     // Cargar las alertas cuando se abre el modal principal
-        // });
         var APP_URL = '{{ url('/') }}';
         var alertasAgrupadasPorStageId = {};  // Objeto para almacenar las alertas agrupadas
         var mapeoMensajes = {
@@ -351,7 +286,7 @@
             29: 'Nueva acta pendiente',
             31: 'Aviso Jornada Laboral',
             33: 'Dominio a punto de expirar',
-            40: 'Aviso de Tarea - Se está sobrepasando las horas estimadas'
+            40: 'Aviso de Tarea - Se está sobrepasando las horas estimadas',
             41: 'Tarea en Revision'
         };
 
@@ -990,10 +925,17 @@
         }
 
 
-        document.addEventListener('DOMContentLoaded', (event) => {
-            document.getElementById('btnAbrirAlertas').addEventListener('click', function() {
-                mostrarTiposDeAlertas();
-            });
+       document.addEventListener('DOMContentLoaded', (event) => {
+            console.log('DOM completamente cargado y analizado');
+            const alertButton = document.getElementById('btnAbrirAlertas');
+            if (alertButton) {
+                alertButton.addEventListener('click', function() {
+                    console.log('Botón de alertas clicado');
+                    mostrarTiposDeAlertas();
+                });
+            } else {
+                console.error('No se encontró el botón con el ID btnAbrirAlertas');
+            }
 
             // Llamada inicial para cargar alertas
             obtenerAlertas();
