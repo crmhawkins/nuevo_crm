@@ -96,7 +96,7 @@ class DashboardController extends Controller
                         $comisionRestante += ($this->convertToNumber($ayuda->importe)* 0.05);
                     }
                 }
-                return view('dashboards.dashboard_comercial', compact('user','diasDiferencia','estadosKit','comisionRestante','ayudas','comisionTramitadas','comisionPendiente', 'comisionCurso', 'pedienteCierre'));
+                return view('dashboards.dashboard_comercial', compact('user','diasDiferencia','estadosKit','comisionRestante','ayudas','comisionTramitadas','comisionPendiente', 'comisionCurso', 'pedienteCierre','timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
         }
     }
 
@@ -154,6 +154,7 @@ class DashboardController extends Controller
         $data = $request->validate([
             'client_id' => 'nullable|required_without:phone',
             'phone' => 'nullable|required_without:client_id',
+            'comentario'=> 'nullable'
         ], [
             'client_id.required_without' => 'El campo cliente es obligatorio si el teléfono no está presente.',
             'phone.required_without' => 'El campo teléfono es obligatorio si el cliente no está presente.',
@@ -163,7 +164,8 @@ class DashboardController extends Controller
             'start_time' => Carbon::now(),
             'is_active' => true,
             'client_id' => $data['client_id'] ?? null,
-            'phone'=> $data['phone'] ?? null
+            'phone'=> $data['phone'] ?? null,
+            'comentario' => $data['comentario'] ?? null
         ]);
         return redirect()->back()->with('toast', [
             'icon' => 'success',
