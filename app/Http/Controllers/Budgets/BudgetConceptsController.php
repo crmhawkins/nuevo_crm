@@ -337,6 +337,9 @@ class BudgetConceptsController extends Controller
         ]);
 
         $data = $request->all();
+        if($data['service_id'] == 'null' ){
+            $data['service_id'] == null;
+        }
         $data['budget_id'] = $budget;
         $data['concept_type_id'] = 1;
 
@@ -466,6 +469,9 @@ class BudgetConceptsController extends Controller
         ]);
 
         $data = $request->all();
+        if($data['service_id'] == 'null' ){
+            $data['service_id'] == null;
+        }
         $data['total_no_discount'] =  $data['sale_price'];
         $data['total'] =  $data['sale_price'];
 
