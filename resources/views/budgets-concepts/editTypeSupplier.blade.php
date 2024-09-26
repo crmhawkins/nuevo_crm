@@ -130,7 +130,7 @@
                                     {{-- Precio --}}
                                     <div class="form-group">
                                         <label class="text-uppercase" style="font-weight: bold" for="purchase_price">Precio:</label>
-                                        <input type="double" class="form-control @error('purchase_price') is-invalid @enderror" id="purchase_price" value="{{ old('purchase_price') }}" name="purchase_price">
+                                        <input type="double" class="form-control @error('purchase_price') is-invalid @enderror" id="purchase_price" value="{{ old('purchase_price', $budgetConcept->purchase_price ?? 0) }}" name="purchase_price">
                                         @error('purchase_price')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -144,7 +144,7 @@
                                 {{-- Margen --}}
                                 <div class="form-group col-md-6">
                                     <label class="text-uppercase" style="font-weight: bold" for="total">Margen %:</label>
-                                    <input type="double" class="form-control @error('benefit_margin') is-invalid @enderror" id="benefit_margin" value="{{ old('benefit_margin', 50) }}" name="benefit_margin">
+                                    <input type="double" class="form-control @error('benefit_margin') is-invalid @enderror" id="benefit_margin" value="{{ old('benefit_margin', $budgetConcept->benefit_margin  ?? 50) }}" name="benefit_margin">
                                     @error('benefit_margin')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
@@ -154,7 +154,7 @@
                                 {{-- Total --}}
                                 <div class="form-group col-md-6">
                                     <label class="text-uppercase" style="font-weight: bold" for="sale_price">Total (Precio + Margen):</label>
-                                    <input type="double" class="form-control @error('sale_price') is-invalid @enderror" id="sale_price" value="{{ old('sale_price') }}" name="sale_price" readonly >
+                                    <input type="double" class="form-control @error('sale_price') is-invalid @enderror" id="sale_price" value="{{ old('sale_price', $budgetConcept->sale_price ?? 0) }}" name="sale_price" readonly >
                                     @error('sale_price')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>

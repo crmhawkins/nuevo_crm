@@ -364,7 +364,6 @@ class CrmActivityMeetingController extends Controller
         // Guardar
         $meeting = CrmActivitiesMeetings::create($data);
         $meeting->save();
-
         foreach ($request->teamActa as $team) {
             $usuario = User::find($team);
             $dataMeeting = [
@@ -399,8 +398,8 @@ class CrmActivityMeetingController extends Controller
 
             Mail::to($usuario->email)->send($email);
 
-            // $alert = Alert::create($dataAlert);
-            // $alert->save();
+            $alert = Alert::create($dataAlert);
+            $alert->save();
 
         }
 
@@ -413,7 +412,6 @@ class CrmActivityMeetingController extends Controller
                 }
             }
         }
-
         foreach ($request->team as $user) {
             $user = User::find($user);
             if($user){
