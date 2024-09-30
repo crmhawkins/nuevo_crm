@@ -1546,7 +1546,7 @@ class BudgetController extends Controller
     public function generatePDF(Request $request){
         $budget = Budget::find($request->id);
 
-        $sumatorio = $budget->sumatorio;
+        $sumatorio = $request->sumatorio;
         // Los conceptos de este presupuesto
         $thisBudgetConcepts = BudgetConcept::where('budget_id', $budget->id)->get();
         // Condiciones de categoría de los servicios

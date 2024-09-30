@@ -164,6 +164,10 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-12 form-check form-switch d-flex justify-content-center mt-2">
+                                    <input type="checkbox" class="form-check-input" id="no_sumatorio" name="no_sumatorio">
+                                    <label class="form-check-label ml-2" for="no_sumatorio">No mostrar sumatorio</label>
+                                </div>
                                 <hr class="mt-3 mb-3">
                                 <div class="row">
                                     <div class="col-12">
@@ -281,6 +285,7 @@
                                         @endif
                                     </tbody>
                                 </table>
+
                                 {{-- Boton --}}
                                 <div class="col-12 col-sm-12 col-md-12 col-lg-12 form-group">
                                     <div class="container">
@@ -314,7 +319,6 @@
                                           </tbody>
                                         </table>
                                       </div>
-
                                       <input type="hidden" id="base" name="base" value="0">
                                       <input type="hidden" id="gross" name="gross" value="0">
                                       <input type="hidden" id="total" name="total" value="0">
@@ -664,11 +668,14 @@
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
 
             const idPresupuesto = @json($presupuesto->id);
+            const sumatorio = $("#no_sumatorio").is(':checked');
+            console.log(sumatorio);
             $.ajax({
                 url: '{{ route("presupuesto.generarPDF") }}', // Asegúrate de que la URL es correcta
                 type: 'POST',
                 data: {
-                    id: idPresupuesto
+                    id: idPresupuesto,
+                    sumatorio: sumatorio
                 },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
