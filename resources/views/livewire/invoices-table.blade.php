@@ -67,6 +67,14 @@
             </div>
         </div>
     </div>
+    <div class="flex flex-row justify-end">
+            <button wire:click="exportToExcel" class="btn btn-success mx-2">
+                Descargar Excel
+            </button>
+            <button wire:click="downloadFilteredInvoicesZip" class="btn btn-dark mx-2">
+                Descargar facturas
+            </button>
+    </div>
     @if ( $invoices )
         <div class="table-responsive">
              <table class="table table-hover">

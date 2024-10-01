@@ -2,13 +2,11 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Budgets\Budget;
-use App\Models\Budgets\BudgetStatu;
+use App\Exports\InvoicesExport;
 use App\Models\Invoices\Invoice;
 use App\Models\Invoices\InvoiceStatus;
 use App\Models\Users\User;
-use App\Models\Users\UserAccessLevel;
-use App\Models\Users\UserDepartament;
+use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -36,6 +34,7 @@ class InvoicesTable extends Component
         $this->gestores = User::where('access_level_id', 4)->get();
         $this->estados = InvoiceStatus::all();
         $this->selectedYear = Carbon::now()->year;
+
     }
 
     public function render()
@@ -133,5 +132,33 @@ class InvoicesTable extends Component
     public function updatingPerPage()
     {
         $this->resetPage();
+    }
+
+    public function exportToExcel()
+    {
+        $paginate = $this->perPage ;
+        $this->perPage = 'all';
+        $this->actualizarPresupuestos();
+        // Genera las facturas basadas en los filtros actuales
+        $invoices = $this->getBudgets();
+        $this->perPage = $paginate;
+        // Exporta los datos a Excel
+        return Excel::download(new InvoicesExport($invoices), 'facturas.xlsx');
+    }
+
+    public function downloadFilteredInvoicesZip()
+    {
+        $paginate = $this->perPage ;
+        $this->perPage = 'all';
+        $this->actualizarPresupuestos();
+        // Genera las facturas basadas en los filtros actuales
+        $invoices = $this->getBudgets();
+        $this->perPage = $paginate;
+
+        // Convertir los IDs de las facturas filtradas en un array
+        $invoiceIds = $invoices->pluck('id')->toArray();
+
+        // Redirigir a la ruta que genera el ZIP con los PDFs
+        return redirect()->route('factura.generateMultiplePDFs', ['invoice_ids' => $invoiceIds]);
     }
 }

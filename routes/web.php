@@ -266,6 +266,7 @@ Route::post('/invoice/destroy', [InvoiceController::class, 'destroy'])->name('fa
 Route::post('/invoice/paid-invoice', [InvoiceController::class, 'cobrarFactura'])->name('factura.cobrada');
 Route::post('/invoice/generate-pdf', [InvoiceController::class, 'generatePDF'])->name('factura.generarPDF');
 Route::post('/invoice/rectify', [InvoiceController::class, 'rectificateInvoice'])->name('factura.rectificada');
+Route::get('/invoice/generateMultiplePDFs', [InvoiceController::class, 'generateMultiplePDFs'])->name('factura.generateMultiplePDFs');
 
 // Task (TAREAS)
 Route::get('/tasks', [TasksController::class, 'index'])->name('tareas.index');
