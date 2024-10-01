@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->call(function () {
             $value = 1.83;
-            $value2 = 0.915;
+            $value2 = 1.83;
             $adminUserId = 101;
             //DB::update('update holidays set quantity=quantity+?', [$value]);
             DB::update('UPDATE holidays SET quantity = quantity + CASE WHEN admin_user_id = ? THEN ? ELSE ? END', [$adminUserId, $value2, $value]);
