@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alerts\Alert;
+use App\Models\Alerts\AlertStatus;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
+use App\Models\HoursMonthly\HoursMonthly;
 use App\Models\Jornada\Jornada;
 use App\Models\Jornada\Pause;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
 use App\Models\Llamadas\Llamada;
+use App\Models\Notes\Note;
 use App\Models\Projects\Project;
 use App\Models\Tasks\LogTasks;
 use App\Models\Tasks\Task;
@@ -583,6 +586,64 @@ class DashboardController extends Controller
         $importe = str_replace(',', '.', $importe);
         // Convierte a número flotante
         return (float)$importe;
+    }
 
+    public function updateStatusAlertAndAcceptHours(Request $request)
+    {
+        $alert = Alert::find($request->id);
+        $hoursMonthly = HoursMonthly::find($alert->reference_id);
+        $hoursMonthly->acceptance_hours    = "CONFORME";
+        $hoursMonthly->save();
+        $alert->status_id = $request->status;
+        $alertSaved = $alert->save();
+
+        if ($alertSaved) {
+            $response = json_encode(array(
+                "estado" => "200"
+            ));
+        } else {
+            $response = 503;
+        }
+
+        return $response;
+    }
+
+    public function responseAlert(Request $request)
+    {
+        $alert = Alert::find($request->id);
+        if ($alert->stage_id == 22) {
+            $alert->description = $request->texto;
+            $alert->save();
+        }
+        $note = Note::find($alert->reference_id);
+        if ($note) {
+            $user = $note->admin_user_id;
+        } else {
+            $user = 1;
+        }
+        $text = $request->texto;
+        Carbon::setLocale("es");
+        $fechaNow = Carbon::now();
+        $data = [
+            "admin_user_id" =>  $user,
+            "stage_id" => 19,
+            "description" => $text,
+            "status_id" => AlertStatus::ALERT_STATUS_PENDING,
+            "reference_id" => Auth::user()->id,
+            "activation_datetime" => $fechaNow->format('Y-m-d H:i:s')
+        ];
+
+        $alertCreate = Alert::create($data);
+        $alertSaved = $alertCreate->save();
+
+        if ($alertSaved) {
+            if ($note) {
+                $note->content = $note->content . " \nRespuesta: " . $text;
+                $note->save();
+            }
+            return 200;
+        } else {
+            return 503;
+        }
     }
 }

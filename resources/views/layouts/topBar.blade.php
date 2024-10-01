@@ -279,6 +279,7 @@
             16: 'Peticion vacaciones',
             19: 'Alerta Respuestas',
             20: 'Mensaje',
+            22: 'Horas Trabajadas del Mes',
             21: 'Presupuesto no abierto tras 48 horas',
             24: 'Aviso de Puntualidad',
             25: 'Alerta Comercial',
@@ -442,6 +443,10 @@
 
                     case 21:
                         mensajeDetalle = "El presupuesto " + alerta['presupuesto'] + " no ha sido abierto por el cliente tras 48 horas";
+                        break;
+
+                    case 22:
+                        mensajeDetalle = "La horas trabajadas de este mes son :" + alerta['horas'] + " acepta si esta conforme";
                         break;
 
                     case 24:
@@ -757,6 +762,112 @@
                     });
                     break;
 
+                case 22:
+                console.log('Mostrando alerta 22:', alertaSeleccionada);
+
+                    Swal.fire({
+                            title: "Horas Trabajadas del Mes",
+                            text: "La horas trabajadas de este mes son :" + alertaSeleccionada['horas'] +
+                                " acepta si esta conforme",
+                            type: 'info',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Aceptar',
+                            cancelButtonText: "Rechazar",
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+                            allowOutsideClick: false
+                        }).then((result) => {
+                            if (result.value) {
+                                var id = alertaSeleccionada['id'];
+                                var status = 2; //Resuelto
+                                $.when(updateStatusAlertAndAcceptHours(id, status)).then(function(data, textStatus, jqXHR) {
+                                    if (jqXHR.responseText != 503) {
+                                        Swal.fire(
+                                            'Éxito',
+                                            'Aceptadas las hora de trabajo del mes.',
+                                            'success'
+                                        );
+                                        eliminarAlertaDOM(stage_id, index);
+                                    } else {
+                                        Swal.fire(
+                                            'Error',
+                                            'Error al realizar la peticion',
+                                            'error'
+                                        );
+                                    }
+                                });
+                            } else {
+                                var id = alertaSeleccionada['id'];
+                                var status = 2; //Resuelto
+                                $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                                    if (jqXHR.responseText != 503) {
+                                        eliminarAlertaDOM(stage_id, index);
+                                        Swal.fire({
+                                            title: 'Razones para no estar conforme',
+                                            type: 'question',
+                                            html: '<label for="description"></label><textarea id="description" rows="4" cols="50" required></textarea>',
+                                            allowEscapeKey: false,
+                                            allowEnterKey: false,
+                                            allowOutsideClick: false,
+                                            preConfirm: function(value) {
+                                                return new Promise(function(resolve) {
+                                                    var text = $("#description").val();
+
+                                                    $(".swal2-messages").remove();
+                                                    $("#swal2-content").append(
+                                                        "<div class='swal2-messages'>"
+                                                    );
+
+                                                    if (value) {
+                                                        $(".swal2-messages").empty();
+                                                        if (text) {
+                                                            //Crear alerta para enviarla al MegaFullAdmin
+                                                            $.when(responseAlert(id,
+                                                                text)).then(
+                                                                function(data,
+                                                                    textStatus,
+                                                                    jqXHR) {
+                                                                    if (jqXHR
+                                                                        .responseText !=
+                                                                        503) {
+                                                                        swal(
+                                                                            'Éxito',
+                                                                            'Respuesta enviada.',
+                                                                            'success'
+                                                                        );
+                                                                    } else {
+                                                                        swal(
+                                                                            'Error',
+                                                                            'Error al crear la alerta',
+                                                                            'error'
+                                                                        );
+                                                                    }
+                                                                });
+                                                        } else {
+                                                            swal.enableButtons();
+                                                            $(".swal2-messages").append(
+                                                                "<span style='color:red;font-size: 20px;'>El campo está vacio</span>"
+                                                            );
+                                                        }
+                                                    }
+
+                                                });
+                                            },
+                                        });
+                                    } else {
+                                        swal(
+                                            'Error',
+                                            'Error al realizar la peticion',
+                                            'error'
+                                        );
+                                    }
+                                });
+                            }
+                        });
+                    break;
+
                 case 24:
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
@@ -921,6 +1032,36 @@
                 'status': status
             },
             dataType: "json"
+            });
+        }
+
+        function updateStatusAlertAndAcceptHours(id, status) {
+            return $.ajax({
+                type: "POST",
+                url: 'dashboard/updateStatusAlertAndAcceptHours',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: {
+                    'id': id,
+                    'status': status
+                },
+                dataType: "json"
+            });
+        }
+
+        function responseAlert(id, text) {
+            return $.ajax({
+                type: "POST",
+                url: 'dashboard/responseAlert',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: {
+                    'id': id,
+                    'texto': text
+                },
+                dataType: "json"
             });
         }
 

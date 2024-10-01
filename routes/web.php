@@ -74,6 +74,8 @@ Route::post('/dashboard/setStatusTask', [DashboardController::class, 'setStatusT
 Route::post('/dashboard/llamada', [DashboardController::class, 'llamada'])->name('llamada.store');
 Route::post('/dashboard/llamadafin', [DashboardController::class, 'finalizar'])->name('llamada.end');
 Route::post('/dashboard/timeworked', [DashboardController::class, 'timeworked'])->name('user.time');
+Route::post('/dashboard/updateStatusAlertAndAcceptHours', [DashboardController::class, 'updateStatusAlertAndAcceptHours'])->name('user.updateStatusAlertAndAcceptHours');
+Route::post('/dashboard/responseAlert', [DashboardController::class, 'responseAlert'])->name('user.responseAlert');
 
 
 Route::post('/start-jornada', [DashboardController::class, 'startJornada'])->name('dashboard.startJornada');
