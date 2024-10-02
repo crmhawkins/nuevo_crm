@@ -1514,10 +1514,10 @@ class BudgetController extends Controller
                     $task = Task::create($dataTask);
                     $taskSaved = $task->save();
                 }else{
-                    return response()->json([
-                        'status' => false,
-                        'mensaje' => "Tareas ya generadas anteriormente."
-                    ]);
+                    // return response()->json([
+                    //     'status' => false,
+                    //     'mensaje' => "Tareas ya generadas anteriormente."
+                    // ]);
                 }
             }
         }
