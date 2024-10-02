@@ -264,8 +264,8 @@
             window.open(urlTemplateCliente, '_self');
         });
 
-               // Ejecutar tanto en el cambio del select como cuando la página carga
-               function cargarDatosCliente(clienteId) {
+        // Ejecutar tanto en el cambio del select como cuando la página carga
+        function cargarDatosCliente(clienteId) {
             if (clienteId) {
                 // Primera llamada AJAX para obtener los proyectos del cliente
                 $.ajax({
@@ -307,11 +307,11 @@
             cargarDatosCliente(clienteId);
         });
 
-        // Ejecutar cuando la página se carga si hay un cliente ya seleccionado
-        var clienteIdSeleccionado = $('#cliente').val();
-        if (clienteIdSeleccionado) {
-            cargarDatosCliente(clienteIdSeleccionado);
-        }
+        // // Ejecutar cuando la página se carga si hay un cliente ya seleccionado
+        // var clienteIdSeleccionado = $('#cliente').val();
+        // if (clienteIdSeleccionado) {
+        //     cargarDatosCliente(clienteIdSeleccionado);
+        // }
     });
 
 </script>
