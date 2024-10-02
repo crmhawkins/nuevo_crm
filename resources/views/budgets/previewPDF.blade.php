@@ -205,8 +205,8 @@
                                     @endforeach
 
 
-                                {{-- <tr><td></td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td></td><td></td><td></td><td></td><td></td></tr> --}}
+                                 <tr><td></td><td></td><td></td><td></td><td></td></tr>
+                                <tr><td></td><td></td><td></td><td></td><td></td></tr>
 
                             @endforeach
                         </tbody>
@@ -217,7 +217,7 @@
 
             <div style="page-break-after: avoid; height: 140px;padding-left:35px">
                  <br><br>
-                @if(!$sumatorio)
+                @if($sumatorio != 'true')
                 <table id="summary" style="border-collapse: collapse;width: 100%;">
                     <tr>
                         <th style="text-align:center">Bruto</th>

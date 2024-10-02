@@ -54,7 +54,7 @@ class KitDigitalController extends Controller
     public function create(){
         $usuario = Auth::user();
         $servicios = KitDigitalServicios::all();
-        $estados = KitDigitalEstados::all();
+        $estados = KitDigitalEstados::orderBy('nombre', 'asc')->get();
         $clientes = Client::where('is_client', true)->get();
         $gestores = User::where('access_level_id', 4)->where('inactive', 0)->get();
         $comerciales = User::where('access_level_id', 6)->where('inactive', 0)->orWhere('access_level_id', 11)->get();

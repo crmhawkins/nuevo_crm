@@ -44,7 +44,8 @@ class KitDigitalListarClienteTable extends Component
         $this->gestores = User::Where('access_level_id',4)->where('inactive', 0)->get();
         $this->comerciales = User::Where('access_level_id',6)->where('inactive', 0)->get();
         $this->servicios = KitDigitalServicios::all();
-        $this->estados = KitDigitalEstados::all();
+        $this->estados = KitDigitalEstados::orderBy('nombre', 'asc')->get();
+
         $this->clientes = Client::where('is_client',true)->get();
         $this->estados_facturas = [
             ['id' => '0', 'nombre' => 'No abonada'],

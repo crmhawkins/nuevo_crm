@@ -668,14 +668,16 @@
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
 
             const idPresupuesto = @json($presupuesto->id);
-            const sumatorio = $("#no_sumatorio").is(':checked');
-            console.log(sumatorio);
+            const checksumatorio = $("#no_sumatorio").is(':checked');
+
+            console.log(checksumatorio);
+
             $.ajax({
                 url: '{{ route("presupuesto.generarPDF") }}', // Asegúrate de que la URL es correcta
                 type: 'POST',
                 data: {
                     id: idPresupuesto,
-                    sumatorio: sumatorio
+                    sumatorio: checksumatorio
                 },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
