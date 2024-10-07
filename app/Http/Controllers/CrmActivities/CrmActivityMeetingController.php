@@ -541,8 +541,8 @@ class CrmActivityMeetingController extends Controller
                             "text" => "Analiza esta grabacion de una reunion de la empresa hawkins y Resumela en un texto breve, detallando los temas que se discutieron y los puntos claves que se mencionaron."
                         ],
                         [
-                            "type" => "image_url",
-                            "image_url" => [
+                            "type" => "audio_url",
+                            "audio_url" => [
                                 "url" => $audio
                             ]
                         ]
