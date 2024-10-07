@@ -387,7 +387,6 @@ class CrmActivityMeetingController extends Controller
         }
         if(isset($audioUrl)){
         $transcripcion = $this->transcripcion($audioUrl);
-        dd($audioUrl,$audioFilename,$transcripcion);
         $resumen = $this->chatgpt($transcripcion['text']);
         $meeting->description = $resumen;
         $meeting->save();
@@ -526,26 +525,6 @@ class CrmActivityMeetingController extends Controller
         $token = env('OPENAI_API_KEY');
         $url = 'https://api.openai.com/v1/audio/transcriptions';
 
-        // Verificar el archivo antes de continuar
-        if (!file_exists($audio)) {
-            return 'Error: El archivo no existe.';
-        }
-
-        if (!is_readable($audio)) {
-            return 'Error: No se puede leer el archivo.';
-        }
-
-        $audio_size = filesize($audio);
-        if ($audio_size > 25 * 1024 * 1024) {
-            return 'Error: El archivo es demasiado grande. Debe ser menor a 25 MB.';
-        }
-
-        // Verificar la extensión del archivo
-        $allowedExtensions = ['mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm'];
-        $extension = pathinfo($audio, PATHINFO_EXTENSION);
-        if (!in_array($extension, $allowedExtensions)) {
-            return 'Error: El formato de archivo no es compatible.';
-        }
 
         // Headers necesarios
         $headers = array(
@@ -581,14 +560,6 @@ class CrmActivityMeetingController extends Controller
         // Verificar si hubo errores
         if (curl_errno($curl)) {
             return 'Error: ' . curl_error($curl);
-        }
-
-        // Verificar el código HTTP de la respuesta
-        $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if ($http_code != 200) {
-            // Registrar la respuesta completa para depuración
-            file_put_contents('curl_response.log', $response);
-            return "Error: Respuesta inesperada del servidor, código HTTP: " . $http_code;
         }
 
         curl_close($curl);
