@@ -292,7 +292,7 @@ class BudgetConceptsController extends Controller
         $suppliers = Supplier::all();
         $budgetSupplierSelectedOption = BudgetConceptSupplierRequest::where('budget_concept_id', $presupuesto->id)->where('selected', 1)->get()->first();
 
-        $categorias = ServiceCategories::where('inactive',0)->get();
+        $categorias = ServiceCategories::where('inactive',0)->where('type',1)->get();
         return view('budgets-concepts.createTypeSupplier', compact(
             'categorias',
             'presupuesto',
