@@ -349,33 +349,38 @@ class CrmActivityMeetingController extends Controller
         }
 
         // Guardar los datos relacionados con el equipo, contactos, etc. (esto se mantiene igual)
-        foreach ($request->teamActa as $team) {
-            $usuario = User::find($team);
-            CrmActivitiesMeetingsXUsers::create([
-                "admin_user_id" => $usuario->id,
-                "meeting_id" => $meeting->id,
-                "team" => 1,
-            ]);
-        }
-
-        foreach ($request->contacts as $contact) {
-            $usuario = Contact::find($contact);
-            if ($usuario) {
-                CrmActivitiesMeetingsXContact::create([
+        if ($request->has('teamActa')) {
+            foreach ($request->teamActa as $team) {
+                $usuario = User::find($team);
+                CrmActivitiesMeetingsXUsers::create([
                     "admin_user_id" => $usuario->id,
                     "meeting_id" => $meeting->id,
+                    "team" => 1,
                 ]);
             }
         }
 
-        foreach ($request->team as $user) {
-            $usuario = User::find($user);
-            if ($usuario) {
-                CrmActivitiesMeetingsXUsers::create([
-                    "admin_user_id" => $usuario->id,
-                    "meeting_id" => $meeting->id,
-                    "team" => 2,
-                ]);
+        if ($request->has('contacts')) {
+            foreach ($request->contacts as $contact) {
+                $usuario = Contact::find($contact);
+                if ($usuario) {
+                    CrmActivitiesMeetingsXContact::create([
+                        "admin_user_id" => $usuario->id,
+                        "meeting_id" => $meeting->id,
+                    ]);
+                }
+            }
+        }
+        if ($request->has('team')) {
+            foreach ($request->team as $user) {
+                $usuario = User::find($user);
+                if ($usuario) {
+                    CrmActivitiesMeetingsXUsers::create([
+                        "admin_user_id" => $usuario->id,
+                        "meeting_id" => $meeting->id,
+                        "team" => 2,
+                    ]);
+                }
             }
         }
 
