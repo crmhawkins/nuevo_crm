@@ -540,6 +540,13 @@ class CrmActivityMeetingController extends Controller
             return 'Error: El archivo es demasiado grande. Debe ser menor a 25 MB.';
         }
 
+        // Verificar la extensión del archivo
+        $allowedExtensions = ['mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm'];
+        $extension = pathinfo($audio, PATHINFO_EXTENSION);
+        if (!in_array($extension, $allowedExtensions)) {
+            return 'Error: El formato de archivo no es compatible.';
+        }
+
         // Headers necesarios
         $headers = array(
             'Authorization: Bearer ' . $token
@@ -579,11 +586,10 @@ class CrmActivityMeetingController extends Controller
         // Verificar el código HTTP de la respuesta
         $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         if ($http_code != 200) {
+            // Registrar la respuesta completa para depuración
+            file_put_contents('curl_response.log', $response);
             return "Error: Respuesta inesperada del servidor, código HTTP: " . $http_code;
         }
-
-        // Registrar la respuesta completa para depuración
-        file_put_contents('curl_response.log', $response);
 
         curl_close($curl);
 
@@ -592,6 +598,7 @@ class CrmActivityMeetingController extends Controller
 
         return $response_data;
     }
+
 
 
     public function chatgpt($texto){
