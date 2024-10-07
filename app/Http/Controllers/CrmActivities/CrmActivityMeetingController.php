@@ -421,6 +421,7 @@ class CrmActivityMeetingController extends Controller
                 $transcripciones[] = $transcripcion['text'];  // Guardar el texto de cada transcripción
             }
             $textoCompleto = implode(" ", $transcripciones);
+            dd($textoCompleto);
             $resumen = $this->chatgpt($textoCompleto);
             $meeting->description = $resumen;
             $meeting->save();
