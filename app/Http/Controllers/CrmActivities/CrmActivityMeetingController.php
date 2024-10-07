@@ -656,13 +656,17 @@ class CrmActivityMeetingController extends Controller
         // Obtener el bitrate del archivo de audio usando ffprobe
         $bitrate = shell_exec("ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 {$filePath}");
 
-        // Quitar los saltos de línea y espacios del bitrate
+        // Quitar los saltos de línea y espacios del bitrate y asegurarse de que sea numérico
         $bitrate = trim($bitrate);
 
-        // Si no se puede obtener el bitrate, asumimos 128 kbps como valor por defecto
-        if (empty($bitrate)) {
+        // Verificar si el bitrate no es un número o está vacío
+        if (!is_numeric($bitrate) || empty($bitrate)) {
             $bitrate = 128 * 1000; // Valor por defecto en bits (128 kbps en bps)
         }
+
+        // Convertir el bitrate a entero para asegurarnos de que sea un número válido
+        $bitrate = (int) $bitrate;
+
 
         // Convertir el tamaño máximo permitido en bits
         $maxSizeBits = ($maxSizeMB * 8 * 1024 * 1024); // 25 MB en bits
