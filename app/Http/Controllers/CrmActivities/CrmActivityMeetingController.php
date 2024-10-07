@@ -294,6 +294,7 @@ class CrmActivityMeetingController extends Controller
 
     public function storeMeetingFromAllUsers(Request $request){
 
+        dd($request->file('audio'));
         $images_path = array();
 
         $request->validate([
