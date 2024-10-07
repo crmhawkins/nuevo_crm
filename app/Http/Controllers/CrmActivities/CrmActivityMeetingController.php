@@ -347,7 +347,7 @@ class CrmActivityMeetingController extends Controller
             // Guardar el archivo en el almacenamiento
             $audioPath = $audioFile->storeAs('public/reuniones', $audioFilename);
             // Generar la URL pública del archivo guardado
-            $audioUrl = asset('storage/reuniones/' . $audioFilename);
+            $audioUrl = storage_path('app/public/reuniones/' . $audioFilename);
         }
 
         // Guardar los datos relacionados con el equipo, contactos, etc. (esto se mantiene igual)
@@ -385,9 +385,9 @@ class CrmActivityMeetingController extends Controller
                 }
             }
         }
-        if(isset($audioFile)){
-        $transcripcion = $this->transcripcion($audioFile);
-        dd($audioFile,$audioFilename,$transcripcion);
+        if(isset($audioUrl)){
+        $transcripcion = $this->transcripcion($audioUrl);
+        dd($audioUrl,$audioFilename,$transcripcion);
         $resumen = $this->chatgpt($transcripcion['text']);
         $meeting->description = $resumen;
         $meeting->save();
