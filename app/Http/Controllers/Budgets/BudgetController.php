@@ -995,7 +995,7 @@ class BudgetController extends Controller
         $data = [
             'budget_id' => $budget->id,
             'reference' => $referenceGenerationResult['reference'],
-            'reference_autoincrement_id' => $referenceGenerationResult['reference_autoincrement'],
+            'reference_autoincrement_id' => $referenceGenerationResult['id'],
             'admin_user_id' => Auth::user()->id ?? 1,
             'client_id' => $budget->client_id,
             'project_id' => $budget->project_id,
@@ -1181,7 +1181,7 @@ class BudgetController extends Controller
         $data = [
             'budget_id' => $budget->id,
             'reference' => $referenceGenerationResult['reference'],
-            'reference_autoincrement_id' => $referenceGenerationResult['reference_autoincrement'],
+            'reference_autoincrement_id' => $referenceGenerationResult['id'],
             'admin_user_id' => Auth::user()->id ?? 1,
             'client_id' => $budget->client_id,
             'project_id' => $budget->project_id,
@@ -1357,7 +1357,7 @@ class BudgetController extends Controller
         $data = [
             'budget_id' => $budget->id,
             'reference' => $referenceGenerationResult['reference'],
-            'reference_autoincrement_id' => $referenceGenerationResult['reference_autoincrement'],
+            'reference_autoincrement_id' => $referenceGenerationResult['id'],
             'admin_user_id' => Auth::user()->id ?? 1,
             'client_id' => $budget->client_id,
             'project_id' => $budget->project_id,
