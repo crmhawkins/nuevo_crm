@@ -414,7 +414,7 @@ class CrmActivityMeetingController extends Controller
         }
         if(isset($audioUrl)){
             $outputDirectory = storage_path('app/public/reuniones/segmentos');
-            $segmentos = $this->dividirAudioPorTamaño($audioUrl, $outputDirectory, 25);
+            $segmentos = $this->dividirAudioPorTamaño($audioUrl, $outputDirectory, 24);
             $transcripciones = [];
             foreach ($segmentos as $segmento) {
                 $transcripcion = $this->transcripcion($segmento);  // Llamada a la transcripción para cada parte
