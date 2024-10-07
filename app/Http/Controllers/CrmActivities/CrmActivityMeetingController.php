@@ -24,6 +24,7 @@ use App\Mail\MailMeeting;
 use Illuminate\Support\Facades\Mail;
 use \stdClass;
 use App\Classes\Notifications;
+use App\Jobs\ProcessMeetingTranscription;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use CloudConvert\CloudConvert;
@@ -413,28 +414,7 @@ class CrmActivityMeetingController extends Controller
             }
         }
         if(isset($audioUrl)){
-            $outputDirectory = storage_path('app/public/reuniones/segmentos');
-            $segmentos = $this->dividirAudioPorTamaño($audioUrl, $outputDirectory, 24);
-            $transcripciones = [];
-            foreach ($segmentos as $segmento) {
-                $transcripcion = $this->transcripcion($segmento);  // Llamada a la transcripción para cada parte
-                $transcripciones[] = $transcripcion['text'];  // Guardar el texto de cada transcripción
-            }
-            $textoCompleto = implode(" ", $transcripciones);
-
-            $respuesta = $this->chatgpt($textoCompleto);
-            if (isset($respuesta['choices'][0]['message']['content'])) {
-                $resumen = $respuesta['choices'][0]['message']['content'];
-                $meeting->description = $resumen;
-            } else {
-                // Manejo del caso en que no se obtiene el resumen correctamente
-                $meeting->description = 'No se pudo generar un resumen.';
-            }
-            $meeting->save();
-             // Eliminar los archivos temporales
-            foreach ($segmentos as $segmento) {
-                unlink($segmento);  // Eliminar cada archivo temporal
-            }
+            ProcessMeetingTranscription::dispatch($meeting, $audioUrl);
         }
 
         return redirect()->route('reunion.index')->with('toast', [
