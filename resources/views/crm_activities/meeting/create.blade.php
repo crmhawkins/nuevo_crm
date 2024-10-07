@@ -192,7 +192,9 @@
                         document.getElementById('audioPlayback').style.display = 'block';
 
                         // Asigna el archivo de audio al input hidden
-                        audioInput.files = new DataTransfer().items.add(audioFile);
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(audioFile);
+                        audioInput.files = dataTransfer.files;
                     };
 
                     document.getElementById('startRecording').disabled = true;
