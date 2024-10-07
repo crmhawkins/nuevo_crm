@@ -340,12 +340,14 @@ class CrmActivityMeetingController extends Controller
         $meeting = CrmActivitiesMeetings::create($data);
         $meeting->save();
 
-        // Manejo del archivo de audio
-        if ($request->audio != '') {
+      // Manejo del archivo de audio
+        if ($request->hasFile('audio')) {
             $audioFile = $request->file('audio');
             $audioFilename = $meeting->id . '.' . $audioFile->getClientOriginalExtension();
+            // Guardar el archivo en el almacenamiento
             $audioPath = $audioFile->storeAs('public/reuniones', $audioFilename);
-            $audioUrl = asset('public/reuniones/' . $audioFilename);
+            // Generar la URL pública del archivo guardado
+            $audioUrl = Storage::url('reuniones/' . $audioFilename);
         }
 
         // Guardar los datos relacionados con el equipo, contactos, etc. (esto se mantiene igual)
