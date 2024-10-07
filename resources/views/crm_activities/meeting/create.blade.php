@@ -235,7 +235,6 @@
 
                         // Asignar el archivo creado al input 'audioInput'
                         audioInput.files = dataTransfer.files;
-                        console.log(audioInput);
                         // Crear un reader para convertir el audio en base64 y agregarlo al input oculto
                         //audioInput.file = audioFile; // Almacena el audio en base64 en el input oculto
                         // const reader = new FileReader();
