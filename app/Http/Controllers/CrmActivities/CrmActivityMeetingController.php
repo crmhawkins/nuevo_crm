@@ -347,7 +347,7 @@ class CrmActivityMeetingController extends Controller
             // Guardar el archivo en el almacenamiento
             $audioPath = $audioFile->storeAs('public/reuniones', $audioFilename);
             // Generar la URL pública del archivo guardado
-            $audioUrl = Storage::url('reuniones/' . $audioFilename);
+            $audioUrl = asset('storage/reuniones/' . $audioFilename);
         }
 
         // Guardar los datos relacionados con el equipo, contactos, etc. (esto se mantiene igual)
@@ -386,21 +386,11 @@ class CrmActivityMeetingController extends Controller
             }
         }
         if(isset($audioUrl)){
-                // Ruta original del archivo
-
-        // Ruta temporal en /tmp/
-        $audio_tmp = '/tmp/'.$audioFilename;
-
-        // Mover el archivo a /tmp/
-        copy($audioUrl, $audio_tmp);
-
-        $transcripcion = $this->transcripcion($audio_tmp);
-        unlink($audio_tmp);
+        $transcripcion = $this->transcripcion($audioUrl);
         dd($transcripcion);
         $resumen = $this->chatgpt($transcripcion['text']);
         $meeting->description = $resumen;
         $meeting->save();
-
         }
 
         return redirect()->route('reunion.index')->with('toast', [
