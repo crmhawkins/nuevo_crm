@@ -653,6 +653,7 @@ class CrmActivityMeetingController extends Controller
         if (!is_dir($outputDirectory)) {
             mkdir($outputDirectory, 0755, true);
         }
+
         // Obtener el bitrate del archivo de audio usando ffprobe
         $bitrate = shell_exec("ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 {$filePath}");
 
@@ -667,7 +668,6 @@ class CrmActivityMeetingController extends Controller
         // Convertir el bitrate a entero para asegurarnos de que sea un número válido
         $bitrate = (int) $bitrate;
 
-
         // Convertir el tamaño máximo permitido en bits
         $maxSizeBits = ($maxSizeMB * 8 * 1024 * 1024); // 25 MB en bits
 
@@ -677,8 +677,8 @@ class CrmActivityMeetingController extends Controller
         // Nombre base del archivo
         $baseName = pathinfo($filePath, PATHINFO_FILENAME);
 
-        // Comando de FFmpeg para dividir el archivo en segmentos
-        $command = "ffmpeg -i {$filePath} -f segment -segment_time {$segmentDuration} -c copy {$outputDirectory}/{$baseName}_part%d.mp3";
+        // Comando de FFmpeg para dividir el archivo en segmentos y recodificar a MP3
+        $command = "ffmpeg -i {$filePath} -f segment -segment_time {$segmentDuration} -c:a libmp3lame -b:a 128k {$outputDirectory}/{$baseName}_part%d.mp3";
 
         // Ejecutar el comando
         shell_exec($command);
