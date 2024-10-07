@@ -387,7 +387,7 @@ class CrmActivityMeetingController extends Controller
         }
         if(isset($audioUrl)){
         $transcripcion = $this->transcripcion($audioUrl);
-        $resumen = $this->chatgpt($transcripcion['text']);
+        $resumen = $this->chatgpt($transcripcion);
         $meeting->description = $resumen;
         $meeting->save();
         }
