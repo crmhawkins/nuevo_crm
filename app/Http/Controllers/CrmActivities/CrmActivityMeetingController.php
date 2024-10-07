@@ -386,11 +386,21 @@ class CrmActivityMeetingController extends Controller
             }
         }
         if(isset($audioUrl)){
-        $transcripcion = $this->transcripcion($audioUrl);
+                // Ruta original del archivo
+
+        // Ruta temporal en /tmp/
+        $audio_tmp = '/tmp/'.$audioFilename;
+
+        // Mover el archivo a /tmp/
+        copy($audioUrl, $audio_tmp);
+
+        $transcripcion = $this->transcripcion($audio_tmp);
+        unlink($audio_tmp);
         dd($transcripcion);
         $resumen = $this->chatgpt($transcripcion['text']);
         $meeting->description = $resumen;
         $meeting->save();
+
         }
 
         return redirect()->route('reunion.index')->with('toast', [
@@ -523,6 +533,8 @@ class CrmActivityMeetingController extends Controller
 
     public function transcripcion($audio)
     {
+
+
         $token = env('OPENAI_API_KEY');
 
         // URL correcta para Whisper API
