@@ -387,7 +387,6 @@ class CrmActivityMeetingController extends Controller
         }
         if(isset($audioUrl)){
         $transcripcion = $this->transcripcion($audioUrl);
-        dd($transcripcion);
         $resumen = $this->chatgpt($transcripcion['text']);
         $meeting->description = $resumen;
         $meeting->save();
@@ -523,14 +522,10 @@ class CrmActivityMeetingController extends Controller
 
     public function transcripcion($audio)
     {
-
-
         $token = env('OPENAI_API_KEY');
-
-        // URL correcta para Whisper API
         $url = 'https://api.openai.com/v1/audio/transcriptions';
 
-        // Headers necesarios (sin 'Content-Type' ya que lo maneja automáticamente)
+        // Headers necesarios
         $headers = array(
             'Authorization: Bearer ' . $token
         );
@@ -548,6 +543,10 @@ class CrmActivityMeetingController extends Controller
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data); // Enviar datos como multipart/form-data
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        // Establecer tiempos de espera para evitar el error de operación abortada
+        curl_setopt($curl, CURLOPT_TIMEOUT, 300);  // 5 minutos de timeout
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 300);  // 5 minutos para conexión
 
         // Ejecutar la solicitud y obtener la respuesta
         $response = curl_exec($curl);
