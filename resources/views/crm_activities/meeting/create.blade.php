@@ -132,7 +132,7 @@
                                     <label class="form-label" for="formFileMultiple">Archivos</label>
                                     <input class="form-control" type="file" id="formFileMultiple" name="archivos[]" multiple />
                                 </div>
-                                <input type="hidden" type="file" id="audioInput" name="audio">
+                                <input type="file" id="audioInput" name="audio" style="display: none;">
                                 <div class="col-12 mt-2 row">
                                     <audio id="audioPlayback" controls style="display:none;"></audio>
                                 </div>
