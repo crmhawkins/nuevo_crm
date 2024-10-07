@@ -421,7 +421,6 @@ class CrmActivityMeetingController extends Controller
                 $transcripciones[] = $transcripcion['text'];  // Guardar el texto de cada transcripción
             }
             $textoCompleto = implode(" ", $transcripciones);
-            dd($textoCompleto);
             $resumen = $this->chatgpt($textoCompleto);
             $meeting->description = $resumen;
             $meeting->save();
@@ -625,7 +624,16 @@ class CrmActivityMeetingController extends Controller
             "messages" => [
                 [
                     "role" => "user",
-                    "content" => "Analiza la siguiente grabación de una reunión y resume los puntos principales: $texto"
+                    "content" => [
+                        [
+                            "type" => "text",
+                            "text" => "Analiza esta transcripción de una reunión del equipo Hawkins, que puede involucrar tanto a miembros internos como a clientes. Elabora un resumen conciso que destaque únicamente los temas discutidos y los puntos clave mencionados durante la reunión. Asegúrate de excluir cualquier información confidencial, sensible o relacionada con temas ilegales. El resumen debe ser claro, preciso y enfocado únicamente en los aspectos relevantes de la conversación."
+                        ],
+                        [
+                            "type" => "text",
+                            "text" => "Texto de la reunion: " . $texto
+                        ],
+                    ]
                 ]
             ]
         );
