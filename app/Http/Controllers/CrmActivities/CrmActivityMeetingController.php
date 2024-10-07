@@ -656,6 +656,7 @@ class CrmActivityMeetingController extends Controller
 
         // Obtener información del archivo de audio
         $bitrate = shell_exec("ffmpeg -i {$filePath} 2>&1 | grep 'bitrate' | awk '{print $6}'"); // Obtener el bitrate en kbps
+        dd($bitrate);
         if (!$bitrate) {
             $bitrate = 128; // Si no se puede obtener el bitrate, asumimos 128 kbps como valor por defecto
         }
