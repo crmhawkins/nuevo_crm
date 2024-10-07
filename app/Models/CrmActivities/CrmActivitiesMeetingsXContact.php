@@ -2,18 +2,18 @@
 
 namespace App\Models\CrmActivities;
 
-use App\Models\Users\User;
+use App\Models\Contacts\Contact;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CrmActivitiesMeetingsXUsers extends Model
+class CrmActivitiesMeetingsXContact extends Model
 {
     use HasFactory;
 
     use SoftDeletes;
 
-    protected $table = 'crm_activities_meetings_x_users';
+    protected $table = 'crm_activities_meetings_x_contact';
 
     /**
      * Atributos asignados en masa.
@@ -21,9 +21,8 @@ class CrmActivitiesMeetingsXUsers extends Model
      * @var array
      */
     protected $fillable = [
-        'admin_user_id',
         'meeting_id',
-        'team'
+        'contact_id',
     ];
 
     /**
@@ -40,9 +39,9 @@ class CrmActivitiesMeetingsXUsers extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function adminUser()
+    public function Contacto()
     {
-        return $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(Contact::class,'contact_id');
     }
 
     /**

@@ -94,7 +94,7 @@ Route::post('/mark-as-read/{todoId}', [MessageController::class,'markAsRead']);
 Route::get('/todos/getMessages/{todoId}', [MessageController::class, 'getMessages']);
 
 
-//Meetings(Reuniosnes)
+//Meetings(Reuniones)
 Route::get('/meeting', [CrmActivityMeetingController::class, 'index'])->name('reunion.index');
 Route::get('/meeting/create', [CrmActivityMeetingController::class, 'createMeetingFromAllUsers'])->name('reunion.create');
 Route::get('/view-meeting/{id}', [CrmActivityMeetingController::class, 'viewMeeting'])->name('reunion.view');
@@ -102,6 +102,10 @@ Route::post('/meeting/store', [CrmActivityMeetingController::class, 'storeMeetin
 Route::post('/meeting/alreadyRead/{id}', [CrmActivityMeetingController::class, 'alreadyRead'])->name('reunion.alreadyRead');
 Route::post('/meeting/addComments/{id}', [CrmActivityMeetingController::class, 'addCommentsToMeeting'])->name('reunion.addComments');
 
+// Actas de Reunion
+Route::post('/transcribir-acta', [CrmActivityMeetingController::class,'transcripcion'])->name('admin.trascricion.update');
+Route::post('/enviar-acta', [CrmActivityMeetingController::class,'sendMeetingEmails'])->name('admin.acta.sendEmails');
+Route::post('/registrar-acta', [CrmActivityMeetingController::class,'register'])->name('admin.acta.register');
 
 //Holidays(Vacaciones users)
 Route::get('/holidays', [HolidayController::class, 'index'])->name('holiday.index');
@@ -396,10 +400,6 @@ Route::post('/treasury/getGastos',[CuadroController::class,'getGastos'])->name('
 Route::post('/treasury/getGastosAsociados',[CuadroController::class,'getGastosAsociados'])->name('admin.treasury.getGastosAsociados');
 Route::get('/treasury/{year}', [CuadroController::class,'indexYear'])->name('admin.treasury.indexYear');
 
-
-// Actas de Reunion
-Route::post('/transcribir-acta', [CrmActivityMeetingController::class,'transcripcion'])->name('admin.trascricion.update');
-Route::post('/registrar-acta', [CrmActivityMeetingController::class,'register'])->name('admin.acta.register');
 
 // Configuracion
 Route::get('/statistics', [StatisticsController::class, 'index'])->name('estadistica.index');

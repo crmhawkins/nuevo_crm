@@ -26,8 +26,11 @@ use \stdClass;
 use App\Classes\Notifications;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use CloudConvert\CloudConvert;
+use CloudConvert\Models\Job;
+use CloudConvert\Models\Task;
 use App\Mail\MailNotification;
-
+use App\Models\CrmActivities\CrmActivitiesMeetingsXContact;
 
 class CrmActivityMeetingController extends Controller
 {
@@ -256,21 +259,6 @@ class CrmActivityMeetingController extends Controller
     //     }
     // }
 
-    public function transcripcion(Request $request){
-        if (!isset($request->id) || !isset($request->texto)) {
-            return response()->json('Error falta el Id o el Texto', 400);
-        }
-
-        $id = $request->id;
-        $texto = $request->texto;
-        $acta = CrmActivitiesMeetings::find($id);
-        if (!isset($acta)) {
-            return response()->json('Error falta el Id no encuentra ninguna acta', 400);
-        }
-        $acta->description = $texto;
-        $acta->save();
-        return response()->json('Guardado Correctamente', 200);
-    }
 
     public function createMeetingFromAllUsers(){
         $usuariosActa = User::where('inactive', 0)->whereNotIn('access_level_id',[1,7,8])->get();
@@ -302,31 +290,24 @@ class CrmActivityMeetingController extends Controller
             'time_start' => 'required',
             'contact_by_id' => 'required',
         ]);
-
     }
 
     public function storeMeetingFromAllUsers(Request $request){
-        $userEmails = array();
-        $userNames = array();
-        $userAsistente = array();
+
         $images_path = array();
 
         $request->validate([
             'date' => 'required',
             'subject' => 'required',
-            'files.*' => 'mimes:doc,pdf,docx,txt,zip,jpeg,jpg,png|size:20000'
+            'files.*' => 'mimes:doc,pdf,docx,txt,zip,jpeg,jpg,png|size:20000',
+            'audio' => 'nullable',  // Validación para el archivo de audio
         ]);
 
-        if($request->hasFile('archivos')) {
-            $files = $request->file('archivos'); // Cambia a usar $request->file para obtener los archivos correctamente
-            $images_path = [];
-
+        if ($request->hasFile('archivos')) {
+            $files = $request->file('archivos');
             foreach ($files as $file) {
                 $filename = $file->getClientOriginalName();
-
-                // Almacena el archivo en el disco 'archivos' y guarda la ruta en $images_path
                 $path = $file->storeAs('', $filename, 'archivos');
-
                 $images_path[] = $filename;
             }
         }
@@ -343,36 +324,106 @@ class CrmActivityMeetingController extends Controller
             "time_end" => $request->time_end,
         ];
 
-        if($images_path){
+        if ($images_path) {
             $data['files'] = json_encode($images_path);
         }
 
-        // Booleans
-        if(!isset($data['done'])){
+        if (!isset($data['done'])) {
             $data['done'] = 0;
-        }else{
-            $data['done'] = 1;
         }
 
-        // Dates
-        if(isset($data['date'])){
-            if ($data['date'] != null){
-                $data['date'] = date('Y-m-d', strtotime(str_replace('/', '-',  $data['date'])));
+        if (isset($data['date']) && $data['date'] != null) {
+            $data['date'] = date('Y-m-d', strtotime(str_replace('/', '-', $data['date'])));
+        }
+
+        // Guardar la reunión
+        $meeting = CrmActivitiesMeetings::create($data);
+        $meeting->save();
+
+        // Manejo del archivo de audio
+        if ($request->hasFile('audio')) {
+            $audioFile = $request->file('audio');
+            $audioFilename = $meeting->id . '.' . $audioFile->getClientOriginalExtension();
+            $audioPath = $audioFile->storeAs('public/reuniones', $audioFilename);
+            $audioUrl = asset('public/reuniones/' . $audioFilename);
+        }
+
+        // Guardar los datos relacionados con el equipo, contactos, etc. (esto se mantiene igual)
+        foreach ($request->teamActa as $team) {
+            $usuario = User::find($team);
+            CrmActivitiesMeetingsXUsers::create([
+                "admin_user_id" => $usuario->id,
+                "meeting_id" => $meeting->id,
+                "team" => 1,
+            ]);
+        }
+
+        foreach ($request->contacts as $contact) {
+            $usuario = Contact::find($contact);
+            if ($usuario) {
+                CrmActivitiesMeetingsXContact::create([
+                    "admin_user_id" => $usuario->id,
+                    "meeting_id" => $meeting->id,
+                ]);
             }
         }
 
-        // Guardar
-        $meeting = CrmActivitiesMeetings::create($data);
-        $meeting->save();
-        foreach ($request->teamActa as $team) {
-            $usuario = User::find($team);
-            $dataMeeting = [
-                "admin_user_id" => $usuario->id,
-                "meeting_id" => $meeting->id,
-            ];
+        foreach ($request->team as $user) {
+            $usuario = User::find($user);
+            if ($usuario) {
+                CrmActivitiesMeetingsXUsers::create([
+                    "admin_user_id" => $usuario->id,
+                    "meeting_id" => $meeting->id,
+                    "team" => 2,
+                ]);
+            }
+        }
 
-            $meetingByuser = CrmActivitiesMeetingsXUsers::create($dataMeeting);
-            $meetingByuser->save();
+        $resumen = $this->chatgpt($audioUrl);
+        $meeting->description = $resumen;
+        $meeting->save();
+
+        return redirect()->route('reunion.index')->with('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Se creó un acta de reunión correctamente, ahora puedes enviar el correo manualmente.'
+        ]);
+    }
+
+    public function transcripcion(Request $request){
+        if (!isset($request->id) || !isset($request->texto)) {
+            return response()->json('Error falta el Id o el Texto', 400);
+        }
+
+        $id = $request->id;
+        $texto = $request->texto;
+        $acta = CrmActivitiesMeetings::find($id);
+        if (!isset($acta)) {
+            return response()->json('Error falta el Id no encuentra ninguna acta', 400);
+        }
+        $acta->description = $texto;
+        $acta->save();
+        return response()->json('Guardado Correctamente', 200);
+    }
+
+    public function sendMeetingEmails(Request $request){
+        $userEmails = array();
+        $userNames = array();
+        $userAsistente = array();
+
+        $meeting = CrmActivitiesMeetings::find($request->meeting_id);
+
+        if (!$meeting || !$meeting->description) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'No se puede enviar el correo. La descripción no está presente.'
+            ]);
+        }
+
+        $meetingByuser1 = CrmActivitiesMeetingsXUsers::where('meeting_id', $meeting->id)->where('team',1)->get();
+
+        foreach ($meetingByuser1 as $team) {
+
+            $usuario = User::find($team->admin_user_id);
 
             $dataAlert = [
                 "admin_user_id" => $usuario->id,
@@ -384,15 +435,10 @@ class CrmActivityMeetingController extends Controller
                 "description" => 'Nueva acta de reunion creada',
             ];
 
-            // if($usuario->device_token){
-            //     $notification = new Notifications('Nueva acta de reunión', 'Tienes una nueva acta de reunión', $usuario->device_token);
-            //     $notificationSent = $notification->create();
-            // }
-
             $mailNotif = new \stdClass();
             $mailNotif->title = "Tienes una nueva acta de reunion";
             $mailNotif->subject = "[CRMHAWKINS]Tienes una nueva acta de reunion";
-            $mailNotif->description = $request->description;
+            $mailNotif->description = $meeting->description;
 
             $email = new MailNotification($mailNotif);
 
@@ -400,42 +446,45 @@ class CrmActivityMeetingController extends Controller
 
             $alert = Alert::create($dataAlert);
             $alert->save();
-
         }
 
-        if(isset($request->contacts)){
-            foreach ($request->contacts as $contact) {
-                $usuario = Contact::find($contact);
+        $meetingByContact = CrmActivitiesMeetingsXContact::where('meeting_id', $meeting->id)->get();
+
+        if(isset($meetingByContact)){
+            foreach ($meetingByContact as $contact) {
+                $usuario = Contact::find($contact->contact_id);
                 if($usuario){
                     $userEmails[] = $usuario->email;
                     $userNames[] = $usuario->name;
                 }
             }
         }
-        foreach ($request->team as $user) {
-            $user = User::find($user);
+
+        $meetingByuser2 = CrmActivitiesMeetingsXUsers::where('meeting_id', $meeting->id)->where('team',2)->get();
+
+        foreach ($meetingByuser2 as $user) {
+            $user = User::find($user->admin_user_id);
             if($user){
                 $userAsistente[] = $user->name;
             }
         }
 
-        $client = Client::find($request->client_id);
-        $modalidad = ContactBy::find($request->contact_by_id);
+        $client = Client::find($meeting->client_id);
+        $modalidad = ContactBy::find($meeting->contact_by_id);
 
         $meetingObject = new \stdClass();
-        $meetingObject->subject = $request->subject;
-        $meetingObject->description = $request->description;
+        $meetingObject->subject = $meeting->subject;
+        $meetingObject->description = $meeting->description;
         $meetingObject->modalidad = $modalidad;
-        $meetingObject->date = $data['date'];
+        $meetingObject->date = $meeting->date;
         $meetingObject->client_name = $client->name;
         if($client->city){
             $meetingObject->city = $client->city;
         }
         $meetingObject->contacts = $userNames;
         $meetingObject->asistentes = $userAsistente;
-        $meetingObject->time_start = $request->time_start;
-        $meetingObject->time_end = $request->time_end;
-
+        $meetingObject->time_start = $meeting->time_start;
+        $meetingObject->time_end = $meeting->time_end;
         $email = new MailMeeting($meetingObject);
 
         if(!empty($userEmails)){
@@ -445,12 +494,70 @@ class CrmActivityMeetingController extends Controller
             ->send($email);
         }
 
-        return redirect()->route('reunion.index')->with(
-            'toast', [
-              'icon' => 'success',
-              'mensaje' => 'Se creo un acta de reunion correctamente'
-          ]);
+        if (!empty($userEmails)) {
+            Mail::to($userEmails)
+                ->cc(Auth::user()->email)
+                ->send($email);
 
+            return redirect()->back()->with('toast', [
+                'icon' => 'success',
+                'mensaje' => 'Correo enviado correctamente.'
+            ]);
+        }
+
+        return redirect()->back()->with('toast', [
+            'icon' => 'error',
+            'mensaje' => 'No se encontraron correos electrónicos para enviar.'
+        ]);
     }
 
+    public function chatgpt($audio){
+
+        $token = env('OPENAI_API_KEY');
+
+        $url = 'https://api.openai.com/v1/chat/completions';
+        $headers = array(
+            'Authorization: Bearer ' . $token,
+            'Content-Type: application/json'
+        );
+
+        // Construir el contenido del mensaje que incluye la imagen en base64, paises y tipos de documento como texto
+        $data = array(
+            "model" => "gpt-4o",
+            "messages" => [
+                [
+                    "role" => "user",
+                    "content" => [
+                        [
+                            "type" => "text",
+                            "text" => "Analiza esta grabacion de una reunion de la empresa hawkins y Resumela en un texto breve, detallando los temas que se discutieron y los puntos claves que se mencionaron."
+                        ],
+                        [
+                            "type" => "image_url",
+                            "image_url" => [
+                                "url" => $audio
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        );
+
+        // Inicializar cURL y configurar las opciones
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        // Ejecutar la solicitud y obtener la respuesta
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        // Decodificar la respuesta JSON
+        $response_data = json_decode($response, true);
+
+        return $response_data;
+    }
 }

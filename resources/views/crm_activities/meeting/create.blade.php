@@ -33,7 +33,7 @@
             <div class="col-9">
                 <div class="card">
                     <div class="card-body">
-                        <form method="POST" action="{{ route('reunion.store')}}" enctype="multipart/form-data">
+                        <form id="reunionForm" method="POST" action="{{ route('reunion.store')}}" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                                 <!-- Client Selection -->
@@ -127,18 +127,21 @@
                                         @endforeach
                                     </select>
                                 </div>
-
                                 <!-- File Upload -->
                                 <div class="col-md-12 my-2 form-group">
                                     <label class="form-label" for="formFileMultiple">Archivos</label>
                                     <input class="form-control" type="file" id="formFileMultiple" name="archivos[]" multiple />
                                 </div>
+                                <input type="hidden" type="file" id="audioInput" name="audio">
+                                <div class="col-12 mt-2 row">
+                                    <audio id="audioPlayback" controls style="display:none;"></audio>
+                                </div>
                             </div>
                         </form>
-
                     </div>
                 </div>
             </div>
+
             <div class="col-3">
                 <div class="card-body p-3">
                     <div class="card-title">
@@ -146,12 +149,12 @@
                         <hr>
                     </div>
                 <div class="card-body">
-                    <button id="guardar" type="submit" class="btn btn-success btn-block" >
-                        Guardar
-                    </button>
-                    <button  type="button" class="btn btn-dark btn-block" >
-                        Iniciar Reunion
-                    </button>
+                    <div class="card-body">
+                        <button id="guardar" class="btn btn-success btn-block mb-2">Guardar</button>
+                        <button id="startRecording" type="button" class="btn btn-dark btn-block mb-2">Iniciar Grabación</button>
+                        <button id="stopRecording" type="button" class="btn btn-danger btn-block mb-2" disabled>Detener Grabación</button>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -165,11 +168,6 @@
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-
-        $('#guardar').click(function(e){
-            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
-            $('form').submit(); // Esto envía el formulario.
-        });
 
         const contactselect = document.getElementById('contacts');
         const clientSelect = document.getElementById('client_id');
@@ -191,35 +189,6 @@
             paste: false          // Deshabilita la capacidad de pegar texto en el campo
         });
 
-        function getContacts(clientId) {
-            fetch('/client/get-contacts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ client_id: clientId })
-            })
-            .then(response => response.json())
-            .then(contactos => {
-                // Vacia las opciones anteriores
-                choicesContacts.clearChoices();
-
-                // Añade las nuevas opciones
-                choicesContacts.setChoices(
-                    contactos.map(contact => ({
-                        value: contact.id,
-                        label: `${contact.name}`,
-                        selected: false,
-                        disabled: false,
-                    })),
-                    'value', 'label', false
-                );
-
-                contactSelect.disabled = false;
-            });
-        }
-
         // Escucha el cambio en el selector de clientes
         clientSelect.addEventListener('change', function() {
             const clientId = this.value;
@@ -232,6 +201,108 @@
                 contactSelect.disabled = true;
             }
         });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const form = document.getElementById('reunionForm');
+        const audioInput = document.getElementById('audioInput');
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let audioBlob;
+
+
+        document.getElementById('startRecording').addEventListener('click', function () {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        document.getElementById('audioPlayback').src = audioUrl;
+                        document.getElementById('audioPlayback').style.display = 'block';
+
+                        // Crear un reader para convertir el audio en base64 y agregarlo al input oculto
+                        audioInput.value = audioBlob; // Almacena el audio en base64 en el input oculto
+                        // const reader = new FileReader();
+                        // reader.readAsDataURL(audioBlob);
+                        // reader.onloadend = () => {
+                        // };
+                    };
+
+                    document.getElementById('startRecording').disabled = true;
+                    document.getElementById('stopRecording').disabled = false;
+                })
+                .catch(error => {
+                    console.error("Error al acceder al micrófono", error);
+                });
+        });
+
+        document.getElementById('stopRecording').addEventListener('click', function () {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            document.getElementById('startRecording').disabled = false;
+            document.getElementById('stopRecording').disabled = true;
+        });
+
+        document.getElementById('guardar').addEventListener('click', function (e) {
+            e.preventDefault();
+            form.submit(); // Enviar el formulario normalmente
+        });
+
+        const contactselect = document.getElementById('contacts');
+        const clientSelect = document.getElementById('client_id');
+
+        var choicesContacts = new Choices(contactselect, {
+            removeItemButton: true,
+            searchEnabled: true,
+            paste: false
+        });
+
+        clientSelect.addEventListener('change', function () {
+            const clientId = this.value;
+            if (clientId) {
+                getContacts(clientId);
+            } else {
+                choicesContacts.clearChoices();
+                choicesContacts.setChoices([{ value: '', label: 'Seleccione un Contacto' }]);
+                contactselect.disabled = true;
+            }
+        });
+
+        function getContacts(clientId) {
+            fetch('/client/get-contacts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ client_id: clientId })
+            })
+                .then(response => response.json())
+                .then(contactos => {
+                    choicesContacts.clearChoices();
+                    choicesContacts.setChoices(
+                        contactos.map(contact => ({
+                            value: contact.id,
+                            label: `${contact.name}`,
+                            selected: false,
+                            disabled: false
+                        })),
+                        'value', 'label', false
+                    );
+                    contactselect.disabled = false;
+                });
+        }
     });
 </script>
 @endsection
