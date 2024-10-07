@@ -653,19 +653,22 @@ class CrmActivityMeetingController extends Controller
         if (!is_dir($outputDirectory)) {
             mkdir($outputDirectory, 0755, true);
         }
+        // Obtener el bitrate del archivo de audio usando ffprobe
+        $bitrate = shell_exec("ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 {$filePath}");
 
-        // Obtener información del archivo de audio
-        $bitrate = shell_exec("ffmpeg -i {$filePath} 2>&1 | grep 'bitrate' | awk '{print $6}'"); // Obtener el bitrate en kbps
-        dd($bitrate);
-        if (!$bitrate) {
-            $bitrate = 128; // Si no se puede obtener el bitrate, asumimos 128 kbps como valor por defecto
+        // Quitar los saltos de línea y espacios del bitrate
+        $bitrate = trim($bitrate);
+
+        // Si no se puede obtener el bitrate, asumimos 128 kbps como valor por defecto
+        if (empty($bitrate)) {
+            $bitrate = 128 * 1000; // Valor por defecto en bits (128 kbps en bps)
         }
 
         // Convertir el tamaño máximo permitido en bits
         $maxSizeBits = ($maxSizeMB * 8 * 1024 * 1024); // 25 MB en bits
 
         // Calcular la duración del segmento en segundos basándonos en el tamaño y el bitrate
-        $segmentDuration = round($maxSizeBits / ($bitrate * 1000)); // Duración aproximada del segmento en segundos
+        $segmentDuration = round($maxSizeBits / $bitrate); // Duración aproximada del segmento en segundos
 
         // Nombre base del archivo
         $baseName = pathinfo($filePath, PATHINFO_FILENAME);
@@ -680,4 +683,5 @@ class CrmActivityMeetingController extends Controller
         $files = glob("{$outputDirectory}/{$baseName}_part*.mp3");
         return $files;
     }
+
 }
