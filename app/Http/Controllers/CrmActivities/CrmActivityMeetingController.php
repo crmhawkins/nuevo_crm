@@ -385,10 +385,11 @@ class CrmActivityMeetingController extends Controller
                 }
             }
         }
-
+        if(isset($audioUrl)){
         $resumen = $this->chatgpt($audioUrl);
         $meeting->description = $resumen;
         $meeting->save();
+        }
 
         return redirect()->route('reunion.index')->with('toast', [
             'icon' => 'success',
