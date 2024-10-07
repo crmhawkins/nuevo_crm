@@ -386,7 +386,8 @@ class CrmActivityMeetingController extends Controller
             }
         }
         if(isset($audioUrl)){
-        $resumen = $this->chatgpt($audioUrl);
+        $transcripcion = $this->transcripcion($audioUrl);
+        $resumen = $this->chatgpt($transcripcion['text']);
         $meeting->description = $resumen;
         $meeting->save();
         }
@@ -397,21 +398,21 @@ class CrmActivityMeetingController extends Controller
         ]);
     }
 
-    public function transcripcion(Request $request){
-        if (!isset($request->id) || !isset($request->texto)) {
-            return response()->json('Error falta el Id o el Texto', 400);
-        }
+    // public function transcripcion(Request $request){
+    //     if (!isset($request->id) || !isset($request->texto)) {
+    //         return response()->json('Error falta el Id o el Texto', 400);
+    //     }
 
-        $id = $request->id;
-        $texto = $request->texto;
-        $acta = CrmActivitiesMeetings::find($id);
-        if (!isset($acta)) {
-            return response()->json('Error falta el Id no encuentra ninguna acta', 400);
-        }
-        $acta->description = $texto;
-        $acta->save();
-        return response()->json('Guardado Correctamente', 200);
-    }
+    //     $id = $request->id;
+    //     $texto = $request->texto;
+    //     $acta = CrmActivitiesMeetings::find($id);
+    //     if (!isset($acta)) {
+    //         return response()->json('Error falta el Id no encuentra ninguna acta', 400);
+    //     }
+    //     $acta->description = $texto;
+    //     $acta->save();
+    //     return response()->json('Guardado Correctamente', 200);
+    // }
 
     public function sendMeetingEmails(Request $request){
         $userEmails = array();
@@ -519,7 +520,41 @@ class CrmActivityMeetingController extends Controller
         ]);
     }
 
-    public function chatgpt($audio){
+    public function transcripcion($audio){
+
+        $token = env('OPENAI_API_KEY');
+
+        $url = 'https://api.openai.com/v1/audio/transcriptions';
+        $headers = array(
+            'Authorization: Bearer ' . $token,
+            'Content-Type: application/json'
+        );
+
+        // Construir el contenido del mensaje que incluye la imagen en base64, paises y tipos de documento como texto
+        $data = array(
+            'file' => curl_file_create($audio), // Crear un archivo para CURL
+            'model' => 'whisper-1', // Modelo Whisper de OpenAI
+        );
+
+        // Inicializar cURL y configurar las opciones
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        // Ejecutar la solicitud y obtener la respuesta
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        // Decodificar la respuesta JSON
+        $response_data = json_decode($response, true);
+
+        return $response_data;
+    }
+
+    public function chatgpt($texto){
 
         $token = env('OPENAI_API_KEY');
 
@@ -531,22 +566,11 @@ class CrmActivityMeetingController extends Controller
 
         // Construir el contenido del mensaje que incluye la imagen en base64, paises y tipos de documento como texto
         $data = array(
-            "model" => "gpt-4o",
+            "model" => "gpt-4",
             "messages" => [
                 [
                     "role" => "user",
-                    "content" => [
-                        [
-                            "type" => "text",
-                            "text" => "Analiza esta grabacion de una reunion de la empresa hawkins y Resumela en un texto breve, detallando los temas que se discutieron y los puntos claves que se mencionaron."
-                        ],
-                        [
-                            "type" => "audio_url",
-                            "audio_url" => [
-                                "url" => $audio
-                            ]
-                        ]
-                    ]
+                    "content" => "Analiza la siguiente grabación de una reunión y resume los puntos principales: $texto"
                 ]
             ]
         );
