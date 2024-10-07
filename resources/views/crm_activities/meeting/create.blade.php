@@ -230,9 +230,13 @@
                         const audioUrl = URL.createObjectURL(audioBlob);
                         document.getElementById('audioPlayback').src = audioUrl;
                         document.getElementById('audioPlayback').style.display = 'block';
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(audioFile);
 
+                        // Asignar el archivo creado al input 'audioInput'
+                        audioInput.files = dataTransfer.files;
                         // Crear un reader para convertir el audio en base64 y agregarlo al input oculto
-                        audioInput.value = audioFile; // Almacena el audio en base64 en el input oculto
+                        //audioInput.files = audioFile; // Almacena el audio en base64 en el input oculto
                         // const reader = new FileReader();
                         // reader.readAsDataURL(audioBlob);
                         // reader.onloadend = () => {
