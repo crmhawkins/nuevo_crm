@@ -15,13 +15,13 @@
         {{-- Titulos --}}
         <div class="page-title card-body">
             <div class="row justify-content-between">
-                <div class="col-sm-12 col-md-4 order-md-1 order-last">
+                <div class="col-sm-12 col-md-6 order-md-1 order-last row">
                     <div class="col-auto" >
                         <h3><i class="bi bi-globe-americas"></i> Contraseñas</h3>
                         <p class="text-subtitle text-muted">Listado de contraseñas</p>
                     </div>
                     <div class="col-auto">
-                        <a href="{{route('passwords.create')}}" class="btn btn-primary">
+                        <a href="{{route('passwords.create')}}" class=""btn btn-outline-secondary">
                             <i class="bi bi-plus-lg"></i> Crear
                         </a>
                     </div>
