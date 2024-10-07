@@ -226,12 +226,13 @@
 
                     mediaRecorder.onstop = () => {
                         audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                        const audioFile = new File([audioBlob], 'audio.mp3');
                         const audioUrl = URL.createObjectURL(audioBlob);
                         document.getElementById('audioPlayback').src = audioUrl;
                         document.getElementById('audioPlayback').style.display = 'block';
 
                         // Crear un reader para convertir el audio en base64 y agregarlo al input oculto
-                        audioInput.value = audioBlob; // Almacena el audio en base64 en el input oculto
+                        audioInput.value = audioFile; // Almacena el audio en base64 en el input oculto
                         // const reader = new FileReader();
                         // reader.readAsDataURL(audioBlob);
                         // reader.onloadend = () => {
