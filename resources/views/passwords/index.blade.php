@@ -16,8 +16,15 @@
         <div class="page-title card-body">
             <div class="row justify-content-between">
                 <div class="col-sm-12 col-md-4 order-md-1 order-last">
-                    <h3><i class="bi bi-globe-americas"></i> Contraseñas</h3>
-                    <p class="text-subtitle text-muted">Listado de contraseñas</p>
+                    <div class="col-auto" >
+                        <h3><i class="bi bi-globe-americas"></i> Contraseñas</h3>
+                        <p class="text-subtitle text-muted">Listado de contraseñas</p>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{{route('passwords.create')}}" class="btn btn-primary">
+                            <i class="bi bi-plus-lg"></i> Crear
+                        </a>
+                    </div>
                 </div>
                 <div class="col-sm-12 col-md-4 order-md-2 order-first">
                     <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
