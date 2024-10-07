@@ -49,13 +49,31 @@
                                     </select>
                                 </div>
 
-
                                 <!-- Contact Persons -->
                                 <div class="col-md-12 my-2 form-group">
                                     <label for="contacts" class="form-label">Personas de contacto</label>
                                     <select class="form-select"  id="contacts" name="contacts[]" multiple >
                                         <option value="">Buscar ...</option>
                                     </select>
+                                </div>
+
+                                <div class="col-md-12 my-2 form-group">
+                                    <label for="contacts_email" class="form-label">Añadir contactos (nombre y correo)</label>
+
+                                    <div id="contactFields">
+                                        <!-- Campo de contacto inicial -->
+                                        <div class="row mb-2">
+                                            <div class="col-md-5">
+                                                <input type="text" name="contact_names[]" class="form-control" placeholder="Nombre del contacto">
+                                            </div>
+                                            <div class="col-md-5">
+                                                <input type="email" name="contact_emails[]" class="form-control" placeholder="Correo del contacto">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="button" class="btn btn-success add-contact">Añadir</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Date Picker -->
@@ -168,6 +186,33 @@
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+        const contactFields = document.getElementById('contactFields');
+
+        document.querySelector('.add-contact').addEventListener('click', function () {
+            // Crear un nuevo conjunto de campos de nombre y correo
+            const newContactRow = document.createElement('div');
+            newContactRow.classList.add('row', 'mb-2');
+
+            newContactRow.innerHTML = `
+                <div class="col-md-5">
+                    <input type="text" name="contact_names[]" class="form-control" placeholder="Nombre del contacto">
+                </div>
+                <div class="col-md-5">
+                    <input type="email" name="contact_emails[]" class="form-control" placeholder="Correo del contacto">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-contact">Eliminar</button>
+                </div>
+            `;
+
+            contactFields.appendChild(newContactRow);
+
+            // Eliminar contactos
+            newContactRow.querySelector('.remove-contact').addEventListener('click', function () {
+                newContactRow.remove();
+            });
+        });
 
         const contactselect = document.getElementById('contacts');
         const clientSelect = document.getElementById('client_id');

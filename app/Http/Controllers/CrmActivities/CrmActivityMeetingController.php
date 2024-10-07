@@ -373,6 +373,32 @@ class CrmActivityMeetingController extends Controller
                 }
             }
         }
+
+        if ($request->has('contact_emails')) {
+            foreach ($request->contact_emails as $index => $contact) {
+                $name = $request->contact_names[$index];
+
+                $newContacto = array();
+                $newContacto['admin_user_id'] = Auth::user()->id;
+                $newContacto['civil_status_id'] = null;
+                $newContacto['phone'] = null;
+                $newContacto['email'] = $contact;
+                $newContacto['client_id'] = $request->client_id;
+                $newContacto['name'] = $name;
+                $newContacto['privacy_policy_accepted'] = false;
+                $newContacto['cookies_accepted'] = false;
+                $newContacto['newsletters_sending_accepted'] = false;
+                $contacto = Contact::create($newContacto);
+
+                CrmActivitiesMeetingsXContact::create([
+                    "admin_user_id" => $contacto->id,
+                    "meeting_id" => $meeting->id,
+                ]);
+
+            }
+        }
+
+
         if ($request->has('team')) {
             foreach ($request->team as $user) {
                 $usuario = User::find($user);
