@@ -421,8 +421,15 @@ class CrmActivityMeetingController extends Controller
                 $transcripciones[] = $transcripcion['text'];  // Guardar el texto de cada transcripción
             }
             $textoCompleto = implode(" ", $transcripciones);
-            $resumen = $this->chatgpt($textoCompleto);
-            $meeting->description = $resumen;
+
+            $respuesta = $this->chatgpt($textoCompleto);
+            if (isset($respuesta['choices'][0]['message']['content'])) {
+                $resumen = $respuesta['choices'][0]['message']['content'];
+                $meeting->description = $resumen;
+            } else {
+                // Manejo del caso en que no se obtiene el resumen correctamente
+                $meeting->description = 'No se pudo generar un resumen.';
+            }
             $meeting->save();
              // Eliminar los archivos temporales
             foreach ($segmentos as $segmento) {
