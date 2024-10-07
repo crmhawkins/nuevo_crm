@@ -386,7 +386,6 @@ class CrmActivityMeetingController extends Controller
             }
         }
         if(isset($audioUrl)){
-        dd($audioUrl);
         $transcripcion = $this->transcripcion($audioUrl);
         dd($transcripcion);
         $resumen = $this->chatgpt($transcripcion['text']);
@@ -553,10 +552,10 @@ class CrmActivityMeetingController extends Controller
         // Ejecutar la solicitud y obtener la respuesta
         $response = curl_exec($curl);
 
-        // Verificar si hubo errores
-        if (curl_errno($curl)) {
-            return 'Error: ' . curl_error($curl);
-        }
+        // // Verificar si hubo errores
+        // if (curl_errno($curl)) {
+        //     return 'Error: ' . curl_error($curl);
+        // }
 
         curl_close($curl);
 
