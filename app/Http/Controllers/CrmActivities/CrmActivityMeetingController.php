@@ -521,32 +521,40 @@ class CrmActivityMeetingController extends Controller
         ]);
     }
 
-    public function transcripcion($audio){
-
+    public function transcripcion($audio)
+    {
         $token = env('OPENAI_API_KEY');
 
+        // URL correcta para Whisper API
         $url = 'https://api.openai.com/v1/audio/transcriptions';
+
+        // Headers necesarios (sin 'Content-Type' ya que lo maneja automáticamente)
         $headers = array(
-            'Authorization: Bearer ' . $token,
-            'Content-Type: application/json'
+            'Authorization: Bearer ' . $token
         );
 
-        // Construir el contenido del mensaje que incluye la imagen en base64, paises y tipos de documento como texto
+        // Datos para la solicitud a Whisper
         $data = array(
-            'file' => curl_file_create($audio), // Crear un archivo para CURL
-            'model' => 'whisper-1', // Modelo Whisper de OpenAI
+            'file' => curl_file_create($audio), // Crear el archivo para CURL
+            'model' => 'whisper-1', // Modelo de Whisper
         );
 
         // Inicializar cURL y configurar las opciones
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data); // Enviar datos como multipart/form-data
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
         // Ejecutar la solicitud y obtener la respuesta
         $response = curl_exec($curl);
+
+        // Verificar si hubo errores
+        if (curl_errno($curl)) {
+            return 'Error: ' . curl_error($curl);
+        }
+
         curl_close($curl);
 
         // Decodificar la respuesta JSON
