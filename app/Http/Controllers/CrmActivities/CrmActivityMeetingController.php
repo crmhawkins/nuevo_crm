@@ -526,6 +526,20 @@ class CrmActivityMeetingController extends Controller
         $token = env('OPENAI_API_KEY');
         $url = 'https://api.openai.com/v1/audio/transcriptions';
 
+        // Verificar el archivo antes de continuar
+        if (!file_exists($audio)) {
+            return 'Error: El archivo no existe.';
+        }
+
+        if (!is_readable($audio)) {
+            return 'Error: No se puede leer el archivo.';
+        }
+
+        $audio_size = filesize($audio);
+        if ($audio_size > 25 * 1024 * 1024) {
+            return 'Error: El archivo es demasiado grande. Debe ser menor a 25 MB.';
+        }
+
         // Headers necesarios
         $headers = array(
             'Authorization: Bearer ' . $token
@@ -545,6 +559,11 @@ class CrmActivityMeetingController extends Controller
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
+        // Verbose para depuración detallada
+        curl_setopt($curl, CURLOPT_VERBOSE, true);
+        $verbose = fopen('curl_verbose.log', 'w');
+        curl_setopt($curl, CURLOPT_STDERR, $verbose);
+
         // Establecer tiempos de espera para evitar el error de operación abortada
         curl_setopt($curl, CURLOPT_TIMEOUT, 300);  // 5 minutos de timeout
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 300);  // 5 minutos para conexión
@@ -552,10 +571,19 @@ class CrmActivityMeetingController extends Controller
         // Ejecutar la solicitud y obtener la respuesta
         $response = curl_exec($curl);
 
-        // // Verificar si hubo errores
-        // if (curl_errno($curl)) {
-        //     return 'Error: ' . curl_error($curl);
-        // }
+        // Verificar si hubo errores
+        if (curl_errno($curl)) {
+            return 'Error: ' . curl_error($curl);
+        }
+
+        // Verificar el código HTTP de la respuesta
+        $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        if ($http_code != 200) {
+            return "Error: Respuesta inesperada del servidor, código HTTP: " . $http_code;
+        }
+
+        // Registrar la respuesta completa para depuración
+        file_put_contents('curl_response.log', $response);
 
         curl_close($curl);
 
@@ -564,6 +592,7 @@ class CrmActivityMeetingController extends Controller
 
         return $response_data;
     }
+
 
     public function chatgpt($texto){
 
