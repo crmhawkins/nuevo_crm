@@ -412,10 +412,21 @@ class CrmActivityMeetingController extends Controller
             }
         }
         if(isset($audioUrl)){
-        $transcripcion = $this->transcripcion($audioUrl);
-        $resumen = $this->chatgpt($transcripcion['text']);
-        $meeting->description = $resumen;
-        $meeting->save();
+            $outputDirectory = storage_path('app/public/reuniones/segmentos');
+            $segmentos = $this->dividirAudioPorTamaño($audioUrl, $outputDirectory, 25);
+            $transcripciones = [];
+            foreach ($segmentos as $segmento) {
+                $transcripcion = $this->transcripcion($segmento);  // Llamada a la transcripción para cada parte
+                $transcripciones[] = $transcripcion['text'];  // Guardar el texto de cada transcripción
+            }
+            $textoCompleto = implode(" ", $transcripciones);
+            $resumen = $this->chatgpt($textoCompleto);
+            $meeting->description = $resumen;
+            $meeting->save();
+             // Eliminar los archivos temporales
+            foreach ($segmentos as $segmento) {
+                unlink($segmento);  // Eliminar cada archivo temporal
+            }
         }
 
         return redirect()->route('reunion.index')->with('toast', [
@@ -596,8 +607,6 @@ class CrmActivityMeetingController extends Controller
         return $response_data;
     }
 
-
-
     public function chatgpt($texto){
 
         $token = env('OPENAI_API_KEY');
@@ -635,5 +644,38 @@ class CrmActivityMeetingController extends Controller
         $response_data = json_decode($response, true);
 
         return $response_data;
+    }
+
+    public function dividirAudioPorTamaño($filePath, $outputDirectory, $maxSizeMB = 25)
+    {
+        // Asegúrate de que la carpeta de salida exista
+        if (!is_dir($outputDirectory)) {
+            mkdir($outputDirectory, 0755, true);
+        }
+
+        // Obtener información del archivo de audio
+        $bitrate = shell_exec("ffmpeg -i {$filePath} 2>&1 | grep 'bitrate' | awk '{print $6}'"); // Obtener el bitrate en kbps
+        if (!$bitrate) {
+            $bitrate = 128; // Si no se puede obtener el bitrate, asumimos 128 kbps como valor por defecto
+        }
+
+        // Convertir el tamaño máximo permitido en bits
+        $maxSizeBits = ($maxSizeMB * 8 * 1024 * 1024); // 25 MB en bits
+
+        // Calcular la duración del segmento en segundos basándonos en el tamaño y el bitrate
+        $segmentDuration = round($maxSizeBits / ($bitrate * 1000)); // Duración aproximada del segmento en segundos
+
+        // Nombre base del archivo
+        $baseName = pathinfo($filePath, PATHINFO_FILENAME);
+
+        // Comando de FFmpeg para dividir el archivo en segmentos
+        $command = "ffmpeg -i {$filePath} -f segment -segment_time {$segmentDuration} -c copy {$outputDirectory}/{$baseName}_part%d.mp3";
+
+        // Ejecutar el comando
+        shell_exec($command);
+
+        // Obtener los archivos generados
+        $files = glob("{$outputDirectory}/{$baseName}_part*.mp3");
+        return $files;
     }
 }
