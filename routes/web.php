@@ -34,6 +34,7 @@ use App\Http\Controllers\Holiday\HolidayController;
 use App\Http\Controllers\Holiday\AdminHolidaysController;
 use App\Http\Controllers\Incidence\IncidenceController;
 use App\Http\Controllers\KitDigitalController;
+use App\Http\Controllers\Logs\LogActionsController;
 use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
 use App\Http\Controllers\Ordenes\OrdenesController;
@@ -61,12 +62,13 @@ Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-//Dashboard
 
+//Alertas
 Route::post('/user/alerts', [AlertController::class, 'getUserAlerts'])->name('user.alerts');
 Route::post('/alert/update', [AlertController::class, 'updateStatusAlert'])->name('alert.update');
 
 
+//Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::post('/dashboard/getDataTask', [DashboardController::class, 'getDataTask'])->name('dashboard.getDataTask');
 Route::post('/dashboard/getTasksRefresh', [DashboardController::class, 'getTasksRefresh'])->name('dashboard.getTasksRefresh');
@@ -77,11 +79,13 @@ Route::post('/dashboard/timeworked', [DashboardController::class, 'timeworked'])
 Route::post('/dashboard/updateStatusAlertAndAcceptHours', [DashboardController::class, 'updateStatusAlertAndAcceptHours'])->name('user.updateStatusAlertAndAcceptHours');
 Route::post('/dashboard/responseAlert', [DashboardController::class, 'responseAlert'])->name('user.responseAlert');
 
-
 Route::post('/start-jornada', [DashboardController::class, 'startJornada'])->name('dashboard.startJornada');
 Route::post('/end-jornada', [DashboardController::class, 'endJornada'])->name('dashboard.endJornada');
 Route::post('/start-pause', [DashboardController::class, 'startPause'])->name('dashboard.startPause');
 Route::post('/end-pause', [DashboardController::class, 'endPause'])->name('dashboard.endPause');
+
+//Logs
+Route::get('/logs',[LogActionsController::class, 'index'])->name('logs');
 
 //Events(Eventos del to-do)
 Route::post('/event/store', [EventController::class, 'store'])->name('event.store');

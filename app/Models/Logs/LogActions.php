@@ -36,4 +36,17 @@ class LogActions extends Model
     protected $dates = [
         'created_at', 'updated_at', 'deleted_at',
     ];
+
+
+    public function usuario()
+    {
+        return $this->belongsTo(\App\Models\Users\User::class, 'admin_user_id');
+    }
+
+    public function tipo()
+    {
+        return $this->belongsTo(\App\Models\Logs\LogsTipes::class, 'tipo');
+    }
+
+
 }

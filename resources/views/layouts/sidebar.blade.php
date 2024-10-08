@@ -166,14 +166,14 @@
                                 </span>
                             </a>
                         </li>
-                        {{-- <li class="submenu-item {{ request()->routeIs('tareas.cola') ? 'active' : '' }}">
+                        <li class="submenu-item {{ request()->routeIs('tareas.cola') ? 'active' : '' }}">
                             <a href="{{route('tareas.cola')}}">
                                 <i class="fa-solid fa-list"></i>
                                 <span>
                                     En Cola
                                 </span>
                             </a>
-                        </li> --}}
+                        </li>
                         <li class="submenu-item {{ request()->routeIs('tareas.revision') ? 'active' : '' }}">
                             <a href="{{route('tareas.revision')}}">
                                 <i class="fa-solid fa-list"></i>
@@ -512,13 +512,19 @@
                                 </li>
                             </ul>
                         </li>
-
+                        <li class="sidebar-item {{ request()->routeIs('logs') ? 'active' : '' }}">
+                            <a href="{{route('logs')}}" class='sidebar-link'>
+                                <i class="fa-solid fa-list"></i>
+                                <span>LOGS</span>
+                            </a>
+                        </li>
                         <li class="sidebar-item {{ request()->routeIs('configuracion.index') ? 'active' : '' }}">
                             <a href="{{route('configuracion.index')}}" class='sidebar-link'>
                                 <i class="fa-solid fa-gears fs-5"></i>
                                 <span>Cofiguracion</span>
                             </a>
                         </li>
+
                     @endif
                 @endif
 

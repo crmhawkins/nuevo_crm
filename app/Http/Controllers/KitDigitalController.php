@@ -63,16 +63,18 @@ class KitDigitalController extends Controller
                 case 'cliente_id':
                     $valor2 = Client::find($data['value'])->name;
                     $valor1 = Client::find($valor1)->name;
+                    break;
                 default:
                     $valor2 = $data['value'];
                     $valor1 = $valor1;
+                    break;
             }
 
             LogActions::create([
                 'tipo' => 1,
                 'admin_user_id' => Auth::user()->id,
                 'action' => 'Actualizar '. $data['key'].' en kit digital',
-                'description' => 'De '.$valor1.' a '. $valor2,
+                'description' => 'De  '.$valor1.'  a  '. $valor2,
                 'reference_id' => $item->id,
             ]);
 
