@@ -18,8 +18,8 @@ class TasksController extends Controller
     }
     public function cola()
     {
-        // $usuarios = User::where('access_level_id ',5)->get();
-        $usuarios = User::all();
+        $usuarios = User::where('access_level_id ',5)->where('inactive', 0)->get();
+        //$usuarios = User::all();
         return view('tasks.cola', compact('usuarios'));
     }
     public function revision()
