@@ -61,8 +61,8 @@
                             <td>{{$order->state }}</td>
                             <td style="text-align: center;">@if($order->aceptado_gestor == 1) SI @else NO @endif</td>
                             <td class="d-flex flex-row justify-evenly align-middle">
-                                <a wire:click.prevent='postStatusChange'><img src="{{asset('assets/icons/check.svg')}}" alt="Editar dominio"></a>
-                                <a class="" href="{{route('gasto-asociado.edit', $order->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
+                                <a class="m-2" wire:click.prevent='postStatusChange({{ $order->id }})'><img src="{{asset('assets/icons/check.svg')}}" alt="Editar dominio"></a>
+                                <a class="m-2" href="{{route('gasto-asociado.edit', $order->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
                             </td>
                         </tr>
                     @endforeach

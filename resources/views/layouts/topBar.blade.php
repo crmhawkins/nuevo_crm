@@ -308,6 +308,7 @@
             })
             .catch(error => console.error('Error al obtener las alertas:', error));
         }
+
         // Función para agrupar alertas por stage_id
         function agruparAlertas(alertas) {
             alertasAgrupadasPorStageId = {};  // Reiniciar el agrupamiento
@@ -1083,50 +1084,49 @@
         });
     </script>
     <style>
-    .tituloalertas {
-        font-size: 24px;
-        color: #3078d6; /* Cambia el color del título */
-        font-weight: bold; /* Hace el título en negrita */
-    }
+        .tituloalertas {
+            font-size: 24px;
+            color: #3078d6; /* Cambia el color del título */
+            font-weight: bold; /* Hace el título en negrita */
+        }
 
-    .popupaletas {
-        background-color: #ffffff; /* Cambia el color de fondo del popup */
-        width: 900px; /* Aumenta el ancho del popup */
-        max-height: 700px;     /* Altura máxima de 700px */
-        overflow-y: auto;      /* Habilita el scroll si se excede la altura */
-        border-radius: 10px;   /* Bordes redondeados */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave */
-        background-color: white; /* Fondo blanco */
-    }
+        .popupaletas {
+            background-color: #ffffff; /* Cambia el color de fondo del popup */
+            width: 900px; /* Aumenta el ancho del popup */
+            max-height: 700px;     /* Altura máxima de 700px */
+            overflow-y: auto;      /* Habilita el scroll si se excede la altura */
+            border-radius: 10px;   /* Bordes redondeados */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave */
+            background-color: white; /* Fondo blanco */
+        }
 
-    .contenidoalerta ul li {
-      margin-bottom: 10px;
-      list-style-type: none;
-      padding: 5px;
-      border-bottom: 1px solid #ffffff;
-    }
+        .contenidoalerta ul li {
+        margin-bottom: 10px;
+        list-style-type: none;
+        padding: 5px;
+        border-bottom: 1px solid #ffffff;
+        }
 
-    .btn-pop {
-        background-color: #4CAF50; /* Color de fondo */
-        color: white;             /* Color del texto */
-        padding: 10px 20px;       /* Relleno: arriba-abajo, izquierda-derecha */
-        border: none;             /* Sin borde */
-        border-radius: 5px;       /* Bordes redondeados */
-        cursor: pointer;          /* Cambiar el cursor a una mano */
-        font-size: 16px;          /* Tamaño de fuente */
-    }
+        .btn-pop {
+            background-color: #4CAF50; /* Color de fondo */
+            color: white;             /* Color del texto */
+            padding: 10px 20px;       /* Relleno: arriba-abajo, izquierda-derecha */
+            border: none;             /* Sin borde */
+            border-radius: 5px;       /* Bordes redondeados */
+            cursor: pointer;          /* Cambiar el cursor a una mano */
+            font-size: 16px;          /* Tamaño de fuente */
+        }
 
-    .btn-pop:hover {
-        background-color: #45a049; /* Color de fondo al pasar el mouse */
-    }
+        .btn-pop:hover {
+            background-color: #45a049; /* Color de fondo al pasar el mouse */
+        }
 
-    .li-flex {
-        display: flex;
-        justify-content: space-between; /* Distribuye el espacio entre los elementos */
-        align-items: center;            /* Alinea los elementos verticalmente */
-        padding: 5px;                   /* Agrega algo de relleno */
-    }
-
+        .li-flex {
+            display: flex;
+            justify-content: space-between; /* Distribuye el espacio entre los elementos */
+            align-items: center;            /* Alinea los elementos verticalmente */
+            padding: 5px;                   /* Agrega algo de relleno */
+        }
 
     </style>
 </nav>

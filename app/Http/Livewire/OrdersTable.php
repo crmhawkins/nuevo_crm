@@ -91,11 +91,10 @@ class OrdersTable extends Component
 
         $gastoSaved = $gasto->save();
 
-
         $this->emit('toast', [
             'icon' => 'success',
             'mensaje' => 'Orden Aceptada'
         ]);
-}
+    }
 
 }
