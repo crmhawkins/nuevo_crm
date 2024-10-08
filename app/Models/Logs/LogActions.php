@@ -19,11 +19,14 @@ class LogActions extends Model
      * @var array
      */
     protected $fillable = [
+        'tipo',
         'admin_user_id',
         'action',
         'description',
         'reference_id',
+
     ];
+
 
     /**
      * Mutaciones de fecha.

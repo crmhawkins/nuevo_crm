@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('log_actions', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('admin_user_id');
-            $table->string('action');
-            $table->string('description');
-            $table->unsignedBigInteger('reference_id');
+            $table->bigInteger('admin_user_id')->nullable();
+            $table->string('action')->nullable();
+            $table->string('description')->nullable();
+            $table->unsignedBigInteger('reference_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

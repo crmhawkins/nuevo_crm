@@ -294,7 +294,7 @@
         // Función para obtener las alertas usando fetch
         function obtenerAlertas() {
             fetch("{{ route('user.alerts') }}", {  // Cambia esto con la ruta de tu backend
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 }

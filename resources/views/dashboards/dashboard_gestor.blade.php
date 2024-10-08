@@ -1125,7 +1125,14 @@
     });
 
     function updateUnreadMessagesCount(todoId) {
-        fetch(`/todos/unread-messages-count/${todoId}`)
+        fetch(`/todos/unread-messages-count/${todoId}`,{
+            method: 'POST', // Cambiamos a POST
+            headers: {
+                'Content-Type': 'application/json' // Indicamos que enviamos JSON
+            },
+            body: JSON.stringify({}) // Enviamos un cuerpo vacío o puedes agregar datos si es necesario
+
+            })
             .then(response => response.json())
             .then(data => {
                 const pulseDiv = document.querySelector(`#todo-card-${todoId} .pulse`);
@@ -1143,7 +1150,7 @@
     function loadMessages(todoId) {
         $.ajax({
             url: `/todos/getMessages/${todoId}`,
-            type: 'GET',
+            type: 'POST',
             success: function(data) {
                 let messagesContainer = $(`#todo-card-${todoId} .chat-container`);
                 messagesContainer.html(''); // Limpiamos el contenedor
