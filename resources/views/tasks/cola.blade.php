@@ -78,10 +78,10 @@
                             <tbody>
                                 @foreach ( $usuario->tareas->whereIn('task_status_id', [1, 2]) as $tarea )
                                     <tr @if($tarea->task_status_id == 1) style="background-color: #7ede6d;" @endif>
-                                        <td>{{$tarea->title}}</td>
-                                        <td>{{$tarea->presupuesto ? ($tarea->presupuesto->cliente ? $tarea->presupuesto->cliente->name : 'Cliente Borrado') : 'Presupuesto Borrado'}}</td>
-                                        <td>{{$tarea->estimated_time}}</td>
-                                        <td>{{$tarea->real_time}}</td>
+                                        <td @if($tarea->task_status_id == 1) style="background-color: #7ede6d;" @endif>{{$tarea->title}}</td>
+                                        <td @if($tarea->task_status_id == 1) style="background-color: #7ede6d;" @endif>{{$tarea->presupuesto ? ($tarea->presupuesto->cliente ? $tarea->presupuesto->cliente->name : 'Cliente Borrado') : 'Presupuesto Borrado'}}</td>
+                                        <td @if($tarea->task_status_id == 1) style="background-color: #7ede6d;" @endif>{{$tarea->estimated_time}}</td>
+                                        <td @if($tarea->task_status_id == 1) style="background-color: #7ede6d;" @endif>{{$tarea->real_time}}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
