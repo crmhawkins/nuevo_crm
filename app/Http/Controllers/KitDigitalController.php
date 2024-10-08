@@ -39,13 +39,39 @@ class KitDigitalController extends Controller
                     'mensaje' => 'El registro no se encontro.'
                 ]);
             }
-            $valor = $item[$data['key']];
+            $valor1 = $item[$data['key']];
             $item[$data['key']] = $data['value'];
             $item->save();
+
+            switch ($data['key']) {
+                case 'gestor':
+                    $valor2 = User::find($data['value'])->name;
+                    $valor1 = User::find($valor1)->name;
+                    break;
+                case 'comercial_id':
+                    $valor2 = User::find($data['value'])->name;
+                    $valor1 = User::find($valor1)->name;
+                    break;
+                case 'servicio_id':
+                    $valor2 = KitDigitalServicios::find($data['value'])->nombre;
+                    $valor1 = KitDigitalServicios::find($valor1)->nombre;
+                    break;
+                case 'estado':
+                    $valor2 = KitDigitalEstados::find($data['value'])->nombre;
+                    $valor1 = KitDigitalEstados::find($valor1)->nombre;
+                    break;
+                case 'cliente_id':
+                    $valor2 = Client::find($data['value'])->name;
+                    $valor1 = Client::find($valor1)->name;
+                default:
+                    $valor2 = $data['value'];
+                    $valor1 = $valor1;
+            }
+
             LogActions::create([
                 'admin_user_id' => Auth::user()->id,
                 'action' => 'Actualizar '. $data['key'].' en kit digital',
-                'description' => 'De '.$valor.' a '. $item[$data['key']],
+                'description' => 'De '.$valor1.' a '. $valor2,
                 'reference_id' => $item->id,
             ]);
 
