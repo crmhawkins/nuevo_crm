@@ -85,6 +85,12 @@
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 
     <script>
+        Livewire.on('toast', data => {
+            Toast.fire({
+                icon: data.icon,
+                title: data.mensaje
+            });
+        });
         $(document).ready(() => {
             $('.delete').on('click', function(e) {
                 e.preventDefault();
