@@ -44,7 +44,7 @@ class KitDigitalController extends Controller
             $item->save();
             LogActions::create([
                 'admin_user_id' => Auth::user()->id,
-                'action' => 'Actualizar '. $item[$data['key']].' en kit digital',
+                'action' => 'Actualizar '. $data['key'].' en kit digital',
                 'description' => 'De '.$valor.' a '. $item[$data['key']],
                 'reference_id' => $item->id,
             ]);
