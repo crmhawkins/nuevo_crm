@@ -76,7 +76,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ( $usuario->tareas as $tarea )
+                                @foreach ( $usuario->tareas->whereIn('task_status_id', [1, 2]) as $tarea )
                                     <tr @if($tarea->task_status_id == 1) style="background-color: #7ede6d;" @endif>
                                         <td>{{$tarea->title}}</td>
                                         <td>{{$tarea->presupuesto ? ($tarea->presupuesto->cliente ? $tarea->presupuesto->cliente->name : 'Cliente Borrado') : 'Presupuesto Borrado'}}</td>
