@@ -79,7 +79,7 @@ class LogsTable extends Component
     }
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedUser' || $propertyName === 'selectedAnio' || $propertyName === 'selectedMes') {
+        if ($propertyName === 'buscar' || $propertyName === 'usuario' || $propertyName === 'selectedYear' || $propertyName === 'tipo') {
             $this->resetPage(); // Resetear la paginación solo cuando estos filtros cambien.
         }
     }
