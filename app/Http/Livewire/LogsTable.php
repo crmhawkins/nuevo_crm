@@ -41,23 +41,27 @@ class LogsTable extends Component
         ]);
     }
 
+
     protected function actualizarLogs()
     {
         $query = LogActions::when($this->buscar, function ($query) {
-            $query->whereHas('usuario', function ($subQuery) {
-                $subQuery->where('name', 'like', '%' . $this->buscar . '%');
-            })
-            ->when($this->selectedYear, function ($query) {
-                $query->whereYear('log_actions.created_at', $this->selectedYear);
-            })
-            ->when($this->usuario, function ($query) {
-                $query->where('log_actions.admin_user_id', $this->usuario);
-            })
-            ->when($this->tipo, function ($query) {
-                $query->where('log_actions.tipo', $this->tipo);
-            })
-            ->orWhere('action', 'like', '%' . $this->buscar . '%')
-            ->orWhere('description', 'like', '%' . $this->buscar . '%');
+            $query->where(function ($query) {
+                // Agrupa los 'where' y 'orWhere' para que se combinen correctamente
+                $query->whereHas('usuario', function ($subQuery) {
+                    $subQuery->where('name', 'like', '%' . $this->buscar . '%');
+                })
+                ->orWhere('action', 'like', '%' . $this->buscar . '%')
+                ->orWhere('description', 'like', '%' . $this->buscar . '%');
+            });
+        })
+        ->when($this->selectedYear, function ($query) {
+            $query->whereYear('log_actions.created_at', $this->selectedYear);
+        })
+        ->when($this->usuario, function ($query) {
+            $query->where('log_actions.admin_user_id', $this->usuario);
+        })
+        ->when($this->tipo, function ($query) {
+            $query->where('log_actions.tipo', $this->tipo);
         })
         ->join('admin_user', 'log_actions.admin_user_id', '=', 'admin_user.id')
         ->select('log_actions.*','admin_user.name as usuario');
@@ -67,6 +71,7 @@ class LogsTable extends Component
         // Verifica si se seleccionó 'all' para mostrar todos los registros
         $this->logs = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
+
     public function sortBy($column)
     {
         if ($this->sortColumn === $column) {
@@ -77,6 +82,7 @@ class LogsTable extends Component
         }
         $this->resetPage();
     }
+
     public function updating($propertyName)
     {
         if ($propertyName === 'buscar' || $propertyName === 'usuario' || $propertyName === 'selectedYear' || $propertyName === 'tipo') {
