@@ -79,7 +79,7 @@
                                 @foreach ( $usuario->tareas as $tarea )
                                     <tr @if($tarea->task_status_id == 1) style="background-color: #7ede6d;" @endif>
                                         <td>{{$tarea->title}}</td>
-                                        <td>{{$tarea->presupuesto ? $tarea->presupuesto->cliente->name : 'Presupuesto Borrado'}}</td>
+                                        <td>{{$tarea->presupuesto ? ($tarea->presupuesto->cliente ? $tarea->presupuesto->cliente->name : 'Cliente Borrado') : 'Presupuesto Borrado'}}</td>
                                         <td>{{$tarea->estimated_time}}</td>
                                         <td>{{$tarea->real_time}}</td>
                                     </tr>
