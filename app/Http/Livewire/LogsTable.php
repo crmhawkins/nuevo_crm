@@ -3,7 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\Logs\LogActions;
-use App\Models\logs\LogsTipes;
+use App\Models\Logs\LogsTipes;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Livewire\Component;
