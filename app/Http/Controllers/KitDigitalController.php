@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
 use App\Models\KitDigitalServicios;
+use App\Models\Logs\LogActions;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -38,8 +39,16 @@ class KitDigitalController extends Controller
                     'mensaje' => 'El registro no se encontro.'
                 ]);
             }
+            $valor = $item[$data['key']];
             $item[$data['key']] = $data['value'];
             $item->save();
+            LogActions::create([
+                'admin_user_id' => Auth::user()->id,
+                'action' => 'Actualizar '. $item[$data['key']].' en kit digital',
+                'description' => 'De '.$valor.' a '. $item[$data['key']],
+                'reference_id' => $item->id,
+            ]);
+
             return response()->json([
                 'icon' => 'success',
                 'mensaje' => 'El registro se actualizo correctamente'
@@ -74,7 +83,13 @@ class KitDigitalController extends Controller
         ]);
 
         $data = $request->all();
-        KitDigital::create($data);
+        $kit = KitDigital::create($data);
+        LogActions::create([
+            'admin_user_id' => Auth::user()->id,
+            'action' => 'Crear kit digital',
+            'description' => 'Crear kit digital',
+            'reference_id' => $kit->id,
+        ]);
         return redirect()->route('kitDigital.index')->with('toast', [
                 'icon' => 'success',
                 'mensaje' => 'Nuevo kit digital se guardó correctamente'
@@ -95,7 +110,13 @@ class KitDigitalController extends Controller
         ]);
         $data = $request->all();
         $data['comercial_id'] = Auth::user()->id;
-        KitDigital::create($data);
+        $kit = KitDigital::create($data);
+        LogActions::create([
+            'admin_user_id' => Auth::user()->id,
+            'action' => 'Crear kit digital',
+            'description' => 'Crear kit digital por comercial',
+            'reference_id' => $kit->id,
+        ]);
         return redirect()->back()->with('toast', [
                 'icon' => 'success',
                 'mensaje' => 'Nuevo kit digital se guardó correctamente'

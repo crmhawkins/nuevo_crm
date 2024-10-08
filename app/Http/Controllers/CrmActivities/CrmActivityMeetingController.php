@@ -423,21 +423,7 @@ class CrmActivityMeetingController extends Controller
         ]);
     }
 
-    // public function transcripcion(Request $request){
-    //     if (!isset($request->id) || !isset($request->texto)) {
-    //         return response()->json('Error falta el Id o el Texto', 400);
-    //     }
 
-    //     $id = $request->id;
-    //     $texto = $request->texto;
-    //     $acta = CrmActivitiesMeetings::find($id);
-    //     if (!isset($acta)) {
-    //         return response()->json('Error falta el Id no encuentra ninguna acta', 400);
-    //     }
-    //     $acta->description = $texto;
-    //     $acta->save();
-    //     return response()->json('Guardado Correctamente', 200);
-    // }
 
     public function sendMeetingEmails(Request $request){
         $userEmails = array();
