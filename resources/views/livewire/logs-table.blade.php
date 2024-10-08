@@ -28,7 +28,7 @@
                         @endfor
                     </select>
                 </div>
-                <div>
+                <div class="mr-3">
                     <label for="">Usuario</label>
                     <select wire:model="usuario" name="" id="" class="form-select ">
                         <option value="">-- Seleccione un Tipo --</option>
@@ -37,7 +37,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div>
+                <div class="mr-3">
                     <label for="">Tipo</label>
                     <select wire:model="tipo" name="" id="" class="form-select ">
                         <option value="">-- Seleccione un Tipo --</option>
