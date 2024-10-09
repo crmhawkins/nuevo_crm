@@ -94,7 +94,7 @@ class LogActionsController extends Controller
         }
 
         $usuarios = User::get()->keyBy('id');
-
+        return $clasificacion;
         return view('logs.clasificacion', compact('clasificacion', 'usuarios'));
     }
 
