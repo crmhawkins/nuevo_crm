@@ -84,11 +84,10 @@ class LogActionsController extends Controller
             $clasificacionChunk = json_decode($content, true);
 
             // Combinar las clasificaciones parciales
-            $clasificacion = array_merge($clasificacion, $clasificacionChunk);
+            $clasificacion = array_merge_recursive($clasificacion, $clasificacionChunk);
         }
 
         $usuarios = User::get()->keyBy('id');
-        return $clasificacion;
         return view('logs.clasificacion', compact('clasificacion', 'usuarios'));
     }
 
