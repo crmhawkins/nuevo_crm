@@ -42,7 +42,7 @@ class KitDigitalListarClienteTable extends Component
     public function mount(){
 
         $this->gestores = User::Where('access_level_id',4)->where('inactive', 0)->get();
-        $this->comerciales = User::Where('access_level_id',6)->where('inactive', 0)->get();
+        $this->comerciales = User::whereIn('access_level_id', [1, 6])->where('inactive', 0)->get();
         $this->servicios = KitDigitalServicios::all();
         $this->estados = KitDigitalEstados::orderBy('orden', 'asc')->get();
 
