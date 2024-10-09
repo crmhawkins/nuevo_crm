@@ -86,6 +86,8 @@ Route::post('/end-pause', [DashboardController::class, 'endPause'])->name('dashb
 
 //Logs
 Route::get('/logs',[LogActionsController::class, 'index'])->name('logs');
+Route::get('/logs/clasificado',[LogActionsController::class, 'iaClasificacion'])->name('logs.clasificado');
+
 
 //Events(Eventos del to-do)
 Route::post('/event/store', [EventController::class, 'store'])->name('event.store');

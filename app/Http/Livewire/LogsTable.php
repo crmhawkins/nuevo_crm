@@ -26,7 +26,7 @@ class LogsTable extends Component
     protected $logs; // Propiedad protegida para los usuarios
 
     public function mount(){
-        $this->usuarios = User::all();
+        $this->usuarios = User::where('inactive', 0)->get();
         $this->selectedYear = Carbon::now()->year;
         $this->tipos = LogsTipes::all();
 
