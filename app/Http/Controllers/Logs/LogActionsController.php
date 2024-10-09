@@ -32,7 +32,7 @@ class LogActionsController extends Controller
         ];
 
         // Dividir el logActions en partes de tamaño adecuado (ajusta el tamaño según sea necesario)
-        $chunks = array_chunk($logActions, 5); // Por ejemplo, dividir en partes de 5
+        $chunks = array_chunk($logActions, 150); // Por ejemplo, dividir en partes de 5
 
         $clasificacion = [];
 
