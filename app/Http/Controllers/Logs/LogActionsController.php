@@ -59,7 +59,16 @@ class LogActionsController extends Controller
                                                         "antiguo": "valor antiguo",
                                                         "nuevo": "valor nuevo"
                                                     },
-                                                ]
+                                                ],
+                                            },
+                                            "ID de usuario": {
+                                                "campo de actualizacion": [
+                                                    {
+                                                        "antiguo": "valor antiguo",
+                                                        "nuevo": "valor nuevo"
+                                                    },
+                                                ],
+                                            },
                                         }'
                             ],
                             [
