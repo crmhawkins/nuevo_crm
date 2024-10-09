@@ -16,27 +16,36 @@
     <section class="section mt-4">
         @foreach ($clasificacion as $usuario => $cambios)
             <div class="card mb-3">
-                <div class="card-body">
-                    <h4>Usuario: {{ $usuarios[$usuario]->name ?? 'Usuario Desconocido' }}</h4>
-                    @foreach ($cambios as $tipo => $detalles)
-                        <h5 class="mt-3">{{ ucfirst($tipo) }}</h5>
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>De</th>
-                                    <th>A</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($detalles as $detalle)
+                <div class="card-header" id="heading{{ $usuario }}">
+                    <h4 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{ $usuario }}" aria-expanded="true" aria-controls="collapse{{ $usuario }}">
+                            Usuario: {{ $usuarios[$usuario]->name ?? 'Usuario Desconocido' }}
+                        </button>
+                    </h4>
+                </div>
+
+                <div id="collapse{{ $usuario }}" class="collapse" aria-labelledby="heading{{ $usuario }}" data-parent="#accordion">
+                    <div class="card-body">
+                        @foreach ($cambios as $tipo => $detalles)
+                            <h5 class="mt-3">{{ ucfirst($tipo) }}</h5>
+                            <table class="table table-hover">
+                                <thead class="table-light">
                                     <tr>
-                                        <td>{{ $detalle['antiguo'] }}</td>
-                                        <td>{{ $detalle['nuevo'] }}</td>
+                                        <th>De</th>
+                                        <th>A</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    @endforeach
+                                </thead>
+                                <tbody>
+                                    @foreach ($detalles as $detalle)
+                                        <tr>
+                                            <td>{{ $detalle['from'] }}</td>
+                                            <td>{{ $detalle['to'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         @endforeach
