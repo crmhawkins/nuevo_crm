@@ -14,17 +14,20 @@
     </div>
 
     <section class="section mt-4">
-        @foreach ($clasificacion as $usuario => $cambios)
-            <div class="card mb-3">
-                <div class="card-header" id="heading{{ $usuario }}">
-                    <h4 class="mb-0">
-                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{ $usuario }}" aria-expanded="true" aria-controls="collapse{{ $usuario }}">
-                            Usuario: {{ $usuarios[$usuario]->name ?? 'Usuario Desconocido' }}
-                        </button>
-                    </h4>
-                </div>
+        <!-- Pestañas -->
+        <ul class="nav nav-tabs" id="userTabs" role="tablist">
+            @foreach ($clasificacion as $usuario => $cambios)
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link {{ $loop->first ? 'active' : '' }}" id="tab-{{ $usuario }}-tab" data-bs-toggle="tab" href="#tab-{{ $usuario }}" role="tab" aria-controls="tab-{{ $usuario }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                        {{ $usuarios[$usuario]->name ?? 'Usuario Desconocido' }}
+                    </a>
+                </li>
+            @endforeach
+        </ul>
 
-                <div id="collapse{{ $usuario }}" class="collapse" aria-labelledby="heading{{ $usuario }}" data-parent="#accordion">
+        <div class="tab-content mt-3">
+            @foreach ($clasificacion as $usuario => $cambios)
+                <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="tab-{{ $usuario }}" role="tabpanel" aria-labelledby="tab-{{ $usuario }}-tab">
                     <div class="card-body">
                         @foreach ($cambios as $tipo => $detalles)
                             <h5 class="mt-3">{{ ucfirst($tipo) }}</h5>
@@ -47,8 +50,9 @@
                         @endforeach
                     </div>
                 </div>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
     </section>
 </div>
 @endsection
+
