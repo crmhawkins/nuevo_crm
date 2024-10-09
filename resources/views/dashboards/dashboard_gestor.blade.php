@@ -1128,7 +1128,8 @@
         fetch(`/todos/unread-messages-count/${todoId}`,{
             method: 'POST', // Cambiamos a POST
             headers: {
-                'Content-Type': 'application/json' // Indicamos que enviamos JSON
+                'Content-Type': 'application/json', // Indicamos que enviamos JSON
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             },
             body: JSON.stringify({}) // Enviamos un cuerpo vacío o puedes agregar datos si es necesario
 
@@ -1151,6 +1152,11 @@
         $.ajax({
             url: `/todos/getMessages/${todoId}`,
             type: 'POST',
+            contentType: 'application/json', // Especifica el tipo de contenido
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            },
+            data: JSON.stringify({}),
             success: function(data) {
                 let messagesContainer = $(`#todo-card-${todoId} .chat-container`);
                 messagesContainer.html(''); // Limpiamos el contenedor
