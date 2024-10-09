@@ -45,7 +45,7 @@ class LogActionsController extends Controller
                             "type" => "text",
                             "text" => 'Analiza el siguiente JSON que contiene registros de acciones de actualización y creacion. Clasifica y agrupa las actualizaciones de acuerdo con el usuario que realizó la acción. Para cada actualización, identifica los valores antiguos y nuevos involucrados, extraídos del campo de descripción, que sigue el formato DE (valor antiguo) a (valor nuevo).
                                         Estructura la respuesta de manera que para cada usuario se liste cada campo que fue actualizado y sus respectivos valores antiguos y nuevos. Dame solo la clasificacion sin mas texto.
-                                        Entrega lo en formato JSON agrupado por usuario, y lista los campos actualizados, junto con sus valores antiguos y nuevos para cada actualización.Para la respuesta usa el siguiente formato:
+                                        Entrega lo en formato JSON agrupado por usuario, y lista los campos actualizados, junto con sus valores antiguos y nuevos para cada actualización.Dame el JSON de todos los datos no mandes solo algunos .Para la respuesta usa el siguiente formato:
                                         {
                                             "ID de usuario": {
                                                 "campo de actualizacion": [
