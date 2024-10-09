@@ -79,6 +79,7 @@ class LogActionsController extends Controller
             $response_data = json_decode($response, true);
 
             $content = $response_data['choices'][0]['message']['content'];
+            dd($content);
             $content = str_replace(['```json', '```'], '', $content);
             $clasificacionChunk = json_decode($content, true);
 
