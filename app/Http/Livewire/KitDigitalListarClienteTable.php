@@ -86,6 +86,7 @@ class KitDigitalListarClienteTable extends Component
                 ->orWhereRaw('LOWER(cliente) LIKE ?', ["%{$term}%"])
                 ->orWhereRaw('LOWER(expediente) LIKE ?', ["%{$term}%"])
                 ->orWhereRaw('LOWER(contacto) LIKE ?', ["%{$term}%"])
+                ->orWhereRaw('LOWER(importe) LIKE ?', ["%{$term}%"])
                 ->orWhereRaw('LOWER(telefono) LIKE ?', ["%{$term}%"]);
             });
         }
