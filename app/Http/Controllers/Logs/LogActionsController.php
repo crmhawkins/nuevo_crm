@@ -52,6 +52,7 @@ class LogActionsController extends Controller
                                             que es el ID del usuario. Para cada actualización, identifica los valores antiguos y nuevos involucrados, extraídos del campo de descripción, que sigue el formato DE (valor antiguo) a (valor nuevo).
                                             Estructura la respuesta de manera que para cada "admin_user_id" se liste cada campo que fue actualizado y sus respectivos valores antiguos y nuevos.
                                             Entrega el resultado en formato JSON, agrupado por "admin_user_id".
+                                            Manda solo le json no mandes mas texto.
                                             Para la respuesta usa el siguiente formato:
                                             {"admin_user_id": {"campo de actualizacion": [ { "antiguo": "valor antiguo", "nuevo": "valor nuevo" }, ], }, "admin_user_id_2": { "campo de actualizacion": [ { "antiguo": "valor antiguo", "nuevo": "valor nuevo" },],},}'
                             ],
