@@ -28,7 +28,7 @@ public function getUserAlerts()
     $alerts = Alert::where('status_id',1)
     ->where('admin_user_id', auth()->id())
     ->get();
-$alertas = $this->getAlerts($alerts);
+    $alertas = $this->getAlerts($alerts);
     return response()->json($alertas);
 }
 
@@ -266,6 +266,11 @@ public function getAlerts($alertas)
                             }
                             break;
                         case 17:
+                            $holiPetiAlert = HolidaysPetitions::find($alerta->reference_id);
+                            if ($holiPetiAlert) {
+                                $alertasActivadas[$contador]["usuario"] = $holiPetiAlert->adminUser->name . " " . $holiPetiAlert->adminUser->surname;
+                                $alertasActivadas[$contador]["fecha"] = "desde " . $holiPetiAlert->from . " hasta " . $holiPetiAlert->to;
+                            }
                             break;
                         case 18:
                             $holiPetiAlert = HolidaysPetitions::find($alerta->reference_id);

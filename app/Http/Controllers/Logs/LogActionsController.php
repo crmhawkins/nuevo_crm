@@ -47,105 +47,13 @@ class LogActionsController extends Controller
                                         Estructura la respuesta de manera que para cada usuario se liste cada campo que fue actualizado y sus respectivos valores antiguos y nuevos.Dame solo la clasificacion sin mas texto.
                                         Entrega el resumen en formato JSON agrupado por usuario, y lista los campos actualizados, junto con sus valores antiguos y nuevos para cada actualización. para la respuesta usa el sigiente formato:
                                         {
-                                            "101": {
-                                                "estado": [
-                                                {
-                                                    "antiguo": "TRAMITADA",
-                                                    "nuevo": "APORTAR DOCUMENTACION"
-                                                },
-                                                {
-                                                    "antiguo": "TRAMITADA",
-                                                    "nuevo": "APORTAR DOCUMENTACION"
-                                                },
-                                                {
-                                                    "antiguo": "JUSTIFICADO",
-                                                    "nuevo": "PENDIENTE SUBSANAR 1"
-                                                },
-                                                {
-                                                    "antiguo": "PENDIENTE SUBSANAR 1",
-                                                    "nuevo": "APORTAR DOCUMENTACION"
-                                                },
-
-                                                ],
-                                                "comentario": [
-                                                {
-                                                    "antiguo": "TRAMITADA POR PITI",
-                                                    "nuevo": ""
-                                                },
-                                                {
-                                                    "antiguo": "",
-                                                    "nuevo": "Listado de clientes Emma.\nhan creado una nueva Sociedad y no tienen la antigüedad de 6 meses hasta el día 1 de Julio. Llamar."
-                                                },
-                                                {
-                                                    "antiguo": "",
-                                                    "nuevo": "Certificado de situación en el censo de actividades económicas"
-                                                },
-                                                {
-                                                    "antiguo": "Resolución concesión: 16/09 - SIN IVA\nBono de horas (quiere más adelante Factura electrónica, Ángel nos avisa)",
-                                                    "nuevo": "Resolución concesión: 16/09 - SIN IVA \nPara justificar"
-                                                }
-                                                ],
-                                                "nuevo_comentario": [
-                                                {
-                                                    "antiguo": "",
-                                                    "nuevo": "sonia@asesoriaasela.es\n667 46 09 42"
-                                                },
-                                                {
-                                                    "antiguo": "sonia@asesoriaasela.es\n667 46 09 42",
-                                                    "nuevo": "sonia@asesoriaasela.es\n667 46 09 42\nModelos 200 tres últimos ejercicios"
-                                                },
-                                                {
-                                                    "antiguo": "ANTONIACRUZZY@HOTMAIL.COM\nTarea justificación Alejandro \nOrdenador 1.500€",
-                                                    "nuevo": "ANTONIACRUZZY@HOTMAIL.COM\nPte Factura Electrónica\nOrdenador 1.500€"
-                                                }
-                                                ],
-                                            },
-                                            "8": {
-                                                "estado": [
-                                                {
-                                                    "antiguo": "VALIDADAS 2ª JUSTIFICACION",
-                                                    "nuevo": "PAGADA 2º JUSTIFICACIÓN"
-                                                },
-                                                {
-                                                    "antiguo": "VALIDADAS 2ª JUSTIFICACION",
-                                                    "nuevo": "PAGADA 2º JUSTIFICACIÓN"
-                                                }
-                                                ],
-                                                "fecha_actualizacion": [
-                                                {
-                                                    "antiguo": "2024-09-23",
-                                                    "nuevo": "2024-10-08"
-                                                },
-                                                {
-                                                    "antiguo": "2024-09-18",
-                                                    "nuevo": "2024-10-09"
-                                                }
+                                            "ID de usuario": {
+                                                "campo de actualizacion": [
+                                                    {
+                                                        "antiguo": "valor antiguo",
+                                                        "nuevo": "valor nuevo"
+                                                    },
                                                 ]
-                                            },
-                                            "10": {
-                                                "nuevo_comentario": [
-                                                {
-                                                    "antiguo": "Post-venta: No llamar",
-                                                    "nuevo": ""
-                                                },
-                                                {
-                                                    "antiguo": "",
-                                                    "nuevo": "consulting ? llamar"
-                                                },
-                                                {
-                                                    "antiguo": "alba gallego",
-                                                    "nuevo": ""
-                                                }
-                                                ]
-                                            },
-                                            "2": {
-                                                "nuevo_comentario": [
-                                                {
-                                                    "antiguo": "Post-venta: No llamar",
-                                                    "nuevo": "Manolo llama a Carmen"
-                                                }
-                                                ]
-                                            },
                                         }'
                         ],
                         [

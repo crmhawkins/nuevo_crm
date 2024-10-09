@@ -268,21 +268,30 @@
             1: 'Alerta Peticion - Tienes peticiones pendientes',
             2: 'Presupuesto Pendiente de Confirmar',
             3: 'Presupuesto Pendiente de Aceptar',
+            4: 'Presupuesto Aceptado',
             5: 'Presupuesto Finalizado',
-            8: 'Presupuesto Finalizado',
+            6: 'Presupuesto Finalizado',
+            7: 'Presupuesto Finalizado',
+            8: 'Crear Factura',
             9: 'Factura Fuera de Plazo',
             10: 'Tesoreria Descubierta',
             11: 'Tarea Nueva',
             12: 'Un cliente ha descargado el presupuesto',
             13: 'Productividad',
+            14: 'Tarea Revision Antes Previsto',
             15: 'Alerta recordatorio',
             16: 'Peticion vacaciones',
+            17: 'Vacaciones Aceptadas',
+            18: 'Vacaciones Denegadas',
             19: 'Alerta Respuestas',
             20: 'Mensaje',
-            22: 'Horas Trabajadas del Mes',
             21: 'Presupuesto no abierto tras 48 horas',
-            24: 'Aviso de Puntualidad',
+            22: 'Horas Trabajadas del Mes',
+            23: 'Alerta puntualidad',
+            24: 'Alerta 3 veces tarde',
             25: 'Alerta Comercial',
+            26: 'Alerta Cobrar Comercial',
+            27: 'Alerta General',
             28: 'Alerta Encuesta Satisfaccion',
             29: 'Nueva acta pendiente',
             31: 'Aviso Jornada Laboral',
@@ -398,8 +407,20 @@
                         mensajeDetalle = "Tienes el presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " pendiente de aceptar";
                         break;
 
+                    case 4:
+                        mensajeDetalle = "El presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " esta aceptado";
+                        break;
+
                     case 5:
                         mensajeDetalle = "Tienes el presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " finalizado";
+                        break;
+
+                    case 6:
+                        mensajeDetalle = "Tienes el presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " facturado";
+                        break;
+
+                    case 7:
+                        mensajeDetalle = "Tienes el presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " cancelado";
                         break;
 
                     case 8:
@@ -424,7 +445,11 @@
 
                     case 13:
                         mensajeDetalle = alerta['description'];
-                    break;
+                        break;
+
+                    case 14:
+                        mensajeDetalle = "Felicidades has terminado una tarea antes del tiempo previsto";
+                        break;
 
                     case 15:
                         mensajeDetalle = alerta['remitente'] + ": " + alerta['nota'];
@@ -432,6 +457,14 @@
 
                     case 16:
                         mensajeDetalle = "Tienes una petición de vacaciones de " + alerta['usuario'];
+                        break;
+
+                    case 17:
+                        mensajeDetalle = "Vacaciones Aceptadas " + alerta['fecha'];
+                        break;
+
+                    case 18:
+                        mensajeDetalle = "Vacaciones Denegadas " + alerta['fecha'];
                         break;
 
                     case 19:
@@ -547,7 +580,23 @@
                     break;
 
                 case 3:
+                var id = alertaSeleccionada['id'];
+                    var status = 2; //Resuelto
+                    $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                        if (jqXHR.responseText != 503) {
+                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        eliminarAlertaDOM(stage_id, index);
+                        } else {
+                        swal(
+                            'Error',
+                            'Error al realizar la peticion',
+                            'error'
+                        );
+                        }
+                    });
+                    break;
 
+                case 4:
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
@@ -565,6 +614,42 @@
                     break;
 
                 case 5:
+                window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                var id = alertaSeleccionada['id'];
+                    var status = 2; //Resuelto
+                    $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                        if (jqXHR.responseText != 503) {
+                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        eliminarAlertaDOM(stage_id, index);
+                        } else {
+                        swal(
+                            'Error',
+                            'Error al realizar la peticion',
+                            'error'
+                        );
+                        }
+                    });
+                    break;
+
+                case 6:
+                window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                var id = alertaSeleccionada['id'];
+                    var status = 2; //Resuelto
+                    $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                        if (jqXHR.responseText != 503) {
+                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        eliminarAlertaDOM(stage_id, index);
+                        } else {
+                        swal(
+                            'Error',
+                            'Error al realizar la peticion',
+                            'error'
+                        );
+                        }
+                    });
+                    break;
+
+                case 7:
                 window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
@@ -665,7 +750,24 @@
                         }
                     });
                     break;
+
                 case 13:
+                var id = alertaSeleccionada['id'];
+                    var status = 2; //Resuelto
+                    $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                        if (jqXHR.responseText != 503) {
+                        eliminarAlertaDOM(stage_id, index);
+                        } else {
+                        swal(
+                            'Error',
+                            'Error al realizar la peticion',
+                            'error'
+                        );
+                        }
+                    });
+                    break;
+
+                case 14:
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
@@ -713,6 +815,38 @@
                     }
                     });
                 break;
+
+                case 17:
+                var id = alertaSeleccionada['id'];
+                    var status = 2; //Resuelto
+                    $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                        if (jqXHR.responseText != 503) {
+                        eliminarAlertaDOM(stage_id, index);
+                        } else {
+                        swal(
+                            'Error',
+                            'Error al realizar la peticion',
+                            'error'
+                        );
+                        }
+                    });
+                    break;
+
+                case 18:
+                var id = alertaSeleccionada['id'];
+                    var status = 2; //Resuelto
+                    $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                        if (jqXHR.responseText != 503) {
+                        eliminarAlertaDOM(stage_id, index);
+                        } else {
+                        swal(
+                            'Error',
+                            'Error al realizar la peticion',
+                            'error'
+                        );
+                        }
+                    });
+                    break;
 
                 case 19:
                 var id = alertaSeleccionada['id'];
