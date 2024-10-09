@@ -38,8 +38,8 @@
                                 <tbody>
                                     @foreach ($detalles as $detalle)
                                         <tr>
-                                            <td>{{ $detalle['from'] }}</td>
-                                            <td>{{ $detalle['to'] }}</td>
+                                            <td>{{ $detalle['antiguo'] }}</td>
+                                            <td>{{ $detalle['nuevo'] }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
