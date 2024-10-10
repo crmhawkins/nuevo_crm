@@ -309,7 +309,11 @@
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
             }
-            form.submit(); // Enviar el formulario normalmente
+            //esperar 10 segundos para que finalice la grabación
+            setTimeout(function () {
+                form.submit(); // Enviar el formulario normalmente
+            }, 10000);
+            //form.submit();
         });
 
         const contactselect = document.getElementById('contacts');
