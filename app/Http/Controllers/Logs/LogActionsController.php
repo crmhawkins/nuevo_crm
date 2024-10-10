@@ -7,7 +7,7 @@ use App\Models\KitDigital;
 use App\Models\Logs\LogActions;
 use App\Models\Users\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 
 class LogActionsController extends Controller
 {
