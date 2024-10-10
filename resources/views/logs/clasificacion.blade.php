@@ -14,6 +14,20 @@
     </div>
 
     <section class="section mt-4">
+        <!-- Formulario de selección de fecha -->
+        <div class="card-body">
+            <form method="GET" action="{{ route('ruta_clasificacion') }}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="date" name="fecha" class="form-control" value="{{ request('fecha', \Carbon\Carbon::yesterday()->format('Y-m-d')) }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary">Filtrar por Fecha</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         <!-- Pestañas -->
         <div class="card-body">
             <ul class="nav nav-tabs" id="userTabs" role="tablist">
