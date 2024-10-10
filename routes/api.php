@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Tesoreria\TesoreriaController;
 use Illuminate\Http\Request;
@@ -23,3 +24,4 @@ Route::prefix('tesoreria')->group(function () {
     Route::post('/gastos', [TesoreriaController::class, 'storeUnclassifiedExpensese']);
 });
 Route::post('/acta/description', action: [CrmActivityMeetingController::class, 'updateMeeting']);
+Route::post('/getAyudas', action: [ApiController::class, 'getayudas']);
