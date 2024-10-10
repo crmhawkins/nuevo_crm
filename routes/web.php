@@ -85,7 +85,7 @@ Route::post('/start-pause', [DashboardController::class, 'startPause'])->name('d
 Route::post('/end-pause', [DashboardController::class, 'endPause'])->name('dashboard.endPause');
 
 //Logs
-Route::get('/logs',[LogActionsController::class, 'index'])->name('logs');
+Route::get('/logs',[LogActionsController::class, 'index'])->name('logs.index');
 Route::get('/logs/clasificado',[LogActionsController::class, 'Clasificacion'])->name('logs.clasificado');
 
 

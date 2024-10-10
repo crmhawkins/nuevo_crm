@@ -512,11 +512,29 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="sidebar-item {{ request()->routeIs('logs') ? 'active' : '' }}">
-                            <a href="{{route('logs')}}" class='sidebar-link'>
+                        <li class="sidebar-item has-sub {{ request()->routeIs('logs.*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
                                 <i class="fa-solid fa-list"></i>
-                                <span>LOGS</span>
+                                <span>Logs</span>
                             </a>
+                            <ul class="submenu" style="{{ request()->routeIs('logs.*') ? 'display:block;' : 'display:none;' }}">
+                                <li class="submenu-item {{ request()->routeIs('logs.index') ? 'active' : '' }}">
+                                    <a href="{{route('logs.index')}}">
+                                        <i class="fa-solid fa-list"></i>
+                                        <span>
+                                            Ver Logs
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="submenu-item {{ request()->routeIs('logs.clasificado') ? 'active' : '' }}">
+                                    <a href="{{route('logs.clasificado')}}">
+                                        <i class="fa-solid fa-eye"></i>
+                                        <span>
+                                            Ver Logs por usuario
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="sidebar-item {{ request()->routeIs('configuracion.index') ? 'active' : '' }}">
                             <a href="{{route('configuracion.index')}}" class='sidebar-link'>
