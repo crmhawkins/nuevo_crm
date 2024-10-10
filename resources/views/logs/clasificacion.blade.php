@@ -48,7 +48,7 @@
                                         @foreach ($cambios as $propiedad => $detalles)
                                         @foreach ($detalles as $detalle)
                                             <td>
-                                                {{ ($detalle['valor_antiguo'] ?: 'N/A'). ' - ' .$detalle['valor_nuevo'] }}
+                                                {{ ($detalle['valor_antiguo'] ? '  ||  ' : '').$detalle['valor_nuevo'] }}
                                             </td>
                                         @endforeach
                                     @endforeach
