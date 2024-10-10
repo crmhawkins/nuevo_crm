@@ -95,11 +95,11 @@ class LogActionsController extends Controller
 
         foreach ($clasificacion as $adminUserId => &$referencias) {
             foreach ($referencias as $referenciaId => &$propiedades) {
-                foreach ($propiedades as $propiedad => &$detalles) {
-                    usort($detalles, function ($a, $b) {
-                        return $a['created_at'] <=> $b['created_at'];
-                    });
-                }
+                uksort($propiedades, function ($a, $b) use ($propiedades) {
+                    $fechaA = $propiedades[$a][0]['created_at'];
+                    $fechaB = $propiedades[$b][0]['created_at'];
+                    return $fechaA <=> $fechaB;
+                });
             }
         }
 
