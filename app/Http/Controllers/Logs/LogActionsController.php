@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Logs;
 
 use App\Http\Controllers\Controller;
+use App\Models\KitDigital;
 use App\Models\Logs\LogActions;
 use App\Models\Users\User;
 use Carbon\Carbon;
@@ -28,6 +29,9 @@ class LogActionsController extends Controller
         ->get()
         ->groupBy('admin_user_id');
         $usuarios = User::get()->keyBy('id');
+        $referenceIds = $logActions->flatten()->pluck('reference_id')->unique();
+        // Obtener los registros de KitDigital que coincidan con los reference_id únicos
+        $kitdigital = KitDigital::whereIn('id', $referenceIds)->get()->keyBy('id');
 
         $clasificacion = [];
 
@@ -38,6 +42,7 @@ class LogActionsController extends Controller
                     // Extraer la segunda palabra (la propiedad actualizada)
                     $partesAccion = explode(' ', $log->action);
                     $propiedadActualizada = isset($partesAccion[1]) ? $partesAccion[1] : '';
+                    $referencia = $log->reference_id;
 
                     // 2. Separar los valores en la descripción (De "valor antiguo" a "valor nuevo")
                     if (preg_match("/De (.+) a (.+)/", $log->description, $matches)) {
@@ -48,32 +53,38 @@ class LogActionsController extends Controller
                         if (!isset($clasificacion[$adminUserId])) {
                             $clasificacion[$adminUserId] = []; // Inicializar si no existe
                         }
-
-                        if (!isset($clasificacion[$adminUserId][$propiedadActualizada])) {
-                            $clasificacion[$adminUserId][$propiedadActualizada] = []; // Inicializar si no existe
+                        if (!isset($clasificacion[$adminUserId][$referencia])) {
+                            $clasificacion[$adminUserId][$referencia] = []; // Inicializar si no existe
                         }
 
-                        $clasificacion[$adminUserId][$propiedadActualizada][] = [
+                        if (!isset($clasificacion[$adminUserId][$referencia][$propiedadActualizada])) {
+                            $clasificacion[$adminUserId][$referencia][$propiedadActualizada] = []; // Inicializar si no existe
+                        }
+
+                        $clasificacion[$adminUserId][$referencia][$propiedadActualizada][] = [
                             'valor_antiguo' => $valorAntiguo,
                             'valor_nuevo' => $valorNuevo,
-                            'reference_id' => $log->reference_id,
                         ];
                     }
                 }else{
                     $propiedadActualizada =  $log->description;
+                    $referencia = $log->reference_id;
 
-                     // 3. Clasificar por usuario, propiedad actualizada y agregar los detalles
-                     if (!isset($clasificacion[$adminUserId])) {
+
+                    if (!isset($clasificacion[$adminUserId])) {
                         $clasificacion[$adminUserId] = []; // Inicializar si no existe
                     }
 
-                    if (!isset($clasificacion[$adminUserId][$propiedadActualizada])) {
-                        $clasificacion[$adminUserId][$propiedadActualizada] = []; // Inicializar si no existe
+                    if (!isset($clasificacion[$adminUserId][$referencia])) {
+                        $clasificacion[$adminUserId][$referencia] = []; // Inicializar si no existe
                     }
-                    $clasificacion[$adminUserId][$propiedadActualizada][] = [
+
+                    if (!isset($clasificacion[$adminUserId][$referencia][$propiedadActualizada])) {
+                        $clasificacion[$adminUserId][$referencia][$propiedadActualizada] = []; // Inicializar si no existe
+                    }
+                    $clasificacion[$adminUserId][$referencia][$propiedadActualizada][] = [
                         'valor_antiguo' => '',
-                        'valor_nuevo' => '',
-                        'reference_id' => $log->reference_id,
+                        'valor_nuevo' => 'Creado',
                     ];
                 }
             }
@@ -81,7 +92,7 @@ class LogActionsController extends Controller
 
 
 
-        return view('logs.clasificacion', compact('clasificacion', 'usuarios'));
+        return view('logs.clasificacion', compact('clasificacion', 'usuarios','kitdigital'));
     }
 
 

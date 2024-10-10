@@ -29,28 +29,30 @@
 
 
         <div class="tab-content mt-3">
-            @foreach ($clasificacion as $usuario => $cambios)
+            @foreach ($clasificacion as $usuario => $referencias)
                 <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="tab-{{ $usuario }}" role="tabpanel" aria-labelledby="tab-{{ $usuario }}-tab">
                     <div class="card-body">
-                        @foreach ($cambios as $tipo => $detalles)
-                            <h3 class="mt-3">{{ ucfirst(str_replace('_', ' ', $tipo)) }}</h3>
-                            <h5>{{count($detalles)}} registros</h5>
+                        @foreach ($referencias as $referenciaId => $cambios)
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Cliente</th>
-                                        <th>De</th>
-                                        <th>A</th>
+                                        @foreach ($cambios as $propiedad => $detalles)
+                                        <th>{{ ucfirst(str_replace('_', ' ', $propiedad)) }}</th>
+                                        @endforeach
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($detalles as $detalle)
-                                        <tr>
-                                            <td>{{ $detalle['reference_id'] }}</td>
-                                            <td>{{ $detalle['valor_antiguo'] }}</td>
-                                            <td>{{ $detalle['valor_nuevo'] }}</td>
-                                        </tr>
+                                    <tr>
+                                        <td>{{ $kitdigital[$referenciaId]->cliente ?? 'ID: ' . $referenciaId }}</td>
+                                        @foreach ($cambios as $propiedad => $detalles)
+                                        @foreach ($detalles as $detalle)
+                                            <td>
+                                                {{ ($detalle['valor_antiguo'] ?: 'N/A'). ' - ' .$detalle['valor_nuevo'] }}
+                                            </td>
+                                        @endforeach
                                     @endforeach
+                                    </tr>
                                 </tbody>
                             </table>
                         @endforeach
