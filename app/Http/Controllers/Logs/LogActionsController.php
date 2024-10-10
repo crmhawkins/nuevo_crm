@@ -19,7 +19,7 @@ class LogActionsController extends Controller
 
     public function iaClasificacion(Request $request)
     {
-        $fecha = $request->fecha ?? Carbon::today();
+        $fecha = $request->fecha ?? Carbon::today()->subDay(1);
 
         // Obtener los logs del día específico
         $logActions = LogActions::where('tipo', 1)->whereDate('created_at', $fecha)->get()->toArray();
