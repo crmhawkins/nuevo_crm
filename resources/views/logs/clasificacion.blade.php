@@ -16,7 +16,7 @@
     <section class="section mt-4">
         <!-- Formulario de selección de fecha -->
         <div class="card-body">
-            <form method="GET" action="{{ route('ruta_clasificacion') }}">
+            <form method="GET" action="{{ route('logs.clasificado') }}">
                 <div class="row">
                     <div class="col-md-3">
                         <input type="date" name="fecha" class="form-control" value="{{ request('fecha', \Carbon\Carbon::yesterday()->format('Y-m-d')) }}">
