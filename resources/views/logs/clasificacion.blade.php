@@ -46,8 +46,9 @@
                                 <tbody>
                                     @foreach ($detalles as $detalle)
                                         <tr>
-                                            <td>{{ $detalle['antiguo'] }}</td>
-                                            <td>{{ $detalle['nuevo'] }}</td>
+                                            <td>{{ $detalle['reference_id'] }}</td>
+                                            <td>{{ $detalle['valor_antiguo'] }}</td>
+                                            <td>{{ $detalle['valor_nuevo'] }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
