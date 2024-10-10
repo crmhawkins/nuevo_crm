@@ -74,7 +74,7 @@ class KitDigitalController extends Controller
                 'tipo' => 1,
                 'admin_user_id' => Auth::user()->id,
                 'action' => 'Actualizar '. $data['key'].' en kit digital',
-                'description' => 'De  '.$valor1.'  a  '. $valor2,
+                'description' => 'De  "'.$valor1.'"  a  "'. $valor2.'"',
                 'reference_id' => $item->id,
             ]);
 
