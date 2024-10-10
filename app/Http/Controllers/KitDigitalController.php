@@ -53,8 +53,8 @@ class KitDigitalController extends Controller
                     $valor1 = User::find($valor1)->name;
                     break;
                 case 'servicio_id':
-                    $valor2 = KitDigitalServicios::find($data['value'])->nombre;
-                    $valor1 = KitDigitalServicios::find($valor1)->nombre;
+                    $valor2 = KitDigitalServicios::find($data['value'])->name;
+                    $valor1 = KitDigitalServicios::find($valor1)->name;
                     break;
                 case 'estado':
                     $valor2 = KitDigitalEstados::find($data['value'])->nombre;

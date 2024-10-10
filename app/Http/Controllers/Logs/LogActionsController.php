@@ -64,6 +64,7 @@ class LogActionsController extends Controller
                         $clasificacion[$adminUserId][$referencia][$propiedadActualizada][] = [
                             'valor_antiguo' => $valorAntiguo,
                             'valor_nuevo' => $valorNuevo,
+                            'created_at' => $log->created_at
                         ];
                     }
                 }else{
@@ -85,6 +86,8 @@ class LogActionsController extends Controller
                     $clasificacion[$adminUserId][$referencia][$propiedadActualizada][] = [
                         'valor_antiguo' => '',
                         'valor_nuevo' => 'Creado',
+                        'created_at' => $log->created_at
+
                     ];
                 }
             }
