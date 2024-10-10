@@ -306,6 +306,9 @@
 
         document.getElementById('guardar').addEventListener('click', function (e) {
             e.preventDefault();
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
             form.submit(); // Enviar el formulario normalmente
         });
 
