@@ -36,7 +36,7 @@
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="heading-{{ $usuario }}-{{ $referenciaId }}">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $usuario }}-{{ $referenciaId }}" aria-expanded="false" aria-controls="collapse-{{ $usuario }}-{{ $referenciaId }}">
-                                            Referencia: {{ $kitdigital[$referenciaId]->cliente ?? 'ID: ' . $referenciaId }}
+                                            Cliente: {{ $kitdigital[$referenciaId]->cliente ?? 'ID: ' . $referenciaId }}
                                         </button>
                                     </h2>
                                     <div id="collapse-{{ $usuario }}-{{ $referenciaId }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ $usuario }}-{{ $referenciaId }}" data-bs-parent="#accordion-usuario-{{ $usuario }}">
@@ -45,8 +45,9 @@
                                                 <thead class="table-light">
                                                     <tr>
                                                         <th>Propiedad</th>
-                                                        <th>De</th>
-                                                        <th>A</th>
+                                                        <th>Valor antiguo</th>
+                                                        <th>Valor nuevo</th>
+                                                        <th>Fecha</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -56,6 +57,7 @@
                                                                 <td>{{ ucfirst(str_replace('_', ' ', $propiedad)) }}</td>
                                                                 <td>{{ $detalle['valor_antiguo'] ?: 'N/A' }}</td>
                                                                 <td>{{ $detalle['valor_nuevo'] }}</td>
+                                                                <td>{{ $detalle['created_at'] }}</td>
                                                             </tr>
                                                         @endforeach
                                                     @endforeach
