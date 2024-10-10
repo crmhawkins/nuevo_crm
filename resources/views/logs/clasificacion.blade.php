@@ -38,7 +38,7 @@
                                     <tr>
                                         <th>Cliente</th>
                                         @foreach ($cambios as $propiedad => $detalles)
-                                        <th>{{ ucfirst(str_replace('_', ' ', $propiedad)) }}</th>
+                                        <th colspan="{{count($detalles)}}">{{ ucfirst(str_replace('_', ' ', $propiedad)) }}</th>
                                         @endforeach
                                     </tr>
                                 </thead>
@@ -46,11 +46,11 @@
                                     <tr>
                                         <td>{{ $kitdigital[$referenciaId]->cliente ?? 'ID: ' . $referenciaId }}</td>
                                         @foreach ($cambios as $propiedad => $detalles)
-                                        @foreach ($detalles as $detalle)
-                                            <td>
-                                                {{ (!empty($detalle['valor_antiguo'])  ? $detalle['valor_antiguo'].'  ||  ' : '').$detalle['valor_nuevo'] }}
-                                            </td>
-                                        @endforeach
+                                            @foreach ($detalles as $detalle)
+                                                <td>
+                                                    {{ (!empty($detalle['valor_antiguo'])  ? $detalle['valor_antiguo'].'  ||  ' : '').$detalle['valor_nuevo'] }}
+                                                </td>
+                                            @endforeach
                                     @endforeach
                                     </tr>
                                 </tbody>
