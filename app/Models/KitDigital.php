@@ -50,7 +50,8 @@ class KitDigital extends Model
         'comentario',
         'nuevo_comentario',
         'nota',
-        'date'
+        'date',
+        'enviado'
     ];
 
     /**
