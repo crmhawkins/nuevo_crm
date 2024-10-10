@@ -39,8 +39,37 @@ class KitDigitalController extends Controller
                     'mensaje' => 'El registro no se encontro.'
                 ]);
             }
+
+            if($data['key'] == 'importe'){
+                // Limpia cualquier carácter no numérico excepto comas y puntos
+                $value = preg_replace('/[^\d,\.]/', '', $data['value']);
+
+                // Identificar el último punto o coma como separador decimal
+                $decimalPosition = max(strrpos($value, ','));
+
+                if ($decimalPosition !== false) {
+                    // Si encontramos una coma o punto en la cadena, separa la parte entera de la decimal
+                    $integerPart = substr($value, 0, $decimalPosition);
+                    $decimalPart = substr($value, $decimalPosition + 1);
+
+                    // Elimina cualquier coma o punto en la parte entera (es separador de miles)
+                    $integerPart = str_replace([',', '.'], '', $integerPart);
+
+                    // Reconstruye el valor usando un punto como separador decimal
+                    $value = $integerPart . '.' . $decimalPart;
+                } else {
+                    // Si no hay separador decimal, elimina comas o puntos como separadores de miles
+                    $value = str_replace([',', '.'], '', $value);
+                }
+
+                // Convierte el valor a número flotante con dos decimales
+                $data['value'] = number_format((float)$value, 2, '.', '');
+            }
+
             $valor1 = $item[$data['key']];
+
             $item[$data['key']] = $data['value'];
+
             $item->save();
 
             switch ($data['key']) {
