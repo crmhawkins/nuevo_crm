@@ -33,7 +33,7 @@
                 <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="tab-{{ $usuario }}" role="tabpanel" aria-labelledby="tab-{{ $usuario }}-tab">
                     <div class="card-body">
                         @foreach ($cambios as $tipo => $detalles)
-                            <h3 class="mt-3">{{ ucfirst($tipo) }}</h3>
+                            <h3 class="mt-3">{{ ucfirst(str_replace('_', ' ', $tipo)) }}</h3>
                             <h5>{{count($detalles)}} registros</h5>
                             <table class="table table-hover">
                                 <thead class="table-light">
