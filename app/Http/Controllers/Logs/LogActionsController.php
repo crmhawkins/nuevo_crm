@@ -85,7 +85,7 @@ class LogActionsController extends Controller
                     }
                     $clasificacion[$adminUserId][$referencia][$propiedadActualizada][] = [
                         'valor_antiguo' => '',
-                        'valor_nuevo' => 'Creado',
+                        'valor_nuevo' => '',
                         'created_at' => $log->created_at
 
                     ];
@@ -93,6 +93,15 @@ class LogActionsController extends Controller
             }
         }
 
+        foreach ($clasificacion as $adminUserId => &$referencias) {
+            foreach ($referencias as $referenciaId => &$propiedades) {
+                foreach ($propiedades as $propiedad => &$detalles) {
+                    usort($detalles, function ($a, $b) {
+                        return $a['created_at'] <=> $b['created_at'];
+                    });
+                }
+            }
+        }
 
 
         return view('logs.clasificacion', compact('clasificacion', 'usuarios','kitdigital'));
