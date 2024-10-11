@@ -28,6 +28,9 @@ use App\Http\Controllers\Tesoreria\TesoreriaController;
 use App\Http\Controllers\Settings\SettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dominios\DominiosController;
+use App\Http\Controllers\Email\CategoryEmailController;
+use App\Http\Controllers\Email\EmailController;
+use App\Http\Controllers\Email\StatusMailController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\GrupoContabilidadController;
 use App\Http\Controllers\Holiday\HolidayController;
@@ -406,6 +409,25 @@ Route::post('/treasury/getGastos',[CuadroController::class,'getGastos'])->name('
 Route::post('/treasury/getGastosAsociados',[CuadroController::class,'getGastosAsociados'])->name('admin.treasury.getGastosAsociados');
 Route::get('/treasury/{year}', [CuadroController::class,'indexYear'])->name('admin.treasury.indexYear');
 
+// Categoria de Emails
+Route::get('/category-email', [CategoryEmailController::class, 'index'])->name('admin.categoriaEmail.index');
+Route::get('/category-email/create', [CategoryEmailController::class, 'create'])->name('admin.categoriaEmail.create');
+Route::post('/category-email/store', [CategoryEmailController::class, 'store'])->name('admin.categoriaEmail.store');
+Route::get('/category-email/{id}/edit', [CategoryEmailController::class, 'edit'])->name('admin.categoriaEmail.edit');
+Route::post('/category-email/{id}/update', [CategoryEmailController::class, 'update'])->name('admin.categoriaEmail.update');
+Route::post('/category-email/{id}/destroy', [CategoryEmailController::class, 'destroy'])->name('admin.categoriaEmail.destroy');
+
+// Estados de Emails
+Route::get('/status-mail', [StatusMailController::class, 'index'])->name('admin.statusMail.index');
+Route::get('/status-mail/create', [StatusMailController::class, 'create'])->name('admin.statusMail.create');
+Route::post('/status-mail/store', [StatusMailController::class, 'store'])->name('admin.statusMail.store');
+Route::get('/status-mail/{id}/edit', [StatusMailController::class, 'edit'])->name('admin.statusMail.edit');
+Route::post('/status-mail/{id}/update', [StatusMailController::class, 'update'])->name('admin.statusMail.update');
+Route::post('/status-mail/{id}/destroy', [StatusMailController::class, 'destroy'])->name('admin.statusMail.destroy');
+
+// Emails
+Route::get('/emails', [EmailController::class, 'index'])->name('admin.emails.index');
+Route::get('/emails/{email}', [EmailController::class, 'show'])->name('admin.emails.show');
 
 // Configuracion
 Route::get('/statistics', [StatisticsController::class, 'index'])->name('estadistica.index');

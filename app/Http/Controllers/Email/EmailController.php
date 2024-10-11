@@ -17,13 +17,13 @@ class EmailController extends Controller
         // Obtén todos los correos electrónicos paginados
         $emails = Email::with(['status', 'category', 'user'])->paginate(15);
 
-        return view('admin.emails.index', compact('emails'));
+        return view('emails.index', compact('emails'));
     }
 
     // Mostrar un correo específico
     public function show(Email $email)
     {
-        return view('admin.emails.show', compact('email'));
+        return view('emails.show', compact('email'));
     }
 
     public function email(){

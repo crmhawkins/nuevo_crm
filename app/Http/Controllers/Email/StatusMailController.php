@@ -11,12 +11,12 @@ class StatusMailController extends Controller
     public function index()
     {
         $statuses = StatusMail::all();
-        return view('admin.statusEmail.index', compact('statuses'));
+        return view('statusEmail.index', compact('statuses'));
     }
 
     public function create()
     {
-        return view('admin.statusEmail.create');
+        return view('statusEmail.create');
     }
 
     public function store(Request $request)
@@ -28,13 +28,13 @@ class StatusMailController extends Controller
 
         StatusMail::create($request->all());
 
-        return redirect()->route('admin.statusMail.index')->with('status', 'Estado de email creado exitosamente.');
+        return redirect()->route('statusMail.index')->with('status', 'Estado de email creado exitosamente.');
     }
 
     public function edit($id)
     {
         $status = StatusMail::findOrFail($id);
-        return view('admin.statusEmail.edit', compact('status'));
+        return view('statusEmail.edit', compact('status'));
     }
 
     public function update(Request $request, $id)
@@ -47,7 +47,7 @@ class StatusMailController extends Controller
         $status = StatusMail::findOrFail($id);
         $status->update($request->all());
 
-        return redirect()->route('admin.statusMail.index')->with('status', 'Estado de email actualizado exitosamente.');
+        return redirect()->route('statusMail.index')->with('status', 'Estado de email actualizado exitosamente.');
     }
 
     public function destroy($id)
@@ -55,6 +55,6 @@ class StatusMailController extends Controller
         $status = StatusMail::findOrFail($id);
         $status->delete();
 
-        return redirect()->route('admin.statusMail.index')->with('status', 'Estado de email eliminado exitosamente.');
+        return redirect()->route('statusMail.index')->with('status', 'Estado de email eliminado exitosamente.');
     }
 }
