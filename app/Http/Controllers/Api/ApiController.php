@@ -26,7 +26,7 @@ class ApiController extends Controller
         return response()->json(['success' => $id]);
     }
 
-    public function updateMenasaje(Request $request)
+    public function updateMensajes(Request $request)
     {
        // Storage::disk('local')->put('Respuesta_Peticion_ChatGPT-Model.txt', $request->all() );
             $ayuda = KitDigital::find($request->ayuda_id);
