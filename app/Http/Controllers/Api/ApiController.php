@@ -10,7 +10,7 @@ class ApiController extends Controller
 {
     public function getayudas(Request $request){
 
-        $kitDigitals = KitDigital::where('estado', $request->estado )->where(function($query) {
+        $kitDigitals = KitDigital::where('estado', 18 )->where(function($query) {
             $query->where('enviado', '!=', 1)
                   ->orWhereNull('enviado');
         })->get();
