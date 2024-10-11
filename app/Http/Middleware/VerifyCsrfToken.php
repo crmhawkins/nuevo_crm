@@ -14,6 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         '/transcribir-acta',
         '/api/getAyudas',
-        '/api/updateAyudas/{id}'
+        '/api/updateAyudas/{id}',
+        '/api//updateMenasaje'
     ];
 }

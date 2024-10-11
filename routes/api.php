@@ -26,3 +26,4 @@ Route::prefix('tesoreria')->group(function () {
 Route::post('/acta/description', action: [CrmActivityMeetingController::class, 'updateMeeting']);
 Route::post('/getAyudas', action: [ApiController::class, 'getayudas']);
 Route::post('/updateAyudas/{id}', action: [ApiController::class, 'updateAyudas']);
+Route::post('/updateMenasaje', action: [ApiController::class, 'updateMenasaje']);

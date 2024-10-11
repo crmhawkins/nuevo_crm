@@ -465,6 +465,7 @@ Route::get('/kit-digital/create', [KitDigitalController::class, 'create'])->name
 Route::post('/kit-digital/store', [KitDigitalController::class, 'store'])->name('kitDigital.store');
 Route::post('/kit-digital/storeComercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');
 Route::post('/kit-digital/updatedata', [KitDigitalController::class, 'updateData'])->name('kitDigital.updateData');
+Route::get('/kit-digital/whatsapp/{id}', [KitDigitalController::class, 'whatsapp'])->name('kitDigital.whatsapp');
 
 });
 

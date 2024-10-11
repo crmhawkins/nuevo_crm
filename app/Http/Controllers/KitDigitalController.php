@@ -181,4 +181,45 @@ class KitDigitalController extends Controller
                 'mensaje' => 'Nuevo kit digital se guardó correctamente'
              ]);
     }
+
+     // Vista de los mensajes
+     public function whatsapp($id)
+     {
+          $cliente = KitDigital::find($id)->cliente;
+
+           $curl = curl_init();
+
+           curl_setopt_array($curl, [
+               CURLOPT_URL => 'https://asistente.crmhawkins.com/listar-mensajes/'.$id,
+               CURLOPT_RETURNTRANSFER => true,
+               CURLOPT_ENCODING => '',
+               CURLOPT_MAXREDIRS => 10,
+               CURLOPT_TIMEOUT => 0,
+               CURLOPT_FOLLOWLOCATION => true,
+               CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+               CURLOPT_CUSTOMREQUEST => 'POST',
+               CURLOPT_HTTPHEADER => [
+                   'Content-Type: application/json'
+               ],
+           ]);
+
+           $response = curl_exec($curl);
+
+
+           curl_close($curl);
+
+         $mensajes = json_decode($response);
+         $resultado = [];
+         foreach ($mensajes as $elemento) {
+
+             $remitenteSinPrefijo = $elemento->remitente;
+
+
+             $elemento->nombre_remitente = 'Desconocido';
+           $resultado[]  = $elemento;
+
+         }
+
+         return view('whatsapp.whatsapp', compact('resultado','cliente'));
+     }
 }
