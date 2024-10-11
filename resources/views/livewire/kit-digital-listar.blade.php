@@ -379,10 +379,13 @@ function handleDataUpdate(id, value, key) {
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 
     <script>
-        $(document).ready(function() {
+
         function redirectToWhatsapp(id) {
             window.open(`/kit-digital/whatsapp/${id}`, '_blank');
         }
+
+        $(document).ready(function() {
+
         $("#sidebar").remove();
         $("#main").css("margin-left", "0px");
         // Función para manejar la actualización de datos
