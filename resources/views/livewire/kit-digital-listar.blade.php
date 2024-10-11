@@ -172,7 +172,7 @@
                     <td style="max-width: 50px"><input disabled data-id="{{$item->id}}" type="text" name="mensaje_interpretado" id="mensaje_interpretado" value="{{ $item->mensaje_interpretado == 1 ? 'Si' : ($item->mensaje_interpretado == 2 ? 'No se' : ( $item->mensaje_interpretado === 0 ? 'No' : ($item->mensaje_interpretado === 3 ? 'Error' : '' ))) }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem; text-align:center;width: 56px;"></td>
                     <td style="max-width: 50px">
                         {{-- <textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea> --}}
-                        <button type="button" class="btn btn-sm btn-light edit-textarea" onclick="redirectToWhatsapp({{$item->id}})">Ver</button>
+                        <button type="button" class="btn btn-sm btn-light" onclick="redirectToWhatsapp({{$item->id}})">Ver</button>
 
                     </td>
                     <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
