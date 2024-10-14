@@ -133,19 +133,20 @@
                                 <div class="card2">
                                     <div class="mb-3 card-body">
                                         <h5 class="card-title fw-bold">Balance</h5>
-                                        <form action="dashboard" method="GET">
-                                            <div class="col-6">
+                                        <form action="dashboard" method="GET" class="row">
+                                            <div class="col-5">
                                                 <label for="fecha_inicio">Fecha Inicio:</label>
                                                 <input type="date" name="fecha_inicio" class="form-control" value="{{ request('fecha_inicio') }}">
                                             </div>
 
-                                            <div class="col-6">
+                                            <div class="col-5">
                                                 <label for="fecha_fin" class="mt-2">Fecha Fin:</label>
                                                 <input type="date" name="fecha_fin" class="form-control" value="{{ request('fecha_fin') }}">
                                             </div>
                                             
-                                    
-                                            <button class="btn btn-outline-secondary mt-3">Ver Balance</button>
+                                            <div class="col-2">
+                                                <button class="btn btn-outline-secondary mt-3">Ver Balance</button>
+                                            </div>
                                         </form>
                                         <div class="card-body p-3">
                                             <h5 class="card-title m-0 text-color-4 fw-bold">Ingresos</h5>
