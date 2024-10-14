@@ -144,11 +144,11 @@
                                         </form>
                                         <div class="card-body p-3">
                                             <h5 class="card-title m-0 text-color-4  fw-bold">Ingresos</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->ingresosCount)}}</b></span>
+                                            <span class="display-6 m-0"><b>{{count($user->totalIngresos)}}</b></span>
                                             <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Gastos</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->gastosCount)}}</b></span>
+                                            <span class="display-6 m-0"><b>{{count($user->totalGastosComunes)}}</b></span>
                                             <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Gastos Asociados</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->gastosAsociadosCount)}}</b></span>
+                                            <span class="display-6 m-0"><b>{{count($user->totalGastosSociados)}}</b></span>
                                             <hr class="mb-2 mt-2">
                                             <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Beneficios</h5>
                                             <span class="display-6 m-0"><b>{{count($user->beneficios)}}</b></span>
