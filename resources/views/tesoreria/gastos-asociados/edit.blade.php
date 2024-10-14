@@ -32,7 +32,7 @@
             <div class="col-9">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('gasto-asociado.update', $gasto->id) }}" method="POST">
+                        <form action="{{ route('gasto-asociado.update', $gasto->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row mb-3">
                                 <div class="col-md-6">

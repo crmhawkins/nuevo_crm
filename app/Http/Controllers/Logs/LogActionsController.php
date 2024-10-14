@@ -21,14 +21,15 @@ class LogActionsController extends Controller
 
     public function Clasificacion(Request $request)
     {
-        $fecha = $request->fecha ?? Carbon::today()->subDay(1);
-
+        $fechaInicio = $request->fecha_inicio ?? Carbon::today()->subDays(7);
+        $fechaFin = $request->fecha_fin ?? Carbon::today();
         // Obtener los logs del día específico
         $logActions = LogActions::where('tipo', 1)
-        ->whereDate('created_at', $fecha)
+        ->whereBetween('created_at', [$fechaInicio, $fechaFin])
         ->orderBy('admin_user_id')
         ->get()
         ->groupBy('admin_user_id');
+
         $usuarios = User::get()->keyBy('id');
         $referenceIds = $logActions->flatten()->pluck('reference_id')->unique();
         // Obtener los registros de KitDigital que coincidan con los reference_id únicos
