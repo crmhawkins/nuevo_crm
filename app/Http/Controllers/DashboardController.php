@@ -47,18 +47,19 @@ class DashboardController extends Controller
             $pausaActiva = $jornadaActiva->pausasActiva();
         }
 
-        $fechaInicio = $request->input('fecha_inicio');
-        $fechaFin = $request->input('fecha_fin');
-
-        // Validar las fechas
-        if (!$fechaInicio || !$fechaFin) {
-            return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');
-        }
+        
 
         
 
         switch($acceso){
             case(1):
+                $fechaInicio = $request->input('fecha_inicio');
+                $fechaFin = $request->input('fecha_fin');
+
+                // Validar las fechas
+                if (!$fechaInicio || !$fechaFin) {
+                    return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');
+                }
                 // Buscar los ingresos en el rango de fechas
                 $ingresos = Ingreso::whereBetween('date', [$fechaInicio, $fechaFin])->get();
 
@@ -78,7 +79,7 @@ class DashboardController extends Controller
                 $totalGastos = $gastos->sum('quantity') + $gastosAsociados->sum('quantity');
                 $beneficios = $totalIngresos - $totalGastos;
 
-
+                
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
@@ -87,7 +88,7 @@ class DashboardController extends Controller
                 $gastos = 0;
                 $gastosAsociados = 0;
 
-                return view('dashboards', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva', 'ingresosCount', 'gastosCount', 'gastosAsociadosCount','beneficios'));
+                return view('dashboards.dashboard', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva', 'ingresosCount', 'gastosCount', 'gastosAsociadosCount','beneficios'));
             case(2):
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
