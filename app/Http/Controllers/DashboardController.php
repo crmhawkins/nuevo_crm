@@ -63,7 +63,6 @@ class DashboardController extends Controller
                 }
                 // Buscar los ingresos en el rango de fechas
                 $ingresos = Ingreso::whereBetween('date', [$fechaInicio, $fechaFin])->get();
-                dd($ingresos);
                 // Buscar los gastos en el rango de fechas
                 $gastos = Gasto::whereBetween('date', [$fechaInicio, $fechaFin])->get();
 
