@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Exports\GastosExport;
 use App\Models\Accounting\Gasto;
 use App\Models\Clients\Client;
 use Carbon\Carbon;
@@ -106,7 +107,7 @@ class GastosTable extends Component
         $gastos = $this->getGastos();
         $this->perPage = $paginate;
         // Exporta los datos a Excel
-        return Excel::download(new InvoicesExport($gastos), 'facturas.xlsx');
+        return Excel::download(new GastosExport($gastos), 'gastos.xlsx');
     }
 
 }

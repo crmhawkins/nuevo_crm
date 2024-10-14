@@ -1,6 +1,7 @@
 <?php
 
 use App\Events\RecargarPagina;
+use App\Http\Controllers\AccionesController;
 use App\Http\Controllers\Alert\AlertController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Suppliers\SuppliersController;
@@ -44,6 +45,7 @@ use App\Http\Controllers\Ordenes\OrdenesController;
 use App\Http\Controllers\Statistics\StatisticsController;
 use App\Http\Controllers\Users\DepartamentController;
 use App\Http\Controllers\Users\PositionController;
+use App\Http\Controllers\Whatsapp\WhatsappController;
 
 /*
 |--------------------------------------------------------------------------
@@ -488,6 +490,21 @@ Route::post('/kit-digital/store', [KitDigitalController::class, 'store'])->name(
 Route::post('/kit-digital/storeComercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');
 Route::post('/kit-digital/updatedata', [KitDigitalController::class, 'updateData'])->name('kitDigital.updateData');
 Route::get('/kit-digital/whatsapp/{id}', [KitDigitalController::class, 'whatsapp'])->name('kitDigital.whatsapp');
+
+
+//Whatsapp
+Route::get('/whatsapp', [WhatsappController::class, 'hookWhatsapp'])->name('whatsapp.hookWhatsapp');
+Route::post('/whatsapp', [WhatsappController::class, 'processHookWhatsapp'])->name('whatsapp.processHookWhatsapp');
+Route::get('/chatgpt/{texto}', [WhatsappController::class, 'chatGptPruebas'])->name('whatsapp.chatGptPruebas');
+
+Route::get('/mensajes-whatsapp', [WhatsappController::class, 'whatsapp'])->name('whatsapp.mensajes');
+Route::get('/acciones', [AccionesController::class, 'index'])->name('acciones.index');
+Route::get('/acciones/enviar', [AccionesController::class, 'enviar'])->name('acciones.enviar');
+Route::post('/acciones/enviar-mensajes', [AccionesController::class, 'enviarMensajes'])->name('acciones.enviarMensajes');
+Route::post('/listar-mensajes/{id}', [AccionesController::class, 'listarMensajes'])->name('acciones.listarMensajes');
+Route::post('/acciones/enviar-segmento-3', [AccionesController::class, 'enviarMensajesSegmentos'])->name('acciones.enviarMensajesSegmentos');
+
+Route::post('/actualizar', [AccionesController::class, 'actualizar'])->name('acciones.actualizar');
 
 });
 

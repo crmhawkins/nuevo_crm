@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Exports\AsociadosExport;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Clients\Client;
 use Carbon\Carbon;
@@ -124,7 +125,7 @@ class AssociatedTable extends Component
         $gastos = $this->getGastos();
         $this->perPage = $paginate;
         // Exporta los datos a Excel
-        return Excel::download(new InvoicesExport($gastos), 'facturas.xlsx');
+        return Excel::download(new AsociadosExport($gastos), 'gastos_asociados.xlsx');
     }
 
 }

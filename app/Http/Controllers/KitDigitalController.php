@@ -226,6 +226,6 @@ class KitDigitalController extends Controller
 
          }
 
-         return view('whatsapp.whatsapp', compact('resultado','cliente'));
+         return view('whatsapp.whatsappIndividual', compact('resultado','cliente'));
      }
 }

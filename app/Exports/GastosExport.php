@@ -2,17 +2,16 @@
 
 namespace App\Exports;
 
-use App\Models\Invoices\Invoice;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class InvoicesExport implements FromCollection, WithHeadings
+class GastosExport implements FromCollection, WithHeadings
 {
-    protected $invoices;
+    protected $gastos;
 
-    public function __construct($invoices)
+    public function __construct($gastos)
     {
-        $this->invoices = $invoices;
+        $this->gastos = $gastos;
     }
 
     /**
@@ -20,15 +19,15 @@ class InvoicesExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
-        return $this->invoices->map(function($invoice) {
+        return $this->gastos->map(function($gasto) {
             return [
-                $invoice->reference,
-                optional($invoice->cliente)->name ?? 'Cliente borrado',
-                optional($invoice->project)->name ?? 'Sin campaña asignada',
-                $invoice->created_at->format('d/m/Y'),
-                optional($invoice->invoiceStatus)->name ?? 'Sin estado asignado',
-                $invoice->total,
-                optional($invoice->adminUser)->name ?? 'Sin gestor asignado',
+                optional($gasto->bankAccount)->name ?? 'Sin banco asignado',
+                $gasto->title,
+                number_format($gasto->quantity, 2),
+                \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y'),
+                \Carbon\Carbon::parse($gasto->date)->format('d/m/Y'),
+                $gasto->reference,
+                $gasto->state,
             ];
         });
     }
@@ -39,13 +38,13 @@ class InvoicesExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'Banco',
+            'Titulo',
+            'Cantidad',
+            'Fecha recepción',
+            'Fecha de pago',
             'Referencia',
-            'Cliente',
-            'Campaña',
-            'Fecha Creación',
             'Estado',
-            'Total',
-            'Gestor',
         ];
     }
 }

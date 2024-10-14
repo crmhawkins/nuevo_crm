@@ -5,7 +5,7 @@ namespace App\Exports;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class gastosExport implements FromCollection, WithHeadings
+class AsociadosExport implements FromCollection, WithHeadings
 {
     protected $gastos;
 
@@ -22,12 +22,14 @@ class gastosExport implements FromCollection, WithHeadings
         return $this->gastos->map(function($gasto) {
             return [
                 $gasto->reference,
-                optional($gasto->cliente)->name ?? 'Cliente borrado',
-                optional($gasto->project)->name ?? 'Sin campaña asignada',
-                $gasto->created_at->format('d/m/Y'),
-                optional($gasto->gastostatus)->name ?? 'Sin estado asignado',
-                $gasto->total,
-                optional($gasto->adminUser)->name ?? 'Sin gestor asignado',
+                $gasto->purchase_order_id ?? 'No tiene orden de compra',
+                optional(optional($gasto->OrdenCompra)->cliente)->name ?? 'Sin cliente Asociado',
+                optional(optional($gasto->OrdenCompra)->Proveedor)->name ?? 'Sin Proveedor Asociado',
+                $gasto->title,
+                number_format($gasto->quantity, 2),
+                \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y'),
+                optional($gasto->bankAccount)->name ?? 'Sin banco asignado',
+                $gasto->state,
             ];
         });
     }
@@ -39,12 +41,14 @@ class gastosExport implements FromCollection, WithHeadings
     {
         return [
             'Referencia',
+            'Nº orden',
             'Cliente',
-            'Campaña',
-            'Fecha Creación',
+            'Proveedor',
+            'Titulo',
+            'Cantidad',
+            'Fecha recepción',
+            'Banco',
             'Estado',
-            'Total',
-            'Gestor',
         ];
     }
 }
