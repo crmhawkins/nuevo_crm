@@ -170,7 +170,7 @@ class TesoreriaController extends Controller
             'date' => 'nullable',
             'received_date' => 'nullable',
             'payment_method_id' => 'required|integer|exists:payment_method,id',
-            'transfer_movement' => 'nullable|boolean',
+            'transfer_movement' => 'nullable',
             'state' => 'required|string|max:255',
             'documents' => 'nullable',
         ],[
@@ -399,7 +399,7 @@ class TesoreriaController extends Controller
             'date' => 'nullable|date',
             'received_date' => 'nullable|date',
             'payment_method_id' => 'required|integer|exists:payment_method,id',
-            'transfer_movement' => 'nullable|boolean',
+            'transfer_movement' => 'nullable',
             'state' => 'required|string|max:255',
         ], [
             'title.required' => 'El título es obligatorio.',
@@ -423,6 +423,7 @@ class TesoreriaController extends Controller
             'state.string' => 'El estado debe ser una cadena de texto.',
             'state.max' => 'El estado no debe exceder los 255 caracteres.',
         ]);
+        $validated['transfer_movement'] = $request->has('transfer_movement') ? 1 : 0;
 
         // Actualizar el gasto con los datos validados
         $gasto->update($validated);
@@ -481,7 +482,6 @@ class TesoreriaController extends Controller
             'state.string' => 'El estado debe ser una cadena de texto.',
             'aceptado_gestor.boolean' => 'El campo aceptado gestor debe ser verdadero o falso.',
         ]);
-        $validated['transfer_movement'] = $request->has('transfer_movement') ? 1 : 0;
 
         // Actualizar el gasto asociado con los datos validados
         $gasto->update($validated);
