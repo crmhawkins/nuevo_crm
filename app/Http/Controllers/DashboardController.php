@@ -10,6 +10,7 @@ use App\Models\Alerts\AlertStatus;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
 use App\Models\HoursMonthly\HoursMonthly;
+use App\Models\Invoices\Invoice;
 use App\Models\Jornada\Jornada;
 use App\Models\Jornada\Pause;
 use App\Models\KitDigital;
@@ -62,12 +63,12 @@ class DashboardController extends Controller
                     return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');                   
                 }
                 // Buscar los ingresos en el rango de fechas
-                $ingresos = Ingreso::whereBetween('date', [$fechaInicio, $fechaFin])->get();
+                $ingresos = Invoice::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
                 // Buscar los gastos en el rango de fechas
-                $gastos = Gasto::whereBetween('date', [$fechaInicio, $fechaFin])->get();
+                $gastos = Gasto::whereBetween('created_at', [$fechaInicio, $fechaFin])->where('transfer_movement', '!=', true)->get();
 
                 // Buscar los gastos asociados en el rango de fechas
-                $gastosAsociados = AssociatedExpenses::whereBetween('date', [$fechaInicio, $fechaFin])->get();
+                $gastosAsociados = AssociatedExpenses::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
 
                 // Calcular la cantidad de cada tipo
                 $ingresosCount = $ingresos->count();
@@ -75,7 +76,7 @@ class DashboardController extends Controller
                 $gastosAsociadosCount = $gastosAsociados->count();
 
                 // Calcular beneficios
-                $totalIngresos = $ingresos->sum('quantity');
+                $totalIngresos = $ingresos->sum('total');
                 $totalGastosComunes = $gastos->sum('quantity');
                 $totalGastosSociados = $gastosAsociados->sum('quantity');
                 $totalGastos = $totalGastosComunes + $totalGastosSociados;

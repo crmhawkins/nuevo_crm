@@ -68,6 +68,14 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
+                                    <label for="reference">IVA:</label>
+                                    <input type="text" class="form-control" id="iva" name="iva" value="{{old('iva')}}">
+                                    @error('iva')
+                                    <span class="text-danger">{{ $message }}</span>
+                                    <style>.text-danger {color: red;}</style>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
                                     <label for="date">Fecha de pago:</label>
                                     <input type="date" class="form-control" id="date" name="date" value="{{old('date')}}">
                                     @error('date')

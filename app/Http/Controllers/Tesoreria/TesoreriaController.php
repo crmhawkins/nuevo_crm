@@ -204,7 +204,8 @@ class TesoreriaController extends Controller
             $path = $request->file('documents')->store('documents', 'public');
             $gasto->documents = $path;
         }
-
+        // Asignar el valor de transfer_movement de forma correcta
+        $gasto->transfer_movement = $request->has('transfer_movement') ? 1 : 0;
         // Guardar el nuevo gasto
         $gasto->save();
 
@@ -422,6 +423,7 @@ class TesoreriaController extends Controller
             'state.string' => 'El estado debe ser una cadena de texto.',
             'state.max' => 'El estado no debe exceder los 255 caracteres.',
         ]);
+        $validated['transfer_movement'] = $request->has('transfer_movement') ? 1 : 0;
 
         // Actualizar el gasto con los datos validados
         $gasto->update($validated);
