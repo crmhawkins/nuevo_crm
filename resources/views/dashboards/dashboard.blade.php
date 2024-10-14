@@ -136,12 +136,12 @@
                                         <div class="card-body p-3">
                                             <h5 class="card-title m-0 text-color-4  fw-bold">Ingresos</h5>
                                             <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
-                                            <h5 class="card-title m-0 text-color-4  fw-bold">Gastos</h5>
+                                            <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Gastos</h5>
                                             <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
-                                            <h5 class="card-title m-0 text-color-4  fw-bold">Gastos Asociados</h5>
+                                            <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Gastos Asociados</h5>
                                             <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
                                             <hr>
-                                            <h5 class="card-title m-0 text-color-4  fw-bold">Beneficios</h5>
+                                            <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Beneficios</h5>
                                             <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
                                         </div>
                                     </div>
