@@ -16,7 +16,8 @@ class GastosTable extends Component
     public $selectedCliente = '';
     public $selectedEstado;
     public $selectedYear;
-    public $selectedDate;
+    public $startDate;
+    public $endDate;
     public $clientes;
     public $estados;
     public $perPage = 10;
@@ -46,8 +47,11 @@ class GastosTable extends Component
                 ->when($this->selectedYear, function ($query) {
                     $query->whereYear('created_at', $this->selectedYear);
                 })
-                ->when($this->selectedDate, function ($query) {
-                    $query->where('date', '=', $this->selectedDate);
+                ->when($this->startDate, function ($query) {
+                    $query->whereDate('created_at', '>=', Carbon::parse($this->startDate));
+                })
+                ->when($this->endDate, function ($query) {
+                    $query->whereDate('created_at', '<=', Carbon::parse($this->endDate));
                 }); // Obtiene todos los registros sin paginación
 
          // Aplica la ordenación

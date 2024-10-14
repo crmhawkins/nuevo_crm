@@ -24,8 +24,12 @@
         <div class="col-md-6 col-sm-12">
             <div class="flex flex-row justify-end">
                 <div class="mr-3">
-                    <label for="">Fecha</label>
-                    <input wire:model="selectedDate" type="date" class="form-control">
+                    <label for="">Fecha inicio</label>
+                    <input wire:model="startDate" type="date" class="form-control" placeholder="Fecha de inicio">
+                </div>
+                <div class="mr-3">
+                    <label for="">Fecha fin</label>
+                    <input wire:model="endDate" type="date" class="form-control" placeholder="Fecha de fin">
                 </div>
                 <div class="mr-3">
                     <label for="">Año</label>

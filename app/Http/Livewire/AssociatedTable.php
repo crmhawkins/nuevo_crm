@@ -16,7 +16,8 @@ class AssociatedTable extends Component
     public $selectedCliente = '';
     public $selectedEstado;
     public $selectedYear;
-    public $selectedDate;
+    public $startDate;
+    public $endDate;
     public $clientes;
     public $estados;
     public $perPage = 10;
@@ -50,8 +51,11 @@ class AssociatedTable extends Component
         ->when($this->selectedYear, function ($query) {
             $query->whereYear('associated_expenses.created_at', $this->selectedYear);
         })
-        ->when($this->selectedDate, function ($query) {
-            $query->where('associated_expenses.received_date', '=', $this->selectedDate);
+        ->when($this->startDate, function ($query) {
+            $query->whereDate('created_at', '>=', Carbon::parse($this->startDate));
+        })
+        ->when($this->endDate, function ($query) {
+            $query->whereDate('created_at', '<=', Carbon::parse($this->endDate));
         })
         ->join('purchase_order', 'associated_expenses.purchase_order_id', '=', 'purchase_order.id') // Join con la tabla purchase_order
         ->join('suppliers', 'purchase_order.supplier_id', '=', 'suppliers.id') // Join con la tabla suppliers

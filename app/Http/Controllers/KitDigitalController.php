@@ -40,31 +40,37 @@ class KitDigitalController extends Controller
                 ]);
             }
 
-            // if($data['key'] == 'importe'){
-            //     // Limpia cualquier carácter no numérico excepto comas y puntos
-            //     $value = preg_replace('/[^\d,\.]/', '', $data['value']);
+            if ($data['key'] === 'importe') {
+                // Limpia cualquier carácter no numérico excepto comas y puntos
+                $value = preg_replace('/[^\d,\.]/', '', $data['value']);
 
-            //     // Identificar el último punto o coma como separador decimal
-            //     $decimalPosition = max(strrpos($value, ','));
+                // Verifica si el tercer carácter desde la derecha es un punto o coma para determinar el separador decimal
+                $thirdCharFromRight = substr($value, -3, 1);
+                if ($thirdCharFromRight === ',' || $thirdCharFromRight === '.') {
+                    $decimalPosition = strlen($value) - 3;
+                } else {
+                    // Identificar el último punto o coma como separador decimal
+                    $decimalPosition = strrpos($value, ',') ?: strrpos($value, '.');
+                }
 
-            //     if ($decimalPosition !== false) {
-            //         // Si encontramos una coma o punto en la cadena, separa la parte entera de la decimal
-            //         $integerPart = substr($value, 0, $decimalPosition);
-            //         $decimalPart = substr($value, $decimalPosition + 1);
+                if ($decimalPosition !== false && strlen($value) - $decimalPosition > 1) {
+                    // Separa la parte entera de la parte decimal
+                    $integerPart = substr($value, 0, $decimalPosition);
+                    $decimalPart = substr($value, $decimalPosition + 1);
 
-            //         // Elimina cualquier coma o punto en la parte entera (es separador de miles)
-            //         $integerPart = str_replace([',', '.'], '', $integerPart);
+                    // Elimina separadores de miles en la parte entera
+                    $integerPart = str_replace([',', '.'], '', $integerPart);
 
-            //         // Reconstruye el valor usando un punto como separador decimal
-            //         $value = $integerPart . '.' . $decimalPart;
-            //     } else {
-            //         // Si no hay separador decimal, elimina comas o puntos como separadores de miles
-            //         $value = str_replace([',', '.'], '', $value);
-            //     }
-            //     // Convierte el valor a número flotante con dos decimales
-            //     $data['value'] = number_format((float)$value, 2, '.', '');
-            // }
+                    // Reconstruye el valor usando un punto como separador decimal
+                    $value = $integerPart . '.' . $decimalPart;
+                } else {
+                    // Si no hay separador decimal, elimina comas o puntos como separadores de miles
+                    $value = str_replace([',', '.'], '', $value);
+                }
 
+                // Convierte el valor a número flotante con dos decimales
+                $data['value'] = number_format((float) $value, 2, '.', '');
+            }
             $valor1 = $item[$data['key']];
 
             $item[$data['key']] = $data['value'];

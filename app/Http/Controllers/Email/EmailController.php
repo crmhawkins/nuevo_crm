@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Email;
 use App\Models\Email\Email;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use Webklex\IMAP\Facades\Client;
+use Webklex\PHPIMAP\ClientManager;
 use App\Http\Controllers\Controller;
-
-
+use App\Models\Email\UserEmailConfig;
 
 class EmailController extends Controller
 {
@@ -27,40 +26,56 @@ class EmailController extends Controller
     }
 
     public function email(){
-        $client = Client::account('default');
-        $client->connect();
+        $config = UserEmailConfig::all();
+        foreach ($config as $correo) {
 
-        $inbox = $client->getFolder('INBOX');
-        // Obtener todos los correos
-        $messages = $inbox->messages()->unseen()->get();  // También puedes probar con recent()
-
-        // Procesar solo los primeros 10 correos
-        $counter = 0;
-        foreach ($messages as $message) {
-            if ($counter >= 10) break; // Salir del loop después de procesar 10 mensajes
-
-            // Aquí puedes procesar cada correo
-            $sender = $message->getFrom()[0]->mail;
-            $subject = $message->getSubject();
-            $body = $message->getTextBody();
-            $messageId = $message->getMessageId(); // Obtiene el Message-ID del correo original
-
-            // Guardar en la base de datos o hacer algo con los correos
-            Email::create([
-                'sender' => $sender,
-                'subject' => $subject,
-                'body' => $body,
-                'message_id' => $messageId,
+            $ClientManager = new ClientManager();
+            $client = $ClientManager->make([
+                'host' => $correo->host,
+                'port' => $correo->port,
+                'username' => $correo->username,
+                'password' => $correo->password,
+                'encryption' => 'ssl',
+                'validate_cert' => true,
+                'protocol'      => 'imap'
             ]);
 
+            $client->connect();
 
-            // Marca el correo como leído
-            $message->setFlag('Seen');
+            $inbox = $client->getFolder('INBOX');
+            // Obtener todos los correos
+            $messages = $inbox->messages()->unseen()->get();  // También puedes probar con recent()
 
+            // Procesar solo los primeros 10 correos
+            $counter = 0;
+            foreach ($messages as $message) {
+                if ($counter >= 40) break; // Salir del loop después de procesar 10 mensajes
+
+                // Aquí puedes procesar cada correo
+                $sender = $message->getFrom()[0]->mail;
+                $subject = $message->getSubject();
+                $body = $message->getTextBody();
+                $messageId = $message->getMessageId(); // Obtiene el Message-ID del correo original
+
+                // Guardar en la base de datos o hacer algo con los correos
+                Email::create([
+                    'admin_user_id' => $correo->admin_user_id,
+                    'sender' => $sender,
+                    'subject' => $subject,
+                    'body' => $body,
+                    'message_id' => $messageId,
+                ]);
+
+
+                // Marca el correo como leído
+                $message->setFlag('Seen');
+
+            }
+
+            $client->disconnect();
         }
-
-        $client->disconnect();
     }
+
     public function replyToEmail($emailId)
     {
         // Busca el email en la base de datos
@@ -70,8 +85,25 @@ class EmailController extends Controller
             return response()->json(['error' => 'Email no encontrado'], 404);
         }
 
-        // Conectar a la cuenta de correo para responder
-        $client = Client::account('default');
+        // Obtén la configuración de correo electrónico del usuario correspondiente
+        $correoConfig = UserEmailConfig::where('admin_user_id', $email->admin_user_id)->first();
+
+        if (!$correoConfig) {
+            return response()->json(['error' => 'Configuración de correo no encontrada para este usuario'], 404);
+        }
+
+        // Conectar a la cuenta de correo del usuario para responder
+        $ClientManager = new ClientManager();
+        $client = $ClientManager->make([
+            'host' => $correoConfig->host,
+            'port' => $correoConfig->port,
+            'username' => $correoConfig->username,
+            'password' => $correoConfig->password,
+            'encryption' => 'ssl',
+            'validate_cert' => true,
+            'protocol' => 'imap'
+        ]);
+
         $client->connect();
 
         // Cargar el correo original desde la carpeta
@@ -87,11 +119,12 @@ class EmailController extends Controller
         $recipient = $email->sender;  // Aquí obtenemos el destinatario original
 
         // Configurar la respuesta
-        Mail::send([], [], function ($message) use ($recipient, $email, $messageId) {
-            $message->to($recipient)
+        Mail::send([], [], function ($message) use ($recipient, $email, $messageId, $correoConfig) {
+            $message->from($correoConfig->username)
+                    ->to($recipient)
                     ->subject('Re: ' . $email->subject)
                     ->setBody('Esta es una respuesta al correo original.', 'text/html')
-                    ->setReplyTo($recipient)
+                    ->setReplyTo($correoConfig->username)
                     ->getHeaders()
                     ->addTextHeader('In-Reply-To', $messageId)
                     ->addTextHeader('References', $messageId);
