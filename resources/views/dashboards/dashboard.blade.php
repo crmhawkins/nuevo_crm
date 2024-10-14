@@ -12,17 +12,18 @@
 <div class="page-heading card" style="box-shadow: none !important" >
     <div class="page-title card-body">
         <div class="row">
-            <div class="col-12 col-md-6 order-md-1 order-last">
+            <div class="col-12 col-md-4 order-md-1 order-last">
                 <h3>Dashboard</h3>
             </div>
 
-            <div class="col-12 col-md-6 order-md-2 order-first">
+            <div class="col-12 col-md-8 order-md-2 order-first">
                 <div class="row justify-end ">
-                     <h2 id="timer" class="display-6 font-weight-bold col-4">00:00:00</h2>
-                    <button id="startJornadaBtn" class="btn jornada btn-primary mx-2 col-3" onclick="startJornada()">Inicio Jornada</button>
-                    <button id="startPauseBtn" class="btn jornada btn-secondary mx-2 col-3" onclick="startPause()" style="display:none;">Iniciar Pausa</button>
-                    <button id="endPauseBtn" class="btn jornada btn-secondary mx-2 col-3" onclick="endPause()" style="display:none;">Finalizar Pausa</button>
-                    <button id="endJornadaBtn" class="btn jornada btn-danger mx-2 col-3" onclick="endJornada()" style="display:none;">Fin de Jornada</button>
+                    <button id="endllamadaBtn" class="btn jornada btn-danger mx-2 col-2" onclick="endLlamada()" style="display:none;">Finalizar llamada</button>
+                     <h2 id="timer" class="display-6 font-weight-bold col-3">00:00:00</h2>
+                    <button id="startJornadaBtn" class="btn jornada btn-primary mx-2 col-2" onclick="startJornada()">Inicio Jornada</button>
+                    <button id="startPauseBtn" class="btn jornada btn-secondary mx-2 col-2" onclick="startPause()" style="display:none;">Iniciar Pausa</button>
+                    <button id="endPauseBtn" class="btn jornada btn-dark mx-2 col-2" onclick="endPause()" style="display:none;">Finalizar Pausa</button>
+                    <button id="endJornadaBtn" class="btn jornada btn-danger mx-2 col-2" onclick="endJornada()" style="display:none;">Fin de Jornada</button>
                 </div>
             </div>
         </div>
@@ -60,9 +61,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <a href="{{route('presupuesto.create')}}" class="btn btn-outline-primary">Nuevo Presupuesto</a>
-                            <a href="{{route('presupuestos.indexUser')}}" class="btn btn-outline-secondary">Ver mis Presupuestos</a>
-                            <a href="{{route('presupuestos.index')}}" class="btn btn-outline-secondary">Ver todos los Presupuestos</a>
+                            <a href="{{route('presupuesto.create')}}" class="btn btn-outline-primary mb-2">Nuevo Presupuesto</a>
+                            <a href="{{route('presupuestos.indexUser')}}" class="btn btn-outline-secondary mb-2">Ver mis Presupuestos</a>
+                            <a href="{{route('presupuestos.index')}}" class="btn btn-outline-secondary mb-2">Ver todos los Presupuestos</a>
                         </div>
                         <div class="row row-cols-1 row-cols-md-2 g-4">
                             <div class="col">
@@ -79,8 +80,8 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <a href="{{route('peticion.create')}}" class="btn btn-outline-primary">Nueva Petición</a>
-                                        <a href="{{route('peticion.indexUser')}}" class="btn btn-outline-secondary">Ver Mis Peticiones</a>
+                                        <a href="{{route('peticion.create')}}" class="btn btn-outline-primary mb-2">Nueva Petición</a>
+                                        <a href="{{route('peticion.indexUser')}}" class="btn btn-outline-secondary mb-2">Ver Mis Peticiones</a>
                                     </div>
                                 </div>
                             </div>
@@ -93,7 +94,7 @@
                                                 <div class="card">
                                                     <div class="card-body p-3">
                                                         <h5 class="card-title m-0 text-color-4  fw-bold">Pendientes</h5>
-                                                        <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
+                                                        <span class="display-6 m-0"><b>{{count($user->ordenes())}}</b></span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -121,8 +122,28 @@
                                         <a href="{{route('reunion.index')}}" class="btn btn-outline-secondary mb-2">Ver Actas de reunion</a>
                                         <a href="{{route('clientes.index')}}" class="btn btn-outline-secondary mb-2">Ver Clientes</a>
                                         <a href="{{route('proveedores.index')}}" class="btn btn-outline-secondary mb-2">Ver Proveedores</a>
-                                        <a {{-- href="{{route('proveedores.index')}}" --}} class="btn btn-outline-secondary mb-2">Tramitar Subvención</a>
+                                        <a href="{{route('kitDigital.create')}}"  class="btn btn-outline-secondary mb-2">Tramitar Subvención</a>
                                         <a target="_blank" href="{{route('kitDigital.index')}}" class="btn btn-outline-secondary mb-2">Kit Digital</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            <div class="col">
+                                <div class="card2">
+                                    <div class="mb-3 card-body">
+                                        <h5 class="card-title fw-bold">Balance</h5>
+                                        <div class="card-body p-3">
+                                            <h5 class="card-title m-0 text-color-4  fw-bold">Ingresos</h5>
+                                            <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
+                                            <h5 class="card-title m-0 text-color-4  fw-bold">Gastos</h5>
+                                            <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
+                                            <h5 class="card-title m-0 text-color-4  fw-bold">Gastos Asociados</h5>
+                                            <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
+                                            <hr>
+                                            <h5 class="card-title m-0 text-color-4  fw-bold">Beneficios</h5>
+                                            <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -208,7 +229,7 @@
                                                                         <button onclick="finishTask(event,{{ $to_do->id }})" class="btn btn-danger btn-sm">Finalizar</button>
                                                                         @endif
                                                                     </div>
-                                                                    <div class="pulse justify-center align-items-center" style="{{ $to_do->unreadMessagesCountByUser($user->id) > 0 ? 'display: flex;' : 'display: none;' }}">
+                                                                    <div id="todo-card-{{ $to_do->id }}"  class="pulse justify-center align-items-center" style="{{ $to_do->unreadMessagesCountByUser($user->id) > 0 ? 'display: flex;' : 'display: none;' }}">
                                                                         {{ $to_do->unreadMessagesCountByUser($user->id) }}
                                                                     </div>
                                                                 </div>
@@ -314,13 +335,17 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
+                                <div class="col-md-12 mb-3">
+                                    <label for="phone" class="form-label">Telefono</label>
+                                    <input type="text" class="form-control" id="phone" name="phone">
+                                </div>
                             </div>
                             <input type="hidden" name="admin_user_id" value="{{ $user->id }}">
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button id="iniciarllamada" type="button" class="btn btn-primary">Iniciar</button>
+                        <button id="iniciarllamada" type="submit" class="btn btn-primary">Iniciar</button>
                     </div>
                 </form>
             </div>
@@ -409,9 +434,9 @@
                                     </span>
                                 @enderror
                             </div>
-                            <div class="col-md-6 mb-3 choices">
+                            <div class="col-md-6 mb-3">
                                 <label for="admin_user_ids" class="form-label">Usuarios</label>
-                                <select class="form-select choices__inner" id="admin_user_ids" name="admin_user_ids[]" multiple>
+                                <select class="form-select" id="admin_user_ids" name="admin_user_ids[]" multiple>
                                     <option value="">Seleccione usuarios</option>
                                     @foreach ($users as $gestor)
                                         @if ($gestor->id !== auth()->id()) <!-- Excluir al usuario logueado -->
@@ -454,7 +479,6 @@
             </div>
         </div>
     </div>
-
 </div>
 @endsection
 
@@ -464,6 +488,7 @@
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales-all.global.min.js"></script>
 <script>
+    var enRutaEspecifica = true;
     document.addEventListener('DOMContentLoaded', function() {
         var multipleCancelButton = new Choices('#admin_user_ids', {
             removeItemButton: true, // Permite a los usuarios eliminar una selección
@@ -475,6 +500,24 @@
 <script>
     let timerState = '{{ $jornadaActiva ? "running" : "stopped" }}'
     let timerTime = {{ $timeWorkedToday }}; // In seconds, initialized with the time worked today
+    function getTime() {
+        fetch('/dashboard/timeworked', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    timerTime = data.time
+                    updateTime()
+                }
+            });
+    }
+
 
     function updateTime() {
         let hours = Math.floor(timerTime / 3600);
@@ -522,6 +565,53 @@
     }
 
     function endJornada() {
+    // Obtener el tiempo actualizado
+    getTime();
+
+    let now = new Date();
+    let currentHour = now.getHours();
+    let currentMinute = now.getMinutes();
+
+    // Convertir los segundos trabajados a horas
+    let workedHours = timerTime / 3600;
+
+    // Verificar si es antes de las 18:00 o si ha trabajado menos de 8 horas
+    if (currentHour < 18 || workedHours < 8) {
+        let title = '';
+        let text = '';
+
+        if (currentHour < 18) {
+            title = 'Horario de Salida Prematuro';
+            text = 'Es menos de las 18:00.  ';
+        }else{
+            if(workedHours < 8) {
+            title = ('Jornada Incompleta');
+            text = 'Has trabajado menos de 8 horas. Si no compensas el tiempo faltante,';
+            }
+        }
+
+        text += 'Se te descontará de tus vacaciones al final del mes.';
+
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Finalizar Jornada',
+            cancelButtonText: 'Continuar Jornada'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                finalizarJornada();
+            }
+            // Si elige continuar, no hacemos nada, simplemente mantiene la jornada activa
+        });
+    } else {
+        // Si el tiempo es mayor o igual a 8 horas y es después de las 18:00, finalizamos directamente la jornada
+        finalizarJornada();
+    }
+}
+
+    function finalizarJornada() {
         fetch('/end-jornada', {
             method: 'POST',
             headers: {
@@ -530,16 +620,16 @@
             },
             body: JSON.stringify({})
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    stopTimer();
-                    document.getElementById('startJornadaBtn').style.display = 'block';
-                    document.getElementById('startPauseBtn').style.display = 'none';
-                    document.getElementById('endJornadaBtn').style.display = 'none';
-                    document.getElementById('endPauseBtn').style.display = 'none';
-                }
-            });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                stopTimer();
+                document.getElementById('startJornadaBtn').style.display = 'block';
+                document.getElementById('startPauseBtn').style.display = 'none';
+                document.getElementById('endJornadaBtn').style.display = 'none';
+                document.getElementById('endPauseBtn').style.display = 'none';
+            }
+        });
     }
 
     function startPause() {
@@ -580,8 +670,38 @@
             });
     }
 
+    function endLlamada() {
+        fetch('/dashboard/llamadafin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('endllamadaBtn').style.display = 'none';
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.mensaje, // Aquí se muestra el mensaje del JSON
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
+                }
+            });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         updateTime(); // Initialize the timer display
+
+        setInterval(function() {
+            getTime();
+        }, 120000);
 
         // Initialize button states based on jornada and pause
         if ('{{ $jornadaActiva }}') {
@@ -601,7 +721,14 @@
             document.getElementById('startPauseBtn').style.display = 'none';
             document.getElementById('endPauseBtn').style.display = 'none';
         }
-    });
+
+        if ('{{ $llamadaActiva }}'){
+            document.getElementById('endllamadaBtn').style.display = 'block';
+        } else {
+            document.getElementById('endllamadaBtn').style.display = 'none';
+        }
+
+        });
 </script>
 <script>
         $('#todoboton').click(function(e){
@@ -911,11 +1038,9 @@
                 const fileClip = this.closest('.input-group-text').querySelector('#file-clip');
 
                 if (this.files.length > 0) {
-                    console.log('File selected'); // Verifica que se ha seleccionado un archivo
                     fileIcon.style.display = 'inline-block';
                     fileClip.style.display = 'none';
                 } else {
-                    console.log('No file selected'); // Verifica que no hay archivo seleccionado
                     fileIcon.style.display = 'none';
                     fileClip.style.display = 'inline-block';
                 }
@@ -1017,6 +1142,83 @@
             e.preventDefault();
             this.closest('form').submit();
         });
+    });
+
+    function updateUnreadMessagesCount(todoId) {
+        fetch(`/todos/unread-messages-count/${todoId}`,{
+            method: 'POST', // Cambiamos a POST
+            headers: {
+                'Content-Type': 'application/json', // Indicamos que enviamos JSON
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            },
+            body: JSON.stringify({}) // Enviamos un cuerpo vacío o puedes agregar datos si es necesario
+
+            })
+            .then(response => response.json())
+            .then(data => {
+                const pulseDiv = document.querySelector(`#todo-card-${todoId} .pulse`);
+
+                if (data.unreadCount > 0) {
+                    pulseDiv.style.display = 'flex';
+                    pulseDiv.textContent = data.unreadCount;
+                } else {
+                    pulseDiv.style.display = 'none';
+                    pulseDiv.textContent = '';
+                }
+            });
+    }
+
+    function loadMessages(todoId) {
+        $.ajax({
+            url: `/todos/getMessages/${todoId}`,
+            type: 'POST',
+            contentType: 'application/json', // Especifica el tipo de contenido
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            },
+            data: JSON.stringify({}),
+            success: function(data) {
+                let messagesContainer = $(`#todo-card-${todoId} .chat-container`);
+                messagesContainer.html(''); // Limpiamos el contenedor
+                data.forEach(function(message) {
+                    let fileIcon = '';
+                    if (message.archivo) {
+                        fileIcon = `
+                            <div class="file-icon">
+                                <a href="/storage/${message.archivo}" target="_blank">
+                                    <i class="fa-regular fa-file-lines fa-2x"></i>
+                                </a>
+                            </div>
+                        `;
+                    }
+                    const messageClass = message.admin_user_id == {{ auth()->id() }} ? 'mine' : 'theirs';
+
+                    messagesContainer.append(`
+                        <div class="p-3 message ${messageClass}">
+                            ${fileIcon}
+                            <strong>${message.user.name}:</strong> ${message.mensaje}
+                        </div>
+                    `);
+                });
+            }
+        });
+    }
+
+    function startPolling() {
+        @if (count($to_dos) > 0)
+            @foreach ($to_dos as $to_do)
+                setInterval(function() {
+                    updateUnreadMessagesCount('{{ $to_do->id }}');
+                    loadMessages('{{ $to_do->id }}');
+                }, 5000);  // Polling cada 5 segundos para cada to-do
+            @endforeach
+        @else
+            console.log('No hay to-dos activos.');
+        @endif
+    }
+
+    $(document).ready(function() {
+        startPolling();
     });
 
     function showTodoModal() {
