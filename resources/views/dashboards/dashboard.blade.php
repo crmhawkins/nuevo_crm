@@ -147,14 +147,14 @@
                                             <span class="display-6 m-0"><b>{{ $totalIngresos }} €</b></span>
                                             
                                             <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Gastos</h5>
-                                            <span class="display-6 m-0"><b>{{ $totalGastosComunes }}</b></span>
+                                            <span class="display-6 m-0"><b>{{ $totalGastosComunes }} €</b></span>
                                             
                                             <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Gastos Asociados</h5>
-                                            <span class="display-6 m-0"><b>{{ $totalGastosSociados }}</b></span>
+                                            <span class="display-6 m-0"><b>{{ $totalGastosSociados }} €</b></span>
                                             
                                             <hr class="mb-2 mt-2">
                                             <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Beneficios</h5>
-                                            <span class="display-6 m-0"><b>{{ $beneficios }}</b></span>
+                                            <span class="display-6 m-0"><b>{{ $beneficios }} €</b></span>
                                         </div>
                                     </div>                                    
                                 </div>
