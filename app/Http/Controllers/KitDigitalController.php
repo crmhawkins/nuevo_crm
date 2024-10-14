@@ -69,7 +69,7 @@ class KitDigitalController extends Controller
                 }
 
                 // Convierte el valor a número flotante con dos decimales
-                $data['value'] = number_format((float) $value, 2, '.', '');
+                $data['value'] = number_format((float) $value, 2, ',', '');
             }
             $valor1 = $item[$data['key']];
 

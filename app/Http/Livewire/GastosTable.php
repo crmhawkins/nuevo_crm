@@ -7,6 +7,7 @@ use App\Models\Clients\Client;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GastosTable extends Component
 {
@@ -95,4 +96,17 @@ class GastosTable extends Component
     {
         $this->resetPage();
     }
+
+    public function exportToExcel()
+    {
+        $paginate = $this->perPage ;
+        $this->perPage = 'all';
+        $this->actualizargastos();
+        // Genera las facturas basadas en los filtros actuales
+        $gastos = $this->getGastos();
+        $this->perPage = $paginate;
+        // Exporta los datos a Excel
+        return Excel::download(new InvoicesExport($gastos), 'facturas.xlsx');
+    }
+
 }
