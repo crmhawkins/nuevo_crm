@@ -140,7 +140,7 @@
                                             <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
                                             <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Gastos Asociados</h5>
                                             <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
-                                            <hr>
+                                            <hr class="mb-2 mt-2">
                                             <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Beneficios</h5>
                                             <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
                                         </div>
