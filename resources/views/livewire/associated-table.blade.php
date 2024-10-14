@@ -99,9 +99,9 @@
                 </tbody>
                 <tfoot>
                     <tr>
+                        <td colspan="4"></td>
                         <th>Sumatorio:</th>
                         <td>{{number_format((float)$gastos->sum('quantity'), 2, '.', '') }} €</td>
-                        <td colspan="4"></td>
                     </tr>
                 </tfoot>
             </table>
