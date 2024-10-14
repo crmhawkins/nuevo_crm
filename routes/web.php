@@ -118,6 +118,9 @@ Route::post('/transcribir-acta', [CrmActivityMeetingController::class,'transcrip
 Route::post('/enviar-acta', [CrmActivityMeetingController::class,'sendMeetingEmails'])->name('admin.acta.sendEmails');
 Route::post('/registrar-acta', [CrmActivityMeetingController::class,'register'])->name('admin.acta.register');
 
+//Audios
+Route::post('/store-audio', [CrmActivityMeetingController::class,'storeAudio'])->name('audio.store');
+
 //Holidays(Vacaciones users)
 Route::get('/holidays', [HolidayController::class, 'index'])->name('holiday.index');
 Route::get('/holidays/edit/{id}', [HolidayController::class, 'edit'])->name('holiday.edit');

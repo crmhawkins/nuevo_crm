@@ -80,7 +80,7 @@
                             <td>{{$gasto->bankAccount->name ?? 'Banco no asignado'}}</td>
                             <td>{{$gasto->title}}</td>
                             <td>{{ number_format($gasto->quantity, 2) }}€</td>
-                            <td>{{ \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') }}</td>
+                            <td>{{ $gasto->received_date ? \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') : 'Sin Fecha'}}</td>
                             <td>{{ \Carbon\Carbon::parse($gasto->date)->format('d/m/Y') }}</td>
                             <td>{{$gasto->state}}</td>
                             <td>

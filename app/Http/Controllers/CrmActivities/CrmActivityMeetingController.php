@@ -148,117 +148,7 @@ class CrmActivityMeetingController extends Controller
     }
 
 
-    // public function storeClientMeeting(Client $client, Request $request){
-    //     // Validación
-    //     $request->validate([
-    //         'date' => 'required',
-    //         'subject' => 'required',
-    //     ]);
 
-    //     // Formulario datos
-    //     $data = $request->all();
-    //     $data['admin_user_id'] = Auth::user()->id;
-    //     $data['client_id'] = $client->id;
-
-    //     // Booleans
-    //     if(!isset($data['done'])){
-    //         $data['done'] = 0;
-    //     }else{
-    //         $data['done'] = 1;
-    //     }
-
-    //     // Dates
-    //     if(isset($data['date'])){
-    //         if ($data['date'] != null){
-    //             $data['date'] = date('Y-m-d', strtotime(str_replace('/', '-',  $data['date'])));
-    //         }
-    //     }
-
-    //     // Guardar
-    //     $crmActivityclientMeeting = CrmActivitiesMeetings::create($data);
-    //     $crmActivityclientMeeting->save();
-
-    //     // Respuesta
-    //     return AjaxForm::custom([
-    //         'message' => 'Llamada a cliente registrada',
-    //         'entryUrl' => route('admin.crm_activity_meeting.editClientMeeting', $crmActivityclientMeeting->id),
-    //     ])->jsonResponse();
-    // }
-
-
-    // public function editClientMeeting(CrmActivitiesMeetings $clientMeeting){
-    //     $client = Client::where('id', $clientMeeting->client_id)->get()->first();
-    //     $contactBy = ContactBy::all();
-
-    //     if($clientMeeting->files){
-    //         $clientMeeting->files = json_decode($clientMeeting->files);
-    //     }
-
-    //     return view('admin.crm_activities.editClientMeeting', compact('clientMeeting', 'client', 'contactBy'));
-    // }
-
-
-    // public function updateClientMeeting(Request $request, CrmActivitiesMeetings $clientMeeting){
-    //     // Validación
-    //     $request->validate([
-    //         'date' => 'required',
-    //         'subject' => 'required',
-    //     ]);
-
-    //     // Datos del formulario
-    //     $data = $request->all();
-    //     $data['admin_user_id'] = Auth::user()->id;
-
-    //     // Booleans
-    //     if(!isset($data['done'])){
-    //         $data['done'] = 0;
-    //     }else{
-    //         $data['done'] = 1;
-    //     }
-
-    //     // Dates
-    //     if(isset($data['date'])){
-    //         if ($data['date'] != null){
-    //             $data['date'] = date('Y-m-d', strtotime(str_replace('/', '-',  $data['date'])));
-    //         }
-    //     }
-
-    //     // Actualizar
-    //     $clientMeeting->fill($data);
-    //     $clientMeeting->save();
-
-    //     // Respuesta
-    //     return AjaxForm::custom([
-    //         'message' => 'La reunión se actualizó correctamente',
-    //         'entryUrl' => route('admin.crm_activity_meeting.editClientMeeting', $clientMeeting->id),
-    //     ])->jsonResponse();
-    // }
-
-
-    // public function destroyClientMeeting(CrmActivitiesMeetings $clientMeeting)
-    // {
-    //     try {
-
-    //         if($clientMeeting->files){
-    //             $clientMeeting->files = json_decode($clientMeeting->files);
-    //             foreach ($clientMeeting->files as $image){
-    //                 Storage::disk('archivos')->delete($image);
-    //             }
-    //         }
-    //         //Borrar nota
-    //         $deleted = $clientMeeting->delete();
-    //         // Respuesta
-    //         return AjaxForm::custom([
-    //             'message' => 'La reunión se borró correctamente',
-    //         ])->jsonResponse();
-    //     } catch (\Exception $e) {
-    //          // Respuesta
-    //          return AjaxForm::custom([
-    //             'message' => 'La reunión no pudo ser eliminada.Pruebe más tarde.',
-    //             'entryUrl' => route('admin.crm_activity_meeting.editClientMeeting', $clientMeeting->id),
-    //         ])->jsonResponse();
-    //     }
-    // }
 
 
     public function createMeetingFromAllUsers(){
@@ -341,15 +231,34 @@ class CrmActivityMeetingController extends Controller
         $meeting = CrmActivitiesMeetings::create($data);
         $meeting->save();
 
-      // Manejo del archivo de audio
-        if ($request->hasFile('audio')) {
-            $audioFile = $request->file('audio');
-            $audioFilename = $meeting->id . '.' . $audioFile->getClientOriginalExtension();
-            // Guardar el archivo en el almacenamiento
-            $audioPath = $audioFile->storeAs('public/reuniones', $audioFilename);
-            // Generar la URL pública del archivo guardado
-            $audioUrl = storage_path('app/public/reuniones/' . $audioFilename);
+        $fileCount = 0;  // Inicializar el contador de archivos
+
+        if ($request->has('audio_filenames')) {
+            foreach ($request->audio_filenames as $tempFilename) {
+                // Ruta del archivo temporal
+                $tempPath = storage_path('app/public/meetings/audios/temp/' . $tempFilename);
+                if (file_exists($tempPath)) {
+                    // Generar un nuevo nombre de archivo con el ID de la reunión y un número incremental de dos cifras
+                    $incrementalNumber = str_pad(++$fileCount, 2, '0', STR_PAD_LEFT);
+                    $newFilename = $meeting->id . '_' . $incrementalNumber . '.mp3';
+                    // Nueva ruta
+                    $newPath = storage_path('app/public/meetings/audios/' . $newFilename);
+                    // Mover el archivo
+                    rename($tempPath, $newPath);
+                }
+            }
         }
+
+      // Manejo del archivo de audio
+        // if ($request->hasFile('audio')) {
+        //     $audioFile = $request->file('audio');
+        //     $incrementalNumber = str_pad(++$fileCount, 2, '0', STR_PAD_LEFT);
+        //     $audioFilename = $meeting->id . '_'. $incrementalNumber .'.' . $audioFile->getClientOriginalExtension();
+        //     // Guardar el archivo en el almacenamiento
+        //     $audioPath = $audioFile->storeAs('public/reuniones', $audioFilename);
+        //     // Generar la URL pública del archivo guardado
+        //     $audioUrl = storage_path('app/public/reuniones/' . $audioFilename);
+        // }
 
         // Guardar los datos relacionados con el equipo, contactos, etc. (esto se mantiene igual)
         if ($request->has('teamActa')) {
@@ -422,6 +331,18 @@ class CrmActivityMeetingController extends Controller
             'mensaje' => 'Se creó un acta de reunión correctamente, ahora puedes enviar el correo manualmente.'
         ]);
     }
+
+    public function storeAudio(Request $request){
+        $audioFile = $request->file('audio');
+        // Generar un UUID para el nombre del archivo temporal
+        $uuid = (string) \Illuminate\Support\Str::uuid();
+        $audioFilename = 'Temp_' . uniqid() . '.' . $audioFile->getClientOriginalExtension();
+        // Guardar el archivo en el almacenamiento temporal
+        $audioFile->storeAs('public/meetings/audios/temp', $audioFilename);
+        $audioUrl = asset('storage/meetings/audios/temp/' . $audioFilename);
+        return response()->json(['audio_url' => $audioUrl, 'audio_filename' => $audioFilename]);
+    }
+
 
 
 
