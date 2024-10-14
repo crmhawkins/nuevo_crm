@@ -34,7 +34,8 @@ class AssociatedExpenses extends Model
         'purchase_order_id',
         'state',
         'aceptado_gestor',
-        'documents'
+        'documents',
+        'iva'
     ];
 
     /**

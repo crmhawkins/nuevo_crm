@@ -170,7 +170,7 @@ class TesoreriaController extends Controller
             'date' => 'nullable',
             'received_date' => 'nullable',
             'payment_method_id' => 'required|integer|exists:payment_method,id',
-            'transfer_movement' => 'nullable',
+            'transfer_movement' => 'nullable|boolean',
             'state' => 'required|string|max:255',
             'documents' => 'nullable',
         ],[
@@ -204,7 +204,8 @@ class TesoreriaController extends Controller
             $path = $request->file('documents')->store('documents', 'public');
             $gasto->documents = $path;
         }
-
+        // Asignar el valor de transfer_movement de forma correcta
+        $gasto->transfer_movement = $request->has('transfer_movement') ? 1 : 0;
         // Guardar el nuevo gasto
         $gasto->save();
 
