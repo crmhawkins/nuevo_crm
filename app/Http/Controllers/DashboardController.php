@@ -78,7 +78,7 @@ class DashboardController extends Controller
                 $totalGastos = $gastos->sum('quantity') + $gastosAsociados->sum('quantity');
                 $beneficios = $totalIngresos - $totalGastos;
 
-                
+
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
@@ -87,7 +87,7 @@ class DashboardController extends Controller
                 $gastos = 0;
                 $gastosAsociados = 0;
 
-                return view('dashboards.dashboard', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva', 'ingresosCount', 'gastosCount', 'gastosAsociadosCount','beneficios'));
+                return view('dashboards', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva', 'ingresosCount', 'gastosCount', 'gastosAsociadosCount','beneficios'));
             case(2):
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
