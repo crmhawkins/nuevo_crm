@@ -76,7 +76,7 @@ class DashboardController extends Controller
                 $gastosAsociadosCount = $gastosAsociados->count();
 
                 // Calcular beneficios
-                $totalIngresos = $ingresos->sum('quantity');
+                $totalIngresos = $ingresos->sum('total');
                 $totalGastosComunes = $gastos->sum('quantity');
                 $totalGastosSociados = $gastosAsociados->sum('quantity');
                 $totalGastos = $totalGastosComunes + $totalGastosSociados;
