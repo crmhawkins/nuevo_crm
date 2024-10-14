@@ -19,7 +19,7 @@
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('gastos-asociados.index')}}">Gastos</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('gastos.index')}}">Gastos</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Editar Gasto</li>
                     </ol>
                 </nav>
@@ -32,7 +32,7 @@
             <div class="col-9">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('gasto.update', $gasto->id) }}" method="POST">
+                        <form action="{{ route('gasto.update', $gasto->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row mb-3">
                                 <div class="col-md-6">

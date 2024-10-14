@@ -17,7 +17,7 @@
         <!-- Formulario de selección de fecha -->
         <!-- Pestañas -->
         <div class="card-body align-items-center row">
-            <div class="col-8">
+            <div class="col-7">
                 <ul class="nav nav-tabs" id="userTabs" role="tablist">
                     @foreach ($clasificacion as $usuario => $referencias)
                     <li class="nav-item" role="presentation">
@@ -28,14 +28,17 @@
                     @endforeach
                 </ul>
             </div>
-            <div class="col-4">
+            <div class="col-5">
                 <form method="GET" action="{{ route('logs.clasificado') }}">
                     <div class="row align-items-center">
-                        <div class="col-md-7">
-                            <input type="date" name="fecha" class="form-control" value="{{ request('fecha', \Carbon\Carbon::yesterday()->format('Y-m-d')) }}">
+                        <div class="col-md-5">
+                            <input type="date" name="fecha_inicio" class="form-control" value="{{ request('fecha_inicio', \Carbon\Carbon::today()->subDays(7)->format('Y-m-d')) }}">
                         </div>
                         <div class="col-md-5">
-                            <button type="submit" class="btn btn-primary">Filtrar por Fecha</button>
+                            <input type="date" name="fecha_fin" class="form-control" value="{{ request('fecha_fin', \Carbon\Carbon::today()->format('Y-m-d')) }}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
                         </div>
                     </div>
                 </form>
