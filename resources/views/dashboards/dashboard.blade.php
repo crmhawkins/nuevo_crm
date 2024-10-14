@@ -133,16 +133,25 @@
                                 <div class="card2">
                                     <div class="mb-3 card-body">
                                         <h5 class="card-title fw-bold">Balance</h5>
+                                        <form action="dashboard" method="GET">
+                                            <label for="fecha_inicio">Fecha Inicio:</label>
+                                            <input type="date" name="fecha_inicio" class="form-control" value="{{ request('fecha_inicio') }}">
+                                            
+                                            <label for="fecha_fin" class="mt-2">Fecha Fin:</label>
+                                            <input type="date" name="fecha_fin" class="form-control" value="{{ request('fecha_fin') }}">
+                                
+                                            <button class="btn btn-outline-secondary mt-3">Ver Balance</button>
+                                        </form>
                                         <div class="card-body p-3">
                                             <h5 class="card-title m-0 text-color-4  fw-bold">Ingresos</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
+                                            <span class="display-6 m-0"><b>{{count($user->ingresosCount)}}</b></span>
                                             <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Gastos</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
+                                            <span class="display-6 m-0"><b>{{count($user->gastosCount)}}</b></span>
                                             <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Gastos Asociados</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
+                                            <span class="display-6 m-0"><b>{{count($user->gastosAsociadosCount)}}</b></span>
                                             <hr class="mb-2 mt-2">
                                             <h5 class="card-title m-0 text-color-4  fw-bold mt-2">Beneficios</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
+                                            <span class="display-6 m-0"><b>{{count($user->beneficios)}}</b></span>
                                         </div>
                                     </div>
                                 </div>

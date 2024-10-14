@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Accounting\AssociatedExpenses;
+use App\Models\Accounting\Gasto;
+use App\Models\Accounting\Ingreso;
 use App\Models\Alerts\Alert;
 use App\Models\Alerts\AlertStatus;
 use App\Models\Budgets\Budget;
@@ -25,7 +28,7 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
 
         $id = Auth::user()->id;
@@ -43,6 +46,34 @@ class DashboardController extends Controller
         if ($jornadaActiva) {
             $pausaActiva = $jornadaActiva->pausasActiva();
         }
+
+        $fechaInicio = $request->input('fecha_inicio');
+        $fechaFin = $request->input('fecha_fin');
+
+        // Validar las fechas
+        if (!$fechaInicio || !$fechaFin) {
+            return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');
+        }
+
+        // Buscar los ingresos en el rango de fechas
+        $ingresos = Ingreso::whereBetween('date', [$fechaInicio, $fechaFin])->get();
+
+        // Buscar los gastos en el rango de fechas
+        $gastos = Gasto::whereBetween('date', [$fechaInicio, $fechaFin])->get();
+
+        // Buscar los gastos asociados en el rango de fechas
+        $gastosAsociados = AssociatedExpenses::whereBetween('date', [$fechaInicio, $fechaFin])->get();
+
+        // Calcular la cantidad de cada tipo
+        $ingresosCount = $ingresos->count();
+        $gastosCount = $gastos->count();
+        $gastosAsociadosCount = $gastosAsociados->count();
+
+        // Calcular beneficios
+        $totalIngresos = $ingresos->sum('quantity');
+        $totalGastos = $gastos->sum('quantity') + $gastosAsociados->sum('quantity');
+        $beneficios = $totalIngresos - $totalGastos;
+
         switch($acceso){
             case(1):
                 $clientes = Client::where('is_client',true)->get();
@@ -53,7 +84,7 @@ class DashboardController extends Controller
                 $gastos = 0;
                 $gastosAsociados = 0;
 
-                return view('dashboards.dashboard', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva', 'ingresos', 'gastos', 'gastosAsociados'));
+                return view('dashboards.dashboard', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva', 'ingresosCount', 'gastosCount', 'gastosAsociadosCount','beneficios'));
             case(2):
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
