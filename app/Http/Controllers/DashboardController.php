@@ -55,27 +55,30 @@ class DashboardController extends Controller
             return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');
         }
 
-        // Buscar los ingresos en el rango de fechas
-        $ingresos = Ingreso::whereBetween('date', [$fechaInicio, $fechaFin])->get();
-
-        // Buscar los gastos en el rango de fechas
-        $gastos = Gasto::whereBetween('date', [$fechaInicio, $fechaFin])->get();
-
-        // Buscar los gastos asociados en el rango de fechas
-        $gastosAsociados = AssociatedExpenses::whereBetween('date', [$fechaInicio, $fechaFin])->get();
-
-        // Calcular la cantidad de cada tipo
-        $ingresosCount = $ingresos->count();
-        $gastosCount = $gastos->count();
-        $gastosAsociadosCount = $gastosAsociados->count();
-
-        // Calcular beneficios
-        $totalIngresos = $ingresos->sum('quantity');
-        $totalGastos = $gastos->sum('quantity') + $gastosAsociados->sum('quantity');
-        $beneficios = $totalIngresos - $totalGastos;
+        
 
         switch($acceso){
             case(1):
+                // Buscar los ingresos en el rango de fechas
+                $ingresos = Ingreso::whereBetween('date', [$fechaInicio, $fechaFin])->get();
+
+                // Buscar los gastos en el rango de fechas
+                $gastos = Gasto::whereBetween('date', [$fechaInicio, $fechaFin])->get();
+
+                // Buscar los gastos asociados en el rango de fechas
+                $gastosAsociados = AssociatedExpenses::whereBetween('date', [$fechaInicio, $fechaFin])->get();
+
+                // Calcular la cantidad de cada tipo
+                $ingresosCount = $ingresos->count();
+                $gastosCount = $gastos->count();
+                $gastosAsociadosCount = $gastosAsociados->count();
+
+                // Calcular beneficios
+                $totalIngresos = $ingresos->sum('quantity');
+                $totalGastos = $gastos->sum('quantity') + $gastosAsociados->sum('quantity');
+                $beneficios = $totalIngresos - $totalGastos;
+
+                
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
