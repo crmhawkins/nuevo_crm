@@ -65,10 +65,10 @@ class DashboardController extends Controller
                 // Buscar los ingresos en el rango de fechas
                 $ingresos = Invoice::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
                 // Buscar los gastos en el rango de fechas
-                $gastos = Gasto::whereBetween('received_date', [$fechaInicio, $fechaFin])->where('transfer_movement', '!=', true)->get();
+                $gastos = Gasto::whereBetween('created_at', [$fechaInicio, $fechaFin])->where('transfer_movement', '!=', true)->get();
 
                 // Buscar los gastos asociados en el rango de fechas
-                $gastosAsociados = AssociatedExpenses::whereBetween('received_date', [$fechaInicio, $fechaFin])->get();
+                $gastosAsociados = AssociatedExpenses::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
 
                 // Calcular la cantidad de cada tipo
                 $ingresosCount = $ingresos->count();
