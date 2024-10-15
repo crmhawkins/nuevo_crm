@@ -25,15 +25,15 @@ class TesoreriaController extends Controller
     }
 
     public function indexGastos(){
-        return view('tesoreria.gasto.index');
+        return view('tesoreria.gastos.index');
     }
 
     public function indexUnclassifiedExpensese(Request $request){
-        return view('tesoreria.gasto-sin-clasificar.index');
+        return view('tesoreria.gastos-sin-clasificar.index');
     }
 
     public function indexAssociatedExpenses(){
-        return view('tesoreria.gasto-asociados.index');
+        return view('tesoreria.gastos-asociados.index');
     }
 
     public function createIngresos(){
