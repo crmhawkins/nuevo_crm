@@ -567,7 +567,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                                <li class="sidebar-item {{ request()->routeIs('configuracion.index') ? 'active' : '' }}">
+                                <li class="submenu-item {{ request()->routeIs('configuracion.index') ? 'active' : '' }}">
                                     <a href="{{route('configuracion.index')}}" class='sidebar-link'>
                                         <i class="fa-solid fa-gears fs-5"></i>
                                         <span>Cofiguracion Empresa</span>
