@@ -549,8 +549,8 @@
                                         <span>Tipos de iva</span>
                                     </a>
                                     <ul class="submenu" style="{{ request()->routeIs('iva.*') ? 'display:block;' : 'display:none;' }}">
-                                        <li class="submenu-item {{ request()->routeIs('logs.index') ? 'active' : '' }}">
-                                            <a href="{{route('logs.index')}}">
+                                        <li class="submenu-item {{ request()->routeIs('iva.index') ? 'active' : '' }}">
+                                            <a href="{{route('iva.index')}}">
                                                 <i class="fa-solid fa-list"></i>
                                                 <span>
                                                     Ver
@@ -558,7 +558,7 @@
                                             </a>
                                         </li>
                                         <li class="submenu-item {{ request()->routeIs('iva.create') ? 'active' : '' }}">
-                                            <a href="{{route('logs.clasificado')}}">
+                                            <a href="{{route('iva.create')}}">
                                                 <i class="fa-solid fa-eye"></i>
                                                 <span>
                                                     Crear tipo de iva
