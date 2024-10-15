@@ -15,8 +15,9 @@ use Illuminate\Support\Facades\Auth;
 class KitDigitalController extends Controller
 {
     public function index(){
-        $kitDigitals = KitDigital::all();
+        $kitDigitals = KitDigital::where('enviado', 1)->get();
 
+        return view('kitDigital.indexWhatsapp', compact('kitDigitals'));
 
 
     }
