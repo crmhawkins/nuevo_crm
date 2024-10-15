@@ -19,7 +19,7 @@
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('gastos-asociados.index')}}">Gastos</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('gasto-asociados.index')}}">Gastos</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Editar Gasto</li>
                     </ol>
                 </nav>
@@ -69,8 +69,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label for="iva">IVA:</label>
-                                    <select class="form-control" id="iva" name="iva">
-                                        <option value="">Seleccione un IVA</option>
+                                    <select class="form-select" id="iva" name="iva">
+                                        <option value="">IVA</option>
                                         @foreach($tiposIva as $tipo)
                                             <option value="{{ $tipo->valor }}">
                                                 {{ $tipo->nombre}}

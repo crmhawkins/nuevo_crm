@@ -19,7 +19,7 @@ class CategoriaGastosController extends Controller
         ->orderBy($sort, $order)
         ->paginate(30);
         // $bancos = Bancos::all();
-        return view('admin.categoriaGastos.index', compact('categorias'));
+        return view('admin.categoriagasto.index', compact('categorias'));
     }
 
     public function create(){
@@ -35,7 +35,7 @@ class CategoriaGastosController extends Controller
         $validatedData = $request->validate($rules);
         $banco = CategoriaGastos::create($validatedData);
 
-        return redirect()->route('admin.categoriaGastos.index')->with('status', 'Categoria de gasto creado con éxito!');
+        return redirect()->route('admin.categoriagasto.index')->with('status', 'Categoria de gasto creado con éxito!');
 
     }
     public function edit(CategoriaGastos $categoria){
@@ -54,11 +54,11 @@ class CategoriaGastosController extends Controller
             'nombre' => $validatedData['nombre']
         ]);
 
-        return redirect()->route('admin.categoriaGastos.index')->with('status', 'Categoria de gasto actualizado con éxito!');
+        return redirect()->route('admin.categoriagasto.index')->with('status', 'Categoria de gasto actualizado con éxito!');
 
     }
     public function destroy(CategoriaGastos $categoria){
         $categoria->delete();
-        return redirect()->route('admin.categoriaGastos.index')->with('status', 'Categoria de gasto eliminada con éxito!');
+        return redirect()->route('admin.categoriagasto.index')->with('status', 'Categoria de gasto eliminada con éxito!');
     }
 }

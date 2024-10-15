@@ -25,15 +25,15 @@ class TesoreriaController extends Controller
     }
 
     public function indexGastos(){
-        return view('tesoreria.gastos.index');
+        return view('tesoreria.gasto.index');
     }
 
     public function indexUnclassifiedExpensese(Request $request){
-        return view('tesoreria.gastos-sin-clasificar.index');
+        return view('tesoreria.gasto-sin-clasificar.index');
     }
 
     public function indexAssociatedExpenses(){
-        return view('tesoreria.gastos-asociados.index');
+        return view('tesoreria.gasto-asociados.index');
     }
 
     public function createIngresos(){
@@ -79,7 +79,7 @@ class TesoreriaController extends Controller
                 'icon' => 'error',
                 'mensaje' => 'El gasto no existe'
             ]);
-            return redirect()->route('gastos.index');
+            return redirect()->route('gasto.index');
         }
         // Obtener listas de opciones necesarias para el formulario
         $banks = BankAccounts::all();
@@ -97,7 +97,7 @@ class TesoreriaController extends Controller
                 'icon' => 'error',
                 'mensaje' => 'El gasto no existe'
             ]);
-            return redirect()->route('gastos-sin-clasificar.index');
+            return redirect()->route('gasto-sin-clasificar.index');
         }
 
         // Obtener listas de opciones necesarias para el formulario
@@ -118,7 +118,7 @@ class TesoreriaController extends Controller
                 'icon' => 'error',
                 'mensaje' => 'El gasto no existe'
             ]);
-            return redirect()->route('gastos-asociados.index');
+            return redirect()->route('gasto-asociados.index');
         }
 
         // Obtener listas de opciones necesarias para el formulario
@@ -443,7 +443,7 @@ class TesoreriaController extends Controller
         $gasto->save();
 
         // Redireccionar con mensaje de éxito
-        return redirect()->route('gastos.index')->with('success', 'Gasto actualizado exitosamente.');
+        return redirect()->route('gasto.index')->with('success', 'Gasto actualizado exitosamente.');
     }
 
     public function updateAssociatedExpenses(Request $request, string $id){
@@ -501,7 +501,7 @@ class TesoreriaController extends Controller
         $gasto->save();
 
         // Redireccionar con mensaje de éxito
-        return redirect()->route('gastos-asociados.index')->with('success', 'Gasto asociado actualizado exitosamente.');
+        return redirect()->route('gasto-asociados.index')->with('success', 'Gasto asociado actualizado exitosamente.');
     }
 
 

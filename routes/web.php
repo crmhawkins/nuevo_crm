@@ -380,7 +380,7 @@ Route::post('/ingreso/update/{id}', [TesoreriaController::class, 'updateIngresos
 Route::post('/ingreso/destroy', [TesoreriaController::class, 'destroyIngresos'])->name('ingreso.delete');
 
 // Gastos (TESORERIA)
-Route::get('/gastos', [TesoreriaController::class, 'indexGastos'])->name('gastos.index');
+Route::get('/gastos', [TesoreriaController::class, 'indexGastos'])->name('gasto.index');
 Route::get('/gasto/create', [TesoreriaController::class, 'createGastos'])->name('gasto.create');
 Route::get('/gasto/edit/{id}', [TesoreriaController::class, 'editGastos'])->name('gasto.edit');
 Route::get('/gasto/show/{id}', [TesoreriaController::class, 'showGastos'])->name('gasto.show');
@@ -389,7 +389,7 @@ Route::post('/gasto/update/{id}', [TesoreriaController::class, 'updateGastos'])-
 Route::post('/gasto/destroy', [TesoreriaController::class, 'destroyGastos'])->name('gasto.delete');
 
 // Gastos asociados (TESORERIA)
-Route::get('/gastos-asociados', [TesoreriaController::class, 'indexAssociatedExpenses'])->name('gastos-asociados.index');
+Route::get('/gastos-asociados', [TesoreriaController::class, 'indexAssociatedExpenses'])->name('gasto-asociados.index');
 Route::get('/gasto-asociado/create', [TesoreriaController::class, 'createAssociatedExpenses'])->name('gasto-asociado.create');
 Route::get('/gasto-asociado/edit/{id}', [TesoreriaController::class, 'editAssociatedExpenses'])->name('gasto-asociado.edit');
 Route::post('/gasto-asociado/store', [TesoreriaController::class, 'storeAssociatedExpenses'])->name('gasto-asociado.store');
@@ -398,7 +398,7 @@ Route::post('/gasto-asociado/destroy', [TesoreriaController::class, 'destroyAsso
 
 
 // Gastos sin clasificar (TESORERIA)
-Route::get('/gastos-sin-clasificar', [TesoreriaController::class, 'indexUnclassifiedExpensese'])->name('gastos-sin-clasificar.index');
+Route::get('/gastos-sin-clasificar', [TesoreriaController::class, 'indexUnclassifiedExpensese'])->name('gasto-sin-clasificar.index');
 Route::get('/gastos-sin-clasificar/edit/{id}', [TesoreriaController::class, 'editUnclassifiedExpensese'])->name('gasto-sin-clasificar.edit');
 Route::post('/gastos-sin-clasificar/update/{id}', [TesoreriaController::class, 'updateUnclassifiedExpensese'])->name('gasto-sin-clasificar.update');
 Route::post('/gastos-sin-clasificar/destroy', [TesoreriaController::class, 'destroyUnclassifiedExpensese'])->name('gastos-sin-clasificar.delete');

@@ -286,8 +286,8 @@
                                     </span>
                                 </a>
                             </li>
-                            <li class="submenu-item {{ request()->routeIs('gastos.index') ? 'active' : '' }}">
-                                <a href="{{route('gastos.index')}}">
+                            <li class="submenu-item {{ request()->routeIs('gasto.index') ? 'active' : '' }}">
+                                <a href="{{route('gasto.index')}}">
                                     <i class="fa-solid fa-list"></i>
                                     <span>
                                         Ver Gastos
@@ -302,8 +302,8 @@
                                     </span>
                                 </a>
                             </li>
-                            <li class="submenu-item {{ request()->routeIs('gastos-asociados.index') ? 'active' : '' }}">
-                                <a href="{{route('gastos-asociados.index')}}">
+                            <li class="submenu-item {{ request()->routeIs('gasto-asociados.index') ? 'active' : '' }}">
+                                <a href="{{route('gasto-asociados.index')}}">
                                     <i class="fa-solid fa-list"></i>
                                     <span>
                                         Ver Gastos Asociados
@@ -318,8 +318,8 @@
                                     </span>
                                 </a>
                             </li>
-                            <li class="submenu-item {{ request()->routeIs('gastos-sin-clasificar.index') ? 'active' : '' }}">
-                                <a href="{{route('gastos-sin-clasificar.index')}}">
+                            <li class="submenu-item {{ request()->routeIs('gasto-sin-clasificar.index') ? 'active' : '' }}">
+                                <a href="{{route('gasto-sin-clasificar.index')}}">
                                     <i class="fa-solid fa-list"></i>
                                     <span>
                                         Ver Gastos Sin Clasificar

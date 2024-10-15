@@ -19,7 +19,7 @@
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('gastos-asociados.index')}}">Ingresos</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('gasto-asociados.index')}}">Ingresos</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Crear Ingreso</li>
                     </ol>
                 </nav>
