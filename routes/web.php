@@ -409,7 +409,7 @@ Route::get('/iva/create', [IvaController::class, 'create'])->name('iva.create');
 Route::post('/iva/store', [IvaController::class, 'store'])->name('iva.store');
 Route::get('/iva/edit/{id}', [IvaController::class, 'edit'])->name('iva.edit');
 Route::post('/iva/update/{id}', [IvaController::class, 'update'])->name('iva.update');
-Route::post('/iva/destroy/{id}', [IvaController::class, 'destroy'])->name('iva.delete');
+Route::post('/iva/destroy', [IvaController::class, 'destroy'])->name('iva.delete');
 
 // Treasury(Cuadro)
 Route::get('/treasury', [CuadroController::class,'index'])->name('admin.treasury.index');
