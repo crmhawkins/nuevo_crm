@@ -19,7 +19,7 @@
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('ivas.index')}}">Tipo de iva</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('iva.index')}}">Tipo de iva</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Crear tipo de iva</li>
                     </ol>
                 </nav>

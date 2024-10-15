@@ -39,6 +39,7 @@
                     $cargoActive= request()->routeIs('cargo.*');
                     $departamentoActive= request()->routeIs('departamento.*');
                     $tesoreriaActive = request()->routeIs('ingresos.*') || request()->routeIs('gastos.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
+                    $cofiguracionActive = request()->routeIs('iva.*') || request()->routeIs('configuracion.*');
                     $admin = (Auth::user()->access_level_id == 1);
                     $gerente = (Auth::user()->access_level_id == 2);
                     $contable = (Auth::user()->access_level_id == 3);
@@ -536,13 +537,44 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="sidebar-item {{ request()->routeIs('configuracion.index') ? 'active' : '' }}">
-                            <a href="{{route('configuracion.index')}}" class='sidebar-link'>
-                                <i class="fa-solid fa-gears fs-5"></i>
+                        <li class="sidebar-item has-sub {{ $cofiguracionActive ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="fa-solid fa-list"></i>
                                 <span>Cofiguracion</span>
                             </a>
+                            <li class="sidebar-item has-sub {{ request()->routeIs('iva.*') ? 'active' : '' }}">
+                                <a href="#" class='sidebar-link'>
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>Tipos de iva</span>
+                                </a>
+                                <ul class="submenu" style="{{ request()->routeIs('iva.*') ? 'display:block;' : 'display:none;' }}">
+                                    <li class="submenu-item {{ request()->routeIs('logs.index') ? 'active' : '' }}">
+                                        <a href="{{route('logs.index')}}">
+                                            <i class="fa-solid fa-list"></i>
+                                            <span>
+                                                Ver
+                                            </span>
+                                        </a>
+                                    </li>
+                                    <li class="submenu-item {{ request()->routeIs('iva.create') ? 'active' : '' }}">
+                                        <a href="{{route('logs.clasificado')}}">
+                                            <i class="fa-solid fa-eye"></i>
+                                            <span>
+                                                Crear tipo de iva
+                                            </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <ul class="submenu" style="{{ request()->routeIs('configuracion.index') ? 'display:block;' : 'display:none;' }}">
+                                <li class="sidebar-item {{ request()->routeIs('configuracion.index') ? 'active' : '' }}">
+                                    <a href="{{route('configuracion.index')}}" class='sidebar-link'>
+                                        <i class="fa-solid fa-gears fs-5"></i>
+                                        <span>Cofiguracion Empresa</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-
                     @endif
                 @endif
 

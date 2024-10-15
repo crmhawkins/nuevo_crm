@@ -404,7 +404,7 @@ Route::post('/gastos-sin-clasificar/update/{id}', [TesoreriaController::class, '
 Route::post('/gastos-sin-clasificar/destroy', [TesoreriaController::class, 'destroyUnclassifiedExpensese'])->name('gastos-sin-clasificar.delete');
 
 //Ivas
-Route::get('/ivas', [IvaController::class, 'index'])->name('ivas.index');
+Route::get('/ivas', [IvaController::class, 'index'])->name('iva.index');
 Route::get('/iva/create', [IvaController::class, 'create'])->name('iva.create');
 Route::post('/iva/store', [IvaController::class, 'store'])->name('iva.store');
 Route::get('/iva/edit/{id}', [IvaController::class, 'edit'])->name('iva.edit');
