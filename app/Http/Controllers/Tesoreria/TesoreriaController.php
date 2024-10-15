@@ -380,7 +380,7 @@ class TesoreriaController extends Controller
         }else{
             return redirect()->back()->with('toast',[
                 'icon' => 'error',
-                'mensaje' => 'Error al actuañizar el ingreso'
+                'mensaje' => 'Error al actualizar el ingreso'
             ]);
 
         }

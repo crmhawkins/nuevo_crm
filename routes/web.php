@@ -43,6 +43,7 @@ use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
 use App\Http\Controllers\Ordenes\OrdenesController;
 use App\Http\Controllers\Statistics\StatisticsController;
+use App\Http\Controllers\Tesoreria\IvaController;
 use App\Http\Controllers\Users\DepartamentController;
 use App\Http\Controllers\Users\PositionController;
 use App\Http\Controllers\Whatsapp\WhatsappController;
@@ -401,6 +402,14 @@ Route::get('/gastos-sin-clasificar/edit/{id}', [TesoreriaController::class, 'edi
 Route::post('/gastos-sin-clasificar/update/{id}', [TesoreriaController::class, 'updateUnclassifiedExpensese'])->name('gasto-sin-clasificar.update');
 Route::post('/gastos-sin-clasificar/destroy', [TesoreriaController::class, 'destroyUnclassifiedExpensese'])->name('gastos-sin-clasificar.delete');
 
+//Ivas
+Route::get('/ivas', [IvaController::class, 'index'])->name('ivas.index');
+Route::get('/iva/create', [IvaController::class, 'create'])->name('iva.create');
+Route::post('/iva/store', [IvaController::class, 'store'])->name('iva.store');
+Route::get('/iva/edit/{id}', [IvaController::class, 'edit'])->name('iva.edit');
+Route::post('/iva/update/{id}', [IvaController::class, 'update'])->name('iva.update');
+Route::post('/iva/destroy/{id}', [IvaController::class, 'destroy'])->name('iva.delete');
+
 // Treasury(Cuadro)
 Route::get('/treasury', [CuadroController::class,'index'])->name('admin.treasury.index');
 Route::get('/treasury/{anio}/{mes}/getMonthYear',[CuadroController::class,'getMonthYear'])->name('admin.treasury.getMonthYear');
@@ -484,6 +493,7 @@ Route::post('/sub-grupo-contable/updated', [SubGrupoContabilidadController::clas
 Route::delete('/sub-grupo-contable/destroy/{id}', [SubGrupoContabilidadController::class, 'destroy'])->name('subGrupoContabilidad.destroy');
 
 Route::post('/save-order', [BudgetController::class, 'saveOrder'])->name('save.order');
+
 
 
 // Kit Digital
