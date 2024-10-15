@@ -68,11 +68,18 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="reference">IVA:</label>
-                                    <input type="text" class="form-control" id="iva" name="iva" value="{{ $gasto->iva }}">
+                                    <label for="iva">IVA:</label>
+                                    <select class="form-control" id="iva" name="iva">
+                                        <option value="">Seleccione un IVA</option>
+                                        @foreach($tiposIva as $tipo)
+                                            <option value="{{ $tipo->valor }}" {{ old('iva') == $tipo->valor ? 'selected' : '' }}>
+                                                {{ $tipo->nombre}}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                     @error('iva')
-                                    <span class="text-danger">{{ $message }}</span>
-                                    <style>.text-danger {color: red;}</style>
+                                        <span class="text-danger">{{ $message }}</span>
+                                        <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
                                 <div class="col-md-6">

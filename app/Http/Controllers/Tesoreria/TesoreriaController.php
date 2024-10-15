@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Accounting\Gasto;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Accounting\Ingreso;
+use App\Models\Accounting\Iva;
 use App\Models\Accounting\UnclassifiedExpenses;
 use App\Models\Budgets\Budget;
 use App\Models\Invoices\Invoice;
@@ -42,16 +43,18 @@ class TesoreriaController extends Controller
     }
 
     public function createGastos(){
+        $tiposIva = Iva::all();
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
-        return view('tesoreria.gastos.create',compact( 'banks', 'paymentMethods'));
+        return view('tesoreria.gastos.create',compact( 'banks', 'paymentMethods','tiposIva'));
     }
 
     public function createAssociatedExpenses(){
+        $tiposIva = Iva::all();
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
         $purchaseOrders = PurcharseOrder::doesntHave('associatedExpense')->get();
-        return view('tesoreria.gastos-asociados.create',compact( 'banks', 'paymentMethods','purchaseOrders'));
+        return view('tesoreria.gastos-asociados.create',compact( 'banks', 'paymentMethods','purchaseOrders','tiposIva'));
     }
 
     public function editIngresos(string $id){
@@ -69,7 +72,7 @@ class TesoreriaController extends Controller
     }
 
     public function editGastos(string $id){
-
+        $tiposIva = Iva::all();
         $gasto = Gasto::find($id);
         if (!$gasto) {
             session()->flash('toast', [
@@ -82,7 +85,7 @@ class TesoreriaController extends Controller
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
 
-        return view('tesoreria.gastos.edit', compact('gasto', 'banks', 'paymentMethods'));
+        return view('tesoreria.gastos.edit', compact('gasto', 'banks', 'paymentMethods','tiposIva'));
 
     }
 
@@ -107,6 +110,8 @@ class TesoreriaController extends Controller
     }
 
     public function editAssociatedExpenses(string $id){
+        $tiposIva = Iva::all();
+
         $gasto = AssociatedExpenses::find($id);
         if (!$gasto) {
             session()->flash('toast', [
@@ -124,7 +129,7 @@ class TesoreriaController extends Controller
             $query->doesntHave('associatedExpense')
                   ->orWhere('id', $gasto->purchase_order_id);
         })->get();
-        return view('tesoreria.gastos-asociados.edit',compact('gasto', 'banks', 'paymentMethods', 'budgets', 'purchaseOrders'));
+        return view('tesoreria.gastos-asociados.edit',compact('gasto', 'banks', 'paymentMethods', 'budgets', 'purchaseOrders','tiposIva'));
     }
 
     public function storeIngresos(Request $request ){
