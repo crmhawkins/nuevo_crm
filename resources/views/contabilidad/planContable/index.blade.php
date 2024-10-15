@@ -73,40 +73,7 @@
     </div>
 </div>
 
-@include('sweetalert::alert')
-
 @section('scripts')
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-      // Verificar si SweetAlert2 está definido
-      if (typeof Swal === 'undefined') {
-          console.error('SweetAlert2 is not loaded');
-          return;
-      }
 
-      // Botones de eliminar
-      const deleteButtons = document.querySelectorAll('.delete-btn');
-      deleteButtons.forEach(button => {
-          button.addEventListener('click', function (event) {
-              event.preventDefault();
-              const form = this.closest('form');
-              Swal.fire({
-                  title: '¿Estás seguro?',
-                  text: "¡No podrás revertir esto!",
-                  icon: 'warning',
-                  showCancelButton: true,
-                  confirmButtonColor: '#3085d6',
-                  cancelButtonColor: '#d33',
-                  confirmButtonText: 'Sí, eliminar!',
-                  cancelButtonText: 'Cancelar'
-              }).then((result) => {
-                  if (result.isConfirmed) {
-                      form.submit();
-                  }
-              });
-          });
-      });
-  });
-</script>
 @endsection
 @endsection
