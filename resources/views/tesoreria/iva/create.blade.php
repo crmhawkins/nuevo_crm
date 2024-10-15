@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titulo', 'Crear Ingreso')
+@section('titulo', 'Crear tipo de iva')
 
 @section('css')
     <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
@@ -12,15 +12,15 @@
         <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
                 <h3>Crear Iva</h3>
-                <p class="text-subtitle text-muted">Formulario para crear un Iva</p>
+                <p class="text-subtitle text-muted">Formulario para crear un tipo de iva</p>
             </div>
 
             <div class="col-12 col-md-6 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('ivas.index')}}">Ivas</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Crear Iva</li>
+                        <li class="breadcrumb-item"><a href="{{route('ivas.index')}}">Tipo de iva</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Crear tipo de iva</li>
                     </ol>
                 </nav>
             </div>
