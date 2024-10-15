@@ -81,9 +81,9 @@ class IvaController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        $iva = Iva::find($id);
+        $iva = Iva::find($$request->id);
         if($iva){
             $iva->delete();
             return redirect()->back()->with('toast',[
