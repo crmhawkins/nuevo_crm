@@ -124,6 +124,7 @@
                                         <a href="{{route('proveedores.index')}}" class="btn btn-outline-secondary mb-2">Ver Proveedores</a>
                                         <a href="{{route('kitDigital.create')}}"  class="btn btn-outline-secondary mb-2">Tramitar Subvención</a>
                                         <a target="_blank" href="{{route('kitDigital.index')}}" class="btn btn-outline-secondary mb-2">Kit Digital</a>
+                                        <a target="_blank" href="{{route('kitDigital.indexWhatsapp')}}" class="btn btn-outline-secondary mb-2">Kit Digital Whatsapp</a>
                                     </div>
                                 </div>
                             </div>
@@ -143,7 +144,7 @@
                                                 <label for="fecha_fin" class="mt-2">Fecha Fin:</label>
                                                 <input type="date" name="fecha_fin" class="form-control" value="{{ request('fecha_fin') }}">
                                             </div>
-                                            
+
                                             <div class="col-4">
                                                 <button class="btn btn-outline-secondary mt-3">Ver Balance</button>
                                             </div>
@@ -151,21 +152,21 @@
                                         <div class="card-body p-3">
                                             <h5 class="card-title m-0 text-color-4 fw-bold">Ingresos</h5>
                                             <span class="display-6 m-0"><b>{{ $totalIngresos }} €</b></span>
-                                            
+
                                             <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Gastos</h5>
                                             <span class="display-6 m-0"><b>{{ $totalGastosComunes }} €</b></span>
-                                            
+
                                             <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Gastos Asociados</h5>
                                             <span class="display-6 m-0"><b>{{ $totalGastosSociados }} €</b></span>
 
                                             <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Resultado IVA</h5>
                                             <span class="display-6 m-0"><b>{{ $totalGastosSociados }} €</b></span>
-                                            
+
                                             <hr class="mb-2 mt-2">
                                             <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Beneficios</h5>
                                             <span class="display-6 m-0"><b>{{ $beneficios }} €</b></span>
                                         </div>
-                                    </div>                                    
+                                    </div>
                                 </div>
                             </div>
                         </div>
