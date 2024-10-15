@@ -16,6 +16,7 @@ use App\Http\Controllers\Budgets\BudgetController;
 use App\Http\Controllers\Tasks\TasksController;
 use App\Http\Controllers\Budgets\BudgetConceptsController;
 use App\Http\Controllers\Contabilidad\CuentasContableController;
+use App\Http\Controllers\Contabilidad\PlanContableController;
 use App\Http\Controllers\Contabilidad\SubCuentasContableController;
 use App\Http\Controllers\Contabilidad\SubCuentasHijoController;
 use App\Http\Controllers\Contabilidad\SubGrupoContabilidadController;
@@ -491,6 +492,12 @@ Route::post('/sub-grupo-contable/store', [SubGrupoContabilidadController::class,
 Route::get('/sub-grupo-contable/{id}/edit', [SubGrupoContabilidadController::class, 'edit'])->name('subGrupoContabilidad.edit');
 Route::post('/sub-grupo-contable/updated', [SubGrupoContabilidadController::class, 'updated'])->name('subGrupoContabilidad.updated');
 Route::delete('/sub-grupo-contable/destroy/{id}', [SubGrupoContabilidadController::class, 'destroy'])->name('subGrupoContabilidad.destroy');
+
+
+Route::get('/plan-contable', [PlanContableController::class, 'index'])->name('admin.planContable.index');
+Route::get('/plan-contable/json', [PlanContableController::class, 'json']);
+
+
 
 Route::post('/save-order', [BudgetController::class, 'saveOrder'])->name('save.order');
 
