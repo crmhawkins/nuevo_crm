@@ -189,9 +189,9 @@
     document.getElementById('quantity').addEventListener('input', calculateCantidadConIVA);
     document.getElementById('iva').addEventListener('change', calculateCantidadConIVA);
 
-    document.getElementById('actualizar').addEventListener('click', function(e){
-        e.preventDefault();
-        document.querySelector('form').submit();
+    $('#actualizar').click(function(e){
+        e.preventDefault(); // Esto previene que el enlace navegue a otra página.
+        $('form').submit(); // Esto envía el formulario.
     });
 </script>
 @endsection
