@@ -105,7 +105,7 @@
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
                                     <label class="form-label" class="form-label"  for="quantityIva">Cantidad con iva:</label>
-                                    <input type="number" class="form-control" id="quantityIva" name="quantityIva" value="">
+                                    <input type="number" class="form-control" id="quantityIva" disabled  name="quantityIva" value="">
                                     @error('quantity')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
@@ -156,12 +156,12 @@
                 </div>
             </div>
             <div class="col-3">
-                <div class="card p-3">
-                    <div class="card-title">
-                        Acciones
-                        <hr>
-                    </div>
+                <div class="card">
                     <div class="card-body">
+                        <div class="card-title">
+                            Acciones
+                            <hr>
+                        </div>
                         <button id="actualizar" class="btn btn-success btn-block mt-3">Crear Gasto</button>
 
                     </div>

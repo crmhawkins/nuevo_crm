@@ -105,7 +105,7 @@
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
                                     <label class="form-label"  for="quantityIva">Cantidad con iva:</label>
-                                    <input type="number" class="form-control" id="quantityIva" name="quantityIva" value="">
+                                    <input type="number" class="form-control" id="quantityIva" disabled  name="quantityIva" value="">
                                     @error('quantityIva')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
@@ -156,12 +156,12 @@
                 </div>
             </div>
             <div class="col-3">
-                <div class="card p-3">
-                    <div class="card-title">
-                        Acciones
-                        <hr>
-                    </div>
+                <div class="card">
                     <div class="card-body">
+                        <div class="card-title">
+                            Acciones
+                            <hr>
+                        </div>
                         <button id="actualizar" class="btn btn-primary btn-block mt-3">Actualizar Gasto</button>
                         @if (isset($gasto->documents))
                         <a href="{{ asset('storage/' . $gasto->documents) }}" target="_blank" class="btn btn-dark btn-block mt-3">Ver Documento</a>
@@ -193,5 +193,7 @@
         e.preventDefault(); // Esto previene que el enlace navegue a otra página.
         $('form').submit(); // Esto envía el formulario.
     });
+    document.addEventListener('DOMContentLoaded', calculateCantidadConIVA);
+
 </script>
 @endsection

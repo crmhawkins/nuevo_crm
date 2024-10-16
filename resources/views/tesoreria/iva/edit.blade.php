@@ -56,12 +56,12 @@
                 </div>
             </div>
             <div class="col-3">
-                <div class="card p-3">
-                    <div class="card-title">
-                        Acciones
-                        <hr>
-                    </div>
+                <div class="card">
                     <div class="card-body">
+                        <div class="card-title">
+                            Acciones
+                            <hr>
+                        </div>
                         <button id="actualizar" class="btn btn-primary btn-block mt-3">Actualizar Iva</button>
                     </div>
                 </div>

@@ -44,9 +44,9 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
-                                    <label for="quantity">Cantidad:</label>
-                                    <input value="{{old('quantity')}}" type="number" class="form-control" id="quantity" name="quantity">
-                                    @error('quantity')
+                                    <label for="reference">Referencia:</label>
+                                    <input value="{{old('reference')}}" type="text" class="form-control" id="reference" name="reference" >
+                                    @error('reference')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
@@ -60,12 +60,12 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
-                                    <label for="reference">Referencia:</label>
-                                    <input value="{{old('reference')}}" type="text" class="form-control" id="reference" name="reference" >
-                                    @error('reference')
+                                    <label for="date">Fecha de pago:</label>
+                                    <input value="{{old('date')}}" type="date" class="form-control" id="date" name="date" >
+                                    @error('date')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
-                                    @enderror
+                                @enderror
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
                                     <label for="iva">IVA:</label>
@@ -83,12 +83,12 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
-                                    <label for="date">Fecha de pago:</label>
-                                    <input value="{{old('date')}}" type="date" class="form-control" id="date" name="date" >
-                                    @error('date')
+                                    <label for="quantity">Cantidad:</label>
+                                    <input value="{{old('quantity')}}" type="number" class="form-control" id="quantity" name="quantity">
+                                    @error('quantity')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
-                                @enderror
+                                    @enderror
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
                                     <label for="bank_id">Banco:</label>
@@ -104,6 +104,25 @@
                                 @enderror
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
+                                    <label class="form-label"  for="quantityIva">Cantidad con iva:</label>
+                                    <input type="number" class="form-control" id="quantityIva" disabled  name="quantityIva" value="">
+                                    @error('quantityIva')
+                                    <span class="text-danger">{{ $message }}</span>
+                                    <style>.text-danger {color: red;}</style>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 form-group mt-2">
+                                    <label for="state">Estado:</label>
+                                    <select class="form-select" id="state" name="state">
+                                        <option value="PENDIENTE">Pendiente</option>
+                                        <option value="PAGADO">Pagado</option>
+                                    </select>
+                                    @error('state')
+                                    <span class="text-danger">{{ $message }}</span>
+                                    <style>.text-danger {color: red;}</style>
+                                @enderror
+                                </div>
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="purchase_order_id">Orden de compra:</label>
                                     <select class="form-select choices" id="purchase_order_id" name="purchase_order_id">
                                         <option value="">-- Selecciona un Orden de compra --</option>
@@ -114,17 +133,6 @@
                                         @endif
                                     </select>
                                     @error('purchase_order_id')
-                                    <span class="text-danger">{{ $message }}</span>
-                                    <style>.text-danger {color: red;}</style>
-                                @enderror
-                                </div>
-                                <div class="col-md-6 form-group mt-2">
-                                    <label for="state">Estado:</label>
-                                    <select class="form-select" id="state" name="state">
-                                        <option value="PENDIENTE">Pendiente</option>
-                                        <option value="PAGADO">Pagado</option>
-                                    </select>
-                                    @error('state')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
                                 @enderror
@@ -181,6 +189,21 @@
             itemSelectText: '',   // Texto vacío para el item seleccionado
         });
     });
+    function calculateCantidadConIVA() {
+        let quantity = parseFloat(document.getElementById('quantity').value) || 0;
+        let iva = parseFloat(document.getElementById('iva').value) || 0;
+
+        // Calculate the total amount with IVA
+        let quantityWithIVA = quantity + (quantity * (iva / 100));
+
+        // Set the value to the "Cantidad con iva" field
+        document.getElementById('quantityIva').value = quantityWithIVA.toFixed(2);
+    }
+
+    document.getElementById('quantity').addEventListener('input', calculateCantidadConIVA);
+    document.getElementById('iva').addEventListener('change', calculateCantidadConIVA);
+    document.addEventListener('DOMContentLoaded', calculateCantidadConIVA);
+
     $('#actualizar').click(function(e){
         e.preventDefault(); // Esto previene que el enlace navegue a otra página.
         $('form').submit(); // Esto envía el formulario.
