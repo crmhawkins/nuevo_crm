@@ -10,12 +10,12 @@
  <div class="page-heading card" style="box-shadow: none !important" >
     <div class="page-title card-body">
         <div class="row">
-            <div class="col-12 col-md-6 form-group order-md-1 order-last">
+            <div class="col-12 col-md-6 order-md-1 order-last">
                 <h3>Editar Gasto</h3>
                 <p class="text-subtitle text-muted">Formulario para editar un gasto</p>
             </div>
 
-            <div class="col-12 col-md-6 form-group order-md-2 order-first">
+            <div class="col-12 col-md-6 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
@@ -35,7 +35,7 @@
                         <form action="{{ route('gasto-asociado.store')}}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row mb-3">
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="title">Título:</label>
                                     <input value="{{old('title')}}" type="text" class="form-control" id="title" name="title">
                                     @error('title')
@@ -43,7 +43,7 @@
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="quantity">Cantidad:</label>
                                     <input value="{{old('quantity')}}" type="number" class="form-control" id="quantity" name="quantity">
                                     @error('quantity')
@@ -51,7 +51,7 @@
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="received_date">Fecha de recepción:</label>
                                     <input type="date" class="form-control" id="received_date" name="received_date" value="{{old('received_date',Carbon\Carbon::now()->format('Y-m-d'))}}">
                                     @error('received_date')
@@ -59,7 +59,7 @@
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="reference">Referencia:</label>
                                     <input value="{{old('reference')}}" type="text" class="form-control" id="reference" name="reference" >
                                     @error('reference')
@@ -67,7 +67,7 @@
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="iva">IVA:</label>
                                     <select class="form-select" id="iva" name="iva">
                                         <option value="">IVA</option>
@@ -82,7 +82,7 @@
                                         <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="date">Fecha de pago:</label>
                                     <input value="{{old('date')}}" type="date" class="form-control" id="date" name="date" >
                                     @error('date')
@@ -90,7 +90,7 @@
                                     <style>.text-danger {color: red;}</style>
                                 @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="bank_id">Banco:</label>
                                     <select class="form-select" id="bank_id" name="bank_id">
                                         <option value="">-- Seleccione un Banco --</option>
@@ -103,7 +103,7 @@
                                     <style>.text-danger {color: red;}</style>
                                 @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="purchase_order_id">Orden de compra:</label>
                                     <select class="form-select choices" id="purchase_order_id" name="purchase_order_id">
                                         <option value="">-- Selecciona un Orden de compra --</option>
@@ -118,7 +118,7 @@
                                     <style>.text-danger {color: red;}</style>
                                 @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="state">Estado:</label>
                                     <select class="form-select" id="state" name="state">
                                         <option value="PENDIENTE">Pendiente</option>
@@ -129,7 +129,7 @@
                                     <style>.text-danger {color: red;}</style>
                                 @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="payment_method_id">Método de pago:</label>
                                     <select class="form-select" id="payment_method_id" name="payment_method_id">
                                         @foreach($paymentMethods as $method)
@@ -141,7 +141,7 @@
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 form-group mt-2">
                                     <label for="documents">Documento:</label>
                                     <input type="file" class="form-control" id="documents" name="documents">
                                     @error('documents')

@@ -70,7 +70,7 @@
                 </thead>
                 <tbody>
                     @foreach ( $nominas as $nomina )
-                    <tr class="clickable-row" data-href="{{route('nominas.edit', $nomina->id)}}">
+                    <tr>
                         <td>{{$nomina->usuario ? ($nomina->usuario->name.' '.$nomina->usuario->surname) : 'Usuario no encontrado'}}</td>
                             <td>{{ \Carbon\Carbon::parse($nomina->fecha)->format('d/m/Y') }}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">

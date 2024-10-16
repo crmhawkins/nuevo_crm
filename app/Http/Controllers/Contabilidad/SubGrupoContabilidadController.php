@@ -74,7 +74,7 @@ class SubGrupoContabilidadController extends Controller
         $validatedData = $request->validate($rules);
         GrupoContable::create($request->all());
 
-        return redirect()->route('ingresos.index')->with('status', 'El Grupo fue creado con éxito!');
+        return redirect()->route('ingreso.index')->with('status', 'El Grupo fue creado con éxito!');
 
     }
 

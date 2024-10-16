@@ -371,7 +371,7 @@ Route::get('/portal/presupuestos', [App\Http\Controllers\Portal\PortalClientesCo
 Route::get('/portal/facturas', [App\Http\Controllers\Portal\PortalClientesController::class, 'facturas'])->name('portal.facturas');
 
 // Ingresos (TESORERIA)
-Route::get('/ingresos', [TesoreriaController::class, 'indexIngresos'])->name('ingresos.index');
+Route::get('/ingresos', [TesoreriaController::class, 'indexIngresos'])->name('ingreso.index');
 Route::get('/ingreso/create', [TesoreriaController::class, 'createIngresos'])->name('ingreso.create');
 Route::get('/ingreso/edit/{id}', [TesoreriaController::class, 'editIngresos'])->name('ingreso.edit');
 Route::get('/ingreso/show/{id}', [TesoreriaController::class, 'showIngresos'])->name('ingreso.show');

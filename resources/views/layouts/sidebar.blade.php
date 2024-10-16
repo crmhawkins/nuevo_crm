@@ -38,7 +38,7 @@
                     $actasActive= request()->routeIs('reunion.*');
                     $cargoActive= request()->routeIs('cargo.*');
                     $departamentoActive= request()->routeIs('departamento.*');
-                    $tesoreriaActive = request()->routeIs('ingresos.*') || request()->routeIs('gastos.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
+                    $tesoreriaActive = request()->routeIs('ingreso.*') || request()->routeIs('gasto.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
                     $cofiguracionActive = request()->routeIs('iva.*') || request()->routeIs('configuracion.*');
                     $admin = (Auth::user()->access_level_id == 1);
                     $gerente = (Auth::user()->access_level_id == 2);
@@ -270,8 +270,8 @@
                             <span>Tesorería</span>
                         </a>
                         <ul class="submenu" style="{{ $tesoreriaActive ? 'display:block;' : 'display:none;' }}">
-                            <li class="submenu-item {{ request()->routeIs('ingresos.index') ? 'active' : '' }}">
-                                <a href="{{route('ingresos.index')}}">
+                            <li class="submenu-item {{ request()->routeIs('ingreso.index') ? 'active' : '' }}">
+                                <a href="{{route('ingreso.index')}}">
                                     <i class="fa-solid fa-list"></i>
                                     <span>
                                         Ver Ingresos

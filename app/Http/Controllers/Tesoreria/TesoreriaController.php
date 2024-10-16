@@ -64,7 +64,7 @@ class TesoreriaController extends Controller
                 'icon' => 'error',
                 'mensaje' => 'El Ingreso no existe'
             ]);
-            return redirect()->route('ingresos.index');
+            return redirect()->route('ingreso.index');
         }
         $banks = BankAccounts::all();
         $invoices = Invoice::all();
@@ -178,6 +178,7 @@ class TesoreriaController extends Controller
             'transfer_movement' => 'nullable',
             'state' => 'required|string|max:255',
             'documents' => 'nullable',
+            'iva' => 'nullable',
         ],[
             'title.required' => 'El título es obligatorio.',
             'title.string' => 'El título debe ser una cadena de texto.',
@@ -240,6 +241,7 @@ class TesoreriaController extends Controller
             'payment_method_id' => 'required|integer|exists:payment_method,id',
             'aceptado_gestor' => 'nullable|boolean',
             'documents' => 'nullable',
+            'iva' => 'nullable',
         ],[
             'title.required' => 'El título es obligatorio.',
             'title.string' => 'El título debe ser una cadena de texto.',
@@ -378,7 +380,7 @@ class TesoreriaController extends Controller
         $ingresoUpdated = $ingreso->update($validated);
 
         if($ingresoUpdated){
-            return redirect()->route('ingresos.index', $ingreso->id)->with('toast',[
+            return redirect()->route('ingreso.index', $ingreso->id)->with('toast',[
                 'icon' => 'success',
                 'mensaje' => 'Ingreso actualizado exitosamente'
             ]);
@@ -406,6 +408,7 @@ class TesoreriaController extends Controller
             'payment_method_id' => 'required|integer|exists:payment_method,id',
             'transfer_movement' => 'nullable',
             'state' => 'required|string|max:255',
+            'iva' => 'nullable',
         ], [
             'title.required' => 'El título es obligatorio.',
             'title.string' => 'El título debe ser una cadena de texto.',
@@ -462,6 +465,8 @@ class TesoreriaController extends Controller
             'state' => 'required|string|max:255',
             'payment_method_id' => 'required|integer|exists:payment_method,id',
             'aceptado_gestor' => 'nullable|boolean',
+            'iva' => 'nullable',
+
         ], [
             'title.required' => 'El título es obligatorio.',
             'title.string' => 'El título debe ser una cadena de texto.',
