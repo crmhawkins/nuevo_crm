@@ -170,7 +170,7 @@
                             <hr>
                         </div>
                         <button id="actualizar" class="btn btn-primary btn-block mt-3">Actualizar Gasto</button>
-                        @if (isset($gasto->documents))
+                        @if (isset($gasto->documents) && Storage::disk('public')->exists($gasto->documents))
                         <a href="{{ asset('storage/' . $gasto->documents) }}" target="_blank" class="btn btn-dark btn-block mt-3">Ver Documento</a>
                         @endif
                     </div>

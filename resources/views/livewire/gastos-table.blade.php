@@ -84,7 +84,7 @@
                             <td>{{ \Carbon\Carbon::parse($gasto->date)->format('d/m/Y') }}</td>
                             <td>{{$gasto->state}}</td>
                             <td>
-                                @if (isset($gasto->documents))
+                                @if (isset($gasto->documents) && Storage::disk('public')->exists($gasto->documents))
                                 <a href="{{ asset('storage/' . $gasto->documents) }}" target="_blank">Ver Documento</a>
                                 @endif
                             </td>
