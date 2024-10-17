@@ -52,7 +52,7 @@ class GetCorreos extends Command
                 if (!Email::where('message_id', $messageId)->exists()) {
                     $sender = $message->getFrom()[0]->mail;
                     $subject = $message->getSubject();
-                    $body = $message->getTextBody();
+                    $body = $message->getHTMLBody();
 
                     // Crear el registro de Email antes de procesar adjuntos
                     $email = Email::create([
