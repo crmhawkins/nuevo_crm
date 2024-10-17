@@ -61,6 +61,7 @@ class GetCorreos extends Command
                         'subject' => $subject,
                         'body' => $body,
                         'message_id' => $messageId,
+                        'status_id' => 1,
                     ]);
 
                     // Procesar adjuntos

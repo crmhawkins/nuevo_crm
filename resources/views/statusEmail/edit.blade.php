@@ -1,34 +1,58 @@
 @extends('layouts.app')
 
+@section('titulo', 'Editar Estado de Email')
+
+@section('css')
+<link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
+<link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
+@endsection
+
 @section('content')
-<div class="container-fluid">
-    <div class="d-flex flex-column mb-3">
-        <h2 class="mb-0 me-3 encabezado_top">{{ __('Editar Estado de Email') }}</h2>
-    </div>
-    <hr>
-    <div class="row justify-content-center">
-        <div class="col-md-12">
-            <form action="{{ route('admin.statusMail.update', $status->id) }}" method="POST">
-                @csrf
-                <div class="mb-3">
-                    <label for="name" class="form-label">Nombre</label>
-                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $status->name) }}">
-                    @error('name')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="mb-3">
-                    <label for="other" class="form-label">Otro</label>
-                    <input type="text" class="form-control @error('other') is-invalid @enderror" id="other" name="other" value="{{ old('other', $status->other) }}">
-                    @error('other')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <button type="submit" class="btn btn-terminar w-100 fs-4 mt-4">Actualizar</button>
-            </form>
+<div class="page-heading card" style="box-shadow: none !important">
+    <div class="page-title card-body">
+        <div class="row justify-content-between">
+            <div class="col-md-6 order-md-1 order-last">
+                <h3 class="display-6">Editar Estado de Email</h3>
+            </div>
         </div>
     </div>
+
+    <section class="section pt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form action="{{ route('admin.statusMail.update', $status->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Nombre</label>
+                                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $status->name) }}">
+                                        @error('name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="other" class="form-label">Otro</label>
+                                        <input type="text" class="form-control @error('other') is-invalid @enderror" id="other" name="other" value="{{ old('other', $status->other) }}">
+                                        @error('other')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-terminar w-100 fs-4 mt-4">Actualizar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 @endsection
