@@ -54,4 +54,9 @@ class Email extends Model
         return $this->belongsTo(User::class, 'admin_user_id');
     }
 
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class, 'email_id');
+    }
+
 }

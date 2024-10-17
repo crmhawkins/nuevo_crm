@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+
 
 class GastosTable extends Component
 {
@@ -43,7 +45,8 @@ class GastosTable extends Component
     {
         // Comprueba si se ha seleccionado "Todos" para la paginación
 
-        $query = Gasto::when($this->buscar, function ($query) {
+        $query = Gasto::select('*', DB::raw('quantity * (iva / 100) as iva_amount'), DB::raw('quantity + (COALESCE(quantity, 0) * (COALESCE(iva, 0) / 100)) as total_with_iva'))
+                ->when($this->buscar, function ($query) {
                     $query->where('title', 'like', '%' . $this->buscar . '%');
                 })
                 ->when($this->selectedYear, function ($query) {

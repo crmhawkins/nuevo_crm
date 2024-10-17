@@ -24,15 +24,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command('vacacioner:add')->monthlyOn(1, '08:00');
+        $schedule->command('correos:get')->everyMinute();
 
-        $schedule->call(function () {
-            $value = 1.83;
-            $value2 = 1.83;
-            $adminUserId = 101;
-            //DB::update('update holidays set quantity=quantity+?', [$value]);
-            DB::update('UPDATE holidays SET quantity = quantity + CASE WHEN admin_user_id = ? THEN ? ELSE ? END', [$adminUserId, $value2, $value]);
-
-        })->monthlyOn(1, '08:00');
 
         // $schedule->call(function () {
         //     $users = User::where('inactive', 0)->where('id', '!=', 101)->get();
@@ -86,7 +80,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $this->sendEmailHoras();
         //})->everyMinute();
-        })->weeklyOn(5, '18:30');
+        })->weeklyOn(5, '23:30');
         // $schedule->call(function () {
         //     $users = User::where('inactive',0)->get();
         //     $fechaNow = Carbon::now();

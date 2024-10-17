@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+
 
 class AssociatedTable extends Component
 {
@@ -44,7 +46,8 @@ class AssociatedTable extends Component
     protected function actualizargastos()
     {
         // Comprueba si se ha seleccionado "Todos" para la paginación
-        $query = AssociatedExpenses::when($this->buscar, function ($query) {
+        $query = AssociatedExpenses::select('*', DB::raw('associated_expenses.quantity * (associated_expenses.iva / 100) as iva_amount'), DB::raw('associated_expenses.quantity + (COALESCE(associated_expenses.quantity, 0) * (COALESCE(associated_expenses.iva, 0) / 100)) as total_with_iva'))
+        ->when($this->buscar, function ($query) {
             $query->where('associated_expenses.title', 'like', '%' . $this->buscar . '%')
                   ->orWhereHas('OrdenCompra.Proveedor', function ($subQuery) {
                       $subQuery->where('suppliers.name', 'like', '%' . $this->buscar . '%');

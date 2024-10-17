@@ -343,12 +343,12 @@
 
                 </div>
                 <div class="col-3">
-                    <div class="card-body p-3">
-                        <div class="card-title">
-                            Acciones
-                            <hr>
-                        </div>
+                    <div class="card">
                         <div class="card-body">
+                            <div class="card-title">
+                                Acciones
+                                <hr>
+                            </div>
                             <a href="" id="actualizarPresupuesto" class="btn btn-success btn-block">Actualizar Presupuesto</a>
                             <a href="" id="aceptarPresupuesto" class="btn btn-primary btn-block mt-3">Aceptar Presupuesto</a>
                             <a href="" id="cancelarPresupuesto"class="btn btn-danger btn-block mt-3">Cancelar Presupuesto</a>
@@ -388,9 +388,12 @@
 <script>
     $(document).ready(function() {
 
+        $('a.btn, button').on('click', function() {
+            $(this).prop('disabled', true);
+        });
+
         // Boton de Concepto Propio
         $('#btnPropio').click(function(){
-            console.log('Click en Boton Propio');
             const idPresupuesto = @json($presupuesto->id);
             var baseUrl = "{{ route('budgetConcepts.createTypeOwn', ['budget' => 'PLACEHOLDER']) }}";
             var finalUrl = baseUrl.replace('PLACEHOLDER', idPresupuesto);

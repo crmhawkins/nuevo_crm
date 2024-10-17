@@ -50,17 +50,19 @@
     </div>
     @if ($gastos->count())
         <div class="table-responsive">
-             <table class="table table-hover">
+             <table class="table table-hover table-sm">
                 <thead class="header-table">
                     <tr>
                         @foreach ([
-                            'reference' => 'Nº FACTURA',
-                            'purchase_order_id' => 'Nº ORDEN',
+                            'reference' => 'Nº.FACTURA',
+                            'purchase_order_id' => 'ORDEN',
                             'Cliente' => 'CLIENTE',
                             'supplier_name' => 'PROVEEDOR',
                             'title' => 'TITULO',
                             'quantity' => 'CANTIDAD',
-                            'received_date' => 'FECHA DE RECEPCION',
+                            'iva_amount' => 'IVA',
+                            'total_with_iva' => 'TOTAL',
+                            'received_date' => 'F.RECEPCION',
                             'bank_id' => 'BANCO',
                             'state' => 'ESTADO',
 
@@ -74,24 +76,26 @@
                                 </a>
                             </th>
                         @endforeach
-                        <th class="" style="font-size:0.75rem">DOCUMENTO</th>
+                        <th class="" style="font-size:0.75rem">DOC</th>
                         <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
                     @foreach ($gastos as $gasto)
                         <tr class="clickable-row" data-href="{{route('gasto-asociado.edit', $gasto->id)}}">
-                            <td>{{$gasto->reference}}</td>
+                            <td style="max-width: 170px;">{{$gasto->reference}}</td>
                             <td>{{$gasto->purchase_order_id}}</td>
                             <td>{{$gasto->OrdenCompra ? ($gasto->OrdenCompra->cliente ? $gasto->OrdenCompra->cliente->name : 'Sin Cliente Asociado') : 'Sin orden asociada'}}</td>
                             <td>{{$gasto->OrdenCompra ? ($gasto->OrdenCompra->Proveedor ? $gasto->OrdenCompra->Proveedor->name : 'Sin Proveedor Asociado') : 'Sin orden asociada'}}</td>
                             <td>{{$gasto->title}}</td>
                             <td>{{ number_format($gasto->quantity, 2) }}€</td>
+                            <td>{{ number_format($gasto->iva_amount, 2) }}€</td>
+                            <td>{{ number_format($gasto->total_with_iva, 2) }}€</td>
                             <td>{{ \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') }}</td>
                             <td>{{$gasto->bankAccount->name ?? 'Banco no asociado'}}</td>
                             <td>{{$gasto->state}}</td>
                             <td>
                                 @if (isset($gasto->documents) && Storage::disk('public')->exists($gasto->documents))
-                                <a href="{{ asset('storage/' . $gasto->documents) }}" target="_blank">Ver Documento</a>
+                                <a href="{{ asset('storage/' . $gasto->documents) }}" target="_blank">Ver</a>
                                 @endif
                             </td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
@@ -105,7 +109,9 @@
                     <tr>
                         <td colspan="4"></td>
                         <th>Sumatorio:</th>
-                        <td>{{number_format((float)$gastos->sum('quantity'), 2, '.', '') }} €</td>
+                        <td>{{number_format((float)$gastos->sum('quantity'), 2, '.', '') }}€</td>
+                        <td>{{number_format((float)$gastos->sum('iva_amount'), 2, '.', '') }}€</td>
+                        <td>{{number_format((float)$gastos->sum('total_with_iva'), 2, '.', '') }}€</td>
                     </tr>
                 </tfoot>
             </table>

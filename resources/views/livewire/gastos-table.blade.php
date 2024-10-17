@@ -57,6 +57,8 @@
                             'bank_id' => 'BANCO',
                             'title' => 'TITULO',
                             'quantity' => 'CANTIDAD',
+                            'iva_amount' => 'IVA',
+                            'total_with_iva' => 'TOTAL',
                             'received_date' => 'F.RECEPCION',
                             'date' => 'F.PAGO',
                             'state' => 'ESTADO',
@@ -80,6 +82,8 @@
                             <td>{{$gasto->bankAccount->name ?? 'Banco no asignado'}}</td>
                             <td>{{$gasto->title}}</td>
                             <td>{{ number_format($gasto->quantity, 2) }}€</td>
+                            <td>{{ number_format($gasto->iva_amount, 2) }}€</td>
+                            <td>{{ number_format($gasto->total_with_iva, 2) }}€</td>
                             <td>{{ $gasto->received_date ? \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') : 'Sin Fecha'}}</td>
                             <td>{{ \Carbon\Carbon::parse($gasto->date)->format('d/m/Y') }}</td>
                             <td>{{$gasto->state}}</td>
@@ -99,7 +103,9 @@
                     <tr>
                         <td colspan="1"></td>
                         <th>Sumatorio:</th>
-                        <td>{{number_format((float)$gastos->sum('quantity'), 2, '.', '') }} €</td>
+                        <td>{{number_format((float)$gastos->sum('quantity'), 2, '.', '') }}€</td>
+                        <td>{{number_format((float)$gastos->sum('iva_amount'), 2, '.', '') }}€</td>
+                        <td>{{number_format((float)$gastos->sum('total_with_iva'), 2, '.', '') }}€</td>
                     </tr>
                 </tfoot>
             </table>
