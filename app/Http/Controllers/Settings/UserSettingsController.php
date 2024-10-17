@@ -20,64 +20,47 @@ class UserSettingsController extends Controller
 
     public function store(Request $request)
     {
-
         $request->validate([
-            'price_hour' => 'required|numeric',
-            'fecha_inicio_verano' => 'required|date',
-            'fecha_fin_verano' => 'required|date',
-            'fecha_inicio_invierno' => 'required|date',
-            'fecha_fin_invierno' => 'required|date',
+            'host' => 'required|string|max:255',
+            'port' => 'required|integer',
+            'username' => 'required|string|max:255',
+            'password' => 'required|string|max:255',
         ]);
 
-        $configuracion = Settings::create($request->only(['price_hour', 'fecha_inicio_verano', 'fecha_fin_verano', 'fecha_inicio_invierno', 'fecha_fin_invierno']));
+        UserEmailConfig::create([
+            'admin_user_id' => Auth::user()->id,
+            'host' => $request->input('host'),
+            'port' => $request->input('port'),
+            'username' => $request->input('username'),
+            'password' => $request->input('password'),
+        ]);
 
-        $this->saveHorarios($configuracion, $request->horarios);
-
-
-        return redirect()->route('configuracion.index')->with('success', 'Configuración creada correctamente.');
+        return redirect()->back()->with('toast', [
+                'icon' => 'success',
+                'mensaje' => 'Configuración de correo creada correctamente.']);
     }
 
+    // Update method to edit existing email configuration
     public function update(Request $request, $id)
     {
-        dd($request->all());
-        $configuracion = Settings::find($id);
-
         $request->validate([
-            'price_hour' => 'required|numeric',
-            'fecha_inicio_verano' => 'required|date',
-            'fecha_fin_verano' => 'required|date',
-            'fecha_inicio_invierno' => 'required|date',
-            'fecha_fin_invierno' => 'required|date',
+            'host' => 'required|string|max:255',
+            'port' => 'required|integer',
+            'username' => 'required|string|max:255',
+            'password' => 'required|string|max:255',
         ]);
 
-        $configuracion->update($request->only(['price_hour', 'fecha_inicio_verano', 'fecha_fin_verano', 'fecha_inicio_invierno', 'fecha_fin_invierno']));
+        $config = UserEmailConfig::findOrFail($id);
+        $config->update([
+            'host' => $request->input('host'),
+            'port' => $request->input('port'),
+            'username' => $request->input('username'),
+            'password' => $request->input('password'),
+        ]);
 
-        // Actualizar horarios
-        Schedule::where('settings_id', $configuracion->id)->delete();
-
-        $this->saveHorarios($configuracion->id, $request->horarios);
-
-
-        return redirect()->route('configuracion.index')->with('success', 'Configuración actualizada correctamente.');
-    }
-
-    private function saveHorarios( $id, $horarios)
-    {
-        $configuracion = Settings::find($id);
-        foreach (['verano', 'invierno'] as $tipo) {
-            foreach ($horarios[$tipo] as $dia => $horas) {
-                foreach ($horas as $hora) {
-                    if ($hora['inicio'] && $hora['fin']) {
-                        $configuracion->horarios()->create([
-                            'tipo' => $tipo,
-                            'dia' => $dia,
-                            'inicio' => $hora['inicio'],
-                            'fin' => $hora['fin'],
-                        ]);
-                    }
-                }
-            }
-        }
+        return redirect()->back()->with('toast', [
+                'icon' => 'success',
+                'mensaje' => 'Configuración de correo actualizada correctamente.']);
     }
 
 }

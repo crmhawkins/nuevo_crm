@@ -24,7 +24,14 @@ class EmailController extends Controller
     // Mostrar un correo específico
     public function show(Email $email)
     {
-        return view('emails.show', compact('email'));
+
+        if ($email->admin_user_id == Auth::user()->id){
+            return view('emails.show', compact('email'));
+        }else{
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'No tienes permiso para acceder']);
+        }
     }
 
 

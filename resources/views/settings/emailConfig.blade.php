@@ -27,68 +27,85 @@
 
     <section class="section pt-4">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-9">
                 <div class="card">
                     <div class="card-body">
                         @if($configuracion->isEmpty())
-                            <form action="{{ route('admin.emailConfig.store') }}" method="POST">
+                            <form id="formStore"  action="{{ route('admin.emailConfig.store') }}" method="POST">
                                 @csrf
-                                <div class="row mb-3">
-                                    <label for="host" class="col-md-2 col-form-label">Host</label>
-                                    <div class="col-md-10">
-                                        <input type="text" class="form-control" id="host" name="host" required>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="host" class="form-label">Host</label>
+                                            <input type="text" class="form-control" id="host" name="host" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="port" class="form-label">Port</label>
+                                            <input type="text" class="form-control" id="port" name="port" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="username" class="form-label">Username</label>
+                                            <input type="text" class="form-control" id="username" name="username" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Password</label>
+                                            <input type="password" class="form-control" id="password" name="password" required>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row mb-3">
-                                    <label for="port" class="col-md-2 col-form-label">Port</label>
-                                    <div class="col-md-10">
-                                        <input type="text" class="form-control" id="port" name="port" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <label for="username" class="col-md-2 col-form-label">Username</label>
-                                    <div class="col-md-10">
-                                        <input type="text" class="form-control" id="username" name="username" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <label for="password" class="col-md-2 col-form-label">Password</label>
-                                    <div class="col-md-10">
-                                        <input type="password" class="form-control" id="password" name="password" required>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Guardar Configuración</button>
                             </form>
                         @else
-                            <form action="{{ route('admin.emailConfig.update', $configuracion->first()->id) }}" method="POST">
+                            <form id="formUpdate" action="{{ route('admin.emailConfig.update', $configuracion->first()->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
-                                <div class="row mb-3">
-                                    <label for="host" class="col-md-2 col-form-label">Host</label>
-                                    <div class="col-md-10">
-                                        <input type="text" class="form-control" id="host" name="host" value="{{ $configuracion->first()->host }}" required>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="host" class="form-label">Host</label>
+                                            <input type="text" class="form-control" id="host" name="host" value="{{ $configuracion->first()->host }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="port" class="form-label">Port</label>
+                                            <input type="text" class="form-control" id="port" name="port" value="{{ $configuracion->first()->port }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="username" class="form-label">Username</label>
+                                            <input type="text" class="form-control" id="username" name="username" value="{{ $configuracion->first()->username }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Password</label>
+                                            <input type="password" class="form-control" id="password" name="password" value="{{ $configuracion->first()->password }}" required>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row mb-3">
-                                    <label for="port" class="col-md-2 col-form-label">Port</label>
-                                    <div class="col-md-10">
-                                        <input type="text" class="form-control" id="port" name="port" value="{{ $configuracion->first()->port }}" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <label for="username" class="col-md-2 col-form-label">Username</label>
-                                    <div class="col-md-10">
-                                        <input type="text" class="form-control" id="username" name="username" value="{{ $configuracion->first()->username }}" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <label for="password" class="col-md-2 col-form-label">Password</label>
-                                    <div class="col-md-10">
-                                        <input type="password" class="form-control" id="password" name="password" value="{{ $configuracion->first()->password }}" required>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Actualizar Configuración</button>
                             </form>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="card-body p-3">
+                    <div class="card-title">
+                        Acciones
+                        <hr>
+                    </div>
+                    <div class="card-body">
+                        @if($configuracion->isEmpty())
+                        <button id="Guardar" type="button" class="btn btn-primary">Guardar Configuración</button>
+                        @else
+                        <button id="Actualizar" type="button" class="btn btn-primary">Actualizar Configuración</button>
                         @endif
                     </div>
                 </div>
@@ -96,4 +113,18 @@
         </div>
     </section>
 </div>
+@endsection
+@section('scripts')
+@include('partials.toast')
+
+<script>
+     $('#Guardar').click(function(e){
+            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
+            $('#formStore').submit(); // Esto envía el formulario.
+        });
+    $('#Actualizar').click(function(e){
+        e.preventDefault(); // Esto previene que el enlace navegue a otra página.
+        $('#formUpdate').submit(); // Esto envía el formulario.
+    });
+</script>
 @endsection

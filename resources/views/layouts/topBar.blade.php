@@ -6,6 +6,11 @@
     </header>
     <ul class="topbar-menu d-flex align-items-center gap-3">
         <li class="dropdown notification-list">
+            <a href="{{ route('admin.emailConfig.settings') }}" type="button" class="nav-link position-relative">
+                <i class="fas fa-cogs"></i>
+            </a>
+        </li>
+        <li class="dropdown notification-list">
             <a href="#" type="button" class="nav-link position-relative">
                 <i class="fa-regular fa-envelope"></i>
                 <span class="position-absolute top-10 start-80 translate-middle px-2 bg-info rounded-pill">
@@ -147,6 +152,7 @@
         </li>
 
         <!-- Campana de notificaciones -->
+
         <li class="dropdown notification-list">
             <a href="#" type="button" class="nav-link position-relative" id="btnAbrirAlertas">
                 <i class="fa-regular fa-bell"></i>
