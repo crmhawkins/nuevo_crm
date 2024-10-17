@@ -15,7 +15,7 @@
 
             <div class="card">
                 <div class="card-body">
-                    <p>{{ $email->body }}</p>
+                    <pre>{{ $email->body }}</pre>
                 </div>
             </div>
 
