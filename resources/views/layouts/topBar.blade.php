@@ -11,7 +11,7 @@
             </a>
         </li>
         <li class="dropdown notification-list">
-            <a href="#" type="button" class="nav-link position-relative">
+            <a href="{{ route('admin.emails.index') }}" type="button" class="nav-link position-relative">
                 <i class="fa-regular fa-envelope"></i>
                 <span class="position-absolute top-10 start-80 translate-middle px-2 bg-info rounded-pill">
                   <span class="text-white" style="font-size: 0.85rem">0</span>
