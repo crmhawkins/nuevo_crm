@@ -52,7 +52,7 @@
                                                 <select class=" form-select w-100 @error('project_id') is-invalid @enderror" name="project_id"  id="proyecto" @if($campanias != null )@if( $campanias->count() < 0){{'disabled'}} @endif @endif >
                                                             <option value="{{null}}">Seleccione una Campaña</option>
                                                             @foreach ( $campanias as $campania )
-                                                                <option @if(old('project_id', $presupuesto->project_id) == $campania->id) {{'selected'}} @endif value="{{$campania->id}}">{{$campania->name}}</option>
+                                                                <option value="{{$campania->id}}" @selected(old('project_id', $presupuesto->project_id) == $campania->id)>{{$campania->name}}</option>
                                                             @endforeach
                                                 </select>
                                             </div>
@@ -387,8 +387,6 @@
 
 <script>
     $(document).ready(function() {
-
-
 
         // Boton de Concepto Propio
         $('#btnPropio').click(function(){
@@ -819,40 +817,7 @@
             window.open(urlTemplateCliente, '_self');
         });
 
-        // Boton Cliente
-        $('#cliente').on( "change", function(){
-            var clienteId = $(this).val();
-            $.ajax({
-                url: '{{ route("campania.postProjectsFromClient") }}', // Asegúrate de que la URL es correcta
-                type: 'POST',
-                data: {
-                    client_id: clienteId
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
-                },
-                success: function(response) {
-                    console.log(response);
 
-                    var select = $('#proyecto'); // Reemplaza 'tuSelect' con el ID de tu select
-                    select.empty(); // Limpia las opciones actuales
-                    if (response.length === 0) {
-                        select.attr("disabled", true)
-                        select.append($('<option></option>').attr('value', null).text('No hay campaña de este cliente'));
-                    }else{
-                        $.each(response, function(key, value) {
-                            select.append($('<option></option>').attr('value', value.id).text(value.name));
-                        });
-                        select.attr("disabled", false)
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Manejo de errores
-                    console.error(error);
-                }
-            });
-
-        })
 
         // Boton eliminar concepto
         $('.destroyConceptOwn').on('click', function(){
@@ -1110,6 +1075,7 @@
         }
 
         actualizarPrecios()
+        const selectedProjectId = @json(old('project_id', $presupuesto->project_id));
         const choicesOptions = { removeItemButton: true };
 
         // Inicialización de Choices.js para los selects existentes
@@ -1119,8 +1085,12 @@
         const paymentMethodSelect = new Choices('#payment_method_id');
         const budgetStatusSelect = new Choices('#budget_status_id');
                   // Ejecutar tanto en el cambio del select como cuando la página carga
+
+
         $('#cliente').on("change", function() {
             const clienteId = $(this).val();
+            const previousValue = $('#proyecto').val();
+            console.log(previousValue);
             if (clienteId) {
                 $.ajax({
                     url: '{{ route("campania.postProjectsFromClient") }}',
@@ -1128,18 +1098,32 @@
                     data: { client_id: clienteId },
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     success: function(response) {
-                        proyectoSelect.setChoices(() => {
-                            return response.map((campania) => {
-                                return { value: campania.id, label: campania.name, selected: campania.id === "{{ old('project_id', $presupuesto->project_id) }}" };
-                            });
-                        }, 'value', 'label', true);
+                        // Establece las nuevas opciones para el select de campañas
+                        proyectoSelect.setChoices(
+                            response.map((campania) => ({
+                                value: campania.id,
+                                label: campania.name,
+                                selected: campania.id == previousValue // Establece el valor previamente seleccionado si está disponible
+                            })),
+                            'value',
+                            'label',
+                            true
+                        );
+
+                        // Si no se encuentra el valor anterior, asegúrate de seleccionar una opción por defecto (opcional)
+                        if (!response.some(campania => campania.id == previousValue)) {
+                            proyectoSelect.setChoiceByValue(response.length > 0 ? response[0].id : null);
+                        }
                     },
                     error: function(xhr, status, error) {
                         console.error("Error al cargar las campañas: ", error);
                     }
                 });
+                console.log($('#proyecto').val());
+
             }
         });
+
 
         // Dispara el cambio al cargar la página si hay un cliente seleccionado
         if ($('#cliente').val() !== '') {
