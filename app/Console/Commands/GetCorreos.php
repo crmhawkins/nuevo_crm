@@ -65,19 +65,28 @@ class GetCorreos extends Command
 
                     // Procesar adjuntos
                     $attachments = $message->getAttachments();
-                    foreach ($attachments as $attachment) {
-                        $filename = $attachment->getName(); // Nombre del archivo
-                        $file_path = "public/emails/" . $email->id . "/" . $filename; // Definir ruta de almacenamiento
-                        Storage::disk('local')->put($file_path, $attachment->getContent()); // Guardar en el disco local
+                        foreach ($attachments as $attachment) {
+                            $filename = $attachment->getName(); // Nombre del archivo
+                            $file_path = "public/emails/" . $email->id . "/" . $filename; // Definir ruta de almacenamiento
+                            Storage::disk('local')->put($file_path, $attachment->getContent()); // Guardar en el disco local
 
-                        // Guardar registro de adjunto en la base de datos
-                        Attachment::create([
-                            'email_id' => $email->id,
-                            'file_path' => $file_path,
-                            'file_name' => $filename,
-                        ]);
-                    }
+                            // Reemplazar las rutas cid: en el cuerpo del mensaje
+                            $cid = $attachment->getContentId(); // Obtener el content-id del adjunto
+                            if ($cid) {
+                                $cid = str_replace(['<', '>'], '', $cid); // Limpiar los caracteres < y >
+                                $public_path = asset('storage/' . $file_path); // Crear la nueva ruta pública
+                                $body = str_replace("cid:$cid", $public_path, $body); // Reemplazar en el cuerpo del HTML
+                            }
 
+                            // Guardar registro de adjunto en la base de datos
+                            Attachment::create([
+                                'email_id' => $email->id,
+                                'file_path' => $file_path,
+                                'file_name' => $filename,
+                            ]);
+                        }
+
+                    $email->update(['body' => $body]);
                     $message->setFlag('Seen');
                 }
             }
