@@ -68,7 +68,7 @@ class GetCorreos extends Command
                         foreach ($attachments as $attachment) {
                             $filename = $attachment->getName(); // Nombre del archivo
                             $file_path = "emails/" . $email->id . "/" . $filename; // Definir ruta de almacenamiento
-                            Storage::disk('local')->put($file_path, $attachment->getContent()); // Guardar en el disco local
+                            Storage::disk('public')->put($file_path, $attachment->getContent()); // Guardar en el disco local
 
                             // Reemplazar las rutas cid: en el cuerpo del mensaje
                             $cid = $attachment->getContentId(); // Obtener el content-id del adjunto
