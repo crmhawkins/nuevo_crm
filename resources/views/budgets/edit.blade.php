@@ -388,9 +388,7 @@
 <script>
     $(document).ready(function() {
 
-        $('a.btn, button').on('click', function() {
-            $(this).prop('disabled', true);
-        });
+
 
         // Boton de Concepto Propio
         $('#btnPropio').click(function(){

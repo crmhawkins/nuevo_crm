@@ -8,13 +8,15 @@ use Illuminate\Support\Facades\Mail;
 use Webklex\PHPIMAP\ClientManager;
 use App\Http\Controllers\Controller;
 use App\Models\Email\UserEmailConfig;
+use Illuminate\Support\Facades\Auth;
 
 class EmailController extends Controller
 {
     public function index()
     {
+
         // Obtén todos los correos electrónicos paginados
-        $emails = Email::with(['status', 'category', 'user'])->paginate(15);
+        $emails = Email::where('admin_user_id', Auth::user()->id)->with(['status', 'category', 'user'])->paginate(15);
 
         return view('emails.index', compact('emails'));
     }
@@ -25,56 +27,6 @@ class EmailController extends Controller
         return view('emails.show', compact('email'));
     }
 
-    public function email(){
-        $config = UserEmailConfig::all();
-        foreach ($config as $correo) {
-
-            $ClientManager = new ClientManager();
-            $client = $ClientManager->make([
-                'host' => $correo->host,
-                'port' => $correo->port,
-                'username' => $correo->username,
-                'password' => $correo->password,
-                'encryption' => 'ssl',
-                'validate_cert' => true,
-                'protocol'      => 'imap'
-            ]);
-
-            $client->connect();
-
-            $inbox = $client->getFolder('INBOX');
-            // Obtener todos los correos
-            $messages = $inbox->messages()->unseen()->get();  // También puedes probar con recent()
-
-            // Procesar solo los primeros 10 correos
-            $counter = 0;
-            foreach ($messages as $message) {
-                if ($counter >= 40) break; // Salir del loop después de procesar 10 mensajes
-
-                // Aquí puedes procesar cada correo
-                $sender = $message->getFrom()[0]->mail;
-                $subject = $message->getSubject();
-                $body = $message->getTextBody();
-                $messageId = $message->getMessageId(); // Obtiene el Message-ID del correo original
-
-                // Guardar en la base de datos o hacer algo con los correos
-                Email::create([
-                    'admin_user_id' => $correo->admin_user_id,
-                    'sender' => $sender,
-                    'subject' => $subject,
-                    'body' => $body,
-                    'message_id' => $messageId,
-                ]);
-
-
-                // Marca el correo como leído
-                $message->setFlag('Seen');
-
-            }
-
-            $client->disconnect();
-        }
-    }
 
     public function replyToEmail($emailId)
     {

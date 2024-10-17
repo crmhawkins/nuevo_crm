@@ -43,6 +43,7 @@ use App\Http\Controllers\Logs\LogActionsController;
 use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
 use App\Http\Controllers\Ordenes\OrdenesController;
+use App\Http\Controllers\Settings\UserSettingsController;
 use App\Http\Controllers\Statistics\StatisticsController;
 use App\Http\Controllers\Tesoreria\IvaController;
 use App\Http\Controllers\Users\DepartamentController;
@@ -443,6 +444,7 @@ Route::post('/status-mail/{id}/destroy', [StatusMailController::class, 'destroy'
 // Emails
 Route::get('/emails', [EmailController::class, 'index'])->name('admin.emails.index');
 Route::get('/emails/{email}', [EmailController::class, 'show'])->name('admin.emails.show');
+Route::get('/emails/settings', [UserSettingsController::class, 'emailSettings'])->name('admin.emails.settings');
 
 // Configuracion
 Route::get('/statistics', [StatisticsController::class, 'index'])->name('estadistica.index');
