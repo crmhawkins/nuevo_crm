@@ -40,14 +40,14 @@ class UsersTable extends Component
     {
         $query = User::where('inactive', 0)
             ->when($this->buscar, function ($query) {
-                $query->where('name', 'like', '%' . $this->buscar . '%')
-                    ->orWhere('email', 'like', '%' . $this->buscar . '%');
+                $query->where('admin_user.name', 'like', '%' . $this->buscar . '%')
+                    ->orWhere('admin_user.email', 'like', '%' . $this->buscar . '%');
             })
             ->when($this->selectedDepartamento, function ($query) {
-                $query->where('admin_user_department_id', $this->selectedDepartamento);
+                $query->where('admin_user.admin_user_department_id', $this->selectedDepartamento);
             })
             ->when($this->selectedNivel, function ($query) {
-                $query->where('access_level_id', $this->selectedNivel);
+                $query->where('admin_user.access_level_id', $this->selectedNivel);
             })
             ->join('admin_user_access_level', 'admin_user.access_level_id', '=', 'admin_user_access_level.id')
             ->join('admin_user_department', 'admin_user.admin_user_department_id', '=', 'admin_user_department.id')
