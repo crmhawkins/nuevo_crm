@@ -4,6 +4,7 @@
 
 @section('css')
 <link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
 @endsection
 
@@ -102,14 +103,23 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('assets/vendors/simple-datatables/simple-datatables.js') }}"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 <script>
-    // Inicializa la tabla
+    // Inicializa la tabla con DataTable y botones de exportación
     document.addEventListener('DOMContentLoaded', function () {
-        let table1 = document.querySelector('#table1');
-        if (table1) {
-            new simpleDatatables.DataTable(table1);
-        }
+        let table1 = $('#table1').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Exportar a Excel',
+                    className: 'btn btn-success'
+                }
+            ]
+        });
     });
 </script>
 

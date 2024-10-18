@@ -525,6 +525,7 @@ class BudgetController extends Controller
                 foreach( $thisBudgetOwnTypeConcepts as $thisBudgetOwnTypeConcept ){
                    $conceptOwnDuplicated =  $thisBudgetOwnTypeConcept->replicate();
                    $conceptOwnDuplicated->budget_id = $newBudget->id;
+                   $conceptOwnDuplicated->is_facturado = 0;
                    $conceptOwnDuplicatedSaved = $conceptOwnDuplicated->save();
                    if(!$conceptOwnDuplicatedSaved){
                         $duplicationSuccess = false;
@@ -543,6 +544,7 @@ class BudgetController extends Controller
                         // Duplicar concepto proveedor
                         $conceptSupplierDuplicated =$thisBudgetSupplierTypeConcept->replicate();
                         $conceptSupplierDuplicated->budget_id = $newBudget->id;
+                        $conceptSupplierDuplicated->is_facturado = 0;
                         $conceptSupplierDuplicatedSaved = $conceptSupplierDuplicated->save();
                         if(!$conceptSupplierDuplicatedSaved){
                             $duplicationSuccess = false;
@@ -1136,6 +1138,7 @@ class BudgetController extends Controller
             ]);
         }
     }
+
     public function generateInvoiceConcept(Request $request){
         $budget = Budget::find($request->id);
 
@@ -1379,6 +1382,7 @@ class BudgetController extends Controller
         $invoice = Invoice::create($data);
 
         $invoiceSaved = $invoice->save();
+
         if(!$invoiceSaved){
             return response()->json([
                 'status' => false,
