@@ -1,36 +1,36 @@
 <?php
 
-namespace App\Http\Controllers\Horas;
+namespace App\Exports;
 
-use App\Exports\JornadasExport;
-use App\Http\Controllers\Controller;
-use App\Models\Jornada\Jornada;
-use App\Models\Tasks\LogTasks;
 use App\Models\Users\User;
-use Carbon\Carbon;
-use Carbon\CarbonInterval;
-use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Support\Facades\DB;
 
-class HorasController extends Controller
+class JornadasExport implements FromCollection, WithHeadings
 {
-    protected function indexHoras(Request $request){
+    protected $week;
 
-        $selectedWeek = Carbon::parse($request->input('week', now()->format('Y-\WW')));
+    public function __construct($week)
+    {
+        $this->week = $week;
+    }
 
-        // Días de la Semana
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function collection()
+    {
+        $selectedWeek = \Carbon\Carbon::parse($this->week);
         $lunes = $selectedWeek->copy()->startOfWeek();
-        $martes = $selectedWeek->copy()->startOfWeek()->addDays(1);
+        $martes = $selectedWeek->copy()->startOfWeek()->addDay();
         $miercoles = $selectedWeek->copy()->startOfWeek()->addDays(2);
         $jueves = $selectedWeek->copy()->startOfWeek()->addDays(3);
         $viernes = $selectedWeek->copy()->startOfWeek()->addDays(4);
 
-        // Obtengo todos los usuarios
-        $users =  User::where('inactive',0)->get();
-        $arrayUsuarios = [];
+        $users = User::where('inactive', 0)->get();
+        $data = [];
 
-
-        // Recorro los usuarios
         foreach ($users as $usuario) {
             // Este if es para que no salgan los mensajes del segundo usuario de Camila, se puede borrar
             if($usuario->id != 81){
@@ -93,7 +93,7 @@ class HorasController extends Controller
 
 
 
-                    $arrayUsuarios[] = [
+                    $data[] = [
                         'usuario' => $usuario->name.' '.$usuario->surname ,
                         'horas_trabajadas' => "$horaHorasTrabajadas h $minutoHorasTrabajadas min",
                         'horasTrabajadasLunes' => "$horaHorasTrabajadasLunes h $minutoHorasTrabajadasLunes min",
@@ -111,49 +111,59 @@ class HorasController extends Controller
                 }
             }
         }
-        return view('horas.index', ['usuarios' => $arrayUsuarios]);
+
+        return collect($data);
     }
 
-
-    public function exportHoras(Request $request)
+    public function headings(): array
     {
-        $week = $request->input('week', now()->format('Y-\WW'));
-        return Excel::download(new JornadasExport($week), 'jornadas_semanales.xlsx');
+        return [
+            'Usuario',
+            'Trabajadas Total',
+            'Trabajadas Lunes',
+            'Trabajadas Martes',
+            'Trabajadas Miércoles',
+            'Trabajadas Jueves',
+            'Trabajadas Viernes',
+            'Producidas Total',
+            'Producidas Lunes',
+            'Producidas Martes',
+            'Producidas Miércoles',
+            'Producidas Jueves',
+            'Producidas Viernes',
+        ];
     }
 
-    public function horasTrabajadasDia($dia, $id){
-
-        // Fechas, la función se llamará los viernes por lo que se manipulan respecto a esto,
+    protected function horasTrabajadasDia($dia, $id)
+    {
         $totalWorkedSeconds = 0;
-        // Jornada donde el año fecha y día de hoy
-        $jornadas = Jornada::where('admin_user_id', $id)
-        ->whereDate('start_time', $dia)
-        ->get();
+        $jornadas = \App\Models\Jornada\Jornada::where('admin_user_id', $id)
+            ->whereDate('start_time', $dia)
+            ->get();
 
-        // Se recorren los almuerzos de hoy
-        foreach($jornadas as $jornada){
-            $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? Carbon::now());
+        foreach ($jornadas as $jornada) {
+            $workedSeconds = \Carbon\Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? \Carbon\Carbon::now());
             $totalPauseSeconds = $jornada->pauses->sum(function ($pause) {
-                return Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? Carbon::now());
+                return \Carbon\Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? \Carbon\Carbon::now());
             });
             $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
         }
-        $horasTrabajadasFinal = $totalWorkedSeconds / 60;
-
-        return $horasTrabajadasFinal;
+        return $totalWorkedSeconds / 60;
     }
 
-    public function tiempoProducidoDia($dia, $id) {
+    protected function tiempoProducidoDia($dia, $id)
+    {
         $tiempoTarea = 0;
-        $tareasHoy = LogTasks::where('admin_user_id', $id)->whereDate('date_start','=', $dia)->get();
-        foreach($tareasHoy as $tarea) {
+        $tareasHoy = \App\Models\Tasks\LogTasks::where('admin_user_id', $id)->whereDate('date_start', '=', $dia)->get();
+        foreach ($tareasHoy as $tarea) {
             if ($tarea->status == 'Pausada') {
-                $tiempoInicio = Carbon::parse($tarea->date_start);
-                $tiempoFinal = Carbon::parse($tarea->date_end);
-                $tiempoTarea +=  $tiempoFinal->diffInMinutes($tiempoInicio);
+                $tiempoInicio = \Carbon\Carbon::parse($tarea->date_start);
+                $tiempoFinal = \Carbon\Carbon::parse($tarea->date_end);
+                $tiempoTarea += $tiempoFinal->diffInMinutes($tiempoInicio);
             }
         }
         return $tiempoTarea;
     }
+
 
 }

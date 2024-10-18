@@ -400,6 +400,12 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="sidebar-item {{ request()->routeIs('horas.index') ? 'active' : '' }}">
+                        <a href="{{route('horas.index')}}" class='sidebar-link'>
+                            <i class="fa-solid fa-gears fs-5"></i>
+                            <span>Jornadas</span>
+                        </a>
+                    </li>
                     @if ($admin || $gerente )
                         <li class="sidebar-item has-sub {{ $servicesActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>

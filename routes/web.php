@@ -99,6 +99,7 @@ Route::get('/logs/clasificado',[LogActionsController::class, 'Clasificacion'])->
 
 //Jornadas
 Route::get('/jornadas', [HorasController::class, 'indexHoras'])->name('horas.index');
+Route::get('/exportarjornadas', [HorasController::class, 'exportHoras'])->name('horas.export');
 
 //Events(Eventos del to-do)
 Route::post('/event/store', [EventController::class, 'store'])->name('event.store');
