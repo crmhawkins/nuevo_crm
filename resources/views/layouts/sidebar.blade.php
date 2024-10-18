@@ -402,7 +402,7 @@
                     </li>
                     <li class="sidebar-item {{ request()->routeIs('horas.index') ? 'active' : '' }}">
                         <a href="{{route('horas.index')}}" class='sidebar-link'>
-                            <i class="fa-solid fa-gears fs-5"></i>
+                            <i class="fa-regular fa-clock"></i>
                             <span>Jornadas</span>
                         </a>
                     </li>
