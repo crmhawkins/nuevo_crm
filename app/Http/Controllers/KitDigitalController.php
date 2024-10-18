@@ -41,6 +41,15 @@ class KitDigitalController extends Controller
                 ]);
             }
 
+            if ($data['key'] === 'comercial_id' ) {
+                if(Auth::user()->access_level_id != 1 && Auth::user()->access_level_id != 2 && Auth::user()->access_level_id != 3){
+                    return response()->json([
+                        'icon' => 'error',
+                        'mensaje' => 'No tienes permisos para modificar este campo.'
+                    ]);
+                }
+            }
+
             if ($data['key'] === 'importe') {
                 // Limpia cualquier carácter no numérico excepto comas y puntos
                 $value = preg_replace('/[^\d,\.]/', '', $data['value']);
