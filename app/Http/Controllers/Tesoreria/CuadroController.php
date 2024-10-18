@@ -240,7 +240,7 @@ class CuadroController extends Controller
         if ($gastos) {
              //Recorremos todos los gastos de ese dia
             foreach ($gastos as $gasto) {
-                $gastoTotal += $gasto->quantity;
+                $gastoTotal += $gasto->quantity * (1 + ($gasto->iva/100));
             }
         }
         return $gastoTotal;
@@ -253,7 +253,7 @@ class CuadroController extends Controller
         if ($gastosAsociados) {
              //Recorremos todos los gastos de ese dia
             foreach ($gastosAsociados as $gasto) {
-                $gastoTotal += $gasto->quantity;
+                $gastoTotal += $gasto->quantity * (1 + ($gasto->iva/100));
             }
         }
         return $gastoTotal;

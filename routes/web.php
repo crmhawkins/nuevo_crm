@@ -37,6 +37,7 @@ use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\GrupoContabilidadController;
 use App\Http\Controllers\Holiday\HolidayController;
 use App\Http\Controllers\Holiday\AdminHolidaysController;
+use App\Http\Controllers\Horas\HorasController;
 use App\Http\Controllers\Incidence\IncidenceController;
 use App\Http\Controllers\KitDigitalController;
 use App\Http\Controllers\Logs\LogActionsController;
@@ -96,6 +97,8 @@ Route::post('/end-pause', [DashboardController::class, 'endPause'])->name('dashb
 Route::get('/logs',[LogActionsController::class, 'index'])->name('logs.index');
 Route::get('/logs/clasificado',[LogActionsController::class, 'Clasificacion'])->name('logs.clasificado');
 
+//Jornadas
+Route::get('/jornadas', [HorasController::class, 'indexHoras'])->name('horas.index');
 
 //Events(Eventos del to-do)
 Route::post('/event/store', [EventController::class, 'store'])->name('event.store');
