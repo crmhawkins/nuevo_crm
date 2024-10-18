@@ -301,7 +301,7 @@
                                                 @if ($mes == $month)
                                                     @if($i<=$dia)
                                                         @if($i==$dia)
-                                                            <td value="{{$i}}" data-value="{{$gasto->id}}" style="background-color:#E07B7B;">{{ number_format($gasto->quantity, 2, ',', '.') }}</td>
+                                                            <td value="{{$i}}" data-value="{{$gasto->id}}" style="background-color:#E07B7B;">{{ number_format(($gasto->quantity * (1 + ($gasto->iva/100))), 2, ',', '.') }}</td>
                                                         @else
                                                             <td value="{{$i}}" data-value="{{$gasto->id}}" data-type="gasto" class="clickGastos" style="background-color:#E07B7B;"></td>
                                                         @endif
@@ -345,9 +345,9 @@
                                                 @if($i<=$dia)
                                                     @if($i==$dia)
                                                         @if($gasto->budget)
-                                                            <td data-toggle="tooltip" data-placement="top" title="{{$gasto->budget->cliente->name}}" value="{{$i}}" data-value="{{$gasto->id}}" style="background-color:#E07B7B;">{{ number_format($gasto->quantity, 2, ',', '.') }}</td>
+                                                            <td data-toggle="tooltip" data-placement="top" title="{{$gasto->budget->cliente->name}}" value="{{$i}}" data-value="{{$gasto->id}}" style="background-color:#E07B7B;">{{ number_format(($gasto->quantity * (1 + ($gasto->iva/100))), 2, ',', '.') }}</td>
                                                         @else
-                                                            <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" data-value="{{$gasto->id}}" style="background-color:#E07B7B;">{{ number_format($gasto->quantity, 2, ',', '.') }}</td>
+                                                            <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" data-value="{{$gasto->id}}" style="background-color:#E07B7B;">{{ number_format(($gasto->quantity * (1 + ($gasto->iva/100))), 2, ',', '.') }}</td>
                                                         @endif
                                                     @else
                                                         @if($gasto->budget)
