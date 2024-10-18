@@ -33,7 +33,7 @@ class JornadasExport implements FromCollection, WithHeadings
 
         foreach ($users as $usuario) {
             // Este if es para que no salgan los mensajes del segundo usuario de Camila, se puede borrar
-            if($usuario->id != 81){
+            if($usuario->id != 81 && $usuario->id != 52){
                 // Se imprimen las horas trabajadas de cada usuario en minutos y luego se pone en texto
                 $horasTrabajadasLunes = $this->horasTrabajadasDia($lunes, $usuario->id);
                 $horasTrabajadasMartes = $this->horasTrabajadasDia($martes, $usuario->id);
