@@ -34,11 +34,15 @@ class EmailController extends Controller
 
         if ($email->admin_user_id == Auth::user()->id || Auth::user()->access_level_id == 1 || Auth::user()->access_level_id == 2){
             if(Auth::user()->access_level_id == 1 || Auth::user()->access_level_id == 2){
-                return view('emails.show', compact('email'));
+                $correo = UserEmailConfig::where('admin_user_id', $email->admin_user_id)->first()->username;
+                return view('emails.show', compact('email','correo'));
             }else{
-                $email->status_id = 2;
-                $email->save();
-                return view('emails.show', compact('email'));
+                $correo = UserEmailConfig::where('admin_user_id', $email->admin_user_id)->first()->username;
+                if($email->status_id == 1){
+                    $email->status_id = 2;
+                    $email->save();
+                }
+                return view('emails.show', compact('email','correo'));
             }
 
         }else{
