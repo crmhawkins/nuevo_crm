@@ -51,7 +51,8 @@ class LogsTable extends Component
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%');
                 })
                 ->orWhere('action', 'like', '%' . $this->buscar . '%')
-                ->orWhere('description', 'like', '%' . $this->buscar . '%');
+                ->orWhere('description', 'like', '%' . $this->buscar . '%')
+                ->orWhere('reference_id', 'like', '%' . $this->buscar . '%');
             });
         })
         ->when($this->selectedYear, function ($query) {
