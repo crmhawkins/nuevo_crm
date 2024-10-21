@@ -31,8 +31,6 @@
         <div class="row">
             <div class="col-md-12">
 
-
-
                 <!-- Vista del correo original -->
                 <div class="card mb-4">
                     <div class="card-body">
@@ -54,7 +52,7 @@
                 </div>
 
                 <!-- Formulario para responder el correo -->
-                <div class="card">
+                <div class="card mb-4">
                     <div class="card-body">
                         <form action="{{ route('admin.emails.sendReply', $email->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
