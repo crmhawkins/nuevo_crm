@@ -11,7 +11,6 @@ use App\Models\Email\Attachment;
 use App\Models\Email\UserEmailConfig;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Mime\Part\TextPart;
 
 class EmailController extends Controller
 {
@@ -131,7 +130,7 @@ class EmailController extends Controller
             $message->from($correoConfig->username)
                     ->to($request->to)
                     ->subject($request->subject)
-                    ->html(new TextPart($request->message, 'utf-8', 'html'))
+                    ->html($request->message)
                     ->replyTo($correoConfig->username);
 
             // Adjuntar archivos si existen
