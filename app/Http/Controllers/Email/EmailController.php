@@ -30,6 +30,31 @@ class EmailController extends Controller
         return view('emails.create');
     }
 
+    public function reply($emailId)
+    {
+        // Busca el email en la base de datos
+        $email = Email::find($emailId);
+
+        if (!$email) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Email no encontrado'
+            ]);
+        }
+
+        // Obtén la configuración de correo electrónico del usuario correspondiente
+        $correoConfig = UserEmailConfig::where('admin_user_id', $email->admin_user_id)->first();
+
+        if (!$correoConfig) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Configuración de correo no encontrada para este usuario'
+            ]);
+        }
+
+        return view('emails.reply', compact('email', 'correoConfig'));
+    }
+
     // Mostrar un correo específico
     public function show(Email $email)
     {
@@ -55,8 +80,14 @@ class EmailController extends Controller
     }
 
 
-    public function replyToEmail($emailId)
+    public function replyToEmail(Request $request, $emailId)
     {
+        // Validar la solicitud
+        $request->validate([
+            'message' => 'required|string',
+            'attachments.*' => 'file'
+        ]);
+
         // Busca el email en la base de datos
         $email = Email::find($emailId);
 
@@ -97,21 +128,57 @@ class EmailController extends Controller
         $messageId = $originalMessage->getMessageId();
         $recipient = $email->sender;  // Aquí obtenemos el destinatario original
 
-        // Configurar la respuesta
-        Mail::send([], [], function ($message) use ($recipient, $email, $messageId, $correoConfig) {
+        // Configurar la respuesta con adjuntos
+        Mail::send([], [], function ($message) use ($request, $recipient, $email, $messageId, $correoConfig) {
             $message->from($correoConfig->username)
                     ->to($recipient)
                     ->subject('Re: ' . $email->subject)
-                    ->setBody('Esta es una respuesta al correo original.', 'text/html')
-                    ->setReplyTo($correoConfig->username)
+                    ->html($request->message)
+                    ->replyTo($correoConfig->username)
                     ->getHeaders()
                     ->addTextHeader('In-Reply-To', $messageId)
                     ->addTextHeader('References', $messageId);
+
+            // Adjuntar archivos si existen
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $attachment) {
+                    $message->attach($attachment->getRealPath(), [
+                        'as' => $attachment->getClientOriginalName(),
+                        'mime' => $attachment->getClientMimeType(),
+                    ]);
+                }
+            }
         });
+
+        // Guardar el correo como respuesta en la base de datos
+        $responseEmail = Email::create([
+            'admin_user_id' => $correoConfig->admin_user_id,
+            'sender' => $correoConfig->username,
+            'to' => $recipient,
+            'subject' => 'Re: ' . $email->subject,
+            'body' => $request->message,
+            'message_id' => uniqid(),
+            'category_id' => 6,
+        ]);
+
+        // Guardar los archivos adjuntos en el sistema de almacenamiento y en la base de datos
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $attachment) {
+                $filename = $attachment->getClientOriginalName();
+                $file_path = "emails/" . $responseEmail->id . "/" . $filename;
+                Storage::disk('public')->put($file_path, file_get_contents($attachment->getRealPath()));
+
+                Attachment::create([
+                    'email_id' => $responseEmail->id,
+                    'file_path' => $file_path,
+                    'file_name' => $filename,
+                ]);
+            }
+        }
 
         $client->disconnect();
 
-        return response()->json(['status' => 'Respuesta enviada correctamente']);
+        return response()->json(['status' => 'Respuesta enviada correctamente con adjuntos']);
     }
 
     public function sendEmail(Request $request)
