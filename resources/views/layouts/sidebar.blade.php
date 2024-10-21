@@ -40,6 +40,7 @@
                     $departamentoActive= request()->routeIs('departamento.*');
                     $tesoreriaActive = request()->routeIs('ingreso.*') || request()->routeIs('gasto.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
                     $cofiguracionActive = request()->routeIs('iva.*') || request()->routeIs('configuracion.*');
+                    $EmailConfig = request()->routeIs('admin.categoriaEmail.*') || request()->routeIs('admin.statusMail.*');
                     $admin = (Auth::user()->access_level_id == 1);
                     $gerente = (Auth::user()->access_level_id == 2);
                     $contable = (Auth::user()->access_level_id == 3);
@@ -568,6 +569,47 @@
                                                 <i class="fa-solid fa-eye"></i>
                                                 <span>
                                                     Crear tipo de iva
+                                                </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="sidebar-item has-sub {{ $EmailConfig ? 'active' : '' }}">
+                                    <a href="#" class='sidebar-link'>
+                                        <i class="fa-solid fa-sliders fs-5"></i>
+                                        <span>Configuracion Email</span>
+                                    </a>
+                                    <ul class="submenu" style="{{ $EmailConfig ? 'display:block;' : 'display:none;' }}">
+                                        <li class="submenu-item {{ request()->routeIs('admin.statusMail.index') ? 'active' : '' }}">
+                                            <a href="{{route('admin.statusMail.index')}}">
+                                                <i class="fa-solid fa-list"></i>
+                                                <span>
+                                                    Ver Estados
+                                                </span>
+                                            </a>
+                                        </li>
+
+                                        <li class="submenu-item {{ request()->routeIs('admin.statusMail.create') ? 'active' : '' }}">
+                                            <a href="{{route('admin.statusMail.create')}}">
+                                                <i class="fa-solid fa-plus"></i>
+                                                <span>
+                                                    Crear Estado
+                                                </span>
+                                            </a>
+                                        </li>
+                                        <li class="submenu-item {{ request()->routeIs('admin.categoriaEmail.index') ? 'active' : '' }}">
+                                            <a href="{{route('admin.categoriaEmail.index')}}">
+                                                <i class="fa-solid fa-list"></i>
+                                                <span>
+                                                    Ver Categorias
+                                                </span>
+                                            </a>
+                                        </li>
+                                        <li class="submenu-item {{ request()->routeIs('admin.categoriaEmail.create') ? 'active' : '' }}">
+                                            <a href="{{route('admin.categoriaEmail.create')}}">
+                                                <i class="fa-solid fa-plus"></i>
+                                                <span>
+                                                    Crear Categoria
                                                 </span>
                                             </a>
                                         </li>
