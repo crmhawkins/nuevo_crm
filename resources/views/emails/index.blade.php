@@ -65,7 +65,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($emails as $email)
+                                    @forelse ($emails->where('category_id', '!=', 6) as $email)
                                     <tr class="clickable-row" data-href="{{ route('admin.emails.show', $email->id) }}">
                                         <td class="text-truncate" style="max-width: 150px;">
                                             <div class="d-flex align-items-center">
