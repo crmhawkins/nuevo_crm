@@ -79,6 +79,7 @@
 @endsection
 
 @section('scripts')
+@include('partials.toast')
 <script src="https://cdn.jsdelivr.net/npm/summernote/dist/summernote-bs4.min.js"></script>
 <script>
     $(document).ready(function() {
