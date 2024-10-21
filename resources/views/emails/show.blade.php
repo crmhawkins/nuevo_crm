@@ -47,9 +47,11 @@
                             </div>
                             <div class="col-md-8 text-md-end">
                                 <h4 class="h5">{{ $email->subject }}</h4>
+                                @if ($email->category_id != 6)
                                 <a href="{{ route('admin.emails.reply', $email->id) }}" class="btn btn-outline-primary mt-3">
                                     <i class="bi bi-reply"></i> Responder
                                 </a>
+                                @endif
                             </div>
                         </div>
                     </div>
