@@ -111,11 +111,11 @@
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/summernote/dist/summernote-bs4.min.js"></script>
-<script>
+{{-- <script>
     $(document).ready(function() {
         $('.summernote').summernote({
             height: 200
         });
     });
-</script>
+</script> --}}
 @endsection
