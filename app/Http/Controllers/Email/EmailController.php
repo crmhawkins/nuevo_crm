@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Mail;
 use Webklex\PHPIMAP\ClientManager;
 use App\Http\Controllers\Controller;
 use App\Models\Email\Attachment;
+use App\Models\Email\CategoryEmail;
 use App\Models\Email\UserEmailConfig;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -19,6 +20,7 @@ class EmailController extends Controller
 
         // Obtén todos los correos electrónicos paginados
         $emails = Email::where('admin_user_id', Auth::user()->id)->with(['status', 'category', 'user'])->paginate(15);
+        $categorias = CategoryEmail::all();
 
         return view('emails.index', compact('emails'));
     }
