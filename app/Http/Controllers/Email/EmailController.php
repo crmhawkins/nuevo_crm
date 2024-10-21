@@ -22,7 +22,7 @@ class EmailController extends Controller
         $emails = Email::where('admin_user_id', Auth::user()->id)->with(['status', 'category', 'user'])->paginate(15);
         $categorias = CategoryEmail::all();
 
-        return view('emails.index', compact('emails'));
+        return view('emails.index', compact('emails','categorias'));
     }
     public function create()
     {
