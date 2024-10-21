@@ -39,14 +39,14 @@
                                     <div class="mb-3">
                                         <label for="color" class="form-label">Color</label>
                                         <select class="form-select @error('color') is-invalid @enderror" id="color" name="color">
-                                            <option value="primary" class="bg-primary text-white" {{ $status->color == 'primary' ? 'selected' : '' }}>Primary (Azul)</option>
-                                            <option value="secondary" class="bg-secondary text-white" {{ $status->color == 'secondary' ? 'selected' : '' }}>Secondary (Gris)</option>
-                                            <option value="success" class="bg-success text-white" {{ $status->color == 'success' ? 'selected' : '' }}>Success (Verde)</option>
-                                            <option value="danger" class="bg-danger text-white" {{ $status->color == 'danger' ? 'selected' : '' }}>Danger (Rojo)</option>
-                                            <option value="warning" class="bg-warning text-dark" {{ $status->color == 'warning' ? 'selected' : '' }}>Warning (Amarillo)</option>
-                                            <option value="info" class="bg-info text-dark" {{ $status->color == 'info' ? 'selected' : '' }}>Info (Cyan)</option>
-                                            <option value="light" class="bg-light text-dark" {{ $status->color == 'light' ? 'selected' : '' }}>Light (Blanco)</option>
-                                            <option value="dark" class="bg-dark text-white" {{ $status->color == 'dark' ? 'selected' : '' }}>Dark (Negro)</option>
+                                            <option value="primary" class="bg-primary text-white" {{ $status->color == 'primary' ? 'selected' : '' }}>Azul</option>
+                                            <option value="secondary" class="bg-secondary text-white" {{ $status->color == 'secondary' ? 'selected' : '' }}>Gris</option>
+                                            <option value="success" class="bg-success text-white" {{ $status->color == 'success' ? 'selected' : '' }}>Verde</option>
+                                            <option value="danger" class="bg-danger text-white" {{ $status->color == 'danger' ? 'selected' : '' }}>Rojo</option>
+                                            <option value="warning" class="bg-warning text-dark" {{ $status->color == 'warning' ? 'selected' : '' }}>Amarillo</option>
+                                            <option value="info" class="bg-info text-dark" {{ $status->color == 'info' ? 'selected' : '' }}>Cyan</option>
+                                            <option value="light" class="bg-light text-dark" {{ $status->color == 'light' ? 'selected' : '' }}>Blanco</option>
+                                            <option value="dark" class="bg-dark text-white" {{ $status->color == 'dark' ? 'selected' : '' }}>Negro</option>
                                         </select>
                                         @error('color')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -64,7 +64,7 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-terminar w-100 fs-4 mt-4">Actualizar</button>
+                                <button type="submit" class="btn btn-primary w-100 fs-5 mt-4">Actualizar</button>
                             </div>
                         </form>
                     </div>

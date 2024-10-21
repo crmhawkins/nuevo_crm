@@ -63,7 +63,7 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-terminar w-100 fs-4 mt-4">Guardar</button>
+                                <button type="submit" class="btn btn-primary w-100 fs-5 mt-4">Guardar</button>
                             </div>
                         </form>
                     </div>
