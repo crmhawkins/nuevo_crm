@@ -132,7 +132,7 @@ class EmailController extends Controller
                     ->to($request->to)
                     ->subject($request->subject)
                     ->setBody(new TextPart($request->message, 'utf-8', 'html'))
-                    ->setReplyTo($correoConfig->username);
+                    ->replyTo($correoConfig->username);
 
             // Adjuntar archivos si existen
             if ($request->hasFile('attachments')) {
