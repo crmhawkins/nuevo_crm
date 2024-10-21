@@ -449,10 +449,10 @@ Route::post('/status-mail/{id}/destroy', [StatusMailController::class, 'destroy'
 Route::get('/emails', [EmailController::class, 'index'])->name('admin.emails.index');
 Route::get('/emails/create', [EmailController::class, 'create'])->name('admin.emails.create');
 Route::get('/email/{email}/show', [EmailController::class, 'show'])->name('admin.emails.show');
+Route::post('/emails/send', [EmailController::class, 'sendEmail'])->name('admin.emails.send');
 Route::get('/emails/settings', [UserSettingsController::class, 'emailSettings'])->name('admin.emailConfig.settings');
 Route::post('/emails/settings/store', [UserSettingsController::class, 'store'])->name('admin.emailConfig.store');
 Route::put('/emails/settings/update/{id}', [UserSettingsController::class, 'update'])->name('admin.emailConfig.update');
-Route::post('/emails/send', [EmailController::class, 'sendEmail'])->name('admin.emailConfig.send');
 
 // Configuracion
 Route::get('/statistics', [StatisticsController::class, 'index'])->name('estadistica.index');
