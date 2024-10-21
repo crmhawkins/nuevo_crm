@@ -170,7 +170,7 @@ class EmailController extends Controller
             }
         }
 
-        return response()->redirect('admin.emails.index')->with('toast', [
+        return redirect()->route('admin.emails.index')->with('toast', [
             'icon' => 'success',
             'mensaje' => 'Correo enviado correctamente con adjuntos'
         ]);
