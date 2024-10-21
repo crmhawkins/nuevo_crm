@@ -25,7 +25,7 @@
                         <form action="{{ route('admin.statusMail.store') }}" method="POST">
                             @csrf
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="name" class="form-label">Nombre</label>
                                         <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}">
@@ -34,7 +34,25 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="color" class="form-label">Color</label>
+                                        <select class="form-select @error('color') is-invalid @enderror" id="color" name="color">
+                                            <option value="primary" class="bg-primary text-white">Azul</option>
+                                            <option value="secondary" class="bg-secondary text-white">Gris</option>
+                                            <option value="success" class="bg-success text-white">Verde</option>
+                                            <option value="danger" class="bg-danger text-white">Rojo</option>
+                                            <option value="warning" class="bg-warning text-dark">Amarillo</option>
+                                            <option value="info" class="bg-info text-dark">Cyan</option>
+                                            <option value="light" class="bg-light text-dark">Blanco</option>
+                                            <option value="dark" class="bg-dark text-white">Negro</option>
+                                        </select>
+                                        @error('color')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="other" class="form-label">Otro</label>
                                         <input type="text" class="form-control @error('other') is-invalid @enderror" id="other" name="other" value="{{ old('other') }}">

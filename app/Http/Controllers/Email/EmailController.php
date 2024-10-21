@@ -25,8 +25,15 @@ class EmailController extends Controller
     public function show(Email $email)
     {
 
-        if ($email->admin_user_id == Auth::user()->id){
-            return view('emails.show', compact('email'));
+        if ($email->admin_user_id == Auth::user()->id || Auth::user()->access_level_id == 1 || Auth::user()->access_level_id == 2){
+            if(Auth::user()->access_level_id == 1 || Auth::user()->access_level_id == 2){
+                return view('emails.show', compact('email'));
+            }else{
+                $email->status_id = 2;
+                $email->save();
+                return view('emails.show', compact('email'));
+            }
+
         }else{
             return redirect()->back()->with('toast', [
                 'icon' => 'error',

@@ -35,6 +35,7 @@
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
+                                    <th>Color</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -42,6 +43,7 @@
                                 @foreach($statuses as $status)
                                     <tr>
                                         <td>{{ $status->name }}</td>
+                                        <td><span class="badge bg-{{ $status->color ?? 'secondary' }}">Color</span></td>
                                         <td>
                                             <a href="{{ route('admin.statusMail.edit', $status->id) }}" class="btn btn-warning btn-sm">Editar</a>
                                             <form action="{{ route('admin.statusMail.destroy', $status->id) }}" method="POST" style="display:inline-block;">

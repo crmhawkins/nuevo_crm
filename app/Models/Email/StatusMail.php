@@ -20,6 +20,7 @@ class StatusMail extends Model
      */
     protected $fillable = [
         'name',
+        'color',
         'other',
 
     ];

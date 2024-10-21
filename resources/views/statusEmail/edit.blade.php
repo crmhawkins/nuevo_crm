@@ -26,7 +26,7 @@
                             @csrf
                             @method('PUT')
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="name" class="form-label">Nombre</label>
                                         <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $status->name) }}">
@@ -35,7 +35,25 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="color" class="form-label">Color</label>
+                                        <select class="form-select @error('color') is-invalid @enderror" id="color" name="color">
+                                            <option value="primary" class="bg-primary text-white" {{ $status->color == 'primary' ? 'selected' : '' }}>Primary (Azul)</option>
+                                            <option value="secondary" class="bg-secondary text-white" {{ $status->color == 'secondary' ? 'selected' : '' }}>Secondary (Gris)</option>
+                                            <option value="success" class="bg-success text-white" {{ $status->color == 'success' ? 'selected' : '' }}>Success (Verde)</option>
+                                            <option value="danger" class="bg-danger text-white" {{ $status->color == 'danger' ? 'selected' : '' }}>Danger (Rojo)</option>
+                                            <option value="warning" class="bg-warning text-dark" {{ $status->color == 'warning' ? 'selected' : '' }}>Warning (Amarillo)</option>
+                                            <option value="info" class="bg-info text-dark" {{ $status->color == 'info' ? 'selected' : '' }}>Info (Cyan)</option>
+                                            <option value="light" class="bg-light text-dark" {{ $status->color == 'light' ? 'selected' : '' }}>Light (Blanco)</option>
+                                            <option value="dark" class="bg-dark text-white" {{ $status->color == 'dark' ? 'selected' : '' }}>Dark (Negro)</option>
+                                        </select>
+                                        @error('color')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="other" class="form-label">Otro</label>
                                         <input type="text" class="form-control @error('other') is-invalid @enderror" id="other" name="other" value="{{ old('other', $status->other) }}">
