@@ -15,8 +15,17 @@
     <div class="page-title card-body">
         <div class="row justify-content-between">
             <div class="col-sm-12 col-md-4 order-md-1 order-last">
-                <h3><i class="bi bi-globe-americas"></i>Bandeja de Entrada</h3>
+                <div class="col-auto">
+                    <h3><i class="fa-regular fa-envelope"></i> Bandeja de Entrada</h3>
+                    <p class="text-subtitle text-muted">Listado de mis Emails</p>
+                </div>
+                <div class="col-auto">
+                    <a class="btn btn-outline-secondary" href="{{route('admin.emails.create')}}">
+                        <i class="fa-solid fa-plus"></i> Nueco Correo
+                    </a>
+                </div>
             </div>
+
             <div class="col-sm-12 col-md-4 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
@@ -29,7 +38,12 @@
         </div>
     </div>
 
-
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3">Bandeja de Entrada</h1>
+        <button class="btn btn-success text-white d-flex align-items-center">
+            <i class="fa-solid fa-plus me-2"></i> Nuevo Correo
+        </button>
+    </div>
 
     <section class="section pt-4">
         <div class="card shadow-sm">
