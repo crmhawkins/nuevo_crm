@@ -30,6 +30,35 @@
     <section class="section pt-4">
         <div class="row">
             <div class="col-md-12">
+
+                  <!-- Formulario para responder el correo -->
+                  <div class="card">
+                    <div class="card-body">
+                        <form action="{{ route('admin.emails.sendReply', $email->id) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Mensaje de Respuesta</label>
+                                <textarea class="form-control summernote @error('message') is-invalid @enderror" id="message" name="message" rows="6" required>{{ old('message') }}</textarea>
+                                @error('message')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="attachments" class="form-label">Archivos Adjuntos</label>
+                                <input type="file" class="form-control @error('attachments') is-invalid @enderror" id="attachments" name="attachments[]" multiple>
+                                @error('attachments')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">Enviar Respuesta</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 <!-- Vista del correo original -->
                 <div class="card mb-4">
                     <div class="card-body">
@@ -73,40 +102,14 @@
                 </div>
                 @endif
 
-                <!-- Formulario para responder el correo -->
-                <div class="card">
-                    <div class="card-body">
-                        <form action="{{ route('admin.emails.sendReply', $email->id) }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div class="mb-3">
-                                <label for="message" class="form-label">Mensaje de Respuesta</label>
-                                <textarea class="form-control summernote @error('message') is-invalid @enderror" id="message" name="message" rows="6" required>{{ old('message') }}</textarea>
-                                @error('message')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
 
-                            <div class="mb-3">
-                                <label for="attachments" class="form-label">Archivos Adjuntos</label>
-                                <input type="file" class="form-control @error('attachments') is-invalid @enderror" id="attachments" name="attachments[]" multiple>
-                                @error('attachments')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-primary">Enviar Respuesta</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
 </div>
 @endsection
 
-@section('js')
+@section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/summernote/dist/summernote-bs4.min.js"></script>
 <script>
     $(document).ready(function() {
