@@ -19,7 +19,10 @@ class EmailController extends Controller
     {
 
         // Obtén todos los correos electrónicos paginados
-        $emails = Email::where('admin_user_id', Auth::user()->id)->with(['status', 'category', 'user'])->paginate(15);
+        $emails = Email::where('admin_user_id', Auth::user()->id)
+        ->with(['status', 'category', 'user'])
+        ->orderBy('created_at', 'desc') // Ordenar por fecha en orden descendente (de más reciente a más antiguo)
+        ->paginate(15);
         $categorias = CategoryEmail::all();
 
         return view('emails.index', compact('emails','categorias'));
