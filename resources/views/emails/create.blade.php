@@ -78,7 +78,7 @@
 </div>
 @endsection
 
-@section('js')
+@section('script')
 <script src="https://cdn.jsdelivr.net/npm/summernote/dist/summernote-bs4.min.js"></script>
 <script>
     $(document).ready(function() {
