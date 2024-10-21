@@ -5,6 +5,7 @@
 @section('css')
 <link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
 <link rel="stylesheet" href="{{ asset('assets/vendors/choices.js/choices.min.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote/dist/summernote-bs4.min.css">
 @endsection
 
 @section('content')
@@ -31,7 +32,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('admin.emails.send') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('sendNewEmailWithAttachments') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
                                 <label for="to" class="form-label">Destinatario</label>
@@ -51,7 +52,7 @@
 
                             <div class="mb-3">
                                 <label for="message" class="form-label">Mensaje</label>
-                                <textarea class="form-control @error('message') is-invalid @enderror" id="message" name="message" rows="6" required>{{ old('message') }}</textarea>
+                                <textarea class="form-control summernote @error('message') is-invalid @enderror" id="message" name="message" rows="6" required>{{ old('message') }}</textarea>
                                 @error('message')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -75,4 +76,15 @@
         </div>
     </section>
 </div>
+@endsection
+
+@section('js')
+<script src="https://cdn.jsdelivr.net/npm/summernote/dist/summernote-bs4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.summernote').summernote({
+            height: 200
+        });
+    });
+</script>
 @endsection
