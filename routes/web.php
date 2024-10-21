@@ -442,7 +442,7 @@ Route::get('/status-mail', [StatusMailController::class, 'index'])->name('admin.
 Route::get('/status-mail/create', [StatusMailController::class, 'create'])->name('admin.statusMail.create');
 Route::post('/status-mail/store', [StatusMailController::class, 'store'])->name('admin.statusMail.store');
 Route::get('/status-mail/{id}/edit', [StatusMailController::class, 'edit'])->name('admin.statusMail.edit');
-Route::post('/status-mail/{id}/update', [StatusMailController::class, 'update'])->name('admin.statusMail.update');
+Route::put('/status-mail/{id}/update', [StatusMailController::class, 'update'])->name('admin.statusMail.update');
 Route::post('/status-mail/{id}/destroy', [StatusMailController::class, 'destroy'])->name('admin.statusMail.destroy');
 
 // Emails
