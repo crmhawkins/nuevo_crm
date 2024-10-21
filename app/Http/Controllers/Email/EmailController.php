@@ -131,7 +131,7 @@ class EmailController extends Controller
             $message->from($correoConfig->username)
                     ->to($request->to)
                     ->subject($request->subject)
-                    ->setBody(new TextPart($request->message, 'utf-8', 'html'))
+                    ->html(new TextPart($request->message, 'utf-8', 'html'))
                     ->replyTo($correoConfig->username);
 
             // Adjuntar archivos si existen
