@@ -17,6 +17,7 @@ class Email extends Model
     // Definir los campos que se pueden llenar mediante asignación masiva
     protected $fillable = [
         'sender',
+        'to',
         'subject',
         'body',
         'admin_user_id',

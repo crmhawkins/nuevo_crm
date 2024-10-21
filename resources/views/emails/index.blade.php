@@ -29,12 +29,7 @@
         </div>
     </div>
 
-    {{-- <div class="d-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3">Bandeja de Entrada</h1>
-        <button class="btn btn-success text-white d-flex align-items-center">
-            <i class="fa-solid fa-plus me-2"></i> Nuevo Correo
-        </button>
-    </div> --}}
+
 
     <section class="section pt-4">
         <div class="card shadow-sm">

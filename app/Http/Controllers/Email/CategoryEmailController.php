@@ -28,7 +28,7 @@ class CategoryEmailController extends Controller
 
         CategoryEmail::create($request->all());
 
-        return redirect()->route('categoriaEmail.index')->with('status', 'Categoría creada exitosamente.');
+        return redirect()->route('admin.categoriaEmail.index')->with('status', 'Categoría creada exitosamente.');
     }
 
     public function edit($id)
@@ -47,7 +47,7 @@ class CategoryEmailController extends Controller
         $category = CategoryEmail::findOrFail($id);
         $category->update($request->all());
 
-        return redirect()->route('categoriaEmail.index')->with('status', 'Categoría actualizada exitosamente.');
+        return redirect()->route('admin.categoriaEmail.index')->with('status', 'Categoría actualizada exitosamente.');
     }
 
     public function destroy($id)
@@ -55,7 +55,7 @@ class CategoryEmailController extends Controller
         $category = CategoryEmail::findOrFail($id);
         $category->delete();
 
-        return redirect()->route('categoriaEmail.index')->with('status', 'Categoría eliminada exitosamente.');
+        return redirect()->route('admin.categoriaEmail.index')->with('status', 'Categoría eliminada exitosamente.');
     }
 }
 

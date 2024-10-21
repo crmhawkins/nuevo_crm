@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Webklex\PHPIMAP\ClientManager;
 use App\Http\Controllers\Controller;
+use App\Models\Email\Attachment;
 use App\Models\Email\UserEmailConfig;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class EmailController extends Controller
 {
@@ -19,6 +21,11 @@ class EmailController extends Controller
         $emails = Email::where('admin_user_id', Auth::user()->id)->with(['status', 'category', 'user'])->paginate(15);
 
         return view('emails.index', compact('emails'));
+    }
+    public function create()
+    {
+
+        return view('emails.create');
     }
 
     // Mostrar un correo específico
@@ -100,5 +107,74 @@ class EmailController extends Controller
 
         return response()->json(['status' => 'Respuesta enviada correctamente']);
     }
+
+    public function sendEmail(Request $request)
+    {
+        // Validar la solicitud
+        $request->validate([
+            'to' => 'required|email',
+            'subject' => 'required|string',
+            'message' => 'required|string',
+            'attachments.*' => 'file'
+        ]);
+
+        // Obtén la configuración de correo electrónico del usuario correspondiente
+        $correoConfig = UserEmailConfig::where('admin_user_id', auth()->id())->first();
+
+        if (!$correoConfig) {
+            return response()->json(['error' => 'Configuración de correo no encontrada para este usuario'], 404);
+        }
+
+        // Configurar y enviar el nuevo mensaje con adjuntos
+        Mail::send([], [], function ($message) use ($request, $correoConfig) {
+            $message->from($correoConfig->username)
+                    ->to($request->to)
+                    ->subject($request->subject)
+                    ->setBody($request->message, 'text/html')
+                    ->setReplyTo($correoConfig->username);
+
+            // Adjuntar archivos si existen
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $attachment) {
+                    $message->attach($attachment->getRealPath(), [
+                        'as' => $attachment->getClientOriginalName(),
+                        'mime' => $attachment->getClientMimeType(),
+                    ]);
+                }
+            }
+        });
+
+         // Guardar el correo como enviado en la base de datos
+        $email = Email::create([
+            'admin_user_id' => $correoConfig->admin_user_id,
+            'sender' => $correoConfig->username,
+            'to' => $request->to,
+            'subject' => $request->subject,
+            'body' => $request->message,
+            'message_id' => uniqid(),
+            'category_id' => 6,
+        ]);
+
+        // Guardar los archivos adjuntos en el sistema de almacenamiento y en la base de datos
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $attachment) {
+                $filename = $attachment->getClientOriginalName();
+                $file_path = "emails/" . $email->id . "/" . $filename;
+                Storage::disk('public')->put($file_path, file_get_contents($attachment->getRealPath()));
+
+                Attachment::create([
+                    'email_id' => $email->id,
+                    'file_path' => $file_path,
+                    'file_name' => $filename,
+                ]);
+            }
+        }
+
+        return response()->redirect('admin.emails.index')->with('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Correo enviado correctamente con adjuntos'
+        ]);
+    }
+
 
 }
