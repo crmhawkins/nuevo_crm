@@ -450,7 +450,7 @@ Route::get('/emails', [EmailController::class, 'index'])->name('admin.emails.ind
 Route::get('/emails/create', [EmailController::class, 'create'])->name('admin.emails.create');
 Route::get('/email/{email}/show', [EmailController::class, 'show'])->name('admin.emails.show');
 Route::post('/emails/send', [EmailController::class, 'sendEmail'])->name('admin.emails.send');
-Route::post('/emails/relpy/{emailId}', [EmailController::class, 'reply'])->name('admin.emails.reply');
+Route::get('/emails/relpy/{emailId}', [EmailController::class, 'reply'])->name('admin.emails.reply');
 Route::post('/emails/sendReply/{emailId}', [EmailController::class, 'replyToEmail'])->name('admin.emails.sendReply');
 Route::get('/emails/settings', [UserSettingsController::class, 'emailSettings'])->name('admin.emailConfig.settings');
 Route::post('/emails/settings/store', [UserSettingsController::class, 'store'])->name('admin.emailConfig.store');
