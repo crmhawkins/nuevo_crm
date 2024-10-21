@@ -122,7 +122,10 @@ class EmailController extends Controller
         $correoConfig = UserEmailConfig::where('admin_user_id', auth()->id())->first();
 
         if (!$correoConfig) {
-            return response()->json(['error' => 'Configuración de correo no encontrada para este usuario'], 404);
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Configuración de correo no encontrada para este usuario'
+            ]);
         }
 
         // Configurar y enviar el nuevo mensaje con adjuntos
