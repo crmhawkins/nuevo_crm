@@ -31,8 +31,30 @@
         <div class="row">
             <div class="col-md-12">
 
-                  <!-- Formulario para responder el correo -->
-                  <div class="card">
+
+
+                <!-- Vista del correo original -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-md-4">
+                                <div>
+                                    <p><strong>From:</strong> {{ $email->sender }}</p>
+                                    <p><strong>To:</strong> {{ $email->to }}</p>
+                                    <p><strong>Category:</strong> {{ optional($email->category)->name ?? 'N/A' }}</p>
+                                    <p><strong>Status:</strong> <span class="badge bg-{{ optional($email->status)->color ?? 'secondary' }}">{{ optional($email->status)->name ?? 'N/A' }}</span></p>
+                                    <p><strong>Received:</strong> {{ $email->created_at->format('F d, Y h:i A') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-8 text-md-end">
+                                <h4 class="h5">{{ $email->subject }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario para responder el correo -->
+                <div class="card">
                     <div class="card-body">
                         <form action="{{ route('admin.emails.sendReply', $email->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
@@ -56,26 +78,6 @@
                                 <button type="submit" class="btn btn-primary">Enviar Respuesta</button>
                             </div>
                         </form>
-                    </div>
-                </div>
-
-                <!-- Vista del correo original -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="row justify-content-between align-items-center">
-                            <div class="col-md-4">
-                                <div>
-                                    <p><strong>From:</strong> {{ $email->sender }}</p>
-                                    <p><strong>To:</strong> {{ $email->to }}</p>
-                                    <p><strong>Category:</strong> {{ optional($email->category)->name ?? 'N/A' }}</p>
-                                    <p><strong>Status:</strong> <span class="badge bg-{{ optional($email->status)->color ?? 'secondary' }}">{{ optional($email->status)->name ?? 'N/A' }}</span></p>
-                                    <p><strong>Received:</strong> {{ $email->created_at->format('F d, Y h:i A') }}</p>
-                                </div>
-                            </div>
-                            <div class="col-md-8 text-md-end">
-                                <h4 class="h5">{{ $email->subject }}</h4>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
