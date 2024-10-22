@@ -8,7 +8,7 @@ use App\Models\Email\CategoryEmail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
-class GetCorreos extends Command
+class Categorizacion extends Command
 {
     protected $signature = 'correos:categorizacion';
     protected $description = 'Categoriza los correos';
