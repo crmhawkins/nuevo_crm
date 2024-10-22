@@ -37,13 +37,13 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="host" class="form-label">Host</label>
-                                            <input type="text" class="form-control" id="host" name="host" required>
+                                            <input type="text" class="form-control" id="host" name="host" placeholder="imap.ionos.es" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="port" class="form-label">Port</label>
-                                            <input type="text" class="form-control" id="port" name="port" required>
+                                            <input type="text" class="form-control" id="port" name="port" placeholder="993" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
