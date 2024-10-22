@@ -92,7 +92,7 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="firma" class="form-label">Firma</label>
-                                            <textarea id="firma" name="firma" required> {{ $configuracion->first()->firma }}</textarea>
+                                            <textarea id="firma" class="form-control" name="firma" required> {{ $configuracion->first()->firma }}</textarea>
                                         </div>
                                     </div>
                                 </div>
