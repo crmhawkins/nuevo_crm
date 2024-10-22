@@ -420,8 +420,6 @@ class BudgetController extends Controller
             $budget->cliente->save();
         }
 
-        $
-
         return response(200);
         // session()->flash('toast', [
         //     'icon' => 'success',
