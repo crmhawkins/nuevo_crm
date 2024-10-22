@@ -40,6 +40,7 @@
                                     @else
                                     <p><strong>To:</strong> {{ $email->user->name }}</p>
                                     @endif
+                                    <p><strong>CC:</strong> {{ $email->cc ?? '' }}</p>
                                     <p><strong>Category:</strong> {{ optional($email->category)->name ?? 'N/A' }}</p>
                                     <p><strong>Status:</strong> <span class="badge bg-{{ optional($email->status)->color ?? 'secondary' }}">{{ optional($email->status)->name ?? 'N/A' }}</span></p>
                                     <p><strong>Received:</strong> {{ $email->created_at->format('F d, Y h:i A') }}</p>

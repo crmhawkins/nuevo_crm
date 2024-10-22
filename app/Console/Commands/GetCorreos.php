@@ -54,6 +54,14 @@ class GetCorreos extends Command
                     $subject = $message->getSubject();
                     $body = $message->getHTMLBody();
 
+                    // Obtener los destinatarios principales y en copia
+                    $toRecipients = $message->getTo();
+                    $ccRecipients = $message->getCc(); // Obtener destinatarios en CC
+
+                    // Convertir los destinatarios a una lista separada por comas
+                    $toList = collect($toRecipients)->pluck('mail')->implode(', ');
+                    $ccList = collect($ccRecipients)->pluck('mail')->implode(', ');
+
                     // Crear el registro de Email antes de procesar adjuntos
                     $email = Email::create([
                         'admin_user_id' => $correo->admin_user_id,
@@ -62,6 +70,8 @@ class GetCorreos extends Command
                         'body' => $body,
                         'message_id' => $messageId,
                         'status_id' => 1,
+                        'cc' => $ccList, // Guardar los destinatarios en copia (CC)
+                        'to' => $toList, // Guardar los destinatarios principales (TO)
                     ]);
 
                     // Procesar adjuntos
