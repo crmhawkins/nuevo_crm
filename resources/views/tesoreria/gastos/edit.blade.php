@@ -162,7 +162,9 @@
                             Acciones
                             <hr>
                         </div>
-                        <button id="actualizar" class="btn btn-primary btn-block mt-3">Actualizar Gasto</button>
+                        @if(Auth::user()->access_level_id == 1)
+                            <button id="actualizar" class="btn btn-primary btn-block mt-3">Actualizar Gasto</button>
+                        @endif
                         @if (isset($gasto->documents) && Storage::disk('public')->exists($gasto->documents))
                         <a href="{{ asset('storage/' . $gasto->documents) }}" target="_blank" class="btn btn-dark btn-block mt-3">Ver Documento</a>
                         @endif

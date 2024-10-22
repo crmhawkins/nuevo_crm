@@ -95,14 +95,19 @@ class EmailController extends Controller
         $email = Email::find($emailId);
 
         if (!$email) {
-            return response()->json(['error' => 'Email no encontrado'], 404);
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Email no encontrado'
+            ]);
         }
 
         // Obtén la configuración de correo electrónico del usuario correspondiente
         $correoConfig = UserEmailConfig::where('admin_user_id', $email->admin_user_id)->first();
-
         if (!$correoConfig) {
-            return response()->json(['error' => 'Configuración de correo no encontrada para este usuario'], 404);
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Configuración de correo no encontrada para este usuario'
+            ]);
         }
 
         // Conectar a la cuenta de correo del usuario para responder
@@ -119,24 +124,18 @@ class EmailController extends Controller
 
         $client->connect();
 
-        // Cargar el correo original desde la carpeta
-        $inbox = $client->getFolder('INBOX');
-        $originalMessage = $inbox->messages()->whereMessageId($email->message_id)->get()->first();
-
-        if (!$originalMessage) {
-            return response()->json(['error' => 'Correo original no encontrado'], 404);
-        }
-
         // Preparar los encabezados para la respuesta
-        $messageId = $originalMessage->getMessageId();
+        $messageId = $email->message_id;
         $recipient = $email->sender;  // Aquí obtenemos el destinatario original
 
         // Configurar la respuesta con adjuntos
         Mail::send([], [], function ($message) use ($request, $recipient, $email, $messageId, $correoConfig) {
+            $firma = $correoConfig->firma;
+            $mensajeConFirma = $request->message . "<br><br>" . $firma;
             $message->from($correoConfig->username)
                     ->to($recipient)
                     ->subject('Re: ' . $email->subject)
-                    ->html($request->message)
+                    ->html($mensajeConFirma)
                     ->replyTo($correoConfig->username)
                     ->getHeaders()
                     ->addTextHeader('In-Reply-To', $messageId)
@@ -206,10 +205,12 @@ class EmailController extends Controller
 
         // Configurar y enviar el nuevo mensaje con adjuntos
         Mail::send([], [], function ($message) use ($request, $correoConfig) {
+            $firma = $correoConfig->firma;
+            $mensajeConFirma = $request->message . "<br><br>" . $firma;
             $message->from($correoConfig->username)
                     ->to($request->to)
                     ->subject($request->subject)
-                    ->html($request->message)
+                    ->html($mensajeConFirma)
                     ->replyTo($correoConfig->username);
 
             // Adjuntar archivos si existen

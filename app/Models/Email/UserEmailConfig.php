@@ -15,6 +15,7 @@ class UserEmailConfig extends Model
         'port',
         'username',
         'password',
+        'firma',
     ];
 
     // Relación con el usuario

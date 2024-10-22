@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titulo', 'Editar Gasto Sin Clasificar')
+@section('titulo', 'Editar Gasto Asociados')
 
 @section('css')
     <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
@@ -169,7 +169,9 @@
                             Acciones
                             <hr>
                         </div>
-                        <button id="actualizar" class="btn btn-primary btn-block mt-3">Actualizar Gasto</button>
+                        @if(Auth::user()->access_level_id == 1)
+                            <button id="actualizar" class="btn btn-primary btn-block mt-3">Actualizar Gasto</button>
+                        @endif
                         @if (isset($gasto->documents) && Storage::disk('public')->exists($gasto->documents))
                         <a href="{{ asset('storage/' . $gasto->documents) }}" target="_blank" class="btn btn-dark btn-block mt-3">Ver Documento</a>
                         @endif

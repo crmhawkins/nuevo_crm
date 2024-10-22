@@ -403,6 +403,8 @@ class BudgetController extends Controller
 
         $referencia = $this->generateBudgetReference($budget);
 
+
+
         if ($referencia === null) {
             return response(500);
         }
@@ -417,6 +419,9 @@ class BudgetController extends Controller
             $budget->cliente->is_client = true;
             $budget->cliente->save();
         }
+
+        $
+
         return response(200);
         // session()->flash('toast', [
         //     'icon' => 'success',

@@ -95,7 +95,7 @@
                                     <select class="form-select" id="bank_id" name="bank_id">
                                         <option value="">-- Seleccione un Banco --</option>
                                         @foreach($banks as $bank)
-                                            <option {{ old('bank_id') == $bank->id ? 'selected' : '' }} value="{{ $bank->id }}">{{ $bank->name }}</option>
+                                            <option {{ old('bank_id',3) == $bank->id ? 'selected' : '' }} value="{{ $bank->id }}">{{ $bank->name }}</option>
                                         @endforeach
                                     </select>
                                     @error('bank_id')
@@ -128,7 +128,7 @@
                                         <option value="">-- Selecciona un Orden de compra --</option>
                                         @if (count($purchaseOrders) > 0)
                                             @foreach($purchaseOrders as $order)
-                                                <option {{ old('purchase_order_id') == $order->id ? 'selected' : '' }} value="{{ $order->id }}">Nº {{ $order->id }} - {{ $order->concepto->total ?? '' }} €</option>
+                                                <option data-title="{{ $order->concepto->title ?? '' }}" {{ old('purchase_order_id') == $order->id ? 'selected' : '' }} value="{{ $order->id }}">Nº {{ $order->id }} - {{ $order->concepto->total ?? '' }} €</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -170,7 +170,6 @@
                     </div>
                     <div class="card-body">
                         <button id="actualizar" class="btn btn-success btn-block mt-3">Crear Gasto Asociado</button>
-
                     </div>
                 </div>
             </div>
@@ -187,6 +186,14 @@
             placeholder: true,
             searchEnabled: true,  // Habilita la búsqueda en el select
             itemSelectText: '',   // Texto vacío para el item seleccionado
+        });
+
+        purchaseOrderSelect.addEventListener('change', function() {
+            const selectedOption = purchaseOrderSelect.options[purchaseOrderSelect.selectedIndex];
+            const title = selectedOption.getAttribute('data-title');  // Obtener el título del concepto
+            if (title) {
+                titleInput.value = title;  // Actualizar el campo de título
+            }
         });
     });
     function calculateCantidadConIVA() {

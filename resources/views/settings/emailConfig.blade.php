@@ -89,6 +89,12 @@
                                             <input type="password" class="form-control" id="password" name="password" value="{{ $configuracion->first()->password }}" required>
                                         </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="firma" class="form-label">Firma</label>
+                                            <textarea id="firma" name="firma" required> {{ $configuracion->first()->firma }}</textarea>
+                                        </div>
+                                    </div>
                                 </div>
                             </form>
                         @endif
