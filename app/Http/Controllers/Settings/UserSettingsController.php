@@ -25,6 +25,7 @@ class UserSettingsController extends Controller
             'port' => 'required|integer',
             'username' => 'required|string|max:255',
             'password' => 'required|string|max:255',
+            'firma' => 'required',
         ]);
 
         UserEmailConfig::create([
@@ -33,6 +34,7 @@ class UserSettingsController extends Controller
             'port' => $request->input('port'),
             'username' => $request->input('username'),
             'password' => $request->input('password'),
+            'firma' => $request->input('firma'),
         ]);
 
         return redirect()->back()->with('toast', [
@@ -48,6 +50,7 @@ class UserSettingsController extends Controller
             'port' => 'required|integer',
             'username' => 'required|string|max:255',
             'password' => 'required|string|max:255',
+            'firma' => 'required',
         ]);
 
         $config = UserEmailConfig::findOrFail($id);
@@ -56,6 +59,7 @@ class UserSettingsController extends Controller
             'port' => $request->input('port'),
             'username' => $request->input('username'),
             'password' => $request->input('password'),
+            'firma' => $request->input('firma'),
         ]);
 
         return redirect()->back()->with('toast', [
