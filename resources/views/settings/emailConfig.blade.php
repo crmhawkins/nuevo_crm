@@ -58,6 +58,12 @@
                                             <input type="password" class="form-control" id="password" name="password" required>
                                         </div>
                                     </div>
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label for="firma" class="form-label">Firma</label>
+                                            <textarea id="firma" class="form-control" name="firma" required> {{ $configuracion->first()->firma }}</textarea>
+                                        </div>
+                                    </div>
                                 </div>
                             </form>
                         @else
