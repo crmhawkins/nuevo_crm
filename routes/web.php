@@ -434,7 +434,7 @@ Route::get('/category-email', [CategoryEmailController::class, 'index'])->name('
 Route::get('/category-email/create', [CategoryEmailController::class, 'create'])->name('admin.categoriaEmail.create');
 Route::post('/category-email/store', [CategoryEmailController::class, 'store'])->name('admin.categoriaEmail.store');
 Route::get('/category-email/{id}/edit', [CategoryEmailController::class, 'edit'])->name('admin.categoriaEmail.edit');
-Route::post('/category-email/{id}/update', [CategoryEmailController::class, 'update'])->name('admin.categoriaEmail.update');
+Route::put('/category-email/{id}/update', [CategoryEmailController::class, 'update'])->name('admin.categoriaEmail.update');
 Route::post('/category-email/{id}/destroy', [CategoryEmailController::class, 'destroy'])->name('admin.categoriaEmail.destroy');
 
 // Estados de Emails

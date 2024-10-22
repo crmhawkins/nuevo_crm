@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('vacacioner:add')->monthlyOn(1, '08:00');
         $schedule->command('correos:get')->everyMinute();
+        $schedule->command('correos:categorizacion')->everyMinute();
 
 
         // $schedule->call(function () {
