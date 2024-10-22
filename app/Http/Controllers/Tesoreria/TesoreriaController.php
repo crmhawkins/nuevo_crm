@@ -268,7 +268,14 @@ class TesoreriaController extends Controller
             'state.max' => 'El estado no debe exceder los 255 caracteres.',
             'aceptado_gestor.boolean' => 'El campo aceptado gestor debe ser verdadero o falso.',
         ]);
-
+        $purchaseOrder = PurcharseOrder::find($validated['purchase_order_id']);
+        $precio = $purchaseOrder->concepto->purchase_price;
+        if($validated['quantity'] != $precio){
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'La cantidad no coincide con la cantidad de la orden de compra'
+            ]);
+        }
         // Crear el gasto asociado
         $associatedExpense = new AssociatedExpenses( $validated);
 
