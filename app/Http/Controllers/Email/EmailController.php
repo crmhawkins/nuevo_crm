@@ -269,7 +269,7 @@ class EmailController extends Controller
                 'mensaje' => 'Correo no encontrado'
             ]);
         }
-        if ($email->user_id == Auth::user()->id) {
+        if ($email->admin_user_id == Auth::user()->id) {
             $email->delete();
             return redirect()->route('admin.emails.index')->with('toast', [
                 'icon' => 'success',
