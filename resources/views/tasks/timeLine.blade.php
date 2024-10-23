@@ -29,7 +29,11 @@
     <section class="section">
         <div class="row">
             <div class="col-md-12">
-                <div id="calendar"></div>
+                <div class="card">
+                    <div class="card-body">
+                        <div id="calendar"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -53,6 +57,7 @@
                 right: 'month,agendaWeek,agendaDay'
             },
             locale: 'es', // Para español
+            defaultView: 'agendaDay', // Iniciar en la vista de día
             editable: false,
             events: events,
             eventClick: function(event) {
