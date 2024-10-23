@@ -33,7 +33,12 @@ class EmailController extends Controller
     public function create()
     {
 
-        return view('emails.create');
+        $previousEmails = Email::select('to')
+                            ->distinct()
+                            ->whereNotNull('to')
+                            ->pluck('to');
+
+        return view('emails.create',compact('previousEmails'));
     }
 
     public function reply($emailId)
@@ -61,6 +66,31 @@ class EmailController extends Controller
         return view('emails.reply', compact('email', 'correoConfig'));
     }
 
+    public function forward($emailId)
+    {
+        // Busca el email en la base de datos
+        $email = Email::find($emailId);
+
+        if (!$email) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Email no encontrado'
+            ]);
+        }
+
+        // Obtén la configuración de correo electrónico del usuario correspondiente
+        $correoConfig = UserEmailConfig::where('admin_user_id', $email->admin_user_id)->first();
+
+        if (!$correoConfig) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Configuración de correo no encontrada para este usuario'
+            ]);
+        }
+
+        return view('emails.forward', compact('email', 'correoConfig'));
+    }
+
     // Mostrar un correo específico
     public function show(Email $email)
     {
@@ -85,12 +115,130 @@ class EmailController extends Controller
         }
     }
 
+    public function forwardEmail(Request $request, $emailId)
+    {
+        // Validar la solicitud
+        $request->validate([
+            'message' => 'required|string',
+            'to' => 'required|email',  // Añadimos el campo 'to' para definir el destinatario al reenviar
+            'cc' => 'nullable|string',
+            'bcc' => 'nullable|string',
+            'attachments.*' => 'file'
+        ]);
+
+        // Busca el email en la base de datos
+        $email = Email::find($emailId);
+
+        if (!$email) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Email no encontrado'
+            ]);
+        }
+
+        // Obtén la configuración de correo electrónico del usuario correspondiente
+        $correoConfig = UserEmailConfig::where('admin_user_id', $email->admin_user_id)->first();
+        if (!$correoConfig) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Configuración de correo no encontrada para este usuario'
+            ]);
+        }
+
+        // Configurar el envío con los datos del usuario
+        config([
+            'mail.mailers.smtp.host' => $correoConfig->smtp_host,
+            'mail.mailers.smtp.port' => $correoConfig->smtp_port,
+            'mail.mailers.smtp.username' => $correoConfig->username,
+            'mail.mailers.smtp.password' => $correoConfig->password,
+            'mail.mailers.smtp.encryption' => 'ssl',
+            'mail.from.address' => $correoConfig->username, // El correo del remitente
+            'mail.from.name' => $correoConfig->user->name . ' ' . $correoConfig->user->surname, // Nombre del remitente
+        ]);
+
+        // Configurar el reenvío con adjuntos
+        Mail::send([], [], function ($message) use ($request, $email, $correoConfig) {
+            $firma = $correoConfig->firma;
+            $mensajeConFirma = $request->message . "<br><br>" . $firma;
+
+            $message->from($correoConfig->username)
+                    ->to($request->to)  // Aquí el destinatario del reenvío
+                    ->subject('Fwd: ' . $email->subject)
+                    ->html($mensajeConFirma)
+                    ->replyTo($correoConfig->username);
+
+                // Añadir CC y BCC si están presentes
+                if ($request->filled('cc')) {
+                    $message->cc(explode(',', $request->cc));
+                }
+
+                if ($request->filled('bcc')) {
+                    $message->bcc(explode(',', $request->bcc));
+                }
+
+            // Adjuntar archivos originales si existen
+            foreach ($email->attachments as $attachment) {
+                $message->attach(storage_path('app/public/' . $attachment->file_path), [
+                    'as' => $attachment->file_name,
+                    'mime' => mime_content_type(storage_path('app/public/' . $attachment->file_path)),
+                ]);
+            }
+
+            // Adjuntar archivos nuevos si existen
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $newAttachment) {
+                    $message->attach($newAttachment->getRealPath(), [
+                        'as' => $newAttachment->getClientOriginalName(),
+                        'mime' => $newAttachment->getClientMimeType(),
+                    ]);
+                }
+            }
+        });
+
+        $firma = $correoConfig->firma;
+        $mensajeConFirma = $request->message . "<br><br>" . $firma;
+
+        // Guardar el correo reenviado como respuesta en la base de datos
+        $forwardedEmail = Email::create([
+            'admin_user_id' => $correoConfig->admin_user_id,
+            'sender' => $correoConfig->username,
+            'to' => $request->to,
+            'cc' => $request->cc,
+            'subject' => 'Fwd: ' . $email->subject,
+            'body' => $mensajeConFirma,
+            'message_id' => uniqid(),
+            'category_id' => 6,
+        ]);
+
+        // Guardar los archivos adjuntos en el sistema de almacenamiento y en la base de datos
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $newAttachment) {
+                $filename = $newAttachment->getClientOriginalName();
+                $file_path = "emails/" . $forwardedEmail->id . "/" . $filename;
+                Storage::disk('public')->put($file_path, file_get_contents($newAttachment->getRealPath()));
+
+                Attachment::create([
+                    'email_id' => $forwardedEmail->id,
+                    'file_path' => $file_path,
+                    'file_name' => $filename,
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.emails.index')->with('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Correo reenviado correctamente'
+        ]);
+    }
+
 
     public function replyToEmail(Request $request, $emailId)
     {
         // Validar la solicitud
         $request->validate([
             'message' => 'required|string',
+            'cc' => 'nullable|string',
+            'bcc' => 'nullable|string',
             'attachments.*' => 'file'
         ]);
 
@@ -154,6 +302,14 @@ class EmailController extends Controller
                     ->addTextHeader('In-Reply-To', $messageId)
                     ->addTextHeader('References', $messageId);
 
+                    if ($request->filled('cc')) {
+                        $message->cc(explode(',', $request->cc));
+                    }
+
+                    if ($request->filled('bcc')) {
+                        $message->bcc(explode(',', $request->bcc));
+                    }
+
             // Adjuntar archivos si existen
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $attachment) {
@@ -165,13 +321,17 @@ class EmailController extends Controller
             }
         });
 
+        $firma = $correoConfig->firma;
+        $mensajeConFirma = $request->message . "<br><br>" . $firma;
+
         // Guardar el correo como respuesta en la base de datos
         $responseEmail = Email::create([
             'admin_user_id' => $correoConfig->admin_user_id,
             'sender' => $correoConfig->username,
             'to' => $recipient,
+            'cc' => $request->cc,
             'subject' => 'Re: ' . $email->subject,
-            'body' => $request->message,
+            'body' => $mensajeConFirma,
             'message_id' => uniqid(),
             'category_id' => 6,
         ]);
@@ -193,7 +353,10 @@ class EmailController extends Controller
 
         $client->disconnect();
 
-        return response()->json(['status' => 'Respuesta enviada correctamente con adjuntos']);
+        return redirect()->route('admin.emails.index')->with('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Correo enviado correctamente '
+        ]);
     }
 
     public function sendEmail(Request $request)
@@ -203,6 +366,8 @@ class EmailController extends Controller
             'to' => 'required|email',
             'subject' => 'required|string',
             'message' => 'required|string',
+            'cc' => 'nullable|string',
+            'bcc' => 'nullable|string',
             'attachments.*' => 'file'
         ]);
 
@@ -239,6 +404,14 @@ class EmailController extends Controller
                     ->text($mensajeTextoPlano)  // Agregar texto plano
                     ->replyTo($correoConfig->username);
 
+                    if ($request->filled('cc')) {
+                        $message->cc(explode(',', $request->cc));
+                    }
+
+                    if ($request->filled('bcc')) {
+                        $message->bcc(explode(',', $request->bcc));
+                    }
+
             // Adjuntar archivos si existen
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $attachment) {
@@ -250,13 +423,17 @@ class EmailController extends Controller
             }
         });
 
+        $firma = $correoConfig->firma;
+        $mensajeConFirma = $request->message . "<br><br>" . $firma;
+
          // Guardar el correo como enviado en la base de datos
         $email = Email::create([
             'admin_user_id' => $correoConfig->admin_user_id,
             'sender' => $correoConfig->username,
             'to' => $request->to,
+            'cc' => $request->cc,
             'subject' => $request->subject,
-            'body' => $request->message,
+            'body' => $mensajeConFirma,
             'message_id' => uniqid(),
             'category_id' => 6,
         ]);
@@ -278,7 +455,7 @@ class EmailController extends Controller
 
         return redirect()->route('admin.emails.index')->with('toast', [
             'icon' => 'success',
-            'mensaje' => 'Correo enviado correctamente con adjuntos'
+            'mensaje' => 'Correo enviado correctamente '
         ]);
     }
 
