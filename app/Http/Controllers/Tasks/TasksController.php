@@ -167,13 +167,14 @@ class TasksController extends Controller
         $eventData = [];
         foreach ($events as $event) {
             $eventData[] = [
-                'id' => $event[4],
+                'id' => $event[3],
                 'title' => $event[0],
-                'start' => $event[2], // Aquí debería estar la fecha y hora de inicio
-                'end' => $event[3],     // Aquí debería estar la fecha y hora de fin
+                'start' => $event[1], // Aquí debería estar la fecha y hora de inicio
+                'end' => $event[2], // Aquí debería estar la fecha y hora de fin
+                'allDay' => false, // Indica si el evento es de todos los días
+                'color' =>$event[4]
             ];
         }
-
         // Datos adicionales de horas trabajadas y producidas
         $horas = $this->getHorasTrabajadas($user);
         $horas_hoy = $this->getHorasTrabajadasHoy($user);
@@ -292,31 +293,25 @@ class TasksController extends Controller
            $fin = $now;
 
            if ($log->date_end == null) {
-                $nombre = isset($log->tarea->budget->client->name) ? $log->tarea->budget->client->name : 'El cliente no tiene nombre o no existe';
+                $nombre = isset($log->tarea->presupuesto->cliente->name) ? $log->tarea->presupuesto->cliente->name : 'El cliente no tiene nombre o no existe';
 
                 $events[] =[
                     "Titulo: " . $log->tarea->title . "\n " . "Cliente: " . $nombre,
-                    false,
                     $log->date_start,
                     $fin,
                     $log->task_id,
-                    // Add color and link on event
-                    [
-                        'color' => '#FD994E'
-                    ]
+                    '#FD994E'
+
                 ];
             } else {
-                $nombre = isset($log->tarea->budget->client->name) ? $log->tarea->budget->client->name : 'El cliente no tiene nombre o no existe';
+                $nombre = isset($log->tarea->presupuesto->cliente->name) ? $log->tarea->presupuesto->cliente->name : 'El cliente no tiene nombre o no existe';
                 $events[] = [
                     "Titulo: " . $log->tarea->title . "\n " . "Cliente: " . $nombre,
-                    false,
                     $log->date_start,
                     $log->date_end,
                     $log->task_id,
-                    // Add color and link on event
-                    [
-                        'color' => '#FD994E'
-                    ]
+                    '#FD994E'
+
                 ];
             }
         }
