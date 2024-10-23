@@ -163,7 +163,6 @@ class TasksController extends Controller
 
         // Obtener los eventos de tareas para el usuario
         $events = $this->getLogTasks($id);
-    dd($events);
         // Convertir los eventos en formato adecuado para FullCalendar (si no están ya en ese formato)
         $eventData = [];
         foreach ($events as $event) {
