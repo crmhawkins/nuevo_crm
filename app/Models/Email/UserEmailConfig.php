@@ -13,6 +13,8 @@ class UserEmailConfig extends Model
         'admin_user_id',
         'host',
         'port',
+        'smtp_host',
+        'smtp_port',
         'username',
         'password',
         'firma',
