@@ -169,8 +169,8 @@ class TasksController extends Controller
             $eventData[] = [
                 'id' => $event[3],
                 'title' => $event[0],
-                'start' => $event[1], // Aquí debería estar la fecha y hora de inicio
-                'end' => $event[2], // Aquí debería estar la fecha y hora de fin
+                'start' => \Carbon\Carbon::parse($event[1])->toIso8601String(), // Aquí debería estar la fecha y hora de inicio
+                'end' => $event[2] ? \Carbon\Carbon::parse($event[2])->toIso8601String() : null , // Aquí debería estar la fecha y hora de fin
                 'allDay' => false, // Indica si el evento es de todos los días
                 'color' =>$event[4]
             ];
