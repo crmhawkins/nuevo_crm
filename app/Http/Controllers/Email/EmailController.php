@@ -265,19 +265,19 @@ class EmailController extends Controller
         $email = Email::find($request->id);
         if (!$email) {
             return response()->json([
-                'icon' => 'error',
+                'status' => false,
                 'mensaje' => 'Correo no encontrado'
             ]);
         }
         if ($email->admin_user_id == Auth::user()->id) {
             $email->delete();
             return response()->json([
-                'icon' => 'success',
+                'status' => true,
                 'mensaje' => 'Correo eliminado correctamente'
             ]);
         } else {
             return response()->json([
-                'icon' => 'error',
+                'status' => false,
                 'mensaje' => 'No tienes permisos para eliminar este correo'
             ]);
         }
