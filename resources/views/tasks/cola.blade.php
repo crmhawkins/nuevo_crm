@@ -7,7 +7,7 @@
 <style>
     .user-card {
         width: 100% !important; /* Full width on small screens */
-        height: 400px !important; /* Full height on small screens */
+        height: 500px !important; /* Full height on small screens */
         overflow: hidden; /* Ensures no content spills out */
         margin-bottom: 20px; /* Space between cards */
     }
@@ -62,9 +62,16 @@
         <section class="section d-flex flex-wrap justify-content-between mt-4">
             @foreach ($usuarios as $usuario)
             <div class="card user-card">
-                <div class="card-body">
-                    <p class="card-title">{{$usuario->name}} {{$usuario->surname}}</p>
-                    <p class="card-subtitle">{{$usuario->departamento->name}}</p>
+                <div class="card-body ">
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="card-title">{{$usuario->name}} {{$usuario->surname}}</p>
+                            <p class="card-subtitle">{{$usuario->departamento->name}}</p>
+                        </div>
+                        <a class="btn btn-outline-secondary" href="{{route('tarea.calendar',$usuario->id)}}">
+                             Ver calendario
+                        </a>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead class="table-light">
