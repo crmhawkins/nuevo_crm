@@ -79,7 +79,9 @@
                                         </td>
                                         <td>{{ $email->created_at->format('d M Y, g:i A') }}</td>
                                         <td class="text-end">
-                                            <a class="delete" data-id="{{$email->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Borrar correo"></a>
+                                            <a href="{{ route('admin.emails.show', $email->id) }}" data-id="{{$email->id}}" class="delete btn btn-sm btn-outline-primary">
+                                                <img src="{{asset('assets/icons/trash.svg')}}" alt="Borrar correo">
+                                            </a>
                                         </td>
                                     </tr>
                                     @empty
@@ -121,8 +123,9 @@
                                         </td>
                                         <td>{{ $email->created_at->format('d M Y, g:i A') }}</td>
                                         <td class="text-end">
-                                            <a class="delete" data-id="{{$email->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Borrar correo"></a>
-                                        </td>
+                                            <a href="{{ route('admin.emails.show', $email->id) }}" data-id="{{$email->id}}" class="delete btn btn-sm btn-outline-primary">
+                                                <img src="{{asset('assets/icons/trash.svg')}}" alt="Borrar correo">
+                                            </a>                                        </td>
                                     </tr>
                                     @empty
                                     <tr>
