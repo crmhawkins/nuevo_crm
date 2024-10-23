@@ -1243,6 +1243,7 @@
 
             // Llamada inicial para cargar alertas
             obtenerAlertas();
+            obtenerCorreos();
         });
     </script>
     <style>
