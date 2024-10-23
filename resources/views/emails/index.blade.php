@@ -79,9 +79,7 @@
                                         </td>
                                         <td>{{ $email->created_at->format('d M Y, g:i A') }}</td>
                                         <td class="text-end">
-                                            <a href="{{ route('admin.emails.show', $email->id) }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </a>
+                                            <a class="delete" data-id="{{$email->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Borrar correo"></a>
                                         </td>
                                     </tr>
                                     @empty
@@ -123,9 +121,7 @@
                                         </td>
                                         <td>{{ $email->created_at->format('d M Y, g:i A') }}</td>
                                         <td class="text-end">
-                                            <a href="{{ route('admin.emails.show', $email->id) }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </a>
+                                            <a class="delete" data-id="{{$email->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Borrar correo"></a>
                                         </td>
                                     </tr>
                                     @empty
@@ -144,3 +140,57 @@
     </section>
 </div>
 @endsection
+
+@section('scripts')
+<script>
+$(document).ready(() => {
+    $('.delete').on('click', function(e) {
+        e.preventDefault();
+        let id = $(this).data('id');
+        botonAceptar(id);
+    });
+});
+
+function botonAceptar(id){
+    Swal.fire({
+        title: "¿Estás seguro de que quieres eliminar este correo?",
+        html: "<p>Esta acción es irreversible.</p>",
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Borrar",
+        cancelButtonText: "Cancelar",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.when(getDelete(id)).then(function(data, textStatus, jqXHR) {
+                if (!data.status) {
+                    Toast.fire({
+                        icon: "error",
+                        title: data.mensaje
+                    });
+                } else {
+                    Toast.fire({
+                        icon: "success",
+                        title: data.mensaje
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
+            });
+        }
+    });
+}
+
+function getDelete(id) {
+    const url = '{{ route("admin.emails.destroy") }}';
+    return $.ajax({
+        type: "POST",
+        url: url,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+        },
+        data: { 'id': id },
+        dataType: "json"
+    });
+}
+</script>
+@endsections
