@@ -68,7 +68,7 @@
                             <p class="card-title">{{$usuario->name}} {{$usuario->surname}}</p>
                             <p class="card-subtitle">{{$usuario->departamento->name}}</p>
                         </div>
-                        <a class="btn btn-outline-secondary" href="{{route('tarea.calendar',$usuario->id)}}" target="_blank">
+                        <a class="btn btn-outline-secondary col-4" href="{{route('tarea.calendar',$usuario->id)}}" target="_blank">
                              Ver calendario
                         </a>
                     </div>

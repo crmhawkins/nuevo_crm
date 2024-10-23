@@ -81,7 +81,7 @@
     function getDataTask(id) {
         return $.ajax({
             type: "POST",
-            url: '/admin/getDataTask',
+            url: '/getDataTask',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
             },
