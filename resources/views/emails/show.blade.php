@@ -60,7 +60,7 @@
 
                 <div class="card mt-3">
                     <div class="card-body">
-                        <p style="white-space: pre-wrap;">{!! $email->body !!}</p>
+                        {!! $email->body !!}
                     </div>
                 </div>
 
