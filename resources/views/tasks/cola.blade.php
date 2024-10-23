@@ -64,13 +64,15 @@
             <div class="card user-card">
                 <div class="card-body ">
                     <div class="row">
-                        <div class="col-6">
-                            <p class="card-title">{{$usuario->name}} {{$usuario->surname}}</p>
-                            <p class="card-subtitle">{{$usuario->departamento->name}}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="card-title">{{$usuario->name}} {{$usuario->surname}}</p>
+                                <p class="card-subtitle">{{$usuario->departamento->name}}</p>
+                            </div>
+                            <a class="btn btn-outline-secondary" href="{{route('tarea.calendar',$usuario->id)}}" target="_blank">
+                                Ver calendario
+                            </a>
                         </div>
-                        <a class="btn btn-outline-secondary col-4" href="{{route('tarea.calendar',$usuario->id)}}" target="_blank">
-                             Ver calendario
-                        </a>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">

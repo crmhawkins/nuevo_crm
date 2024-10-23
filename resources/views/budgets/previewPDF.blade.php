@@ -191,7 +191,7 @@
                                         {{ $concept['title'] }}
                                     </td>
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['units'] }}</td>
-                                    <td style="text-align:right;vertical-align: top;">{{ $concept['unit_price'] }} &nbsp;€</td>
+                                    <td style="text-align:right;vertical-align: top;">{{ $concept['unit_price'] ?? 0  }} &nbsp;€</td>
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['subtotal'] }} &nbsp;€</td>
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['discount'] }}</td>
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['total'] }} &nbsp;€</td>
