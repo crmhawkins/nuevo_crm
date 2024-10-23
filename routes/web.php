@@ -304,6 +304,7 @@ Route::post('/task/store', [TasksController::class, 'store'])->name('tarea.store
 Route::post('/task/update/{id}', [TasksController::class, 'update'])->name('tarea.update');
 Route::get('/task/show/{id}', [TasksController::class, 'show'])->name('tarea.show');
 Route::post('/task/destroy', [TasksController::class, 'destroy'])->name('tarea.delete');
+Route::get('/task/calendar/{id}', [TasksController::class, 'calendar'])->name('tarea.calendar');
 
 // Dominios
 Route::get('/dominios', [DominiosController::class, 'index'])->name('dominios.index');

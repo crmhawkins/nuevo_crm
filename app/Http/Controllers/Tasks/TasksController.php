@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Tasks;
 
 use App\Http\Controllers\Controller;
+use App\Models\Jornada\Jornada;
 use App\Models\Prioritys\Priority;
+use App\Models\Tasks\LogTasks;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskStatus;
 use App\Models\Users\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TasksController extends Controller
 {
@@ -152,5 +156,174 @@ class TasksController extends Controller
             'mensaje' => 'Tarea actualizada'
         ]);
     }
+
+    public function calendar($id)
+    {
+        $user = User::where('id', $id)->first();
+
+        // Obtener los eventos de tareas para el usuario
+        $events = $this->getLogTasks($id);
+
+        // Convertir los eventos en formato adecuado para FullCalendar (si no están ya en ese formato)
+        $eventData = [];
+        foreach ($events as $event) {
+            $eventData[] = [
+                'id' => $event->id,
+                'title' => $event->title,
+                'start' => $event->start, // Aquí debería estar la fecha y hora de inicio
+                'end' => $event->end,     // Aquí debería estar la fecha y hora de fin
+            ];
+        }
+
+        // Datos adicionales de horas trabajadas y producidas
+        $horas = $this->getHorasTrabajadas($user);
+        $horas_hoy = $this->getHorasTrabajadasHoy($user);
+        $horas_hoy2 = $this->getHorasTrabajadasHoy2($user);
+        $horas_dia = $this->getHorasTrabajadasDia($user);
+
+        // Pasar los datos de eventos a la vista como JSON
+        return view('tasks.timeLine', [
+            'user' => $user,
+            'horas' => $horas,
+            'horas_hoy' => $horas_hoy,
+            'horas_dia' => $horas_dia,
+            'horas_hoy2' => $horas_hoy2,
+            'events' => json_encode($eventData) // Enviar los eventos como JSON
+        ]);
+    }
+
+
+    public function getHorasTrabajadasDia($usuario)
+    {
+        $horasTrabajadas = DB::select("SELECT SUM(TIMESTAMPDIFF(MINUTE,date_start,date_end)) AS minutos FROM log_tasks where date_start >= cast(now() As Date) AND `admin_user_id` = $usuario->id");
+        $hora = floor($horasTrabajadas[0]->minutos / 60);
+        $minuto = ($horasTrabajadas[0]->minutos % 60);
+        $horas_dia = $hora . ' Horas y ' . $minuto . ' minutos';
+
+        return $horas_dia;
+    }
+
+    public function getHorasTrabajadas($usuario)
+    {
+        $horasTrabajadas = DB::select("SELECT SUM(TIMESTAMPDIFF(MINUTE,date_start,date_end)) AS minutos FROM `log_tasks` WHERE date_start BETWEEN now() - interval (day(now())-1) day AND LAST_DAY(NOW()) AND `admin_user_id` = $usuario->id");
+        $hora = floor($horasTrabajadas[0]->minutos / 60);
+        $minuto = ($horasTrabajadas[0]->minutos % 60);
+        $horas = $hora . ' Horas y ' . $minuto . ' minutos';
+
+        return $horas;
+    }
+
+    // Horas producidas hoy
+    public function getHorasTrabajadasHoy($user)
+    {
+        // Se obtiene los datos
+        $id = $user->id;
+        $fecha = Carbon::now()->toDateString();;
+        $resultado = 0;
+        $totalMinutos2 = 0;
+
+        $logsTasks = LogTasks::where('admin_user_id', $id)
+        ->whereDate('date_start', '=', $fecha)
+        ->get();
+
+        foreach($logsTasks as $item){
+            if($item->date_end == null){
+                $item->date_end = Carbon::now();
+            }
+            $to_time2 = strtotime($item->date_start);
+            $from_time2 = strtotime($item->date_end);
+            $minutes2 = ($from_time2 - $to_time2) / 60;
+            $totalMinutos2 += $minutes2;
+        }
+
+        $hora2 = floor($totalMinutos2 / 60);
+        $minuto2 = ($totalMinutos2 % 60);
+        $horas_dia2 = $hora2 . ' Horas y ' . $minuto2 . ' minutos';
+
+        $resultado = $horas_dia2;
+
+        return $resultado;
+    }
+
+    // Horas trabajadas hoy
+    public function getHorasTrabajadasHoy2($user)
+    {
+         // Se obtiene los datos
+         $id = $user->id;
+         $fecha = Carbon::now()->toDateString();
+         $hoy = Carbon::now();
+         $resultado = 0;
+         $totalMinutos2 = 0;
+
+
+        $almuerzoHoras = 0;
+
+        $jornadas = Jornada::where('admin_user_id', $id)
+        ->whereDate('start_time', $hoy)
+        ->get();
+
+        $totalWorkedSeconds = 0;
+        foreach($jornadas as $jornada){
+            $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? Carbon::now());
+            $totalPauseSeconds = $jornada->pauses->sum(function ($pause) {
+                return Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? Carbon::now());
+            });
+            $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
+        }
+        $horasTrabajadasFinal = $totalWorkedSeconds / 60;
+
+        $hora = floor($horasTrabajadasFinal / 60);
+        $minuto = ($horasTrabajadasFinal % 60);
+
+        $horas_dia = $hora . ' Horas y ' . $minuto . ' minutos';
+
+        return $horas_dia;
+    }
+
+    public function getLogTasks($idUsuario)
+    {
+        $events = [];
+        $logs = LogTasks::where("admin_user_id", $idUsuario)->get();
+        $end = Carbon::now()->format('Y-m-d H:i:s');
+        $now = Carbon::now()->format('Y-m-d H:i:s');
+
+
+        foreach ($logs as $index => $log) {
+
+           $fin = $now;
+
+           if ($log->date_end == null) {
+                $nombre = isset($log->tarea->budget->client->name) ? $log->tarea->budget->client->name : 'El cliente no tiene nombre o no existe';
+
+                $events[] =[
+                    "Titulo: " . $log->tarea->title . "\n " . "Cliente: " . $nombre,
+                    false,
+                    $log->date_start,
+                    $fin,
+                    $log->task_id,
+                    // Add color and link on event
+                    [
+                        'color' => '#FD994E'
+                    ]
+                ];
+            } else {
+                $nombre = isset($log->tarea->budget->client->name) ? $log->tarea->budget->client->name : 'El cliente no tiene nombre o no existe';
+                $events[] = [
+                    "Titulo: " . $log->tarea->title . "\n " . "Cliente: " . $nombre,
+                    false,
+                    $log->date_start,
+                    $log->date_end,
+                    $log->task_id,
+                    // Add color and link on event
+                    [
+                        'color' => '#FD994E'
+                    ]
+                ];
+            }
+        }
+
+
+    return $events;
+}
 
 }
