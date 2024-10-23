@@ -185,6 +185,7 @@ class AdminHolidaysController extends Controller
                 $alert = Alert::create($data);
                 $alertSaved = $alert->save();
 
+
                 // $mailBudget = new \stdClass();
                 // $mailBudget->usuario = Auth::user()->name." ".Auth::user()->surname;
                 // $mailBudget->usuarioMail = Auth::user()->email;

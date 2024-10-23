@@ -206,11 +206,15 @@ class EmailController extends Controller
         // Configurar y enviar el nuevo mensaje con adjuntos
         Mail::send([], [], function ($message) use ($request, $correoConfig) {
             $firma = $correoConfig->firma;
+
             $mensajeConFirma = $request->message . "<br><br>" . $firma;
+            $mensajeTextoPlano = strip_tags($request->message . "\n\n" . $firma); // Versión en texto plano
+
             $message->from($correoConfig->username)
                     ->to($request->to)
                     ->subject($request->subject)
                     ->html($mensajeConFirma)
+                    ->setBody($mensajeTextoPlano, 'text/plain')  // Agregar texto plano
                     ->replyTo($correoConfig->username);
 
             // Adjuntar archivos si existen
