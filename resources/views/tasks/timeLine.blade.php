@@ -46,8 +46,8 @@
 <script>
     $(document).ready(function() {
         // Recibir los eventos desde el controlador
-        var events = @json($events);
-        console.log(events);
+        var eventos = @json($events);
+        console.log(eventos);
         // Inicializar el calendario
         $('#calendar').fullCalendar({
             header: {
@@ -58,7 +58,7 @@
             locale: 'es', // Para español
             defaultView: 'agendaDay', // Iniciar en la vista de día
             editable: false,
-            events: events,
+            events: eventos,
             eventClick: function(event) {
                 // Acción cuando se hace clic en un evento
                 showTaskInfo(event.id); // Llamada a tu función existente
