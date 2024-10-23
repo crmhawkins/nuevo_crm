@@ -35,7 +35,7 @@
                         <form action="{{ route('admin.emails.send') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
-                            {{-- Destinatario --}}
+                            {{-- Destinatario (con tags) --}}
                             <div class="mb-3">
                                 <label for="to" class="form-label">Destinatario</label>
                                 <input type="text" class="form-control @error('to') is-invalid @enderror" id="to" name="to" value="{{ old('to') }}" required>
@@ -44,19 +44,19 @@
                                 @enderror
                             </div>
 
-                            {{-- CC --}}
+                            {{-- CC (con tags) --}}
                             <div class="mb-3">
                                 <label for="cc" class="form-label">CC (Con Copia)</label>
-                                <input type="text" class="form-control @error('cc') is-invalid @enderror" id="cc" name="cc" value="{{ old('cc') }}" placeholder="Opcional: correos separados por comas">
+                                <input type="text" class="form-control @error('cc') is-invalid @enderror" id="cc" name="cc" value="{{ old('cc') }}">
                                 @error('cc')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            {{-- BCC --}}
+                            {{-- BCC (con tags) --}}
                             <div class="mb-3">
                                 <label for="bcc" class="form-label">BCC (Copia Oculta)</label>
-                                <input type="text" class="form-control @error('bcc') is-invalid @enderror" id="bcc" name="bcc" value="{{ old('bcc') }}" placeholder="Opcional: correos separados por comas">
+                                <input type="text" class="form-control @error('bcc') is-invalid @enderror" id="bcc" name="bcc" value="{{ old('bcc') }}">
                                 @error('bcc')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -113,25 +113,41 @@
             height: 200
         });
 
-        // Inicializa Choices.js para autocompletar
-        const previousEmails = @json($previousEmails);  // Recoger emails previos desde la base de datos
+        // Lista de correos previos convertida a un array
+        const previousEmails = Object.values(@json($previousEmails));  // Asegúrate de convertir a array
+        console.log(previousEmails);
 
-        // Crear campo de selección para "to", "cc", y "bcc" con sugerencias
+        // Inicializa Choices.js en los campos con tags y autocompletado
         const toField = new Choices('#to', {
             removeItemButton: true,
             duplicateItemsAllowed: false,
+            editItems: true,
+            placeholder: true,
+            maxItemCount: -1,  // Sin límite de tags
+            paste: true,
+            searchEnabled: true, // Habilitar búsqueda/autocompletado
             choices: previousEmails.map(email => ({ value: email, label: email })),
         });
 
         const ccField = new Choices('#cc', {
             removeItemButton: true,
             duplicateItemsAllowed: false,
+            editItems: true,
+            placeholder: true,
+            maxItemCount: -1,
+            paste: true,
+            searchEnabled: true, // Habilitar búsqueda/autocompletado
             choices: previousEmails.map(email => ({ value: email, label: email })),
         });
 
         const bccField = new Choices('#bcc', {
             removeItemButton: true,
             duplicateItemsAllowed: false,
+            editItems: true,
+            placeholder: true,
+            maxItemCount: -1,
+            paste: true,
+            searchEnabled: true, // Habilitar búsqueda/autocompletado
             choices: previousEmails.map(email => ({ value: email, label: email })),
         });
     });

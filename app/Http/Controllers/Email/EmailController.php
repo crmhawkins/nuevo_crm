@@ -33,10 +33,29 @@ class EmailController extends Controller
     public function create()
     {
 
-        $previousEmails = Email::select('to')
+        $Emails = Email::select('to')
                             ->distinct()
                             ->whereNotNull('to')
                             ->pluck('to');
+
+
+                            $emailPattern = '/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/';
+
+        // Arreglo para almacenar correos separados
+        $separatedEmails = [];
+
+        foreach ($Emails as $email) {
+            // Aplicamos la expresión regular para extraer todos los correos electrónicos en cada elemento
+            preg_match_all($emailPattern, $email, $matches);
+
+            // Añadimos los correos encontrados al array de correos separados
+            $separatedEmails = array_merge($separatedEmails, $matches[0]);
+        }
+
+        // Filtramos los correos para eliminar los que contienen 'guest.booking.com'
+        $previousEmails = array_filter($separatedEmails, function ($email) {
+            return !str_contains($email, '@guest.booking.com');
+        });
 
         return view('emails.create',compact('previousEmails'));
     }

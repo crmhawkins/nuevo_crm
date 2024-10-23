@@ -98,7 +98,7 @@ class GetCorreos extends Command
 
                     $email->update(['body' => $body]);
                     $message->setFlag('Seen');
-                    $message->delete(); // Elimina el mensaje del servidor
+                    //$message->delete(); // Elimina el mensaje del servidor
 
                 }
             }

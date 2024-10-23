@@ -86,7 +86,7 @@
                         <p>{{ $presupuesto->reference }}</p>
                         <p>
                             <span class="status-indicator" style="background-color: {{ $presupuesto->getStatusColor() }}"></span>
-                            {{ $presupuesto->estadoPresupuesto->name }}
+                            {{ optional($presupuesto->estadoPresupuesto)->name }}
                         </p>
                     </div>
 
