@@ -60,7 +60,13 @@
 
                 <div class="card mt-3">
                     <div class="card-body">
+                        @if (strip_tags($email->body) != $email->body)
+                        {{-- Si el cuerpo tiene etiquetas HTML --}}
                         {!! $email->body !!}
+                    @else
+                        {{-- Si es texto plano --}}
+                        <p style="white-space: pre-wrap;">{!! $email->body !!}</p>
+                    @endif
                     </div>
                 </div>
 
