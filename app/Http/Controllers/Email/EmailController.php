@@ -257,7 +257,7 @@ class EmailController extends Controller
     }
 
     public function countUnread() {
-        $count = Email::where('admin_user_id', Auth::user()->id)->where('status', 1)->count();
+        $count = Email::where('admin_user_id', Auth::user()->id)->where('status_id', 1)->count();
         return response()->json([
             'count' => $count
         ]);
