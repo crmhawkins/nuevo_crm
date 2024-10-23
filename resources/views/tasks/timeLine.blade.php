@@ -29,7 +29,7 @@
     <section class="section">
         <div class="row">
             <div class="col-md-12">
-                <div class="card">
+                <div class="card mt-4">
                     <div class="card-body">
                         <div id="calendar"></div>
                     </div>
@@ -48,7 +48,7 @@
     $(document).ready(function() {
         // Recibir los eventos desde el controlador
         var events = @json($events);
-
+        console.log(events);
         // Inicializar el calendario
         $('#calendar').fullCalendar({
             header: {
