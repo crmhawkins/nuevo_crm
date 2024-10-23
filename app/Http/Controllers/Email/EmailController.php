@@ -131,6 +131,16 @@ class EmailController extends Controller
         $messageId = $email->message_id;
         $recipient = $email->sender;  // Aquí obtenemos el destinatario original
 
+        config([
+            'mail.mailers.smtp.host' => $correoConfig->smtp_host,
+            'mail.mailers.smtp.port' => $correoConfig->smtp_port,
+            'mail.mailers.smtp.username' => $correoConfig->username,
+            'mail.mailers.smtp.password' => $correoConfig->password,
+            'mail.mailers.smtp.encryption' => 'ssl',
+            'mail.from.address' => $correoConfig->username, // El correo del remitente
+            'mail.from.name' => $correoConfig->user->name.' '.$correoConfig->user->surname, // Nombre del remitente
+        ]);
+
         // Configurar la respuesta con adjuntos
         Mail::send([], [], function ($message) use ($request, $recipient, $email, $messageId, $correoConfig) {
             $firma = $correoConfig->firma;
@@ -205,7 +215,15 @@ class EmailController extends Controller
                 'mensaje' => 'Configuración de correo no encontrada para este usuario'
             ]);
         }
-
+        config([
+            'mail.mailers.smtp.host' => $correoConfig->smtp_host,
+            'mail.mailers.smtp.port' => $correoConfig->smtp_port,
+            'mail.mailers.smtp.username' => $correoConfig->username,
+            'mail.mailers.smtp.password' => $correoConfig->password,
+            'mail.mailers.smtp.encryption' => 'ssl',
+            'mail.from.address' => $correoConfig->username, // El correo del remitente
+            'mail.from.name' => $correoConfig->user->name.' '.$correoConfig->user->surname, // Nombre del remitente
+        ]);
         // Configurar y enviar el nuevo mensaje con adjuntos
         Mail::send([], [], function ($message) use ($request, $correoConfig) {
             $firma = $correoConfig->firma;
