@@ -145,6 +145,7 @@
 @endsection
 
 @section('scripts')
+@include('partials.toast')
 <script>
 $(document).ready(() => {
     $('.delete').on('click', function(e) {
