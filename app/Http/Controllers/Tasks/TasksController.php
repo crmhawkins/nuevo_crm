@@ -188,7 +188,7 @@ class TasksController extends Controller
             'horas_hoy' => $horas_hoy,
             'horas_dia' => $horas_dia,
             'horas_hoy2' => $horas_hoy2,
-            'events' => json_encode($eventData) // Enviar los eventos como JSON
+            'events' => $eventData // Enviar los eventos como JSON
         ]);
     }
 
