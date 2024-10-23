@@ -264,19 +264,19 @@ class EmailController extends Controller
     public function destroy(Request $request) {
         $email = Email::find($request->id);
         if (!$email) {
-            return redirect()->route('admin.emails.index')->with('toast', [
+            return response()->json([
                 'icon' => 'error',
                 'mensaje' => 'Correo no encontrado'
             ]);
         }
         if ($email->admin_user_id == Auth::user()->id) {
             $email->delete();
-            return redirect()->route('admin.emails.index')->with('toast', [
+            return response()->json([
                 'icon' => 'success',
                 'mensaje' => 'Correo eliminado correctamente'
             ]);
         } else {
-            return redirect()->route('admin.emails.index')->with('toast', [
+            return response()->json([
                 'icon' => 'error',
                 'mensaje' => 'No tienes permisos para eliminar este correo'
             ]);
