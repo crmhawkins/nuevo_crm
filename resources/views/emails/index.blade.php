@@ -186,7 +186,7 @@ function botonAceptar(id){
 function getDelete(id) {
     const url = '{{ route("admin.emails.destroy") }}';
     return $.ajax({
-        type: "DELETE",
+        type: "POST",
         url: url,
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),

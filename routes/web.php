@@ -456,7 +456,7 @@ Route::get('/emails/settings', [UserSettingsController::class, 'emailSettings'])
 Route::post('/emails/settings/store', [UserSettingsController::class, 'store'])->name('admin.emailConfig.store');
 Route::put('/emails/settings/update/{id}', [UserSettingsController::class, 'update'])->name('admin.emailConfig.update');
 Route::post('/emails/unread', [EmailController::class, 'countUnread'])->name('admin.emails.unread');
-Route::delete('/emails/delete', [EmailController::class, 'destroy'])->name('admin.emails.destroy');
+Route::post('/emails/delete', [EmailController::class, 'destroy'])->name('admin.emails.destroy');
 
 // Configuracion
 Route::get('/statistics', [StatisticsController::class, 'index'])->name('estadistica.index');
