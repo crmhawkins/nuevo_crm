@@ -455,6 +455,7 @@ Route::post('/emails/sendReply/{emailId}', [EmailController::class, 'replyToEmai
 Route::get('/emails/settings', [UserSettingsController::class, 'emailSettings'])->name('admin.emailConfig.settings');
 Route::post('/emails/settings/store', [UserSettingsController::class, 'store'])->name('admin.emailConfig.store');
 Route::put('/emails/settings/update/{id}', [UserSettingsController::class, 'update'])->name('admin.emailConfig.update');
+Route::post('/emails/unread', [EmailController::class, 'countUnread'])->name('admin.emails.unread');
 
 // Configuracion
 Route::get('/statistics', [StatisticsController::class, 'index'])->name('estadistica.index');

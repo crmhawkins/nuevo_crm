@@ -14,7 +14,7 @@
             <a href="{{ route('admin.emails.index') }}" type="button" class="nav-link position-relative">
                 <i class="fa-regular fa-envelope"></i>
                 <span class="position-absolute top-10 start-80 translate-middle px-2 bg-info rounded-pill">
-                  <span class="text-white" style="font-size: 0.85rem">0</span>
+                  <span class="text-white countCorreos" style="font-size: 0.85rem">0</span>
                 </span>
             </a>
 
@@ -307,6 +307,21 @@
         };
 
         // Función para obtener las alertas usando fetch
+        function obtenerCorreos() {
+            fetch("{{ route('admin.emails.unread') }}", {  // Cambia esto con la ruta de tu backend
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                }
+            })
+            .then(response => response.json())
+            .then(count => {
+
+                console.log('Correos sin leer:', count);
+                actualizarContadorCorreos(count);
+            })
+            .catch(error => console.error('Error al obtener los correos:', error));
+        }
         function obtenerAlertas() {
             fetch("{{ route('user.alerts') }}", {  // Cambia esto con la ruta de tu backend
                 method: 'POST',
@@ -338,6 +353,13 @@
             });
         }
         // Función para mostrar el número total de alertas en el icono de la campana
+        function actualizarContadorCorreos(count) {
+            const correoCountSpan = document.querySelector('.countCorreos');
+            let totalCorreos = count;
+
+            correoCountSpan.textContent = totalCorreos;
+
+        }
         function actualizarContadorAlertas() {
             const alertCountSpan = document.querySelector('.countAlertas');
             let totalAlertas = 0;

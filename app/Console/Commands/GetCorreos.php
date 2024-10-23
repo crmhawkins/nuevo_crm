@@ -51,7 +51,7 @@ class GetCorreos extends Command
                 if (!Email::where('message_id', $messageId)->exists()) {
                     $sender = $message->getFrom()[0]->mail;
                     $subject = $message->getSubject();
-                    $body = $message->getHTMLBody();
+                    $body = $message->getHTMLBody() ?: $message->getTextBody();
 
                     // Obtener los destinatarios principales y en copia
                     $toRecipients = $message->getTo();
@@ -98,7 +98,7 @@ class GetCorreos extends Command
 
                     $email->update(['body' => $body]);
                     $message->setFlag('Seen');
-                    $message->delete(); // Elimina el mensaje del servidor
+                   // $message->delete(); // Elimina el mensaje del servidor
 
                 }
             }
