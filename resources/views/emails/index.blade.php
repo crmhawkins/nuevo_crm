@@ -196,4 +196,4 @@ function getDelete(id) {
     });
 }
 </script>
-@endsections
+@endsection
