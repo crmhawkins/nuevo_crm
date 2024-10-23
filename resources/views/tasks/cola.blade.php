@@ -6,14 +6,14 @@
 <link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
 <style>
     .user-card {
-        width: 100%; /* Full width on small screens */
-        height: 400px; /* Fixed height for each card */
+        width: 100% !important; /* Full width on small screens */
+        height: 400px !important; /* Full height on small screens */
         overflow: hidden; /* Ensures no content spills out */
         margin-bottom: 20px; /* Space between cards */
     }
     @media (min-width: 768px) {
         .user-card { /* Adjust width on larger screens */
-            width: calc(50% - 1rem); /* Adapt width with a small gap */
+            width: calc(50% - 1rem) !important; /* Adapt width with a small gap */
         }
     }
     .card-body {
