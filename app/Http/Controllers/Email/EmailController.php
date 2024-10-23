@@ -215,15 +215,11 @@ class EmailController extends Controller
             $textPart = new TextPart($mensajeTextoPlano, 'utf-8', 'plain');
             $htmlPart = new TextPart($mensajeConFirma, 'utf-8', 'html');
 
-            // Crear un cuerpo alternativo que contenga ambas partes (texto plano y HTML)
-            $alternativePart = new AlternativePart($textPart, $htmlPart);
-
-
             $message->from($correoConfig->username)
                     ->to($request->to)
                     ->subject($request->subject)
-                    // ->html($mensajeConFirma)
-                    ->setBody($alternativePart)  // Agregar texto plano
+                    ->html($mensajeConFirma)
+                    ->addpart($textPart)  // Agregar texto plano
                     ->replyTo($correoConfig->username);
 
             // Adjuntar archivos si existen
