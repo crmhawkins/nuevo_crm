@@ -168,10 +168,10 @@ class TasksController extends Controller
         $eventData = [];
         foreach ($events as $event) {
             $eventData[] = [
-                'id' => $event->id,
-                'title' => $event->title,
-                'start' => $event->start, // Aquí debería estar la fecha y hora de inicio
-                'end' => $event->end,     // Aquí debería estar la fecha y hora de fin
+                'id' => $event[4],
+                'title' => $event[0],
+                'start' => $event[2], // Aquí debería estar la fecha y hora de inicio
+                'end' => $event[3],     // Aquí debería estar la fecha y hora de fin
             ];
         }
 
