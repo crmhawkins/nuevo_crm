@@ -832,7 +832,7 @@
                 var status = 2; //Resuelto
                 $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                     if (jqXHR.responseText != 503) {
-                    window.open( "/holidays/managePetition/" + alertaSeleccionada['reference_id'], '_blank');
+                    window.open( "/holidays/petitions", '_blank');
                     eliminarAlertaDOM(stage_id, index);
                     } else {
                     swal(
