@@ -213,8 +213,8 @@ class EmailController extends Controller
             $message->from($correoConfig->username)
                     ->to($request->to)
                     ->subject($request->subject)
-                    ->html($mensajeConFirma)
-                    ->setBody($mensajeTextoPlano, 'text/plain')  // Agregar texto plano
+                    ->setBody($mensajeConFirma, 'text/html') // Definir el cuerpo HTML
+                    ->addPart($mensajeTextoPlano, 'text/plain')
                     ->replyTo($correoConfig->username);
 
             // Adjuntar archivos si existen
