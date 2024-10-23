@@ -212,14 +212,13 @@ class EmailController extends Controller
 
             $mensajeConFirma = $request->message . "<br><br>" . $firma;
             $mensajeTextoPlano = strip_tags($request->message . "\n\n" . $firma); // Versión en texto plano
-            $textPart = new TextPart($mensajeTextoPlano, 'utf-8', 'plain');
-            $htmlPart = new TextPart($mensajeConFirma, 'utf-8', 'html');
+
 
             $message->from($correoConfig->username)
                     ->to($request->to)
                     ->subject($request->subject)
                     ->html($mensajeConFirma)
-                    ->addpart($textPart)  // Agregar texto plano
+                    ->text($mensajeTextoPlano)  // Agregar texto plano
                     ->replyTo($correoConfig->username);
 
             // Adjuntar archivos si existen
