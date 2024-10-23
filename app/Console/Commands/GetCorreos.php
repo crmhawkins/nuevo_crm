@@ -6,7 +6,6 @@ use App\Models\Email\Email;
 use App\Models\Email\UserEmailConfig;
 use App\Models\Email\Attachment; // Asegúrate de tener un modelo Attachment
 use Illuminate\Console\Command;
-use Carbon\Carbon;
 use Webklex\PHPIMAP\ClientManager;
 use Illuminate\Support\Facades\Storage;
 
@@ -70,8 +69,8 @@ class GetCorreos extends Command
                         'body' => $body,
                         'message_id' => $messageId,
                         'status_id' => 1,
-                        'cc' => $ccList, // Guardar los destinatarios en copia (CC)
-                        'to' => $toList, // Guardar los destinatarios principales (TO)
+                        'cc' =>  $ccRecipients, // Guardar los destinatarios en copia (CC)
+                        'to' => $toRecipients, // Guardar los destinatarios principales (TO)
                     ]);
 
                     // Procesar adjuntos

@@ -25,7 +25,9 @@ class Categorizacion extends Command
 
         foreach($emails as $email){
             // Convertir las categorías en una lista legible para OpenAI
-            $categoria_list = $categorias->pluck('name')->implode(', ');
+            $categoria_list = $categorias->map(function ($categoria) {
+                return $categoria->id . ': ' . $categoria->name;
+            })->implode(', ');
             // Enviar el correo y las categorías a OpenAI para obtener la categoría
             $respuesta = $this->chatGptModelo($email->body, $categoria_list);
 
