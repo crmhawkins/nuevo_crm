@@ -12,6 +12,9 @@ use App\Models\Email\CategoryEmail;
 use App\Models\Email\UserEmailConfig;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Mime\Part\Multipart\AlternativePart;
+use Symfony\Component\Mime\Part\TextPart;
+
 
 class EmailController extends Controller
 {
@@ -209,12 +212,18 @@ class EmailController extends Controller
 
             $mensajeConFirma = $request->message . "<br><br>" . $firma;
             $mensajeTextoPlano = strip_tags($request->message . "\n\n" . $firma); // Versión en texto plano
+            $textPart = new TextPart($mensajeTextoPlano, 'utf-8', 'plain');
+            $htmlPart = new TextPart($mensajeConFirma, 'utf-8', 'html');
+
+            // Crear un cuerpo alternativo que contenga ambas partes (texto plano y HTML)
+            $alternativePart = new AlternativePart($textPart, $htmlPart);
+
 
             $message->from($correoConfig->username)
                     ->to($request->to)
                     ->subject($request->subject)
-                    ->setBody($mensajeConFirma, 'text/html') // Definir el cuerpo HTML
-                    ->addPart($mensajeTextoPlano, 'text/plain')
+                    // ->html($mensajeConFirma)
+                    ->setBody($alternativePart)  // Agregar texto plano
                     ->replyTo($correoConfig->username);
 
             // Adjuntar archivos si existen
