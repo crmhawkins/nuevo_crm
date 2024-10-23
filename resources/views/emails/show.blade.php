@@ -60,13 +60,18 @@
 
                 <div class="card mt-3">
                     <div class="card-body">
-                        @if (strip_tags($email->body) != $email->body)
-                        {{-- Si el cuerpo tiene etiquetas HTML --}}
-                        {!! $email->body !!}
-                    @else
-                        {{-- Si es texto plano --}}
-                        <p style="white-space: pre-wrap;">{!! $email->body !!}</p>
-                    @endif
+                        @php
+                            // Eliminar solo las etiquetas <a> para la verificación
+                            $bodyWithoutLinks = preg_replace('/<a\b[^>]*>(.*?)<\/a>/i', '$1', $email->body);
+                        @endphp
+
+                        @if (strip_tags($bodyWithoutLinks) != $bodyWithoutLinks)
+                            {{-- Si el cuerpo tiene etiquetas HTML (ignorando <a>) --}}
+                            {!! $email->body !!}
+                        @else
+                            {{-- Si es texto plano (o solo contiene enlaces) --}}
+                            <p style="white-space: pre-wrap;">{!! $email->body !!}</p>
+                        @endif
                     </div>
                 </div>
 
