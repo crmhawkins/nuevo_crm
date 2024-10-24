@@ -357,11 +357,7 @@
                                 <button type="submit" class="btn btn-secondary btn-block mb-3">Duplicar</button>
                             </form>
                             <a href="" id="generatePdf" class="btn btn-dark btn-block mb-3">Generar PDF</a>
-                            <form action="{{ route('presupuestos.sendEmail', $presupuesto->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-secondary btn-block mb-3">Enviar por email</button>
-                            </form>
-                            {{-- <a href="" id="enviaraEmail" data-id="{{$presupuesto->id}}" class="btn btn-dark btn-block mb-3">Enviar por email</a> --}}
+                            <a href="" id="enviarEmail" data-id="{{$presupuesto->id}}" class="btn btn-dark btn-block mb-3">Enviar por email</a>
                             <a href="" id="generateInvoice" class="btn btn-dark btn-block mb-3">Generar factura</a>
                             <a href="" id="generateInvoicePartial" class="btn btn-dark btn-block mb-3">Generar factura parcial</a>
                             <a href="" id="generateTask" class="btn btn-dark btn-block mb-3">Generar tareas</a>
@@ -972,6 +968,11 @@
             let id = $(this).data('id'); // Usa $(this) para obtener el atributo data-id
             botonAceptar(id);
         })
+        $('#enviarEmail').on('click', function(e){
+            e.preventDefault();
+            let id = $(this).data('id'); // Usa $(this) para obtener el atributo data-id
+            botonEnviar(id);
+        })
 
         $('#iva').on('change', function(){
             actualizarPrecios()
@@ -1006,6 +1007,94 @@
             return numero.toLocaleString('es-ES', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
+            });
+        }
+
+        function botonEnviar(id) {
+            // Obtén el correo del cliente asociado desde el backend
+            const defaultEmail = "{{ $clientes->where('id', $presupuesto->client_id)->first()->email }}";
+
+            // Salta la alerta para pedir los correos y permitir la subida de archivos
+            Swal.fire({
+                title: "Enviar correo",
+                html:
+                    '<input id="swal-input1" class="swal2-input" value="' + defaultEmail + '" placeholder="Correo">' +
+                    '<input id="swal-input2" class="swal2-input" placeholder="CC">' +
+                    '<input id="swal-input3" class="swal2-input" placeholder="CC2">' +
+                    '<input id="swal-files" type="file" multiple class="swal2-input">',
+                showCancelButton: true,
+                confirmButtonText: "Enviar",
+                cancelButtonText: "Cancelar",
+                preConfirm: () => {
+                    const email = document.getElementById('swal-input1').value;
+                    const cc = document.getElementById('swal-input2').value;
+                    const cc2 = document.getElementById('swal-input3').value;
+                    const files = document.getElementById('swal-files').files;
+
+                    if (!email) {
+                        Swal.showValidationMessage('El campo de correo es obligatorio');
+                        return false;
+                    }
+
+                    return {
+                        email: email,
+                        cc: cc,
+                        cc2: cc2,
+                        files: files // Incluimos los archivos seleccionados
+                    };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const data = result.value;
+
+                    // Preparar los archivos para el envío
+                    const formData = new FormData();
+                    formData.append('email', data.email);
+                    formData.append('cc', data.cc);
+                    formData.append('cc2', data.cc2);
+
+                    // Añadir archivos al FormData
+                    for (let i = 0; i < data.files.length; i++) {
+                        formData.append('files[]', data.files[i]);
+                    }
+
+                    // Llamar a la función para enviar el correo con los archivos adjuntos
+                    $.when(SendMail(id, formData)).then(function(data, textStatus, jqXHR) {
+                        if (!data.status) {
+                            // Si recibimos algún error
+                            Toast.fire({
+                                icon: "error",
+                                title: data.mensaje
+                            });
+                        } else {
+                            // Todo ha ido bien
+                            Toast.fire({
+                                icon: "success",
+                                title: data.mensaje
+                            }).then(() => {
+                                window.location.href = "{{ route('presupuestos.index') }}";
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function SendMail(id, formData) {
+            // Ruta de la petición
+            const url = '/budget/send/' + id;
+
+            // Petición AJAX para enviar el formulario con los archivos
+            return $.ajax({
+                type: "POST",
+                url: url,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: formData,
+                processData: false, // No procesar los datos (permite enviar archivos)
+                contentType: false, // No establecer un tipo de contenido, para manejar correctamente los archivos
+                dataType: "json"
             });
         }
 

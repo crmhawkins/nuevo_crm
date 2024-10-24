@@ -65,6 +65,8 @@ use App\Http\Controllers\Whatsapp\WhatsappController;
 Route::name('inicio')->get('/', function () {
     return view('auth.login');
 });
+Route::get('/budget/cliente/{budget}', [BudgetController::class, 'getBudget'])->name('presupuestos.cliente');
+Route::post('/budget/acceptance', [BudgetController::class, 'setAcceptance'])->name('presupuestos.cliente.accept');
 
 Auth::routes();
 
@@ -293,6 +295,7 @@ Route::post('/invoice/paid-invoice', [InvoiceController::class, 'cobrarFactura']
 Route::post('/invoice/generate-pdf', [InvoiceController::class, 'generatePDF'])->name('factura.generarPDF');
 Route::post('/invoice/rectify', [InvoiceController::class, 'rectificateInvoice'])->name('factura.rectificada');
 Route::get('/invoice/generateMultiplePDFs', [InvoiceController::class, 'generateMultiplePDFs'])->name('factura.generateMultiplePDFs');
+Route::post('/invoice/sendInvoicePDF', [InvoiceController::class, 'sendInvoicePDF'])->name('factura.sendInvoicePDF');
 
 // Task (TAREAS)
 Route::get('/tasks', [TasksController::class, 'index'])->name('tareas.index');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Invoice;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MailInvoice;
 use App\Models\Budgets\Budget;
 use App\Models\Budgets\BudgetConceptType;
 use App\Models\Budgets\InvoiceCustomPDF;
@@ -13,6 +14,8 @@ use App\Models\Invoices\InvoiceStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 use ZipArchive;
 
 class InvoiceController extends Controller
@@ -78,158 +81,46 @@ class InvoiceController extends Controller
     }
 
     public function generatePDF(Request $request)
-{
-    // Buscar la factura por ID
-    $invoice = Invoice::find($request->id);
+    {
+        // Buscar la factura por ID
+        $invoice = Invoice::find($request->id);
 
-    // Validar que la factura exista
-    if (!$invoice) {
-        return response()->json(['error' => 'Factura no encontrada'], 404);
-    }
-
-    // Obtener los conceptos de esta factura
-    $thisInvoiceConcepts = InvoiceConcepts::where('invoice_id', $invoice->id)->get();
-
-    // Título del PDF
-    $title = "Factura - " . $invoice->reference;
-
-    // Datos básicos para pasar a la vista del PDF
-    $data = [
-        'title' => $title,
-        'invoice_reference' => $invoice->reference,
-    ];
-
-    // Formatear los conceptos para usarlos en la vista
-    $invoiceConceptsFormated = [];
-
-    foreach ($thisInvoiceConcepts as $invoiceConcept) {
-        // Validar que tenga unidades mayores a 0 para evitar división por 0
-        if ($invoiceConcept->units > 0) {
-            // Título
-            $invoiceConceptsFormated[$invoiceConcept->id]['title'] = $invoiceConcept->title ?? 'Título no disponible';
-            // Unidades
-            $invoiceConceptsFormated[$invoiceConcept->id]['units'] = $invoiceConcept->units;
-
-            // Precio por unidad
-            $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = round($invoiceConcept->total / $invoiceConcept->units, 2);
-
-            // Calcular subtotal y precio en función del tipo de concepto
-            if ($invoiceConcept->concept_type_id == BudgetConceptType::TYPE_OWN) {
-                $invoiceConceptsFormated[$invoiceConcept->id]['subtotal'] = number_format((float)$invoiceConcept->units * $invoiceConcept->sale_price, 2, '.', '');
-                $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = number_format((float)$invoiceConcept->sale_price, 2, '.', '');
-            } elseif ($invoiceConcept->concept_type_id == BudgetConceptType::TYPE_SUPPLIER) {
-                $purchasePriceWithoutMarginBenefit = $invoiceConcept->purchase_price;
-                $benefitMargin = $invoiceConcept->benefit_margin;
-                $marginBenefitToAdd  = ($purchasePriceWithoutMarginBenefit * $benefitMargin) / 100;
-                $purchasePriceWithMarginBenefit  = $purchasePriceWithoutMarginBenefit + $marginBenefitToAdd;
-
-                $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = round($purchasePriceWithMarginBenefit / $invoiceConcept->units, 2);
-                $invoiceConceptsFormated[$invoiceConcept->id]['subtotal'] = number_format((float)$invoiceConcept->total_no_discount, 2, '.', '');
-            }
-
-            // Descuento
-            $invoiceConceptsFormated[$invoiceConcept->id]['discount'] = number_format((float)($invoiceConcept->discount ?? 0), 2, ',', '');
-
-            // Total
-            $invoiceConceptsFormated[$invoiceConcept->id]['total'] = number_format((float)$invoiceConcept->total, 2, ',', '');
-
-            // Formatear la descripción dividiendo en líneas
-            $rawConcepts = $invoiceConcept->concept ?? '';
-            $arrayConceptStringsAndBreakLines = explode(PHP_EOL, $rawConcepts);
-
-            $maxLineLength = 50;
-            $charactersInALineCounter = 0;
-            $arrayWordsFormated = [];
-            $counter = 0;
-            $firstWordTempRow = true;
-
-            foreach ($arrayConceptStringsAndBreakLines as $stringItem) {
-                $rowWords = explode(' ', $stringItem);
-                $tempRow = '';
-
-                foreach ($rowWords as $word) {
-                    $wordLength = strlen($word);
-
-                    if (!$firstWordTempRow && ($charactersInALineCounter + $wordLength) > $maxLineLength) {
-                        // Guardar la fila actual y reiniciar el contador
-                        $arrayWordsFormated[$counter] = trim($tempRow);
-                        $counter++;
-                        $tempRow = $word;
-                        $charactersInALineCounter = $wordLength;
-                    } else {
-                        $tempRow .= ($firstWordTempRow ? '' : ' ') . $word;
-                        $charactersInALineCounter += $wordLength;
-                        $firstWordTempRow = false;
-                    }
-                }
-
-                // Guardar la última fila
-                $arrayWordsFormated[$counter] = trim($tempRow);
-                $counter++;
-                $charactersInALineCounter = 0;
-                $firstWordTempRow = true;
-            }
-
-            $invoiceConceptsFormated[$invoiceConcept->id]['description'] = $arrayWordsFormated;
-        } else {
-
-            // Manejar casos donde las unidades sean 0 o nulas
-            $invoiceConceptsFormated[$invoiceConcept->id] = [
-                'title' => $invoiceConcept->title ?? 'Título no disponible',
-                'units' => 0,
-                'price_unit' => 0,
-                'subtotal' => 0,
-                'discount' => '0,00',
-                'total' => '0,00',
-                'description' => ['Descripción no disponible']
-            ];
+        // Validar que la factura exista
+        if (!$invoice) {
+            return response()->json(['error' => 'Factura no encontrada'], 404);
         }
+
+        $pdf =  $this->createPdf($invoice);
+        // Descargar el PDF con el nombre 'factura_XYZ_fecha.pdf'
+        return $pdf->download('factura_' . $invoice->reference . '_' . Carbon::now()->format('Y-m-d') . '.pdf');
     }
 
-    // Generar el PDF usando la vista 'invoices.previewPDF'
-    $pdf = PDF::loadView('invoices.previewPDF', compact('invoice', 'data', 'invoiceConceptsFormated'));
+    public function createPdf(invoice $invoice){
 
-    // Descargar el PDF con el nombre 'factura_XYZ_fecha.pdf'
-    return $pdf->download('factura_' . $invoice->reference . '_' . Carbon::now()->format('Y-m-d') . '.pdf');
-}
-
-
-
-public function generateMultiplePDFs(Request $request)
-{
-    // Obtener las facturas por sus IDs
-    $invoices = Invoice::whereIn('id', $request->invoice_ids)->get();
-
-    // Verificar que se encontraron facturas
-    if ($invoices->isEmpty()) {
-        return response()->json(['error' => 'No se encontraron facturas'], 404);
-    }
-
-    // Crear una carpeta temporal para almacenar los archivos PDF
-    $tempDirectory = storage_path('app/public/temp/invoices/');
-    if (!file_exists($tempDirectory)) {
-        mkdir($tempDirectory, 0755, true);
-    }
-
-    // Almacenar los nombres de los archivos PDF generados
-    $pdfFiles = [];
-
-    foreach ($invoices as $invoice) {
-        // Obtener los conceptos de cada factura
+        // Obtener los conceptos de esta factura
         $thisInvoiceConcepts = InvoiceConcepts::where('invoice_id', $invoice->id)->get();
+
         // Título del PDF
         $title = "Factura - " . $invoice->reference;
 
+        // Datos básicos para pasar a la vista del PDF
         $data = [
             'title' => $title,
             'invoice_reference' => $invoice->reference,
         ];
-        // Formatear los conceptos como lo haces para una sola factura
+
+        // Formatear los conceptos para usarlos en la vista
         $invoiceConceptsFormated = [];
+
         foreach ($thisInvoiceConcepts as $invoiceConcept) {
+            // Validar que tenga unidades mayores a 0 para evitar división por 0
             if ($invoiceConcept->units > 0) {
+                // Título
                 $invoiceConceptsFormated[$invoiceConcept->id]['title'] = $invoiceConcept->title ?? 'Título no disponible';
+                // Unidades
                 $invoiceConceptsFormated[$invoiceConcept->id]['units'] = $invoiceConcept->units;
+
+                // Precio por unidad
                 $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = round($invoiceConcept->total / $invoiceConcept->units, 2);
 
                 // Calcular subtotal y precio en función del tipo de concepto
@@ -246,7 +137,10 @@ public function generateMultiplePDFs(Request $request)
                     $invoiceConceptsFormated[$invoiceConcept->id]['subtotal'] = number_format((float)$invoiceConcept->total_no_discount, 2, '.', '');
                 }
 
+                // Descuento
                 $invoiceConceptsFormated[$invoiceConcept->id]['discount'] = number_format((float)($invoiceConcept->discount ?? 0), 2, ',', '');
+
+                // Total
                 $invoiceConceptsFormated[$invoiceConcept->id]['total'] = number_format((float)$invoiceConcept->total, 2, ',', '');
 
                 // Formatear la descripción dividiendo en líneas
@@ -267,6 +161,7 @@ public function generateMultiplePDFs(Request $request)
                         $wordLength = strlen($word);
 
                         if (!$firstWordTempRow && ($charactersInALineCounter + $wordLength) > $maxLineLength) {
+                            // Guardar la fila actual y reiniciar el contador
                             $arrayWordsFormated[$counter] = trim($tempRow);
                             $counter++;
                             $tempRow = $word;
@@ -278,6 +173,7 @@ public function generateMultiplePDFs(Request $request)
                         }
                     }
 
+                    // Guardar la última fila
                     $arrayWordsFormated[$counter] = trim($tempRow);
                     $counter++;
                     $charactersInALineCounter = 0;
@@ -286,6 +182,8 @@ public function generateMultiplePDFs(Request $request)
 
                 $invoiceConceptsFormated[$invoiceConcept->id]['description'] = $arrayWordsFormated;
             } else {
+
+                // Manejar casos donde las unidades sean 0 o nulas
                 $invoiceConceptsFormated[$invoiceConcept->id] = [
                     'title' => $invoiceConcept->title ?? 'Título no disponible',
                     'units' => 0,
@@ -298,38 +196,63 @@ public function generateMultiplePDFs(Request $request)
             }
         }
 
-        // Generar el PDF para cada factura usando la vista 'invoices.previewPDF'
+        // Generar el PDF usando la vista 'invoices.previewPDF'
         $pdf = PDF::loadView('invoices.previewPDF', compact('invoice','data', 'invoiceConceptsFormated'));
-
-        // Guardar el archivo PDF en la carpeta temporal
-        $pdfFilePath = $tempDirectory . 'factura_' . $invoice->reference . '_' . Carbon::now()->format('Y-m-d') . '.pdf';
-        $pdf->save($pdfFilePath);
-
-        // Añadir el archivo generado al array
-        $pdfFiles[] = $pdfFilePath;
+        return $pdf;
     }
 
-    // Crear un archivo ZIP que contendrá todos los PDFs
-    $zipFileName = 'facturas_' . Carbon::now()->format('Y-m-d') . '.zip';
-    $zipFilePath = storage_path('app/public/temp/' . $zipFileName);
+    public function generateMultiplePDFs(Request $request)
+    {
+        // Obtener las facturas por sus IDs
+        $invoices = Invoice::whereIn('id', $request->invoice_ids)->get();
 
-    $zip = new ZipArchive();
-    if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
-        // Agregar cada archivo PDF al ZIP
-        foreach ($pdfFiles as $file) {
-            $zip->addFile($file, basename($file));
+        // Verificar que se encontraron facturas
+        if ($invoices->isEmpty()) {
+            return response()->json(['error' => 'No se encontraron facturas'], 404);
         }
-        $zip->close();
-    }
 
-    // Eliminar los archivos PDF individuales después de crear el ZIP
-    foreach ($pdfFiles as $file) {
-        unlink($file);
-    }
+        // Crear una carpeta temporal para almacenar los archivos PDF
+        $tempDirectory = storage_path('app/public/temp/invoices/');
+        if (!file_exists($tempDirectory)) {
+            mkdir($tempDirectory, 0755, true);
+        }
 
-    // Descargar el archivo ZIP
-    return response()->download($zipFilePath)->deleteFileAfterSend(true);
-}
+        // Almacenar los nombres de los archivos PDF generados
+        $pdfFiles = [];
+
+        foreach ($invoices as $invoice) {
+
+            $pdf = $this->createPDF($invoice);
+
+            // Guardar el archivo PDF en la carpeta temporal
+            $pdfFilePath = $tempDirectory . 'factura_' . $invoice->reference . '_' . Carbon::now()->format('Y-m-d') . '.pdf';
+            $pdf->save($pdfFilePath);
+
+            // Añadir el archivo generado al array
+            $pdfFiles[] = $pdfFilePath;
+        }
+
+        // Crear un archivo ZIP que contendrá todos los PDFs
+        $zipFileName = 'facturas_' . Carbon::now()->format('Y-m-d') . '.zip';
+        $zipFilePath = storage_path('app/public/temp/' . $zipFileName);
+
+        $zip = new ZipArchive();
+        if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
+            // Agregar cada archivo PDF al ZIP
+            foreach ($pdfFiles as $file) {
+                $zip->addFile($file, basename($file));
+            }
+            $zip->close();
+        }
+
+        // Eliminar los archivos PDF individuales después de crear el ZIP
+        foreach ($pdfFiles as $file) {
+            unlink($file);
+        }
+
+        // Descargar el archivo ZIP
+        return response()->download($zipFilePath)->deleteFileAfterSend(true);
+    }
 
 
 
@@ -419,4 +342,53 @@ public function generateMultiplePDFs(Request $request)
             ]);
         }
     }
+
+    public function sendInvoicePDF(Request $request)
+    {
+        $invoice = Invoice::where('id', $request->id)->get()->first();
+
+        $filename = $this->savePDF($invoice);
+
+        $data = [
+            'file_name' => $filename
+        ];
+
+        $mailInvoice = new \stdClass();
+        $mailInvoice->gestor = $invoice->adminUser->name." ".$invoice->adminUser->surname;
+        $mailInvoice->gestorMail = $invoice->adminUser->email;
+        $mailInvoice->gestorTel = '956 662 942';
+        $mailInvoice->paymentMethodId = $invoice->paymentMethod->id;
+
+        $email = new MailInvoice($mailInvoice, $filename);
+
+        Mail::to($request->email)
+        ->cc('administracion@lchawkins.com')
+        ->bcc('ivan@lchawkins.com')
+        ->send($email);
+
+        // Respuesta
+        if(File::delete($filename)){
+            // Respuesta
+            return 200;
+        }else{
+            return 404;
+        }
+
+    }
+
+    public function savePDF(Invoice $invoice){
+
+
+        $name = 'factura_' . $invoice['reference'];
+        $pathToSaveInvoice =  storage_path('app/public/assets/temp/' . $name . '.pdf');
+        $directory = storage_path('app/public/assets/temp');
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true); // Crear el directorio con permisos 0755 y true para crear subdirectorios si es necesario
+        }
+        $pdf = $this->createPdf($invoice);
+        $pdf->save( $pathToSaveInvoice );
+        return $pathToSaveInvoice;
+
+    }
+
 }

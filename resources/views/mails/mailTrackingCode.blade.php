@@ -120,8 +120,8 @@
             <td bgcolor="#000" align="center" style="padding: 0px 10px 0px 10px;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 700px;">
                     <tr>
-                        <td bgcolor="#ffffff" align="left" valign="top" style="border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;">
-                            <img src="https://www.lchawkins.com/wp-content/uploads/2021/02/Logo_Hawkins_21.svg" width="170" height="100" alt="logo" style="display: block; border: 0px;" />
+                        <td bgcolor="#ffffff" align="center" valign="top" style="border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;">
+                            <img src="https://crm.hawkins.es/assets/images/logo/logo.png" width="170" height="100" alt="logo" style="display: block; border: 0px;" />
                         </td>
                     </tr>
                     <tr>

@@ -141,8 +141,7 @@
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top"
                             style="padding: 40px 20px 20px 20px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;">
-                            <img src="https://www.lchawkins.com/wp-content/uploads/2021/02/Logo_Hawkins_21.svg"
-                                width="350" height="200" alt="logo" style="display: block; border: 0px;" />
+                            <img src="https://crm.hawkins.es/assets/images/logo/logo.png" width="350" height="200" alt="logo" style="display: block; border: 0px;" />
                         </td>
                     </tr>
                 </table>

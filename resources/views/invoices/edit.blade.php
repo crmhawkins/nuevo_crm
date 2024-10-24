@@ -267,7 +267,7 @@
                             <a href="" id="actualizarfactura" class="btn btn-success btn-block mb-2">Actualizar</a>
                             <a href="" id="facturaCobrada" class="btn btn-primary btn-block mb-2">Cobrada</a>
                             <a href="" id="generatePdf" class="btn btn-dark btn-block mb-2">Generar PDF</a>
-                            <a href="" class="btn btn-dark btn-block mb-2">Enviar por email</a>
+                            <a href="" id="SendPDF" data-id="{{$factura->id}}" class="btn btn-dark btn-block mb-2">Enviar PDF</a>
                             <a href="" id="rectificar" class="btn btn-danger btn-block mb-2">Abonado (N)</a>
                         </div>
                     </div>
@@ -479,6 +479,85 @@
                 }
             });
         });
+
+        $('#SendPDF').on('click', function(e) {
+            e.preventDefault();
+            let id = $(this).data('id'); // Obtén el ID del presupuesto
+            botonEnviar(id);
+        });
+
+        function botonEnviar(id) {
+            // Obtén el correo del cliente asociado desde el backend
+            const defaultEmail = "{{ $factura->cliente->email ?? '' }}"; // Asegúrate de que aquí estás obteniendo el correo del cliente correctamente
+
+            // Salta la alerta para pedir el correo
+            Swal.fire({
+                title: "Enviar correo",
+                html: '<input id="swal-input1" class="swal2-input" value="' + defaultEmail + '" placeholder="Correo">',
+                showCancelButton: true,
+                confirmButtonText: "Enviar",
+                cancelButtonText: "Cancelar",
+                preConfirm: () => {
+                    const email = document.getElementById('swal-input1').value;
+
+                    if (!email) {
+                        Swal.showValidationMessage('El campo de correo es obligatorio');
+                        return false;
+                    }
+
+                    return {
+                        id: id,
+                        email: email
+                    };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const data = result.value;
+
+                    // Crear un objeto FormData solo con el ID y el correo
+                    const formData = new FormData();
+                    formData.append('email', data.email);
+                    formData.append('id', data.id);
+
+                    // Llamar a la función para enviar el correo
+                    $.when(SendMail(id, formData)).then(function(data, textStatus, jqXHR) {
+                        if (!data.status) {
+                            // Si recibimos algún error
+                            Toast.fire({
+                                icon: "error",
+                                title: data.mensaje
+                            });
+                        } else {
+                            // Todo ha ido bien
+                            Toast.fire({
+                                icon: "success",
+                                title: data.mensaje
+                            }).then(() => {
+                                window.location.href = "{{ route('presupuestos.index') }}";
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function SendMail(id, formData) {
+            // Ruta de la petición
+            const url = '/invoice/sendInvoicePDF';
+
+            // Petición AJAX para enviar el correo
+            return $.ajax({
+                type: "POST",
+                url: url,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: formData,
+                processData: false, // No procesar los datos
+                contentType: false, // No establecer un tipo de contenido
+                dataType: "json"
+            });
+        }
 
 
     });

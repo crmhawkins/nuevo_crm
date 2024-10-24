@@ -1650,14 +1650,22 @@ class BudgetController extends Controller
 
     public function savePDF(Budget $budget)
     {
-
-        $name = 'presupuesto_' . $budget['reference'];
+        // Nombre del archivo basado en la referencia del presupuesto
+        $name = 'presupuesto_' . $budget->reference;
+        // Cifrar el nombre del archivo
         $encrypted = $this->encrypt_decrypt('encrypt', $name);
+        // Ruta completa para guardar el archivo PDF
         $pathToSaveBudget = storage_path('app/public/assets/budgets/' . $encrypted . '.pdf');
+        // Verificar si el directorio existe, si no, crearlo
+        $directory = storage_path('app/public/assets/budgets/');
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true); // Crear el directorio con permisos 0755 y true para crear subdirectorios si es necesario
+        }
+        // Generar el PDF usando tu método createPdf
         $sumatorio = false;
-        $pdf = $this->createPdf($budget,$sumatorio);
-        $pdf->save( $pathToSaveBudget );
-
+        $pdf = $this->createPdf($budget, $sumatorio);
+        // Guardar el PDF en la ruta especificada
+        $pdf->save($pathToSaveBudget);
         return $encrypted;
     }
 
@@ -1683,13 +1691,13 @@ class BudgetController extends Controller
 
     public function sendEmail(Budget $budget, Request $request){
 
-        // $file2 = [];
+        $file2 = [];
 
-        // foreach($request->files as $file ){
-        //     foreach($file as $si){
-        //         $file2 [] = $si;
-        //     }
-        // }
+        foreach($request->files as $file ){
+            foreach($file as $si){
+                $file2 [] = $si;
+            }
+        }
 
         $filename = $this->savePDF($budget);
 
@@ -1712,19 +1720,18 @@ class BudgetController extends Controller
         }
 
         $mailBudget = new \stdClass();
-        $mailBudget->url = 'https://crm.hawkins.es/budget/'.$filename;
+        $mailBudget->url = 'https://crm.hawkins.es/budget/cliente/'.$filename;
         $mailBudget->gestor = Auth::user()->name." ".Auth::user()->surname;
         $mailBudget->gestorMail = Auth::user()->email;
         $mailBudget->gestorTel = '956 662 942';
 
-        // $mail = explode(",",$request->email)[0];
-        $mail = "p.ragel@hawkins.es";
+        $mail = explode(",",$request->email)[0];
 
         $mailsCC = [];
         $mailsBCC = [];
 
-        // $mailsBCC[] = "emma@lchawkins.com";
-        // $mailsBCC[] = "ivan@lchawkins.com";
+        $mailsBCC[] = "emma@lchawkins.com";
+        $mailsBCC[] = "ivan@lchawkins.com";
         $mailsBCC[] = $mailBudget->gestorMail;
         $mailsBCC[] = $budget->adminUser->email;
 
@@ -1738,15 +1745,23 @@ class BudgetController extends Controller
 
         $data = [];
 
-        // if(count($file2) !== 0 )
-        // {
-        //     foreach($file2 as $fileNew)
-        //     {
-        //         $path = Storage::putFileAs('app',$fileNew, 'supplier-'.time().'.'.$fileNew->getClientOriginalExtension());
-        //         $data[] = "/home/crmhawki/public_html/storage/app/".$path;
-        //     }
-        //     $mailBudget->files = true;
-        // }
+        if (!empty($file2)) {
+            $timestamp = time(); // Obtén el timestamp una sola vez para evitar múltiples llamadas a time()
+
+            foreach ($file2 as $index => $fileNew) {
+                // Genera un nombre de archivo único usando el índice y el timestamp
+                $fileName = 'supplier-' . $timestamp . '-' . $index . '.' . $fileNew->getClientOriginalExtension();
+
+                // Almacena el archivo en la ubicación deseada y guarda el path en el array de datos
+                $path = Storage::putFileAs('public/assets/suppliers', $fileNew, $fileName);
+
+                // Agrega la ruta completa al array de datos
+                $data[] = storage_path('app/' . $path);
+            }
+
+            // Marca que hay archivos adjuntos
+            $mailBudget->files = true;
+        }
 
         $email = new MailBudget($mailBudget,$data);
 
@@ -1819,6 +1834,49 @@ class BudgetController extends Controller
             $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
         }
         return $output;
+    }
+
+    public function getBudget($budget)
+    {
+        $budget_val = BudgetSend::where("file_name", $budget)->get()->first();
+        $filename = $budget . '.pdf';
+        if ($budget_val) {
+            return view('clients.budgetview', compact('budget', 'budget_val', 'filename'));
+        } else {
+            return view('clients.budgetnotfound');
+        }
+    }
+
+    public function setAcceptance(Request $request)
+    {
+
+        $budget = BudgetSend::find($request->id);
+        $clientIP = request()->ip();
+
+        if ($budget) {
+            $budget->acceptance_conds = 1;
+            $budget->IP = $clientIP;
+            $budget->save();
+
+            //Creación de alerta
+            $alert = [
+                "admin_user_id" => $budget->admin_user_id,
+                "stage_id" => 12,
+                "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s'),
+                "status_id" => 1,
+                "reference_id" => $budget->id
+            ];
+
+            $savedAlert = Alert::create($alert);
+            $savedAlert->save();
+
+
+            $alertdDelete = Alert::where("stage_id", 21)->where("reference_id", $budget->id)->get();
+
+            foreach ($alertdDelete as $alert) {
+                $alert->delete();
+            }
+        }
     }
 
 }
