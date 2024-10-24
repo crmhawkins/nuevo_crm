@@ -221,6 +221,7 @@ Route::post('/budgets-by-client', [BudgetController::class, 'getBudgetsByClientI
 Route::post('/budgets-by-project', [BudgetController::class, 'getBudgetsByprojectId']);
 Route::post('/budget-by-id', [BudgetController::class, 'getBudgetById']);
 Route::get('/status-projects', [BudgetController::class, 'statusProjects'])->name('presupuestos.status');
+Route::post('/budget/send/{budget}', [BudgetController::class, 'sendEmail'])->name('presupuestos.sendEmail');
 
 
 // Budgets Concepts (CONCEPTOS DE PRESUPUESTOS)

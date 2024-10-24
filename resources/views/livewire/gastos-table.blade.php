@@ -7,7 +7,7 @@
         <div class="col-md-6 col-sm-12">
             <div class="flex flex-row justify-start">
                 <div class="mr-3">
-                    <label for="">Nª por paginas</label>
+                    <label for="">Nº</label>
                     <select wire:model="perPage" class="form-select">
                         <option value="10">10</option>
                         <option value="25">25</option>
@@ -23,15 +23,24 @@
         </div>
         <div class="col-md-6 col-sm-12">
             <div class="flex flex-row justify-end">
-                <div class="mr-3">
+                <div class="mr-3" style="width: 100px">
+                    <label for="">Banco</label>
+                    <select wire:model="selectedBanco" class="form-select">
+                        <option value=""> Banco </option>
+                        @foreach ($Bancos as $banco)
+                            <option value="{{ $banco->id }}">{{ $banco->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mr-3" style="width: 150px">
                     <label for="">Fecha inicio</label>
                     <input wire:model="startDate" type="date" class="form-control" placeholder="Fecha de inicio">
                 </div>
-                <div class="mr-3">
+                <div class="mr-3" style="width: 150px">
                     <label for="">Fecha fin</label>
                     <input wire:model="endDate" type="date" class="form-control" placeholder="Fecha de fin">
                 </div>
-                <div class="mr-3">
+                <div class="mr-3" style="width: 100px">
                     <label for="">Año</label>
                     <select wire:model="selectedYear" class="form-select">
                         <option value=""> Año </option>
@@ -88,9 +97,23 @@
                             <td>{{ \Carbon\Carbon::parse($gasto->date)->format('d/m/Y') }}</td>
                             <td>{{$gasto->state}}</td>
                             <td>
-                                @if (isset($gasto->documents) && Storage::disk('public')->exists($gasto->documents))
-                                <a href="{{ asset('storage/' . $gasto->documents) }}" target="_blank">Ver Documento</a>
-                                @endif
+                                @if (isset($gasto->documents))
+                                @php
+                                try {
+                                    // Intentar verificar si el archivo existe en el disco 'public'
+                                    $exists = Storage::disk('public')->exists($gasto->documents);
+
+                                    if ($exists) {
+                                        // Si el archivo existe, muestra el enlace
+                                        echo "<a href='" . asset('storage/' . $gasto->documents) . "' target='_blank'>Ver</a>";
+                                    }
+                                } catch (\Exception $e) {
+                                    // Si hay un error (por ejemplo, ruta corrupta), no hacer nada
+                                    // Loguear el error si es necesario
+                                    Log::error("Error checking file existence: " . $e->getMessage());
+                                }
+                                @endphp
+                            @endif
                             </td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{route('gasto.edit', $gasto->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar gasto"></a>

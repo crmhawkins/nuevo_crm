@@ -349,19 +349,23 @@
                                 Acciones
                                 <hr>
                             </div>
-                            <a href="" id="actualizarPresupuesto" class="btn btn-success btn-block">Actualizar Presupuesto</a>
-                            <a href="" id="aceptarPresupuesto" class="btn btn-primary btn-block mt-3">Aceptar Presupuesto</a>
-                            <a href="" id="cancelarPresupuesto"class="btn btn-danger btn-block mt-3">Cancelar Presupuesto</a>
+                            <a href="" id="actualizarPresupuesto" class="btn btn-success btn-block mb-3">Actualizar</a>
+                            <a href="" id="aceptarPresupuesto" class="btn btn-primary btn-block mb-3">Aceptar</a>
+                            <a href="" id="cancelarPresupuesto"class="btn btn-danger btn-block mb-3">Cancelar</a>
                             <form action="{{ route('presupuesto.duplicate', $presupuesto->id) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="btn btn-secondary btn-block mt-3">Duplicar Presupuesto</button>
+                                <button type="submit" class="btn btn-secondary btn-block mb-3">Duplicar</button>
                             </form>
-                            <a href="" id="generatePdf" class="btn btn-dark btn-block mt-3">Generar PDF</a>
-                            <a href="" class="btn btn-dark btn-block mt-3">Enviar por email</a>
-                            <a href="" id="generateInvoice" class="btn btn-dark btn-block mt-3">Generar factura</a>
-                            <a href="" id="generateInvoicePartial" class="btn btn-dark btn-block mt-3">Generar factura parcial</a>
-                            <a href="" id="generateTask" class="btn btn-dark btn-block mt-3">Generar tareas</a>
-                            <a href="" id="deletePresupuesto" data-id="{{$presupuesto->id}}" class="btn btn-outline-danger btn-block mt-3">Eliminar</a>
+                            <a href="" id="generatePdf" class="btn btn-dark btn-block mb-3">Generar PDF</a>
+                            <form action="{{ route('presupuestos.sendEmail', $presupuesto->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary btn-block mb-3">Enviar por email</button>
+                            </form>
+                            {{-- <a href="" id="enviaraEmail" data-id="{{$presupuesto->id}}" class="btn btn-dark btn-block mb-3">Enviar por email</a> --}}
+                            <a href="" id="generateInvoice" class="btn btn-dark btn-block mb-3">Generar factura</a>
+                            <a href="" id="generateInvoicePartial" class="btn btn-dark btn-block mb-3">Generar factura parcial</a>
+                            <a href="" id="generateTask" class="btn btn-dark btn-block mb-3">Generar tareas</a>
+                            <a href="" id="deletePresupuesto" data-id="{{$presupuesto->id}}" class="btn btn-outline-danger btn-block mb-3">Eliminar</a>
                         </div>
                     </div>
                 </div>

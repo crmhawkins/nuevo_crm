@@ -9,7 +9,7 @@
                     <div class="col-md-6 col-sm-12">
                         <div class="flex flex-row justify-start">
                             <div class="mr-3">
-                                <label for="">Nª por paginas</label>
+                                <label for="">Nº</label>
                                 <select wire:model="perPage" class="form-select">
                                     <option value="10">10</option>
                                     <option value="25">25</option>

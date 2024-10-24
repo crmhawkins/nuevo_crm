@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\Accounting\Ingreso;
 use App\Models\Clients\Client;
+use App\Models\Other\BankAccounts;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -16,7 +17,10 @@ class IngresosTable extends Component
     public $selectedCliente = '';
     public $selectedEstado;
     public $selectedYear;
-    public $selectedDate;
+    public $startDate;
+    public $selectedBanco;
+    public $Bancos;
+    public $endDate;
     public $clientes;
     public $estados;
     public $perPage = 10;
@@ -26,6 +30,7 @@ class IngresosTable extends Component
 
     public function mount(){
         $this->selectedYear = Carbon::now()->year;
+        $this->Bancos = BankAccounts::all();
     }
 
     public function render()
@@ -44,8 +49,14 @@ class IngresosTable extends Component
                 ->when($this->selectedYear, function ($query) {
                     $query->whereYear('created_at', $this->selectedYear);
                 })
-                ->when($this->selectedDate, function ($query) {
-                    $query->where('date', '=', $this->selectedDate);
+                ->when($this->selectedBanco, function ($query) {
+                    $query->where('bank_id', $this->selectedBanco);
+                })
+                ->when($this->startDate, function ($query) {
+                    $query->whereDate('date', '>=', Carbon::parse($this->startDate));
+                })
+                ->when($this->endDate, function ($query) {
+                    $query->whereDate('date', '<=', Carbon::parse($this->endDate));
                 });
 
          // Aplica la ordenación
@@ -74,7 +85,7 @@ class IngresosTable extends Component
     }
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado') {
+        if ($propertyName === 'buscar'|| $propertyName === 'selectedBanco' || $propertyName === 'endDate'|| $propertyName === 'startDate'|| $propertyName === 'selectedYear') {
             $this->resetPage(); // Resetear la paginación solo cuando estos filtros cambien.
         }
     }

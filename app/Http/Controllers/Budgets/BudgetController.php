@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Budgets;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MailBudget;
+use App\Models\Alerts\Alert;
 use App\Models\Budgets\Budget;
 use App\Models\Budgets\BudgetConcept;
 use App\Models\Budgets\BudgetConceptType;
@@ -10,6 +12,7 @@ use App\Models\Budgets\BudgetReferenceAutoincrement;
 use App\Models\Budgets\BudgetStatu;
 use App\Models\Budgets\BudgetConceptSupplierRequest;
 use App\Models\Budgets\BudgetCustomPDF;
+use App\Models\Budgets\BudgetSend;
 use App\Models\Services\ServiceCategories;
 use App\Models\Tasks\Task;
 use App\Models\Company\CompanyDetails;
@@ -17,6 +20,7 @@ use App\Models\Clients\Client;
 use App\Models\Invoices\Invoice;
 use App\Models\Invoices\InvoiceConcepts;
 use App\Models\Invoices\InvoiceReferenceAutoincrement;
+use App\Models\Logs\LogsEmail;
 use App\Models\PaymentMethods\PaymentMethod;
 use App\Models\Petitions\Petition;
 use App\Models\Projects\Project;
@@ -27,6 +31,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class BudgetController extends Controller
 {
@@ -1551,85 +1557,108 @@ class BudgetController extends Controller
     }
 
     public function generatePDF(Request $request){
+
         $budget = Budget::find($request->id);
 
         $sumatorio = $request->sumatorio;
-        // Los conceptos de este presupuesto
-        $thisBudgetConcepts = BudgetConcept::where('budget_id', $budget->id)->get();
-        // Condiciones de categoría de los servicios
-        $conceptCategoriesID = array();
-        foreach($thisBudgetConcepts as $concept){
-            if(!in_array($concept->services_category_id, $conceptCategoriesID)){
-                array_push($conceptCategoriesID, $concept->services_category_id);
-            }
-        }
-        foreach($conceptCategoriesID as $key => $value){
-            $category = ServiceCategories::where('id', $value)->get()->first();
-            if($category){
-                // Definir los conceptos del PDF y precios
-                $conceptosPDF = '';
-                $precioSinIvaPDF = 0;
-                if(count($thisBudgetConcepts) >= 2){
-                    foreach($thisBudgetConcepts as $concepto){
-                        if ($conceptosPDF == '') {
-                            $conceptosPDF = $concepto->title;
-                        }else{
-                            $conceptosPDF = $conceptosPDF . ', ' . $concepto->title;
-                        }
-                        $precioSinIvaPDF += $concepto->total;
-                    }
-                } else {
-                    $conceptosPDF = $thisBudgetConcepts[0]->title;
-                }
-            }
-        }
-        // Título
-        $title = "Presupuesto - ".$budget['reference'];
-        // PDF personalización
-        $data = [
-            'title' => $title,
-            'budget_reference' => $budget['reference'],
-        ];
-        // Array de conceptos para utilizar en la vista, formatea cadenas para que cuadre
-        $budgetConceptsFormated = array();
-        foreach($thisBudgetConcepts as $budgetConcept){
-            // Título
-            $budgetConceptsFormated[$budgetConcept->id]['title'] = $budgetConcept['title'];
-            // Unidades
-            $budgetConceptsFormated[$budgetConcept->id]['units'] = $budgetConcept['units'];
-            // Precio
-            if($budgetConcept->concept_type_id == BudgetConceptType::TYPE_OWN){
-                $budgetConceptsFormated[$budgetConcept->id]['subtotal'] = number_format((float)$budgetConcept->units * $budgetConcept->sale_price, 2, '.', '');
-                $budgetConceptsFormated[$budgetConcept->id]['unit_price'] = number_format((float)$budgetConcept->sale_price, 2, '.', '');
-            }
-            if($budgetConcept->concept_type_id == BudgetConceptType::TYPE_SUPPLIER){
-                $purchasePriceWithoutMarginBenefit = $budgetConcept->purchase_price;
-                $benefitMargin = $budgetConcept->benefit_margin;
-                $marginBenefitToAdd  =  ($purchasePriceWithoutMarginBenefit*$benefitMargin)/100;
-                $purchasePriceWithMarginBenefit  =  $purchasePriceWithoutMarginBenefit+ $marginBenefitToAdd;
-                if( $purchasePriceWithMarginBenefit != null){
-                    $budgetConceptsFormated[$budgetConcept->id]['unit_price'] = round((number_format((float)$budgetConcept->purchase_price, 2, '.', '') / $budgetConcept->units / 100 * number_format((float)$budgetConcept->benefit_margin, 2, '.', '')) + (number_format((float)$budgetConcept->purchase_price, 2, '.', '') / $budgetConcept->units), 2);
-                }
-                $budgetConceptsFormated[$budgetConcept->id]['subtotal'] = number_format((float)$budgetConcept->total_no_discount, 2, '.', '');
-            }
-            // Descuento
-            if($budgetConcept['discount'] == null){
-                $budgetConceptsFormated[$budgetConcept->id]['discount'] = "0,00";
-            }else{
-                $budgetConceptsFormated[$budgetConcept->id]['discount'] = number_format((float)$budgetConcept['discount'], 2, ',', '');
-            }
-            // Total
-            $budgetConceptsFormated[$budgetConcept->id]['total'] = number_format((float)$budgetConcept['total'], 2, ',', '');
-            // Descripción
-            $rawConcepts = $budgetConcept['concept'];
-            // Descripción dividida en cadenas y saltos de linea
-            $arrayConceptStringsAndBreakLines =  explode(PHP_EOL, $rawConcepts);
-            $budgetConceptsFormated[$budgetConcept->id]['description'] = $arrayConceptStringsAndBreakLines;
-        }
 
-        $pdf = PDF::loadView('budgets.previewPDF', compact('budget','data', 'budgetConceptsFormated','sumatorio'));
+        $pdf = $this->createPdf($budget,$sumatorio);
+
         return $pdf->download('presupuesto_' . $budget['reference'] . '_' . Carbon::now()->format('Y-m-d') . '.pdf');
 
+    }
+
+    public function createPdf($budget, $sumatorio){
+     // Los conceptos de este presupuesto
+     $thisBudgetConcepts = BudgetConcept::where('budget_id', $budget->id)->get();
+     // Condiciones de categoría de los servicios
+     $conceptCategoriesID = array();
+     foreach($thisBudgetConcepts as $concept){
+         if(!in_array($concept->services_category_id, $conceptCategoriesID)){
+             array_push($conceptCategoriesID, $concept->services_category_id);
+         }
+     }
+     foreach($conceptCategoriesID as $key => $value){
+         $category = ServiceCategories::where('id', $value)->get()->first();
+         if($category){
+             // Definir los conceptos del PDF y precios
+             $conceptosPDF = '';
+             $precioSinIvaPDF = 0;
+             if(count($thisBudgetConcepts) >= 2){
+                 foreach($thisBudgetConcepts as $concepto){
+                     if ($conceptosPDF == '') {
+                         $conceptosPDF = $concepto->title;
+                     }else{
+                         $conceptosPDF = $conceptosPDF . ', ' . $concepto->title;
+                     }
+                     $precioSinIvaPDF += $concepto->total;
+                 }
+             } else {
+                 $conceptosPDF = $thisBudgetConcepts[0]->title;
+             }
+         }
+     }
+     // Título
+     $title = "Presupuesto - ".$budget['reference'];
+     // PDF personalización
+     $data = [
+         'title' => $title,
+         'budget_reference' => $budget['reference'],
+     ];
+     // Array de conceptos para utilizar en la vista, formatea cadenas para que cuadre
+     $budgetConceptsFormated = array();
+     foreach($thisBudgetConcepts as $budgetConcept){
+         // Título
+         $budgetConceptsFormated[$budgetConcept->id]['title'] = $budgetConcept['title'];
+         // Unidades
+         $budgetConceptsFormated[$budgetConcept->id]['units'] = $budgetConcept['units'];
+         // Precio
+         if($budgetConcept->concept_type_id == BudgetConceptType::TYPE_OWN){
+             $budgetConceptsFormated[$budgetConcept->id]['subtotal'] = number_format((float)$budgetConcept->units * $budgetConcept->sale_price, 2, '.', '');
+             $budgetConceptsFormated[$budgetConcept->id]['unit_price'] = number_format((float)$budgetConcept->sale_price, 2, '.', '');
+         }
+         if($budgetConcept->concept_type_id == BudgetConceptType::TYPE_SUPPLIER){
+             $purchasePriceWithoutMarginBenefit = $budgetConcept->purchase_price;
+             $benefitMargin = $budgetConcept->benefit_margin;
+             $marginBenefitToAdd  =  ($purchasePriceWithoutMarginBenefit*$benefitMargin)/100;
+             $purchasePriceWithMarginBenefit  =  $purchasePriceWithoutMarginBenefit+ $marginBenefitToAdd;
+             if( $purchasePriceWithMarginBenefit != null){
+                 $budgetConceptsFormated[$budgetConcept->id]['unit_price'] = round((number_format((float)$budgetConcept->purchase_price, 2, '.', '') / $budgetConcept->units / 100 * number_format((float)$budgetConcept->benefit_margin, 2, '.', '')) + (number_format((float)$budgetConcept->purchase_price, 2, '.', '') / $budgetConcept->units), 2);
+             }
+             $budgetConceptsFormated[$budgetConcept->id]['subtotal'] = number_format((float)$budgetConcept->total_no_discount, 2, '.', '');
+         }
+         // Descuento
+         if($budgetConcept['discount'] == null){
+             $budgetConceptsFormated[$budgetConcept->id]['discount'] = "0,00";
+         }else{
+             $budgetConceptsFormated[$budgetConcept->id]['discount'] = number_format((float)$budgetConcept['discount'], 2, ',', '');
+         }
+         // Total
+         $budgetConceptsFormated[$budgetConcept->id]['total'] = number_format((float)$budgetConcept['total'], 2, ',', '');
+         // Descripción
+         $rawConcepts = $budgetConcept['concept'];
+         // Descripción dividida en cadenas y saltos de linea
+         $arrayConceptStringsAndBreakLines =  explode(PHP_EOL, $rawConcepts);
+         $budgetConceptsFormated[$budgetConcept->id]['description'] = $arrayConceptStringsAndBreakLines;
+     }
+
+     $pdf = PDF::loadView('budgets.previewPDF', compact('budget','data', 'budgetConceptsFormated','sumatorio'));
+
+     return $pdf;
+
+    }
+
+    public function savePDF(Budget $budget)
+    {
+
+        $name = 'presupuesto_' . $budget['reference'];
+        $encrypted = $this->encrypt_decrypt('encrypt', $name);
+        $pathToSaveBudget = storage_path('app/public/assets/budgets/' . $encrypted . '.pdf');
+        $sumatorio = false;
+        $pdf = $this->createPdf($budget,$sumatorio);
+        $pdf->save( $pathToSaveBudget );
+
+        return $encrypted;
     }
 
     public function getBudgetsByClientId(Request $request)
@@ -1649,6 +1678,147 @@ class BudgetController extends Controller
         $id = $request->input('budget_id');
         $budget = Budget::find($id);
         return response()->json($budget);
+    }
+
+
+    public function sendEmail(Budget $budget, Request $request){
+
+        // $file2 = [];
+
+        // foreach($request->files as $file ){
+        //     foreach($file as $si){
+        //         $file2 [] = $si;
+        //     }
+        // }
+
+        $filename = $this->savePDF($budget);
+
+        $data = [
+            'admin_user_id' => Auth::user()->id,
+            'budget_id' => $budget->id, /**/
+            'budget_reference' => $budget->reference, /**/
+            'client_id' => $budget->client_id,
+            'file_name' => $filename,
+            'date_send' => Carbon::now()->format('Y-m-d')
+        ];
+
+        $budgetExist = BudgetSend::where('budget_id', $budget->id)->get()->first();
+
+        if ($budgetExist){
+            DB::table("budgets_sends")->where("budget_id", $budget->id)->update($data);
+        }else{
+            $budgetSend = BudgetSend::create($data);
+            $budgetSend->save();
+        }
+
+        $mailBudget = new \stdClass();
+        $mailBudget->url = 'https://crm.hawkins.es/budget/'.$filename;
+        $mailBudget->gestor = Auth::user()->name." ".Auth::user()->surname;
+        $mailBudget->gestorMail = Auth::user()->email;
+        $mailBudget->gestorTel = '956 662 942';
+
+        // $mail = explode(",",$request->email)[0];
+        $mail = "p.ragel@hawkins.es";
+
+        $mailsCC = [];
+        $mailsBCC = [];
+
+        // $mailsBCC[] = "emma@lchawkins.com";
+        // $mailsBCC[] = "ivan@lchawkins.com";
+        $mailsBCC[] = $mailBudget->gestorMail;
+        $mailsBCC[] = $budget->adminUser->email;
+
+        if($request->cc){
+            $mailsCC[] = $request->cc;
+        }
+
+        if($request->cc2){
+            $mailsCC[] = $request->cc2;
+        }
+
+        $data = [];
+
+        // if(count($file2) !== 0 )
+        // {
+        //     foreach($file2 as $fileNew)
+        //     {
+        //         $path = Storage::putFileAs('app',$fileNew, 'supplier-'.time().'.'.$fileNew->getClientOriginalExtension());
+        //         $data[] = "/home/crmhawki/public_html/storage/app/".$path;
+        //     }
+        //     $mailBudget->files = true;
+        // }
+
+        $email = new MailBudget($mailBudget,$data);
+
+        Mail::to($mail)
+        ->bcc($mailsBCC)
+        ->cc($mailsCC)
+        ->send($email);
+
+        $fechaNow = Carbon::now();
+
+        $alertNew['admin_user_id'] = Auth::user()->id;
+        $alertNew['stage_id'] = 21;  //etapa Pendiente de confirmar
+        $alertNew['activation_datetime'] = $fechaNow->addDays(2)->format('Y-m-d H:i:s');
+        $alertNew['status_id'] = 1; // Estado pendiente
+        $alertNew['reference_id'] = $budget->id;    //Referencia del presupuesto
+
+        $alert = Alert::create($alertNew);
+        $alertSaved = $alert->save();
+
+        $mailEmisor = "budget@crmhawkins.com";
+
+        $logData = [
+            'mailEmisor' => $mailEmisor,
+            'mailReceptor' => $mail,
+            'status' => 4, // Tipo de log, en el caso 4 es de los budgets, ver vista de logs_email (index) para ver los tipos que hay
+            'mensaje' => "Nuestro equipo ha trabajado para ofrecerte la mejor propuesta. Espero que sea de tu agrado, recuerda que estoy disponible para ayudarte en lo que necesites",
+        ];
+
+        $logEmail = $this->getLogEmails($logData);
+
+        return 200;
+    }
+
+    public function getLogEmails($logData){
+
+        $mailEmisor = $logData['mailEmisor'];
+        $mailReceptor = $logData['mailReceptor'];
+        $status = $logData['status'];
+        $mensaje = $logData['mensaje'];
+
+        $data = [
+            "mail_emisor" => $mailEmisor,
+            "mail_receptor" => $mailReceptor,
+            "status" => $status,
+            "mensaje" => $mensaje,
+        ];
+
+        $createLog = LogsEmail::create($data);
+        $logSaved = $createLog->save();
+
+        return 200;
+    }
+
+    function encrypt_decrypt($action, $string) {
+
+        $output = false;
+        $encrypt_method = "AES-256-CBC";
+        $secret_key = 'c0c0dr1l0s3n3ln1l0';
+        $secret_iv = 'c0c0dr1l0s3n3ln1l0';
+        // hash
+        $key = hash('sha256', $secret_key);
+
+
+        // iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
+        $iv = substr(hash('sha256', $secret_iv), 0, 16);
+        if ( $action == 'encrypt' ) {
+            $output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
+            $output = base64_encode($output);
+        } else if( $action == 'decrypt' ) {
+            $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+        }
+        return $output;
     }
 
 }

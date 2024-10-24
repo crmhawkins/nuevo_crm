@@ -5,6 +5,8 @@ namespace App\Http\Livewire;
 use App\Exports\AsociadosExport;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Clients\Client;
+use App\Models\Other\BankAccounts;
+use App\Models\Suppliers\Supplier;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -17,10 +19,12 @@ class AssociatedTable extends Component
     use WithPagination;
 
     public $buscar;
-    public $selectedCliente = '';
-    public $selectedEstado;
     public $selectedYear;
     public $startDate;
+    public $selectedBanco;
+    public $Bancos;
+    public $selectedSupplier;
+    public $Suppliers;
     public $endDate;
     public $clientes;
     public $estados;
@@ -33,6 +37,8 @@ class AssociatedTable extends Component
 
     public function mount(){
         $this->selectedYear = Carbon::now()->year;
+        $this->Bancos = BankAccounts::all();
+        $this->Suppliers = Supplier::all();
 
     }
     public function render()
@@ -53,34 +59,30 @@ class AssociatedTable extends Component
                       $subQuery->where('suppliers.name', 'like', '%' . $this->buscar . '%');
                   });
         })
+        ->when($this->selectedBanco, function ($query) {
+            $query->where('associated_expenses.bank_id', $this->selectedBanco);
+        })
+        ->when($this->selectedSupplier, function ($query) {
+            $query->where('suppliers.id', $this->selectedSupplier);
+        })
         ->when($this->selectedYear, function ($query) {
             $query->whereYear('associated_expenses.created_at', $this->selectedYear);
         })
         ->when($this->startDate, function ($query) {
-            $query->whereDate('associated_expenses.created_at', '>=', Carbon::parse($this->startDate));
+            $query->whereDate('associated_expenses.date', '>=', Carbon::parse($this->startDate));
         })
         ->when($this->endDate, function ($query) {
-            $query->whereDate('associated_expenses.created_at', '<=', Carbon::parse($this->endDate));
+            $query->whereDate('associated_expenses.date', '<=', Carbon::parse($this->endDate));
         })
         ->join('purchase_order', 'associated_expenses.purchase_order_id', '=', 'purchase_order.id') // Join con la tabla purchase_order
         ->join('suppliers', 'purchase_order.supplier_id', '=', 'suppliers.id') // Join con la tabla suppliers
         ->select('associated_expenses.*', 'suppliers.name as supplier_name');
-        // $query= AssociatedExpenses::when($this->buscar, function ($query) {
-        //             $query->where('title', 'like', '%' . $this->buscar . '%');
-        //         })
-        //         ->when($this->selectedYear, function ($query) {
-        //             $query->whereYear('created_at', $this->selectedYear);
-        //         })
-        //         ->when($this->selectedDate, function ($query) {
-        //             $query->where('received_date', '=', $this->selectedDate);
-        //         });
 
+        // Aplica la ordenación
+        $query->orderBy($this->sortColumn, $this->sortDirection);
 
-         // Aplica la ordenación
-         $query->orderBy($this->sortColumn, $this->sortDirection);
-
-         // Verifica si se seleccionó 'all' para mostrar todos los registros
-         $this->gastos = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+        // Verifica si se seleccionó 'all' para mostrar todos los registros
+        $this->gastos = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function getGastos()
@@ -109,7 +111,7 @@ class AssociatedTable extends Component
 
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado' || $propertyName === 'selectedDate') {
+        if ($propertyName === 'buscar' || $propertyName === 'selectedBanco' || $propertyName === 'selectedSupplier' || $propertyName === 'endDate'|| $propertyName === 'startDate'|| $propertyName === 'selectedYear') {
             $this->resetPage(); // Resetear la paginación solo cuando estos filtros cambien.
         }
     }

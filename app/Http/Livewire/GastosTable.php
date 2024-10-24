@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Exports\GastosExport;
 use App\Models\Accounting\Gasto;
 use App\Models\Clients\Client;
+use App\Models\Other\BankAccounts;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -17,11 +18,11 @@ class GastosTable extends Component
     use WithPagination;
 
     public $buscar;
-    public $selectedCliente = '';
-    public $selectedEstado;
     public $selectedYear;
     public $startDate;
     public $endDate;
+    public $selectedBanco;
+    public $Bancos;
     public $clientes;
     public $estados;
     public $perPage = 10;
@@ -32,6 +33,7 @@ class GastosTable extends Component
 
     public function mount(){
         $this->selectedYear = Carbon::now()->year;
+        $this->Bancos = BankAccounts::all();
     }
     public function render()
     {
@@ -52,11 +54,14 @@ class GastosTable extends Component
                 ->when($this->selectedYear, function ($query) {
                     $query->whereYear('created_at', $this->selectedYear);
                 })
+                ->when($this->selectedBanco, function ($query) {
+                    $query->where('bank_id', $this->selectedBanco);
+                })
                 ->when($this->startDate, function ($query) {
-                    $query->whereDate('created_at', '>=', Carbon::parse($this->startDate));
+                    $query->whereDate('date', '>=', Carbon::parse($this->startDate));
                 })
                 ->when($this->endDate, function ($query) {
-                    $query->whereDate('created_at', '<=', Carbon::parse($this->endDate));
+                    $query->whereDate('date', '<=', Carbon::parse($this->endDate));
                 }); // Obtiene todos los registros sin paginación
 
          // Aplica la ordenación
@@ -91,7 +96,7 @@ class GastosTable extends Component
 
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado') {
+        if ($propertyName === 'buscar' || $propertyName === 'selectedBanco' || $propertyName === 'endDate'|| $propertyName === 'startDate'|| $propertyName === 'selectedYear') {
             $this->resetPage(); // Resetear la paginación solo cuando estos filtros cambien.
         }
     }
