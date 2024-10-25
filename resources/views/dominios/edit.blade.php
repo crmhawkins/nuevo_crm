@@ -68,7 +68,7 @@
                         <h3 class="mb-2 text-left uppercase">Estado</h3>
                         <div class="flex flex-col mb-4">
                             <div class="form-group flex flex-row align-items-center mb-0">
-                                <select class="w-100 form-select @error('client_id') is-invalid @enderror" name="client_id">
+                                <select class="w-100 form-select @error('estado_id') is-invalid @enderror" name="estado_id">
                                     @if ($estados->count() > 0)
                                         <option value="{{null}}">--- Seleccione un estado ---</option>
                                         @foreach ($estados as $estado)
@@ -79,7 +79,7 @@
                                     @endif
                                 </select>
                             </div>
-                            @error('client_id')
+                            @error('estado_id')
                                 <p class="invalid-feedback d-block" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </p>

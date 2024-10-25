@@ -61,7 +61,7 @@
                                 <tr class="usuario-row">
                                     <td>{{ $usuario['usuario'] }}</td>
                                     <td>{{ $usuario['departamento'] }}</td>
-                                    <td>{{ $usuario['vacaciones'] }}</td>
+                                    <td>{{ $usuario['vacaciones'] }} días</td>
                                     <td>{{ $usuario['horas_trabajadas'] }} / {{ $usuario['horas_producidas'] }}</td>
                                     <td>
                                         <button class="btn btn-secondary toggle-details" type="button" data-toggle="collapse" data-target="#detalles-{{ $loop->index }}" aria-expanded="false">
