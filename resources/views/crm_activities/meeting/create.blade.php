@@ -233,18 +233,7 @@
             paste: false          // Deshabilita la capacidad de pegar texto en el campo
         });
 
-        // Escucha el cambio en el selector de clientes
-        clientSelect.addEventListener('change', function() {
-            const clientId = this.value;
-            if (clientId) {
-                var contactos = getContacts(clientId);
-                console.log(contactos)
-            } else {
-                choicesContacts.clearChoices();
-                choicesContacts.setChoices([{ value: '', label: 'Seleccione un Contacto' }]);
-                contactSelect.disabled = true;
-            }
-        });
+
     });
 </script>
 <script>
@@ -319,21 +308,13 @@
                     }, 900000); // 15 minutos
 
                     document.getElementById('startRecording').disabled = true;
-                    document.getElementById('stopRecording').disabled = false;
                 })
                 .catch(error => {
                     console.error("Error al acceder al micrófono", error);
                 });
         });
 
-        document.getElementById('stopRecording').addEventListener('click', function () {
-            clearInterval(recordingInterval);
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-            document.getElementById('startRecording').disabled = false;
-            document.getElementById('stopRecording').disabled = true;
-        });
+
 
         document.getElementById('guardar').addEventListener('click', function (e) {
             e.preventDefault();

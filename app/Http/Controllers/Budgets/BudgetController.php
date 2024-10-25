@@ -366,6 +366,7 @@ class BudgetController extends Controller
                     $budgetsDeleted = Budget::onlyTrashed()->where('reference', 'like', 'delete_%')->orderBy('deleted_at', 'desc')->first();
                     $newReference = $budgetsDeleted === null ? 'delete_00' : $this->generateReferenceDelete($budgetsDeleted->reference);
                     $budget->reference = $newReference;
+                    $budget->temp = 0;
                     $budget->save();
                 }
 
@@ -452,6 +453,7 @@ class BudgetController extends Controller
 
         if ($budget->budget_status_id != 4 ) {
             $budget->budget_status_id = 4;
+            $budget->temp = 0;
         }
         if( str_starts_with($budget->reference, 'temp_')){
             $budgetcanleded = Budget::where('budget_status_id', 4)
@@ -624,7 +626,6 @@ class BudgetController extends Controller
     }
 
     private function generateReferenceTemp($reference){
-
          // Extrae los dos dígitos del final de la cadena usando expresiones regulares
          preg_match('/temp_(\d{2})/', $reference, $matches);
         // Incrementa el número primero
