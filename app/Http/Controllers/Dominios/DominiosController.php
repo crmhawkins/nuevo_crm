@@ -58,7 +58,7 @@ class DominiosController extends Controller
 
         // Formatear date_start para asegurarse que sea en el formato correcto
         $data['date_start'] = Carbon::parse($request->input('date_start'))->format('Y-m-d H:i:s');
-        $data['estado_id'] = 5;
+        $data['estado_id'] = 2;
 
         $crearDominio = Dominio::create($data);
 
@@ -101,7 +101,6 @@ class DominiosController extends Controller
 
         // Formatear date_start para asegurarse que sea en el formato correcto
         $data['date_start'] = Carbon::parse($request->input('date_start'))->format('Y-m-d H:i:s');
-        $data['estado_id'] =1;
         $dominio->update(attributes: $data);
 
 
