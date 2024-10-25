@@ -131,7 +131,7 @@ class HorasController extends Controller
         $vacaciones = HolidaysPetitions::where('admin_user_id', $id)
         ->whereDate('from','>=', $ini)
         ->whereDate('to','<=', $fin)
-        ->where('status_id', 1)
+        ->where('holidays_status_id', 1)
         ->get();
 
         $dias = $vacaciones->sum('total_days');
