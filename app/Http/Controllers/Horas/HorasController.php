@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Horas;
 
 use App\Exports\JornadasExport;
 use App\Http\Controllers\Controller;
+use App\Models\Alerts\Alert;
 use App\Models\Holidays\HolidaysPetitions;
 use App\Models\Jornada\Jornada;
 use App\Models\Tasks\LogTasks;
@@ -52,6 +53,8 @@ class HorasController extends Controller
                 $horasProducidasViernes     = $this->tiempoProducidoDia($viernes, $usuario->id);
 
                 $vacaciones = $this->vacaciones($lunes, $viernes, $usuario->id);
+                $puntualidad = $this->puntualidad($lunes, $viernes, $usuario->id);
+
 
 
                 $horasProducidasSemana = $horasProducidasLunes + $horasProducidasMartes + $horasProducidasMiercoles + $horasProducidasJueves + $horasProducidasViernes;
@@ -101,6 +104,7 @@ class HorasController extends Controller
                         'usuario' => $usuario->name.' '.$usuario->surname ,
                         'departamento' => $usuario->departamento->name,
                         'vacaciones' => $vacaciones,
+                        'puntualidad' => $puntualidad,
                         'horas_trabajadas' => "$horaHorasTrabajadas h $minutoHorasTrabajadas min",
                         'horasTrabajadasLunes' => "$horaHorasTrabajadasLunes h $minutoHorasTrabajadasLunes min",
                         'horasTrabajadasMartes' => "$horaHorasTrabajadasMartes h $minutoHorasTrabajadasMartes min",
@@ -135,6 +139,18 @@ class HorasController extends Controller
         ->get();
 
         $dias = $vacaciones->sum('total_days');
+
+        return $dias;
+    }
+
+    public function puntualidad($ini, $fin, $id){
+        $puntualidad = Alert::where('admin_user_id', $id)
+        ->whereDate('created_at','>=', $ini)
+        ->whereDate('created_at','<=', $fin)
+        ->where('stage_id', 23)
+        ->get();
+
+        $dias = $puntualidad->count();
 
         return $dias;
     }

@@ -198,7 +198,12 @@ class BudgetController extends Controller
      */
     public function edit(string $id)
     {
-        session()->put('ruta_previa', app('router')->getRoutes()->match(app('request')->create(url()->previous()))->getName());
+        $rutaPrevia = app('router')->getRoutes()->match(app('request')->create(url()->previous()))->getName();
+
+        // Verificar si la ruta comienza con 'presupuestos.index'
+        if ($rutaPrevia && str_starts_with($rutaPrevia, 'presupuestos.index')) {
+            session()->put('ruta_previa', $rutaPrevia);
+        }
 
         $presupuesto = Budget::find($id);
         $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
@@ -445,7 +450,17 @@ class BudgetController extends Controller
         $id = $request->id;
         $budget = Budget::find($id);
 
-        $budget->budget_status_id = 4;
+        if ($budget->budget_status_id != 4 ) {
+            $budget->budget_status_id = 4;
+        }
+        if( str_starts_with($budget->reference, 'temp_')){
+            $budgetcanleded = Budget::where('budget_status_id', 4)
+            ->where('reference', 'like', 'Cancelado_%')
+            ->orderByRaw('CAST(SUBSTRING(reference, 11) AS UNSIGNED) DESC')
+            ->first();
+                    $referenceCancel = $budgetcanleded === null ? 'Cancelado_00' : $this->generateReferenceCancelado($budgetcanleded->reference);
+            $budget->reference = $referenceCancel;
+        }
         $cancelado = $budget->save();
         $budget->cambiarEstadoPresupuesto($budget->budget_status_id);
         if($cancelado){
@@ -619,6 +634,19 @@ class BudgetController extends Controller
             $formattedNumber = str_pad($incrementedNumber, 2, '0', STR_PAD_LEFT);
             // Concatena con la cadena "temp_"
             return "temp_" . $formattedNumber;
+        }
+    }
+    private function generateReferenceCancelado($reference){
+
+         // Extrae los dos dígitos del final de la cadena usando expresiones regulares
+         preg_match('/Cancelado_(\d{2})/', $reference, $matches);
+        // Incrementa el número primero
+        if(count($matches) >= 1){
+            $incrementedNumber = intval($matches[1]) + 1;
+            // Asegura que el número tenga dos dígitos
+            $formattedNumber = str_pad($incrementedNumber, 2, '0', STR_PAD_LEFT);
+            // Concatena con la cadena "temp_"
+            return "Cancelado_" . $formattedNumber;
         }
     }
     private function generateReferenceDelete($reference){
