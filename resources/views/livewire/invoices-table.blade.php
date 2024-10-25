@@ -109,7 +109,7 @@
                             <td>{{$invoice->project->name ?? ($invoice->project_id ? 'Campaña borrada' : 'Sin campaña asignada')}}</td>
                             <td>{{Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y')}}</td>
                             <td>{{$invoice->invoiceStatus->name ?? ($invoice->invoice_status_id ? 'Estado borrado' : 'Sin estado asignado')}}</td>
-                            <td>{{number_format((float)$invoice->total, 2, '.', '') }} €</td>
+                            <td>{{number_format((float)$invoice->total, 2, '.', '') }}€</td>
                             <td>{{$invoice->adminUser->name ?? ($invoice->admin_user_id ? 'Gestor borrado' : 'Sin gestor asignado')}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{route('factura.show', $invoice->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Ver factura"></a>
@@ -122,7 +122,7 @@
                     <tr>
                         <td colspan="4"></td>
                         <th>Sumatorio:</th>
-                        <td>{{number_format((float)$invoices->sum('total'), 2, '.', '') }} €</td>
+                        <td>{{number_format((float)$invoices->sum('total'), 2, '.', '') }}€</td>
                         <td colspan="2"></td>
 
                     </tr>

@@ -198,6 +198,8 @@ class BudgetController extends Controller
      */
     public function edit(string $id)
     {
+        session()->put('ruta_previa', app('router')->getRoutes()->match(app('request')->create(url()->previous()))->getName());
+
         $presupuesto = Budget::find($id);
         $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
 
@@ -312,23 +314,25 @@ class BudgetController extends Controller
         $data['gross'] = $updateBudgetQuantities['gross'];
         $data['base'] = $updateBudgetQuantities['base'];
         $data['total'] = $data['base'] + $data['iva'];
-        if($data['budget_status_id'] == 3){
+
+
+        if($budget->temp == 1 ){
             $referencia = $this->generateBudgetReference($budget);
             if ($referencia === null) {
                 return response(500);
             }
-            if($budget->temp == 1 ){
-                $budget->temp = 0;
-                $budget->reference = $referencia['reference'];
-                $budget->reference_autoincrement_id = $referencia['id'];
-            }
-            $budget->save();
+            $data['temp'] = 0;
+            $data['reference'] = $referencia['reference'];
+            $data['reference_autoincrement_id'] = $referencia['id'];
         }
+
+
         $budgetupdated=$budget->update($data);
         $budget->cambiarEstadoPresupuesto($budget->budget_status_id);
 
         if($budgetupdated){
-            return redirect()->route('presupuestos.indexUser')->with('toast', [
+            $rutaPrevia = session()->get('ruta_previa', route('presupuestos.index'));
+            return redirect()->route( $rutaPrevia)->with('toast', [
                 'icon' => 'success',
                 'mensaje' => 'Presupuesto actualizado correctamente.'
             ]);

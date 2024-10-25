@@ -106,7 +106,7 @@
                     <tr>
                         <td colspan="4"></td>
                         <th>Sumatorio:</th>
-                        <td>{{number_format((float)$budgets->sum('total'), 2, '.', '') }} €</td>
+                        <td>{{number_format((float)$budgets->sum('total'), 2, '.', '') }}€</td>
                         <td colspan="2"></td>
 
                     </tr>
