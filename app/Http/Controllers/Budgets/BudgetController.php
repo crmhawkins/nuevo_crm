@@ -1733,7 +1733,7 @@ class BudgetController extends Controller
         $mailsBCC[] = "emma@lchawkins.com";
         $mailsBCC[] = "ivan@lchawkins.com";
         $mailsBCC[] = $mailBudget->gestorMail;
-        $mailsBCC[] = $budget->adminUser->email;
+        $mailsBCC[] = $budget->usuario->email ;
 
         if($request->cc){
             $mailsCC[] = $request->cc;
@@ -1792,7 +1792,10 @@ class BudgetController extends Controller
 
         $logEmail = $this->getLogEmails($logData);
 
-        return 200;
+        return response()->json([
+            'status' => true,
+            'mensaje' => "El presupuesto ha sido enviado con éxito."
+        ]);
     }
 
     public function getLogEmails($logData){

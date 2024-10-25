@@ -58,7 +58,7 @@
                         </div>
                         {{-- Nombre --}}
                         <div class="form-group">
-                            <label class="text-uppercase" style="font-weight: bold" for="name">Nombre:</label>
+                            <label class="text-uppercase" style="font-weight: bold" for="name">Nombre Campaña:</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name') }}" name="name">
                             @error('name')
                                     <span class="invalid-feedback" role="alert">

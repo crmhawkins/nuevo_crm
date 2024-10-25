@@ -115,7 +115,7 @@
                         <h1 style="font-size:15px;font-weight: normal;vertical-align:bottom; width:100%"><cite><strong>ORDEN DE COMPRA Nº {{$data['ref_order']}}</strong> </cite></h1>
                     </td>
                     <td align="right" style="width: 60%;padding-left:20px;padding-right:45px">
-                        <img src="{{$logoURL}}" alt="Logo" width="100" class="logo"/>
+                        <img src="https://crm.hawkins.es/assets/images/logo/logo.png" alt="Logo" width="150" class="logo"/>
 
                     </td>
                 </tr>

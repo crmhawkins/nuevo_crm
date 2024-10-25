@@ -99,16 +99,13 @@ class InvoiceController extends Controller
 
         // Obtener los conceptos de esta factura
         $thisInvoiceConcepts = InvoiceConcepts::where('invoice_id', $invoice->id)->get();
-
         // Título del PDF
         $title = "Factura - " . $invoice->reference;
-
         // Datos básicos para pasar a la vista del PDF
         $data = [
             'title' => $title,
             'invoice_reference' => $invoice->reference,
         ];
-
         // Formatear los conceptos para usarlos en la vista
         $invoiceConceptsFormated = [];
 
@@ -132,17 +129,13 @@ class InvoiceController extends Controller
                     $benefitMargin = $invoiceConcept->benefit_margin;
                     $marginBenefitToAdd  = ($purchasePriceWithoutMarginBenefit * $benefitMargin) / 100;
                     $purchasePriceWithMarginBenefit  = $purchasePriceWithoutMarginBenefit + $marginBenefitToAdd;
-
                     $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = round($purchasePriceWithMarginBenefit / $invoiceConcept->units, 2);
                     $invoiceConceptsFormated[$invoiceConcept->id]['subtotal'] = number_format((float)$invoiceConcept->total_no_discount, 2, '.', '');
                 }
-
                 // Descuento
                 $invoiceConceptsFormated[$invoiceConcept->id]['discount'] = number_format((float)($invoiceConcept->discount ?? 0), 2, ',', '');
-
                 // Total
                 $invoiceConceptsFormated[$invoiceConcept->id]['total'] = number_format((float)$invoiceConcept->total, 2, ',', '');
-
                 // Formatear la descripción dividiendo en líneas
                 $rawConcepts = $invoiceConcept->concept ?? '';
                 $arrayConceptStringsAndBreakLines = explode(PHP_EOL, $rawConcepts);

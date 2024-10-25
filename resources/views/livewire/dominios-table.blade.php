@@ -86,16 +86,12 @@
                             <td>{{$dominio->cliente->name ?? 'Cliente no asociado'}}</td>
                             <td>{{ \Carbon\Carbon::parse($dominio->date_start)->format('d/m/Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($dominio->date_end)->format('d/m/Y') }}</td>
-                            @if ($dominio->estado_id == 1)
+                            @if ($dominio->estado_id == 2)
                                 <td><span class="badge bg-warning text-dark">{{$dominio->estadoName->name}}</span></td>
-                            @elseif($dominio->estado_id == 2)
-                                <td><span class="badge bg-success">{{$dominio->estadoName->name}}</span></td>
                             @elseif($dominio->estado_id == 3)
+                                <td><span class="badge bg-success">{{$dominio->estadoName->name}}</span></td>
+                            @elseif($dominio->estado_id == 1)
                                 <td><span class="badge bg-danger">{{$dominio->estadoName->name}}</span></td>
-                            @elseif($dominio->estado_id == 4)
-                                <td><span class="badge bg-dark">{{$dominio->estadoName->name}}</span></td>
-                            @elseif($dominio->estado_id == 5)
-                                <td><span class="badge bg-primary">{{$dominio->estadoName->name}}</span></td>
                             @else
                                 <td></td>
                             @endif

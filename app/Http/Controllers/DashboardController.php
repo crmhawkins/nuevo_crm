@@ -48,9 +48,9 @@ class DashboardController extends Controller
             $pausaActiva = $jornadaActiva->pausasActiva();
         }
 
-        
 
-        
+
+
 
         switch($acceso){
             case(1):
@@ -60,7 +60,7 @@ class DashboardController extends Controller
 
                 // Validar las fechas
                 if (!$fechaInicio || !$fechaFin) {
-                    return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');                   
+                    return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');
                 }
                 // Buscar los ingresos en el rango de fechas
                 $ingresos = Invoice::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
@@ -82,7 +82,7 @@ class DashboardController extends Controller
                 $totalGastos = $totalGastosComunes + $totalGastosSociados;
                 $beneficios = $totalIngresos - $totalGastos;
 
-                
+
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
@@ -261,14 +261,11 @@ class DashboardController extends Controller
 
     public function endJornada()
     {
-
-
         $user = Auth::user();
         $jornada = Jornada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($jornada) {
             $finJornada = $jornada->update([
-                'end_time' => Carbon::now
-(),
+                'end_time' => Carbon::now(),
                 'is_active' => false,
             ]);
 
@@ -286,14 +283,12 @@ class DashboardController extends Controller
     public function startPause()
     {
 
-
         $user = Auth::user();
         $jornada = Jornada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($jornada) {
             $pause =  Pause::create([
                 'jornada_id' =>$jornada->id,
-                'start_time' => Carbon::now
-(),
+                'start_time' => Carbon::now(),
             ]);
 
             if($pause){
@@ -308,16 +303,13 @@ class DashboardController extends Controller
 
     public function endPause()
     {
-
-
         $user = Auth::user();
         $jornada = Jornada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($jornada) {
             $pause = Pause::where('jornada_id', $jornada->id)->whereNull('end_time')->first();
-            if ($pause) {
+            if ($pause){
                 $finPause = $pause->update([
-                    'end_time' => Carbon::now
-(),
+                    'end_time' => Carbon::now(),
                     'is_active' => false,
                 ]);
 

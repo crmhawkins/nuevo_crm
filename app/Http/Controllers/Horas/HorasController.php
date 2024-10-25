@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Horas;
 
 use App\Exports\JornadasExport;
 use App\Http\Controllers\Controller;
+use App\Models\Holidays\HolidaysPetitions;
 use App\Models\Jornada\Jornada;
 use App\Models\Tasks\LogTasks;
 use App\Models\Users\User;
@@ -50,6 +51,9 @@ class HorasController extends Controller
                 $horasProducidasJueves      = $this->tiempoProducidoDia($jueves, $usuario->id);
                 $horasProducidasViernes     = $this->tiempoProducidoDia($viernes, $usuario->id);
 
+                $vacaciones = $this->vacaciones($lunes, $viernes, $usuario->id);
+
+
                 $horasProducidasSemana = $horasProducidasLunes + $horasProducidasMartes + $horasProducidasMiercoles + $horasProducidasJueves + $horasProducidasViernes;
 
                 if($horasTrabajadasSemana > 0){
@@ -95,6 +99,8 @@ class HorasController extends Controller
 
                     $arrayUsuarios[] = [
                         'usuario' => $usuario->name.' '.$usuario->surname ,
+                        'departamento' => $usuario->departamento->name,
+                        'vacaciones' => $vacaciones,
                         'horas_trabajadas' => "$horaHorasTrabajadas h $minutoHorasTrabajadas min",
                         'horasTrabajadasLunes' => "$horaHorasTrabajadasLunes h $minutoHorasTrabajadasLunes min",
                         'horasTrabajadasMartes' => "$horaHorasTrabajadasMartes h $minutoHorasTrabajadasMartes min",
@@ -119,6 +125,18 @@ class HorasController extends Controller
     {
         $week = $request->input('week', now()->format('Y-\WW'));
         return Excel::download(new JornadasExport($week), 'jornadas_semanales.xlsx');
+    }
+
+    public function vacaciones($ini, $fin, $id){
+        $vacaciones = HolidaysPetitions::where('admin_user_id', $id)
+        ->whereDate('from','>=', $ini)
+        ->whereDate('to','<=', $fin)
+        ->where('status_id', 1)
+        ->get();
+
+        $dias = $vacaciones->sum('total_days');
+
+        return $dias;
     }
 
     public function horasTrabajadasDia($dia, $id){

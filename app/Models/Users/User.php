@@ -112,7 +112,6 @@ class User extends Authenticatable
     public function todos() {
         return $this->hasManyThrough(Todo::class,TodoUsers::class,'admin_user_id', 'id', 'id','todo_id');
     }
-
     public function presupuestos(){
         return $this->hasMany(\App\Models\Budgets\Budget::class, 'admin_user_id');
     }
