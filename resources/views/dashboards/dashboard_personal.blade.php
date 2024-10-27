@@ -708,10 +708,36 @@
                                             <div>
                                                 <div class="d-flex justify-content-center align-items-center">
                                                     <div class="mx-4 text-center">
-                                                        <h1 class="fs-5 ">Productividad</h1>
-                                                        <div class="progress-circle" data-percentage="70">
+                                                        <h1 class="fs-5">Productividad</h1>
+                                                        <div class="progress-circle 
+                                                            {{ $productividadIndividual >= 100 ? 'progress-green' : 
+                                                               ($productividadIndividual >= 75 ? 'progress-orange' : 'progress-red') }}" 
+                                                            data-percentage="{{ $productividadIndividual }}">
                                                         </div>
                                                     </div>
+                                                    <style>
+                                                        .progress-circle {
+                                                            /* Estilos base para la barra circular */
+                                                            width: 100px;
+                                                            height: 100px;
+                                                            border-radius: 50%;
+                                                            display: inline-block;
+                                                            position: relative;
+                                                            /* Aquí puedes añadir la animación de la barra circular si ya la tienes */
+                                                        }
+                                                    
+                                                        .progress-green {
+                                                            background-color: #28a745; /* Verde */
+                                                        }
+                                                    
+                                                        .progress-orange {
+                                                            background-color: #ff9f00; /* Naranja */
+                                                        }
+                                                    
+                                                        .progress-red {
+                                                            background-color: #dc3545; /* Rojo */
+                                                        }
+                                                    </style>
                                                     <div class="mx-4 text-center">
                                                         <div class="card" style="border: 1px solid {{ $user->bono > 0 ? 'green' : 'gray' }}; padding: 10px;">
                                                             <h5 class="m-0" style="color: {{ $user->bono > 0 ? 'green' : 'gray' }};">

@@ -115,7 +115,38 @@ class DashboardController extends Controller
                 $tareas = $user->tareas->whereIn('task_status_id', [1, 2, 5]);
                 $tiempoProducidoHoy = $this->tiempoProducidoHoy();
                 $tasks = $this->getTasks($user->id);
-                return view('dashboards.dashboard_personal', compact('user','tiempoProducidoHoy','tasks','tareas','to_dos','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+
+                $tareasFinalizadas = Task::where('admin_user_id', $user->id)
+                    ->where('task_status_id', 3)
+                    ->whereMonth('updated_at', Carbon::now()->month)
+                    ->whereYear('updated_at', Carbon::now()->year)
+                    ->get();
+
+                $totalProductividad = 0;
+                $totalTareas = $tareasFinalizadas->count();
+                
+                if ($totalTareas > 0) {
+                    $productividadTotal = 0;
+                
+                    foreach ($tareasFinalizadas as $tarea) {
+                        $estimatedTime = Carbon::parse($tarea->estimated_time)->floatDiffInMinutes();
+                        $realTime = Carbon::parse($tarea->real_time)->floatDiffInMinutes();
+                
+                        if ($realTime > 0) {
+                            $productividad = ($estimatedTime / $realTime) * 100;
+                        } else {
+                            $productividad = 100; // Si el tiempo real es 0, asumimos productividad completa.
+                        }
+                
+                        $productividadTotal += $productividad;
+                    }
+                    $productividadIndividual = $totalTareas > 0 ? $totalProductividad : 0;
+                
+                    // Promedio de productividad
+                    //echo "La productividad es: " . ($totalTareas > 0 ? $totalProductividad : 0) . "%";
+                    
+
+                return view('dashboards.dashboard_personal', compact('user','tiempoProducidoHoy','tasks','tareas','to_dos','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','productividadIndividual'));
             case(6):
                 $ayudas = KitDigital::where('comercial_id', $user->id)->get();
                 $fechaEmision = Carbon::now();
