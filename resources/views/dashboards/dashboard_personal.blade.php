@@ -716,16 +716,7 @@
                                                         </div>
                                                     </div>
                                                     <style>
-                                                        .progress-circle {
-                                                            /* Estilos base para la barra circular */
-                                                            width: 100px;
-                                                            height: 100px;
-                                                            border-radius: 50%;
-                                                            display: inline-block;
-                                                            position: relative;
-                                                            /* Aquí puedes añadir la animación de la barra circular si ya la tienes */
-                                                        }
-                                                    
+                                                                                                           
                                                         .progress-green {
                                                             background-color: #28a745; /* Verde */
                                                         }
