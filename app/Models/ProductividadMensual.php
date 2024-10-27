@@ -10,6 +10,8 @@ class ProductividadMensual extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'productividades_mensuales';
+
     protected $fillable = [
         'admin_user_id',
         'mes',
