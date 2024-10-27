@@ -140,9 +140,9 @@ class DashboardController extends Controller
                 
                         $productividadTotal += $productividad;
                     }
-                    $productividadIndividual = $totalTareas > 0 ? $totalProductividad : 0;
                 }
-                    // Promedio de productividad
+                $productividadIndividual = $totalTareas > 0 ? $totalProductividad : 0;
+                // Promedio de productividad
                     //echo "La productividad es: " . ($totalTareas > 0 ? $totalProductividad : 0) . "%";
                     
 
