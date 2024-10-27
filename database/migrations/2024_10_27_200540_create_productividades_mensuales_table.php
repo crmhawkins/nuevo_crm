@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('productividades_mensuales', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_user_id')->constrained('users')->onDelete('cascade'); // O el nombre de la tabla de usuarios si es distinto
+            $table->foreignId('admin_user_id')->constrained('admin_user')->onDelete('cascade'); // Cambiar "users" por "admin_user"
             $table->integer('mes'); // 1-12 para el mes
             $table->integer('año'); // Para el año
 
