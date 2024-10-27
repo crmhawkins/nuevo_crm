@@ -12,10 +12,10 @@
         width: 120px;
         height: 120px;
         border-radius: 50%;
-        background: conic-gradient(
+        /* background: conic-gradient(
             var(--progress-color) calc(var(--percentage, 0) * 1%),
             #e0e0e0 calc(var(--percentage, 0) * 1%)
-        );
+        ); */
         display: flex;
         align-items: center;
         justify-content: center;
