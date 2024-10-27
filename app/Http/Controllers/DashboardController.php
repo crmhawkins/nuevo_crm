@@ -17,6 +17,7 @@ use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
 use App\Models\Llamadas\Llamada;
 use App\Models\Notes\Note;
+use App\Models\ProductividadMensual;
 use App\Models\Projects\Project;
 use App\Models\Tasks\LogTasks;
 use App\Models\Tasks\Task;
@@ -145,7 +146,31 @@ class DashboardController extends Controller
                 // Promedio de productividad
                     //echo "La productividad es: " . ($totalTareas > 0 ? $totalProductividad : 0) . "%";
                     
+                // Guardar o actualizar la productividad mensual con mes y año
+                $currentMonth = Carbon::now()->month;
+                $currentYear = Carbon::now()->year;
 
+                // Buscar si ya existe un registro para el mes y año actuales
+                $productividadMensual = ProductividadMensual::where('admin_user_id', $user->id)
+                    ->where('mes', $currentMonth)
+                    ->where('año', $currentYear)
+                    ->first();
+
+                if (!$productividadMensual) {
+                    // Crear nuevo registro si no existe
+                    ProductividadMensual::create([
+                        'admin_user_id' => $user->id,
+                        'mes' => $currentMonth,
+                        'año' => $currentYear,
+                        'productividad' => $totalProductividad,
+                    ]);
+                }
+                //  else {
+                //     // Actualizar el registro existente
+                //     $productividadMensual->update([
+                //         'productividad' => $totalProductividad,
+                //     ]);
+                // }
                 return view('dashboards.dashboard_personal', compact('user','tiempoProducidoHoy','tasks','tareas','to_dos','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','productividadIndividual'));
             case(6):
                 $ayudas = KitDigital::where('comercial_id', $user->id)->get();
