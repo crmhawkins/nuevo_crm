@@ -83,6 +83,7 @@ class BajaController extends Controller
                 $path = $archivo->storeAs('Bajas', $filename, 'public');
                 $paths[] = $path;
             }
+            dd( $paths);
             $baja->archivos = json_encode($paths);
         }
 
