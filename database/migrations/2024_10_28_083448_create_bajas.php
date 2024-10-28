@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('admin_user_id')->nullable();
             $table->json('archivos')->nullable();
+            $table->string('observacion')->nullable();
             $table->date('inicio')->nullable();
             $table->date('fin')->nullable();
             $table->timestamps();

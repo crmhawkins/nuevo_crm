@@ -55,17 +55,17 @@
                                             <thead>
                                                 <tr>
                                                     <th>Nombre</th>
-                                                    <th>Horas Estimadas</th>
-                                                    <th>Horas Reales</th>
+                                                    <th>H.Estimadas</th>
+                                                    <th>H.Reales</th>
                                                     <th>Estado</th>
-                                                    <th>Acciones</th>
+                                                    <th>Borrar</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @if($data)
                                                 @foreach ($data as $item)
                                                 <tr id="rowEmployee{{$item['num']}}" class="dynamic-added">
-                                                    <td>
+                                                    <td style="width: 250px !important">
                                                         <select class="choices form-select" name="employeeId{{$item['num']}}" class="form-control">
                                                             <option value="">Empleado</option>
                                                             @foreach($employees as $empleado)
@@ -73,9 +73,9 @@
                                                             @endforeach
                                                         </select>
                                                     </td>
-                                                    <td><input type="text" class="form-control" name="estimatedTime{{$item['num']}}" value="{{$item['horas_estimadas']}}"></td>
-                                                    <td><input type="text" class="form-control" name="realTime{{$item['num']}}" value="{{$item['horas_reales']}}"></td>
-                                                    <td>
+                                                    <td ><input type="text" class="form-control" name="estimatedTime{{$item['num']}}" value="{{$item['horas_estimadas']}}"></td>
+                                                    <td ><input type="text" class="form-control" name="realTime{{$item['num']}}" value="{{$item['horas_reales']}}"></td>
+                                                    <td  style="width: 200px !important">
                                                         <select class="choices form-select" name="status{{$item['num']}}" class="form-control">
                                                             <option  value="">-- Seleccione --</option>
                                                             @foreach($status as $s)
@@ -83,7 +83,7 @@
                                                             @endforeach
                                                         </select>
                                                     </td>
-                                                    <td>
+                                                    <td >
                                                         <button type="button" name="remove" id="{{$item['num']}}" class="btn btn-danger btn_remove_mail">X</button>
                                                         <input type="hidden" name="taskId{{$item['num']}}" value="{{$item['task_id']}}">
                                                     </td>
@@ -196,7 +196,7 @@
                 var formattedTime = convertToTimeFormat(remainingTime); // Convertir el tiempo restante a formato 00:00:00
                 $('.table-employees tbody').append(`
                     <tr id="rowEmployee${i}" class="dynamic-added">
-                        <td>
+                        <tdstyle="width: 250px !important">
                             <select class="choices form-select" name="employeeId${i}" class="form-control">
                                 <option value="">Empleado</option>
                                 @foreach($employees as $empleado)
@@ -204,9 +204,9 @@
                                 @endforeach
                             </select>
                         </td>
-                        <td><input type="text" class="form-control" name="estimatedTime${i}" value="${formattedTime}" placeholder="Horas estimadas"></td>
-                        <td><input type="text" class="form-control" name="realTime${i}" value="00:00:00" placeholder="Horas reales"></td>
-                        <td>
+                        <td ><input type="text" class="form-control" name="estimatedTime${i}" value="${formattedTime}" placeholder="Horas estimadas"></td>
+                        <td ><input type="text" class="form-control" name="realTime${i}" value="00:00:00" placeholder="Horas reales"></td>
+                        <td style="width: 200px !important">
                             <select class="choices form-select" name="status${i}" class="form-control">
                                 <option value="">-- Seleccione --</option>
                                 @foreach($status as $s)
@@ -214,7 +214,7 @@
                                 @endforeach
                             </select>
                         </td>
-                        <td>
+                        <td >
                             <button type="button" name="remove" id="${i}" class="btn btn-danger btn_remove_mail">X</button>
                             <input type="hidden" name="taskId${i}" value="temp">
                         </td>

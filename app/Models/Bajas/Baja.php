@@ -24,6 +24,7 @@ class Baja extends Model
         'archivos',
         'inicio',
         'fin',
+        'observacion'
     ];
 
     /**

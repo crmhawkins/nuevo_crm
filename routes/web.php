@@ -3,6 +3,7 @@
 use App\Events\RecargarPagina;
 use App\Http\Controllers\AccionesController;
 use App\Http\Controllers\Alert\AlertController;
+use App\Http\Controllers\Bajas\BajaController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Suppliers\SuppliersController;
 use App\Http\Controllers\Tesoreria\CuadroController;
@@ -149,6 +150,13 @@ Route::get('/holidays/history', [AdminHolidaysController::class, 'allHistory'])-
 Route::get('/holidays/managePetition/{id}', [AdminHolidaysController::class, 'managePetition'])->name('holiday.admin.managePetition');
 Route::post('/holidays/acceptHolidays', [AdminHolidaysController::class, 'acceptHolidays'])->name('holiday.admin.acceptHolidays');
 Route::post('/holidays/denyHolidays', [AdminHolidaysController::class, 'denyHolidays'])->name('holiday.admin.denyHolidays');
+
+//Bajas
+Route::get('/bajas', [BajaController::class, 'index'])->name('bajas.index');
+Route::get('/baja/create', [BajaController::class, 'create'])->name('bajas.create');
+Route::get('/baja/edit/{id}', [BajaController::class, 'edit'])->name('bajas.edit');
+Route::post('/baja/store/{baja}', [BajaController::class, 'store'])->name('bajas.store');
+Route::post('/baja/update/{baja}', [BajaController::class, 'update'])->name('bajas.update');
 
 
 // Users (USUARIOS)
