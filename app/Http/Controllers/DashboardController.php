@@ -130,38 +130,36 @@ if ($totalTareas > 0) {
     $productividadTotal = 0;
 
     foreach ($tareasFinalizadas as $tarea) {
-        // Custom function to handle hours exceeding 23
-        $estimatedTime = parseFlexibleTime($tarea->estimated_time);
-        $realTime = parseFlexibleTime($tarea->real_time);
+        // Parse estimated and real times into total minutes
+        $estimatedTime = $this->parseFlexibleTime($tarea->estimated_time);
+        $realTime = $this->parseFlexibleTime($tarea->real_time);
 
         if ($realTime > 0) {
             $productividad = ($estimatedTime / $realTime) * 100;
         } else {
-            $productividad = 100; // Si el tiempo real es 0, asumimos productividad completa.
+            $productividad = 100; // Assume full productivity if real time is 0
         }
 
         $productividadTotal += $productividad;
     }
 
-    // Promedio de productividad
+    // Calculate the average productivity
     $totalProductividad = $productividadTotal / $totalTareas;
 }
 
-// Si no hay tareas, la productividad es 0.
+// Set productivity to 0 if no tasks
 $totalProductividad = $totalTareas > 0 ? $totalProductividad : 0;
 
-// Guardar o actualizar la productividad mensual con mes y año
+// Save or update monthly productivity with month and year
 $currentMonth = Carbon::now()->month;
 $currentYear = Carbon::now()->year;
 
-// Buscar si ya existe un registro para el mes y año actuales
 $productividadMensual = ProductividadMensual::where('admin_user_id', $user->id)
     ->where('mes', $currentMonth)
     ->where('año', $currentYear)
     ->first();
 
 if (!$productividadMensual) {
-    // Crear nuevo registro si no existe
     ProductividadMensual::create([
         'admin_user_id' => $user->id,
         'mes' => $currentMonth,
@@ -169,6 +167,7 @@ if (!$productividadMensual) {
         'productividad' => $totalProductividad,
     ]);
 }
+
                 //  else {
                 //     // Actualizar el registro existente
                 //     $productividadMensual->update([
@@ -204,10 +203,9 @@ if (!$productividadMensual) {
                 return view('dashboards.dashboard_comercial', compact('user','diasDiferencia','estadosKit','comisionRestante','ayudas','comisionTramitadas','comisionPendiente', 'comisionCurso', 'pedienteCierre','timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
         }
     }
-    // Función para convertir 'HH:MM:SS' en minutos, incluso si horas > 24
-    public function parseFlexibleTime($time) {
+    function parseFlexibleTime($time) {
         list($hours, $minutes, $seconds) = explode(':', $time);
-        return ($hours * 60) + $minutes + ($seconds / 60); // Devuelve el tiempo en minutos
+        return ($hours * 60) + $minutes + ($seconds / 60); // Convert to total minutes
     }
     public function tiempoProducidoHoy()
     {
