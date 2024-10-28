@@ -125,26 +125,42 @@ class DashboardController extends Controller
 
                 $totalProductividad = 0;
                 $totalTareas = $tareasFinalizadas->count();
+                $totalEstimatedTime = 0;
+                $totalRealTime = 0;
 
-                if ($totalTareas > 0) {
-                    $productividadTotal = 0;
 
-                    foreach ($tareasFinalizadas as $tarea) {
-                        // Parse estimated and real times into total minutes
-                        $estimatedTime = $this->parseFlexibleTime($tarea->estimated_time);
-                        $realTime = $this->parseFlexibleTime($tarea->real_time);
+                // if ($totalTareas > 0) {
+                //     $productividadTotal = 0;
 
-                        if ($realTime > 0) {
-                            $productividad = ($estimatedTime / $realTime) * 100;
-                        } else {
-                            $productividad = 100; // Assume full productivity if real time is 0
-                        }
+                //     foreach ($tareasFinalizadas as $tarea) {
+                //         // Parse estimated and real times into total minutes
+                //         $estimatedTime = $this->parseFlexibleTime($tarea->estimated_time);
+                //         $realTime = $this->parseFlexibleTime($tarea->real_time);
 
-                        $productividadTotal += $productividad;
-                    }
+                //         if ($realTime > 0) {
+                //             $productividad = ($estimatedTime / $realTime) * 100;
+                //         } else {
+                //             $productividad = 100; // Assume full productivity if real time is 0
+                //         }
 
-                    // Calculate the average productivity
-                    $totalProductividad = $productividadTotal / $totalTareas;
+                //         $productividadTotal += $productividad;
+                //     }
+
+                //     // Calculate the average productivity
+                //     $totalProductividad = $productividadTotal / $totalTareas;
+                // }
+
+                foreach ($tareasFinalizadas as $tarea) {
+                    // Parse estimated and real times into total minutes
+                    $totalEstimatedTime += $this->parseFlexibleTime($tarea->estimated_time);
+                    $totalRealTime += $this->parseFlexibleTime($tarea->real_time);
+                }
+                
+                // Calculate the total productivity as a percentage
+                if ($totalRealTime > 0) {
+                    $totalProductividad = ($totalEstimatedTime / $totalRealTime) * 100;
+                } else {
+                    $totalProductividad = 0; // Set to 0 if no real time to avoid division by zero
                 }
 
                 // Set productivity to 0 if no tasks
