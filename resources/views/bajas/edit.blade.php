@@ -32,7 +32,7 @@
             <div class="col-9">
                 <div class="card">
                     <div class="card-body">
-                        <form id="actualizar" action="{{route('bajas.update')}}" method="POST">
+                        <form id="actualizar" action="{{route('bajas.update',$baja->id)}}" method="POST">
                             @csrf
                             <div class="bloque-formulario">
                                 <div class="row">
