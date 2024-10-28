@@ -714,6 +714,8 @@
                                                             ($productividadIndividual >= 75 ? 'progress-orange' : 'progress-red') }}" 
                                                             data-percentage="{{ number_format($productividadIndividual, 2) }}">
                                                         </div> 
+                                                        {{$totalEstimatedTime}}
+                                                        {{$totalRealTime}}
 
                                                     </div>
                                                     <style>

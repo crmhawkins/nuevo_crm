@@ -162,8 +162,8 @@ class DashboardController extends Controller
                 } else {
                     $totalProductividad = 0; // Set to 0 if no real time to avoid division by zero
                 }
-                echo $totalEstimatedTime;
-                echo $totalRealTime;
+                // echo $totalEstimatedTime;
+                // echo $totalRealTime;
 
                 // Set productivity to 0 if no tasks
                 $totalProductividad = $totalTareas > 0 ? $totalProductividad : 0;
@@ -194,7 +194,21 @@ class DashboardController extends Controller
                 //         'productividad' => $totalProductividad,
                 //     ]);
                 // }
-                return view('dashboards.dashboard_personal', compact('user','tiempoProducidoHoy','tasks','tareas','to_dos','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','productividadIndividual'));
+                return view('dashboards.dashboard_personal', compact(
+                    'user',
+                    'tiempoProducidoHoy',
+                    'tasks',
+                    'tareas',
+                    'to_dos',
+                    'users',
+                    'events', 
+                    'timeWorkedToday', 
+                    'jornadaActiva', 
+                    'pausaActiva',
+                    'productividadIndividual',
+                    'totalEstimatedTime',
+                    'totalRealTime'
+                ));
             case(6):
                 $ayudas = KitDigital::where('comercial_id', $user->id)->get();
                 $fechaEmision = Carbon::now();
