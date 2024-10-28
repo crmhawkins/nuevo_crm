@@ -90,58 +90,59 @@
     @endif
 </div>
 
-@push('scripts')
-<script>
-     $(document).ready(() => {
-            $('.delete').on('click', function(e) {
-                e.preventDefault();
-                let id = $(this).data('id');
-                botonAceptar(id);
+@section('scripts')
+    @include('partials.toast')
+    <script>
+        $(document).ready(() => {
+                $('.delete').on('click', function(e) {
+                    e.preventDefault();
+                    let id = $(this).data('id');
+                    botonAceptar(id);
+                });
             });
-        });
 
-        function botonAceptar(id){
-            Swal.fire({
-                title: "¿Estas seguro que quieres eliminar esta baja?",
-                html: "<p>Esta acción es irreversible.</p>",
-                showDenyButton: false,
-                showCancelButton: true,
-                confirmButtonText: "Borrar",
-                cancelButtonText: "Cancelar",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.when(getDelete(id)).then(function(data, textStatus, jqXHR) {
-                        if (!data.status) {
-                            Toast.fire({
-                                icon: "error",
-                                title: data.mensaje
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: "success",
-                                title: data.mensaje
-                            }).then(() => {
-                                location.reload();
-                            });
-                        }
-                    });
-                }
-            });
-        }
+            function botonAceptar(id){
+                Swal.fire({
+                    title: "¿Estas seguro que quieres eliminar esta baja?",
+                    html: "<p>Esta acción es irreversible.</p>",
+                    showDenyButton: false,
+                    showCancelButton: true,
+                    confirmButtonText: "Borrar",
+                    cancelButtonText: "Cancelar",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.when(getDelete(id)).then(function(data, textStatus, jqXHR) {
+                            if (!data.status) {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: data.mensaje
+                                });
+                            } else {
+                                Toast.fire({
+                                    icon: "success",
+                                    title: data.mensaje
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            }
+                        });
+                    }
+                });
+            }
 
-        function getDelete(id) {
-            const url = '{{route("bajas.delete")}}';
-            return $.ajax({
-                type: "POST",
-                url: url,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                },
-                data: {
-                    'id': id,
-                },
-                dataType: "json"
-            });
-        }
-</script>
-@endpush
+            function getDelete(id) {
+                const url = '{{route("bajas.delete")}}';
+                return $.ajax({
+                    type: "POST",
+                    url: url,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    },
+                    data: {
+                        'id': id,
+                    },
+                    dataType: "json"
+                });
+            }
+    </script>
+@section
