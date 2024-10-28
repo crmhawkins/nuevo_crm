@@ -88,7 +88,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-12">
+                                <div class="col-12">
                                     {{-- Observaciones --}}
                                     <div class="form-group">
                                         <label for="observacion">Observaciones:</label>
