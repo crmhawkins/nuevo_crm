@@ -18,13 +18,13 @@ class BajaController extends Controller
 
     public function create()
     {
-        $usuarios = User::all();
+        $usuarios = User::where('inactive',0)->get();
         return view('bajas.create', compact('usuarios'));
     }
 
     public function edit(Baja $baja)
     {
-        $usuarios = User::all();
+        $usuarios = User::where('inactive',0)->get();
         return view('bajas.edit', compact('baja', 'usuarios'));
     }
 
