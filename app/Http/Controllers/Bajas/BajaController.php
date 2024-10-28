@@ -91,8 +91,8 @@ class BajaController extends Controller
         return redirect()->route('bajas.index')->with('success', 'Baja actualizada exitosamente');
     }
 
-    public function destroy(Baja $baja){
-
+    public function destroy(Request $request,){
+        $baja = Baja::find($request->baja);
         $baja->delete();
 
         return redirect()->back()->with('status', 'Baja eliminada con éxito!');

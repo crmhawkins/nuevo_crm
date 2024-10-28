@@ -157,6 +157,7 @@ Route::get('/baja/create', [BajaController::class, 'create'])->name('bajas.creat
 Route::get('/baja/edit/{id}', [BajaController::class, 'edit'])->name('bajas.edit');
 Route::post('/baja/store/{baja}', [BajaController::class, 'store'])->name('bajas.store');
 Route::post('/baja/update/{baja}', [BajaController::class, 'update'])->name('bajas.update');
+Route::post('/baja/delete', [BajaController::class, 'destroy'])->name('bajas.delete');
 
 
 // Users (USUARIOS)

@@ -73,7 +73,7 @@
                             <td>{{ $baja->observacion }}</td>
                             <td class="text-center">
                                 <a href="{{ route('bajas.edit', $baja->id) }}">Editar</a> |
-                                <a href="#" wire:click.prevent="$emit('triggerDelete',{{ $baja->id }})">Eliminar</a>
+                                <a class="delete" data-id="{{$baja->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar baja"></a>
                             </td>
                         </tr>
                     @endforeach
@@ -92,16 +92,56 @@
 
 @push('scripts')
 <script>
-    Livewire.on('triggerDelete', id => {
-        Swal.fire({
-            title: '¿Seguro que deseas eliminar esta baja?',
-            showCancelButton: true,
-            confirmButtonText: 'Eliminar',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Livewire.emit('deleteConfirmed', id);
-            }
+     $(document).ready(() => {
+            $('.delete').on('click', function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                botonAceptar(id);
+            });
         });
-    });
+
+        function botonAceptar(id){
+            Swal.fire({
+                title: "¿Estas seguro que quieres eliminar esta baja?",
+                html: "<p>Esta acción es irreversible.</p>",
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: "Borrar",
+                cancelButtonText: "Cancelar",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.when(getDelete(id)).then(function(data, textStatus, jqXHR) {
+                        if (!data.status) {
+                            Toast.fire({
+                                icon: "error",
+                                title: data.mensaje
+                            });
+                        } else {
+                            Toast.fire({
+                                icon: "success",
+                                title: data.mensaje
+                            }).then(() => {
+                                location.reload();
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function getDelete(id) {
+            const url = '{{route("bajas.delete")}}';
+            return $.ajax({
+                type: "POST",
+                url: url,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: {
+                    'id': id,
+                },
+                dataType: "json"
+            });
+        }
 </script>
 @endpush
