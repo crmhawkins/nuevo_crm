@@ -711,9 +711,10 @@
                                                         <h1 class="fs-5">Productividad</h1>
                                                         <div class="progress-circle 
                                                             {{ $productividadIndividual >= 100 ? 'progress-green' : 
-                                                               ($productividadIndividual >= 75 ? 'progress-orange' : 'progress-red') }}" 
-                                                            data-percentage="{{ $productividadIndividual }}">
-                                                        </div>
+                                                            ($productividadIndividual >= 75 ? 'progress-orange' : 'progress-red') }}" 
+                                                            data-percentage="{{ number_format($productividadIndividual, 2) }}">
+                                                        </div> 
+
                                                     </div>
                                                     <style>
                                                                                                            
