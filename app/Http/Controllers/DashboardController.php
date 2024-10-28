@@ -118,56 +118,58 @@ class DashboardController extends Controller
                 $tasks = $this->getTasks($user->id);
 
                 $tareasFinalizadas = Task::where('admin_user_id', $user->id)
-    ->where('task_status_id', 3)
-    ->whereMonth('updated_at', Carbon::now()->month)
-    ->whereYear('updated_at', Carbon::now()->year)
-    ->get();
+                    ->where('task_status_id', 3)
+                    ->whereMonth('updated_at', Carbon::now()->month)
+                    ->whereYear('updated_at', Carbon::now()->year)
+                    ->get();
 
-$totalProductividad = 0;
-$totalTareas = $tareasFinalizadas->count();
+                $totalProductividad = 0;
+                $totalTareas = $tareasFinalizadas->count();
 
-if ($totalTareas > 0) {
-    $productividadTotal = 0;
+                if ($totalTareas > 0) {
+                    $productividadTotal = 0;
 
-    foreach ($tareasFinalizadas as $tarea) {
-        // Parse estimated and real times into total minutes
-        $estimatedTime = $this->parseFlexibleTime($tarea->estimated_time);
-        $realTime = $this->parseFlexibleTime($tarea->real_time);
+                    foreach ($tareasFinalizadas as $tarea) {
+                        // Parse estimated and real times into total minutes
+                        $estimatedTime = $this->parseFlexibleTime($tarea->estimated_time);
+                        $realTime = $this->parseFlexibleTime($tarea->real_time);
 
-        if ($realTime > 0) {
-            $productividad = ($estimatedTime / $realTime) * 100;
-        } else {
-            $productividad = 100; // Assume full productivity if real time is 0
-        }
+                        if ($realTime > 0) {
+                            $productividad = ($estimatedTime / $realTime) * 100;
+                        } else {
+                            $productividad = 100; // Assume full productivity if real time is 0
+                        }
 
-        $productividadTotal += $productividad;
-    }
+                        $productividadTotal += $productividad;
+                    }
 
-    // Calculate the average productivity
-    $totalProductividad = $productividadTotal / $totalTareas;
-}
+                    // Calculate the average productivity
+                    $totalProductividad = $productividadTotal / $totalTareas;
+                }
 
-// Set productivity to 0 if no tasks
-$totalProductividad = $totalTareas > 0 ? $totalProductividad : 0;
+                // Set productivity to 0 if no tasks
+                $totalProductividad = $totalTareas > 0 ? $totalProductividad : 0;
 
-// Save or update monthly productivity with month and year
-$currentMonth = Carbon::now()->month;
-$currentYear = Carbon::now()->year;
+                // Save or update monthly productivity with month and year
+                $currentMonth = Carbon::now()->month;
+                $currentYear = Carbon::now()->year;
 
-$productividadMensual = ProductividadMensual::where('admin_user_id', $user->id)
-    ->where('mes', $currentMonth)
-    ->where('año', $currentYear)
-    ->first();
+                $productividadMensual = ProductividadMensual::where('admin_user_id', $user->id)
+                    ->where('mes', $currentMonth)
+                    ->where('año', $currentYear)
+                    ->first();
 
-if (!$productividadMensual) {
-    ProductividadMensual::create([
-        'admin_user_id' => $user->id,
-        'mes' => $currentMonth,
-        'año' => $currentYear,
-        'productividad' => $totalProductividad,
-    ]);
-}
+                if (!$productividadMensual) {
+                    ProductividadMensual::create([
+                        'admin_user_id' => $user->id,
+                        'mes' => $currentMonth,
+                        'año' => $currentYear,
+                        'productividad' => $totalProductividad,
+                    ]);
+                }
 
+
+                $productividadIndividual = $totalTareas > 0 ? $totalProductividad : 0;
                 //  else {
                 //     // Actualizar el registro existente
                 //     $productividadMensual->update([
@@ -203,10 +205,11 @@ if (!$productividadMensual) {
                 return view('dashboards.dashboard_comercial', compact('user','diasDiferencia','estadosKit','comisionRestante','ayudas','comisionTramitadas','comisionPendiente', 'comisionCurso', 'pedienteCierre','timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
         }
     }
-    function parseFlexibleTime($time) {
+    public function parseFlexibleTime($time) {
         list($hours, $minutes, $seconds) = explode(':', $time);
         return ($hours * 60) + $minutes + ($seconds / 60); // Convert to total minutes
     }
+
     public function tiempoProducidoHoy()
     {
 
