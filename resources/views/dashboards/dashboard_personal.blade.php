@@ -727,6 +727,8 @@
                                                 <div class="mx-4 my-2">
                                                     <p style="color:#4D989E">Horas Producidas Hoy</p>
                                                     <p style="font-weight: bold;font-size: 2rem;">{{ $tiempoProducidoHoy['horas'] }}</p>
+                                                    <p style="color:#4D989E">Horas Producidas Mesual</p>
+                                                    <p style="font-weight: bold;font-size: 2rem;">{{ $horasMes }}</p>
                                                     {{-- <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
                                                         <div class="progress-bar progress-bar-striped progress-bar-animated @if(round($tiempoProducidoHoy['porcentaje'],2) >= 100) @else bg-warning @endif bg-success" style="width: {{round($tiempoProducidoHoy['porcentaje'],2)}}%">{{round($tiempoProducidoHoy['porcentaje'],2)}}%</div>
                                                     </div> --}}

@@ -190,4 +190,7 @@ class HorasController extends Controller
         return $tiempoTarea;
     }
 
+
+
+
 }

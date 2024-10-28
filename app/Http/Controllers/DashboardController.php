@@ -155,7 +155,7 @@ class DashboardController extends Controller
                     $totalEstimatedTime += $this->parseFlexibleTime($tarea->estimated_time);
                     $totalRealTime += $this->parseFlexibleTime($tarea->real_time);
                 }
-                
+
                 // Calculate the total productivity as a percentage
                 if ($totalRealTime > 0) {
                     $totalProductividad = ($totalEstimatedTime / $totalRealTime) * 100;
@@ -194,6 +194,9 @@ class DashboardController extends Controller
                 //         'productividad' => $totalProductividad,
                 //     ]);
                 // }
+
+                $horasMes = $this->tiempoProducidoMes($user->id);
+
                 return view('dashboards.dashboard_personal', compact(
                     'user',
                     'tiempoProducidoHoy',
@@ -201,13 +204,14 @@ class DashboardController extends Controller
                     'tareas',
                     'to_dos',
                     'users',
-                    'events', 
-                    'timeWorkedToday', 
-                    'jornadaActiva', 
+                    'events',
+                    'timeWorkedToday',
+                    'jornadaActiva',
                     'pausaActiva',
                     'productividadIndividual',
                     'totalEstimatedTime',
-                    'totalRealTime'
+                    'totalRealTime',
+                    'horasMes'
                 ));
             case(6):
                 $ayudas = KitDigital::where('comercial_id', $user->id)->get();
@@ -240,6 +244,45 @@ class DashboardController extends Controller
     public function parseFlexibleTime($time) {
         list($hours, $minutes, $seconds) = explode(':', $time);
         return ($hours * 60) + $minutes + ($seconds / 60); // Convert to total minutes
+    }
+
+    public function tiempoProducidoMes($id)
+    {
+        $mes = Carbon::now();
+        $tiempoTotalMes = 0;
+
+        // Obtener todas las tareas del usuario en el mes actual
+        $tareasMes = LogTasks::where('admin_user_id', $id)
+            ->whereYear('date_start', $mes->year)
+            ->whereMonth('date_start', $mes->month)
+            ->get();
+
+        foreach($tareasMes as $tarea) {
+            if ($tarea->status == 'Pausada') {
+                $tiempoInicio = Carbon::parse($tarea->date_start);
+                $tiempoFinal = Carbon::parse($tarea->date_end);
+                $tiempoTotalMes += $tiempoFinal->diffInSeconds($tiempoInicio);
+            }
+        }
+
+        // Formatear el tiempo total en horas, minutos y segundos
+        $hours = floor($tiempoTotalMes / 3600);
+        $minutes = floor(($tiempoTotalMes % 3600) / 60);
+        $seconds = $tiempoTotalMes % 60;
+
+        $result = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+
+        // Calcular el porcentaje del tiempo trabajado en relación al total
+        $totalHorasMensuales = 7 * 20; // Ejemplo de 20 días laborales y 7 horas diarias
+        $horas_mes_porcentaje = $hours + ($minutes / 60);
+        $porcentaje = ($horas_mes_porcentaje / $totalHorasMensuales) * 100;
+
+        $data = [
+            'horas' => $result,
+            'porcentaje' => $porcentaje
+        ];
+
+        return $result;
     }
 
     public function tiempoProducidoHoy()
