@@ -388,7 +388,7 @@
                     </li>
                     <li class="sidebar-item has-sub {{ $BajaActive ? 'active' : '' }}">
                         <a href="#" class='sidebar-link'>
-                            <i class="fa-solid fa-file-invoice-dollar fs-5"></i>
+                            <i class="fa-solid fa-house-user"></i>
                             <span>Bajas</span>
                         </a>
                         <ul class="submenu" style="{{ $BajaActive ? 'display:block;' : 'display:none;' }}">
