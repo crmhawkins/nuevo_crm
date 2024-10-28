@@ -38,15 +38,15 @@
                                 <input type="week" id="week" name="week" class="form-control" value="{{ request('week', now()->format('Y-\WW')) }}">
                             </div>
                             <div class="col-md-2 align-self-end">
-                                <button type="submit" class="btn btn-primary">Ver Jornada</button>
+                                <button type="submit" class="btn btn-outline-primary">Ver Jornada</button>
                             </div>
                             <div class="col-md-2 align-self-end">
-                                <a href="{{ route('horas.export', ['week' => request('week', now()->format('Y-\WW'))]) }}" class="btn btn-success">Exportar a Excel</a>
+                                <a href="{{ route('horas.export', ['week' => request('week', now()->format('Y-\WW'))]) }}" class="btn btn-outline-success">Exportar a Excel</a>
                             </div>
                         </div>
                     </form>
 
-                    <table class="table table-striped" id="table1">
+                    <table class="table" id="table1">
                         <thead>
                             <tr>
                                 <th>Usuario</th>
@@ -66,35 +66,33 @@
                                     <td>{{ $usuario['puntualidad'] }} días</td>
                                     <td>{{ $usuario['horas_trabajadas'] }} / {{ $usuario['horas_producidas'] }}</td>
                                     <td>
-                                        <button class="btn btn-secondary toggle-details" type="button" data-toggle="collapse" data-target="#detalles-{{ $loop->index }}" aria-expanded="false">
+                                        <button class="btn btn-outline-secondary toggle-details" type="button" data-toggle="collapse" data-target="#detalles-{{ $loop->index }}" aria-expanded="false">
                                             Ver Detalles
                                         </button>
-                                        <div id="detalles-{{ $loop->index }}" class="collapse">
-                                            <div class="card card-body mt-2">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <p><strong>Horas Trabajadas:</strong></p>
-                                                        <ul>
-                                                            <li><strong>Lunes:</strong> {{ $usuario['horasTrabajadasLunes'] }} </li>
-                                                            <li><strong>Martes:</strong> {{ $usuario['horasTrabajadasMartes'] }} </li>
-                                                            <li><strong>Miércoles:</strong> {{ $usuario['horasTrabajadasMiercoles'] }} </li>
-                                                            <li><strong>Jueves:</strong> {{ $usuario['horasTrabajadasJueves'] }} </li>
-                                                            <li><strong>Viernes:</strong> {{ $usuario['horasTrabajadasViernes'] }} </li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <p><strong>Horas Producidas:</strong></p>
-                                                        <ul>
-                                                            <li><strong>Lunes:</strong> {{ $usuario['horasProducidasLunes'] }} </li>
-                                                            <li><strong>Martes:</strong> {{ $usuario['horasProducidasMartes'] }} </li>
-                                                            <li><strong>Miércoles:</strong> {{ $usuario['horasProducidasMiercoles'] }} </li>
-                                                            <li><strong>Jueves:</strong> {{ $usuario['horasProducidasJueves'] }} </li>
-                                                            <li><strong>Viernes:</strong> {{ $usuario['horasProducidasViernes'] }} </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    </td>
+                                </tr>
+                                <tr id="detalles-{{ $loop->index }}" class="collapse">
+                                    <td colspan="6">
+                                        <table class="table table-sm border-0" >
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>Horas Trabajadas:</strong></td>
+                                                    <td><strong>Lunes:</strong> {{ $usuario['horasTrabajadasLunes'] }} </td>
+                                                    <td><strong>Martes:</strong> {{ $usuario['horasTrabajadasMartes'] }} </td>
+                                                    <td><strong>Miércoles:</strong> {{ $usuario['horasTrabajadasMiercoles'] }} </td>
+                                                    <td><strong>Jueves:</strong> {{ $usuario['horasTrabajadasJueves'] }} </td>
+                                                    <td><strong>Viernes:</strong> {{ $usuario['horasTrabajadasViernes'] }} </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Horas Producidas:</strong></td>
+                                                    <td><strong>Lunes:</strong> {{ $usuario['horasProducidasLunes'] }} </td>
+                                                    <td><strong>Martes:</strong> {{ $usuario['horasProducidasMartes'] }} </td>
+                                                    <td><strong>Miércoles:</strong> {{ $usuario['horasProducidasMiercoles'] }} </td>
+                                                    <td><strong>Jueves:</strong> {{ $usuario['horasProducidasJueves'] }} </td>
+                                                    <td><strong>Viernes:</strong> {{ $usuario['horasProducidasViernes'] }} </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </td>
                                 </tr>
                             @endforeach
@@ -115,7 +113,7 @@
             let target = $(this).data('target');
             $(target).collapse('toggle');
             $(target).on('shown.bs.collapse', () => {
-                $(this).text('Ocultar Detalles');
+                $(this).text('Ocultar');
             });
             $(target).on('hidden.bs.collapse', () => {
                 $(this).text('Ver Detalles');
