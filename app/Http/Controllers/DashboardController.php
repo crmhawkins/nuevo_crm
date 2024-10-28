@@ -162,6 +162,8 @@ class DashboardController extends Controller
                 } else {
                     $totalProductividad = 0; // Set to 0 if no real time to avoid division by zero
                 }
+                echo $totalEstimatedTime;
+                echo $totalRealTime;
 
                 // Set productivity to 0 if no tasks
                 $totalProductividad = $totalTareas > 0 ? $totalProductividad : 0;
