@@ -196,7 +196,7 @@
                 var formattedTime = convertToTimeFormat(remainingTime); // Convertir el tiempo restante a formato 00:00:00
                 $('.table-employees tbody').append(`
                     <tr id="rowEmployee${i}" class="dynamic-added">
-                        <tdstyle="width: 250px !important">
+                        <td style="width: 250px !important">
                             <select class="choices form-select" name="employeeId${i}" class="form-control">
                                 <option value="">Empleado</option>
                                 @foreach($employees as $empleado)
