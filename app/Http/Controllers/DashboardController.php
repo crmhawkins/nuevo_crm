@@ -118,53 +118,57 @@ class DashboardController extends Controller
                 $tasks = $this->getTasks($user->id);
 
                 $tareasFinalizadas = Task::where('admin_user_id', $user->id)
-                    ->where('task_status_id', 3)
-                    ->whereMonth('updated_at', Carbon::now()->month)
-                    ->whereYear('updated_at', Carbon::now()->year)
-                    ->get();
+    ->where('task_status_id', 3)
+    ->whereMonth('updated_at', Carbon::now()->month)
+    ->whereYear('updated_at', Carbon::now()->year)
+    ->get();
 
-                $totalProductividad = 0;
-                $totalTareas = $tareasFinalizadas->count();
-                
-                if ($totalTareas > 0) {
-                    $productividadTotal = 0;
-                
-                    foreach ($tareasFinalizadas as $tarea) {
-                        $estimatedTime = Carbon::parse($tarea->estimated_time)->floatDiffInMinutes();
-                        $realTime = Carbon::parse($tarea->real_time)->floatDiffInMinutes();
-                
-                        if ($realTime > 0) {
-                            $productividad = ($estimatedTime / $realTime) * 100;
-                        } else {
-                            $productividad = 100; // Si el tiempo real es 0, asumimos productividad completa.
-                        }
-                
-                        $productividadTotal += $productividad;
-                    }
-                }
-                $productividadIndividual = $totalTareas > 0 ? $totalProductividad : 0;
-                // Promedio de productividad
-                    //echo "La productividad es: " . ($totalTareas > 0 ? $totalProductividad : 0) . "%";
-                    
-                // Guardar o actualizar la productividad mensual con mes y año
-                $currentMonth = Carbon::now()->month;
-                $currentYear = Carbon::now()->year;
+$totalProductividad = 0;
+$totalTareas = $tareasFinalizadas->count();
 
-                // Buscar si ya existe un registro para el mes y año actuales
-                $productividadMensual = ProductividadMensual::where('admin_user_id', $user->id)
-                    ->where('mes', $currentMonth)
-                    ->where('año', $currentYear)
-                    ->first();
+if ($totalTareas > 0) {
+    $productividadTotal = 0;
 
-                if (!$productividadMensual) {
-                    // Crear nuevo registro si no existe
-                    ProductividadMensual::create([
-                        'admin_user_id' => $user->id,
-                        'mes' => $currentMonth,
-                        'año' => $currentYear,
-                        'productividad' => $totalProductividad,
-                    ]);
-                }
+    foreach ($tareasFinalizadas as $tarea) {
+        // Custom function to handle hours exceeding 23
+        $estimatedTime = parseFlexibleTime($tarea->estimated_time);
+        $realTime = parseFlexibleTime($tarea->real_time);
+
+        if ($realTime > 0) {
+            $productividad = ($estimatedTime / $realTime) * 100;
+        } else {
+            $productividad = 100; // Si el tiempo real es 0, asumimos productividad completa.
+        }
+
+        $productividadTotal += $productividad;
+    }
+
+    // Promedio de productividad
+    $totalProductividad = $productividadTotal / $totalTareas;
+}
+
+// Si no hay tareas, la productividad es 0.
+$totalProductividad = $totalTareas > 0 ? $totalProductividad : 0;
+
+// Guardar o actualizar la productividad mensual con mes y año
+$currentMonth = Carbon::now()->month;
+$currentYear = Carbon::now()->year;
+
+// Buscar si ya existe un registro para el mes y año actuales
+$productividadMensual = ProductividadMensual::where('admin_user_id', $user->id)
+    ->where('mes', $currentMonth)
+    ->where('año', $currentYear)
+    ->first();
+
+if (!$productividadMensual) {
+    // Crear nuevo registro si no existe
+    ProductividadMensual::create([
+        'admin_user_id' => $user->id,
+        'mes' => $currentMonth,
+        'año' => $currentYear,
+        'productividad' => $totalProductividad,
+    ]);
+}
                 //  else {
                 //     // Actualizar el registro existente
                 //     $productividadMensual->update([
@@ -200,7 +204,11 @@ class DashboardController extends Controller
                 return view('dashboards.dashboard_comercial', compact('user','diasDiferencia','estadosKit','comisionRestante','ayudas','comisionTramitadas','comisionPendiente', 'comisionCurso', 'pedienteCierre','timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
         }
     }
-
+    // Función para convertir 'HH:MM:SS' en minutos, incluso si horas > 24
+    public function parseFlexibleTime($time) {
+        list($hours, $minutes, $seconds) = explode(':', $time);
+        return ($hours * 60) + $minutes + ($seconds / 60); // Devuelve el tiempo en minutos
+    }
     public function tiempoProducidoHoy()
     {
 
