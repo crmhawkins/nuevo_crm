@@ -31,7 +31,7 @@
         <section class="section mt-4">
             <div class="card">
                 <div class="card-body">
-                    <form action="{{route('bajas.store')}}" method="POST">
+                    <form action="{{route('bajas.store')}}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="bloque-formulario">
                             <div class="row">
