@@ -71,8 +71,8 @@
                             <td>{{ $baja->usuario ? $baja->usuario->name : 'Sin usuario' }}</td>
                             <td>{{ \Carbon\Carbon::parse($baja->inicio)->format('d/m/Y') }}</td>
                             <td>{{ $baja->observacion }}</td>
-                            <td class="text-center">
-                                <a href="{{ route('bajas.edit', $baja->id) }}">Editar</a> |
+                            <td class="flex flex-row justify-evenly align-middle" >
+                                <a href="{{ route('bajas.edit', $baja->id) }}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Mostrar baja"></a>
                                 <a class="delete" data-id="{{$baja->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar baja"></a>
                             </td>
                         </tr>

@@ -25,7 +25,8 @@ class BajaController extends Controller
     public function edit(Baja $baja)
     {
         $usuarios = User::where('inactive',0)->get();
-        return view('bajas.edit', compact('baja', 'usuarios'));
+        $archivos = json_decode($baja->archivos, true) ?? [];
+        return view('bajas.edit', compact('baja', 'usuarios','archivos'));
     }
 
     public function store(Request $request)
@@ -74,16 +75,15 @@ class BajaController extends Controller
         $baja->inicio = $request->inicio;
         $baja->fin = $request->fin;
         $baja->observacion = $request->observacion;
-
         // Almacenar múltiples archivos en un array y codificar a JSON
         if ($request->hasFile('archivos')) {
             $paths = $baja->archivos ? json_decode($baja->archivos, true) : [];
-            foreach ($request->archivos as $archivo) {
+
+            foreach ($request->file('archivos') as $archivo) {
                 $filename = 'Baja_' . $request->admin_user_id . '_' . today()->format('Y_m_d') . '_' . uniqid() . '.' . $archivo->getClientOriginalExtension();
                 $path = $archivo->storeAs('Bajas', $filename, 'public');
                 $paths[] = $path;
             }
-            dd( $paths);
             $baja->archivos = json_encode($paths);
         }
 

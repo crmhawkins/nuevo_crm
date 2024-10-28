@@ -69,8 +69,8 @@
                                 <div class="col-sm-12 col-md-6">
                                     {{-- archivos --}}
                                     <div class="form-group mb-3">
-                                        <label class="mb-2 text-left" for="archivos">Archivos:</label>
-                                        <input type="file" class="form-control" id="archivos" value="{{ old('archivos') }}" name="archivos" multiple>
+                                        <label class="mb-2 text-left" for="archivos[]">Archivos:</label>
+                                        <input type="file" class="form-control" id="archivos[]" value="{{ old('archivos[]') }}" name="archivos[]" multiple>
 
                                     </div>
                                 </div>

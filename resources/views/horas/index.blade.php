@@ -53,6 +53,7 @@
                                 <th>Departamente</th>
                                 <th>Vacaciones</th>
                                 <th>Puntualidad</th>
+                                <th>Baja</th>
                                 <th>Horas Trabajadas / Horas Producidas</th>
                                 <th>Detalles</th>
                             </tr>
@@ -64,6 +65,7 @@
                                     <td>{{ $usuario['departamento'] }}</td>
                                     <td>{{ $usuario['vacaciones'] }} días</td>
                                     <td>{{ $usuario['puntualidad'] }} días</td>
+                                    <td>{{ $usuario['baja'] }} días</td>
                                     <td>{{ $usuario['horas_trabajadas'] }} / {{ $usuario['horas_producidas'] }}</td>
                                     <td>
                                         <button class="btn btn-outline-secondary toggle-details" type="button" data-toggle="collapse" data-target="#detalles-{{ $loop->index }}" aria-expanded="false">

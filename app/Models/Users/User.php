@@ -4,6 +4,7 @@ namespace App\Models\Users;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Bajas\Baja;
 use App\Models\Clients\Client;
 use App\Models\Contratos\Contrato;
 use App\Models\Holidays\Holidays;
@@ -93,6 +94,9 @@ class User extends Authenticatable
     }
     public function vacaciones(){
         return $this->hasMany(HolidaysPetitions::class, 'admin_user_id');
+    }
+    public function bajas(){
+        return $this->hasMany(Baja::class, 'admin_user_id');
     }
     public function vacacionesDias(){
         return $this->hasMany(Holidays::class, 'admin_user_id');

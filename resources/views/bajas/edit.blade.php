@@ -28,9 +28,9 @@
             </div>
         </div>
 
-        <section class="section mt-4">
+        <section class="section my-4">
             <div class="row">
-                <div class="col-9">
+                <div class="col-sm-12 col-md-9">
                     <div class="card">
                         <div class="card-body">
                             <form id="actualizar" action="{{route('bajas.update', $baja->id)}}" method="POST" enctype="multipart/form-data">
@@ -71,8 +71,8 @@
                                         <div class="col-sm-12 col-md-6">
                                             {{-- archivos --}}
                                             <div class="form-group mb-3">
-                                                <label class="mb-2 text-left" for="archivos">Archivos:</label>
-                                                <input type="file" class="form-control" id="archivos" value="{{ old('archivos') }}" name="archivos" multiple>
+                                                <label class="mb-2 text-left" for="archivos[]">Archivos:</label>
+                                                <input type="file" class="form-control" id="archivos[]" value="{{ old('archivos[]') }}" name="archivos[]" multiple>
 
                                             </div>
                                         </div>
@@ -108,8 +108,36 @@
                             </form>
                         </div>
                     </div>
+                    <div class="card my-3">
+                        <div class="card-body">
+                            <div class="col-12">
+                                @if(count($archivos) > 0)
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre del Archivo</th>
+                                                <th>Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($archivos as $archivo)
+                                                <tr>
+                                                    <td>{{ basename($archivo) }}</td>
+                                                    <td>
+                                                        <a href="{{ asset('storage/' . $archivo) }}" class="btn btn-primary" download>Descargar</a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <p>No hay archivos subidos para esta baja.</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-3">
+                <div class="col-sm-12 col-md-3">
                     <div class="card">
                         <div class="card-body">
                             <div class="card-title">

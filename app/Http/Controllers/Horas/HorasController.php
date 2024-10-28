@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Horas;
 use App\Exports\JornadasExport;
 use App\Http\Controllers\Controller;
 use App\Models\Alerts\Alert;
+use App\Models\Bajas\Baja;
 use App\Models\Holidays\HolidaysPetitions;
 use App\Models\Jornada\Jornada;
 use App\Models\Tasks\LogTasks;
@@ -54,7 +55,7 @@ class HorasController extends Controller
 
                 $vacaciones = $this->vacaciones($lunes, $viernes, $usuario->id);
                 $puntualidad = $this->puntualidad($lunes, $viernes, $usuario->id);
-
+                $baja = $this->bajas($usuario->id, $lunes, $viernes);
 
 
                 $horasProducidasSemana = $horasProducidasLunes + $horasProducidasMartes + $horasProducidasMiercoles + $horasProducidasJueves + $horasProducidasViernes;
@@ -105,6 +106,7 @@ class HorasController extends Controller
                         'departamento' => $usuario->departamento->name,
                         'vacaciones' => $vacaciones,
                         'puntualidad' => $puntualidad,
+                        'baja' => $baja,
                         'horas_trabajadas' => "$horaHorasTrabajadas h $minutoHorasTrabajadas min",
                         'horasTrabajadasLunes' => "$horaHorasTrabajadasLunes h $minutoHorasTrabajadasLunes min",
                         'horasTrabajadasMartes' => "$horaHorasTrabajadasMartes h $minutoHorasTrabajadasMartes min",
@@ -182,15 +184,41 @@ class HorasController extends Controller
         $tareasHoy = LogTasks::where('admin_user_id', $id)->whereDate('date_start','=', $dia)->get();
         foreach($tareasHoy as $tarea) {
             if ($tarea->status == 'Pausada') {
-                $tiempoInicio = Carbon::parse($tarea->date_start);
+                $tiempoini = Carbon::parse($tarea->date_start);
                 $tiempoFinal = Carbon::parse($tarea->date_end);
-                $tiempoTarea +=  $tiempoFinal->diffInMinutes($tiempoInicio);
+                $tiempoTarea +=  $tiempoFinal->diffInMinutes($tiempoini);
             }
         }
         return $tiempoTarea;
     }
 
+    public function bajas($id, $ini, $fin,) {
 
+        $diasTotales = 0;
+        $bajas = Baja::where('admin_user_id', $id)
+            ->where(function ($query) use ($ini, $fin) {
+            $query->whereBetween('inicio', [$ini, $fin])
+                  ->orWhereBetween('fin', [$ini, $fin])
+                  ->orWhere(function ($query) use ($ini, $fin) {
+                      $query->where('inicio', '<=', $ini)
+                            ->where('fin', '>=', $fin);
+                  });
+        })->get();
 
+        foreach ($bajas as $baja) {
+            $inicioBaja = Carbon::parse($baja->inicio);
+            $finBaja = Carbon::parse($baja->fin) ?? Carbon::now();
 
+            // Ajustar fechas al intervalo especificado
+            $fechaInicio = $inicioBaja->greaterThan($ini) ? $inicioBaja : $ini;
+            $fechaFin = $finBaja->lessThan($fin) ? $finBaja : $fin;
+
+            // Calcular los días entre las fechas ajustadas y sumarlos
+            $dias = $fechaInicio->diffInDays($fechaFin) + 1;
+            $diasTotales += $dias;
+        }
+
+        return $diasTotales;
+
+    }
 }

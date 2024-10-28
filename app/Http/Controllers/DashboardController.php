@@ -38,6 +38,7 @@ class DashboardController extends Controller
         $user = User::find($id);
         $users = User::where('inactive',0)->get();
         $to_dos = $user->todos->where('finalizada',false);
+        $to_dos_finalizados = $user->todos->where('finalizada',true);
         $timeWorkedToday = $this->calculateTimeWorkedToday($user);
         $jornadaActiva = $user->activeJornada();
         $llamadaActiva = $user->activeLlamada();
@@ -211,7 +212,8 @@ class DashboardController extends Controller
                     'productividadIndividual',
                     'totalEstimatedTime',
                     'totalRealTime',
-                    'horasMes'
+                    'horasMes',
+                    'to_dos_finalizados'
                 ));
             case(6):
                 $ayudas = KitDigital::where('comercial_id', $user->id)->get();
