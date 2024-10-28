@@ -92,10 +92,20 @@ class BajaController extends Controller
     }
 
     public function destroy(Request $request,){
-        $baja = Baja::find($request->baja);
-        $baja->delete();
+        $baja = Baja::find($request->id);
+        if($baja){
+            $baja->delete();
+            return response()->json([
+                'status' => true,
+                'mensaje' => 'Baja eliminada con éxito!'
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'Baja no encontrada'
+            ]);
+        }
 
-        return redirect()->back()->with('status', 'Baja eliminada con éxito!');
     }
 
 }
