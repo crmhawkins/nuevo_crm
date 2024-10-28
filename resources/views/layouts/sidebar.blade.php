@@ -41,6 +41,7 @@
                     $tesoreriaActive = request()->routeIs('ingreso.*') || request()->routeIs('gasto.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
                     $cofiguracionActive = request()->routeIs('iva.*') || request()->routeIs('configuracion.*');
                     $EmailConfig = request()->routeIs('admin.categoriaEmail.*') || request()->routeIs('admin.statusMail.*');
+                    $BajaActive = request()->routeIs('bajas.*');
                     $admin = (Auth::user()->access_level_id == 1);
                     $gerente = (Auth::user()->access_level_id == 2);
                     $contable = (Auth::user()->access_level_id == 3);
@@ -380,6 +381,30 @@
                                     <i class="fa-solid fa-plus"></i>
                                     <span>
                                         Crear nomina
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-item has-sub {{ $BajaActive ? 'active' : '' }}">
+                        <a href="#" class='sidebar-link'>
+                            <i class="fa-solid fa-file-invoice-dollar fs-5"></i>
+                            <span>Bajas</span>
+                        </a>
+                        <ul class="submenu" style="{{ $BajaActive ? 'display:block;' : 'display:none;' }}">
+                            <li class="submenu-item {{ request()->routeIs('bajas.index') ? 'active' : '' }}">
+                                <a href="{{route('bajas.index')}}">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>
+                                        Ver todos
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('bajas.create') ? 'active' : '' }}">
+                                <a href="{{route('bajas.create')}}">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>
+                                        Crear baja
                                     </span>
                                 </a>
                             </li>
