@@ -56,7 +56,7 @@
                                     {{-- inicio --}}
                                     <div class="form-group mb-3">
                                         <label class="mb-2 text-left" for="inicio">Fecha de inicio:</label>
-                                        <input type="text" class="form-control @error('inicio') is-invalid @enderror" id="inicio" value="{{ old('inicio') }}" name="inicio">
+                                        <input type="date" class="form-control @error('inicio') is-invalid @enderror" id="inicio" value="{{ old('inicio') }}" name="inicio">
                                         @error('inicio')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -78,7 +78,7 @@
                                     {{-- fin --}}
                                     <div class="form-group mb-3">
                                         <label class="mb-2 text-left" for="fin">Fecha de fin :</label>
-                                        <input type="text" class="form-control @error('fin') is-invalid @enderror" id="fin" value="{{ old('fin') }}" name="fin">
+                                        <input type="date" class="form-control @error('fin') is-invalid @enderror" id="fin" value="{{ old('fin') }}" name="fin">
                                         @error('fin')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
