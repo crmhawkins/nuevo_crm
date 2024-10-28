@@ -45,7 +45,7 @@ class BajaController extends Controller
         $baja->observacion = $request->observacion;
 
         // Almacenar múltiples archivos en un array y codificar a JSON
-        if ($request->has('archivos')) {
+        if ($request->hasFile('archivos')) {
             $paths = [];
             foreach ($request->archivos as $archivo) {
                 $filename = 'Baja_' . $request->admin_user_id . '_' . today()->format('Y_m_d') . '_' . uniqid() . '.' . $archivo->getClientOriginalExtension();
@@ -76,7 +76,7 @@ class BajaController extends Controller
         $baja->observacion = $request->observacion;
 
         // Almacenar múltiples archivos en un array y codificar a JSON
-        if ($request->has('archivos')) {
+        if ($request->hasFile('archivos')) {
             $paths = $baja->archivos ? json_decode($baja->archivos, true) : [];
             foreach ($request->archivos as $archivo) {
                 $filename = 'Baja_' . $request->admin_user_id . '_' . today()->format('Y_m_d') . '_' . uniqid() . '.' . $archivo->getClientOriginalExtension();
