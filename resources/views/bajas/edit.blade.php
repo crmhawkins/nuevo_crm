@@ -29,93 +29,95 @@
         </div>
 
         <section class="section mt-4">
-            <div class="col-9">
-                <div class="card">
-                    <div class="card-body">
-                        <form id="actualizar" action="{{route('bajas.update', $baja->id)}}" method="POST">
-                            @csrf
-                            <div class="bloque-formulario">
-                                <div class="row">
-                                    <div class="col-sm-12 col-md-6">
-                                        {{-- Gestor model:User --}}
-                                        <div class="form-group mb-3">
-                                            <label class="mb-2 text-left">Usuario</label>
-                                            <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="admin_user_id">
-                                                    <option value="">Seleccione </option>
-                                                    @foreach ( $usuarios as $user )
-                                                        <option {{(old('admin_user_id',$baja->admin_user_id) == $user->id ? 'selected' : '' )}}  value="{{$user->id}}">{{$user->name}}</option>
-                                                    @endforeach
-                                            </select>
-                                            @error('admin_user_id')
-                                                <p class="invalid-feedback d-block" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </p>
-                                            @enderror
+            <div class="row">
+                <div class="col-9">
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="actualizar" action="{{route('bajas.update', $baja->id)}}" method="POST">
+                                @csrf
+                                <div class="bloque-formulario">
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-6">
+                                            {{-- Gestor model:User --}}
+                                            <div class="form-group mb-3">
+                                                <label class="mb-2 text-left">Usuario</label>
+                                                <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="admin_user_id">
+                                                        <option value="">Seleccione </option>
+                                                        @foreach ( $usuarios as $user )
+                                                            <option {{(old('admin_user_id',$baja->admin_user_id) == $user->id ? 'selected' : '' )}}  value="{{$user->id}}">{{$user->name}}</option>
+                                                        @endforeach
+                                                </select>
+                                                @error('admin_user_id')
+                                                    <p class="invalid-feedback d-block" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </p>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-md-6">
+                                            {{-- inicio --}}
+                                            <div class="form-group mb-3">
+                                                <label class="mb-2 text-left" for="inicio">Fecha de inicio:</label>
+                                                <input type="text" class="form-control @error('inicio') is-invalid @enderror" id="inicio" value="{{ old('inicio',$baja->inicio) }}" name="inicio">
+                                                @error('inicio')
+                                                        <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ $message }}</strong>
+                                                        </span>
+                                                @enderror
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-12 col-md-6">
-                                        {{-- inicio --}}
-                                        <div class="form-group mb-3">
-                                            <label class="mb-2 text-left" for="inicio">Fecha de inicio:</label>
-                                            <input type="text" class="form-control @error('inicio') is-invalid @enderror" id="inicio" value="{{ old('inicio',$baja->inicio) }}" name="inicio">
-                                            @error('inicio')
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-6">
+                                            {{-- archivos --}}
+                                            <div class="form-group mb-3">
+                                                <label class="mb-2 text-left" for="archivos">Archivos:</label>
+                                                <input type="file" class="form-control" id="archivos" value="{{ old('archivos') }}" name="archivos" multiple>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-md-6">
+                                            {{-- fin --}}
+                                            <div class="form-group mb-3">
+                                                <label class="mb-2 text-left" for="fin">Fecha de fin :</label>
+                                                <input type="text" class="form-control @error('fin') is-invalid @enderror" id="fin" value="{{ old('fin',$baja->fin) }}" name="fin">
+                                                @error('fin')
+                                                        <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ $message }}</strong>
+                                                        </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            {{-- Observaciones --}}
+                                            <div class="form-group">
+                                                <label for="observacion">Observaciones:</label>
+                                                <textarea class="form-control @error('observacion') is-invalid @enderror" id="observacion" name="observacion">{{ old('observacion',$baja->observacion) }}</textarea>
+                                                @error('observacion')
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $message }}</strong>
                                                     </span>
-                                            @enderror
+                                                @enderror
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-12 col-md-6">
-                                        {{-- archivos --}}
-                                        <div class="form-group mb-3">
-                                            <label class="mb-2 text-left" for="archivos">Archivos:</label>
-                                            <input type="file" class="form-control" id="archivos" value="{{ old('archivos') }}" name="archivos" multiple>
 
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12 col-md-6">
-                                        {{-- fin --}}
-                                        <div class="form-group mb-3">
-                                            <label class="mb-2 text-left" for="fin">Fecha de fin :</label>
-                                            <input type="text" class="form-control @error('fin') is-invalid @enderror" id="fin" value="{{ old('fin',$baja->fin) }}" name="fin">
-                                            @error('fin')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
-                                            @enderror
-                                        </div>
-                                    </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-12">
-                                        {{-- Observaciones --}}
-                                        <div class="form-group">
-                                            <label for="observacion">Observaciones:</label>
-                                            <textarea class="form-control @error('observacion') is-invalid @enderror" id="observacion" name="observacion">{{ old('observacion',$baja->observacion) }}</textarea>
-                                            @error('observacion')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-title">
-                            Acciones
-                            <hr>
+                <div class="col-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-title">
+                                Acciones
+                                <hr>
+                            </div>
+                            <a href="" id="botonActualizar" class="btn btn-success btn-block mb-3">Actualizar</a>
                         </div>
-                        <a href="" id="botonActualizar" class="btn btn-success btn-block mb-3">Actualizar</a>
                     </div>
                 </div>
             </div>
