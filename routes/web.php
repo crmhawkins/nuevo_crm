@@ -154,9 +154,9 @@ Route::post('/holidays/denyHolidays', [AdminHolidaysController::class, 'denyHoli
 //Bajas
 Route::get('/bajas', [BajaController::class, 'index'])->name('bajas.index');
 Route::get('/baja/create', [BajaController::class, 'create'])->name('bajas.create');
-Route::get('/baja/edit/{id}', [BajaController::class, 'edit'])->name('bajas.edit');
+Route::get('/baja/edit/{baja}', [BajaController::class, 'edit'])->name('bajas.edit');
 Route::post('/bajas/store', [BajaController::class, 'store'])->name('bajas.store');
-Route::post('/bajas/update/{id}', [BajaController::class, 'update'])->name('bajas.update');
+Route::post('/bajas/update/{baja}', [BajaController::class, 'update'])->name('bajas.update');
 Route::post('/bajas/delete', [BajaController::class, 'destroy'])->name('bajas.delete');
 
 
