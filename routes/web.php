@@ -78,6 +78,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 //Alertas
 Route::post('/user/alerts', [AlertController::class, 'getUserAlerts'])->name('user.alerts');
 Route::post('/alert/update', [AlertController::class, 'updateStatusAlert'])->name('alert.update');
+Route::post('/alert/postpone', [AlertController::class, 'postpone'])->name('alert.postpone');
 
 
 //Dashboard

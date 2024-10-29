@@ -276,8 +276,8 @@
             3: 'Presupuesto Pendiente de Aceptar',
             4: 'Presupuesto Aceptado',
             5: 'Presupuesto Finalizado',
-            6: 'Presupuesto Finalizado',
-            7: 'Presupuesto Finalizado',
+            6: 'Presupuesto Facturado',
+            7: 'Presupuesto Cancelado',
             8: 'Crear Factura',
             9: 'Factura Fuera de Plazo',
             10: 'Tesoreria Descubierta',
@@ -303,7 +303,8 @@
             31: 'Aviso Jornada Laboral',
             33: 'Dominio a punto de expirar',
             40: 'Aviso de Tarea - Se está sobrepasando las horas estimadas',
-            41: 'Tarea en Revision'
+            41: 'Tarea en Revision',
+            42: 'Alerta pospuesta 3 veces'
         };
 
         // Función para obtener las alertas usando fetch
@@ -425,121 +426,159 @@
                 switch (stage_id) {
                     case 1:
                         mensajeDetalle = "Tienes una petición pendiente de " + alerta['client'];
+                        botonposponer = true;
                         break;
 
                     case 2:
                         mensajeDetalle = "Tienes el presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " pendiente de confirmar";
+                        botonposponer = true;
                         break;
 
                     case 3:
                         mensajeDetalle = "Tienes el presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " pendiente de aceptar";
+                        botonposponer = true;
                         break;
 
                     case 4:
-                        mensajeDetalle = "El presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " esta aceptado";
+                        mensajeDetalle = alerta['description'];
+                        botonposponer = true;
                         break;
 
                     case 5:
                         mensajeDetalle = "Tienes el presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " finalizado";
+                        botonposponer = true;
                         break;
 
                     case 6:
                         mensajeDetalle = "Tienes el presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " facturado";
+                        botonposponer = false;
                         break;
 
                     case 7:
                         mensajeDetalle = "Tienes el presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " cancelado";
+                        botonposponer = false;
                         break;
 
                     case 8:
                         mensajeDetalle = "El presupuesto " + alerta['presupuesto'] + " - " + alerta['cliente'] + " que ha sido finalizado";
+                        botonposponer = true;
                         break;
 
                     case 9:
                         mensajeDetalle = "La factura " + alerta['factura'] + " está fuera de plazo";
+                        botonposponer = true;
                         break;
 
                     case 10:
                         mensajeDetalle = "Tesorería descubierta";
+                        botonposponer = false;
                         break;
 
                     case 11:
                         mensajeDetalle = "Tarea: " + alerta['tarea'];
+                        botonposponer = false;
                         break;
 
                     case 12:
-                        mensajeDetalle = alerta['budget_send_client'] + " ha descargado el presupuesto. Los términos del presupuesto " + alerta['budget_send'] + " han sido aceptados";
+                        mensajeDetalle = alerta['budget_send_client'] + " ha descargado el presupuesto. Los términos del presupuesto " + alerta['budget_send'] + " han sido aceptados (Llamar al cliente)";
+                        botonposponer = true;
                         break;
 
                     case 13:
                         mensajeDetalle = alerta['description'];
+                        botonposponer = false;
                         break;
 
                     case 14:
                         mensajeDetalle = "Felicidades has terminado una tarea antes del tiempo previsto";
+                        botonposponer = false;
                         break;
 
                     case 15:
                         mensajeDetalle = alerta['remitente'] + ": " + alerta['nota'];
+                        botonposponer = false;
                         break;
 
                     case 16:
                         mensajeDetalle = "Tienes una petición de vacaciones de " + alerta['usuario'];
+                        botonposponer = false;
                         break;
 
                     case 17:
                         mensajeDetalle = "Vacaciones Aceptadas " + alerta['fecha'];
+                        botonposponer = false;
                         break;
 
                     case 18:
                         mensajeDetalle = "Vacaciones Denegadas " + alerta['fecha'];
+                        botonposponer = false;
                         break;
 
                     case 19:
                         mensajeDetalle = "Alerta de " + alerta['remitente'] + ": " + alerta['nota'];
+                        botonposponer = false;
                         break;
 
                     case 20:
                         mensajeDetalle = alerta['remitente']+"," + alerta['nota'];
+                        botonposponer = false;
                         break;
 
                     case 21:
-                        mensajeDetalle = "El presupuesto " + alerta['presupuesto'] + " no ha sido abierto por el cliente tras 48 horas";
+                        mensajeDetalle = "El presupuesto " + alerta['presupuesto'] + " no ha sido abierto por el cliente tras 48 horas (Llamar al cliente)";
+                        botonposponer = true;
                         break;
 
                     case 22:
                         mensajeDetalle = "La horas trabajadas de este mes son :" + alerta['horas'] + " acepta si esta conforme";
+                        botonposponer = false;
+                        break;
+                    case 23:
+                        mensajeDetalle = "La horas trabajadas de este mes son :" + alerta['horas'] + " acepta si esta conforme";
+                        botonposponer = false;
                         break;
 
                     case 24:
                         mensajeDetalle = "Aviso de Puntualidad: " + alerta['nota'];
+                        botonposponer = false;
                         break;
 
                     case 25:
                         mensajeDetalle = "El comercial " + alerta['comercial'] + " ha creado una petición para el cliente " + alerta['cliente'];
+                        botonposponer = false;
                         break;
 
                     case 28:
                         mensajeDetalle = "Alerta de Encuesta de Satisfacción: " + alerta['descripcion'];
+                        botonposponer = false;
                         break;
 
                     case 29:
                         mensajeDetalle = "Nueva acta pendiente: " + alerta['description'];
+                        botonposponer = false;
                         break;
 
                     case 31:
                         mensajeDetalle = "Aviso de Jornada Laboral: " + alerta['description'];
+                        botonposponer = false;
                         break;
 
                     case 33:
                         mensajeDetalle = "El dominio " + alerta['dominio'].dominio + " está a punto de expirar";
+                        botonposponer = true;
                         break;
 
                     case 40:
-                        mensajeDetalle = "Aviso de Tarea: La tarea con ID " + alerta['reference_id'] + " está sobrepasando las horas estimadas";
+                        mensajeDetalle = alerta['description'];
+                        botonposponer = true;
                         break;
                     case 41:
                         mensajeDetalle = "Tarea en Revision: La tarea con ID " + alerta['reference_id'] + " está en revisión";
+                        botonposponer = false;
+                        break;
+                    case 42:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
                         break;
 
                     default:
@@ -547,7 +586,24 @@
                     mostrarTiposDeAlertas();
                     break;
                 }
-                htmlContent += `<li class="li-flex"> <div class="li-mensaje">${mensajeDetalle}</div> <div class="li-boton"> <button class="btn-pop" onclick="manejarAlertaEspecifica(${stage_id}, ${index})">Acción</button></div></li>`;
+                if(botonposponer){
+                    htmlContent += `
+                        <li class="li-flex">
+                            <div class="li-mensaje">${mensajeDetalle}</div>
+                            <div class="li-boton">
+                                <button class="btn-pop" onclick="posponerAlerta(${alerta['id']})">Acción Posponer</button>
+                                <button class="btn-pop" onclick="manejarAlertaEspecifica(${stage_id}, ${index})">Acción Manejar</button>
+                            </div>
+                        </li>`;
+                }else{
+                    htmlContent += `
+                        <li class="li-flex">
+                            <div class="li-mensaje">${mensajeDetalle}</div>
+                            <div class="li-boton">
+                                <button class="btn-pop" onclick="manejarAlertaEspecifica(${stage_id}, ${index})">Acción</button>
+                            </div>
+                        </li>`;
+                }
                 });
 
             htmlContent += "</ul>";
@@ -573,11 +629,11 @@
             switch (stage_id) {
                 case 1:
 
-                var id = alertaSeleccionada['id'];
+                    var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-                        window.open( "/budgets/" + alertaSeleccionada['id'] + "/new-from-alert", '_blank');
+                        window.open( "/petition/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                         eliminarAlertaDOM(stage_id, index);
                         } else {
                         swal(
@@ -591,7 +647,7 @@
 
                 case 2:
 
-                var id = alertaSeleccionada['id'];
+                    var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
@@ -608,7 +664,7 @@
                     break;
 
                 case 3:
-                var id = alertaSeleccionada['id'];
+                    var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
@@ -625,7 +681,7 @@
                     break;
 
                 case 4:
-                var id = alertaSeleccionada['id'];
+                    var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
@@ -642,8 +698,7 @@
                     break;
 
                 case 5:
-                window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
-                var id = alertaSeleccionada['id'];
+                    var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
@@ -1222,6 +1277,20 @@
             data: {
                 'id': id,
                 'status': status
+            },
+            dataType: "json"
+            });
+        }
+
+        function posponerAlerta(id) {
+            return $.ajax({
+            type: "POST",
+            url: '/alert/postpone',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            },
+            data: {
+                'id': id,
             },
             dataType: "json"
             });

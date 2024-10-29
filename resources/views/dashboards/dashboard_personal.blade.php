@@ -712,8 +712,6 @@
                                                         <div class="progress-circle"
                                                             data-percentage="{{ number_format($productividadIndividual, 2) }}">
                                                         </div>
-                                                        {{$totalEstimatedTime}}
-                                                        {{$totalRealTime}}
 
                                                     </div>
                                                     <div class="mx-4 text-center">

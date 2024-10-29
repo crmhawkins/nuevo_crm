@@ -3,15 +3,15 @@
 namespace App\Console\Commands;
 
 use App\Models\Alerts\Alert;
-use App\Models\Budgets\Budget;
+use App\Models\Invoices\Invoice;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class AlertasPresupuestoConfirmar extends Command
+class AlertasFacturaFuera extends Command
 {
-    protected $signature = 'Alertas:presupuestoConfirmar';
-    protected $description = 'Crear alertas de presupuesto pendiente de confirmar';
+    protected $signature = 'Alertas:facturaFuera';
+    protected $description = 'Crear alertas de factura fuera de plazo';
 
     public function __construct()
     {
@@ -20,8 +20,8 @@ class AlertasPresupuestoConfirmar extends Command
 
     public function handle()
     {
-        $pendientes = Budget::where('budget_status_id', 1)
-        ->where('updated_at', '<=', Carbon::now()->subHours(24))
+        $pendientes = Invoice::where('invoice_status_id', 1)
+        ->where('paid_date', '<=', Carbon::now()->subHours(24))
         ->get();
 
         foreach ($pendientes as $pendiente) {

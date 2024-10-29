@@ -47,6 +47,7 @@ public function updateStatusAlert(Request $request)
     return $response;
 }
 
+
 public function getAlerts($alertas)
 {
     $now = Carbon::now();
@@ -370,9 +371,21 @@ public function getAlerts($alertas)
 public function postpone(Request $request)
 {
     $alert = Alert::find($request->id);
-    $alert->activation_datetime = $request->fecha;
+    $alert->activation_datetime = Carbon::now()->addDay(1);
     $alert->cont_postpone = $alert->cont_postpone + 1;
     $alertSaved = $alert->save();
+
+    if($alertSaved->cont_postpone == 3){
+        $alertapost = Alert::create([
+            'admin_user_id' => 1,
+            'stage_id' => 42,
+            'activation_datetime' => Carbon::now(),
+            'status_id' => 1,
+            'reference_id' => $alert->reference_id,
+            'cont_postpone' => 0,
+            'description' => ($alert->adminUser->name ?? 'Usuario no encontrado') . " ha pospuesto 3 veces la alerta de " . $alert->stage->stage,
+        ]);
+    }
 
     if ($alertSaved) {
         return 200;

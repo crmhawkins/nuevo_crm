@@ -152,6 +152,7 @@ class AdminHolidaysController extends Controller
                         'title' => $value->adminUser->name, // Título del evento
                         'start' => (new \DateTime($value->from))->format('Y-m-d'), // Fecha de inicio
                         'end' => (new \DateTime($value->to . ' +1 day'))->format('Y-m-d'), // Fecha de fin
+                        'endTrue' => (new \DateTime($value->to))->format('Y-m-d'), // Fecha de fin
                         'color' => $color, // Color del evento
                         'id' => $value->id,
                     ];

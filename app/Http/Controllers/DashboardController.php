@@ -93,26 +93,86 @@ class DashboardController extends Controller
                 $gastos = 0;
                 $gastosAsociados = 0;
 
-                return view('dashboards.dashboard', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva', 'totalIngresos', 'totalGastosComunes', 'totalGastosSociados','beneficios'));
+                return view('dashboards.dashboard', compact(
+                    'user',
+                    'tareas',
+                    'to_dos',
+                    'budgets',
+                    'projects',
+                    'clientes',
+                    'users',
+                    'events',
+                    'timeWorkedToday',
+                    'jornadaActiva',
+                    'pausaActiva',
+                    'llamadaActiva',
+                    'totalIngresos',
+                    'totalGastosComunes',
+                    'totalGastosSociados',
+                    'beneficios',
+                    'to_dos_finalizados'
+                ));
             case(2):
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
-                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva'));
+                return view('dashboards.dashboard_gestor', compact(
+                    'user',
+                    'tareas',
+                    'to_dos',
+                    'budgets',
+                    'projects',
+                    'clientes',
+                    'users',
+                    'events',
+                    'timeWorkedToday',
+                    'jornadaActiva',
+                    'pausaActiva',
+                    'llamadaActiva',
+                    'to_dos_finalizados'
+                ));
             case(3):
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
-                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva'));
+                return view('dashboards.dashboard_gestor', compact(
+                    'user',
+                    'tareas',
+                    'to_dos',
+                    'budgets',
+                    'projects',
+                    'clientes',
+                    'users',
+                    'events',
+                    'timeWorkedToday',
+                    'jornadaActiva',
+                    'pausaActiva',
+                    'llamadaActiva',
+                    'to_dos_finalizados'
+                ));
             case(4):
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
                 $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;
-                return view('dashboards.dashboard_gestor', compact('user','tareas','to_dos','budgets','projects','clientes','users','events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva','llamadaActiva'));
+                return view('dashboards.dashboard_gestor', compact(
+                    'user',
+                    'tareas',
+                    'to_dos',
+                    'budgets',
+                    'projects',
+                    'clientes',
+                    'users',
+                    'events',
+                    'timeWorkedToday',
+                    'jornadaActiva',
+                    'pausaActiva',
+                    'llamadaActiva',
+                    'to_dos_finalizados'
+                ));
             case(5):
                 $tareas = $user->tareas->whereIn('task_status_id', [1, 2, 5]);
                 $tiempoProducidoHoy = $this->tiempoProducidoHoy();
@@ -591,6 +651,47 @@ class DashboardController extends Controller
                             'date_end' => null,
                             'status' => 'Reanudada'
                         ]);
+
+                        if ($tarea->real_time > $tarea->estimated_time) {
+                            // Calcular el porcentaje de exceso
+
+                            list($realHours, $realMinutes, $realSeconds) = explode(':', $tarea->real_time);
+                            $realTimeInSeconds = ($realHours * 3600) + ($realMinutes * 60) + $realSeconds;
+
+                            list($estimatedHours, $estimatedMinutes, $estimatedSeconds) = explode(':', $tarea->estimated_time);
+                            $estimatedTimeInSeconds = ($estimatedHours * 3600) + ($estimatedMinutes * 60) + $estimatedSeconds;
+
+                            // Calcular el porcentaje de exceso basado en segundos
+                            $exceedPercentage = ($realTimeInSeconds / $estimatedTimeInSeconds) * 100;
+
+                            // Inicializar datos comunes de la alerta
+                            $data = [
+                                "admin_user_id" => $tarea->gestor_id,
+                                "status_id" => 1,
+                                "reference_id" => $tarea->id,
+                                "activation_datetime" => Carbon::now()
+                            ];
+
+                            // Definir el mensaje y el stage_id según el porcentaje de exceso
+                            if ($exceedPercentage >= 100) {
+                                $data["stage_id"] = 40; // Stage para el 100% de sobrepaso
+                                $data["description"] = 'Tarea ' . $tarea->id.' '.$tarea->title .' ha sobrepasado las horas estimadas en un 100% o más (pérdidas)';
+                            } elseif ($exceedPercentage >= 50) {
+                                $data["stage_id"] = 40; // Stage para el 50% de sobrepaso
+                                $data["description"] = 'Tarea ' . $tarea->id.' '.$tarea->title .' está sobrepasando las horas estimadas en un 50%';
+                            } else {
+                                $data["stage_id"] = 40; // Stage para sobrepaso menor al 50%
+                                $data["description"] = 'Aviso de Tarea - Se está sobrepasando las horas estimadas en la tarea ' . $tarea->title;
+                            }
+
+                            $existe = Alert::where('stage_id', $data["stage_id"]) ->where('reference_id', $tarea->id)->where('description', $data["description"])->exists();
+                            // Crear y guardar la alerta
+                            if (!$existe) {
+                                $alert = Alert::create($data);
+                                $alertSaved = $alert->save();
+                            }
+                        }
+
 
                         // $logTask = DB::select("SELECT id FROM `log_tasks` WHERE date_start BETWEEN DATE_SUB(now(), interval 6 hour) AND DATE_ADD(NOW(), INTERVAL 7 hour) AND `admin_user_id` = $usuario->id");
                         // if (count(value: $logTask) == 1) {

@@ -8,10 +8,10 @@ use Illuminate\Console\Command;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class AlertasPresupuestoConfirmar extends Command
+class AlertasPresupuestoAceptadoFinalizar extends Command
 {
-    protected $signature = 'Alertas:presupuestoConfirmar';
-    protected $description = 'Crear alertas de presupuesto pendiente de confirmar';
+    protected $signature = 'Alertas:presupuestoAceptadoTareasFinalizar';
+    protected $description = 'Crear alertas de presupuesto Aceptado con tareas finalizadas';
 
     public function __construct()
     {
@@ -20,15 +20,17 @@ class AlertasPresupuestoConfirmar extends Command
 
     public function handle()
     {
-        $pendientes = Budget::where('budget_status_id', 1)
-        ->where('updated_at', '<=', Carbon::now()->subHours(24))
-        ->get();
+        $pendientes = Budget::where('budget_status_id', 2)
+            ->where('updated_at', '<=', Carbon::now()->subHours(24))
+            ->whereDoesntHave('tasks', function ($query) {
+                $query->where('task_status_id', '!=', 3); // Excluye presupuestos con tareas que no tengan task_status_id = 3
+            })
+            ->get();
 
         foreach ($pendientes as $pendiente) {
-            $alertExists  = Alert::where('stage_id', 2)->where('reference_id', $pendiente->id)->where('status_id', 1)->exists();
+            $alertExists  = Alert::where('stage_id', 4)->where('reference_id', $pendiente->id)->where('status_id', 1)->exists();
             if(!$alertExists ){
-
-                $latestAlertWithStatus2 = Alert::where('stage_id', 2)
+                $latestAlertWithStatus2 = Alert::where('stage_id', 4)
                 ->where('reference_id', $pendiente->id)
                 ->where('status_id', 2)
                 ->orderBy('created_at', 'desc')
@@ -40,10 +42,10 @@ class AlertasPresupuestoConfirmar extends Command
                 $alert = Alert::create([
                     'reference_id' => $pendiente->id,
                     'admin_user_id' => $pendiente->admin_user_id,
-                    'stage_id' => 2,
+                    'stage_id' => 4,
                     'activation_datetime' => Carbon::now(),
                     'cont_postpone' => $contPostpone,
-                    'description' => 'Presupuesto ' . $pendiente->reference.' pendiente de confirmación',
+                    'description' => 'Presupuesto ' . $pendiente->reference.' tiene todas las tareas finalizadas pasar a finalizado'
                 ]);
             }
         }

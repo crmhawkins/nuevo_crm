@@ -181,6 +181,9 @@
                                             <a class=" btn btn-outline-secondary active"
                                                 id="list-todo-list" data-bs-toggle="list" href="#list-todo"
                                                 role="tab">TO-DO</a>
+                                            <a class=" btn btn-outline-danger"
+                                                id="list-todo-list-finalizados" data-bs-toggle="list" href="#list-todo-finalizados"
+                                                role="tab">Finalizados</a>
                                             <a class="btn btn-outline-secondary"
                                                 id="list-agenda-list" data-bs-toggle="list"
                                                 href="#list-agenda" role="tab">Agenda</a>
@@ -256,6 +259,70 @@
                                                                                     <i class="fa-solid fa-check" id="file-icon" style="display: none; color: green;"></i>
                                                                                 </label>
                                                                                 <button id="enviar" class="btn btn-primary" type="button"><i class="fa-regular fa-paper-plane"></i></button>
+                                                                            </div>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane show" id="list-todo-finalizados" role="tabpanel"
+                                        aria-labelledby="list-todo-finalizados-list">
+                                        <div class="card2 mt-4">
+                                            <div class="card-body2">
+                                                <div id="to-do-container" class="d-flex flex-column"  style="" >
+                                                    <div id="to-do" class="p-3">
+                                                        @foreach ($to_dos_finalizados as $to_do_finalizado)
+                                                            <div class="card mt-2" id="todo-card-{{$to_do_finalizado->id}}">
+                                                                <div class="card-body d-flex justify-content-between clickable" id="todo-card-body-{{$to_do_finalizado->id}}" data-todo-id="{{$to_do_finalizado->id}}" style="{{$to_do_finalizado->isCompletedByUser($user->id) ? 'background-color: #CDFEA4' : '' }}">
+                                                                    <h3>{{ $to_do_finalizado->titulo }}</h3>
+                                                                </div>
+                                                                <div class="info">
+                                                                    <div class="d-flex justify-content-evenly flex-wrap">
+                                                                        @if($to_do_finalizado->project_id)<a class="btn btn-outline-secondary mb-2"> Campaña {{$to_do_finalizado->proyecto ? $to_do_finalizado->proyecto->name : 'borrada'}}</a>@endif
+                                                                        @if($to_do_finalizado->client_id)<a class="btn btn-outline-secondary mb-2"> Cliente {{$to_do_finalizado->cliente ? $to_do_finalizado->cliente->name : 'borrado'}}</a>@endif
+                                                                        @if($to_do_finalizado->budget_id)<a class="btn btn-outline-secondary mb-2"> Presupuesto {{$to_do_finalizado->presupuesto ? $to_do_finalizado->presupuesto->concept : 'borrado'}}</a>@endif
+                                                                        @if($to_do_finalizado->task_id) <a class="btn btn-outline-secondary mb-2"> Tarea {{$to_do_finalizado->tarea ? $to_do_finalizado->tarea->title : 'borrada'}}</a> @endif
+                                                                    </div>
+                                                                    <div class="participantes d-flex flex-wrap mt-2">
+                                                                        <h3 class="m-2">Participantes</h3>
+                                                                        @foreach ($to_do_finalizado->TodoUsers as $usuario )
+                                                                            <span class="badge m-2 {{$usuario->completada ? 'bg-success' :'bg-secondary'}}">
+                                                                                {{$usuario->usuarios->name}}
+                                                                            </span>
+                                                                        @endforeach
+                                                                    </div>
+                                                                    <h3 class="m-2">Descripcion </h3>
+                                                                    <p class="m-2">{{ $to_do_finalizado->descripcion }}</p>
+                                                                    <div class="chat mt-4">
+                                                                        <div class="chat-container" >
+                                                                            @foreach ($to_do_finalizado->mensajes as $mensaje)
+                                                                                <div class="p-3 message {{ $mensaje->admin_user_id == $user->id ? 'mine' : 'theirs' }}">
+                                                                                    @if ($mensaje->archivo)
+                                                                                        <div class="file-icon">
+                                                                                            <a href="{{ asset('storage/' . $mensaje->archivo) }}" target="_blank"><i class="fa-regular fa-file-lines fa-2x"></i></a>
+                                                                                        </div>
+                                                                                    @endif
+                                                                                    <strong>{{ $mensaje->user->name }}:</strong> {{ $mensaje->mensaje }}
+                                                                                </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                        <form id="mensaje" action="{{ route('message.store') }}" method="post" enctype="multipart/form-data">
+                                                                            @csrf
+                                                                            <input type="hidden" name="todo_id" value="{{ $to_do_finalizado->id }}">
+                                                                            <input type="hidden" name="admin_user_id" value="{{ $user->id }}">
+                                                                            <div class="input-group my-2">
+                                                                                <input type="text" class="form-control" name="mensaje" placeholder="Escribe un mensaje..." disabled>
+                                                                                <label class="input-group-text" style="background: white; ">
+                                                                                    <i class="fa-solid fa-paperclip" id="file-clip"></i>
+                                                                                    <input type="file" class="form-control" style="display: none;" id="file-input" name="archivo" disabled>
+                                                                                    <i class="fa-solid fa-check" id="file-icon" style="display: none; color: green;"></i>
+                                                                                </label>
+                                                                                <button id="enviar" class="btn btn-primary" type="button" disabled><i class="fa-regular fa-paper-plane"></i></button>
                                                                             </div>
                                                                         </form>
                                                                     </div>
