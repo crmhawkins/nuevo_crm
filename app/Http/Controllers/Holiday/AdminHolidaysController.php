@@ -153,7 +153,7 @@ class AdminHolidaysController extends Controller
                         'start' => (new \DateTime($value->from))->format('Y-m-d'), // Fecha de inicio
                         'end' => (new \DateTime($value->to . ' +1 day'))->format('Y-m-d'), // Fecha de fin
                         'color' => $color, // Color del evento
-                        // 'url' => url('/holidays/managePetition/' . $value->id) // URL del evento
+                        'id' => $value->id,
                     ];
                 }
             }
