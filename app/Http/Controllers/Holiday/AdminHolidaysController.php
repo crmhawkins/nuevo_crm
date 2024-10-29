@@ -130,8 +130,36 @@ class AdminHolidaysController extends Controller
         $holidaysPetitions = HolidaysPetitions::orderBy('created_at', 'asc')->get();
         $numberOfholidaysPetitions = HolidaysPetitions::where('holidays_status_id', 3)->count();
 
+        $holydayEvents = [];
+        $data = HolidaysPetitions::orderBy('created_at', 'asc')->get();
 
-        return view('holidays.gestion',compact('numberOfholidaysPetitions',));
+        if ($data->count()) {
+            foreach ($data as $value) {
+                $color = '#FFFFFF'; // Color por defecto
+
+                // Asignar color según el estado
+                if ($value->holidays_status_id == 1) {
+                    $color = '#C3EBC4'; // Color para estado 1
+                } elseif ($value->holidays_status_id == 2) {
+                    $color = '#FBC4C4'; // Color para estado 2
+                } elseif ($value->holidays_status_id == 3) {
+                    $color = '#FFDD9E'; // Color para estado 3
+                }
+
+                // Verificar si el usuario está asociado con la petición
+                if ($value->adminUser) {
+                    $holydayEvents[] = [
+                        'title' => $value->adminUser->name, // Título del evento
+                        'start' => (new \DateTime($value->from))->format('Y-m-d'), // Fecha de inicio
+                        'end' => (new \DateTime($value->to . ' +1 day'))->format('Y-m-d'), // Fecha de fin
+                        'color' => $color, // Color del evento
+                        // 'url' => url('/holidays/managePetition/' . $value->id) // URL del evento
+                    ];
+                }
+            }
+        }
+
+        return view('holidays.gestion',compact('numberOfholidaysPetitions','holydayEvents'));
     }
 
      /**
@@ -205,35 +233,16 @@ class AdminHolidaysController extends Controller
                 $this->sendEmail($empleado);
 
                 // Respuesta
-                return redirect()->route('holiday.admin.petitions')->with('toast', [
-                    'icon' => 'success',
-                    'mensaje' => 'Petición de vacaciones aceptada'
-                ]);
+                return response()->json(['status' => 'success', 'mensaje' => 'Petición de vacaciones aceptada correctamente']);
+
             }
         } catch (\Exception $e) {
              // Respuesta
-             return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'Error'
-            ]);
+             return response()->json(['status' => 'error', 'mensaje' => 'Error al aceptar la petición']);
+
         }
     }
 
-    // Envía un mensaje al usuario cuando se acepta la petición
-    public function sendEmail($empleado){
-
-        // $mailsCC = "nacho.moreno@lchawkins.com";
-        // $mailsCC[] = "alegar@lchawkins.com";
-
-        // Si el estado es 1, es solicitud de vacaciones, el 2 es aceptada, el 3 es rechazada
-        $estado = 2;
-        $email = new MailHoliday($estado, $empleado);
-
-        Mail::to($empleado->email)->send($email);
-
-        return 200;
-
-    }
 
     /**
      * Denegar petición
@@ -286,15 +295,31 @@ class AdminHolidaysController extends Controller
                 $alertSaved = $alert->save();
 
                 // Respuesta
-                return response()->json(['status' => 'success', 'mensaje' => 'Petición de vacaciones denegada']);
+                return response()->json(['status' => 'success', 'mensaje' => 'Petición de vacaciones denegada correctamente']);
             }
         } catch (\Exception $e) {
              // Respuesta
-             return response()->json(['status' => 'error', 'mensaje' => $e]);
+             return response()->json(['status' => 'error', 'mensaje' => 'Error al denegar la petición']);
 
         }
     }
 
+
+    // Envía un mensaje al usuario cuando se acepta la petición
+    public function sendEmail($empleado){
+
+        // $mailsCC = "nacho.moreno@lchawkins.com";
+        // $mailsCC[] = "alegar@lchawkins.com";
+
+        // Si el estado es 1, es solicitud de vacaciones, el 2 es aceptada, el 3 es rechazada
+        $estado = 2;
+        $email = new MailHoliday($estado, $empleado);
+
+        Mail::to($empleado->email)->send($email);
+
+        return 200;
+
+    }
     /**
      *  Mostrar el formulario de creación
      *
