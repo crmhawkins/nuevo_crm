@@ -829,11 +829,12 @@
 
                 case 16:
                 var id = alertaSeleccionada['id'];
+                var reference_id = alertaSeleccionada['reference_id'];
                 var status = 2; //Resuelto
                 $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                     if (jqXHR.responseText != 503) {
                         $.ajax({
-                            url: `/holidays/getDate/${id}`, // Ajusta esta ruta según tu backend
+                            url: `/holidays/getDate/${reference_id}`, // Ajusta esta ruta según tu backend
                             type: 'post',
                             data: {
                                 id: id,
