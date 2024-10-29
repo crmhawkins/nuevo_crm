@@ -118,11 +118,18 @@
                 initializeCalendar();
         });
 
+        function getParameterByName(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        const eventDate = getParameterByName('fecha');
+
         function initializeCalendar() {
             var calendarEl = document.getElementById('calendar');
             if (!calendarEl) return; // Asegúrate de que el elemento existe
 
             var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialDate: eventDate || new Date(), // Usa la fecha del evento o la fecha actual
                 initialView: 'dayGridMonth',
                 locale: 'es',
                 navLinks: true,

@@ -832,7 +832,35 @@
                 var status = 2; //Resuelto
                 $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                     if (jqXHR.responseText != 503) {
-                    window.open( "/holidays/petitions", '_blank');
+                        $.ajax({
+                            url: `/holidays/getDate/${id}`, // Ajusta esta ruta según tu backend
+                            type: 'post',
+                            data: {
+                                id: id,
+                                _token: '{{ csrf_token() }}' // Incluye el token CSRF si es necesario
+                            },
+                            success: function(response) {
+                                // Suponiendo que `response` incluye la fecha en `response.fecha_inicio`
+                                const fechaInicio = response.fecha_inicio; // Ajusta el nombre del campo según corresponda
+                                if (fechaInicio) {
+                                    // Abre una nueva ventana con el calendario, pasando la fecha en el parámetro `fecha`
+                                    window.open(`/holidays/petitions?fecha=${fechaInicio}`, '_blank');
+                                } else {
+                                    swal(
+                                        'Error',
+                                        'Fecha no encontrada en la petición de vacaciones',
+                                        'error'
+                                    );
+                                }
+                            },
+                            error: function() {
+                                swal(
+                                    'Error',
+                                    'No se pudo obtener la fecha de la petición de vacaciones',
+                                    'error'
+                                );
+                            }
+                        });
                     eliminarAlertaDOM(stage_id, index);
                     } else {
                     swal(

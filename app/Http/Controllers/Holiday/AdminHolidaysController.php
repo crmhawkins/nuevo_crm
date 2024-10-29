@@ -390,5 +390,7 @@ class AdminHolidaysController extends Controller
           );
         }
     }
-
+    public function getDate(holidaysPetitions $holidaysPetitions){
+        return response()->json([ 'fecha_inicio' =>$holidaysPetitions->from]);
+    }
 }
