@@ -135,11 +135,11 @@
                 },
                 events: @json($holydayEvents),
                 eventClick: function(info) {
-                    $('#holidayStart').text(info.event.start.toLocaleDateString());
-                    $('#holidayEnd').text(info.event.end ? info.event.end.toLocaleDateString() : 'N/A');
-                    $('#holidayUser').text(info.event.title ?? 'Usuario sin nombre');
-                    $('#holidayId').val(info.event.id);
-                    $('#holidayModal').modal('show');
+                        $('#holidayStart').text(info.event.start.toLocaleDateString());
+                        $('#holidayEnd').text(info.event.end ? info.event.end.toLocaleDateString() : 'N/A');
+                        $('#holidayUser').text(info.event.title ?? 'Usuario sin nombre');
+                        $('#holidayId').val(info.event.id);
+                        $('#holidayModal').modal('show');
                 }
             });
             calendar.render();
