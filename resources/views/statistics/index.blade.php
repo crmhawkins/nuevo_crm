@@ -333,7 +333,7 @@
                     data: @json($billingMonthly),
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
+                    borderWidth: 3
                 }]
             },
             options: {
@@ -360,7 +360,7 @@
                         data: data[year],
                         backgroundColor: getColorByIndex(index, 0.2),
                         borderColor: getColorByIndex(index),
-                        borderWidth: 1,
+                        borderWidth: 3,
                         fill: false
                     };
                 })
@@ -385,7 +385,7 @@
                     data: @json($totalBeneficio),
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
+                    borderWidth: 3
                 }]
             },
             options: {
@@ -405,10 +405,10 @@
                 labels: @json($nameUsers),
                 datasets: [{
                     label: 'Productividad',
-                    data: @json($userProductivity),
+                    data: @json($productivityValues),
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
+                    borderWidth: 3
                 }]
             },
             options: {

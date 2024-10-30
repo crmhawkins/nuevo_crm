@@ -34,6 +34,7 @@ class StatisticsController extends Controller
         $departamentos = $this->departamentosFacturacionMes($mes, $anio);
         $departamentosBeneficios = $this->beneficioDepartamentos($mes, $anio);
         $userProductivity = $this->productividadEmpleados($mes, $anio);
+        $productivityValues = collect($userProductivity)->pluck('productividad')->toArray();
         $iva = $this->trimestreIva($mes, $anio);
         $totalBeneficio = $this->calcularTotalBeneficio($anio);
         $anioActual = date("Y");
@@ -74,10 +75,7 @@ class StatisticsController extends Controller
             }
         }
 
-        $nameUsers = User::where('access_level_id', 5)
-        ->where('inactive', 0)
-        ->pluck(DB::raw("CONCAT(name, ' ', surname)"))
-        ->toArray();
+        $nameUsers = collect($userProductivity)->pluck('name')->toArray();
 
 
         return view('statistics.index', compact(
@@ -86,7 +84,7 @@ class StatisticsController extends Controller
             'dataAsociadosAnual', 'departamentos', 'departamentosBeneficios',
             'userProductivity', 'iva', 'totalBeneficio', 'arrayAnios',
             'anioActual','countTotalBudgets','totalBeneficioAnual',
-            'monthsToActually','billingMonthly','allArray','nameUsers'
+            'monthsToActually','billingMonthly','allArray','nameUsers','productivityValues'
         ));
     }
 
