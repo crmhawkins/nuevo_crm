@@ -56,8 +56,8 @@
                             <div class="card card-sm" data-toggle="modal" data-target="#exampleModalCenter" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Proyectos Activos</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
+                                    <div class="d-flex align-items-center justify-content-between position-relative">
+                                        <div class="position-absolute l-0">
                                             <span class="d-block display-5 font-weight-400 text-dark">{{$dataBudgets['total']}}+</span>
                                         </div>
                                         <div class="position-absolute r-0">
@@ -74,8 +74,8 @@
                             <div class="card card-sm">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Presupuestos</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
+                                    <div class="d-flex align-items-center justify-content-between position-relative">
+                                        <div class="position-absolute l-0">
                                             <span class="d-block display-5 font-weight-400 text-dark">€ <span class="counter-anim">{{$countTotalBudgets}}</span></span>
                                         </div>
                                         <div class="position-absolute r-0">
