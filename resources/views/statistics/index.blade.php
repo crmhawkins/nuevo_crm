@@ -52,13 +52,13 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-lg-2 col-sm-6">
+                        <div class="col">
                             <div class="card card-sm" data-toggle="modal" data-target="#exampleModalCenter" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Proyectos Activos</span>
                                     <div class="d-flex align-items-center justify-content-between position-relative">
                                         <div class="position-absolute l-0">
-                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataBudgets['total']}}+</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{$dataBudgets['total']}}+</span>
                                         </div>
                                         <div class="position-absolute r-0">
                                             <span id="pie_chart_1" class="d-flex easy-pie-chart" data-percent="{{$dataBudgets['total']}}">
@@ -70,13 +70,13 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-2 col-sm-6">
+                        <div class="col">
                             <div class="card card-sm">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Presupuestos</span>
                                     <div class="d-flex align-items-center justify-content-between position-relative">
                                         <div class="position-absolute l-0">
-                                            <span class="d-block display-7 font-weight-400 text-dark">€ <span class="counter-anim">{{$countTotalBudgets}}</span></span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">€ <span class="counter-anim">{{$countTotalBudgets}}</span></span>
                                         </div>
                                         <div class="position-absolute r-0">
                                             <span id="pie_chart_2" class="d-flex easy-pie-chart" data-percent="75">
@@ -89,13 +89,13 @@
                         </div>
 
                         <!-- Facturación Anual Modal -->
-                        <div class="col-lg-2 col-sm-6">
+                        <div class="col">
                             <div class="card card-sm" data-toggle="modal" data-target="#ModalFacturacionanual" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">€ {{$dataFacturacionAnno['total']}}</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">€ {{$dataFacturacionAnno['total']}}</span>
                                         </div>
                                         <div>
                                             <span class="text-success font-12 font-weight-600">+0%</span>
@@ -105,13 +105,13 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-2 col-sm-6">
+                        <div class="col">
                             <div class="card card-sm">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Beneficios Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">{{$totalBeneficioAnual}}</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{$totalBeneficioAnual}}</span>
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
@@ -121,13 +121,13 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-2 col-sm-6">
+                        <div class="col">
                             <div class="card card-sm" data-toggle="modal" data-target="#ModalGastosAsociados" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Comunes Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataGastosComunesAnual['total']}}</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{$dataGastosComunesAnual['total']}}</span>
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
