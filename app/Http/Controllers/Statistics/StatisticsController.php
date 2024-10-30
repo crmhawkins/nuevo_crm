@@ -37,8 +37,8 @@ class StatisticsController extends Controller
         $totalBeneficio = $this->calcularTotalBeneficio($anio);
         $anioActual = date("Y");
         $arrayAnios = [];
-        for ($anio = 2010; $anio <= $anioActual; $anio++) {
-            $arrayAnios[] = $anio;
+        for ($a = 2010; $a <= $anioActual; $a++) {
+            $arrayAnios[] = $a;
         }
         $countTotalBudgets = $this->budgets();
         $totalBeneficioAnual = array_sum($totalBeneficio); // Suma total de los beneficios anuales
