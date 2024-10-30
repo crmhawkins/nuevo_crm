@@ -269,7 +269,7 @@ class StatisticsController extends Controller
         $arrayOrdenesCompra = [];
 
         $facturas->each(function ($factura) use (&$gastosAsociadosTotal, &$arrayOrdenesCompra) {
-            $budget = Budget::find($factura->budget_id);
+            $budget = Budget::find($factura['budget_id']);
             $cliente = Client::find($budget->client_id)->name;
 
             $budget->budgetConcepts->each(function ($concept) use ($budget, $factura, $cliente, &$gastosAsociadosTotal, &$arrayOrdenesCompra) {
@@ -305,7 +305,7 @@ class StatisticsController extends Controller
         $arrayOrdenesCompra = [];
 
         $facturas->each(function ($factura) use (&$gastosAsociadosTotal, &$arrayOrdenesCompra) {
-            $budget = Budget::find($factura->budget_id);
+            $budget = Budget::find($factura['budget_id']);
             $cliente = Client::find($budget->client_id)->name;
 
             $budget->budgetConcepts->each(function ($concept) use ($budget, $factura, $cliente, &$gastosAsociadosTotal, &$arrayOrdenesCompra) {
@@ -345,7 +345,7 @@ class StatisticsController extends Controller
         $departamentos = [];
 
         foreach ($facturas as $factura) {
-            $budget = Budget::find($factura->budget_id);
+            $budget = Budget::find($factura['budget_id']);
             foreach ($budget->budgetConcepts as $concept) {
                 $nameService = ServiceCategories::find($concept->services_category_id)->name ?? 'Sin Categoría';
 
@@ -376,7 +376,7 @@ class StatisticsController extends Controller
         $departamentos = [];
 
         foreach ($facturas as $factura) {
-            $budget = Budget::find($factura->budget_id);
+            $budget = Budget::find($factura['budget_id']);
             foreach ($budget->budgetConcepts as $concept) {
                 $nameService = ServiceCategories::find($concept->services_category_id)->name ?? 'Sin Categoría';
 
