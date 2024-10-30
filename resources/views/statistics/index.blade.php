@@ -255,8 +255,8 @@
 @endsection
 
 @section('scripts')
-    <script type="text/javascript" src="{{ asset('assets/vendor/select2/js/select2.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('assets/js/admin.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.js"></script>
