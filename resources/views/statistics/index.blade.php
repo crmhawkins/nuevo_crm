@@ -302,6 +302,7 @@
             data: {
                 labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
                 datasets: Object.keys(data).map(function (year, index) {
+
                     return {
                         label: 'Facturación ' + year,
                         data: data[year],

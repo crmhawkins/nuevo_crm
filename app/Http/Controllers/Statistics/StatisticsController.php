@@ -42,10 +42,17 @@ class StatisticsController extends Controller
         }
         $countTotalBudgets = $this->budgets();
         $totalBeneficioAnual = array_sum($totalBeneficio); // Suma total de los beneficios anuales
-        $monthsToActually = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-        // Calcular la facturación mensual
+        // Definir todos los meses en orden
+        $allMonths = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+        // Obtener el número del mes actual
+        $currentMonthIndex = date('n') - 1; // date('n') devuelve el mes sin ceros iniciales (1 = Enero, 12 = Diciembre), y restamos 1 para obtener el índice del arreglo
+        $currentMonth = date('n'); // Mes actual en número (1 = Enero, ..., 12 = Diciembre)
+
+        // Extraer los meses desde el comienzo del año hasta el mes actual
+        $monthsToActually = array_slice($allMonths, 0, $currentMonthIndex + 1);        // Calcular la facturación mensual
         $billingMonthly = [];
-        foreach (range(1, 12) as $month) {
+        foreach (range(1,$currentMonth) as $month) {
             $billingMonthly[] = Invoice::whereMonth('created_at', $month)
                 ->whereYear('created_at', $anio)
                 ->sum('total');
