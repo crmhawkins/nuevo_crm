@@ -94,7 +94,59 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="modal fade" id="ModalFacturacionanual" tabindex="-1" role="dialog" aria-labelledby="ModalFacturacionanual" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Facturacion Mes Actual</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table style="width: 100%;">
+                                            <tr>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
+                                                <th class="w-full-th" style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Beneficio</th>
 
+                                            </tr>
+                                            <?php
+                                                $sumaColumna = 0;
+                                                ?>
+
+                                            @foreach($dataFacturacionAnno['array'] as $item)
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoice_status_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->project_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                            </tr>
+                                            @endforeach
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataFacturacionAnno['total']}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col">
                             <div class="card card-sm">
                                 <div class="card-body">

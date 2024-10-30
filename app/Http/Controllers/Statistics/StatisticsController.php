@@ -215,7 +215,7 @@ class StatisticsController extends Controller
             ->get();
 
         return [
-            'array' => $facturas->toArray(),
+            'facturas' => $facturas,
             'total' => $facturas->sum('total'),
         ];
     }
