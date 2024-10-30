@@ -11,6 +11,7 @@ use App\Models\Accounting\AssociatedExpenses;
 use App\Models\PurcharseOrde\PurcharseOrder;
 use App\Models\Services\ServiceCategories;
 use App\Models\Invoices\Invoice;
+use App\Models\Statistics\Statistics;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use DataTables;
@@ -60,12 +61,17 @@ class StatisticsController extends Controller
         $allArray = [];
         foreach ($arrayAnios as $year) {
             $annualData = [];
+            if ($year != $anioActual){
+                $all = Statistics::where('year', (int)$year)->pluck('quantity')->toArray();
+                $allArray[$year] = $all;
+            }else{
             foreach (range(1, 12) as $month) {
                 $annualData[] = Invoice::whereMonth('created_at', $month)
                     ->whereYear('created_at', $year)
                     ->sum('total');
             }
             $allArray[$year] = $annualData;
+            }
         }
 
         $nameUsers = User::where('access_level_id', 5)
