@@ -35,7 +35,7 @@ class StatisticsController extends Controller
         $userProductivity = $this->productividadEmpleados($mes, $anio);
         $iva = $this->trimestreIva($mes, $anio);
         $totalBeneficio = $this->calcularTotalBeneficio($anio);
-        $arrayAnios = [2020, 2021, 2022, 2023];
+        $arrayAnios = [2020, 2021, 2022, 2023, 2024];
         $anioActual = $anio;
         $countTotalBudgets = $this->budgets();
         $totalBeneficioAnual = array_sum($totalBeneficio); // Suma total de los beneficios anuales

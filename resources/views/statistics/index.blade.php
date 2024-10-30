@@ -286,7 +286,7 @@
             }
         });
 
-        console.log(@json($allArray));
+        console.log(Object.keys(@json($allArray)));
         // Facturación Anual
         var ctx2 = document.getElementById("facturacion-all-monthly").getContext("2d");
         var myChart2 = new Chart(ctx2, {
