@@ -51,7 +51,7 @@
                         @endforeach
                     </div>
 
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col">
                             <div class="card card-sm" data-toggle="modal" data-target="#exampleModalCenter" style="cursor:pointer;">
                                 <div class="card-body">
@@ -293,7 +293,7 @@
             type: 'line',
             data: {
                 labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
-                datasets: @json($allArray).map(function (item, index) {
+                datasets: Object.keys(@json($allArray)).map(function (item, index) {
                     return {
                         label: 'Facturación ' + index,
                         data: item,
