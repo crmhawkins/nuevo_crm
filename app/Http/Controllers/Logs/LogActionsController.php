@@ -23,6 +23,8 @@ class LogActionsController extends Controller
     {
         $fechaInicio = $request->fecha_inicio ?? Carbon::today()->subDays(7);
         $fechaFin = $request->fecha_fin ?? Carbon::today();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();  // Ajusta $fechaFin para que sea el final del día
+
         // Obtener los logs del día específico
         $logActions = LogActions::where('tipo', 1)
         ->whereBetween('created_at', [$fechaInicio, $fechaFin])
