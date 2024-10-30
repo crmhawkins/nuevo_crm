@@ -253,6 +253,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
 
     <script>
+        function getColorByIndex(index, opacity = 1) {
+            const r = (index * 137 + 83) % 256; // Números primos para rotación
+            const g = (index * 197 + 67) % 256; // Números primos para rotación
+            const b = (index * 229 + 47) % 256; // Números primos para rotación
+            return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        }
+
         $(document).ready(function () {
             $('#tableFacMen').DataTable({
                 responsive: true,
@@ -286,20 +293,21 @@
             }
         });
 
-        console.log(@json($allArray));
         // Facturación Anual
         var data = @json($allArray);
+
         var ctx2 = document.getElementById("facturacion-all-monthly").getContext("2d");
         var myChart2 = new Chart(ctx2, {
             type: 'line',
             data: {
                 labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
-                datasets: Object.keys(data).map(function (year) {
+                datasets: Object.keys(data).map(function (year, index) {
+                    var colorIndex = index % colors.length; // Esto asegura que los colores se repitan si hay más años que colores
                     return {
                         label: 'Facturación ' + year,
                         data: data[year],
-                        backgroundColor: "rgba(0,0,255,0.1)",
-                        borderColor: "rgba(0,0,255,1)",
+                        backgroundColor: getColorByIndex(index, 0.2),
+                        borderColor: getColorByIndex(index),
                         borderWidth: 1,
                         fill: false
                     };
