@@ -218,7 +218,7 @@ class StatisticsController extends Controller
             ->get();
 
         $facturas->each(function ($factura) {
-            $budget = Budget::find($factura->budget_id);
+            $budget = Budget::find($factura['budget_id']);
             $factura->categoria = $budget->budgetConcepts->map(fn($concept) => ServiceCategories::find($concept->services_category_id)->name ?? 'Categoria no existe')->toArray();
             $factura->cliente = Client::find($factura->client_id)->name;
         });
