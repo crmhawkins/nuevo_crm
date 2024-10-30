@@ -302,7 +302,6 @@
             data: {
                 labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
                 datasets: Object.keys(data).map(function (year, index) {
-                    var colorIndex = index % colors.length; // Esto asegura que los colores se repitan si hay más años que colores
                     return {
                         label: 'Facturación ' + year,
                         data: data[year],
