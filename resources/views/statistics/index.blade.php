@@ -98,7 +98,7 @@
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">Facturacion Mes Actual</h5>
+                                        <h5 class="modal-title">Facturacion Anual</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -120,7 +120,7 @@
                                                 $sumaColumna = 0;
                                                 ?>
 
-                                            @foreach($dataFacturacionAnno['array'] as $item)
+                                            @foreach($dataFacturacionAnno['facturas'] as $item)
                                             <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
