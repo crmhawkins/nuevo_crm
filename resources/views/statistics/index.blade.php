@@ -286,17 +286,18 @@
             }
         });
 
-        console.log(Object.keys(@json($allArray)));
+        console.log(@json($allArray));
         // Facturación Anual
+        var data = @json($allArray);
         var ctx2 = document.getElementById("facturacion-all-monthly").getContext("2d");
         var myChart2 = new Chart(ctx2, {
             type: 'line',
             data: {
                 labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
-                datasets: Object.keys(@json($allArray)).map(function (item, index) {
+                datasets: Object.keys(data).map(function (year) {
                     return {
-                        label: 'Facturación ' + index,
-                        data: item,
+                        label: 'Facturación ' + year,
+                        data: data[year],
                         backgroundColor: "rgba(0,0,255,0.1)",
                         borderColor: "rgba(0,0,255,1)",
                         borderWidth: 1,
