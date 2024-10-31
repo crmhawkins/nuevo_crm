@@ -53,7 +53,7 @@
 
                     <div class="row mb-3">
                         <div class="col">
-                            <div class="card card-sm" data-toggle="modal" data-target="#exampleModalCenter" style="cursor:pointer;">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#exampleModalCenter" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Proyectos Activos</span>
                                     <div class="d-flex align-items-end justify-content-between">
@@ -118,7 +118,7 @@
 
                         <!-- Facturación Anual Modal -->
                         <div class="col">
-                            <div class="card card-sm" data-toggle="modal" data-target="#ModalFacturacionanual" style="cursor:pointer;">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacionanual" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
@@ -202,7 +202,7 @@
                         </div>
 
                         <div class="col">
-                            <div class="card card-sm" data-toggle="modal" data-target="#ModalGastosAsociados" style="cursor:pointer;">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociados" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Comunes Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
@@ -212,6 +212,55 @@
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="ModalGastosAsociados" tabindex="-1" role="dialog" aria-labelledby="ModalGastosAsociados" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Gatos Comunes Anual</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table style="width: 100%;">
+                                            <tr>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Option number</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Beneficio</th>
+
+                                            </tr>
+                                            @foreach($dataGastosComunesAnual['gastos'] as $item)
+                                            <tr>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->date}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                           </tr>
+                                           @endforeach
+                                           <tr>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$sumaColumnaGastosAsociadosAnual}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                           </tr>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -275,63 +324,6 @@
         </section>
     </div>
 
-    <!-- Modals -->
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Proyectos Activos</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Contenido del modal...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="ModalFacturacionanual" tabindex="-1" role="dialog" aria-labelledby="ModalFacturacionanualTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="ModalFacturacionanualTitle">Facturación Anual</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Contenido del modal...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="ModalGastosAsociados" tabindex="-1" role="dialog" aria-labelledby="ModalGastosAsociadosTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="ModalGastosAsociadosTitle">Gastos Comunes Anual</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Contenido del modal...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @section('scripts')

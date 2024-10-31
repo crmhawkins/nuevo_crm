@@ -267,7 +267,7 @@ class StatisticsController extends Controller
             ->get();
 
         return [
-            'array' => $gastosComunesAnual->toArray(),
+            'gastos' => $gastosComunesAnual,
             'total' => $gastosComunesAnual->sum('quantity'),
         ];
     }
