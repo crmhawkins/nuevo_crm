@@ -170,6 +170,8 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
                                             </tr>
                                             @endforeach
+                                        </tbody>
+                                        <tfoot>
                                             <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
@@ -179,8 +181,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataFacturacionAnno['total']}}</td>
                                             </tr>
-                                        </tbody>
-
+                                        </tfoot>
                                         </table>
                                     </div>
                                 </div>
@@ -246,13 +247,15 @@
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}}</td>
                                            </tr>
                                            @endforeach
-                                           <tr>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataGastosComunesAnual['total']}}</td>
-                                           </tr>
                                         </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataGastosComunesAnual['total']}}</td>
+                                            </tr>
+                                        </tfoot>
                                         </table>
                                     </div>
                                 </div>
