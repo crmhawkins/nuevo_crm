@@ -64,7 +64,45 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenter" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Proyectos Activos</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table style="width: 100%;">
+                                            <tr>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Marca</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Beneficio</th>
 
+                                            </tr>
+                                            @foreach($dataBudgets['ProjectsActive'] as $item)
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->budget_status_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                            </tr>
+                                            @endforeach
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col">
                             <div class="card card-sm">
                                 <div class="card-body">

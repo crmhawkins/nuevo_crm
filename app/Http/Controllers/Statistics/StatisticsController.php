@@ -195,7 +195,7 @@ class StatisticsController extends Controller
     {
         $proyectos = Budget::whereIn('budget_status_id', [3, 7])->get();
         return [
-            'array' => $proyectos->toArray(),
+            'ProjectsActive' => $proyectos,
             'total' => $proyectos->count(),
         ];
     }
@@ -347,11 +347,11 @@ class StatisticsController extends Controller
         return view('admin.orderPago.index', compact('result'));
     }
 
-    public function getOrderPago()
-    {
-        $ordenes = PurcharseOrder::select('payment_method_id', 'project_id', 'client_id', 'budget_concept_id', 'amount', 'status');
-        return Datatables::of($ordenes)->make();
-    }
+    // public function getOrderPago()
+    // {
+    //     $ordenes = PurcharseOrder::select('payment_method_id', 'project_id', 'client_id', 'budget_concept_id', 'amount', 'status');
+    //     return Datatables::of($ordenes)->make();
+    // }
 
     public function beneficioDepartamentos($mes, $year)
     {

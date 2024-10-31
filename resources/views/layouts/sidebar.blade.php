@@ -42,6 +42,7 @@
                     $cofiguracionActive = request()->routeIs('iva.*') || request()->routeIs('configuracion.*');
                     $EmailConfig = request()->routeIs('admin.categoriaEmail.*') || request()->routeIs('admin.statusMail.*');
                     $BajaActive = request()->routeIs('bajas.*');
+                    $StadisticsActive = request()->routeIs('estadistica.*');
                     $admin = (Auth::user()->access_level_id == 1);
                     $gerente = (Auth::user()->access_level_id == 2);
                     $contable = (Auth::user()->access_level_id == 3);
@@ -433,6 +434,12 @@
                         </a>
                     </li>
                     @if ($admin || $gerente )
+                    <li class="sidebar-item {{ request()->routeIs('estadistica.index') ? 'active' : '' }}">
+                        <a href="{{route('estadistica.index')}}" class='sidebar-link'>
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span>Estadisticas</span>
+                        </a>
+                    </li>
                         <li class="sidebar-item has-sub {{ $servicesActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="fa-solid fa-sliders fs-5"></i>
