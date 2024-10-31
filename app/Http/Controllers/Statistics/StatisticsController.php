@@ -93,6 +93,7 @@ class StatisticsController extends Controller
             $monthlyAverages[$index + 1] = $monthlyCounts[$index] ? $total / $monthlyCounts[$index] : 0;
         }
 
+        $monthlyAveragesValues = array_values($monthlyAverages);
 
 
 
@@ -106,7 +107,7 @@ class StatisticsController extends Controller
             'userProductivity', 'iva', 'totalBeneficio', 'arrayAnios',
             'anioActual','countTotalBudgets','totalBeneficioAnual',
             'monthsToActually','billingMonthly','allArray',
-            'nameUsers','productivityValues','monthlyAverages'
+            'nameUsers','productivityValues','monthlyAveragesValues'
         ));
     }
 

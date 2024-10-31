@@ -297,7 +297,7 @@
                         </div>
                         <div class="col-6">
                             <div class="container">
-                                <h3>Productividad</h3>
+                                <h3>Facturacion Media</h3>
                                 <canvas id="facturacion-media"></canvas>
                             </div>
                         </div>
@@ -457,7 +457,7 @@
                 labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
                 datasets: [{
                     label: 'Media',
-                    data: @json($monthlyAverages),
+                    data: @json($monthlyAveragesValues),
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 10
