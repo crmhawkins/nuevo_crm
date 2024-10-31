@@ -94,7 +94,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->budget_status_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->estadoPresupuesto->name}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
