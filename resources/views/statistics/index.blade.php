@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.dataTables.css" />
     <style>
         .modal-dialog.modal-lg-custom {
-            max-width: 70%;
+            max-width: 60%;
         }
     </style>
 @endsection
@@ -83,7 +83,6 @@
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Marca</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
@@ -92,7 +91,6 @@
                                             @foreach($dataBudgets['ProjectsActive'] as $item)
                                             <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->estadoPresupuesto->name}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
