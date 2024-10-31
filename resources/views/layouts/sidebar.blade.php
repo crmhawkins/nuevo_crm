@@ -439,6 +439,30 @@
                             <span>Jornadas</span>
                         </a>
                     </li>
+                    <li class="sidebar-item has-sub {{ request()->routeIs('logs.*') ? 'active' : '' }}">
+                        <a href="#" class='sidebar-link'>
+                            <i class="fa-solid fa-list"></i>
+                            <span>Logs</span>
+                        </a>
+                        <ul class="submenu" style="{{ request()->routeIs('logs.*') ? 'display:block;' : 'display:none;' }}">
+                            <li class="submenu-item {{ request()->routeIs('logs.index') ? 'active' : '' }}">
+                                <a href="{{route('logs.index')}}">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>
+                                        Ver Logs
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('logs.clasificado') ? 'active' : '' }}">
+                                <a href="{{route('logs.clasificado')}}">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span>
+                                        Ver Logs por usuario
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     @if ($admin || $gerente )
                     <li class="sidebar-item {{ request()->routeIs('estadistica.index') ? 'active' : '' }}">
                         <a href="{{route('estadistica.index')}}" class='sidebar-link'>
@@ -558,30 +582,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="sidebar-item has-sub {{ request()->routeIs('logs.*') ? 'active' : '' }}">
-                            <a href="#" class='sidebar-link'>
-                                <i class="fa-solid fa-list"></i>
-                                <span>Logs</span>
-                            </a>
-                            <ul class="submenu" style="{{ request()->routeIs('logs.*') ? 'display:block;' : 'display:none;' }}">
-                                <li class="submenu-item {{ request()->routeIs('logs.index') ? 'active' : '' }}">
-                                    <a href="{{route('logs.index')}}">
-                                        <i class="fa-solid fa-list"></i>
-                                        <span>
-                                            Ver Logs
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="submenu-item {{ request()->routeIs('logs.clasificado') ? 'active' : '' }}">
-                                    <a href="{{route('logs.clasificado')}}">
-                                        <i class="fa-solid fa-eye"></i>
-                                        <span>
-                                            Ver Logs por usuario
-                                        </span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+
                         <li class="sidebar-item has-sub {{ $cofiguracionActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="fa-solid fa-list"></i>
