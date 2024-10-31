@@ -94,7 +94,7 @@
                                                 @foreach($dataBudgets['ProjectsActive'] as $item)
                                                 <tr>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->cliente->name}}</td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->estadoPresupuesto->name}}</td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
@@ -162,7 +162,7 @@
                                             @foreach($dataFacturacionAnno['facturas'] as $item)
                                             <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->cliente->name}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoiceStatus->name}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->project_id}}</td>
