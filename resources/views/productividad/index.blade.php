@@ -51,6 +51,8 @@
                                 <th>Nombre</th>
                                 <th>Productividad (%)</th>
                                 <th>Tareas finalizadas</th>
+                                <th>Horas Estimadas</th>
+                                <th>Horas Reales</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -60,6 +62,8 @@
                                     <td>{{ $usuario['nombre'] }}</td>
                                     <td>{{ $usuario['productividad'] }}%</td>
                                     <td>{{ $usuario['tareasfinalizadas'] }}</td>
+                                    <td>{{ $usuario['horasEstimadas'] }}</td>
+                                    <td>{{ $usuario['horasReales'] }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

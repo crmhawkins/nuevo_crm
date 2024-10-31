@@ -51,7 +51,10 @@ class ProductividadController extends Controller{
                 'id' => $user->id,
                 'nombre' => $user->name,
                 'productividad' => round($totalProductividad, 2), // Redondea a 2 decimales
-                'tareasfinalizadas' => Count($tareasFinalizadas)
+                'tareasfinalizadas' => Count($tareasFinalizadas),
+                'horasReales'=>$this->convertirTiempo($totalRealTime),
+                'horasEstimadas'=> $this->convertirTiempo($totalEstimatedTime),
+
             ];
         }
 
@@ -62,5 +65,13 @@ class ProductividadController extends Controller{
     public function parseFlexibleTime($time) {
         list($hours, $minutes, $seconds) = explode(':', $time);
         return ($hours * 60) + $minutes + ($seconds / 60); // Convert to total minutes
+    }
+
+    function convertirTiempo($minutos) {
+        $horas = floor($minutos / 60);            // Divide minutos entre 60 para obtener las horas
+        $minutosRestantes = $minutos % 60;        // Usa módulo para obtener los minutos restantes
+        $segundos = ($minutos - floor($minutos)) * 60;  // Calcula los segundos
+
+        return sprintf("%02d:%02d:%02d", $horas, $minutosRestantes, $segundos);
     }
 }

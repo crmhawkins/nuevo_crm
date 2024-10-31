@@ -303,28 +303,6 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-12">
-                            <h2>Trimestral</h2>
-                            <ul class="nav nav-tabs custom-item">
-                                <li class="active"><a data-toggle="tab" href="#primero">Primer Trimestre</a></li>
-                                <li><a data-toggle="tab" href="#segundo">Segundo Trimestre</a></li>
-                                <li><a data-toggle="tab" href="#tercero">Tercer Trimestre</a></li>
-                                <li><a data-toggle="tab" href="#cuarto">Cuarto Trimestre</a></li>
-                            </ul>
-
-                            <div class="tab-content">
-                                @foreach($iva as $itemIva)
-                                    <div id="{{$itemIva['Trimestre']}}" class="tab-pane fade in active">
-                                        <h3>{{$itemIva['Trimestre']}}</h3>
-                                        <p>Total Facturado: <strong>{{$itemIva['totalFacturasIva']}} €</strong></p>
-                                        <p>Total Gastos Asociados: <strong>{{$itemIva['gastosAsociadosTotalIva']}} €</strong></p>
-                                        <h4>Diferencial = {{$itemIva['totalFacturasIva'] - $itemIva['gastosAsociadosTotalIva']}} €</h4>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
