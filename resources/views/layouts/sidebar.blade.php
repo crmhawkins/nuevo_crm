@@ -427,6 +427,12 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="sidebar-item {{ request()->routeIs('productividad.index') ? 'active' : '' }}">
+                        <a href="{{route('productividad.index')}}" class='sidebar-link'>
+                            <i class="fa-solid fa-chart-column"></i>
+                            <span>Productividad</span>
+                        </a>
+                    </li>
                     <li class="sidebar-item {{ request()->routeIs('horas.index') ? 'active' : '' }}">
                         <a href="{{route('horas.index')}}" class='sidebar-link'>
                             <i class="fa-regular fa-clock"></i>

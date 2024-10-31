@@ -45,6 +45,7 @@ use App\Http\Controllers\Logs\LogActionsController;
 use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
 use App\Http\Controllers\Ordenes\OrdenesController;
+use App\Http\Controllers\Productividad\ProductividadController;
 use App\Http\Controllers\Settings\UserSettingsController;
 use App\Http\Controllers\Statistics\StatisticsController;
 use App\Http\Controllers\Tesoreria\IvaController;
@@ -100,6 +101,9 @@ Route::post('/end-pause', [DashboardController::class, 'endPause'])->name('dashb
 //Logs
 Route::get('/logs',[LogActionsController::class, 'index'])->name('logs.index');
 Route::get('/logs/clasificado',[LogActionsController::class, 'Clasificacion'])->name('logs.clasificado');
+
+//Productividad
+Route::get('/productividad', [ProductividadController::class, 'index'])->name('productividad.index');
 
 //Jornadas
 Route::get('/jornadas', [HorasController::class, 'indexHoras'])->name('horas.index');
