@@ -80,24 +80,28 @@
                                     </div>
                                     <div class="modal-body">
                                         <table id="tablaProyectosActivos" style="width: 100%;">
-                                            <tr>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
-                                            </tr>
-                                            @foreach($dataBudgets['ProjectsActive'] as $item)
-                                            <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->estadoPresupuesto->name}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
-                                            </tr>
-                                            @endforeach
+                                            <thead>
+                                                <tr>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($dataBudgets['ProjectsActive'] as $item)
+                                                <tr>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->estadoPresupuesto->name}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -143,6 +147,7 @@
                                     </div>
                                     <div class="modal-body">
                                         <table id="tablaFacturacionAnual" style="width: 100%;">
+                                        <thead>
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
@@ -152,7 +157,8 @@
                                                 <th class="w-full-th" style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
                                             </tr>
-
+                                        </thead>
+                                        <tbody>
                                             @foreach($dataFacturacionAnno['facturas'] as $item)
                                             <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
@@ -173,6 +179,8 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataFacturacionAnno['total']}}</td>
                                             </tr>
+                                        </tbody>
+
                                         </table>
                                     </div>
                                 </div>
@@ -220,6 +228,7 @@
                                     </div>
                                     <div class="modal-body">
                                         <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                        <thead>
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Option number</th>
@@ -227,6 +236,8 @@
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
                                             </tr>
+                                        </thead>
+                                        <tbody>
                                             @foreach($dataGastosComunesAnual['gastos'] as $item)
                                             <tr>
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
@@ -241,6 +252,7 @@
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataGastosComunesAnual['total']}}</td>
                                            </tr>
+                                        </tbody>
                                         </table>
                                     </div>
                                 </div>
