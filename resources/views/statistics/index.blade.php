@@ -341,15 +341,21 @@
             $('.select2').select2();
 
             $('#tablaProyectosActivos').DataTable({
-                responsive: true
+                responsive: true,
+                paging: false // Desactiva la paginación
+
             });
 
             $('#tablaFacturacionAnual').DataTable({
-                responsive: true
+                responsive: true,
+                paging: false // Desactiva la paginación
+
             });
 
             $('#tablaGastosComunesAnual').DataTable({
-                responsive: true
+                responsive: true,
+                paging: false // Desactiva la paginación
+
             });
         });
 
