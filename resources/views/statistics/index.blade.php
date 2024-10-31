@@ -298,7 +298,7 @@
                         <div class="col-6">
                             <div class="container">
                                 <h3>Productividad</h3>
-                                <canvas id="productividad-all"></canvas>
+                                <canvas id="facturacion-media"></canvas>
                             </div>
                         </div>
                     </div>
@@ -450,17 +450,17 @@
         });
 
         // Productividad
-        var ctx4 = document.getElementById("productividad-all").getContext("2d");
+        var ctx4 = document.getElementById("facturacion-media").getContext("2d");
         var myChart4 = new Chart(ctx4, {
             type: 'bar',
             data: {
-                labels: @json($nameUsers),
+                labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
                 datasets: [{
-                    label: 'Productividad',
-                    data: @json($productivityValues),
+                    label: 'Media',
+                    data: @json($monthlyAverages),
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 3
+                    borderWidth: 10
                 }]
             },
             options: {

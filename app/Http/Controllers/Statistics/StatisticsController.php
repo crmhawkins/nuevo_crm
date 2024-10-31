@@ -62,7 +62,7 @@ class StatisticsController extends Controller
         $allArray = [];
         foreach ($arrayAnios as $year) {
             $annualData = [];
-            if ($year != $anioActual){
+            if ($year < '2023'){
                 $all = Statistics::where('year', (int)$year)->pluck('quantity')->toArray();
                 $allArray[$year] = $all;
             }else{
@@ -75,6 +75,27 @@ class StatisticsController extends Controller
             }
         }
 
+        // Inicializa un array para almacenar la suma de facturación por mes y el contador de años con datos
+        $monthlyTotals = array_fill(0, 12, 0);
+        $monthlyCounts = array_fill(0, 12, 0);
+
+        foreach ($allArray as $year => $monthlyData) {
+            foreach ($monthlyData as $index => $amount) {
+                // Acumula el total para cada mes y cuenta los años con datos
+                $monthlyTotals[$index] += $amount;
+                $monthlyCounts[$index]++;
+            }
+        }
+
+        // Calcula la media mensual dividiendo cada total entre el número de años con datos
+        $monthlyAverages = [];
+        foreach ($monthlyTotals as $index => $total) {
+            $monthlyAverages[$index + 1] = $monthlyCounts[$index] ? $total / $monthlyCounts[$index] : 0;
+        }
+
+
+
+
         $nameUsers = collect($userProductivity)->pluck('name')->toArray();
 
 
@@ -84,7 +105,8 @@ class StatisticsController extends Controller
             'dataAsociadosAnual', 'departamentos', 'departamentosBeneficios',
             'userProductivity', 'iva', 'totalBeneficio', 'arrayAnios',
             'anioActual','countTotalBudgets','totalBeneficioAnual',
-            'monthsToActually','billingMonthly','allArray','nameUsers','productivityValues'
+            'monthsToActually','billingMonthly','allArray',
+            'nameUsers','productivityValues','$monthlyAverages'
         ));
     }
 
