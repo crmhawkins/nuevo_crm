@@ -190,27 +190,6 @@ class DashboardController extends Controller
                 $totalRealTime = 0;
 
 
-                // if ($totalTareas > 0) {
-                //     $productividadTotal = 0;
-
-                //     foreach ($tareasFinalizadas as $tarea) {
-                //         // Parse estimated and real times into total minutes
-                //         $estimatedTime = $this->parseFlexibleTime($tarea->estimated_time);
-                //         $realTime = $this->parseFlexibleTime($tarea->real_time);
-
-                //         if ($realTime > 0) {
-                //             $productividad = ($estimatedTime / $realTime) * 100;
-                //         } else {
-                //             $productividad = 100; // Assume full productivity if real time is 0
-                //         }
-
-                //         $productividadTotal += $productividad;
-                //     }
-
-                //     // Calculate the average productivity
-                //     $totalProductividad = $productividadTotal / $totalTareas;
-                // }
-
                 foreach ($tareasFinalizadas as $tarea) {
                     // Parse estimated and real times into total minutes
                     $totalEstimatedTime += $this->parseFlexibleTime($tarea->estimated_time);
@@ -223,8 +202,6 @@ class DashboardController extends Controller
                 } else {
                     $totalProductividad = 0; // Set to 0 if no real time to avoid division by zero
                 }
-                // echo $totalEstimatedTime;
-                // echo $totalRealTime;
 
                 // Set productivity to 0 if no tasks
                 $totalProductividad = $totalTareas > 0 ? $totalProductividad : 0;
@@ -245,17 +222,14 @@ class DashboardController extends Controller
                         'año' => $currentYear,
                         'productividad' => $totalProductividad,
                     ]);
+                }else {
+                        // Actualizar el registro existente
+                    $productividadMensual->update([
+                        'productividad' => $totalProductividad,
+                    ]);
                 }
 
-
                 $productividadIndividual = $totalTareas > 0 ? $totalProductividad : 0;
-                //  else {
-                //     // Actualizar el registro existente
-                //     $productividadMensual->update([
-                //         'productividad' => $totalProductividad,
-                //     ]);
-                // }
-
                 $horasMes = $this->tiempoProducidoMes($user->id);
 
                 return view('dashboards.dashboard_personal', compact(
@@ -693,58 +667,72 @@ class DashboardController extends Controller
                         }
 
 
-                        // $logTask = DB::select("SELECT id FROM `log_tasks` WHERE date_start BETWEEN DATE_SUB(now(), interval 6 hour) AND DATE_ADD(NOW(), INTERVAL 7 hour) AND `admin_user_id` = $usuario->id");
-                        // if (count(value: $logTask) == 1) {
-                        //     $horly = HourlyAverage::create(
-                        //         [
-                        //             'admin_user_id' => $usuario->id,
-                        //             'log_task_id' => $createLog->id,
-                        //             'hours' => $date->format('H:i:s'),
-                        //         ]
-                        //     );
+                        $logTask = DB::select("SELECT id FROM `log_tasks` WHERE date_start BETWEEN DATE_SUB(now(), interval 6 hour) AND DATE_ADD(NOW(), INTERVAL 7 hour) AND `admin_user_id` = $usuario->id");
+                        if (count(value: $logTask) == 1) {
+
+                            $activeJornada = $usuario->activeJornada();
+
+                            if (!$activeJornada) {
+                                $jornada =  Jornada::create([
+                                    'admin_user_id' => $usuario->id,
+                                    'start_time' => Carbon::now(),
+                                    'is_active' => true,
+                                ]);
+                            }
+                            $horaLimiteEntrada = Carbon::createFromTime(9, 30, 0, 'Europe/Madrid');
+                            $mesActual = Carbon::now()->month;
+                            $añoActual = Carbon::now()->year;
+
+                            $hourlyAverage = Jornada::where('admin_user_id', $usuario->id)
+                                ->whereMonth('start_time', $mesActual)
+                                ->whereYear('start_time', $añoActual)
+                                ->whereRaw("CONVERT_TZ(start_time, '+00:00', '+02:00') > ?", [$horaLimiteEntrada->format('H:i:s')])
+                                ->get();
+
+                            if (count($hourlyAverage) > 2) {
+                                $data = [
+                                    "admin_user_id" =>  1,
+                                    "stage_id" => 15,
+                                    "description" => $usuario->name . " ha llegado tarde 3 veces o mas este mes",
+                                    "status_id" => 1,
+                                    "reference_id" => $usuario->id,
+                                    "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
+                                ];
+
+                                $alert = Alert::create($data);
+                                $alertSaved = $alert->save();
+                            }
 
 
-                        //     $note = $this->calculateNote($horly->hours);
+                            $fechaNow = Carbon::now();
 
-                        //     $fechaNow = Carbon::now();
+                            switch (count($hourlyAverage)) {
+                                case 1:
+                                    $text = 'Hemos notado que hoy llegaste después de la hora límite de entrada (09:30). Entendemos que a veces pueden surgir imprevistos, pero te recordamos la importancia de respetar el horario para mantener la eficiencia en el equipo.';
+                                    break;
+                                case 2:
+                                    $text = 'Nuevamente has llegado después de la hora límite de entrada (09:30). Reforzamos la importancia de cumplir con el horario para asegurar un buen rendimiento y organización en el equipo.';
+                                    break;
+                                case 3:
+                                    $text = 'Se ha registrado tu llegada tarde tres veces. Esta información se compartirá con la Dirección. Es importante respetar los horarios para mantener el rendimiento y la organización del equipo.';
+                                    break;
+                                default:
+                                    $text = 'Se ha registrado tu llegada tarde mas de  tres veces. Esta información se compartirá con la Dirección. Es importante respetar los horarios para mantener el rendimiento y la organización del equipo.';
+                                    break;
+                            }
 
-                        //     if ($note == 0) {
+                            $data = [
+                                "admin_user_id" =>  $usuario->id,
+                                "stage_id" => 23,
+                                "description" => $text,
+                                "status_id" => 1,
+                                "reference_id" => $usuario->id,
+                                "activation_datetime" => $fechaNow->format('Y-m-d H:i:s')
+                            ];
 
-                        //         $hourlyAverage = DB::select("SELECT hours FROM `hourly_average` WHERE created_at BETWEEN LAST_DAY(now() - interval 1 month) AND LAST_DAY(NOW()) AND `admin_user_id` = $usuario->id AND `hours` > '09:05:00'");
-                        //         if (count($hourlyAverage) > 2) {
-                        //             $data = [
-                        //                 "admin_user_id" =>  1,
-                        //                 "stage_id" => 15,
-                        //                 "description" => $usuario->name . " ha llegado tarde 3 veces o mas este mes",
-                        //                 "status_id" => AlertStatus::ALERT_STATUS_PENDING,
-                        //                 "reference_id" => $horly->id,
-                        //                 "activation_datetime" => $fechaNow->format('Y-m-d H:i:s')
-                        //             ];
-
-                        //             $alert = Alert::create($data);
-                        //             $alertSaved = $alert->save();
-                        //         }
-                        //     }
-
-                        //     $text = $this->mensajeMediaHora($note);
-
-
-                        //     $fechaNow = Carbon::now();
-
-
-
-                        //     $data = [
-                        //         "admin_user_id" =>  $usuario->id,
-                        //         "stage_id" => 23,
-                        //         "description" => $text,
-                        //         "status_id" => AlertStatus::ALERT_STATUS_PENDING,
-                        //         "reference_id" => $horly->id,
-                        //         "activation_datetime" => $fechaNow->format('Y-m-d H:i:s')
-                        //     ];
-
-                        //     $alert = Alert::create($data);
-                        //     $alertSaved = $alert->save();
-                        // }
+                            $alert = Alert::create($data);
+                            $alertSaved = $alert->save();
+                        }
                     }
                     break;
                 case "Pausada":

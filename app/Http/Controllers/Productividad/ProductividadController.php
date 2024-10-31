@@ -5,14 +5,16 @@ namespace App\Http\Controllers\Productividad;
 use App\Http\Controllers\Controller;
 use App\Models\Tasks\Task;
 use App\Models\Users\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ProductividadController extends Controller{
 
     public function index(Request $request)    {
         $usuarios = User::where('inactive', 0)->where('access_level_id', 5)->get();
-        $month = $request->mes ?? date('m');
-        $year = $request->year ?? date('Y');
+        $fecha = $request->mes ?? now()->format('Y-m');
+        $year = Carbon::parse($fecha)->format('Y');
+        $month = Carbon::parse($fecha)->format('m');
 
         $productividadUsuarios = []; // Array para almacenar la productividad de cada usuario
 
