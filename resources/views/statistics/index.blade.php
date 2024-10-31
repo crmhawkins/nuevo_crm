@@ -102,6 +102,16 @@
                                                 </tr>
                                                 @endforeach
                                             </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataBudgets['ProjectsActive']->sum('total')}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                </tr>
+                                            </tfoot>
                                         </table>
                                     </div>
                                 </div>
