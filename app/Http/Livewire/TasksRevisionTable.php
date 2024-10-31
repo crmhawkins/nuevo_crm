@@ -30,8 +30,8 @@ class TasksRevisionTable extends Component
     public function mount(){
         $this->categorias = ServiceCategories::where('inactive',0)->get();
         $this->clientes = Client::All();
-        $this->empleados = User::all();
-        $this->gestores = User::all();
+        $this->empleados = User::where('inactive',0)->where('access_level_id',5)->get();
+        $this->gestores = User::where('inactive',0)->whereIn('access_level_id', [1, 2, 3, 4])->get();
     }
 
     public function render()
