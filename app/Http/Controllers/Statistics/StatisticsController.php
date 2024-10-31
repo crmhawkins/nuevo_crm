@@ -110,6 +110,7 @@ class StatisticsController extends Controller
     {
         // Aquí recuperas los gastos mensuales agrupados por mes
         return DB::table('gastos')
+            ->where('transfer_movement', 0)
             ->whereYear('date', $anio)
             ->whereNull('deleted_at')
             ->select(DB::raw('MONTH(date) as mes'), DB::raw('SUM(quantity) as total'))
