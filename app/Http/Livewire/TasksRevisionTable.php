@@ -56,7 +56,7 @@ class TasksRevisionTable extends Component
                 })
                 ->when($this->selectedCliente, function ($query) {
                     $query->whereHas('presupuesto', function ($query) {
-                        $query->where('client_id', $this->selectedCliente);
+                        $query->where('budgets.client_id', $this->selectedCliente);
                     });
                 })
                 ->when($this->selectedEmpleado, function ($query) {
