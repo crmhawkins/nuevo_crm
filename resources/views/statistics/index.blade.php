@@ -460,7 +460,7 @@
                     data: @json($monthlyAveragesValues),
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 10
+                    borderWidth: 3
                 }]
             },
             options: {

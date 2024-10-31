@@ -50,6 +50,7 @@
                                 <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Productividad (%)</th>
+                                <th>Tareas finalizadas</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -58,6 +59,7 @@
                                     <td>{{ $usuario['id'] }}</td>
                                     <td>{{ $usuario['nombre'] }}</td>
                                     <td>{{ $usuario['productividad'] }}%</td>
+                                    <td>{{ $usuario['tareasfinalizadas'] }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -74,7 +76,13 @@
 <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
 <script>
     $(document).ready(function () {
-        $('#table1').DataTable(); // Inicializa DataTables
+        $('#table1').DataTable({
+            paging: false, // Quitar paginación
+            info: false, // Quitar información de la tabla
+            searching: false, // Quitar barra de búsqueda
+            ordering: true, // Permitir ordenar
+            responsive: true // Hacer la tabla responsive
+        });
     });
 </script>
 

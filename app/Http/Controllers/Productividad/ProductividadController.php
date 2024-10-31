@@ -50,13 +50,15 @@ class ProductividadController extends Controller{
             $productividadUsuarios[] = [
                 'id' => $user->id,
                 'nombre' => $user->name,
-                'productividad' => round($totalProductividad, 2) // Redondea a 2 decimales
+                'productividad' => round($totalProductividad, 2), // Redondea a 2 decimales
+                'tareasfinalizadas' => Count($tareasFinalizadas)
             ];
         }
 
         // Pasa el array de productividad a la vista
         return view('productividad.index', compact('productividadUsuarios'));
     }
+
     public function parseFlexibleTime($time) {
         list($hours, $minutes, $seconds) = explode(':', $time);
         return ($hours * 60) + $minutes + ($seconds / 60); // Convert to total minutes
