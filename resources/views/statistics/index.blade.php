@@ -154,9 +154,6 @@
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Beneficio</th>
 
                                             </tr>
-                                            <?php
-                                                $sumaColumna = 0;
-                                                ?>
 
                                             @foreach($dataFacturacionAnno['facturas'] as $item)
                                             <tr>
@@ -257,7 +254,7 @@
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$sumaColumnaGastosAsociadosAnual}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataGastosComunesAnual['total']}}</td>
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                            </tr>
                                         </table>
