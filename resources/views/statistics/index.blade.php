@@ -86,9 +86,8 @@
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Marca</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
-
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
                                             </tr>
                                             @foreach($dataBudgets['ProjectsActive'] as $item)
                                             <tr>
@@ -97,8 +96,8 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client_id}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->budget_status_id}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
                                             </tr>
                                             @endforeach
                                         </table>
