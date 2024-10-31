@@ -60,10 +60,10 @@ class TasksRevisionTable extends Component
                     });
                 })
                 ->when($this->selectedEmpleado, function ($query) {
-                    $query->where('admin_user_id', $this->selectedEmpleado);
+                    $query->where('tasks.admin_user_id', $this->selectedEmpleado);
                 })
                 ->when($this->selectedGestor, function ($query) {
-                    $query->where('gestor_id', $this->selectedGestor);
+                    $query->where('tasks.gestor_id', $this->selectedGestor);
                 })
                 ->join('budget_concepts', 'tasks.budget_concept_id', '=', 'budget_concepts.id')
                 ->join('services_categories', 'budget_concepts.services_category_id', '=', 'services_categories.id')
