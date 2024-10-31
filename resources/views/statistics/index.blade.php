@@ -79,7 +79,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <table style="width: 100%;">
+                                        <table id="tablaProyectosActivos" style="width: 100%;">
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
@@ -147,7 +147,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <table style="width: 100%;">
+                                        <table id="tablaFacturacionAnual" style="width: 100%;">
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
@@ -228,7 +228,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <table style="width: 100%;">
+                                        <table id="tablaGastosComunesAnual" style="width: 100%;">
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
@@ -350,6 +350,18 @@
             });
 
             $('.select2').select2();
+
+            $('#tablaProyectosActivos').DataTable({
+                responsive: true
+            });
+
+            $('#tablaFacturacionAnual').DataTable({
+                responsive: true
+            });
+
+            $('#tablaGastosComunesAnual').DataTable({
+                responsive: true
+            });
         });
 
         // Configuración de gráficos
