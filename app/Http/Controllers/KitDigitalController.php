@@ -187,6 +187,39 @@ class KitDigitalController extends Controller
         ]);
         $data = $request->all();
         $data['comercial_id'] = Auth::user()->id;
+
+        switch ($data['segmento']) {
+            case '1':
+                $data['importe'] = '12000,00';
+                break;
+            case '2':
+                $data['importe'] = '6000,00';
+                break;
+            case '3':
+                $data['importe'] = '2000,00';
+                break;
+            case '30':
+                $data['importe'] = '1000,00';
+                break;
+            case '4':
+                $data['importe'] = '25000,00';
+                break;
+            case '5':
+                $data['importe'] = '29000,00';
+                break;
+            case 'A':
+                $data['importe'] = '12000,00';
+                break;
+            case 'B':
+                $data['importe'] = '18000,00';
+                break;
+            case 'C':
+                $data['importe'] = '24000,00';
+                break;
+            default:
+            $data['importe'] = '0,00';
+                break;
+        }
         $kit = KitDigital::create($data);
         LogActions::create([
             'tipo' => 1,
