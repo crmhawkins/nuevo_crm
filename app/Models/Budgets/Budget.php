@@ -2,6 +2,7 @@
 
 namespace App\Models\Budgets;
 
+use App\Models\Invoices\Invoice;
 use App\Models\Tasks\Task;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -75,6 +76,10 @@ class Budget extends Model
     public function budgetConcepts()
     {
         return $this->hasMany(BudgetConcept::class, 'budget_id');
+    }
+    public function factura()
+    {
+        return $this->hasOne(Invoice::class, 'budget_id');
     }
     public function cambiarEstadoPresupuesto($nuevoEstadoId)
     {

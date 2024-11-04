@@ -3,16 +3,16 @@
 namespace App\Console\Commands;
 
 use App\Models\Alerts\Alert;
-use App\Models\Invoices\Invoice;
+use App\Models\Budgets\Budget;
 use App\Models\Users\User;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class AlertasFacturaFuera extends Command
+class AlertasPresupuestoFinalizado extends Command
 {
-    protected $signature = 'Alertas:facturaFuera';
-    protected $description = 'Crear alertas de factura fuera de plazo';
+    protected $signature = 'Alertas:presupuestoFinalizado';
+    protected $description = 'Crear alertas de presupuesto Finalizado y no facturado';
 
     public function __construct()
     {
@@ -21,15 +21,16 @@ class AlertasFacturaFuera extends Command
 
     public function handle()
     {
-        $pendientes = Invoice::where('invoice_status_id', 1)
-        ->where('paid_date', '<=', Carbon::now())
-        ->get();
+        $pendientes = Budget::where('budget_status_id', 5)
+            ->where('updated_at', '<=', Carbon::now()->subHours(24))
+            ->doesntHave('factura') // Agrega esta línea para filtrar los presupuestos sin factura
+            ->get();
+
 
         foreach ($pendientes as $pendiente) {
-            $alertExists  = Alert::where('stage_id', 9)->where('reference_id', $pendiente->id)->where('status_id', 1)->exists();
+            $alertExists  = Alert::where('stage_id', 5)->where('reference_id', $pendiente->id)->where('status_id', 1)->exists();
             if(!$alertExists ){
-
-                $latestAlertWithStatus2 = Alert::where('stage_id', 9)
+                $latestAlertWithStatus2 = Alert::where('stage_id', 5)
                 ->where('reference_id', $pendiente->id)
                 ->where('status_id', 2)
                 ->orderBy('created_at', 'desc')
@@ -43,10 +44,10 @@ class AlertasFacturaFuera extends Command
                     $alert = Alert::create([
                         'reference_id' => $pendiente->id,
                         'admin_user_id' => $usuario->id,
-                        'stage_id' => 9,
+                        'stage_id' => 5,
                         'activation_datetime' => Carbon::now(),
                         'cont_postpone' => $contPostpone,
-                        'description' => 'Factura ' . $pendiente->reference.' fuera de plazo.',
+                        'description' => 'Presupuesto ' . $pendiente->reference.' esta finalizado y no esta facturado.'
                     ]);
                 }
             }

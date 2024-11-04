@@ -534,7 +534,7 @@
                         botonposponer = false;
                         break;
                     case 23:
-                        mensajeDetalle = "La horas trabajadas de este mes son :" + alerta['horas'] + " acepta si esta conforme";
+                        mensajeDetalle = alerta['description'];
                         botonposponer = false;
                         break;
 
@@ -591,8 +591,8 @@
                         <li class="li-flex">
                             <div class="li-mensaje">${mensajeDetalle}</div>
                             <div class="li-boton">
-                                <button class="btn-pop" onclick="posponerAlerta(${alerta['id']})">Acción Posponer</button>
-                                <button class="btn-pop" onclick="manejarAlertaEspecifica(${stage_id}, ${index})">Acción Manejar</button>
+                                <button class="btn-pop" onclick="posponerAlerta(${alerta['id']})" title="Posponer">Acción Posponer</button>
+                                <button class="btn-pop" onclick="manejarAlertaEspecifica(${stage_id}, ${index})" title="Ok"><i class="fa-solid fa-arrow-right"></i></button>
                             </div>
                         </li>`;
                 }else{
@@ -600,7 +600,7 @@
                         <li class="li-flex">
                             <div class="li-mensaje">${mensajeDetalle}</div>
                             <div class="li-boton">
-                                <button class="btn-pop" onclick="manejarAlertaEspecifica(${stage_id}, ${index})">Acción</button>
+                                <button class="btn-pop" onclick="manejarAlertaEspecifica(${stage_id}, ${index})" title="Ok"><i class="fa-solid fa-arrow-right"></i></button>
                             </div>
                         </li>`;
                 }
@@ -1115,6 +1115,21 @@
                         });
                     break;
 
+                case 23:
+                var id = alertaSeleccionada['id'];
+                    var status = 2; //Resuelto
+                    $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                        if (jqXHR.responseText != 503) {
+                        eliminarAlertaDOM(stage_id, index);
+                        } else {
+                        swal(
+                            'Error',
+                            'Error al realizar la peticion',
+                            'error'
+                        );
+                        }
+                    });
+                    break;
                 case 24:
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto

@@ -68,17 +68,17 @@ class CuadroController extends Controller
         	}
         }
 
-        // if(!$existAlert){
-        //     $dataAlert = [
-        //         'admin_user_id' => 8,    //Elena Administracion
-        //         'stage_id' => 10,
-        //         'activation_datetime' => Carbon::create($year, $month, $contDias, 9, 0, 0)->format('Y-m-d H:i:s'),
-        //         'status_id' => 1,
-        //     ];
+        if(!$existAlert){
+            $dataAlert = [
+                'admin_user_id' => 8,    //Elena Administracion
+                'stage_id' => 10,
+                'activation_datetime' => Carbon::create($year, $month, $contDias, 9, 0, 0)->format('Y-m-d H:i:s'),
+                'status_id' => 1,
+            ];
 
-        //     $alert = Alert::create($dataAlert);
-        //     $alertSaved = $alert->save();
-        // }
+            $alert = Alert::create($dataAlert);
+            $alertSaved = $alert->save();
+        }
 
 
         /************** FACTURAS ****************/
@@ -136,7 +136,13 @@ class CuadroController extends Controller
                 $contDias++;
             }
         }
-
+        $hasNegativeDay = false;
+        foreach ($arrayTotal['meses'][$month]['TOTAL'] as $totalDia) {
+            if ($totalDia < 0) {
+                $hasNegativeDay = true;
+                break;
+            }
+        }
         //Una semana antes
         $contDias = $contDias - 7;
         if($contDias<0){
@@ -156,17 +162,17 @@ class CuadroController extends Controller
         	}
         }
 
-        // if(!$existAlert){
-        //     $dataAlert = [
-        //         'admin_user_id' => 8,    //Elena Administracion
-        //         'stage_id' => 10,
-        //         'activation_datetime' => Carbon::create($year, $month, $contDias, 9, 0, 0)->format('Y-m-d H:i:s'),
-        //         'status_id' => 1,
-        //     ];
+        if(!$existAlert && $hasNegativeDay){
+            $dataAlert = [
+                'admin_user_id' => 8,    //Elena Administracion
+                'stage_id' => 10,
+                'activation_datetime' => Carbon::create($year, $month, $contDias, 9, 0, 0)->format('Y-m-d H:i:s'),
+                'status_id' => 1,
+            ];
 
-        //     $alert = Alert::create($dataAlert);
-        //     $alertSaved = $alert->save();
-        // }
+            $alert = Alert::create($dataAlert);
+            $alertSaved = $alert->save();
+        }
 
 
         /************** FACTURAS ****************/

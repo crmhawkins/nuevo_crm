@@ -187,7 +187,7 @@
                                         <tr class="text-center">
                                             <td style="min-width: 120px">{{ \Carbon\Carbon::parse($ayuda->created_at)->format('d-m-Y') }}</td>
                                             <td class="d-none d-md-table-cell">{{ $ayuda->cliente }}</td>
-                                            <td class="text-warning">{{ $ayuda->estados->nombre }}</td>
+                                            <td class="text-warning">{{ Optional($ayuda->estados)->nombre  }}</td>
                                             <td>{{ $ayuda->telefono }}</td>
                                             <td>{{ $ayuda->email }}</td>
                                             <td style="max-width: 300px !important">{{ $ayuda->comentario }}</td>

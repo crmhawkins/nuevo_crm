@@ -57,7 +57,7 @@ class Categorizacion extends Command
             "messages" => [
                 [
                     "role" => "user",
-                    "content" => 'Analiza el contenido de un correo y categorizalo dentro de estas categorías: ' . $categorias . '. Dame solo el id de la categoría unicamente el numero nunca me des el nombre de la categoria solo el id , a la que pertenece este correo: "' . $correo . '" si el correo no tiene contenido o no sabes en que categoría debe estar, responde con NULL'
+                    "content" => 'Analiza el contenido de un correo y categorizalo dentro de estas categorías: ' . $categorias . '. Dame solo el id de la categoría unicamente el numero nunca me des el nombre de la categoria solo el id , a la que pertenece este correo: "' . $correo . '" si el correo no tiene contenido o no sabes en que categoría debe estar, responde con categoria otros'
                 ]
             ]
         );

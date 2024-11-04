@@ -319,10 +319,10 @@
                 <div class="col-12 col-md-6 order-md-2 order-first">
                     <div class="row justify-end ">
                         <h2 id="timer" class="display-6 fw-bolder col-4">00:00:00</h2>
-                        <button id="startJornadaBtn" class="btn jornada btn-primary mx-2 col-3" onclick="startJornada()">Inicio Jornada</button>
+                        {{-- <button id="startJornadaBtn" class="btn jornada btn-primary mx-2 col-3" onclick="startJornada()">Inicio Jornada</button> --}}
                         <button id="startPauseBtn" class="btn jornada btn-secondary mx-2 col-3" onclick="startPause()" style="display:none;">Iniciar Pausa</button>
                         <button id="endPauseBtn" class="btn jornada btn-dark mx-2 col-3" onclick="endPause()" style="display:none;">Finalizar Pausa</button>
-                        <button id="endJornadaBtn" class="btn jornada btn-danger mx-2 col-3" onclick="endJornada()" style="display:none;">Fin de Jornada</button>
+                        {{-- <button id="endJornadaBtn" class="btn jornada btn-danger mx-2 col-3" onclick="endJornada()" style="display:none;">Fin de Jornada</button> --}}
                     </div>
                 </div>
             </div>
@@ -1029,8 +1029,6 @@
 
             // Initialize button states based on jornada and pause
             if ('{{ $jornadaActiva }}') {
-                document.getElementById('startJornadaBtn').style.display = 'none';
-                document.getElementById('endJornadaBtn').style.display = 'block';
                 if ('{{ $pausaActiva }}') {
                     document.getElementById('startPauseBtn').style.display = 'none';
                     document.getElementById('endPauseBtn').style.display = 'block';
@@ -1040,8 +1038,6 @@
                     startTimer(); // Start timer if not in pause
                 }
             } else {
-                document.getElementById('startJornadaBtn').style.display = 'block';
-                document.getElementById('endJornadaBtn').style.display = 'none';
                 document.getElementById('startPauseBtn').style.display = 'none';
                 document.getElementById('endPauseBtn').style.display = 'none';
             }
@@ -1088,9 +1084,7 @@
                 .then(data => {
                     if (data.success) {
                         startTimer();
-                        document.getElementById('startJornadaBtn').style.display = 'none';
                         document.getElementById('startPauseBtn').style.display = 'block';
-                        document.getElementById('endJornadaBtn').style.display = 'block';
                     }
                 });
         }
@@ -1155,9 +1149,7 @@
             .then(data => {
                 if (data.success) {
                     stopTimer();
-                    document.getElementById('startJornadaBtn').style.display = 'block';
                     document.getElementById('startPauseBtn').style.display = 'none';
-                    document.getElementById('endJornadaBtn').style.display = 'none';
                     document.getElementById('endPauseBtn').style.display = 'none';
                 }
             });
