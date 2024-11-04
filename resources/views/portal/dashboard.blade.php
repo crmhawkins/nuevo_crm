@@ -31,7 +31,7 @@
               <i class="fa-solid fa-stopwatch"></i>
             </div>
             <div class="col-10 title-section ">
-              <span>0,00€</span>
+              <span>{{$cliente->invoice_status_id(1)->sum('total')}}</span>
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@
                 <span class="panel-title--emoji">👋</span>
               </div>
               <div class="col">
-                <div class="panel-title">Hola THWORK 3000,S.L.</div>
+                <div class="panel-title">Hola {{$cliente->name}},</div>
                 <div class="panel-subtitle">Has venido al lugar correcto</div>
               </div>
             </div>
@@ -93,7 +93,7 @@
                   <i class="fa-solid fa-file-invoice-dollar"></i>
                 </div>
                 <div class="col-10 title-section ">
-                  <span>20</span>
+                  <span>{{$cliente->presupuestosPorEstado(2)->count()}}</span>
                 </div>
               </div>
             </div>

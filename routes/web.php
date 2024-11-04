@@ -561,6 +561,8 @@ Route::post('/actualizar', [AccionesController::class, 'actualizar'])->name('acc
 
 });
 // Portal Clientes
+Route::get('/portal/login', [PortalClientesController::class, 'login'])->name('portal.login');
+Route::post('/portal/login/cliente', [PortalClientesController::class, 'loginPost'])->name('portal.loginPost');
 Route::get('/portal/dashboard', [PortalClientesController::class, 'dashboard'])->name('portal.dashboard');
 Route::get('/portal/presupuestos', [PortalClientesController::class, 'presupuestos'])->name('portal.presupuestos');
 Route::get('/portal/facturas', [PortalClientesController::class, 'facturas'])->name('portal.facturas');

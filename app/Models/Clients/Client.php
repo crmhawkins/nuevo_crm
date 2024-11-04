@@ -52,6 +52,7 @@ class Client extends Model
         'notes',
         'last_survey',
         'last_newsletter',
+        'pin',
     ];
 
      /**
@@ -92,6 +93,9 @@ class Client extends Model
     }
     public function facturas(){
         return $this->hasMany(\App\Models\Invoices\Invoice::class, 'client_id');
+    }
+    public function facturasPorEstado($estadoId) {
+        return $this->facturas()->where('invoice_status_id', $estadoId)->get();
     }
     public function dominios(){
         return $this->hasMany(\App\Models\Dominios\Dominio::class, 'client_id');
