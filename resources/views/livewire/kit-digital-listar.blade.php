@@ -161,12 +161,17 @@
                         </select>
                     </td>
                     <td style="width: 50px !important; ">
-                        <select data-id="{{$item->id}}" name="cliente_id" id="cliente_id" style="width: 50px !important; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}};margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;">
-                            <option value="">SC</option>
-                            @foreach ($clientes as $cliente)
-                                <option value="{{$cliente->id}}" @if($item->cliente_id == $cliente->id) selected  @endif>{{$cliente->name}}</option>
-                            @endforeach
-                        </select>
+                        <div class="d-flex cliente" wire:ignore >
+                            <select class="choices" data-id="{{$item->id}}" name="cliente_id" id="cliente_id" style="width: 50px !important; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}};margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;">
+                                <option value="">SC</option>
+                                @foreach ($clientes as $cliente)
+                                    <option value="{{$cliente->id}}" @if($item->cliente_id == $cliente->id) selected  @endif>{{$cliente->name}}</option>
+                                @endforeach
+                            </select>
+                            <a href="{{route('clientes.create')}}" target="blank" class="btn btn-sm btn-light ml-1">
+                                <i class="fa-solid fa-plus"></i>
+                             </a>
+                        </div>
                     </td>
                     <td style="max-width: 70px !important"><input data-id="{{$item->id}}" type="text" name="cliente" id="cliente" value="{{ $item->cliente }}" style="max-width: 70px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem"></td>
                     <td style="max-width: 50px">
@@ -277,6 +282,7 @@
         /* Estilos específicos para la tabla */
     .table-responsive {
         overflow-x: auto; /* Asegura un desplazamiento suave en pantallas pequeñas */
+        overflow-y: hidden; /* Asegura un desplazamiento suave en pantallas pequeñas */
     }
 
     .header-table th {
@@ -301,87 +307,45 @@
     .titulo_filtros {
       white-space: nowrap !important;
     }
+    /* Cambia el estilo del select */
+    .cliente .choices {
+        width: 50px !important;
+        margin-bottom: 0 !important;
+        font-size: 0.75rem;
+        height: fit-content;
+    }
+    .cliente .choices__inner {
+        padding-bottom: 0 !important;
+        display: block !important;
+        vertical-align: top !important;
+        width: 100% !important;
+        background-color: transparent !important;
+        padding: 0.1rem 0.1rem 0.1rem 0.2rem !important;
+        border: 1px solid rgb(175, 175, 175) !important;
+        border-radius: 2.5px !important;
+        font-size: 0.75rem !important;
+        min-height: 0px !important;
+        overflow: hidden !important;
+        box-shadow: none !important;
+    }
+
+    /* Estilo del dropdown */
+    .cliente .choices__list {
+        width: 200px; /* Cambia el ancho del dropdown */
+        max-width: 400px; /* Ajusta el ancho máximo como desees */
+    }
+    .choices__list.choices__list--single {
+        padding: 0.1rem 0.1rem 0.1rem 0.2rem !important;
+    }
+    .cliente .choices__item.choices__item--choice.choices__item--selectable {
+        color: black !important;
+        /* Puedes agregar más estilos aquí */
+    }
     </style>
 </div>
 @section('scripts')
-<script>
-$(document).ready(function() {
-    // Usar delegación de eventos para asegurar que los nuevos elementos tengan el evento click
-    $(document).on('click', '.edit-textarea', function() {
-        var id = $(this).data('id');
-        var field = $(this).data('field');
-        var content = $(this).data('content');
-
-        console.log(content, field, id);
-
-        // Configurar el textarea y el título del modal
-        $('#modal-textarea').val(content).data('id', id).data('field', field);
-        $('#editModalLabel').text('Editar ' + field.replace('_', ' ').toUpperCase());
-    });
-
-    // Guardar los cambios cuando el botón "Guardar Cambios" es presionado
-    $('#saveChanges').on('click', function() {
-        var id = $('#modal-textarea').data('id');
-        var field = $('#modal-textarea').data('field');
-        var value = $('#modal-textarea').val();
-
-        // Actualizar el contenido visual en el DOM (si es necesario)
-        $('[data-id="' + id + '"][data-field="' + field + '"]').data('content', value);
-
-        // Llamar a la función para guardar los datos actualizados en el servidor
-        handleDataUpdate(id, value, field);
-    });
-});
-
-// Función para manejar la actualización de datos
-function handleDataUpdate(id, value, key) {
-    $.ajax({
-        type: "POST",
-        url: "{{ route('kitDigital.updateData') }}", // Asegúrate de que esta es la ruta correcta
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-        },
-        data: {
-            id: id,
-            value: value,
-            key: key
-        },
-        success: function(data) {
-            // Cierra el modal explícitamente después de actualizar
-            $('#editModal').modal('hide');
-            $('.modal-backdrop').remove();
-            // Opcionalmente muestra una notificación de éxito
-            const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer);
-                            toast.addEventListener('mouseleave', Swal.resumeTimer);
-                        }
-                    });
-
-                    Toast.fire({
-                        icon: data.icon, // Corregido: Se agregó una coma al final
-                        title: data.mensaje // Corregido: Se agregó una coma al final
-                    });
-        },
-        error: function(xhr, status, error) {
-            // Opcionalmente muestra una notificación de error
-            $('#editModal').modal('hide'); // Cierra el modal también en caso de error si lo prefieres
-        }
-    });
-}
-
-
-</script>
-
-
     @include('partials.toast')
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
-
     <script>
 
         function redirectToWhatsapp(id) {
@@ -406,39 +370,39 @@ function handleDataUpdate(id, value, key) {
                     key: key
                 },
                 success: function(data) {
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer);
-                            toast.addEventListener('mouseleave', Swal.resumeTimer);
-                        }
-                    });
+                    if (data.icon === 'success') {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            }
+                        });
 
-                    Toast.fire({
-                        icon: data.icon, // Corregido: Se agregó una coma al final
-                        title: data.mensaje // Corregido: Se agregó una coma al final
-                    });
+                        Toast.fire({
+                            icon: data.icon, // Corregido: Se agregó una coma al final
+                            title: data.mensaje // Corregido: Se agregó una coma al final
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: data.icon,
+                            title: data.mensaje,
+                            confirmButtonText: 'Ok',
+                            backdrop: true // Agrega un fondo oscurecido
+                        });
+                    }
                 },
                 error: function(xhr, status, error) {
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer);
-                            toast.addEventListener('mouseleave', Swal.resumeTimer);
-                        }
-                    });
-
-                    Toast.fire({
-                        icon: 'error', // Se cambió a un ícono fijo 'error' porque 'data.icon' no estaría disponible aquí
-                        title: 'Error de servidor' // Mensaje genérico de error, puedes personalizarlo
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de servidor',
+                        text: 'Ha ocurrido un error. Por favor, intenta de nuevo.',
+                        confirmButtonText: 'Ok',
+                        backdrop: true // Agrega un fondo oscurecido
                     });
                 }
             });

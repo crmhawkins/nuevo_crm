@@ -46,7 +46,6 @@ class KitDigitalListarClienteTable extends Component
         $this->servicios = KitDigitalServicios::all();
         $this->estados = KitDigitalEstados::orderBy('orden', 'asc')->get();
 
-        $this->clientes = Client::where('is_client',true)->get();
         $this->estados_facturas = [
             ['id' => '0', 'nombre' => 'No abonada'],
             ['id' => '1', 'nombre' => 'Abonada'],
@@ -67,6 +66,7 @@ class KitDigitalListarClienteTable extends Component
 
     public function render()
     {
+        $this->clientes = Client::where('is_client',true)->get();
         $this->actualizarKitDigital(); // Ahora se llama directamente en render para refrescar los clientes.
         return view('livewire.kit-digital-listar', [
             'kitDigitals' => $this->kitDigitals

@@ -546,14 +546,14 @@ class DashboardController extends Controller
             $data["id"] = $tarea->id;
             $data["user"] = $tarea->admin_user_id;
             $data["titulo"] = $tarea->title;
-            $data["cliente"] = $tarea->presupuesto->cliente->name;
+            $data["cliente"] = Optional(Optional($tarea->presupuesto)->cliente)->name ?? 'Cliente no encontrado';
             $data["descripcion"] = $tarea->description;
             $data["estimado"] = $tarea->estimated_time;
             $data["real"] = $tarea->real_time;
-            $data["proyecto"] = $tarea->proyecto->name;
-            $data["prioridad"] = $tarea->prioridad->name;
+            $data["proyecto"] = Optional($tarea->proyecto)->name ?? 'Proyecto no encontrado';
+            $data["prioridad"] = Optional($tarea->prioridad)->name ?? 'Prioridad no encontrada';
             $data["gestor"] = $tarea->gestor->name;
-            $data["gestorid"] = $tarea->gestor->id;
+            $data["gestorid"] = Optional($tarea->gestor)->id ?? 'Gestor no encontrado';
             $data["estado"] = $tarea->estado->name;
             $data["metas"] = '';
             $data["userName"] = $autor;
@@ -687,7 +687,7 @@ class DashboardController extends Controller
                             $hourlyAverage = Jornada::where('admin_user_id', $usuario->id)
                                 ->whereMonth('start_time', $mesActual)
                                 ->whereYear('start_time', $añoActual)
-                                ->whereRaw("CONVERT_TZ(start_time, 'UTC', 'Europe/Madrid') > ?", [$horaLimiteEntrada->format('H:i:s')])
+                                ->whereRaw("TIME(CONVERT_TZ(start_time, 'UTC', 'Europe/Madrid')) > ?", [$horaLimiteEntrada->format('H:i:s')])
                                 ->get();
 
 

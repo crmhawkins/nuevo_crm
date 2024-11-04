@@ -11,6 +11,7 @@ use App\Models\Logs\LogActions;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Optional;
 
 class KitDigitalController extends Controller
 {
@@ -91,24 +92,24 @@ class KitDigitalController extends Controller
 
             switch ($data['key']) {
                 case 'gestor':
-                    $valor2 = User::find($data['value'])->name;
-                    $valor1 = User::find($valor1)->name;
+                    $valor2 = Optional(User::find($data['value']))->name ?? 'Gestor no seleccionado';
+                    $valor1 = Optional(User::find($valor1))->name ?? 'Gestor no encontrado';
                     break;
                 case 'comercial_id':
-                    $valor2 = User::find($data['value'])->name;
-                    $valor1 = User::find($valor1)->name;
+                    $valor2 = Optional(User::find($data['value']))->name ?? 'Comercial no seleccionado';
+                    $valor1 = Optional(User::find($valor1))->name ?? 'Comercial no encontrado';
                     break;
                 case 'servicio_id':
-                    $valor2 = KitDigitalServicios::find($data['value'])->name;
-                    $valor1 = KitDigitalServicios::find($valor1)->name;
+                    $valor2 = Optional(KitDigitalServicios::find($data['value']))->name ?? 'Servicio no seleccionado';
+                    $valor1 = Optional(KitDigitalServicios::find($valor1))->name ?? 'Servicio no encontrado';
                     break;
                 case 'estado':
-                    $valor2 = KitDigitalEstados::find($data['value'])->nombre;
-                    $valor1 = KitDigitalEstados::find($valor1)->nombre;
+                    $valor2 = Optional(KitDigitalEstados::find($data['value']))->nombre ?? 'Estado no seleccionado';
+                    $valor1 = Optional(KitDigitalEstados::find($valor1))->nombre ?? 'Estado no encontrado';
                     break;
                 case 'cliente_id':
-                    $valor2 = Client::find($data['value'])->name;
-                    $valor1 = Client::find($valor1)->name;
+                    $valor2 = Optional(Client::find($data['value']))->name ?? 'Cliente no seleccionado';
+                    $valor1 = Optional(Client::find($valor1))->name ?? 'Cliente no encontrado';
                     break;
                 default:
                     $valor2 = $data['value'];
