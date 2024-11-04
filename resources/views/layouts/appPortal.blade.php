@@ -25,18 +25,20 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    {{-- @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     @if ($isDarkMode)
         @vite(['resources/sass/dark-mode.scss'])
     @else
         @vite(['resources/sass/light-mode.scss'])
-    @endif
+    @endif --}}
     @yield('css')
+    <link rel="stylesheet" href="{{ asset('build/assets/app-d2e38ed8.css') }}" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="{{ asset('build/assets/app-bf7e6802.js') }}"></script>
     @laravelViewsStyles
 </head>
 <body class="fondoPortal">
     <div id="appPortal">
-      
+
         {{-- <div id="loadingOverlay" style="display: block; position: fixed; width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.5); z-index: 50000; cursor: pointer;">
             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                 <div class="spinner-border text-black" role="status">

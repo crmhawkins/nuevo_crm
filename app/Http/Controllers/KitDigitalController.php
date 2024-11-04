@@ -31,9 +31,10 @@ class KitDigitalController extends Controller
     public function updateData(Request $request){
         $data = $request->all();
 
-
         if ($data['id']) {
+
             $item = KitDigital::find($data['id']);
+
             if(!$item){
                 return response()->json([
                     'icon' => 'error',
@@ -41,14 +42,14 @@ class KitDigitalController extends Controller
                 ]);
             }
 
-            if ($data['key'] === 'comercial_id' ) {
-                if(Auth::user()->access_level_id != 1 && Auth::user()->access_level_id != 2 && Auth::user()->access_level_id != 3){
-                    return response()->json([
-                        'icon' => 'error',
-                        'mensaje' => 'No tienes permisos para modificar este campo.'
-                    ]);
-                }
-            }
+            // if ($data['key'] === 'comercial_id' ) {
+            //     if(Auth::user()->access_level_id != 1 && Auth::user()->access_level_id != 2 && Auth::user()->access_level_id != 3){
+            //         return response()->json([
+            //             'icon' => 'error',
+            //             'mensaje' => 'No tienes permisos para modificar este campo.'
+            //         ]);
+            //     }
+            // }
 
             if ($data['key'] === 'importe') {
                 // Limpia cualquier carácter no numérico excepto comas y puntos
@@ -81,6 +82,7 @@ class KitDigitalController extends Controller
                 // Convierte el valor a número flotante con dos decimales
                 $data['value'] = number_format((float) $value, 2, ',', '');
             }
+
             $valor1 = $item[$data['key']];
 
             $item[$data['key']] = $data['value'];

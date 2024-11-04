@@ -690,6 +690,8 @@ class DashboardController extends Controller
                                 ->whereRaw("CONVERT_TZ(start_time, 'UTC', 'Europe/Madrid') > ?", [$horaLimiteEntrada->format('H:i:s')])
                                 ->get();
 
+
+
                             if (count($hourlyAverage) > 2) {
                                 $data = [
                                     "admin_user_id" =>  1,

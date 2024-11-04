@@ -45,6 +45,7 @@ use App\Http\Controllers\Logs\LogActionsController;
 use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
 use App\Http\Controllers\Ordenes\OrdenesController;
+use App\Http\Controllers\Portal\PortalClientesController;
 use App\Http\Controllers\Productividad\ProductividadController;
 use App\Http\Controllers\Settings\UserSettingsController;
 use App\Http\Controllers\Statistics\StatisticsController;
@@ -390,10 +391,7 @@ Route::post('/incidencias/destroy', [IncidenceController::class, 'destroyAssocia
 // web.php
 Route::post('/save-theme-preference', [UserController::class, 'saveThemePreference'])->name('saveThemePreference');
 
-// Portal Clientes
-Route::get('/portal/dashboard', [App\Http\Controllers\Portal\PortalClientesController::class, 'dashboard'])->name('portal.dashboard');
-Route::get('/portal/presupuestos', [App\Http\Controllers\Portal\PortalClientesController::class, 'presupuestos'])->name('portal.presupuestos');
-Route::get('/portal/facturas', [App\Http\Controllers\Portal\PortalClientesController::class, 'facturas'])->name('portal.facturas');
+
 
 // Ingresos (TESORERIA)
 Route::get('/ingresos', [TesoreriaController::class, 'indexIngresos'])->name('ingreso.index');
@@ -562,8 +560,10 @@ Route::post('/acciones/enviar-segmento-3', [AccionesController::class, 'enviarMe
 Route::post('/actualizar', [AccionesController::class, 'actualizar'])->name('acciones.actualizar');
 
 });
-
-
+// Portal Clientes
+Route::get('/portal/dashboard', [PortalClientesController::class, 'dashboard'])->name('portal.dashboard');
+Route::get('/portal/presupuestos', [PortalClientesController::class, 'presupuestos'])->name('portal.presupuestos');
+Route::get('/portal/facturas', [PortalClientesController::class, 'facturas'])->name('portal.facturas');
 
 Route::get('/ruta-prueba', function () {
     event(new RecargarPagina(50));
