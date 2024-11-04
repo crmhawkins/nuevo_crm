@@ -232,6 +232,7 @@ class DashboardController extends Controller
                 $productividadIndividual = $totalTareas > 0 ? $totalProductividad : 0;
                 $horasMes = $this->tiempoProducidoMes($user->id);
 
+
                 return view('dashboards.dashboard_personal', compact(
                     'user',
                     'tiempoProducidoHoy',
@@ -686,7 +687,7 @@ class DashboardController extends Controller
                             $hourlyAverage = Jornada::where('admin_user_id', $usuario->id)
                                 ->whereMonth('start_time', $mesActual)
                                 ->whereYear('start_time', $añoActual)
-                                ->whereRaw("CONVERT_TZ(start_time, '+00:00', '+02:00') > ?", [$horaLimiteEntrada->format('H:i:s')])
+                                ->whereRaw("CONVERT_TZ(start_time, 'UTC', 'Europe/Madrid') > ?", [$horaLimiteEntrada->format('H:i:s')])
                                 ->get();
 
                             if (count($hourlyAverage) > 2) {
