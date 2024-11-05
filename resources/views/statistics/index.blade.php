@@ -292,7 +292,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                        <table id="tablaGastosAsociadosAnual" style="width: 100%;">
                                         <thead>
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
@@ -338,7 +338,6 @@
 
 
                     <div class="row mb-3">
-
 
                         <div class="col">
                             <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacion" style="cursor:pointer;">
@@ -432,7 +431,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                        <table id="tablaGastosComunes" style="width: 100%;">
                                         <thead>
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
@@ -491,7 +490,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                        <table id="tablaGastosAsociados" style="width: 100%;">
                                         <thead>
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
@@ -607,6 +606,30 @@
             });
 
             $('#tablaGastosComunesAnual').DataTable({
+                responsive: true,
+                paging: false // Desactiva la paginación
+
+            });
+
+            $('#tablaGastosAsociadosAnual').DataTable({
+                responsive: true,
+                paging: false // Desactiva la paginación
+
+            });
+
+            $('#tablaGastosAsociados').DataTable({
+                responsive: true,
+                paging: false // Desactiva la paginación
+
+            });
+
+            $('#tablaFacturacion').DataTable({
+                responsive: true,
+                paging: false // Desactiva la paginación
+
+            });
+
+            $('#tablaGastosComunes').DataTable({
                 responsive: true,
                 paging: false // Desactiva la paginación
 

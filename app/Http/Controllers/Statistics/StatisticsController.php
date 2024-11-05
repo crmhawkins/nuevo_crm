@@ -241,7 +241,7 @@ class StatisticsController extends Controller
     public function invoicesYear($year)
     {
         $facturas = Invoice::whereYear('created_at', $year)
-            ->whereIn('invoice_status_id', [1,2, 3, 4])
+            ->whereIn('invoice_status_id', [1,3, 4])
             ->get();
 
         return [
@@ -254,7 +254,7 @@ class StatisticsController extends Controller
     {
         $facturas = Invoice::whereMonth('created_at', $mes)
             ->whereYear('created_at', $year)
-            ->whereIn('invoice_status_id', [1, 2,3, 4])
+            ->whereIn('invoice_status_id', [1,3, 4])
             ->get();
 
         $facturas->each(function ($factura) {
