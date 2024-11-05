@@ -97,7 +97,7 @@ class StatisticsController extends Controller
 
 
 
-        //$nameUsers = collect($userProductivity)->pluck('name')->toArray();
+        $nameUsers = collect($userProductivity)->pluck('name')->toArray();
 
 
         return view('statistics.index', compact(
