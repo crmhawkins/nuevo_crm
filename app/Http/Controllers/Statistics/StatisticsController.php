@@ -259,8 +259,10 @@ class StatisticsController extends Controller
 
         $facturas->each(function ($factura) {
             $budget = Budget::find($factura['budget_id']);
-            $factura->categoria = $budget->budgetConcepts->map(fn($concept) => ServiceCategories::find($concept->services_category_id)->name ?? 'Categoria no existe')->toArray();
-            $factura->cliente = Client::find($factura->client_id)->name;
+            if($budget){
+                $factura->categoria = $budget->budgetConcepts->map(fn($concept) => ServiceCategories::find($concept->services_category_id)->name ?? 'Categoria no existe')->toArray();
+                $factura->cliente = Client::find($factura->client_id)->name;
+            }
         });
 
         return [
