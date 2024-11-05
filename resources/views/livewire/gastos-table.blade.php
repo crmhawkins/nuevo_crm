@@ -98,7 +98,12 @@
                             <td>{{ $gasto->received_date ? \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') : 'Sin Fecha'}}</td>
                             <td>{{ \Carbon\Carbon::parse($gasto->date)->format('d/m/Y') }}</td>
                             <td>{{$gasto->state}}</td>
-                            <td>{!!$gasto->transfer_movement ? <i class="fa-solid fa-check"></i> : '' !!}</td>
+                            <td>
+                                @if($gasto->transfer_movement == 1)
+                                <i class="fa-solid fa-check"></i>
+                                @endif
+
+                            </td>
                             <td>
                                 @if (isset($gasto->documents))
                                 @php
