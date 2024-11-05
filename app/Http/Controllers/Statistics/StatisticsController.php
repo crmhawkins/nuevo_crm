@@ -393,11 +393,11 @@ class StatisticsController extends Controller
 
     public function beneficioDepartamentos($mes, $year)
     {
-        $facturas = $this->invoices($mes, $year)['facturas'];
+        $facturas = $this->invoices($mes, $year)['facturas']->toArray();
         $departamentos = [];
 
         foreach ($facturas as $factura) {
-            $budget = Budget::find($factura->budget_id);
+            $budget = Budget::find($factura['budget_id']);
             if($budget){
                 foreach ($budget->budgetConcepts as $concept) {
                     $nameService = ServiceCategories::find($concept->services_category_id)->name ?? 'Sin Categoría';
@@ -430,7 +430,7 @@ class StatisticsController extends Controller
         $departamentos = [];
 
         foreach ($facturas as $factura) {
-            $budget = Budget::find($factura->budget_id);
+            $budget = Budget::find($factura['budget_id']);
             if($budget){
                 foreach ($budget->budgetConcepts as $concept) {
                     $nameService = ServiceCategories::find($concept->services_category_id)->name ?? 'Sin Categoría';
