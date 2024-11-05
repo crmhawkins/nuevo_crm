@@ -307,6 +307,7 @@
                                         </thead>
                                         <tbody>
                                             @foreach($dataAsociadosAnual['array'] as $item)
+                                            {{dd(item);}}
                                             <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->budget_concept_id}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->supplier_id}}</td>
@@ -342,10 +343,10 @@
                         <div class="col">
                             <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacion" style="cursor:pointer;">
                                 <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación Anual</span>
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación </span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">€ {{$dataFacturacionAnno['total']}}</span>
+                                            <span class="d-block display-7 font-weight-400 text-dark">€ {{$dataFacturacion['total']}}</span>
                                         </div>
                                         <div>
                                             <span class="text-success font-12 font-weight-600">+0%</span>
