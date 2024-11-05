@@ -71,6 +71,8 @@
                             'received_date' => 'F.RECEPCION',
                             'date' => 'F.PAGO',
                             'state' => 'ESTADO',
+                            'transfer_movement' => 'TRAN',
+
 
                         ] as $field => $label)
                             <th class="px-3" style="font-size:0.75rem">
@@ -96,6 +98,7 @@
                             <td>{{ $gasto->received_date ? \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') : 'Sin Fecha'}}</td>
                             <td>{{ \Carbon\Carbon::parse($gasto->date)->format('d/m/Y') }}</td>
                             <td>{{$gasto->state}}</td>
+                            <td>{!!$gasto->transfer_movement ? <i class="fa-solid fa-check"></i> : '' !!}</td>
                             <td>
                                 @if (isset($gasto->documents))
                                 @php
