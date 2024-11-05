@@ -307,7 +307,7 @@
                                         </thead>
                                         <tbody>
                                             @foreach($dataAsociadosAnual['array'] as $item)
-                                            {{dd(item);}}
+                                            {{dd($item);}}
                                             <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->budget_concept_id}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->supplier_id}}</td>
