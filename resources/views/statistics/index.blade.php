@@ -52,18 +52,18 @@
 
                     <div class="row mb-3">
                         <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#exampleModalCenter" style="cursor:pointer;">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalProyectos" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Proyectos Activos</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{$dataBudgets['total']}}+</span>
+                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataBudgets['total']}}+</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenter" aria-hidden="true">
+                        <div class="modal fade" id="ModalProyectos" tabindex="-1" role="dialog" aria-labelledby="ModalProyectos" aria-hidden="true">
                             <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -117,7 +117,7 @@
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Presupuestos</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark"><span class="counter-anim">{{$countTotalBudgets}}</span> €</span>
+                                            <span class="d-block display-7 font-weight-400 text-dark"><span class="counter-anim">{{$countTotalBudgets}}</span> €</span>
                                         </div>
                                     </div>
                                 </div>
@@ -131,7 +131,7 @@
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">€ {{$dataFacturacionAnno['total']}}</span>
+                                            <span class="d-block display-7 font-weight-400 text-dark">€ {{$dataFacturacionAnno['total']}}</span>
                                         </div>
                                         <div>
                                             <span class="text-success font-12 font-weight-600">+0%</span>
@@ -191,13 +191,14 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="col">
                             <div class="card card-sm">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Beneficios Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{$totalBeneficioAnual}}</span>
+                                            <span class="d-block display-7 font-weight-400 text-dark">{{$totalBeneficioAnual}}</span>
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
@@ -208,12 +209,12 @@
                         </div>
 
                         <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociados" style="cursor:pointer;">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Comunes Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{$dataGastosComunesAnual['total']}}</span>
+                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataGastosComunesAnual['total']}}</span>
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
@@ -222,7 +223,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal fade" id="ModalGastosAsociados" tabindex="-1" role="dialog" aria-labelledby="ModalGastosAsociados" aria-hidden="true">
+                        <div class="modal fade" id="ModalGastosComunesAnual" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunesAnual" aria-hidden="true">
                             <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -265,7 +266,275 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociadosAnual" style="cursor:pointer;">
+                                <div class="card-body">
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Asociados Anual</span>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataAsociadosAnual['total']}}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-danger font-12 font-weight-600">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="ModalGastosAsociadosAnual" tabindex="-1" role="dialog" aria-labelledby="ModalGastosAsociadosAnual" aria-hidden="true">
+                            <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Gatos Asociados Anual</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Option number</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($dataAsociadosAnual['array'] as $item)
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->budget_concept_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->supplier_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->mail}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->option_number}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->selected}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->price}}</td>
+                                           </tr>
+                                           @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataAsociadosAnual['total']}}</td>
+                                            </tr>
+                                        </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+
+                    <div>
+
+
+                        <div class="col">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacion" style="cursor:pointer;">
+                                <div class="card-body">
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación Anual</span>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <span class="d-block display-7 font-weight-400 text-dark">€ {{$dataFacturacionAnno['total']}}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-success font-12 font-weight-600">+0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="ModalFacturacion" tabindex="-1" role="dialog" aria-labelledby="ModalFacturacion" aria-hidden="true">
+                            <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Facturacion</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table id="tablaFacturacion" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
+                                                <th class="w-full-th" style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($dataFacturacion['facturas'] as $item)
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->cliente->name}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoiceStatus->name}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->project_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataFacturacion['total']}}</td>
+                                            </tr>
+                                        </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
+                                <div class="card-body">
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Comunes</span>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataGastosComunes['total']}}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-danger font-12 font-weight-600">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="ModalGastosComunesAnual" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunesAnual" aria-hidden="true">
+                            <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Gatos Comunes</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Option number</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($dataGastosComunes['gastos'] as $item)
+                                            <tr>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->date}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}}</td>
+                                           </tr>
+                                           @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataGastosComunes['total']}}</td>
+                                            </tr>
+                                        </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociados" style="cursor:pointer;">
+                                <div class="card-body">
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Asociados </span>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataAsociados['total']}}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-danger font-12 font-weight-600">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="ModalGastosAsociados" tabindex="-1" role="dialog" aria-labelledby="ModalGastosAsociados" aria-hidden="true">
+                            <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Gatos Asociados</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Option number</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($dataAsociados['array'] as $item)
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->budget_concept_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->supplier_id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->mail}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->option_number}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->selected}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->price}}</td>
+                                           </tr>
+                                           @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataAsociados['total']}}</td>
+                                            </tr>
+                                        </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <div class="row">
                         <div class="col-6">

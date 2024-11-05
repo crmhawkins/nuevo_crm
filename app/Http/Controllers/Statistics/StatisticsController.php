@@ -264,7 +264,7 @@ class StatisticsController extends Controller
         });
 
         return [
-            'array' => $facturas->toArray(),
+            'facturas' => $facturas,
             'total' => $facturas->sum('total'),
         ];
     }
@@ -275,11 +275,14 @@ class StatisticsController extends Controller
             ->whereMonth('date', $mes)
             ->whereYear('date', $year)
             ->whereNull('deleted_at')
-            ->where('transfer_movement', 0)
+            ->where(function($query) {
+                $query->where('transfer_movement', 0)
+                      ->orWhereNull('transfer_movement');
+            })
             ->get();
 
         return [
-            'array' => $gastosComunesMes->toArray(),
+            'gastos' => $gastosComunesMes,
             'total' => $gastosComunesMes->sum('quantity'),
         ];
     }
@@ -289,7 +292,10 @@ class StatisticsController extends Controller
         $gastosComunesAnual = DB::table('gastos')
             ->whereYear('date', $year)
             ->whereNull('deleted_at')
-            ->where('transfer_movement', 0)
+            ->where(function($query) {
+                $query->where('transfer_movement', 0)
+                      ->orWhereNull('transfer_movement');
+            })
             ->get();
 
         return [
