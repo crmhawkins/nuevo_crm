@@ -521,7 +521,7 @@ class StatisticsController extends Controller
                 $dataFacturacion = $this->invoices($mes, $year);
                 $budgets = Budget::where("admin_user_id", $usuario->id)->whereYear('created_at', $year)->get();
 
-                $totalFacturadoMes = collect($dataFacturacion['array'])
+                $totalFacturadoMes = collect($dataFacturacion['facturas'])
                     ->where('budget.admin_user_id', $usuario->id)
                     ->sum('total');
 
