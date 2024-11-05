@@ -31,11 +31,11 @@ class StatisticsController extends Controller
         $dataFacturacionAnno = $this->invoicesYear($anio);
         $dataAsociados = $this->gastosAsociados($mes, $anio);
         $dataAsociadosAnual = $this->gastosAsociadosAnual($anio);
-       // $departamentos = $this->departamentosFacturacionMes($mes, $anio);
-        //$departamentosBeneficios = $this->beneficioDepartamentos($mes, $anio);
-       // $userProductivity = $this->productividadEmpleados($mes, $anio);
-       // $productivityValues = collect($userProductivity)->pluck('productividad')->toArray();
-        //$iva = $this->trimestreIva($mes, $anio);
+        $departamentos = $this->departamentosFacturacionMes($mes, $anio);
+        $departamentosBeneficios = $this->beneficioDepartamentos($mes, $anio);
+        $userProductivity = $this->productividadEmpleados($mes, $anio);
+        $productivityValues = collect($userProductivity)->pluck('productividad')->toArray();
+        $iva = $this->trimestreIva($mes, $anio);
         $totalBeneficio = $this->calcularTotalBeneficio($anio);
         $anioActual = date("Y");
         $arrayAnios = [];
@@ -97,7 +97,7 @@ class StatisticsController extends Controller
 
 
 
-        $nameUsers = collect($userProductivity)->pluck('name')->toArray();
+        //$nameUsers = collect($userProductivity)->pluck('name')->toArray();
 
 
         return view('statistics.index', compact(
