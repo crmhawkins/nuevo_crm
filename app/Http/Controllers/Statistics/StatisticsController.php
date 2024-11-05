@@ -426,7 +426,7 @@ class StatisticsController extends Controller
 
     public function departamentosFacturacionMes($mes, $year)
     {
-        $facturas = $this->invoices($mes, $year)['facturas']->array();
+        $facturas = $this->invoices($mes, $year)['facturas']->toArray();
         $departamentos = [];
 
         foreach ($facturas as $factura) {
