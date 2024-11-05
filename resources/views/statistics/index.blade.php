@@ -36,24 +36,18 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-xl-12">
-                            <div class="form-group mx-3 mb-3" style="display: flex;flex-direction: row;align-items: baseline;">
-                                <label for="anio" style="margin-right: 1rem"><strong>Año</strong></label>
-                                <select name="anio" id="anio" class="form-control select2">
-                                    @foreach($arrayAnios as $anio)
-                                        <option value="{{$anio}}" {{ $anio == $anioActual ? 'selected' : '' }}>{{$anio}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                        <form action="{{ route('estadistica.index') }}" method="GET">
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="form-group mx-3 mb-3" style="display: flex; flex-direction: row; align-items: baseline;">
+                                        <label for="mes" style="margin-right: 1rem"><strong>Mes</strong></label>
+                                        <input type="month" name="mes" id="mes" class="form-control" style="margin-right: 1rem;" value="{{ request('mes', now()->format('Y-m')) }}">
 
-                    <div class="row">
-                        @foreach(['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'] as $index => $mes)
-                            <div class="col-md-1">
-                                <button id="meses" data-mes="{{str_pad($index + 1, 2, '0', STR_PAD_LEFT)}}" class="buttons_meses d-inline-block font-11 font-weight-500 text-dark text-uppercase mb-10 mx-3">{{ $mes }}</button>
+                                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                                    </div>
+                                </div>
                             </div>
-                        @endforeach
+                        </form>
                     </div>
 
                     <div class="row mb-3">
@@ -252,7 +246,7 @@
                                             @foreach($dataGastosComunesAnual['gastos'] as $item)
                                             <tr>
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->date}}</td>
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}}</td>
                                            </tr>

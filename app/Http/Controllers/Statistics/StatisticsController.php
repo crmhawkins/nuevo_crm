@@ -14,11 +14,11 @@ use App\Models\Invoices\Invoice;
 use App\Models\Statistics\Statistics;
 use App\Models\Users\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use DataTables;
 
 class StatisticsController extends Controller
 {
-    protected $listeners = ['MES01' => 'mesFiltro'];
 
     public function mesFiltro($mes, $anio)
     {
@@ -111,10 +111,12 @@ class StatisticsController extends Controller
         ));
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $now = Carbon::now();
-        return $this->mesFiltro($now->format('m'), $now->year);
+        $date = Carbon::parse($request->mes) ?? Carbon::now();
+        $mes = $date->format('m');
+        $year = $date->year;
+        return $this->mesFiltro($mes, $year);
     }
 
     // Definición del método que faltaba
@@ -239,7 +241,7 @@ class StatisticsController extends Controller
     public function invoicesYear($year)
     {
         $facturas = Invoice::whereYear('created_at', $year)
-            ->whereIn('invoice_status_id', [1, 3, 4])
+            ->whereIn('invoice_status_id', [1,2, 3, 4])
             ->get();
 
         return [
@@ -252,7 +254,7 @@ class StatisticsController extends Controller
     {
         $facturas = Invoice::whereMonth('created_at', $mes)
             ->whereYear('created_at', $year)
-            ->whereIn('invoice_status_id', [1, 3, 4])
+            ->whereIn('invoice_status_id', [1, 2,3, 4])
             ->get();
 
         $facturas->each(function ($factura) {
@@ -344,19 +346,21 @@ class StatisticsController extends Controller
 
         $facturas->each(function ($factura) use (&$gastosAsociadosTotal, &$arrayOrdenesCompra) {
             $budget = Budget::find($factura['budget_id']);
-            $cliente = Client::find($budget->client_id)->name;
+            if($budget){
+                $cliente = Client::find($budget->client_id)->name;
 
-            $budget->budgetConcepts->each(function ($concept) use ($budget, $factura, $cliente, &$gastosAsociadosTotal, &$arrayOrdenesCompra) {
-                if ($concept->concept_type_id == 1 && $concept->purchase_price != '') {
-                    $gastosAsociadosTotal += $concept->purchase_price;
-                    $concept->budgetConcep = $budget->budgetConcepts;
-                    $concept->budgetComparar = $budget;
-                    $concept->client = $cliente;
-                    $concept->idinvoices = $factura->id;
-                    $concept->invoice = $factura;
-                    $arrayOrdenesCompra[] = $concept;
-                }
-            });
+                $budget->budgetConcepts->each(function ($concept) use ($budget, $factura, $cliente, &$gastosAsociadosTotal, &$arrayOrdenesCompra) {
+                    if ($concept->concept_type_id == 1 && $concept->purchase_price != '') {
+                        $gastosAsociadosTotal += $concept->purchase_price;
+                        $concept->budgetConcep = $budget->budgetConcepts;
+                        $concept->budgetComparar = $budget;
+                        $concept->client = $cliente;
+                        $concept->idinvoices = $factura->id;
+                        $concept->invoice = $factura;
+                        $arrayOrdenesCompra[] = $concept;
+                    }
+                });
+            }
         });
 
         return [
@@ -471,11 +475,12 @@ class StatisticsController extends Controller
             foreach ($facturas as $item) {
                 if (in_array($item->invoice_status_id, [1, 3, 4])) {
                     $budgetComparar = Budget::find($item->budget_id);
-
-                    foreach ($budgetComparar->budgetConcepts as $concept) {
-                        foreach ($concept->proveedor as $suplier) {
-                            if ($concept->concept_type_id == 1 && $suplier->price != '') {
-                                $gastosAsociadosTotalIva += ($suplier->price * 21) / 100;
+                    if($budgetComparar){
+                        foreach ($budgetComparar->budgetConcepts as $concept) {
+                            foreach ($concept->proveedor as $suplier) {
+                                if ($concept->concept_type_id == 1 && $suplier->price != '') {
+                                    $gastosAsociadosTotalIva += ($suplier->price * 21) / 100;
+                                }
                             }
                         }
                     }
