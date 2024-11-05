@@ -298,8 +298,6 @@
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Option number</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
@@ -309,20 +307,16 @@
                                             @foreach($dataAsociadosAnual['array'] as $item)
                                             {{dd($item);}}
                                             <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->budget_concept_id}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->supplier_id}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->mail}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->option_number}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->selected}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->price}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_price * $item->units}}</td>
                                            </tr>
                                            @endforeach
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
@@ -497,8 +491,6 @@
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Option number</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
@@ -507,20 +499,16 @@
                                         <tbody>
                                             @foreach($dataAsociados['array'] as $item)
                                             <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->budget_concept_id}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->supplier_id}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->mail}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->option_number}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->selected}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->id}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->price}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_price * $item->units}}</td>
                                            </tr>
                                            @endforeach
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
