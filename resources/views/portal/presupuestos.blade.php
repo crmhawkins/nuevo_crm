@@ -70,11 +70,11 @@ body * {
               <h3><strong>Presupuestos</strong></h3>
             </div>
             <div class="col-6 text-end">
-              <input type="text" class="input-control" placeholder="Buscar">
+              <input id="tableSearch" type="text" class="input-control" placeholder="Buscar">
             </div>
           </div>
           <div class="pt-5 table-responsive">
-            <table class="w-100 table-clientportal">
+            <table id="presupuestosTable" class="w-100 table-clientportal">
               <thead>
                 <tr>
                   <th>Fecha</th>
@@ -89,21 +89,41 @@ body * {
                 </tr>
               </thead>
               <tbody>
-                <tr class="clicklink odd" data-link="/portal/estimates/64807187c8237379a9048abe" data-type="estimate" data-pdf="1" role="row">
-                  <td class="sorting_1">07/06/2023</td>
-                  <td class="table__invoice-num"><strong>E230257</strong></td>
+                @foreach ($cliente->presupuestos as $presupuesto)
+                <tr class="clicklink" data-link="/portal/estimates/64807187c8237379a9048abe" data-type="estimate" data-pdf="1">
+                  <td class="sorting_1">{{$presupuesto->created_at->format('d/m/Y')}}</td>
+                  <td class="table__invoice-num"><strong>{{$presupuesto->reference}}</strong></td>
                   <td>
-                    <p class="docdesc">[[ VIPS MALAGA PLAZA MAYOR ]]</p>
+                    <p class="docdesc">{{$presupuesto->concept}}</p>
                   </td>
                   <td width="20">
-                    <span class="label label-warning"><span class=" text-uppercase badge bg-warning p-2" style="font-size: 12px">Pendiente</span></span>
+                    @switch($presupuesto->budget_status_id)
+                        @case(1)
+                            <span class="label label-warning"><span class="text-uppercase badge bg-secondary text-dark p-2" style="font-size: 12px">{{$presupuesto->estadoPresupuesto->name}}</span></span>
+                            @break
+                        @case(2)
+                            <span class="label label-dark"><span class="text-uppercase badge bg-secondary p-2" style="font-size: 12px">{{$presupuesto->estadoPresupuesto->name}}</span></span>
+                            @break
+                        @case(3)
+                            <span class="label label-success"><span class="text-uppercase badge bg-primary p-2" style="font-size: 12px">{{$presupuesto->estadoPresupuesto->name}}</span></span>
+                            @break
+                        @case(4)
+                            <span class="label label-info"><span class="text-uppercase badge bg-danger p-2" style="font-size: 12px">{{$presupuesto->estadoPresupuesto->name}}</span></span>
+                            @break
+                        @case(5)
+                            <span class="label label-danger"><span class="text-uppercase badge bg-warning p-2" style="font-size: 12px">{{$presupuesto->estadoPresupuesto->name}}</span></span>
+                            @break
+                        @default
+                            <span class="label label-warning"><span class="text-uppercase badge bg-success p-2" style="font-size: 12px">{{$presupuesto->estadoPresupuesto->name}}</span></span>
+                    @endswitch
                   </td>
-                  <td class="text-right">500,00€</td>
-                  <td class="text-right">105,00€</td>
-                  <td class="text-right">0,00€</td>
-                  <td class="text-right">0,00€</td>
-                  <td class="table__total text-right">605,00€</td>
+                  <td class="text-right">{{$presupuesto->gross}}&euro;</td>
+                  <td class="text-right">{{$presupuesto->discount}}&euro;</td>
+                  <td class="text-right">{{$presupuesto->base}}&euro;</td>
+                  <td class="text-right">{{$presupuesto->iva}}&euro;</td>
+                  <td class="table__total text-right">{{$presupuesto->total}}&euro;</td>
                 </tr>
+                @endforeach
               </tbody>
               <tfoot>
 
@@ -116,4 +136,32 @@ body * {
   </div>
 </div>
 
+@endsection
+
+@section('scripts')
+<script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.js"></script>
+<link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.css" rel="stylesheet">
+<script>
+
+  $(document).ready(function() {
+    var table = $('#presupuestosTable').DataTable({
+      paging: false,   // Desactiva la paginación
+      info: false,     // Oculta el recuento de registros
+      dom: 't',          // Solo muestra la tabla, sin el buscador ni otros elementos
+
+      language: {
+        zeroRecords: "No se encontraron resultados",
+        emptyTable: "No hay datos disponibles en la tabla",
+      }
+    });
+
+    // Sincroniza el buscador personalizado con el de DataTables
+    $('#tableSearch').on('keyup', function() {
+      table.search(this.value).draw();
+    });
+
+    // Oculta el buscador original de DataTables
+    $('#ventasTable_filter').hide();
+  });
+</script>
 @endsection

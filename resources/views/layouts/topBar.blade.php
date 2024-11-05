@@ -591,7 +591,7 @@
                         <li class="li-flex">
                             <div class="li-mensaje">${mensajeDetalle}</div>
                             <div class="li-boton">
-                                <button class="btn-pop" onclick="posponerAlerta(${alerta['id']})" title="Posponer">Acción Posponer</button>
+                                <button class="btn-pop" onclick="posponerAlerta(${alerta['id']})" title="Posponer"><i class="fa-regular fa-clock"></i></button>
                                 <button class="btn-pop" onclick="manejarAlertaEspecifica(${stage_id}, ${index})" title="Ok"><i class="fa-solid fa-arrow-right"></i></button>
                             </div>
                         </li>`;
@@ -1360,6 +1360,20 @@
         });
     </script>
     <style>
+        .li-flex {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .li-mensaje {
+            flex: 0 0 80%; /* Asigna el 80% del espacio disponible */
+        }
+
+        .li-boton {
+            flex: 0 0 20%; /* Asigna el 20% del espacio restante */
+            display: flex;
+            justify-content: space-around; /* Distribuye uniformemente los botones dentro del contenedor */
+        }
         .tituloalertas {
             font-size: 24px;
             color: #3078d6; /* Cambia el color del título */

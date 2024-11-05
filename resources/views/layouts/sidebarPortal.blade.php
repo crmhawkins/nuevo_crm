@@ -1,8 +1,28 @@
+<style>
+    .portal-sidebar--logo-image {
+        display: flex;
+        justify-content: center; /* Centra la imagen horizontalmente */
+        align-items: center;
+    }
+
+    .portal-sidebar--logo-image img {
+        max-width: 100%; /* Ocupa el ancho máximo permitido sin deformarse */
+        height: auto;
+        max-height: 150px; /* Ajusta la altura máxima según tus necesidades */
+    }
+
+    /* Estilos específicos para la imagen de muestra */
+    .portal-sidebar--logo-image img[src*="guest.webp"] {
+        border-radius: 45%; /* Hace que la imagen sea redonda */
+        object-fit: cover;  /* Asegura que la imagen cubra el área de manera uniforme */
+    }
+</style>
+
 <div class="portal-sidebar">
   <div class="portal-sidebar--header hidden-xs">
     <div class="portal-sidebar--logo">
       <div class="portal-sidebar--logo-image">
-        <img src="https://app.holded.com/box/account/6360e6fa07d20dd46b06ff8b?p=6360e6fa07d20dd46b06ff8b" alt="CLECEIM,S.L.">
+        <img src="{{$cliente->logo ?? asset('assets\images\guest.webp')}}" alt="CLECEIM,S.L.">
       </div>
     </div>
     <div class="portal-sidebar--content">
@@ -50,7 +70,7 @@
                 </span>
               </a>
             </li>
-            <li class="">
+            {{-- <li class="">
               <a href="/portal/campanias" class="">
                 <span class="portal-sidebar__item-icon">
                   <i class="fa-solid fa-diagram-project"></i>
@@ -59,7 +79,7 @@
                   Campañas
                 </span>
               </a>
-            </li>
+            </li> --}}
             {{-- <li class="">
               <a href="/portal/proforms" class="">
                 <span class="portal-sidebar__item-icon">
@@ -123,7 +143,7 @@
               <i class="fa-solid fa-user"></i>
             </span>
             <span class="portal-sidebar__item-label">
-              THWORK 3000,S.L.
+              {{$cliente->name}}
             </span>
             <span class="portal-sidebar__item-arrow">
               <i class="fa-solid fa-angle-right"></i>
@@ -160,7 +180,7 @@
             </li>
           </ul>
         </li>
-      </ul>   
+      </ul>
     </div>
   </div>
 </div>

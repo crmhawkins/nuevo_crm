@@ -100,7 +100,7 @@
                         </div>
                         <div class="card-body">
                             <a href="" id="actualizarPresupuesto" class="btn btn-success mb-3 btn-block">Actualizar Peticion</a>
-                            <a href="" class="btn btn-outline-danger btn-block mb-3">Eliminar</a>
+                            <a href="" id="eliminarPeticion"  data-id="{{$peticion->id}}" class="btn btn-outline-danger btn-block mb-3">Eliminar</a>
                         </div>
                     </div>
                 </div>
@@ -132,11 +132,77 @@
             $('form').submit(); // Esto envía el formulario.
         });
 
+        $('#eliminarPeticion').click(function(e){
+            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
+            let id = $(this).data('id'); // Usa $(this) para obtener el atributo data-id
+            botonAceptar(id);
+        });
+
         // Boton añadir cliente
         $('#newClient').click(function(){
             // Abrimos pestaña para crear campaña
             window.open(urlTemplateCliente, '_self');
         });
+
+        $('#deletePresupuesto').on('click', function(e){
+            e.preventDefault();
+            let id = $(this).data('id'); // Usa $(this) para obtener el atributo data-id
+            botonAceptar(id);
+        })
+
+        function botonAceptar(id){
+            // Salta la alerta para confirmar la eliminacion
+            Swal.fire({
+                title: "¿Estas seguro que quieres eliminar esta peticion?",
+                html: "<p>Esta acción es irreversible.</p>", // Corrige aquí
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: "Borrar",
+                cancelButtonText: "Cancelar",
+                // denyButtonText: `No Borrar`
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    // Llamamos a la funcion para borrar el usuario
+                    $.when( getDelete(id) ).then(function( data, textStatus, jqXHR ) {
+                        console.log(data)
+                        if (!data.status) {
+                            // Si recibimos algun error
+                            Toast.fire({
+                                icon: "error",
+                                title: data.mensaje
+                            })
+                        } else {
+                            // Todo a ido bien
+                            Toast.fire({
+                                icon: "success",
+                                title: data.mensaje
+                            })
+                            .then(() => {
+                                window.location.href = "{{ route('peticion.index') }}";
+                            })
+                        }
+                    });
+                }
+            });
+        }
+
+        function getDelete(id) {
+            // Ruta de la peticion
+            const url = '{{route("peticion.delete")}}'
+            // Peticion
+            return $.ajax({
+                type: "POST",
+                url: url,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: {
+                    'id': id,
+                },
+                dataType: "json"
+            });
+        }
 
     });
 </script>

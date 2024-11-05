@@ -43,7 +43,7 @@ class PetitionController extends Controller
             $gestorId = null;
         }
 
-        $gestores = User::all();
+        $gestores = User::where('inactive',0)->whereIn('access_level_id',[4,3])->get();
         $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
 
 
@@ -108,7 +108,7 @@ class PetitionController extends Controller
     public function edit(string $id)
     {
         $peticion = Petition::find($id);
-        $gestores = User::all();
+        $gestores = User::where('inactive',0)->whereIn('access_level_id',[4,3])->get();
         $clientes = Client::orderBy('id', 'asc')->get();
         if (!$peticion) {
             session()->flash('toast', [

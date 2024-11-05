@@ -24,9 +24,8 @@ class KitDigitalController extends Controller
     }
 
     public function listarClientes(){
-        $kitDigitals = KitDigital::all();
 
-        return view('kitDigital.listarClientes', compact('kitDigitals'));
+        return view('kitDigital.listarClientes');
     }
 
     public function updateData(Request $request){

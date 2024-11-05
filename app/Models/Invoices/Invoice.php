@@ -7,6 +7,7 @@ use App\Models\Clients\Client;
 use App\Models\PaymentMethods\PaymentMethod;
 use App\Models\Projects\Project;
 use App\Models\Users\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -116,6 +117,14 @@ class Invoice extends Model
         return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
     }
 
+
+    public function invoiceConcepts()
+    {
+        return $this->hasMany(InvoiceConcepts::class,'invoice_id');
+
+    }
+
+
     /**
      * Obtener el estado de la factura
      *
@@ -125,5 +134,23 @@ class Invoice extends Model
     public function invoiceStatus()
     {
         return $this->belongsTo(InvoiceStatus::class, 'invoice_status_id');
+    }
+
+
+    public static function averagePaidTime($facturas)
+    {
+        $totalDuration = 0;
+        $count = 0;
+
+        foreach ($facturas as $factura) {
+            if ($factura->paid_date && $factura->created_at) {
+                $paid_date = Carbon::parse($factura->paid_date);
+                $duration = $paid_date->diffInDays($factura->created_at);
+                $totalDuration += $duration;
+                $count++;
+            }
+        }
+
+        return $count > 0 ? $totalDuration / $count : 0; // Retorna la duración promedio
     }
 }

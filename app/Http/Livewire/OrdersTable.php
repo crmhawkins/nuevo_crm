@@ -40,6 +40,7 @@ class OrdersTable extends Component
     protected function actualizar()
     {
         $query = AssociatedExpenses::where('state', 'PENDIENTE')
+            ->where('budgets.admin_user_id', $this->selectedUser)
             ->where('aceptado_gestor', null)
             ->when($this->buscar,function ($query) {
                 $query->whereHas('cliente', function ($subQuery) {

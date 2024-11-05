@@ -46,12 +46,12 @@ class TasksRevisionTable extends Component
     protected function actualizartareas(){
         $query= Task::where('task_status_id',5)
             ->when($this->buscar, function ($query) {
-                    $query->where('title', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('description', 'like', '%' . $this->buscar . '%');
+                    $query->where('tasks.title', 'like', '%' . $this->buscar . '%')
+                          ->orWhere('tasks.description', 'like', '%' . $this->buscar . '%');
                 })
                 ->when($this->selectedCategoria, function ($query) {
                     $query->whereHas('presupuestoConcepto', function ($query) {
-                        $query->where('services_category_id', $this->selectedCategoria);
+                        $query->where('budget_concepts.services_category_id', $this->selectedCategoria);
                     });
                 })
                 ->when($this->selectedCliente, function ($query) {

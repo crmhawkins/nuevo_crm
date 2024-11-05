@@ -44,34 +44,35 @@ class InvoiceConcepts extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at', 
+        'created_at', 'updated_at', 'deleted_at',
     ];
 
 
     /**
      * Obtener la facrtura
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class,'budget_id');
+        return $this->belongsTo(Invoice::class,'invoice_id');
     }
-        
+
     /**
      * Obtener el tipo de concepto
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function type()
     {
         return $this->belongsTo(BudgetConceptType::class,'concept_type_id');
     }
-        
+
+
 
     /**
      * Obtener el servicio
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function service()
@@ -81,7 +82,7 @@ class InvoiceConcepts extends Model
 
     /**
      * Obtener la categoria del servicio
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function serviceCategory()

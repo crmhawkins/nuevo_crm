@@ -14,7 +14,7 @@
               <i class="fa-solid fa-arrow-up"></i>
             </div>
             <div class="col-10 title-section ">
-              <span>10.974,81€</span>
+              <span>{{$cliente->facturasPorEstado(3)->sum('total')}}€</span>
             </div>
           </div>
         </div>
@@ -31,7 +31,7 @@
               <i class="fa-solid fa-stopwatch"></i>
             </div>
             <div class="col-10 title-section ">
-              <span>{{$cliente->invoice_status_id(1)->sum('total')}}</span>
+              <span>{{$cliente->facturasPorEstado(1)->sum('total')}}</span>
             </div>
           </div>
         </div>
@@ -62,7 +62,8 @@
       <div class="card">
         <div class="card-body">
           <div class="title">
-            RESUMEN
+              RESUMEN
+              {{NOW()->format('Y')}}
           </div>
           <div class="row">
             <div class="col-12">
@@ -112,25 +113,25 @@
               <div class="body-section row pt-4">
                 <div class="col-6">
                   <div class="panel-avg--content">
-                    <div class="panel-avg--value">609,71€</div>
+                    <div class="panel-avg--value">{{ $cliente->facturasPorEstado(3)->count() > 0 ? $cliente->facturasPorEstado(3)->sum('total') / $cliente->facturasPorEstado(3)->count() : '0' }}€</div>
                     <div class="panel-avg--label">Importe medio de facturas</div>
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="panel-avg--content">
-                    <div class="panel-avg--value">3.06</div>
+                    <div class="panel-avg--value">{{$cliente->facturasPorEstado(3)->sum('invoice_concepts_count') > 0 ? $cliente->facturasPorEstado(3)->sum('invoice_concepts_count') / $cliente->facturasPorEstado(3)->count() : '0' }}</div>
                     <div class="panel-avg--label">Productos por factura</div>
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="panel-avg--content">
-                    <div class="panel-avg--value">66.97</div>
+                    <div class="panel-avg--value">{{$cliente->averagePaidTime(3)}}</div>
                     <div class="panel-avg--label">Días de plazo medio de pago</div>
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="panel-avg--content">
-                    <div class="panel-avg--value">18</div>
+                    <div class="panel-avg--value">{{$cliente->facturasPorEstado(3)->count()}}</div>
                     <div class="panel-avg--label">Total de facturas</div>
                   </div>
                 </div>
@@ -146,19 +147,16 @@
 @endsection
 @section('scripts')
 <script>
+
 var options = {
   series: [
     {
-    name: 'Net Profit',
-    data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
+    name: 'Facturas',
+    data: @json(array_values($cliente->totalFacturasPorMes())).map(item => item ? item.total : 0)
     },
     {
-    name: 'Revenue',
-    data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
-    },
-    {
-    name: 'Free Cash Flow',
-    data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
+    name: 'Presupuestos',
+    data: @json(array_values($cliente->totalPresupuestosPorMes())).map(item => item ? item.total : 0)
     }
   ],
   chart: {
@@ -184,7 +182,7 @@ var options = {
     colors: ['transparent']
   },
   xaxis: {
-    categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+    categories: ['Ene','Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dic'],
   },
   yaxis: {
     // title: {
@@ -197,7 +195,7 @@ var options = {
   tooltip: {
     y: {
       formatter: function (val) {
-        return "$ " + val + " thousands"
+        return  val + " €"
       }
     }
   }
