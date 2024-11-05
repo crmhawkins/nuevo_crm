@@ -318,23 +318,25 @@ class StatisticsController extends Controller
 
         $facturas->each(function ($factura) use (&$gastosAsociadosTotal, &$arrayOrdenesCompra) {
             $budget = Budget::find($factura['budget_id']);
-            $cliente = Client::find($budget->client_id)->name;
+            if($budget){
+                $cliente = Client::find($budget->client_id)->name;
 
-            $budget->budgetConcepts->each(function ($concept) use ($budget, $factura, $cliente, &$gastosAsociadosTotal, &$arrayOrdenesCompra) {
-                if ($concept->concept_type_id == 1 && $concept->purchase_price != '') {
-                    $gastosAsociadosTotal += $concept->purchase_price;
-                    $concept->budgetConcep = $budget->budgetConcepts;
-                    $concept->budgetComparar = $budget;
-                    $concept->client = $cliente;
-                    $concept->idinvoices = $factura->id;
-                    $concept->invoice = $factura;
-                    $concept->asociate = AssociatedExpenses::where('budget_id', $budget->id)
-                        ->whereMonth('date', $factura->created_at->format('m'))
-                        ->whereYear('date', $factura->created_at->format('Y'))
-                        ->get();
-                    $arrayOrdenesCompra[] = $concept;
-                }
-            });
+                $budget->budgetConcepts->each(function ($concept) use ($budget, $factura, $cliente, &$gastosAsociadosTotal, &$arrayOrdenesCompra) {
+                    if ($concept->concept_type_id == 1 && $concept->purchase_price != '') {
+                        $gastosAsociadosTotal += $concept->purchase_price;
+                        $concept->budgetConcep = $budget->budgetConcepts;
+                        $concept->budgetComparar = $budget;
+                        $concept->client = $cliente;
+                        $concept->idinvoices = $factura->id;
+                        $concept->invoice = $factura;
+                        $concept->asociate = AssociatedExpenses::where('budget_id', $budget->id)
+                            ->whereMonth('date', $factura->created_at->format('m'))
+                            ->whereYear('date', $factura->created_at->format('Y'))
+                            ->get();
+                        $arrayOrdenesCompra[] = $concept;
+                    }
+                });
+            }
         });
 
         return [
@@ -396,23 +398,25 @@ class StatisticsController extends Controller
 
         foreach ($facturas as $factura) {
             $budget = Budget::find($factura->budget_id);
-            foreach ($budget->budgetConcepts as $concept) {
-                $nameService = ServiceCategories::find($concept->services_category_id)->name ?? 'Sin Categoría';
+            if($budget){
+                foreach ($budget->budgetConcepts as $concept) {
+                    $nameService = ServiceCategories::find($concept->services_category_id)->name ?? 'Sin Categoría';
 
-                $key = array_search($concept->services_category_id, array_column($departamentos, 'id'));
+                    $key = array_search($concept->services_category_id, array_column($departamentos, 'id'));
 
-                if ($key !== false) {
-                    $departamentos[$key]['total'] += $concept->concept_type_id == 1
-                        ? $concept->total - $concept->purchase_price
-                        : $concept->total;
-                } else {
-                    $departamentos[] = [
-                        'id' => $concept->services_category_id,
-                        'name' => $nameService,
-                        'total' => $concept->concept_type_id == 1
+                    if ($key !== false) {
+                        $departamentos[$key]['total'] += $concept->concept_type_id == 1
                             ? $concept->total - $concept->purchase_price
-                            : $concept->total
-                    ];
+                            : $concept->total;
+                    } else {
+                        $departamentos[] = [
+                            'id' => $concept->services_category_id,
+                            'name' => $nameService,
+                            'total' => $concept->concept_type_id == 1
+                                ? $concept->total - $concept->purchase_price
+                                : $concept->total
+                        ];
+                    }
                 }
             }
         }
@@ -427,19 +431,21 @@ class StatisticsController extends Controller
 
         foreach ($facturas as $factura) {
             $budget = Budget::find($factura->budget_id);
-            foreach ($budget->budgetConcepts as $concept) {
-                $nameService = ServiceCategories::find($concept->services_category_id)->name ?? 'Sin Categoría';
+            if($budget){
+                foreach ($budget->budgetConcepts as $concept) {
+                    $nameService = ServiceCategories::find($concept->services_category_id)->name ?? 'Sin Categoría';
 
-                $key = array_search($concept->services_category_id, array_column($departamentos, 'id'));
+                    $key = array_search($concept->services_category_id, array_column($departamentos, 'id'));
 
-                if ($key !== false) {
-                    $departamentos[$key]['total'] += $concept->total;
-                } else {
-                    $departamentos[] = [
-                        'id' => $concept->services_category_id,
-                        'name' => $nameService,
-                        'total' => $concept->total
-                    ];
+                    if ($key !== false) {
+                        $departamentos[$key]['total'] += $concept->total;
+                    } else {
+                        $departamentos[] = [
+                            'id' => $concept->services_category_id,
+                            'name' => $nameService,
+                            'total' => $concept->total
+                        ];
+                    }
                 }
             }
         }
