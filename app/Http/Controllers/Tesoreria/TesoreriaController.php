@@ -270,6 +270,7 @@ class TesoreriaController extends Controller
         ]);
         $purchaseOrder = PurcharseOrder::find($validated['purchase_order_id']);
         $precio = $purchaseOrder->concepto->purchase_price;
+
         if($validated['quantity'] != $precio){
             return redirect()->back()->with('toast', [
                 'icon' => 'error',

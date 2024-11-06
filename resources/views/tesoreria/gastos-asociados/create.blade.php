@@ -128,7 +128,7 @@
                                         <option value="">-- Selecciona un Orden de compra --</option>
                                         @if (count($purchaseOrders) > 0)
                                             @foreach($purchaseOrders as $order)
-                                                <option data-title="{{ $order->concepto->title ?? '' }}" {{ old('purchase_order_id') == $order->id ? 'selected' : '' }} value="{{ $order->id }}">Nº {{ $order->id }} - {{ $order->concepto->total ?? '' }} €</option>
+                                                <option data-title="{{ $order->concepto->title ?? '' }}" {{ old('purchase_order_id') == $order->id ? 'selected' : '' }} value="{{ $order->id }}">Nº {{ $order->id }} - {{ $order->concepto->purchase_price ?? '' }} €</option>
                                             @endforeach
                                         @endif
                                     </select>
