@@ -310,7 +310,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_price * $item->units}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_price}}</td>
                                            </tr>
                                            @endforeach
                                         </tbody>
