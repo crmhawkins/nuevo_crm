@@ -1164,13 +1164,13 @@ class BudgetConceptsController extends Controller
         $mailConcept->gestorMail = Auth::user()->email;
         $mailConcept->gestorTel = '956 662 942';
 
-        if($request->hasFile('files')){
-            foreach($request->file('files') as $fileNew){
-                Storage::disk('temp')->put($fileNew->getClientOriginalName(), \File::get($fileNew));
-                $path = Storage::disk('temp')->path($fileNew->getClientOriginalName());
-                $pathFiles[] = $path;
-            }
-        }
+        // if($request->hasFile('files')){
+        //     foreach($request->file('files') as $fileNew){
+        //         Storage::disk('temp')->put($fileNew->getClientOriginalName(), \File::get($fileNew));
+        //         $path = Storage::disk('temp')->path($fileNew->getClientOriginalName());
+        //         $pathFiles[] = $path;
+        //     }
+        // }
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $fileNew) {
@@ -1184,14 +1184,15 @@ class BudgetConceptsController extends Controller
             }
         }
 
-        //$mailsBCC[] = "emma@lchawkins.com";
-       //$mailsBCC[] = "ivan@lchawkins.com";
+        $mailsBCC[] = "emma@lchawkins.com";
+        $mailsBCC[] = "ivan@lchawkins.com";
+        $mailsBCC[] = Auth::user()->email;
         $supplierMail = BudgetConceptSupplierRequest::where('budget_concept_id',$order->budget_concept_id)->where('selected',1)->first()->mail;
         $email = new MailConceptSupplier($mailConcept, $pathFiles);
 
         try {
             // Enviar el correo
-            Mail::to($supplierMail)->send($email);
+            Mail::to($supplierMail)->bcc($mailsBCC)->send($email);
 
             // Eliminar los archivos temporales después de enviar el correo
             foreach ($pathFiles as $file) {
