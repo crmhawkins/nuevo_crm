@@ -305,7 +305,6 @@
                                         </thead>
                                         <tbody>
                                             @foreach($dataAsociadosAnual['array'] as $item)
-                                            {{dd($item);}}
                                             <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->id}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client}}</td>
