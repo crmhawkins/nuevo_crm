@@ -55,7 +55,7 @@
                             <td>{{$order->OrdenCompra->Proveedor->name ?? 'Proveedor no definido' }}</td>
                             <td>{{$order->title }}</td>
                             <td>{{$order->OrdenCompra->cliente->name ?? 'Cliente no definido' }}</td>
-                            <td>{{$order->date_aceptado ? Carbon\Carbon::parse($order->date_aceptado)->format('d/m/Y') : Carbon\Carbon::parse($order->update_at)->format('d/m/Y')}}</td>
+                            <td>{{$order->date_aceptado ? Carbon\Carbon::parse($order->date_aceptado)->format('d/m/Y') : $order->updated_at->format('d/m/Y')}}</td>
                             <td>{{$order->quantity }}</td>
                             <td>{{$order->gestorNombre }}</td>
                             <td>{{$order->state }}</td>
