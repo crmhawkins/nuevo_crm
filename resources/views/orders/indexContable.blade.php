@@ -38,7 +38,6 @@
                     {{-- <livewire:users-table-view> --}}
                     @php
                         use Jenssegers\Agent\Agent;
-
                         $agent = new Agent();
                     @endphp
                     @if ($agent->isMobile())
@@ -46,12 +45,12 @@
                         <div>
                             <span>Es movil</span>
                         </div>
-                        @livewire('orders-table')
+                        @livewire('ordersContable-table')
 
                     @else
                         {{-- Contenido para dispositivos de escritorio --}}
                         {{-- <livewire:users-table-view> --}}
-                        @livewire('orders-table')
+                        @livewire('ordersContable-table')
                     @endif
                 </div>
             </div>

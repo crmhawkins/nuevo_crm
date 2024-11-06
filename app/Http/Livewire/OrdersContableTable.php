@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class OrdersTable extends Component
+class OrdersContableTable extends Component
 {
     use WithPagination;
 
@@ -32,7 +32,7 @@ class OrdersTable extends Component
     public function render()
     {
         $this->actualizar(); // Ahora se llama directamente en render para refrescar los clientes.
-        return view('livewire.orders-table', [
+        return view('livewire.ordersContable-table', [
             'orders' => $this->orders
         ]);
     }
@@ -40,8 +40,7 @@ class OrdersTable extends Component
     protected function actualizar()
     {
         $query = AssociatedExpenses::where('state', 'PENDIENTE')
-            ->where('budgets.admin_user_id', $this->selectedUser)
-            ->whereNull('aceptado_gestor')
+            ->where('aceptado_gestor',1)
             ->when($this->buscar,function ($query) {
                 $query->whereHas('cliente', function ($subQuery) {
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%');
@@ -85,17 +84,5 @@ class OrdersTable extends Component
         }
     }
 
-    public function postStatusChange($id){
-
-        $gasto = AssociatedExpenses::find($id);
-        $gasto->aceptado_gestor = true;
-
-        $gastoSaved = $gasto->save();
-
-        $this->emit('toast', [
-            'icon' => 'success',
-            'mensaje' => 'Orden Aceptada'
-        ]);
-    }
 
 }

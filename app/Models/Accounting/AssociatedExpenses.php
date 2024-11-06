@@ -35,7 +35,8 @@ class AssociatedExpenses extends Model
         'state',
         'aceptado_gestor',
         'documents',
-        'iva'
+        'iva',
+        'date_aceptado',
     ];
 
     /**

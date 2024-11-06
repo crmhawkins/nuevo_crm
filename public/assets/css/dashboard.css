@@ -73,6 +73,23 @@
     box-shadow: 0px 0px 1px 1px #ff0000;
     display: flex;
 }
+@keyframes pulseCard-animation {
+    0% {
+        text-shadow: 0 0 0px #ffffff;
+        box-shadow: 0 0 0 0px #ff000077;
+    }
+    100% {
+        text-shadow: 0 0 20px #ffffff;
+        box-shadow: 0 0 0 20px #ff000000;
+    }
+}
+
+.pulseCard {
+    animation: pulseCard-animation 2s infinite;
+    background-color: #ff0000c9;
+    border-radius: 50%;
+    box-shadow: 0px 0px 1px 1px #ff0000;
+}
 #to-do {
     max-height: 600px;
     overflow-y: auto;

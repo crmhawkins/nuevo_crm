@@ -4,6 +4,7 @@ namespace App\Models\Users;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Bajas\Baja;
 use App\Models\Clients\Client;
 use App\Models\Contratos\Contrato;
@@ -151,9 +152,9 @@ class User extends Authenticatable
 
     public function ordenes()
     {
-        return \App\Models\PurcharseOrde\PurcharseOrder::join('budget_concepts', 'purchase_order.budget_concept_id', '=', 'budget_concepts.id')
+        return AssociatedExpenses::join('purchase_order', 'associated_expenses.purchase_order_id', '=', 'purchase_order.id')
+        ->join('budget_concepts', 'purchase_order.budget_concept_id', '=', 'budget_concepts.id')
         ->join('budgets', 'budget_concepts.budget_id', '=', 'budgets.id')
-        ->join('associated_expenses', 'purchase_order.id', '=', 'associated_expenses.purchase_order_id')
         ->where('budgets.admin_user_id', $this->id)
         ->where('associated_expenses.state', 'PENDIENTE')
         ->whereNull('associated_expenses.aceptado_gestor')
