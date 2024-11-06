@@ -73,6 +73,15 @@
                             @enderror
                         </div>
                         <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" autocomplete="new-password" value="{{ old('password') }}" name="password">
+                            @error('password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                            @enderror
+                        </div>
+                        <div class="form-group">
                                 <label for="access_level_id">{{ __('Rol de la App') }}</label>
                                 <select class="form-select @error('access_level_id') is-invalid @enderror" id="access_level_id" name="access_level_id">
                                     <option>Seleccione el rol del usuario</option>

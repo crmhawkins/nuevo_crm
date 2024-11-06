@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\CrmActivities\CrmActivitiesMeetings;
 use App\Models\Users\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -89,6 +90,7 @@ class OrdersTable extends Component
 
         $gasto = AssociatedExpenses::find($id);
         $gasto->aceptado_gestor = true;
+        $gasto->date_aceptado = Carbon::now()->format('Y-m-d H:i:s');
 
         $gastoSaved = $gasto->save();
 

@@ -45,12 +45,12 @@
                         <div>
                             <span>Es movil</span>
                         </div>
-                        @livewire('ordersContable-table')
+                        @livewire('orders-contable-table')
 
                     @else
                         {{-- Contenido para dispositivos de escritorio --}}
                         {{-- <livewire:users-table-view> --}}
-                        @livewire('ordersContable-table')
+                        @livewire('orders-contable-table')
                     @endif
                 </div>
             </div>

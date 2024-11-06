@@ -167,9 +167,9 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required|max:200',
             'surname' => 'required|max:200',
-            'username' => 'required|unique:admin_user',
+            'username' => 'required|unique:admin_user,username,' . $id, // Permitir el mismo username si pertenece al usuario actual
             'email' => 'required|email:filter',
-            'password' => 'required|min:8',
+            'password' => 'nullable|min:8',
             'access_level_id' => 'required|exists:admin_user_access_level,id',
             'admin_user_department_id' => 'required|exists:admin_user_department,id',
             'admin_user_position_id' => 'required|exists:admin_user_position,id',
@@ -186,6 +186,29 @@ class UserController extends Controller
             'admin_user_department_id.exists' => 'El departamento debe ser valido y es requerido para continuar',
             'admin_user_position_id.exists' => 'La posicion debe ser valido y es requerido para continuar',
         ]);
+
+        $user = User::findOrFail($id); // Buscar el usuario existente
+
+        $data = $request->all();
+
+        // Solo actualizar la contraseña si se proporciona una nueva
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        $data['role'] = 'Admin';
+        $data['inactive'] = 0;
+
+        $user->update($data);
+
+        session()->flash('toast', [
+            'icon' => 'success',
+            'mensaje' => 'El usuario se actualizó correctamente'
+        ]);
+
+        return redirect()->route('users.index');
     }
 
     /**

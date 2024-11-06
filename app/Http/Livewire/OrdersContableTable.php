@@ -32,7 +32,7 @@ class OrdersContableTable extends Component
     public function render()
     {
         $this->actualizar(); // Ahora se llama directamente en render para refrescar los clientes.
-        return view('livewire.ordersContable-table', [
+        return view('livewire.orders-contable-table', [
             'orders' => $this->orders
         ]);
     }
