@@ -93,6 +93,7 @@ class DashboardController extends Controller
                 $gastos = 0;
                 $gastosAsociados = 0;
 
+
                 return view('dashboards.dashboard', compact(
                     'user',
                     'tareas',
@@ -158,6 +159,7 @@ class DashboardController extends Controller
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
                 $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;
+
                 return view('dashboards.dashboard_gestor', compact(
                     'user',
                     'tareas',
@@ -231,6 +233,8 @@ class DashboardController extends Controller
 
                 $productividadIndividual = $totalTareas > 0 ? $totalProductividad : 0;
                 $horasMes = $this->tiempoProducidoMes($user->id);
+
+
 
 
                 return view('dashboards.dashboard_personal', compact(
@@ -429,6 +433,72 @@ class DashboardController extends Controller
             'start_time' => Carbon::now(),
             'is_active' => true,
         ]);
+
+        $todayJornada = Jornada::where('admin_user_id', $user->id)
+        ->whereDate('start_time', Carbon::today())
+        ->get();
+
+        if(count($todayJornada) == 1 ){
+            $horaLimiteEntrada = Carbon::createFromTime(9, 30, 0, 'Europe/Madrid');
+            $horaLimiteEntradaUTC = $horaLimiteEntrada->setTimezone('UTC');
+            $mesActual = Carbon::now()->month;
+            $añoActual = Carbon::now()->year;
+
+            $hourlyAverage = Jornada::where('admin_user_id', $user->id)
+                ->whereMonth('start_time', $mesActual)
+                ->whereYear('start_time', $añoActual)
+                ->whereRaw("TIME(start_time) > ?", [$horaLimiteEntradaUTC->format('H:i:s')])
+                ->get();
+
+
+
+            if (count($hourlyAverage) > 2) {
+                $data = [
+                    "admin_user_id" =>  1,
+                    "stage_id" => 15,
+                    "description" => $user->name . " ha llegado tarde 3 veces o mas este mes",
+                    "status_id" => 1,
+                    "reference_id" => $user->id,
+                    "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
+                ];
+
+                $alert = Alert::create($data);
+                $alertSaved = $alert->save();
+            }
+
+
+            $fechaNow = Carbon::now();
+
+            if(count($hourlyAverage) > 0){
+                switch (count($hourlyAverage)) {
+                    case 1:
+                        $text = 'Hemos notado que hoy llegaste después de la hora límite de entrada (09:30). Entendemos que a veces pueden surgir imprevistos, pero te recordamos la importancia de respetar el horario para mantener la eficiencia en el equipo.';
+                        break;
+                    case 2:
+                        $text = 'Nuevamente has llegado después de la hora límite de entrada (09:30). Reforzamos la importancia de cumplir con el horario para asegurar un buen rendimiento y organización en el equipo.';
+                        break;
+                    case 3:
+                        $text = 'Se ha registrado tu llegada tarde tres veces. Esta información se compartirá con la Dirección. Es importante respetar los horarios para mantener el rendimiento y la organización del equipo.';
+                        break;
+                    default:
+                        $text = 'Se ha registrado tu llegada tarde mas de  tres veces. Esta información se compartirá con la Dirección. Es importante respetar los horarios para mantener el rendimiento y la organización del equipo.';
+                        break;
+                }
+
+                $data = [
+                    "admin_user_id" =>  $user->id,
+                    "stage_id" => 23,
+                    "description" => $text,
+                    "status_id" => 1,
+                    "reference_id" => $user->id,
+                    "activation_datetime" => $fechaNow->format('Y-m-d H:i:s')
+                ];
+
+                $alert = Alert::create($data);
+                $alertSaved = $alert->save();
+            }
+        }
+
         if($jornada){
             return response()->json(['success' => true]);
         }else{
@@ -681,60 +751,64 @@ class DashboardController extends Controller
                                 ]);
                             }
                             $horaLimiteEntrada = Carbon::createFromTime(9, 30, 0, 'Europe/Madrid');
+                            $horaLimiteEntradaUTC = $horaLimiteEntrada->setTimezone('UTC');
                             $mesActual = Carbon::now()->month;
                             $añoActual = Carbon::now()->year;
 
                             $hourlyAverage = Jornada::where('admin_user_id', $usuario->id)
                                 ->whereMonth('start_time', $mesActual)
                                 ->whereYear('start_time', $añoActual)
-                                ->whereRaw("TIME(CONVERT_TZ(start_time, '+00:00', '+01:00')) > ?", [$horaLimiteEntrada->format('H:i:s')])
+                                ->whereRaw("TIME(start_time) > ?", [$horaLimiteEntradaUTC->format('H:i:s')])
                                 ->get();
 
 
 
-                            // if (count($hourlyAverage) > 2) {
-                            //     $data = [
-                            //         "admin_user_id" =>  1,
-                            //         "stage_id" => 15,
-                            //         "description" => $usuario->name . " ha llegado tarde 3 veces o mas este mes",
-                            //         "status_id" => 1,
-                            //         "reference_id" => $usuario->id,
-                            //         "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
-                            //     ];
+                            if (count($hourlyAverage) > 2) {
+                                $data = [
+                                    "admin_user_id" =>  1,
+                                    "stage_id" => 15,
+                                    "description" => $usuario->name . " ha llegado tarde 3 veces o mas este mes",
+                                    "status_id" => 1,
+                                    "reference_id" => $usuario->id,
+                                    "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
+                                ];
 
-                            //     $alert = Alert::create($data);
-                            //     $alertSaved = $alert->save();
-                            // }
+                                $alert = Alert::create($data);
+                                $alertSaved = $alert->save();
+                            }
 
 
                             $fechaNow = Carbon::now();
 
-                            switch (count($hourlyAverage)) {
-                                case 1:
-                                    $text = 'Hemos notado que hoy llegaste después de la hora límite de entrada (09:30). Entendemos que a veces pueden surgir imprevistos, pero te recordamos la importancia de respetar el horario para mantener la eficiencia en el equipo.';
-                                    break;
-                                case 2:
-                                    $text = 'Nuevamente has llegado después de la hora límite de entrada (09:30). Reforzamos la importancia de cumplir con el horario para asegurar un buen rendimiento y organización en el equipo.';
-                                    break;
-                                case 3:
-                                    $text = 'Se ha registrado tu llegada tarde tres veces. Esta información se compartirá con la Dirección. Es importante respetar los horarios para mantener el rendimiento y la organización del equipo.';
-                                    break;
-                                default:
-                                    $text = 'Se ha registrado tu llegada tarde mas de  tres veces. Esta información se compartirá con la Dirección. Es importante respetar los horarios para mantener el rendimiento y la organización del equipo.';
-                                    break;
+                            if(count($hourlyAverage) > 0){
+                                switch (count($hourlyAverage)) {
+                                    case 1:
+                                        $text = 'Hemos notado que hoy llegaste después de la hora límite de entrada (09:30). Entendemos que a veces pueden surgir imprevistos, pero te recordamos la importancia de respetar el horario para mantener la eficiencia en el equipo.';
+                                        break;
+                                    case 2:
+                                        $text = 'Nuevamente has llegado después de la hora límite de entrada (09:30). Reforzamos la importancia de cumplir con el horario para asegurar un buen rendimiento y organización en el equipo.';
+                                        break;
+                                    case 3:
+                                        $text = 'Se ha registrado tu llegada tarde tres veces. Esta información se compartirá con la Dirección. Es importante respetar los horarios para mantener el rendimiento y la organización del equipo.';
+                                        break;
+                                    default:
+                                        $text = 'Se ha registrado tu llegada tarde mas de  tres veces. Esta información se compartirá con la Dirección. Es importante respetar los horarios para mantener el rendimiento y la organización del equipo.';
+                                        break;
+                                }
+
+                                $data = [
+                                    "admin_user_id" =>  $usuario->id,
+                                    "stage_id" => 23,
+                                    "description" => $text,
+                                    "status_id" => 1,
+                                    "reference_id" => $usuario->id,
+                                    "activation_datetime" => $fechaNow->format('Y-m-d H:i:s')
+                                ];
+
+                                $alert = Alert::create($data);
+                                $alertSaved = $alert->save();
                             }
 
-                            $data = [
-                                "admin_user_id" =>  $usuario->id,
-                                "stage_id" => 23,
-                                "description" => $text,
-                                "status_id" => 1,
-                                "reference_id" => $usuario->id,
-                                "activation_datetime" => $fechaNow->format('Y-m-d H:i:s')
-                            ];
-
-                            $alert = Alert::create($data);
-                            $alertSaved = $alert->save();
                         }
                     }
                     break;
