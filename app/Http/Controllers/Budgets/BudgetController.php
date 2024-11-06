@@ -322,9 +322,12 @@ class BudgetController extends Controller
 
 
         if($budget->temp == 1 ){
-            $referencia = $this->generateBudgetReference($budget);
+            $referencia = $this->generateBudgetReference();
             if ($referencia === null) {
-                return response(500);
+                return redirect()->back()->with('toast', [
+                    'icon' => 'error',
+                    'mensaje' => 'Error al actualizar el presupuesto.'
+                ]);
             }
             $data['temp'] = 0;
             $data['reference'] = $referencia['reference'];
@@ -334,6 +337,13 @@ class BudgetController extends Controller
 
         $budgetupdated=$budget->update($data);
         $budget->cambiarEstadoPresupuesto($budget->budget_status_id);
+
+        if( str_starts_with($budget->reference, 'temp_')){
+            $referencia = $this->generateBudgetReference();
+            $data['reference'] = $referencia['reference'];
+            $data['reference_autoincrement_id'] = $referencia['id'];
+            $budgetupdated=$budget->update($data);
+        }
 
         if($budgetupdated){
             $rutaPrevia = session()->get('ruta_previa', route('presupuestos.index'));
@@ -417,7 +427,7 @@ class BudgetController extends Controller
         $id = $request->id;
         $budget = Budget::find($id);
 
-        $referencia = $this->generateBudgetReference($budget);
+        $referencia = $this->generateBudgetReference();
 
 
 
@@ -498,7 +508,7 @@ class BudgetController extends Controller
         }
         $newBudget = $budget->replicate();
         // Reference
-        $referenceGenerationResult = $this->generateBudgetReference($newBudget);
+        $referenceGenerationResult = $this->generateBudgetReference();
 
         if($referenceGenerationResult['budget_reference_autoincrements']['year'] != ''){
             $dataAutoReference['year'] = $referenceGenerationResult['budget_reference_autoincrements']['year'];
@@ -663,7 +673,7 @@ class BudgetController extends Controller
         }
     }
 
-    public function generateBudgetReference(Budget $budget) {
+    public function generateBudgetReference() {
         // Obtener la fecha actual del presupuesto
         $budgetCreationDate = now();
         $datetimeBudgetCreationDate = new \DateTime($budgetCreationDate);
@@ -715,6 +725,7 @@ class BudgetController extends Controller
      * @param  Budget  $budgetToUpdate
      *
      */
+
     public function updateBudgetQuantities(Budget $budgetToUpdate, $conceptsDiscounts = null, $ivaPercentage = null){
 
         // Descuentos que hay que aplicar y actualizar en los conceptos

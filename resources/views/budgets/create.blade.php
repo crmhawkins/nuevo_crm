@@ -291,6 +291,7 @@
                                 select.append($('<option></option>').attr('value', value.id).text(value.name));
                             });
                             select.attr("disabled", false);
+                            select.val({{ old('project_id') }});
                         }
                     },
                     error: function(xhr, status, error) {
@@ -307,11 +308,11 @@
             cargarDatosCliente(clienteId);
         });
 
-        // // Ejecutar cuando la página se carga si hay un cliente ya seleccionado
-        // var clienteIdSeleccionado = $('#cliente').val();
-        // if (clienteIdSeleccionado) {
-        //     cargarDatosCliente(clienteIdSeleccionado);
-        // }
+        //Ejecutar cuando la página se carga si hay un cliente ya seleccionado
+        var clienteIdSeleccionado = $('#cliente').val();
+        if ( clienteIdSeleccionado &&  {{ old('project_id') ? 'true' : 'false' }}) {
+            cargarDatosCliente(clienteIdSeleccionado);
+        }
     });
 
 </script>
