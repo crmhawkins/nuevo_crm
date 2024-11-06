@@ -401,7 +401,7 @@
                         </div>
 
                         <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunes" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Comunes</span>
                                     <div class="d-flex align-items-end justify-content-between">
@@ -415,7 +415,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal fade" id="ModalGastosComunesAnual" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunesAnual" aria-hidden="true">
+                        <div class="modal fade" id="ModalGastosComunes" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunes" aria-hidden="true">
                             <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -430,7 +430,7 @@
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Option number</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
                                             </tr>
