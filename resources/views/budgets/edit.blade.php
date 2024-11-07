@@ -165,8 +165,14 @@
                                     </div>
                                 </div>
                                 <div class="col-12 form-check form-switch d-flex justify-content-center mt-2">
-                                    <input type="checkbox" class="form-check-input" id="no_sumatorio" name="no_sumatorio">
-                                    <label class="form-check-label ml-2" for="no_sumatorio">No mostrar sumatorio</label>
+                                    <div class="col-6 form-check form-switch d-flex justify-content-center mt-2">
+                                        <input type="checkbox" class="form-check-input" id="no_sumatorio" name="no_sumatorio">
+                                        <label class="form-check-label ml-2" for="no_sumatorio">No mostrar sumatorio</label>
+                                    </div>
+                                    <div class="col-6 form-check form-switch d-flex justify-content-center mt-2">
+                                        <input type="checkbox" class="form-check-input" id="is_ceuta" name="is_ceuta" value="1" {{ old('ceuta',$presupuesto->is_ceuta) ? ' checked' : '' }}>
+                                        <label class="form-check-label ml-2" for="is_ceuta">Ceuta</label>
+                                    </div>
                                 </div>
                                 <hr class="mt-3 mb-3">
                                 <div class="row">

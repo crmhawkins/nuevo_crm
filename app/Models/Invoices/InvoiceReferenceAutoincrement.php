@@ -26,6 +26,7 @@ class InvoiceReferenceAutoincrement extends Model
         'month_full',
         'day',
         'letter_months',
+        'ceuta',
 
     ];
 

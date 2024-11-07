@@ -37,81 +37,26 @@
             </span>
           </a>
         </li>
-        <li class="has-submenu">
-          <a class="">
-            <span class="portal-sidebar__item-icon">
-              <i class="fa-solid fa-star"></i>
-            </span>
-            <span class="portal-sidebar__item-label">
-              Ventas
-            </span>
-            <span class="portal-sidebar__item-arrow">
-              <i class="fa-solid fa-angle-right"></i>
-            </span>
-          </a>
-          <ul class="portal-sidebar-menu">
-            <li class="">
-              <a href="/portal/facturas" class="">
-                <span class="portal-sidebar__item-icon">
-                  <i class="fa-solid fa-file-invoice"></i>
-                </span>
-                <span class="portal-sidebar__item-label">
-                  Facturas
-                </span>
-              </a>
-            </li>
-            <li class="">
-              <a href="/portal/presupuestos" class="">
-                <span class="portal-sidebar__item-icon">
-                  <i class="fa-solid fa-file-invoice-dollar"></i>
-                </span>
-                <span class="portal-sidebar__item-label">
-                  Presupuestos
-                </span>
-              </a>
-            </li>
-            {{-- <li class="">
-              <a href="/portal/campanias" class="">
-                <span class="portal-sidebar__item-icon">
-                  <i class="fa-solid fa-diagram-project"></i>
-                </span>
-                <span class="portal-sidebar__item-label">
-                  Campañas
-                </span>
-              </a>
-            </li> --}}
-            {{-- <li class="">
-              <a href="/portal/proforms" class="">
-                <span class="portal-sidebar__item-icon">
-                  <i class="fal fa-file-alt"></i>
-                </span>
-                <span class="portal-sidebar__item-label">
-                  Proformas
-                </span>
-              </a>
-            </li> --}}
-            {{-- <li class="">
-              <a href="/portal/waybills" class="">
-                <span class="portal-sidebar__item-icon">
-                  <i class="fal fa-indent"></i>
-                </span>
-                <span class="portal-sidebar__item-label">
-                  Albaranes
-                </span>
-              </a>
-            </li> --}}
-            {{-- <li class="">
-              <a href="/portal/salesorders" class="">
-                <span class="portal-sidebar__item-icon">
-                  <i class="fal fa-shopping-bag"></i>
-                </span>
-                <span class="portal-sidebar__item-label">
-                  Pedidos de venta
-                </span>
-              </a>
-            </li> --}}
-          </ul>
-        </li>
+        <li class="">
+            <a href="/portal/facturas" class="">
+              <span class="portal-sidebar__item-icon">
+                <i class="fa-solid fa-file-invoice"></i>
+              </span>
+              <span class="portal-sidebar__item-label">
+                Facturas
+              </span>
+            </a>
+          </li>
+          <li class="">
+            <a href="/portal/presupuestos" class="">
+              <span class="portal-sidebar__item-icon">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+              </span>
+              <span class="portal-sidebar__item-label">
+                Presupuestos
+              </span>
+            </a>
+          </li>
         {{-- <li class="has-submenu">
           <a class="">
             <span class="portal-sidebar__item-icon">

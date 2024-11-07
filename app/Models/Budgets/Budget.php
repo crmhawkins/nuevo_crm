@@ -45,6 +45,7 @@ class Budget extends Model
         'duracion',
         'cuotas_mensuales',
         'order_column',
+        'is_ceuta',
     ];
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];

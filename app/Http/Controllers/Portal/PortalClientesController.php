@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\Auth;
 class PortalClientesController extends Controller
 {
     public function login(Request $request){
+
         if($request->logout == true){
-            session()->flush();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
         }
 
         return view('portal.login');

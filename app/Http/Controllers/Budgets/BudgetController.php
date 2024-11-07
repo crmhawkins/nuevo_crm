@@ -897,6 +897,87 @@ class BudgetController extends Controller
         ];
     }
 
+    public function generateInvoiceReferenceCeuta(Budget $budget){
+        // Obtener la fecha actual del presupuesto
+        $budgetCreationDate = now();
+        $datetimeBudgetCreationDate = new \DateTime($budgetCreationDate);
+
+        // Formatear la fecha para obtener los componentes necesarios
+        $year = $datetimeBudgetCreationDate->format('Y');
+        $monthNum = $datetimeBudgetCreationDate->format('m');
+
+        // Buscar la última referencia autoincremental para el año y mes actual
+        $latestReference = InvoiceReferenceAutoincrement::where('year', $year)
+                            ->where('ceuta', 1)
+                            ->where('month_num', $monthNum)
+                            ->orderBy('id', 'desc')
+                            ->first();
+        // Si no existe, empezamos desde 1, de lo contrario, incrementamos
+        $newReferenceAutoincrement = $latestReference ? $latestReference->reference_autoincrement + 1 : 1;
+        // Formatear el número autoincremental a 6 dígitos
+        $formattedAutoIncrement = str_pad($newReferenceAutoincrement, 4, '0', STR_PAD_LEFT);
+        // Crear la referencia
+        switch ($monthNum) {
+            case 1:
+                $monthLetter = 'A';
+            break;
+            case 2:
+                $monthLetter = 'B';
+            break;
+            case 3:
+                $monthLetter = 'C';
+            break;
+            case 4:
+                $monthLetter = 'D';
+            break;
+            case 5:
+                $monthLetter = 'E';
+            break;
+            case 6:
+                $monthLetter = 'F';
+            break;
+            case 7:
+                $monthLetter = 'G';
+            break;
+            case 8:
+                $monthLetter = 'H';
+            break;
+            case 9:
+                $monthLetter = 'I';
+            break;
+            case 10:
+                $monthLetter = 'J';
+            break;
+            case 11:
+                $monthLetter = 'K';
+            break;
+            case 12:
+                $monthLetter = 'L';
+            break;
+        }
+        $reference = 'CE/' . $monthLetter.$year . '-'. $formattedAutoIncrement;
+        // Guardar o actualizar la referencia autoincremental en BudgetReferenceAutoincrement
+        $referenceToSave = new InvoiceReferenceAutoincrement([
+            'reference_autoincrement' => $newReferenceAutoincrement,
+            'year' => $year,
+            'month_num' => $monthNum,
+            'letter_months' => $monthLetter,
+            'ceuta' => 1,
+        ]);
+
+        $referenceToSave->save();
+
+        return [
+            'id' => $referenceToSave->id,
+            'reference' => $reference,
+            'reference_autoincrement' => $newReferenceAutoincrement,
+            'budget_reference_autoincrements' => [
+                'year' => $year,
+                'month_num' => $monthNum,
+            ],
+        ];
+    }
+
     //Comprueba si el presupuesto tiene conceptos
     public function budgetHasConcepts(Budget $budget){
         // Query para todos los conceptos de este presupuesto
@@ -981,7 +1062,11 @@ class BudgetController extends Controller
             $discountPercentage = 0;
         }
 
-        $referenceGenerationResult = $this->generateInvoiceReference($budget);
+        if($budget->is_ceuta){
+            $referenceGenerationResult = $this->generateInvoiceReferenceCeuta($budget);
+        }else{
+            $referenceGenerationResult = $this->generateInvoiceReference($budget);
+        }
 
         $grossfacturado=0;
         $basefacturada=0;
@@ -1064,6 +1149,8 @@ class BudgetController extends Controller
             'discount' => ($budget->discount - $descuento) * $porcentaje,
             'discount_percentage' => $discountPercentage,
             'total' => ($budget->total - $totalfacturado) * $porcentaje,
+            'is_ceuta' => $budget->is_ceuta,
+
         ];
 
 
@@ -1221,8 +1308,12 @@ class BudgetController extends Controller
         }else{
             $discountPercentage = 0;
         }
-        $referenceGenerationResult = $this->generateInvoiceReference($budget);
 
+        if($budget->is_ceuta){
+            $referenceGenerationResult = $this->generateInvoiceReferenceCeuta($budget);
+        }else{
+            $referenceGenerationResult = $this->generateInvoiceReference($budget);
+        }
 
         if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
             $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
@@ -1251,6 +1342,8 @@ class BudgetController extends Controller
             'discount' => $budget->discount * $porcentaje,
             'discount_percentage' => $discountPercentage,
             'total' => $budget->total * $porcentaje,
+            'is_ceuta' => $budget->is_ceuta,
+
         ];
 
         // Creación de la factura
@@ -1408,7 +1501,12 @@ class BudgetController extends Controller
         $discount = ($budget->discount * $porcentaje) / 100;
 
         $budget->invoiced_advance = $porcentaje;
-        $referenceGenerationResult = $this->generateInvoiceReference($budget);
+
+        if($budget->is_ceuta){
+            $referenceGenerationResult = $this->generateInvoiceReferenceCeuta($budget);
+        }else{
+            $referenceGenerationResult = $this->generateInvoiceReference($budget);
+        }
 
         $data = [
             'budget_id' => $budget->id,
@@ -1429,6 +1527,7 @@ class BudgetController extends Controller
             'total' => $total,
             'partial' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'is_ceuta' => $budget->is_ceuta,
         ];
 
         // Creación de la factura

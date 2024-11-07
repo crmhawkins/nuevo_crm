@@ -99,7 +99,7 @@ body * {
                   <td width="20">
                     @switch($presupuesto->budget_status_id)
                         @case(1)
-                            <span class="label label-warning"><span class="text-uppercase badge bg-secondary text-dark p-2" style="font-size: 12px">{{$presupuesto->estadoPresupuesto->name}}</span></span>
+                            <span class="label label-warning"><span class="text-uppercase badge bg-secondary p-2" style="font-size: 12px">{{$presupuesto->estadoPresupuesto->name}}</span></span>
                             @break
                         @case(2)
                             <span class="label label-dark"><span class="text-uppercase badge bg-secondary p-2" style="font-size: 12px">{{$presupuesto->estadoPresupuesto->name}}</span></span>
