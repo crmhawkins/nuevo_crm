@@ -149,7 +149,7 @@
                 <tr>
                     <td align="left" style="width: 50%;">
                         @if ($invoice->is_ceuta)
-                         IPOINT COMUNICACION MASIVA SL.CIF: B 72139868 - Calle Delgado Serrano Nº1, 3ºD, 1ªOficina  (Ceuta 51001)
+                            THWORK 3000 SL B72284631 - Calle Delgado Serrano Nº1, 3ºD, 1ªOficina (Ceuta 51001)
                         @else
                             @if( Carbon\Carbon::parse($budget->created_at) >= Carbon\Carbon::parse("2021/02/01"))
                                 THWORK 3000 SL B72284631 C/General Primo de Rivera s/N  CP 11201 Algeciras (Cádiz)
