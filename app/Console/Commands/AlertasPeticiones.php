@@ -20,7 +20,7 @@ class AlertasPeticiones extends Command
 
     public function handle()
     {
-        $pendientes = Petition::where('status_id', 1)
+        $pendientes = Petition::where('finished', 0)
         ->where('created_at', '<=', Carbon::now()->subHours(24))
         ->get();
 
@@ -39,9 +39,10 @@ class AlertasPeticiones extends Command
                     'reference_id' => $petition->id,
                     'admin_user_id' => $petition->admin_user_id,
                     'stage_id' => 1,
+                    'status_id' => 1,
                     'activation_datetime' => Carbon::now(),
                     'cont_postpone' => $contPostpone,
-                    'description' => 'Peticion de ' . $petition->client->name,
+                    'description' => 'Peticion de ' . $petition->cliente->name,
                 ]);
             }
         }

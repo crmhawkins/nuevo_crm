@@ -113,19 +113,19 @@
               <div class="body-section row pt-4">
                 <div class="col-6">
                   <div class="panel-avg--content">
-                    <div class="panel-avg--value">{{ $cliente->facturasPorEstado(3)->count() > 0 ? $cliente->facturasPorEstado(3)->sum('total') / $cliente->facturasPorEstado(3)->count() : '0' }}€</div>
+                    <div class="panel-avg--value">{{$cliente->facturasPorEstado(3)->count() > 0 ? number_format($cliente->facturasPorEstado(3)->sum('total') / $cliente->facturasPorEstado(3)->count() , 2, '.') : '' }}€</div>
                     <div class="panel-avg--label">Importe medio de facturas</div>
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="panel-avg--content">
-                    <div class="panel-avg--value">{{$cliente->facturasPorEstado(3)->sum('invoice_concepts_count') > 0 ? $cliente->facturasPorEstado(3)->sum('invoice_concepts_count') / $cliente->facturasPorEstado(3)->count() : '0' }}</div>
+                    <div class="panel-avg--value">{{ $cliente->facturasPorEstado(3)->sum('invoice_concepts_count') > 0 ? number_format($cliente->facturasPorEstado(3)->sum('invoice_concepts_count') / $cliente->facturasPorEstado(3)->count(), 2, '.') : '0' }}</div>
                     <div class="panel-avg--label">Productos por factura</div>
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="panel-avg--content">
-                    <div class="panel-avg--value">{{$cliente->averagePaidTime(3)}}</div>
+                    <div class="panel-avg--value">{{ number_format( $cliente->averagePaidTime(3) , 2, '.') }}</div>
                     <div class="panel-avg--label">Días de plazo medio de pago</div>
                   </div>
                 </div>
@@ -185,9 +185,11 @@ var options = {
     categories: ['Ene','Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dic'],
   },
   yaxis: {
-    // title: {
-    //   text: '$ (thousands)'
-    // }
+    labels: {
+      formatter: function (value) {
+        return value.toFixed(0); // Formatea los valores del eje Y sin decimales
+      }
+    }
   },
   fill: {
     opacity: 1
@@ -195,7 +197,7 @@ var options = {
   tooltip: {
     y: {
       formatter: function (val) {
-        return  val + " €"
+        return  val.toFixed(2) + " €"; // Formatea los valores del tooltip con dos decimales
       }
     }
   }

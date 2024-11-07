@@ -44,6 +44,7 @@ class AlertasFacturaFuera extends Command
                         'reference_id' => $pendiente->id,
                         'admin_user_id' => $usuario->id,
                         'stage_id' => 9,
+                        'status_id' => 1,
                         'activation_datetime' => Carbon::now(),
                         'cont_postpone' => $contPostpone,
                         'description' => 'Factura ' . $pendiente->reference.' fuera de plazo.',

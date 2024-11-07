@@ -92,9 +92,9 @@
                                         <div class="row mb-3 ">
                                             <div class="col">
                                                 <div class="card">
-                                                    <div class="card-body p-3">
-                                                        <h5 class="card-title m-0 text-color-4  fw-bold">Pendientes</h5>
-                                                        <span class="display-6 m-0"><b>{{count($user->ordenes())}}</b></span>
+                                                    <div id="ordenes" class="card-body p-3">
+                                                        <h5 class="card-title  m-0 text-color-4  fw-bold">Pendientes</h5>
+                                                        <span class="display-6  m-0"><b>{{count($user->ordenes())}}</b></span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -242,17 +242,19 @@
                                                         @foreach ($to_dos as $to_do)
                                                             <div class="card mt-2" id="todo-card-{{$to_do->id}}">
                                                                 <div class="card-body d-flex justify-content-between clickable" id="todo-card-body-{{$to_do->id}}" data-todo-id="{{$to_do->id}}" style="{{$to_do->isCompletedByUser($user->id) ? 'background-color: #CDFEA4' : '' }}">
-                                                                    <h3>{{ $to_do->titulo }}</h3>
-                                                                    <div>
+                                                                    <div style="flex: 0 0 60%;">
+                                                                        <h3>{{ $to_do->titulo }}</h3>
+                                                                    </div>
+                                                                    <div class="d-flex align-items-center justify-content-around" style="flex: 0 0 40%;">
                                                                         @if(!($to_do->isCompletedByUser($user->id)))
                                                                         <button onclick="completeTask(event,{{ $to_do->id }})" id="complete-button-{{$to_do->id}}" class="btn btn-success btn-sm">Completar</button>
                                                                         @endif
                                                                         @if ($to_do->admin_user_id == $user->id)
                                                                         <button onclick="finishTask(event,{{ $to_do->id }})" class="btn btn-danger btn-sm">Finalizar</button>
                                                                         @endif
-                                                                    </div>
-                                                                    <div id="todo-card-{{ $to_do->id }}"  class="pulse justify-center align-items-center" style="{{ $to_do->unreadMessagesCountByUser($user->id) > 0 ? 'display: flex;' : 'display: none;' }}">
-                                                                        {{ $to_do->unreadMessagesCountByUser($user->id) }}
+                                                                        <div id="todo-card-{{ $to_do->id }}"  class="pulse justify-center align-items-center" style="{{ $to_do->unreadMessagesCountByUser($user->id) > 0 ? 'display: flex;' : 'display: none;' }}">
+                                                                            {{ $to_do->unreadMessagesCountByUser($user->id) }}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                                 <div class="info">
@@ -760,6 +762,7 @@
 
         var events = @json($events);
         document.addEventListener('DOMContentLoaded', function() {
+
             var calendarEl = document.getElementById('calendar');
             var tooltip = document.getElementById('tooltip');
             var calendar = new FullCalendar.Calendar(calendarEl, {

@@ -45,6 +45,7 @@ class AlertasPresupuestoFinalizado extends Command
                         'reference_id' => $pendiente->id,
                         'admin_user_id' => $usuario->id,
                         'stage_id' => 5,
+                        'status_id' => 1,
                         'activation_datetime' => Carbon::now(),
                         'cont_postpone' => $contPostpone,
                         'description' => 'Presupuesto ' . $pendiente->reference.' esta finalizado y no esta facturado.'

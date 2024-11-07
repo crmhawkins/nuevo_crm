@@ -771,17 +771,19 @@
                                                             @foreach ($to_dos as $to_do)
                                                                 <div class="card mt-2" id="todo-card-{{$to_do->id}}">
                                                                     <div class="card-body d-flex justify-content-between clickable" id="todo-card-body-{{$to_do->id}}" data-todo-id="{{$to_do->id}}" style="{{$to_do->isCompletedByUser($user->id) ? 'background-color: #CDFEA4' : '' }}">
-                                                                        <h3>{{ $to_do->titulo }}</h3>
-                                                                        <div>
+                                                                        <div style="flex: 0 0 60%;">
+                                                                            <h3>{{ $to_do->titulo }}</h3>
+                                                                        </div>
+                                                                        <div class="d-flex align-items-center justify-content-around" style="flex: 0 0 40%;">
                                                                             @if(!($to_do->isCompletedByUser($user->id)))
                                                                             <button onclick="completeTask(event,{{ $to_do->id }})" id="complete-button-{{$to_do->id}}" class="btn btn-success btn-sm">Completar</button>
                                                                             @endif
                                                                             @if ($to_do->admin_user_id == $user->id)
                                                                             <button onclick="finishTask(event,{{ $to_do->id }})" class="btn btn-danger btn-sm">Finalizar</button>
                                                                             @endif
-                                                                        </div>
-                                                                        <div id="todo-card-{{ $to_do->id }}" class="pulse justify-center align-items-center" style="{{ $to_do->unreadMessagesCountByUser($user->id) > 0 ? 'display: flex;' : 'display: none;' }}">
-                                                                            {{ $to_do->unreadMessagesCountByUser($user->id) }}
+                                                                            <div id="todo-card-{{ $to_do->id }}" class="pulse justify-center align-items-center" style="{{ $to_do->unreadMessagesCountByUser($user->id) > 0 ? 'display: flex;' : 'display: none;' }}">
+                                                                                {{ $to_do->unreadMessagesCountByUser($user->id) }}
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                     <div class="info">

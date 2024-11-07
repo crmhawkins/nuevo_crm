@@ -41,6 +41,7 @@ class AlertasPresupuestoConfirmar extends Command
                     'reference_id' => $pendiente->id,
                     'admin_user_id' => $pendiente->admin_user_id,
                     'stage_id' => 2,
+                    'status_id' => 1,
                     'activation_datetime' => Carbon::now(),
                     'cont_postpone' => $contPostpone,
                     'description' => 'Presupuesto ' . $pendiente->reference.' pendiente de confirmación',
