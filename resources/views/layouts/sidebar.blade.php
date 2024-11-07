@@ -463,13 +463,13 @@
                             </li>
                         </ul>
                     </li>
-                    @if ($admin || $gerente )
                     <li class="sidebar-item {{ request()->routeIs('estadistica.index') ? 'active' : '' }}">
                         <a href="{{route('estadistica.index')}}" class='sidebar-link'>
                             <i class="fa-solid fa-chart-line"></i>
                             <span>Estadisticas</span>
                         </a>
                     </li>
+                    @if ($admin || $gerente )
                         <li class="sidebar-item has-sub {{ $servicesActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="fa-solid fa-sliders fs-5"></i>
