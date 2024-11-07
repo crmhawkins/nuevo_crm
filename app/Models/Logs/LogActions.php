@@ -2,6 +2,7 @@
 
 namespace App\Models\Logs;
 
+use App\Models\KitDigital;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -46,6 +47,10 @@ class LogActions extends Model
     public function tipo()
     {
         return $this->belongsTo(\App\Models\Logs\LogsTipes::class, 'tipo');
+    }
+
+    public function ayudas(){
+        return $this->belongsTo(KitDigital::class, 'reference_id');
     }
 
 

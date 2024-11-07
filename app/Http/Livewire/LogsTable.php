@@ -50,9 +50,13 @@ class LogsTable extends Component
                 $query->whereHas('usuario', function ($subQuery) {
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%');
                 })
+                ->whereHas('ayudas', function ($subQuery) {
+                    $subQuery->where('ayudas.cliente', 'like', '%' . $this->buscar . '%');
+                })
                 ->orWhere('action', 'like', '%' . $this->buscar . '%')
                 ->orWhere('description', 'like', '%' . $this->buscar . '%')
-                ->orWhere('reference_id', 'like', '%' . $this->buscar . '%');
+                ->orWhere('reference_id', 'like', '%' . $this->buscar . '%')
+                ;
             });
         })
         ->when($this->selectedYear, function ($query) {
@@ -65,7 +69,8 @@ class LogsTable extends Component
             $query->where('log_actions.tipo', $this->tipo);
         })
         ->join('admin_user', 'log_actions.admin_user_id', '=', 'admin_user.id')
-        ->select('log_actions.*','admin_user.name as usuario');
+        ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
+        ->select('log_actions.*','admin_user.name as usuario','ayudas.cliente as cliente');
 
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
