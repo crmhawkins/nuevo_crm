@@ -28,6 +28,7 @@ class GastosExport implements FromCollection, WithHeadings
                 \Carbon\Carbon::parse($gasto->date)->format('d/m/Y'),
                 $gasto->reference,
                 $gasto->state,
+                $gasto->transfer_movement ? 'Sí' : '',
             ];
         });
     }
@@ -45,6 +46,7 @@ class GastosExport implements FromCollection, WithHeadings
             'Fecha de pago',
             'Referencia',
             'Estado',
+            'transferencia',
         ];
     }
 }

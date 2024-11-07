@@ -11,6 +11,7 @@
         "cloudconvert/cloudconvert-php": "^3.4",
         "guzzlehttp/guzzle": "^7.2",
         "jenssegers/agent": "^2.6",
+        "josemmo/facturae-php": "^1.8",
         "laravel-views/laravel-views": "^2.4",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.2",
