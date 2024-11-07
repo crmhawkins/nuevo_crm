@@ -54,6 +54,7 @@ class Invoice extends Model
         'show_summary',
         'partial_number',// si es la primera, segunda...
         'rectification',
+        'is_ceuta',
     ];
 
 
