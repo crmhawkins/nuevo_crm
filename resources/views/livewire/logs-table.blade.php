@@ -56,6 +56,7 @@
                     <tr>
                         @foreach ([
                             'usuario' => 'USUARIO',
+                            'ayudas.cliente' => 'CLIENTE',
                             'action' => 'ACCION',
                             'description' => 'DESCRIPCION',
                             'reference_id' => 'REFERENCIA',
@@ -76,6 +77,7 @@
                     @foreach ( $logs as $log )
                         <tr>
                             <td>{{$log->usuario}}</td>
+                            <td>{{$log->ayudas->cliente}}</td>
                             <td>{{$log->action}}</td>
                             <td>{{$log->description}}</td>
                             <td>{{$log->reference_id}}</td>
