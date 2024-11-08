@@ -22,7 +22,7 @@ class CategoriaGastosController extends Controller
         $rules = [
             'nombre' => 'required|string|max:255',
         ];
-
+        dd($request->all());
         // Validar los datos del formulario
         $validatedData = $request->validate($rules);
         $banco = CategoriaGastos::create($validatedData);

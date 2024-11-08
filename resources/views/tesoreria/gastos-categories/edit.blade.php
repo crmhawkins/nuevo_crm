@@ -37,7 +37,7 @@
                             <div class="col-sm-12 col-md-12">
                                 <div class="form-group mb-3">
                                     <label for="title">Nombre:</label>
-                                    <input placeholder="Nombre de la categoria" type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" value="{{ old('nombre',$categoria->nombre) }}" nombre="nombre">
+                                    <input placeholder="Nombre de la categoria" type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" value="{{ old('nombre',$categoria->nombre) }}" name="nombre">
                                     @error('nombre')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
