@@ -50,9 +50,28 @@ class CategoriaGastosController extends Controller
 
     }
     public function destroy(Request $request){
-        $categoria = CategoriaGastos::find($request->id);
 
-        $categoria->delete();
-        return redirect()->route('categorias-gastos.index')->with('status', 'Categoria de gasto eliminada con éxito!');
+        $id = $request->id;
+        if ($id != null) {
+            $categoria = CategoriaGastos::find($id);
+            if ($categoria != null) {
+                $categoria->delete();
+                return response()->json([
+                    'status' => true,
+                    'mensaje' => "Categoria de gastos eliminada con éxito."
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Error 500 no se encuentra la categoria de gastos ."
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'mensaje' => "Error 500 no se encuentra el ID en la petición."
+            ]);
+        }
+
     }
 }

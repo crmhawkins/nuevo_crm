@@ -49,8 +49,26 @@ class CategoriaAsociadosController extends Controller
 
     }
     public function destroy(Request $request){
-        $categoria = CategoriaGastosAsociados::find($request->id);
-        $categoria->delete();
-        return redirect()->route('categorias-gastos-asociados.index')->with('status', 'Categoria de gastos asociado eliminada con éxito!');
+        $id = $request->id;
+        if ($id != null) {
+            $categoria = CategoriaGastosAsociados::find($id);
+            if ($categoria != null) {
+                $categoria->delete();
+                return response()->json([
+                    'status' => true,
+                    'mensaje' => "Categoria de gastos asociado eliminada con éxito."
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Error 500 no se encuentra la categoria de gastos asociado."
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'mensaje' => "Error 500 no se encuentra el ID en la petición."
+            ]);
+        }
     }
 }
