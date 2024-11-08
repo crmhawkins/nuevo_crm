@@ -39,7 +39,7 @@
                     $cargoActive= request()->routeIs('cargo.*');
                     $departamentoActive= request()->routeIs('departamento.*');
                     $tesoreriaActive = request()->routeIs('ingreso.*') || request()->routeIs('gasto.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
-                    $cofiguracionActive = request()->routeIs('iva.*') || request()->routeIs('configuracion.*');
+                    $cofiguracionActive = request()->routeIs('configuracion.*');
                     $EmailConfig = request()->routeIs('admin.categoriaEmail.*') || request()->routeIs('admin.statusMail.*');
                     $BajaActive = request()->routeIs('bajas.*');
                     $StadisticsActive = request()->routeIs('estadistica.*');
@@ -469,6 +469,30 @@
                             <span>Estadisticas</span>
                         </a>
                     </li>
+                    <li class="sidebar-item has-sub {{ request()->routeIs('iva.*') ? 'active' : '' }}">
+                        <a href="#" class='sidebar-link'>
+                            <i class="fa-solid fa-list"></i>
+                            <span>Tipos de iva</span>
+                        </a>
+                        <ul class="submenu" style="{{ request()->routeIs('iva.*') ? 'display:block;' : 'display:none;' }}">
+                            <li class="submenu-item {{ request()->routeIs('iva.index') ? 'active' : '' }}">
+                                <a href="{{route('iva.index')}}">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>
+                                        Ver
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('iva.create') ? 'active' : '' }}">
+                                <a href="{{route('iva.create')}}">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span>
+                                        Crear tipo de iva
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     @if ($admin || $gerente )
                         <li class="sidebar-item has-sub {{ $servicesActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
@@ -589,30 +613,7 @@
                                 <span>Cofiguracion</span>
                             </a>
                             <ul class="submenu" style="{{ $cofiguracionActive ? 'display:block;' : 'display:none;' }}">
-                                <li class="sidebar-item has-sub {{ request()->routeIs('iva.*') ? 'active' : '' }}">
-                                    <a href="#" class='sidebar-link'>
-                                        <i class="fa-solid fa-list"></i>
-                                        <span>Tipos de iva</span>
-                                    </a>
-                                    <ul class="submenu" style="{{ request()->routeIs('iva.*') ? 'display:block;' : 'display:none;' }}">
-                                        <li class="submenu-item {{ request()->routeIs('iva.index') ? 'active' : '' }}">
-                                            <a href="{{route('iva.index')}}">
-                                                <i class="fa-solid fa-list"></i>
-                                                <span>
-                                                    Ver
-                                                </span>
-                                            </a>
-                                        </li>
-                                        <li class="submenu-item {{ request()->routeIs('iva.create') ? 'active' : '' }}">
-                                            <a href="{{route('iva.create')}}">
-                                                <i class="fa-solid fa-eye"></i>
-                                                <span>
-                                                    Crear tipo de iva
-                                                </span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
+
                                 <li class="submenu-item {{ request()->routeIs('configuracion.index') ? 'active' : '' }}">
                                     <a href="{{route('configuracion.index')}}" class='sidebar-link'>
                                         <i class="fa-solid fa-gears fs-5"></i>
