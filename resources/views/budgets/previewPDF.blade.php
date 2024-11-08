@@ -148,7 +148,7 @@
             <table width="100%;margin-bottom:5px">
                 <tr>
                     <td align="left" style="width: 50%;">
-                        @if ($invoice->is_ceuta)
+                        @if ($budget->is_ceuta)
                             THWORK 3000 SL B72284631 - Calle Delgado Serrano Nº1, 3ºD, 1ªOficina (Ceuta 51001)
                         @else
                             @if( Carbon\Carbon::parse($budget->created_at) >= Carbon\Carbon::parse("2021/02/01"))

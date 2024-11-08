@@ -613,7 +613,6 @@
                                 <span>Cofiguracion</span>
                             </a>
                             <ul class="submenu" style="{{ $cofiguracionActive ? 'display:block;' : 'display:none;' }}">
-
                                 <li class="submenu-item {{ request()->routeIs('configuracion.index') ? 'active' : '' }}">
                                     <a href="{{route('configuracion.index')}}" class='sidebar-link'>
                                         <i class="fa-solid fa-gears fs-5"></i>
