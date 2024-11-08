@@ -26,9 +26,9 @@ class AsociadosExport implements FromCollection, WithHeadings
                 optional(optional($gasto->OrdenCompra)->cliente)->name ?? 'Sin cliente Asociado',
                 optional(optional($gasto->OrdenCompra)->Proveedor)->name ?? 'Sin Proveedor Asociado',
                 $gasto->title,
-                number_format($gasto->quantity, 2,','),
-                number_format($gasto->iva_amount, 2,','),
-                number_format($gasto->total_with_iva, 2,','),                \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y'),
+                $gasto->quantity,
+                $gasto->iva_amount,
+                $gasto->total_with_iva,                \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y'),
                 optional($gasto->bankAccount)->name ?? 'Sin banco asignado',
                 $gasto->state,
             ];

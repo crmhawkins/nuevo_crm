@@ -23,9 +23,9 @@ class GastosExport implements FromCollection, WithHeadings
             return [
                 optional($gasto->bankAccount)->name ?? 'Sin banco asignado',
                 $gasto->title,
-                number_format($gasto->quantity, 2,','),
-                number_format($gasto->iva_amount, 2,','),
-                number_format($gasto->total_with_iva, 2,','),
+                $gasto->quantity,
+                $gasto->iva_amount,
+                $gasto->total_with_iva,
                 \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y'),
                 \Carbon\Carbon::parse($gasto->date)->format('d/m/Y'),
                 $gasto->reference,
