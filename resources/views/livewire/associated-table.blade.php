@@ -83,6 +83,7 @@
                             'received_date' => 'F.RECEPCION',
                             'bank_id' => 'BANCO',
                             'state' => 'ESTADO',
+                            'categoria_id' => 'CATEGORIA',
 
                         ] as $field => $label)
                             <th class="px-3" style="font-size:0.75rem">
@@ -111,6 +112,7 @@
                             <td>{{ \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') }}</td>
                             <td>{{$gasto->bankAccount->name ?? 'Banco no asociado'}}</td>
                             <td>{{$gasto->state}}</td>
+                            <td>{{optional($gasto->categoria)->nombre ?? 'Sin categoria asignada'}}</td>
                             <td>
                                 @if (isset($gasto->documents))
                                 @php

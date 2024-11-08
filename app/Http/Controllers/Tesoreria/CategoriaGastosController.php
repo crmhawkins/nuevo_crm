@@ -27,7 +27,7 @@ class CategoriaGastosController extends Controller
         $validatedData = $request->validate($rules);
         $banco = CategoriaGastos::create($validatedData);
 
-        return redirect()->route('tesoreria.gastos-categories.index')->with('status', 'Categoria de gasto creado con éxito!');
+        return redirect()->route('categorias-gastos.index')->with('status', 'Categoria de gasto creado con éxito!');
 
     }
     public function edit(CategoriaGastos $categoria){
@@ -46,13 +46,13 @@ class CategoriaGastosController extends Controller
             'nombre' => $validatedData['nombre']
         ]);
 
-        return redirect()->route('tesoreria.gastos-categories.index')->with('status', 'Categoria de gasto actualizado con éxito!');
+        return redirect()->route('categorias-gastos.index')->with('status', 'Categoria de gasto actualizado con éxito!');
 
     }
     public function destroy(Request $request){
         $categoria = CategoriaGastos::find($request->id);
 
         $categoria->delete();
-        return redirect()->route('tesoreria.gastos-categories.index')->with('status', 'Categoria de gasto eliminada con éxito!');
+        return redirect()->route('categorias-gastos.index')->with('status', 'Categoria de gasto eliminada con éxito!');
     }
 }

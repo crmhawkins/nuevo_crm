@@ -26,7 +26,7 @@ class CategoriaAsociadosController extends Controller
         $validatedData = $request->validate($rules);
         $banco = CategoriaGastosAsociados::create($validatedData);
 
-        return redirect()->route('gastos-asociados-categories.index')->with('status', 'Categoria de gastos asociado creado con éxito!');
+        return redirect()->route('categorias-gastos-asociados.index')->with('status', 'Categoria de gastos asociado creado con éxito!');
 
     }
     public function edit(CategoriaGastosAsociados $categoria){
@@ -45,12 +45,12 @@ class CategoriaAsociadosController extends Controller
             'nombre' => $validatedData['nombre']
         ]);
 
-        return redirect()->route('gastos-asociados-categories.index')->with('status', 'Categoria de gastos asociado actualizado con éxito!');
+        return redirect()->route('categorias-gastos-asociados.index')->with('status', 'Categoria de gastos asociado actualizado con éxito!');
 
     }
     public function destroy(Request $request){
         $categoria = CategoriaGastosAsociados::find($request->id);
         $categoria->delete();
-        return redirect()->route('gastos-asociados-categories.index')->with('status', 'Categoria de gastos asociado eliminada con éxito!');
+        return redirect()->route('categorias-gastos-asociados.index')->with('status', 'Categoria de gastos asociado eliminada con éxito!');
     }
 }

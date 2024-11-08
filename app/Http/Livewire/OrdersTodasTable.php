@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class OrdersContableTable extends Component
+class OrdersTodasTable extends Component
 {
     use WithPagination;
 

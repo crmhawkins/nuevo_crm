@@ -46,10 +46,10 @@
                 <tbody>
                     {{-- Recorremos los servicios --}}
                     @foreach ( $categorias as $categoria )
-                        <tr class="clickable-row" data-href="{{route('serviciosCategoria.edit', $categoria->id)}}">
+                        <tr class="clickable-row" data-href="{{route('categorias-gastos-asociados.edit', $categoria->id)}}">
                             <td class="px-3" style="width: 60%">{{$categoria->nombre}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
-                                <a class="" href="{{route('serviciosCategoria.edit', $categoria->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar servicio"></a>
+                                <a class="" href="{{route('categorias-gastos-asociados.edit', $categoria->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar servicio"></a>
                                 <a class="delete" data-id="{{$categoria->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar servicio"></a>
                             </td>
                         </tr>

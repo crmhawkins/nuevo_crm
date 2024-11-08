@@ -38,7 +38,7 @@
                     $actasActive= request()->routeIs('reunion.*');
                     $cargoActive= request()->routeIs('cargo.*');
                     $departamentoActive= request()->routeIs('departamento.*');
-                    $tesoreriaActive = request()->routeIs('ingreso.*') || request()->routeIs('gasto.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*');
+                    $tesoreriaActive = request()->routeIs('ingreso.*') || request()->routeIs('gasto.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*') || request()->routeIs('gastos-asociado.*') || request()->routeIs('categorias-gastos*');
                     $cofiguracionActive = request()->routeIs('configuracion.*');
                     $EmailConfig = request()->routeIs('admin.categoriaEmail.*') || request()->routeIs('admin.statusMail.*');
                     $BajaActive = request()->routeIs('bajas.*');
@@ -334,6 +334,38 @@
                                     <i class="fa-solid fa-list"></i>
                                     <span>
                                         Cuadro de Tesoreria
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('categorias-gastos.index') ? 'active' : '' }}">
+                                <a target="_blank" href="{{route('categorias-gastos.index')}}">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>
+                                        Categorias de gastos
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('categorias-gastos.create') ? 'active' : '' }}">
+                                <a target="_blank" href="{{route('categorias-gastos.create')}}">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>
+                                        Crear categoria de gastos
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('categorias-gastos-asociados.index') ? 'active' : '' }}">
+                                <a target="_blank" href="{{route('categorias-gastos-asociados.index')}}">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>
+                                        Categorias de gastos asociados
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('categorias-gastos-asociados.create') ? 'active' : '' }}">
+                                <a target="_blank" href="{{route('categorias-gastos-asociados.create')}}">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>
+                                       Crear categoria de gastos asociados
                                     </span>
                                 </a>
                             </li>

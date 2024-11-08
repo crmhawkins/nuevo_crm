@@ -31,6 +31,7 @@ class GastosExport implements FromCollection, WithHeadings
                 $gasto->reference,
                 $gasto->state,
                 $gasto->transfer_movement ? 'Sí' : '',
+                optional($gasto->categoria)->nombre ?? 'Sin categoria asignada',
             ];
         });
     }
@@ -50,7 +51,8 @@ class GastosExport implements FromCollection, WithHeadings
             'Fecha de pago',
             'Referencia',
             'Estado',
-            'transferencia',
+            'Transferencia',
+            'Categoria'
         ];
     }
 }

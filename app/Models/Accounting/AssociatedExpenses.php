@@ -59,7 +59,7 @@ class AssociatedExpenses extends Model
         return $this->belongsTo(BankAccounts::class, 'bank_id');
     }
 
-    public function Categoria(){
+    public function categoria(){
         return $this->belongsTo(CategoriaGastosAsociados::class,'categoria_id');
     }
 

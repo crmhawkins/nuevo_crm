@@ -31,6 +31,8 @@ class AsociadosExport implements FromCollection, WithHeadings
                 $gasto->total_with_iva,                \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y'),
                 optional($gasto->bankAccount)->name ?? 'Sin banco asignado',
                 $gasto->state,
+                optional($gasto->categoria)->nombre ?? 'Sin categoria asignada',
+
             ];
         });
     }
@@ -52,6 +54,8 @@ class AsociadosExport implements FromCollection, WithHeadings
             'Fecha recepción',
             'Banco',
             'Estado',
+            'Categoria'
+
         ];
     }
 }
