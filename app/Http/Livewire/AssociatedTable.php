@@ -52,7 +52,7 @@ class AssociatedTable extends Component
     protected function actualizargastos()
     {
         // Comprueba si se ha seleccionado "Todos" para la paginación
-        $query = AssociatedExpenses::select('*', DB::raw('associated_expenses.quantity * (associated_expenses.iva / 100) as iva_amount'), DB::raw('associated_expenses.quantity + (COALESCE(associated_expenses.quantity, 0) * (COALESCE(associated_expenses.iva, 0) / 100)) as total_with_iva'))
+        $query = AssociatedExpenses::select('associated_expenses.*', 'suppliers.name as supplier_name', DB::raw('associated_expenses.quantity * (associated_expenses.iva / 100) as iva_amount'), DB::raw('associated_expenses.quantity + (COALESCE(associated_expenses.quantity, 0) * (COALESCE(associated_expenses.iva, 0) / 100)) as total_with_iva'))
         ->when($this->buscar, function ($query) {
             $query->where('associated_expenses.title', 'like', '%' . $this->buscar . '%')
                   ->orWhereHas('OrdenCompra.Proveedor', function ($subQuery) {
@@ -75,8 +75,7 @@ class AssociatedTable extends Component
             $query->whereDate('associated_expenses.date', '<=', Carbon::parse($this->endDate));
         })
         ->join('purchase_order', 'associated_expenses.purchase_order_id', '=', 'purchase_order.id') // Join con la tabla purchase_order
-        ->join('suppliers', 'purchase_order.supplier_id', '=', 'suppliers.id') // Join con la tabla suppliers
-        ->select('associated_expenses.*', 'suppliers.name as supplier_name');
+        ->join('suppliers', 'purchase_order.supplier_id', '=', 'suppliers.id'); // Join con la tabla suppliers
 
         // Aplica la ordenación
         $query->orderBy($this->sortColumn, $this->sortDirection);
