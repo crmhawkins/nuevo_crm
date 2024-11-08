@@ -336,7 +336,7 @@
                         <div class="col">
                             <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacion" style="cursor:pointer;">
                                 <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación {{$}}</span>
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
                                             <span class="d-block display-6 font-weight-400 text-dark">€ {{number_format($dataFacturacion['total'], 2, ',', '.')}}</span>
