@@ -58,6 +58,7 @@ class ClientController extends Controller
             'province' => 'nullable|max:200',
             'zipcode' => 'nullable|max:200',
             'phone' => 'required',
+            'pin' => 'nullable',
         ], [
             'name.required' => 'El nombre es requerido para continuar',
             'admin_user_id.required' => 'El gestor es requerido para continuar',
@@ -80,6 +81,10 @@ class ClientController extends Controller
         $data['is_client'] = true;
         $data['is_client'] = true;
         $clienteCreado = Client::create($data);
+        if($clienteCreado->pin = null){
+            $clienteCreado->pin = rand(100000, 999999);
+            $clienteCreado->save();
+        }
         // dd($clienteCreado);
 
         // Validamos si hay contacto asociado
@@ -180,6 +185,7 @@ class ClientController extends Controller
             'province' => 'nullable|max:200',
             'zipcode' => 'nullable|max:200',
             'phone' => 'required',
+            'pin' => 'nullable',
         ], [
             'name.required' => 'El nombre es requerido para continuar',
             'admin_user_id.required' => 'El gestor es requerido para continuar',
@@ -203,7 +209,10 @@ class ClientController extends Controller
         $data['is_client'] = true;
         $clienteCreado = Client::create($data);
         // dd($clienteCreado);
-
+        if($clienteCreado->pin = null){
+            $clienteCreado->pin = rand(100000, 999999);
+            $clienteCreado->save();
+        }
         // Validamos si hay contacto asociado
         if (isset($data['newAssociatedContact'])) {
             foreach($data['newAssociatedContact'] as $newContacto){
@@ -352,6 +361,7 @@ class ClientController extends Controller
             'province' => 'required|max:200',
             'zipcode' => 'required|max:200',
             'phone' => 'required',
+            'pin' => 'nullable',
         ], [
             'name.required' => 'El nombre es requerido para continuar',
             'admin_user_id.required' => 'El gestor es requerido para continuar',
@@ -376,6 +386,10 @@ class ClientController extends Controller
         $data['privacy_policy_accepted'] = $request->input('privacy_policy_accepted', false); // Valor por defecto
 
         $cliente->update($data);
+        if($cliente->pin = null){
+            $cliente->pin = rand(100000, 999999);
+            $cliente->save();
+        }
 
         // Validamos si hay contacto asociado
         if (isset($data['newAssociatedContact'])) {

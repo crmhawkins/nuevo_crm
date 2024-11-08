@@ -175,6 +175,21 @@
                                     </span>
                             @enderror
                         </div>
+                        <div class="row mt-3">
+                            <div class="form-group col-6">
+                                <label for="Usuario">Usuario portal:</label>
+                                <input type="text" disabled class="form-control @error('Usuario') is-invalid @enderror" id="Usuario" value="{{ 'HK#'.$cliente->id }}" >
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="pin">Pin portal:</label>
+                                <input type="text" class="form-control @error('pin') is-invalid @enderror" id="pin" value="{{ old('pin', $cliente->pin) }}" name="pin">
+                                @error('pin')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                @enderror
+                            </div>
+                        </div>
                         <h3 class="mt-5 mb-2 text-center uppercase">Cliente Asociado</h3>
                         <hr class="mb-4">
                         <div class="form-group">
