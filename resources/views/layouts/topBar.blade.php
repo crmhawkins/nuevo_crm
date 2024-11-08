@@ -651,7 +651,7 @@
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                         eliminarAlertaDOM(stage_id, index);
                         } else {
                         swal(
@@ -668,7 +668,7 @@
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                         eliminarAlertaDOM(stage_id, index);
                         } else {
                         swal(
@@ -685,7 +685,7 @@
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                         eliminarAlertaDOM(stage_id, index);
                         } else {
                         swal(
@@ -702,7 +702,7 @@
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                         eliminarAlertaDOM(stage_id, index);
                         } else {
                         swal(
@@ -715,12 +715,12 @@
                     break;
 
                 case 6:
-                window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                         eliminarAlertaDOM(stage_id, index);
                         } else {
                         swal(
@@ -733,12 +733,12 @@
                     break;
 
                 case 7:
-                window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                         eliminarAlertaDOM(stage_id, index);
                         } else {
                         swal(
@@ -756,7 +756,7 @@
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                         eliminarAlertaDOM(stage_id, index);
                         } else {
                         swal(
@@ -997,7 +997,7 @@
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-                        window.open( "/budgets/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                        window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                         eliminarAlertaDOM(stage_id, index);
                         } else {
                         swal(
