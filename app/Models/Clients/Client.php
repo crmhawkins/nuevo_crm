@@ -24,6 +24,8 @@ class Client extends Model
      */
     protected $fillable = [
         'name',
+        'primerApellido',
+        'segundoApellido',
         'admin_user_id',
         'contact_id',
         'client_id',
@@ -55,6 +57,7 @@ class Client extends Model
         'last_survey',
         'last_newsletter',
         'pin',
+        'tipoCliente'
     ];
 
      /**

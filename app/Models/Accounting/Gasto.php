@@ -34,6 +34,7 @@ class Gasto extends Model
         'transfer_movement',
         'aprobado',
         'iva',
+        'categoria_id'
 
     ];
 
@@ -54,5 +55,9 @@ class Gasto extends Model
     public function bankAccount()
     {
         return $this->belongsTo(BankAccounts::class,'bank_id');
+    }
+
+    public function Categoria(){
+        return $this->belongsTo(CategoriaGastos::class,'categoria_id');
     }
 }

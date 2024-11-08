@@ -5,7 +5,7 @@ namespace App\Models\Accounting;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CategoriaIngresos extends Model
+class CategoriaGastosAsociados extends Model
 {
     use HasFactory;
 
@@ -16,7 +16,7 @@ class CategoriaIngresos extends Model
      *
      * @var string
      */
-    protected $table = 'categoria_ingresos';
+    protected $table = 'categoria_gastos_asociados';
 
     /**
      * The attributes that are mass assignable.

@@ -68,6 +68,19 @@
                                 @enderror
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
+                                    <label class="form-label" for="categoria_id">Categoria:</label>
+                                    <select class="form-select choices" id="categoria_id" name="categoria_id">
+                                        <option value="">Categorias</option>
+                                        @foreach($categorias as $categoria)
+                                            <option value="{{ $categoria->id }}">{{ $categoria->nombre}}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('categoria_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                        <style>.text-danger {color: red;}</style>
+                                    @enderror
+                                </div>
+                                <div class="col-md-3 form-group mt-2">
                                     <label for="iva">IVA:</label>
                                     <select class="form-select" id="iva" name="iva">
                                         <option value="">IVA</option>
@@ -82,7 +95,7 @@
                                         <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 form-group mt-2">
+                                <div class="col-md-3 form-group mt-2">
                                     <label for="quantity">Cantidad:</label>
                                     <input value="{{old('quantity')}}" type="number" class="form-control" id="quantity" name="quantity">
                                     @error('quantity')

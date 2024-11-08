@@ -49,6 +49,8 @@ use App\Http\Controllers\Portal\PortalClientesController;
 use App\Http\Controllers\Productividad\ProductividadController;
 use App\Http\Controllers\Settings\UserSettingsController;
 use App\Http\Controllers\Statistics\StatisticsController;
+use App\Http\Controllers\Tesoreria\CategoriaAsociadosController;
+use App\Http\Controllers\Tesoreria\CategoriaGastosController;
 use App\Http\Controllers\Tesoreria\IvaController;
 use App\Http\Controllers\Users\DepartamentController;
 use App\Http\Controllers\Users\PositionController;
@@ -425,6 +427,22 @@ Route::get('/gastos-sin-clasificar', [TesoreriaController::class, 'indexUnclassi
 Route::get('/gastos-sin-clasificar/edit/{id}', [TesoreriaController::class, 'editUnclassifiedExpensese'])->name('gasto-sin-clasificar.edit');
 Route::post('/gastos-sin-clasificar/update/{id}', [TesoreriaController::class, 'updateUnclassifiedExpensese'])->name('gasto-sin-clasificar.update');
 Route::post('/gastos-sin-clasificar/destroy', [TesoreriaController::class, 'destroyUnclassifiedExpensese'])->name('gastos-sin-clasificar.delete');
+
+//Categorias de gastos asociados
+Route::get('/categorias-gastos-asociados', [CategoriaAsociadosController::class, 'index'])->name('categorias-gastos-asociados.index');
+Route::get('/categorias-gastos-asociados/create', [CategoriaAsociadosController::class, 'create'])->name('categorias-gastos-asociados.create');
+Route::post('/categorias-gastos-asociados/store', [CategoriaAsociadosController::class, 'store'])->name('categorias-gastos-asociados.store');
+Route::get('/categorias-gastos-asociados/edit/{id}', [CategoriaAsociadosController::class, 'edit'])->name('categorias-gastos-asociados.edit');
+Route::post('/categorias-gastos-asociados/update/{id}', [CategoriaAsociadosController::class, 'update'])->name('categorias-gastos-asociados.update');
+Route::post('/categorias-gastos-asociados/destroy', [CategoriaAsociadosController::class, 'destroy'])->name('categorias-gastos-asociados.delete');
+
+//Categorias de gastos
+Route::get('/categorias-gastos', [CategoriaGastosController::class, 'index'])->name('categorias-gastos.index');
+Route::get('/categorias-gastos/create', [CategoriaGastosController::class, 'create'])->name('categorias-gastos.create');
+Route::post('/categorias-gastos/store', [CategoriaGastosController::class, 'store'])->name('categorias-gastos.store');
+Route::get('/categorias-gastos/edit/{id}', [CategoriaGastosController::class, 'edit'])->name('categorias-gastos.edit');
+Route::post('/categorias-gastos/update/{id}', [CategoriaGastosController::class, 'update'])->name('categorias-gastos.update');
+Route::post('/categorias-gastos/destroy', [CategoriaGastosController::class, 'destroy'])->name('categorias-gastos.delete');
 
 //Ivas
 Route::get('/ivas', [IvaController::class, 'index'])->name('iva.index');

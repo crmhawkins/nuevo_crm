@@ -68,11 +68,24 @@
                                 @enderror
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
-                                    <label class="form-label"  for="iva">IVA:</label>
+                                    <label class="form-label" for="categoria_id">Categoria:</label>
+                                    <select class="form-select choices" id="categoria_id" name="categoria_id">
+                                        <option value="">Categorias</option>
+                                        @foreach($categorias as $categoria)
+                                            <option value="{{ $categoria->id }}">{{ $categoria->nombre}}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('categoria_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                        <style>.text-danger {color: red;}</style>
+                                    @enderror
+                                </div>
+                                <div class="col-md-3 form-group mt-2">
+                                    <label class="form-label" for="iva">IVA:</label>
                                     <select class="form-select" id="iva" name="iva">
                                         <option value="">IVA</option>
                                         @foreach($tiposIva as $tipo)
-                                            <option value="{{ $tipo->valor }}" {{ old('iva', $gasto->iva) == $tipo->valor ? 'selected' : '' }}>
+                                            <option value="{{ $tipo->valor }}">
                                                 {{ $tipo->nombre}}
                                             </option>
                                         @endforeach
@@ -82,9 +95,9 @@
                                         <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 form-group mt-2">
-                                    <label class="form-label"  for="quantity">Cantidad:</label>
-                                    <input type="number" class="form-control" id="quantity" name="quantity" value="{{ $gasto->quantity }}">
+                                <div class="col-md-3 form-group mt-2">
+                                    <label class="form-label" for="quantity">Cantidad:</label>
+                                    <input type="number" class="form-control" id="quantity" name="quantity" value="{{old('quantity')}}" >
                                     @error('quantity')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>

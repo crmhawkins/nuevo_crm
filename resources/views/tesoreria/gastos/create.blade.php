@@ -68,6 +68,19 @@
                                 @enderror
                                 </div>
                                 <div class="col-md-6 form-group mt-2">
+                                    <label class="form-label" for="categoria_id">Categoria:</label>
+                                    <select class="form-select choices" id="categoria_id" name="categoria_id">
+                                        <option value="">Categorias</option>
+                                        @foreach($categorias as $categoria)
+                                            <option value="{{ $categoria->id }}">{{ $categoria->nombre}}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('categoria_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                        <style>.text-danger {color: red;}</style>
+                                    @enderror
+                                </div>
+                                <div class="col-md-3 form-group mt-2">
                                     <label class="form-label" for="iva">IVA:</label>
                                     <select class="form-select" id="iva" name="iva">
                                         <option value="">IVA</option>
@@ -82,7 +95,7 @@
                                         <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 form-group mt-2">
+                                <div class="col-md-3 form-group mt-2">
                                     <label class="form-label" for="quantity">Cantidad:</label>
                                     <input type="number" class="form-control" id="quantity" name="quantity" value="{{old('quantity')}}" >
                                     @error('quantity')
@@ -172,6 +185,8 @@
 @endsection
 
 @section('scripts')
+<script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
+
 <script>
     function calculateCantidadConIVA() {
         let quantity = parseFloat(document.getElementById('quantity').value) || 0;

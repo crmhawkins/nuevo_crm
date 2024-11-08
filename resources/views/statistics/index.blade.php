@@ -57,7 +57,7 @@
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Proyectos Activos</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataBudgets['total']}}+</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{$dataBudgets['total']}}+</span>
                                         </div>
                                     </div>
                                 </div>
@@ -102,7 +102,7 @@
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataBudgets['ProjectsActive']->sum('total')}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataBudgets['ProjectsActive']->sum('total'), 2, ',', '.')}}</td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 </tr>
                                             </tfoot>
@@ -117,7 +117,7 @@
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Presupuestos</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark"><span class="counter-anim">{{$countTotalBudgets}}</span> €</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark"><span class="counter-anim">{{number_format($countTotalBudgets, 2, ',', '.')}}</span> €</span>
                                         </div>
                                     </div>
                                 </div>
@@ -131,7 +131,7 @@
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">€ {{$dataFacturacionAnno['total']}}</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">€ {{number_format($dataFacturacionAnno['total'], 2, ',', '.')}}</span>
                                         </div>
                                         <div>
                                             <span class="text-success font-12 font-weight-600">+0%</span>
@@ -171,7 +171,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoiceStatus->name}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->project_id}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->total, 2, ',', '.')}}</td>
                                             </tr>
                                             @endforeach
                                         </tbody>
@@ -183,7 +183,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataFacturacionAnno['total']}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataFacturacionAnno['total'], 2, ',', '.')}}</td>
                                             </tr>
                                         </tfoot>
                                         </table>
@@ -198,7 +198,7 @@
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Beneficios Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">{{$totalBeneficioAnual}}</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($totalBeneficioAnual, 2, ',', '.')}}</span>
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
@@ -214,7 +214,7 @@
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Comunes Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataGastosComunesAnual['total']}}</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataGastosComunesAnual['total'], 2, ',', '.')}}</span>
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
@@ -258,7 +258,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataGastosComunesAnual['total']}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataGastosComunesAnual['total'], 2, ',', '.')}}</td>
                                             </tr>
                                         </tfoot>
                                         </table>
@@ -273,7 +273,7 @@
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Asociados Anual</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataAsociadosAnual['total']}}</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataAsociadosAnual['total'], 2, ',', '.')}}</span>
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
@@ -320,7 +320,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataAsociadosAnual['total']}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataAsociadosAnual['total'], 2, ',', '.')}}</td>
                                             </tr>
                                         </tfoot>
                                         </table>
@@ -336,10 +336,10 @@
                         <div class="col">
                             <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacion" style="cursor:pointer;">
                                 <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación </span>
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación {{$}}</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">€ {{$dataFacturacion['total']}}</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">€ {{number_format($dataFacturacion['total'], 2, ',', '.')}}</span>
                                         </div>
                                         <div>
                                             <span class="text-success font-12 font-weight-600">+0%</span>
@@ -379,7 +379,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoiceStatus->name}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->project_id}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->total, 2, ',', '.')}}</td>
                                             </tr>
                                             @endforeach
                                         </tbody>
@@ -391,7 +391,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataFacturacion['total']}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataFacturacion['total'], 2, ',', '.')}}</td>
                                             </tr>
                                         </tfoot>
                                         </table>
@@ -406,7 +406,7 @@
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Comunes</span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataGastosComunes['total']}}</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataGastosComunes['total'], 2, ',', '.')}}</span>
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
@@ -441,7 +441,7 @@
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->date}}</td>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}}</td>
+                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
                                            </tr>
                                            @endforeach
                                         </tbody>
@@ -450,7 +450,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataGastosComunes['total']}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataGastosComunes['total'], 2, ',', '.')}}</td>
                                             </tr>
                                         </tfoot>
                                         </table>
@@ -465,7 +465,7 @@
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Asociados </span>
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
-                                            <span class="d-block display-7 font-weight-400 text-dark">{{$dataAsociados['total']}}</span>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataAsociados['total'], 2, ',', '.')}}</span>
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
@@ -502,7 +502,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->client}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_price}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->purchase_price, 2, ',', '.')}}</td>
                                            </tr>
                                            @endforeach
                                         </tbody>
@@ -512,7 +512,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$dataAsociados['total']}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataAsociados['total'], 2, ',', '.')}}</td>
                                             </tr>
                                         </tfoot>
                                         </table>

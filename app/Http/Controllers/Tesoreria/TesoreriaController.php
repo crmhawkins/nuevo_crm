@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Tesoreria;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use App\Models\Accounting\CategoriaGastosAsociados;
+use App\Models\Accounting\CategoriaGastos;
 use App\Models\Accounting\Gasto;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Accounting\Ingreso;
@@ -46,7 +47,9 @@ class TesoreriaController extends Controller
         $tiposIva = Iva::all();
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
-        return view('tesoreria.gastos.create',compact( 'banks', 'paymentMethods','tiposIva'));
+        $categorias = CategoriaGastos::all();
+
+        return view('tesoreria.gastos.create',compact( 'banks', 'paymentMethods','tiposIva','categorias'));
     }
 
     public function createAssociatedExpenses(){
@@ -54,7 +57,9 @@ class TesoreriaController extends Controller
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
         $purchaseOrders = PurcharseOrder::doesntHave('associatedExpense')->get();
-        return view('tesoreria.gastos-asociados.create',compact( 'banks', 'paymentMethods','purchaseOrders','tiposIva'));
+        $categorias = CategoriaGastosAsociados::all();
+
+        return view('tesoreria.gastos-asociados.create',compact( 'banks', 'paymentMethods','purchaseOrders','tiposIva','categorias'));
     }
 
     public function editIngresos(string $id){
@@ -68,6 +73,7 @@ class TesoreriaController extends Controller
         }
         $banks = BankAccounts::all();
         $invoices = Invoice::all();
+
         return view('tesoreria.ingresos.edit',compact('ingreso','banks','invoices'));
     }
 
@@ -84,8 +90,9 @@ class TesoreriaController extends Controller
         // Obtener listas de opciones necesarias para el formulario
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
+        $categorias = CategoriaGastos::all();
 
-        return view('tesoreria.gastos.edit', compact('gasto', 'banks', 'paymentMethods','tiposIva'));
+        return view('tesoreria.gastos.edit', compact('gasto', 'banks', 'paymentMethods','tiposIva','categorias'));
 
     }
 
@@ -125,11 +132,13 @@ class TesoreriaController extends Controller
         $banks = BankAccounts::all();
         $paymentMethods = PaymentMethod::all();
         $budgets = Budget::all();
+        $categorias = CategoriaGastosAsociados::all();
+
         $purchaseOrders = PurcharseOrder::where(function($query) use ($gasto) {
             $query->doesntHave('associatedExpense')
                   ->orWhere('id', $gasto->purchase_order_id);
         })->get();
-        return view('tesoreria.gastos-asociados.edit',compact('gasto', 'banks', 'paymentMethods', 'budgets', 'purchaseOrders','tiposIva'));
+        return view('tesoreria.gastos-asociados.edit',compact('gasto', 'banks', 'paymentMethods', 'budgets', 'purchaseOrders','tiposIva','categorias'));
     }
 
     public function storeIngresos(Request $request ){
@@ -139,7 +148,6 @@ class TesoreriaController extends Controller
             'bank_id' => 'required|integer|exists:bank_accounts,id',
             'invoice_id' => 'nullable|integer|exists:invoices,id',
             'date' => 'required',
-
         ],[
             'title.required' => 'El título es obligatorio.',
             'date.required' => 'La fecha es obligatoria.',
@@ -179,6 +187,7 @@ class TesoreriaController extends Controller
             'state' => 'required|string|max:255',
             'documents' => 'nullable',
             'iva' => 'nullable',
+            'categoria_id' => 'nullable',
         ],[
             'title.required' => 'El título es obligatorio.',
             'title.string' => 'El título debe ser una cadena de texto.',
@@ -242,6 +251,7 @@ class TesoreriaController extends Controller
             'aceptado_gestor' => 'nullable|boolean',
             'documents' => 'nullable',
             'iva' => 'nullable',
+            'categoria_id' => 'nullable',
         ],[
             'title.required' => 'El título es obligatorio.',
             'title.string' => 'El título debe ser una cadena de texto.',
@@ -371,7 +381,6 @@ class TesoreriaController extends Controller
             'date' => 'required',
             'bank_id' => 'required|integer|exists:bank_accounts,id',
             'invoice_id' => 'nullable|integer|exists:invoices,id',
-
         ],[
             'title.required' => 'El título es obligatorio.',
             'title.string' => 'El título debe ser una cadena de texto.',
@@ -417,6 +426,7 @@ class TesoreriaController extends Controller
             'transfer_movement' => 'nullable',
             'state' => 'required|string|max:255',
             'iva' => 'nullable',
+            'categoria_id' => 'nullable',
         ], [
             'title.required' => 'El título es obligatorio.',
             'title.string' => 'El título debe ser una cadena de texto.',
@@ -474,6 +484,7 @@ class TesoreriaController extends Controller
             'payment_method_id' => 'required|integer|exists:payment_method,id',
             'aceptado_gestor' => 'nullable|boolean',
             'iva' => 'nullable',
+            'categoria_id' => 'nullable',
 
         ], [
             'title.required' => 'El título es obligatorio.',

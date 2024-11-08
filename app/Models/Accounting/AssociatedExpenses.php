@@ -37,6 +37,7 @@ class AssociatedExpenses extends Model
         'documents',
         'iva',
         'date_aceptado',
+        'categoria_id'
     ];
 
     /**
@@ -56,6 +57,10 @@ class AssociatedExpenses extends Model
     public function bankAccount()
     {
         return $this->belongsTo(BankAccounts::class, 'bank_id');
+    }
+
+    public function Categoria(){
+        return $this->belongsTo(CategoriaGastosAsociados::class,'categoria_id');
     }
 
     /**

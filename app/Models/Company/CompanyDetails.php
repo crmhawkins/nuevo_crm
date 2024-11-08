@@ -23,6 +23,9 @@ class CompanyDetails extends Model
         'address',
         'bank_account_data',
         'price_hour',
+        'postCode',
+        'town',
+        'province',
         'paypal',
         'telephone',
         'email',
@@ -32,6 +35,8 @@ class CompanyDetails extends Model
         'instagram',
         'linkedin',
         'pinterest',
+        'certificado',
+        'contrasena'
     ];
 
     /**
