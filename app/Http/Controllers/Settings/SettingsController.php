@@ -28,10 +28,13 @@ class SettingsController extends Controller
             'email' => 'nullable|email|max:255',
             'certificado' => 'nullable|file',
             'contrasena' => 'nullable|string|min:6',
+            'postCode' => 'nullable|string|max:255',
+            'town' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
         ]);
 
         $data = $request->only([
-            'price_hour', 'company_name', 'nif', 'address', 'bank_account_data', 'telephone', 'email','contrasena'
+            'price_hour', 'company_name', 'nif', 'address', 'bank_account_data', 'telephone', 'email','contrasena','postCode', 'town','province',
         ]);
 
         // Guardar logo
@@ -70,10 +73,13 @@ class SettingsController extends Controller
             'email' => 'nullable|email|max:255',
             'certificado' => 'nullable|file',
             'contrasena' => 'nullable|string|min:6',
+            'postCode' => 'nullable|string|max:255',
+            'town' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
         ]);
 
         $data = $request->only([
-            'price_hour', 'company_name', 'nif', 'address', 'bank_account_data', 'telephone', 'email', 'contrasena'
+            'price_hour', 'company_name', 'nif', 'address', 'bank_account_data', 'telephone', 'email', 'contrasena','postCode', 'town','province',
         ]);
 
          // Guardar logo
