@@ -750,18 +750,24 @@ class DashboardController extends Controller
                                     'is_active' => true,
                                 ]);
                             }
+
                             $horaLimiteEntrada = Carbon::createFromTime(9, 30, 0, 'Europe/Madrid');
                             $horaLimiteEntradaUTC = $horaLimiteEntrada->setTimezone('UTC');
                             $mesActual = Carbon::now()->month;
                             $añoActual = Carbon::now()->year;
+                            $fechaActual = Carbon::now();
+
+                            $todayJornada = Jornada::where('admin_user_id', $usuario->id)
+                            ->whereDate('start_time', $fechaActual->toDateString())
+                            ->whereTime('start_time', '>', $horaLimiteEntradaUTC->format('H:i:s'))
+                            ->get();
+
 
                             $hourlyAverage = Jornada::where('admin_user_id', $usuario->id)
                                 ->whereMonth('start_time', $mesActual)
                                 ->whereYear('start_time', $añoActual)
                                 ->whereRaw("TIME(start_time) > ?", [$horaLimiteEntradaUTC->format('H:i:s')])
                                 ->get();
-
-
 
                             if (count($hourlyAverage) > 2) {
                                 $data = [
@@ -780,7 +786,7 @@ class DashboardController extends Controller
 
                             $fechaNow = Carbon::now();
 
-                            if(count($hourlyAverage) > 0){
+                            if(count($todayJornada) > 0){
                                 switch (count($hourlyAverage)) {
                                     case 1:
                                         $text = 'Hemos notado que hoy llegaste después de la hora límite de entrada (09:30). Entendemos que a veces pueden surgir imprevistos, pero te recordamos la importancia de respetar el horario para mantener la eficiencia en el equipo.';
