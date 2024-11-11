@@ -482,7 +482,7 @@ class InvoiceController extends Controller
             ]);
         }
 
-        $encryptedStore = file_get_contents(asset($certificado));
+        $encryptedStore = file_get_contents(asset('storage/'.$certificado));
         $fac->sign($encryptedStore, null, $contrasena);
 
         $fac->export($numero.'-'.$serie.".xsig");
