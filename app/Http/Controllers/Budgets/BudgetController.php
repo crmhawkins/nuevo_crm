@@ -346,8 +346,9 @@ class BudgetController extends Controller
         }
 
         if($budgetupdated){
-            $rutaPrevia = session()->get('ruta_previa', route('presupuestos.index'));
-            return redirect()->route( $rutaPrevia)->with('toast', [
+           $rutaPrevia = session()->get('ruta_previas','presupuestos.index');
+
+            return redirect()->route('presupuestos.index')->session()->with('toast', [
                 'icon' => 'success',
                 'mensaje' => 'Presupuesto actualizado correctamente.'
             ]);
@@ -357,8 +358,6 @@ class BudgetController extends Controller
                 'mensaje' => 'Error al actualizar el presupuesto.'
             ]);
         }
-
-
     }
 
     /**
