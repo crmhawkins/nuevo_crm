@@ -85,8 +85,8 @@
                                     <select class="form-select" id="iva" name="iva">
                                         <option value="">IVA</option>
                                         @foreach($tiposIva as $tipo)
-                                            <option value="{{ $tipo->valor }}">
-                                                {{ $tipo->nombre}}
+                                        <option value="{{ $tipo->valor }}" {{ old('iva', $gasto->iva) == $tipo->valor ? 'selected' : '' }}>
+                                            {{ $tipo->nombre}}
                                             </option>
                                         @endforeach
                                     </select>
@@ -97,7 +97,7 @@
                                 </div>
                                 <div class="col-md-3 form-group mt-2">
                                     <label class="form-label" for="quantity">Cantidad:</label>
-                                    <input type="number" class="form-control" id="quantity" name="quantity" value="{{old('quantity')}}" >
+                                    <input type="number" class="form-control" id="quantity" name="quantity" value="{{old('quantity', $gasto->quantity)}}" >
                                     @error('quantity')
                                     <span class="text-danger">{{ $message }}</span>
                                     <style>.text-danger {color: red;}</style>
