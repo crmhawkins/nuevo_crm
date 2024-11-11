@@ -62,6 +62,18 @@
                                     <label for="address" class="form-label">Dirección</label>
                                     <input type="text" class="form-control" id="address" name="address" value="{{ $configuracion->address ?? '' }}" >
                                 </div>
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Provincia</label>
+                                    <input type="text" class="form-control" id="province" name="province" value="{{ $configuracion->province ?? '' }}" >
+                                </div>
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Ciudad</label>
+                                    <input type="text" class="form-control" id="town" name="town" value="{{ $configuracion->town ?? '' }}" >
+                                </div>
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Codigo postal</label>
+                                    <input type="text" class="form-control" id="postCode" name="postCode" value="{{ $configuracion->postCode ?? '' }}" >
+                                </div>
 
                                 <div class="mb-3">
                                     <label for="price_hour" class="form-label">Precio por Hora</label>
