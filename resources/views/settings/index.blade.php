@@ -50,22 +50,22 @@
 
                                 <div class="mb-3">
                                     <label for="company_name" class="form-label">Nombre de la Empresa</label>
-                                    <input type="text" class="form-control" id="company_name" name="company_name" value="{{ $configuracion->company_name ?? '' }}" required>
+                                    <input type="text" class="form-control" id="company_name" name="company_name" value="{{ $configuracion->company_name ?? '' }}" >
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="nif" class="form-label">NIF</label>
-                                    <input type="text" class="form-control" id="nif" name="nif" value="{{ $configuracion->nif ?? '' }}" required>
+                                    <input type="text" class="form-control" id="nif" name="nif" value="{{ $configuracion->nif ?? '' }}" >
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Dirección</label>
-                                    <input type="text" class="form-control" id="address" name="address" value="{{ $configuracion->address ?? '' }}" required>
+                                    <input type="text" class="form-control" id="address" name="address" value="{{ $configuracion->address ?? '' }}" >
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="price_hour" class="form-label">Precio por Hora</label>
-                                    <input type="number" step="0.01" class="form-control" id="price_hour" name="price_hour" value="{{ $configuracion->price_hour ?? '' }}" required>
+                                    <input type="number" step="0.01" class="form-control" id="price_hour" name="price_hour" value="{{ $configuracion->price_hour ?? '' }}" >
                                 </div>
 
                                 <div class="mb-3">
@@ -80,14 +80,14 @@
 
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" name="email" value="{{ $configuracion->email ?? '' }}" required>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ $configuracion->email ?? '' }}" >
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="certificado" class="form-label">Certificado</label>
                                     <input type="file" class="form-control" id="certificado" name="certificado">
                                     @if(isset($configuracion->certificado))
-                                        <p class="mt-2">Certificado Actual: <a href="{{ asset('storage/' . $configuracion->certificado) }}" target="_blank">Ver Certificado</a></p>
+                                        <p class="mt-2">Descargar Certificado Actual: <a href="{{ asset('storage/' . $configuracion->certificado) }}" class="btn btn-success" target="_blank">Descargar</a></p>
                                     @endif
                                 </div>
 

@@ -1,6 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.appPortal')
 
-@section('titulo', 'Detalle de Factura')
+@section('titulo', 'Detalle de Presupuesto')
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/vendors/toastify/toastify.css') }}">
@@ -12,15 +12,15 @@
     <div class="page-title card-body mb-3">
         <div class="row align-items-center">
             <div class="col-12 col-md-6">
-                <h3>Detalle de la Factura - {{ $invoice->reference }}</h3>
-                <p class="text-subtitle text-muted">Vista detallada de la factura</p>
+                <h3>Detalle del Presupuesto - {{ $budget->reference }}</h3>
+                <p class="text-subtitle text-muted">Vista detallada del presupuesto</p>
             </div>
             <div class="col-12 col-md-6">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('facturas.index') }}">Facturas</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Vista de factura</li>
+                        <li class="breadcrumb-item"><a href="{{ route('portal.dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('portal.presupuestos') }}">Presupuestos</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Vista de presupuesto</li>
                     </ol>
                 </nav>
             </div>
@@ -43,8 +43,8 @@
                                         <p class="inv-email-address">{{ $empresa->telephone }}</p>
                                     </div>
                                     <div class="col-sm-6 text-sm-end">
-                                        <p class="inv-list-number"><span class="inv-title">Factura:</span> <span class="inv-number">{{ $invoice->reference }}</span></p>
-                                        <p class="inv-created-date"><span class="inv-title">Fecha de Creación:</span> <span class="inv-date">{{ Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y') }}</span></p>
+                                        <p class="inv-list-number"><span class="inv-title">Presupuesto:</span> <span class="inv-number">{{ $budget->reference }}</span></p>
+                                        <p class="inv-created-date"><span class="inv-title">Fecha de Creación:</span> <span class="inv-date">{{ Carbon\Carbon::parse($budget->creation_date)->format('d/m/Y') }}</span></p>
                                     </div>
                                 </div>
                             </div>
@@ -54,16 +54,15 @@
                                 <div class="row">
                                     <div class="col">
                                         <p class="inv-to">Cliente</p>
-                                        <p class="inv-customer-name">{{ $invoice->cliente->name }}</p>
-                                        <p class="inv-street-addr">{{ $invoice->cliente->address }}, {{ $invoice->cliente->city }}, {{ $invoice->cliente->province }} - {{ $invoice->cliente->zipcode }}</p>
-                                        <p class="inv-email-address">{{ $invoice->cliente->email }}</p>
-                                        <p class="inv-email-address">{{ $invoice->cliente->phone }}</p>
-                                        <p><strong>Forma de Pago:</strong> {{ $invoice->payment_method_id == 9 ? 'Transferencia' : $invoice->paymentMethod->name }}</p>
+                                        <p class="inv-customer-name">{{ $budget->cliente->name }}</p>
+                                        <p class="inv-street-addr">{{ $budget->cliente->address }}, {{ $budget->cliente->city }}, {{ $budget->cliente->province }} - {{ $budget->cliente->zipcode }}</p>
+                                        <p class="inv-email-address">{{ $budget->cliente->email }}</p>
+                                        <p class="inv-email-address">{{ $budget->cliente->phone }}</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Conceptos de la Factura -->
+                            <!-- Conceptos del Presupuesto -->
                             <div class="inv--product-table-section mt-4">
                                 <table class="table table-bordered table-hover">
                                     <thead class="table-light">
@@ -76,13 +75,13 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($invoiceConcepts as $concepto)
+                                        @foreach($concepts as $concept)
                                             <tr>
-                                                <td>{{$concepto->title}}</td>
-                                                <td class="text-end">{{$concepto->units}}</td>
-                                                <td class="text-end">{{$concepto->sale_price}}</td>
-                                                <td class="text-end">{{$concepto->discount}}</td>
-                                                <td class="text-end">{{$concepto->total}}</td>
+                                                <td>{{ $concept['title'] }}</td>
+                                                <td class="text-end">{{ $concept['units'] }}</td>
+                                                <td class="text-end">{{ $concept['unit_price'] ?? 0 }} €</td>
+                                                <td class="text-end">{{ $concept['discount'] ? $concept['discount'] . '%' : '-' }}</td>
+                                                <td class="text-end">{{ $concept['total'] }} €</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -100,26 +99,25 @@
                                                     <p>Sub Total :</p>
                                                 </div>
                                                 <div class="col-sm-4 col-5">
-                                                    <p>{{ $invoice->base }} €</p>
+                                                    <p>{{ $budget->base }} €</p>
                                                 </div>
                                                 <div class="col-sm-8 col-7">
-                                                    <p>IVA ({{ $invoice->iva_percentage }}%) :</p>
+                                                    <p>IVA ({{ $budget->iva_percentage }}%) :</p>
                                                 </div>
                                                 <div class="col-sm-4 col-5">
-                                                    <p>{{ $invoice->iva }} €</p>
+                                                    <p>{{ $budget->iva }} €</p>
                                                 </div>
                                                 <div class="col-sm-8 col-7 mt-3">
                                                     <h4>Total : </h4>
                                                 </div>
                                                 <div class="col-sm-4 col-5 mt-3">
-                                                    <h4>{{ $invoice->total }} €</h4>
+                                                    <h4>{{ $budget->total }} €</h4>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -133,9 +131,6 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <a href="" id="generatePdf" class="btn btn-success w-100 btn-download">Descargar</a>
-                        </div>
-                        <div class="col-xl-12 col-md-3 col-sm-6">
-                            <a href="{{route('factura.edit', $invoice->id)}}" class="btn btn-dark btn-edit">Editar</a>
                         </div>
                     </div>
                 </div>
@@ -154,11 +149,11 @@
     $(document).ready(function() {
         $('#generatePdf').click(function(e) {
             e.preventDefault();
-            const idFactura = @json($invoice->id);
+            const idPresupuesto = @json($budget->id);
             $.ajax({
-                url: '{{ route("factura.generarPDF") }}',
+                url: '{{ route("presupuesto.generarPDF") }}',
                 type: 'POST',
-                data: { id: idFactura },
+                data: { id: idPresupuesto },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
@@ -169,7 +164,7 @@
                     const blob = new Blob([response], { type: 'application/pdf' });
                     const link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
-                    link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.pdf';
+                    link.download = 'presupuesto_' + idPresupuesto + '_' + new Date().toISOString().slice(0, 10) + '.pdf';
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);

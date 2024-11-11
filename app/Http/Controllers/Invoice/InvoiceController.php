@@ -8,6 +8,7 @@ use App\Models\Budgets\Budget;
 use App\Models\Budgets\BudgetConceptType;
 use App\Models\Budgets\InvoiceCustomPDF;
 use App\Models\Clients\Client;
+use App\Models\Company\CompanyDetails;
 use App\Models\Invoices\Invoice;
 use App\Models\Invoices\InvoiceConcepts;
 use App\Models\Invoices\InvoiceStatus;
@@ -16,6 +17,10 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use josemmo\Facturae\Facturae;
+use josemmo\Facturae\FacturaeItem;
+use josemmo\Facturae\FacturaeParty;
 use ZipArchive;
 
 class InvoiceController extends Controller
@@ -382,6 +387,130 @@ class InvoiceController extends Controller
         $pdf->save( $pathToSaveInvoice );
         return $pathToSaveInvoice;
 
+    }
+
+    public function electronica(Request $request)
+    {
+        $factura = Invoice::find($request->id);
+        $empresa = CompanyDetails::first();
+        $cliente = Client::where('id', $factura->client_id)->first();
+        $conceptos = InvoiceConcepts::where('invoice_id', $factura->id)->get();
+
+        $fac = new Facturae();
+
+        $partes = explode('-', $factura->reference);
+
+        $numero = $partes[0];
+        $serie = $partes[1];
+        $fac->setNumber($numero.'-',$serie);
+
+        // Asignamos la fecha
+        $fecha = Carbon::parse($factura->created_at)->format('Y-m-d');
+        $fac->setIssueDate($fecha);
+
+        // Incluimos los datos del vendedor
+        $fac->setSeller(new FacturaeParty([
+            "taxNumber" => $empresa->nif,
+            "name"      => $empresa->company_name,
+            "address"   => $empresa->address,
+            "postCode"  => $empresa->postCode,
+            "town"      => $empresa->town,
+            "province"  => $empresa->province
+        ]));
+
+        if($cliente->tipoCliente == 1){
+            $fac->setBuyer(new FacturaeParty([
+                "isLegalEntity" => false,       // Importante!
+                "taxNumber"     => $cliente->cif,
+                "name"          => $cliente->name,
+                "firstSurname"  => $cliente->primerApellido,
+                "lastSurname"   => $cliente->segundoApellido,
+                "address"       => $cliente->address,
+                "postCode"      => $cliente->zipcode,
+                "town"          => $cliente->city,
+                "province"      => $cliente->province
+            ]));
+        }else {
+            $fac->setBuyer(new FacturaeParty([
+                "isLegalEntity" => true,       // Importante!
+                "taxNumber"     => $cliente->cif,
+                "name"          => $cliente->company,
+                "address"       => $cliente->address,
+                "postCode"      => $cliente->zipcode,
+                "town"          => $cliente->city,
+                "province"      => $cliente->province,
+            ]));
+        }
+        foreach ($conceptos as $key => $concepto) {
+            if ($concepto->discount > 0) {
+
+                $fac->addItem(new FacturaeItem([
+                    "articleCode" => $concepto->services_category_id,
+                    "name" => $concepto->title,
+                    "unitPriceWithoutTax" => $concepto->total_no_discount / $concepto->units,
+                    "quantity" => $concepto->units,
+                    "discounts" => [
+                          ["reason" => "Descuento", "amount" => $concepto->discount]
+                    ],
+                    "taxes" => [Facturae::TAX_IVA => $factura->iva_percentage]
+                ]));
+            }else {
+                $fac->addItem(new FacturaeItem([
+                    "articleCode" => $concepto->services_category_id,
+                    "name" => $concepto->title,
+                    "unitPriceWithoutTax" => $concepto->total_no_discount / $concepto->units,
+                    "quantity" => $concepto->units,
+                    "taxes" => [Facturae::TAX_IVA => $factura->iva_percentage]
+                ]));
+            }
+
+        }
+
+        $certificado = $empresa->certificado;
+        $contrasena = $empresa->contrasena;
+
+        if (empty($certificado)) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Falta el certificado.'
+            ]);
+        }
+        if (empty($contrasena)) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Falta la contraseña del certificado.'
+            ]);
+        }
+
+        $encryptedStore = file_get_contents(asset($certificado));
+        $fac->sign($encryptedStore, null, $contrasena);
+
+        $fac->export($numero.'-'.$serie.".xsig");
+
+        $filePath = public_path($numero.'-'.$serie.".xsig");
+
+        if (file_exists($filePath)) {
+            return response()->download($filePath, "$numero-$serie.xsig", [
+                'Content-Type' => 'application/xsig',
+                'Content-Disposition' => 'attachment; filename="' . $numero . '-' . $serie . '.xsig"',
+            ])->deleteFileAfterSend(true); // Borra el archivo después de enviarlo
+        } else {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'El archivo no se generó correctamente.'
+            ]);
+        }
+
+    }
+
+    public function show(string $id)
+    {
+        $invoice = invoice::find($id);
+        $empresa = CompanyDetails::find(1);
+        $invoiceConcepts = InvoiceConcepts::where('invoice_id', $invoice->id)->get();
+
+
+        return view('invoices.show', compact('invoice','empresa','invoiceConcepts'));
     }
 
 }

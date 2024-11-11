@@ -172,6 +172,9 @@ class ClientController extends Controller
         // Validamos los campos
         $this->validate($request, [
             'name' => 'required|max:200',
+            'primerApellido' => 'nullable',
+            'segundoApellido' => 'nullable',
+            'tipoCliente' => 'nullable',
             'admin_user_id' => 'required|exists:admin_user,id',
             'email' => 'required|email:filter',
             'company' => 'nullable|max:200',

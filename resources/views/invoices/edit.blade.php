@@ -268,6 +268,7 @@
                             <a href="" id="facturaCobrada" class="btn btn-primary btn-block mb-2">Cobrada</a>
                             <a href="" id="generatePdf" class="btn btn-dark btn-block mb-2">Generar PDF</a>
                             <a href="" id="SendPDF" data-id="{{$factura->id}}" class="btn btn-dark btn-block mb-2">Enviar PDF</a>
+                            <a href="" id="electronica" data-id="{{$factura->id}}" class="btn btn-info btn-block mb-2">Electronica</a>
                             <a href="" id="rectificar" class="btn btn-danger btn-block mb-2">Abonado (N)</a>
                         </div>
                     </div>
@@ -408,6 +409,67 @@
             });
         });
 
+        $('#electronica').click(function(e) {
+            e.preventDefault(); // Evita la navegación predeterminada del enlace
+
+            const idFactura = @json($factura->id);
+            $.ajax({
+                url: '{{ route("factura.electronica") }}', // Verifica que esta URL sea correcta
+                type: 'POST',
+                data: {
+                    id: idFactura
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+                },
+                xhrFields: {
+                    responseType: 'blob' // Necesario para manejar la descarga del archivo
+                },
+                success: function(response) {
+                    // Crea una URL para el blob y fuerza la descarga
+                    const blob = new Blob([response], { type: 'application/xsig' });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.xsig';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Factura electrónica generada correctamente.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    // Manejo de errores
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al generar la factura electrónica. Por favor, inténtalo de nuevo.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        });
         //Boton de generar tareas
         $('#rectificar').click(function(e){
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.

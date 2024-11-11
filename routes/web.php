@@ -75,6 +75,12 @@ Route::post('/budget/acceptance', [BudgetController::class, 'setAcceptance'])->n
 
 Auth::routes();
 
+//pdf
+Route::post('/invoice/generate-pdf', [InvoiceController::class, 'generatePDF'])->name('factura.generarPDF');
+Route::post('/budget/generate-pdf', [BudgetController::class, 'generatePDF'])->name('presupuesto.generarPDF');
+
+
+
 Route::group(['middleware' => 'auth'], function () {
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -236,7 +242,6 @@ Route::post('/budget/cancel-budget/', [BudgetController::class, 'cancelarPresupu
 Route::post('/budget/generate-invoice', [BudgetController::class, 'generateInvoice'])->name('presupuesto.generarFactura');
 Route::post('/budget/generate-partia-invoice', [BudgetController::class, 'generateInvoicePartial'])->name('presupuesto.generarFacturaParcial');
 Route::post('/budget/generate-task', [BudgetController::class, 'createTask'])->name('presupuesto.generarTarea');
-Route::post('/budget/generate-pdf', [BudgetController::class, 'generatePDF'])->name('presupuesto.generarPDF');
 Route::post('/budgets-by-client', [BudgetController::class, 'getBudgetsByClientId']);
 Route::post('/budgets-by-project', [BudgetController::class, 'getBudgetsByprojectId']);
 Route::post('/budget-by-id', [BudgetController::class, 'getBudgetById']);
@@ -302,6 +307,7 @@ Route::post('/services-categories/destroy', [ServicesCategoriesController::class
 Route::get('/suppliers/{supplier}/get-supplier', [App\Http\Controllers\Suppliers\SuppliersController::class, 'getSupplier'])->name('proveedores.getSupplier');
 
 // Invoice (FACTURAS)
+Route::post('/invoice/electronica', [InvoiceController::class, 'electronica'])->name('factura.electronica');
 Route::get('/invoices', [InvoiceController::class, 'index'])->name('facturas.index');
 Route::get('/invoice/create', [InvoiceController::class, 'create'])->name('factura.create');
 Route::get('/invoice/edit/{id}', [InvoiceController::class, 'edit'])->name('factura.edit');
@@ -310,7 +316,6 @@ Route::post('/invoice/update/{id}', [InvoiceController::class, 'update'])->name(
 Route::get('/invoice/show/{id}', [InvoiceController::class, 'show'])->name('factura.show');
 Route::post('/invoice/destroy', [InvoiceController::class, 'destroy'])->name('factura.delete');
 Route::post('/invoice/paid-invoice', [InvoiceController::class, 'cobrarFactura'])->name('factura.cobrada');
-Route::post('/invoice/generate-pdf', [InvoiceController::class, 'generatePDF'])->name('factura.generarPDF');
 Route::post('/invoice/rectify', [InvoiceController::class, 'rectificateInvoice'])->name('factura.rectificada');
 Route::get('/invoice/generateMultiplePDFs', [InvoiceController::class, 'generateMultiplePDFs'])->name('factura.generateMultiplePDFs');
 Route::post('/invoice/sendInvoicePDF', [InvoiceController::class, 'sendInvoicePDF'])->name('factura.sendInvoicePDF');
@@ -585,5 +590,9 @@ Route::get('/portal/dashboard', [PortalClientesController::class, 'dashboard'])-
 Route::get('/portal/presupuestos', [PortalClientesController::class, 'presupuestos'])->name('portal.presupuestos');
 Route::get('/portal/facturas', [PortalClientesController::class, 'facturas'])->name('portal.facturas');
 Route::get('/portal/taskview', [PortalClientesController::class, 'pageTasksViewer'])->name('portal.taskview');
+Route::get('/portal/changePin', [PortalClientesController::class, 'changePin'])->name('portal.changePin');
+Route::post('/portal/setPin', [PortalClientesController::class, 'setPin'])->name('portal.setPin');
+Route::get('/portal/presupuesto/{id}', [PortalClientesController::class, 'showBudget'])->name('portal.showBudget');
+Route::get('/portal/factura/{id}', [PortalClientesController::class, 'showInvoice'])->name('portal.showInvoice');
 
 

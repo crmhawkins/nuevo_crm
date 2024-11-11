@@ -19,6 +19,8 @@
     padding-bottom: 16px;
 }
 
+.table-clientportal  {  border-collapse: separate; border-spacing: 0 10px; /* 0 horizontal spacing, 10px vertical spacing */}
+
 .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
     vertical-align: top;
 }
@@ -73,7 +75,7 @@ body * {
         <div class="card-body">
           <div class="row">
             <div class="col-6">
-              <h3><strong>Ventas</strong></h3>
+              <h3><strong>Facturas</strong></h3>
             </div>
             <div class="col-6 text-end">
               <input type="text" id="tableSearch" class="input-control" placeholder="Buscar">
@@ -96,7 +98,7 @@ body * {
               </thead>
               <tbody>
                 @foreach ($cliente->facturas as $factura)
-                <tr class="clicklink" data-link="/portal/estimates/64807187c8237379a9048abe" data-type="estimate" data-pdf="1">
+                <tr onclick="window.location='{{ route('portal.showInvoice', $factura->id) }}'" class="clicklink" data-type="estimate" data-pdf="1">
                   <td class="sorting_1">{{$factura->created_at->format('d/m/Y')}}</td>
                   <td class="table__invoice-num"><strong>{{$factura->reference}}</strong></td>
                   <td>
@@ -141,6 +143,7 @@ body * {
 @endsection
 
 @section('scripts')
+@include('partials.toast')s
 <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.js"></script>
 <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.css" rel="stylesheet">
 <script>

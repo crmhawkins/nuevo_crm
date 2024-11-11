@@ -57,6 +57,16 @@
               </span>
             </a>
           </li>
+          <li class="">
+            <a href="/portal/taskview" class="">
+              <span class="portal-sidebar__item-icon">
+                <i class="fa-solid fa-clock"></i>
+              </span>
+              <span class="portal-sidebar__item-label">
+                Projectos
+              </span>
+            </a>
+          </li>
         {{-- <li class="has-submenu">
           <a class="">
             <span class="portal-sidebar__item-icon">
@@ -106,7 +116,7 @@
               </a>
             </li> --}}
             <li>
-              <a class="portal__js-password">
+              <a href="{{ route('portal.changePin') }}" class="portal__js-password">
                 <span class="portal-sidebar__item-icon">
                   <i class="fa-solid fa-lock"></i>
                 </span>

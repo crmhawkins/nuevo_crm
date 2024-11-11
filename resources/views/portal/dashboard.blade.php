@@ -146,6 +146,7 @@
 
 @endsection
 @section('scripts')
+@include('partials.toast')
 <script>
 
 var options = {

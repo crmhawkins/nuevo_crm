@@ -25,7 +25,7 @@ class SettingsController extends Controller
             'address' => 'required|string|max:255',
             'bank_account_data' => 'nullable|string|max:255',
             'telephone' => 'nullable|string|max:20',
-            'email' => 'required|email|max:255',
+            'email' => 'nullable|email|max:255',
             'certificado' => 'nullable|file',
             'contrasena' => 'nullable|string|min:6',
         ]);
@@ -67,7 +67,7 @@ class SettingsController extends Controller
             'address' => 'required|string|max:255',
             'bank_account_data' => 'nullable|string|max:255',
             'telephone' => 'nullable|string|max:20',
-            'email' => 'required|email|max:255',
+            'email' => 'nullable|email|max:255',
             'certificado' => 'nullable|file',
             'contrasena' => 'nullable|string|min:6',
         ]);

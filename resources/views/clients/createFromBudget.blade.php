@@ -51,6 +51,27 @@
                                         @enderror
                                     </div>
 
+                                    <div class="form-group my-3">
+                                        <label for="tipoCliente" class="form-label">Tipo de cliente</label>
+                                        <div class="d-flex">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input @error('tipoCliente') is-invalid @enderror" type="radio" name="tipoCliente" id="empresa" value="0"
+                                                       {{ old('tipoCliente') == '0' ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="empresa">Empresa</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input @error('tipoCliente') is-invalid @enderror" type="radio" name="tipoCliente" id="particular" value="1"
+                                                       {{ old('tipoCliente') == '1' ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="particular">Particular</label>
+                                            </div>
+                                        </div>
+                                        @error('tipoCliente')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+
                                     <div class="form-group mt-2">
                                         <label for="email">Email:</label>
                                         <input placeholder="Direccion de correo electronico" type="text" class="form-control @error('email') is-invalid @enderror" id="email" value="{{ old('email') }}" name="email">
@@ -98,8 +119,16 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-4">
-
                                     <div class="form-group">
+                                        <label for="name">Primer apellido</label>
+                                        <input placeholder="Primer apellido (obligatorio en caso de particulares)" type="text" class="form-control @error('primerApellido') is-invalid @enderror" id="primerApellido" value="{{ old('primerApellido') }}" name="primerApellido">
+                                        @error('primerApellido')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group mt-2">
                                         <label for="activity">Actividad:</label>
                                         <input placeholder="Actividad de la empresa..." type="text" class="form-control @error('activity') is-invalid @enderror" id="activity" value="{{ old('activity') }}" name="activity">
                                         @error('activity')
@@ -156,7 +185,16 @@
 
                                 </div>
                                 <div class="col-sm-12 col-md-4">
-                                    <div class="form-group select-wrapper w-100">
+                                    <div class="form-group">
+                                        <label for="name">Segundo apellido</label>
+                                        <input placeholder="Segundo apellido (obligatorio en caso de particulares)" type="text" class="form-control @error('segundoApellido') is-invalid @enderror" id="segundoApellido" value="{{ old('segundoApellido') }}" name="segundoApellido">
+                                        @error('segundoApellido')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group mt-2 select-wrapper w-100">
                                         <label for="admin_user_id">Gestor:</label>
                                         <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" id="admin_user_id" name="admin_user_id">
                                             <option value="{{null}}">Seleccione el gestor del cliente</option>

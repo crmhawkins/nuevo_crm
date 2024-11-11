@@ -137,9 +137,6 @@
                             <div class="invoice-action-btn">
                                 <div class="row">
                                     <div class="col-xl-12 col-md-3 col-sm-6">
-                                        <a href="javascript:void(0);" class="btn btn-primary btn-send">Enviar</a>
-                                    </div>
-                                    <div class="col-xl-12 col-md-3 col-sm-6">
                                         <a href="" id="generatePdf" class="btn btn-success btn-download">Descargar</a>
                                     </div>
                                     <div class="col-xl-12 col-md-3 col-sm-6">

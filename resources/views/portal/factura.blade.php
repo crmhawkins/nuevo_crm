@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.appPortal')
 
 @section('titulo', 'Detalle de Factura')
 
@@ -18,8 +18,8 @@
             <div class="col-12 col-md-6">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('facturas.index') }}">Facturas</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('portal.dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('portal.facturas') }}">Facturas</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Vista de factura</li>
                     </ol>
                 </nav>
@@ -71,18 +71,26 @@
                                             <th>Concepto</th>
                                             <th class="text-end">Unidades</th>
                                             <th class="text-end">Precio</th>
-                                            <th class="text-end">Descuento</th>
+                                            @if ($invoiceConceptsFormated->contains('discount', '>', 0))
+                                                <th class="text-end">Descuento</th>
+                                            @endif
                                             <th class="text-end">Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($invoiceConcepts as $concepto)
+                                        @foreach($invoiceConceptsFormated as $concept)
                                             <tr>
-                                                <td>{{$concepto->title}}</td>
-                                                <td class="text-end">{{$concepto->units}}</td>
-                                                <td class="text-end">{{$concepto->sale_price}}</td>
-                                                <td class="text-end">{{$concepto->discount}}</td>
-                                                <td class="text-end">{{$concepto->total}}</td>
+                                                <td>{{ $concept['title'] }}
+                                                    @foreach($concept['description'] as $description)
+                                                        <br><span style="font-size: 12px; color: #7f8c8d;">{{ $description }}</span>
+                                                    @endforeach
+                                                </td>
+                                                <td class="text-end">{{ $concept['units'] }}</td>
+                                                <td class="text-end">{{ $concept['price_unit'] }} €</td>
+                                                @if($concept['discount'] > 0)
+                                                    <td class="text-end">{{ $concept['discount'] }}%</td>
+                                                @endif
+                                                <td class="text-end">{{ $concept['total'] }} €</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -133,9 +141,6 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <a href="" id="generatePdf" class="btn btn-success w-100 btn-download">Descargar</a>
-                        </div>
-                        <div class="col-xl-12 col-md-3 col-sm-6">
-                            <a href="{{route('factura.edit', $invoice->id)}}" class="btn btn-dark btn-edit">Editar</a>
                         </div>
                     </div>
                 </div>

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
+use App\Models\Company\CompanyDetails;
+use App\Models\Invoices\Invoice;
 use App\Models\Tasks\LogTasks;
 use App\Models\Tasks\Task;
 use Illuminate\Http\Request;
@@ -90,6 +92,7 @@ class PortalClientesController extends Controller
             $logsArray = [];
             $totalsegundos = 0;
             $tiempoGastado = 0;
+            $count = 0;
 
 
             foreach ($proyectos as $proyecto) {
@@ -102,17 +105,9 @@ class PortalClientesController extends Controller
                 }
 
                 foreach ($tasks as $task) {
-                    if ($task->task_status_id == 1 || $task->task_status_id == 2) {
-                        $logTasks = LogTasks::where('task_id', $task->id)
-                        ->whereNull('deleted_at')
-                        ->get();
-
-                        $task['logTasks'] = $logTasks;
-                    }
-                    $tiemporeal =explode(":", $task->real_time);
-                    //dd($tiemporeal);
-                    $tiempoGastado += $tiempo[0] * 3600 + $tiempo[1] * 60 + $tiempo[2];
-
+                    $tiempoEnSegundos = 0;
+                    $tiemporeal = explode(":", $task->real_time);
+                    $tiempoGastado += ($tiemporeal[0] * 3600) + ($tiemporeal[1] * 60) + $tiemporeal[2];
                 }
 
                 $proyecto['tasks'] = $tasks;
@@ -121,7 +116,7 @@ class PortalClientesController extends Controller
             if (!isset($taskMaestra)) {
                 $taskMaestra = null;
             }
-           // dd($tiempoGastado,$totalsegundos,$totalsegundos - $tiempoGastado);
+
             $tiempoTotalFormato = $this->secondsToTime($totalsegundos);
             $tiempoGastadoFormato = $this->secondsToTime($tiempoGastado);
             $tiempoRestanteFormato = $this->secondsToTime($totalsegundos - $tiempoGastado);
@@ -144,4 +139,128 @@ class PortalClientesController extends Controller
         $seconds = $seconds % 60;
         return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
     }
+
+
+
+    public function changePin(Request $request){
+        $cliente = session('cliente');
+        if ($cliente) {
+
+            return view('portal.pin',compact('cliente'));
+        }
+        return view('portal.login');
+    }
+
+    public function setPin(Request $request)
+    {
+        $cliente = session('cliente');
+        if ($cliente) {
+            // Validación del PIN
+            $request->validate([
+                'pin' => 'required|size:6|confirmed'
+            ], [
+                'pin.confirmed' => 'El PIN no coincide. Por favor, inténtelo de nuevo.',
+                'pin.required' => 'El campo de PIN es obligatorio.',
+                'pin.size' => 'El PIN debe tener exactamente 6 dígitos.'
+            ]);
+
+            // Guardar el nuevo PIN
+            $cliente->pin = $request->pin;
+            $cliente->save();
+
+            // Redirigir con mensaje de éxito
+            return redirect()->route('portal.dashboard')->with('toast', [
+                'icon' => 'success',
+                'mensaje' => 'PIN cambiado con éxito'
+            ]);
+        }
+
+        return view('portal.login')->with('toast', [
+            'icon' => 'error',
+            'mensaje' => 'Debe iniciar sesión para cambiar el PIN.'
+        ]);
+    }
+
+    public function showBudget(Request $request, $id)
+    {
+        // Verificar que el cliente esté autenticado
+        $cliente = session('cliente');
+        if (!$cliente) {
+            return view('portal.login');
+        }
+        $empresa = CompanyDetails::find(1);
+
+        // Obtener el presupuesto por ID y asegurar que pertenezca al cliente autenticado
+        $budget = Budget::where('id', $id)->where('client_id', $cliente->id)->first();
+
+        if (!$budget) {
+            return redirect()->route('portal.presupuestos')->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Presupuesto no encontrado o no autorizado.'
+            ]);
+        }
+        // Formatear conceptos del presupuesto si existen
+        $concepts = $budget->budgetConcepts()->get()->map(function ($concept) {
+            return [
+                'title' => $concept->title,
+                'units' => $concept->units,
+                'unit_price' => $concept->sale_price / $concept->units,
+                'subtotal' => $concept->sale_price,
+                'discount' => $concept->discount,
+                'total' => $concept->total,
+            ];
+        });
+
+        return view('portal.presupuesto', compact('cliente', 'budget', 'concepts', 'empresa'));
+    }
+    public function showInvoice(Request $request,$id)
+    {
+        // Verificar si el cliente ha iniciado sesión
+        $cliente = session('cliente');
+        if (!$cliente) {
+            return redirect()->route('portal.login')->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Debe iniciar sesión para ver sus facturas.'
+            ]);
+        }
+        $empresa = CompanyDetails::find(1);
+
+        // Obtener la factura y verificar que pertenezca al cliente actual
+        $invoice = Invoice::where('id', $id)->where('client_id', $cliente->id)->first();
+        if (!$invoice) {
+            return redirect()->route('portal.facturas')->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'No se encontró la factura solicitada.'
+            ]);
+        }
+
+        // Formatear los conceptos de la factura
+        $invoiceConceptsFormated = $invoice->invoiceConcepts->map(function ($concept) {
+            return [
+                'title' => $concept->title,
+                'description' => explode("\n", $concept->description),
+                'units' => $concept->units,
+                'price_unit' => number_format($concept->price_unit, 2),
+                'subtotal' => number_format($concept->subtotal, 2),
+                'discount' => $concept->discount ? number_format($concept->discount, 2) . '%' : null,
+                'total' => number_format($concept->total, 2),
+            ];
+        });
+
+        // Preparar datos adicionales para el resumen de la factura
+        $data = [
+            'gross' => number_format($invoice->gross, 2),
+            'discount' => $invoice->discount ? number_format($invoice->discount, 2) : null,
+            'base' => number_format($invoice->base, 2),
+            'iva' => number_format($invoice->iva, 2),
+            'total' => number_format($invoice->total, 2),
+            'iva_percentage' => $invoice->iva_percentage,
+            'title' => 'Factura Detallada'
+        ];
+
+        // Renderizar la vista con la factura y los conceptos
+        return view('portal.factura', compact('cliente','invoice', 'invoiceConceptsFormated', 'data','empresa'));
+    }
+
+
 }
