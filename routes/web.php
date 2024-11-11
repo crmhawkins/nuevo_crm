@@ -584,5 +584,6 @@ Route::post('/portal/login', [PortalClientesController::class, 'loginPost'])->na
 Route::get('/portal/dashboard', [PortalClientesController::class, 'dashboard'])->name('portal.dashboard');
 Route::get('/portal/presupuestos', [PortalClientesController::class, 'presupuestos'])->name('portal.presupuestos');
 Route::get('/portal/facturas', [PortalClientesController::class, 'facturas'])->name('portal.facturas');
+Route::get('/portal/taskview', [PortalClientesController::class, 'pageTasksViewer'])->name('portal.taskview');
 
 

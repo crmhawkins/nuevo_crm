@@ -3,78 +3,103 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company\CompanyDetails;
 use Illuminate\Http\Request;
-use App\Models\Settings\Settings;
-use App\Models\Settings\Schedule;
+use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
 {
     public function index()
     {
-        $configuracion = Settings::with('horarios')->first();
+        $configuracion = CompanyDetails::first();
         return view('settings.index', compact('configuracion'));
     }
 
     public function store(Request $request)
     {
-
         $request->validate([
             'price_hour' => 'required|numeric',
-            'fecha_inicio_verano' => 'required|date',
-            'fecha_fin_verano' => 'required|date',
-            'fecha_inicio_invierno' => 'required|date',
-            'fecha_fin_invierno' => 'required|date',
+            'logo' => 'nullable|image',
+            'company_name' => 'required|string|max:255',
+            'nif' => 'required|string|max:50',
+            'address' => 'required|string|max:255',
+            'bank_account_data' => 'nullable|string|max:255',
+            'telephone' => 'nullable|string|max:20',
+            'email' => 'required|email|max:255',
+            'certificado' => 'nullable|file',
+            'contrasena' => 'nullable|string|min:6',
         ]);
 
-        $configuracion = Settings::create($request->only(['price_hour', 'fecha_inicio_verano', 'fecha_fin_verano', 'fecha_inicio_invierno', 'fecha_fin_invierno']));
+        $data = $request->only([
+            'price_hour', 'company_name', 'nif', 'address', 'bank_account_data', 'telephone', 'email','contrasena'
+        ]);
 
-        $this->saveHorarios($configuracion, $request->horarios);
+        // Guardar logo
+        if ($request->hasFile('logo')) {
+            $photo = $request->file('logo');
+            $imageName = random_int(0, 99999) . '-img.' . $photo->getClientOriginalExtension();
+            $path = $photo->storeAs('assets', $imageName, 'public');
+            $data['logo'] = $path;
+        }
 
+        // Guardar certificado
+        if ($request->hasFile('certificado')) {
+            $certificado = $request->file('certificado');
+            $certName = random_int(0, 99999) . '-cert.' . $certificado->getClientOriginalExtension();
+            $path = $certificado->storeAs('assets', $certName, 'public');
+            $data['certificado'] = $path;
+        }
+
+        CompanyDetails::create($data);
 
         return redirect()->route('configuracion.index')->with('success', 'Configuración creada correctamente.');
     }
 
     public function update(Request $request, $id)
     {
-        dd($request->all());
-        $configuracion = Settings::find($id);
+        $configuracion = CompanyDetails::findOrFail($id);
 
         $request->validate([
             'price_hour' => 'required|numeric',
-            'fecha_inicio_verano' => 'required|date',
-            'fecha_fin_verano' => 'required|date',
-            'fecha_inicio_invierno' => 'required|date',
-            'fecha_fin_invierno' => 'required|date',
+            'logo' => 'nullable|image',
+            'company_name' => 'required|string|max:255',
+            'nif' => 'required|string|max:50',
+            'address' => 'required|string|max:255',
+            'bank_account_data' => 'nullable|string|max:255',
+            'telephone' => 'nullable|string|max:20',
+            'email' => 'required|email|max:255',
+            'certificado' => 'nullable|file',
+            'contrasena' => 'nullable|string|min:6',
         ]);
 
-        $configuracion->update($request->only(['price_hour', 'fecha_inicio_verano', 'fecha_fin_verano', 'fecha_inicio_invierno', 'fecha_fin_invierno']));
+        $data = $request->only([
+            'price_hour', 'company_name', 'nif', 'address', 'bank_account_data', 'telephone', 'email', 'contrasena'
+        ]);
 
-        // Actualizar horarios
-        Schedule::where('settings_id', $configuracion->id)->delete();
+         // Guardar logo
+        if ($request->hasFile('logo')) {
+            if ($configuracion->logo) {
+                Storage::disk('public')->delete($configuracion->logo);
+            }
+            $photo = $request->file('logo');
+            $imageName = random_int(0, 99999) . '-img.' . $photo->getClientOriginalExtension();
+            $path = $photo->storeAs('logo', $imageName, 'public');
+            $data['logo'] = $path;
+        }
 
-        $this->saveHorarios($configuracion->id, $request->horarios);
+        // Guardar certificado
+        if ($request->hasFile('certificado')) {
+            if ($configuracion->certificado) {
+                Storage::disk('public')->delete($configuracion->certificado);
+            }
+            $certificado = $request->file('certificado');
+            $certName = random_int(0, 99999) . '-cert.' . $certificado->getClientOriginalExtension();
+            $path = $certificado->storeAs('assets', $certName, 'public');
+            $data['certificado'] = $path;
+        }
 
+        $configuracion->update($data);
 
         return redirect()->route('configuracion.index')->with('success', 'Configuración actualizada correctamente.');
     }
-
-    private function saveHorarios( $id, $horarios)
-    {
-        $configuracion = Settings::find($id);
-        foreach (['verano', 'invierno'] as $tipo) {
-            foreach ($horarios[$tipo] as $dia => $horas) {
-                foreach ($horas as $hora) {
-                    if ($hora['inicio'] && $hora['fin']) {
-                        $configuracion->horarios()->create([
-                            'tipo' => $tipo,
-                            'dia' => $dia,
-                            'inicio' => $hora['inicio'],
-                            'fin' => $hora['fin'],
-                        ]);
-                    }
-                }
-            }
-        }
-    }
-
 }

@@ -32,6 +32,10 @@
                 <form method="POST" action="{{ route('portal.loginPost') }}">
                     @csrf
                     <div class="form-group">
+                        <label for="usuario">Usuario</label>
+                        <input id="Usuario" type="text" class="form-control" name="usuario" value="{{ old('usuario') }}" required autocomplete="usuario" autofocus>
+                    </div>
+                    <div class="form-group">
                         <label for="pin">Pin</label>
                         <input id="pin" type="text" class="form-control" name="pin" required autocomplete="pin" autofocus>
                     </div>
@@ -46,4 +50,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </body>
+@include('partials.toast')
+<script>
+</script>
 </html>

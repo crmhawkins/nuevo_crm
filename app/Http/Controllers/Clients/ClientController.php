@@ -81,7 +81,7 @@ class ClientController extends Controller
         $data['is_client'] = true;
         $data['is_client'] = true;
         $clienteCreado = Client::create($data);
-        if($clienteCreado->pin = null){
+        if($clienteCreado->pin == null){
             $clienteCreado->pin = rand(100000, 999999);
             $clienteCreado->save();
         }
@@ -209,7 +209,7 @@ class ClientController extends Controller
         $data['is_client'] = true;
         $clienteCreado = Client::create($data);
         // dd($clienteCreado);
-        if($clienteCreado->pin = null){
+        if($clienteCreado->pin == null){
             $clienteCreado->pin = rand(100000, 999999);
             $clienteCreado->save();
         }
@@ -386,7 +386,8 @@ class ClientController extends Controller
         $data['privacy_policy_accepted'] = $request->input('privacy_policy_accepted', false); // Valor por defecto
 
         $cliente->update($data);
-        if($cliente->pin = null){
+
+        if($cliente->pin == null){
             $cliente->pin = rand(100000, 999999);
             $cliente->save();
         }

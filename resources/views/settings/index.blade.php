@@ -8,13 +8,13 @@
 @section('content')
     <div class="page-heading card" style="box-shadow: none !important">
         <div class="page-title card-body">
-            <div class="row">
-                <div class="col-12 col-md-6">
+            <div class="row justify-content-between">
+                <div class="col-md-4 order-md-1 order-last">
                     <h3>Configuración</h3>
                     <p class="text-subtitle text-muted">Configuración de la empresa</p>
                 </div>
-                <div class="col-12 col-md-6 text-md-end">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header">
+                <div class="col-md-4 order-md-2 order-first">
+                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                             <li class="breadcrumb-item active" aria-current="page">Configuración</li>
@@ -26,9 +26,9 @@
 
         <section class="section mt-4">
             @if ($configuracion)
-                <form action="{{ route('configuracion.update', $configuracion->id) }}" method="POST">
+                <form action="{{ route('configuracion.update', $configuracion->id) }}" method="POST" enctype="multipart/form-data">
             @else
-                <form action="{{ route('configuracion.store') }}" method="POST">
+                <form action="{{ route('configuracion.store') }}" method="POST" enctype="multipart/form-data">
             @endif
                 @csrf
                 <div class="row">
@@ -36,135 +36,77 @@
                         <div class="card mb-4">
                             <div class="card-body">
                                 <div class="mb-3">
+                                    <label for="logo" class="form-label">Logo</label>
+                                    <input type="file" class="form-control" id="logo" name="logo">
+                                    @if(isset($configuracion->logo))
+                                        <div class="mt-3">
+                                            <label>Logo Actual:</label>
+                                            <div>
+                                                <img src="{{ asset('storage/' . $configuracion->logo) }}" alt="Logo de la empresa" class="img-fluid" style="max-height: 200px;">
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="company_name" class="form-label">Nombre de la Empresa</label>
+                                    <input type="text" class="form-control" id="company_name" name="company_name" value="{{ $configuracion->company_name ?? '' }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="nif" class="form-label">NIF</label>
+                                    <input type="text" class="form-control" id="nif" name="nif" value="{{ $configuracion->nif ?? '' }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" id="address" name="address" value="{{ $configuracion->address ?? '' }}" required>
+                                </div>
+
+                                <div class="mb-3">
                                     <label for="price_hour" class="form-label">Precio por Hora</label>
                                     <input type="number" step="0.01" class="form-control" id="price_hour" name="price_hour" value="{{ $configuracion->price_hour ?? '' }}" required>
                                 </div>
 
-                                <h5 class="mt-4">Fechas de Cambio de Horario</h5>
-                                <div class="row g-3">
-                                    <div class="col-md-6 col-lg-3">
-                                        <label for="fecha_inicio_verano" class="form-label">Inicio Verano</label>
-                                        <input type="date" class="form-control" id="fecha_inicio_verano" name="fecha_inicio_verano" value="{{ $configuracion->fecha_inicio_verano ?? '' }}" required>
-                                    </div>
-                                    <div class="col-md-6 col-lg-3">
-                                        <label for="fecha_fin_verano" class="form-label">Fin Verano</label>
-                                        <input type="date" class="form-control" id="fecha_fin_verano" name="fecha_fin_verano" value="{{ $configuracion->fecha_fin_verano ?? '' }}" required>
-                                    </div>
-                                    <div class="col-md-6 col-lg-3">
-                                        <label for="fecha_inicio_invierno" class="form-label">Inicio Invierno</label>
-                                        <input type="date" class="form-control" id="fecha_inicio_invierno" name="fecha_inicio_invierno" value="{{ $configuracion->fecha_inicio_invierno ?? '' }}" required>
-                                    </div>
-                                    <div class="col-md-6 col-lg-3">
-                                        <label for="fecha_fin_invierno" class="form-label">Fin Invierno</label>
-                                        <input type="date" class="form-control" id="fecha_fin_invierno" name="fecha_fin_invierno" value="{{ $configuracion->fecha_fin_invierno ?? '' }}" required>
-                                    </div>
+                                <div class="mb-3">
+                                    <label for="bank_account_data" class="form-label">Datos de la Cuenta Bancaria</label>
+                                    <input type="text" class="form-control" id="bank_account_data" name="bank_account_data" value="{{ $configuracion->bank_account_data ?? '' }}">
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-12 col-lg-6 ">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5>Horarios de Verano</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        @php
-                                        $dias = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
-                                        @endphp
-                                        @foreach($dias as $dia)
-                                            <h6 class="mt-4 mb-3">{{ ucfirst($dia) }}</h6>
-                                            @php
-                                                $horarioVerano = $configuracion ? $configuracion->horarios->where('tipo', 'verano')->where('dia', $dia)->first() : null;
-                                                $horarioVeranoPartido = $configuracion ? $configuracion->horarios->where('tipo', 'verano')->where('dia', $dia)->skip(1)->first() : null;
-                                            @endphp
-                                            <div class="row g-3">
-                                                <div class="col-md-6">
-                                                    <label for="inicio_verano_{{ $dia }}" class="form-label">Inicio</label>
-                                                    <input type="time" class="form-control" id="inicio_verano_{{ $dia }}" name="horarios[verano][{{ $dia }}][0][inicio]" value="{{ $horarioVerano->inicio ?? '' }}" required>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="fin_verano_{{ $dia }}" class="form-label">Fin</label>
-                                                    <input type="time" class="form-control" id="fin_verano_{{ $dia }}" name="horarios[verano][{{ $dia }}][0][fin]" value="{{ $horarioVerano->fin ?? '' }}" required>
-                                                </div>
-                                                <div class="col-md-12 d-flex align-items-end">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input" id="horario_partido_verano_{{ $dia }}" name="horarios[verano][{{ $dia }}][partido]" {{ $horarioVeranoPartido ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="horario_partido_verano_{{ $dia }}">Horario partido</label>
-                                                    </div>
-                                                </div>
-                                                <input type="hidden" value="verano" >
-                                            </div>
-                                            <div id="horario_partido_verano_{{ $dia }}_div" style="{{ $horarioVeranoPartido ? '' : 'display: none;' }}">
-                                                <div class="row g-3 mt-2">
-                                                    <div class="col-md-6">
-                                                        <label for="inicio_partido_verano_{{ $dia }}" class="form-label">Inicio (Horario Partido)</label>
-                                                        <input type="time" class="form-control" id="inicio_partido_verano_{{ $dia }}" name="horarios[verano][{{ $dia }}][1][inicio]" value="{{ $horarioVeranoPartido->inicio ?? '' }}">
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label for="fin_partido_verano_{{ $dia }}" class="form-label">Fin (Horario Partido)</label>
-                                                        <input type="time" class="form-control" id="fin_partido_verano_{{ $dia }}" name="horarios[verano][{{ $dia }}][1][fin]" value="{{ $horarioVeranoPartido->fin ?? '' }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                <div class="mb-3">
+                                    <label for="telephone" class="form-label">Teléfono</label>
+                                    <input type="text" class="form-control" id="telephone" name="telephone" value="{{ $configuracion->telephone ?? '' }}">
                                 </div>
-                            </div>
 
-                            <div class="col-12 col-lg-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5>Horarios de Invierno</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        @foreach($dias as $dia)
-                                            <h6 class="mt-4 mb-3">{{ ucfirst($dia) }}</h6>
-                                            @php
-                                                $horarioInvierno = $configuracion ? $configuracion->horarios->where('tipo', 'invierno')->where('dia', $dia)->first() : null;
-                                                $horarioInviernoPartido = $configuracion ? $configuracion->horarios->where('tipo', 'invierno')->where('dia', $dia)->skip(1)->first() : null;
-                                            @endphp
-                                            <div class="row g-3">
-                                                <div class="col-md-6">
-                                                    <label for="inicio_invierno_{{ $dia }}" class="form-label">Inicio</label>
-                                                    <input type="time" class="form-control" id="inicio_invierno_{{ $dia }}" name="horarios[invierno][{{ $dia }}][0][inicio]" value="{{ $horarioInvierno->inicio ?? '' }}" required>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="fin_invierno_{{ $dia }}" class="form-label">Fin</label>
-                                                    <input type="time" class="form-control" id="fin_invierno_{{ $dia }}" name="horarios[invierno][{{ $dia }}][0][fin]" value="{{ $horarioInvierno->fin ?? '' }}" required>
-                                                </div>
-                                                <div class="col-md-12 d-flex align-items-end">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input" id="horario_partido_invierno_{{ $dia }}" name="horarios[invierno][{{ $dia }}][partido]" {{ $horarioInviernoPartido ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="horario_partido_invierno_{{ $dia }}">Horario partido</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div id="horario_partido_invierno_{{ $dia }}_div" style="{{ $horarioInviernoPartido ? '' : 'display: none;' }}">
-                                                <div class="row g-3 mt-2">
-                                                    <div class="col-md-6">
-                                                        <label for="inicio_partido_invierno_{{ $dia }}" class="form-label">Inicio (Horario Partido)</label>
-                                                        <input type="time" class="form-control" id="inicio_partido_invierno_{{ $dia }}" name="horarios[invierno][{{ $dia }}][1][inicio]" value="{{ $horarioInviernoPartido->inicio ?? '' }}">
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label for="fin_partido_invierno_{{ $dia }}" class="form-label">Fin (Horario Partido)</label>
-                                                        <input type="time" class="form-control" id="fin_partido_invierno_{{ $dia }}" name="horarios[invierno][{{ $dia }}][1][fin]" value="{{ $horarioInviernoPartido->fin ?? '' }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ $configuracion->email ?? '' }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="certificado" class="form-label">Certificado</label>
+                                    <input type="file" class="form-control" id="certificado" name="certificado">
+                                    @if(isset($configuracion->certificado))
+                                        <p class="mt-2">Certificado Actual: <a href="{{ asset('storage/' . $configuracion->certificado) }}" target="_blank">Ver Certificado</a></p>
+                                    @endif
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="contrasena" class="form-label">Contraseña</label>
+                                    <input type="password" class="form-control" id="contrasena" name="contrasena" value="{{ $configuracion->contrasena ?? '' }}">
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-lg-3">
                         <div class="card">
-                            <div class="card-header">
-                                <h5>Acciones</h5>
-                            </div>
-                            <div class="card-body d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+                            <div class="card-body">
+                                <div class="card-header">
+                                    <h5>Acciones</h5>
+                                </div>
+                                <div class="card-body d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -172,17 +114,7 @@
             </form>
         </section>
     </div>
+@endsection
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    @foreach($dias as $dia)
-        document.getElementById('horario_partido_verano_{{ $dia }}').addEventListener('change', function() {
-            document.getElementById('horario_partido_verano_{{ $dia }}_div').style.display = this.checked ? '' : 'none';
-        });
-        document.getElementById('horario_partido_invierno_{{ $dia }}').addEventListener('change', function() {
-            document.getElementById('horario_partido_invierno_{{ $dia }}_div').style.display = this.checked ? '' : 'none';
-        });
-    @endforeach
-});
-</script>
+@section('scripts')
 @endsection
