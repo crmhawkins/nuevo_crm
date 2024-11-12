@@ -66,7 +66,7 @@ class AssociatedTable extends Component
             ->orWhereHas('OrdenCompra.Proveedor', function ($subQuery) {
                       $subQuery->where('suppliers.name', 'like', '%' . $this->buscar . '%');
                   })
-            ->orWhereHas('budget.cliente', function ($subQuery) {
+            ->orWhereHas('OrdenCompra.cliente', function ($subQuery) {
                       $subQuery->where('clients.name', 'like', '%' . $this->buscar . '%');
                   });
         })
