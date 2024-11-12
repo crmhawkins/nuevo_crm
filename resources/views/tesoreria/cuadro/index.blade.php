@@ -1208,6 +1208,7 @@
             $.each( data.bankAccounts, function( key, value ) {
                 var tabla = "<tr>";
                 tabla += "<td>"+value.name+"</td>";
+                console.log(data.BigArray['meses'][data.month]['bancos'][value.id]['Balance']);
                 $.each(data.BigArray['meses'][data.month]['bancos'][value.id]['Balance'], function (key2, value2){
                     console.log(value2);
                     tabla += "<td>"+number_format(value2, 2, ',', '.');+"</td>";
