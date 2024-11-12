@@ -58,14 +58,17 @@ class PortalClientesController extends Controller
     public function presupuestos(Request $request){
         $cliente = session('cliente');
         if ($cliente) {
-            return view('portal.presupuestos',compact('cliente'));
+            $presupuestos = Budget::where('client_id',$cliente->id)->WhereYear('created_at','2024')->WhereMonth('created_at','12')->get();
+            return view('portal.presupuestos',compact('cliente','presupuestos'));
         }
         return view('portal.login');
     }
     public function facturas(Request $request){
         $cliente = session('cliente');
         if ($cliente) {
-            return view('portal.facturas',compact('cliente'));
+            $facturas = Invoice::where('client_id',$cliente->id)->WhereYear('created_at','2024')->WhereMonth('created_at','12')->get();
+
+            return view('portal.facturas',compact('cliente','facturas'));
         }
         return view('portal.login');
     }
@@ -96,8 +99,8 @@ class PortalClientesController extends Controller
 
 
             foreach ($proyectos as $proyecto) {
-                $tasks = Task::where('budget_id', $proyecto->id)->whereIn('task_status_id', [1, 2,3])->whereNotNull('split_master_task_id')->get();
-                $taskMaestra = Task::where('budget_id', $proyecto->id)->where('split_master_task_id', null)->get();
+                $tasks = Task::where('budget_id', $proyecto->id)->whereIn('task_status_id', [1, 2])->whereNotNull('split_master_task_id')->get();
+                $taskMaestra = Task::where('budget_id', $proyecto->id)->whereIn('task_status_id', [1, 2])->where('split_master_task_id', null)->get();
 
                 foreach ($taskMaestra as $task) {
                     $tiempo =explode(":", $task->total_time_budget);

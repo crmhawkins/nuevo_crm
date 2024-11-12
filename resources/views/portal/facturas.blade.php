@@ -97,7 +97,7 @@ body * {
                 </tr>
               </thead>
               <tbody>
-                @foreach ($cliente->facturas as $factura)
+                @foreach ($facturas as $factura)
                 <tr onclick="window.location='{{ route('portal.showInvoice', $factura->id) }}'" class="clicklink" data-type="estimate" data-pdf="1">
                   <td class="sorting_1">{{$factura->created_at->format('d/m/Y')}}</td>
                   <td class="table__invoice-num"><strong>{{$factura->reference}}</strong></td>

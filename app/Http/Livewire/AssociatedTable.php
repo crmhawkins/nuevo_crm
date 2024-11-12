@@ -55,7 +55,13 @@ class AssociatedTable extends Component
         $query = AssociatedExpenses::select('associated_expenses.*', 'suppliers.name as supplier_name', DB::raw('associated_expenses.quantity * (associated_expenses.iva / 100) as iva_amount'), DB::raw('associated_expenses.quantity + (COALESCE(associated_expenses.quantity, 0) * (COALESCE(associated_expenses.iva, 0) / 100)) as total_with_iva'))
         ->when($this->buscar, function ($query) {
             $query->where('associated_expenses.title', 'like', '%' . $this->buscar . '%')
-                  ->orWhereHas('OrdenCompra.Proveedor', function ($subQuery) {
+            ->orwhere('associated_expenses.quantity', 'like', '%' . $this->buscar . '%')
+            ->orwhere('associated_expenses.date', 'like', '%' . $this->buscar . '%')
+            ->orwhere('associated_expenses.received_date', 'like', '%' . $this->buscar . '%')
+            ->orwhere('associated_expenses.iva_amount', 'like', '%' . $this->buscar . '%')
+            ->orwhere('associated_expenses.total_with_iva', 'like', '%' . $this->buscar . '%')
+            ->orwhere('suppliers.name', 'like', '%' . $this->buscar . '%')
+            ->orWhereHas('OrdenCompra.Proveedor', function ($subQuery) {
                       $subQuery->where('suppliers.name', 'like', '%' . $this->buscar . '%');
                   });
         })

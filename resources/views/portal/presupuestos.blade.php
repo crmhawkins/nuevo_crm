@@ -91,7 +91,7 @@ body * {
                 </tr>
               </thead>
               <tbody>
-                @foreach ($cliente->presupuestos as $presupuesto)
+                @foreach ($presupuestos as $presupuesto)
                 <tr onclick="window.location='{{ route('portal.showBudget', $presupuesto->id) }}'" style="cursor:pointer;" class="clicklink" data-type="estimate" data-pdf="1">
                   <td class="sorting_1">{{$presupuesto->created_at->format('d/m/Y')}}</td>
                   <td class="table__invoice-num"><strong>{{$presupuesto->reference}}</strong></td>
