@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Clients\Client;
 use App\Models\Services\ServiceCategories;
 use App\Models\Tasks\Task;
+use App\Models\Tasks\TaskStatus;
 use App\Models\Users\User;
 use App\Models\Users\UserDepartament;
 use Carbon\Carbon;
@@ -19,8 +20,10 @@ class TasksTable extends Component
     public $clientes;
     public $empleados;
     public $gestores;
+    public $estados;
     public $departamentos;
     public $buscar;
+    public $selectedEstado = '';
     public $selectedCategoria = '';
     public $selectedCliente = '';
     public $selectedEmpleado = '';
@@ -39,6 +42,7 @@ class TasksTable extends Component
         $this->gestores = User::where('inactive',0)->where('access_level_id', 4)->get();
         $this->departamentos = UserDepartament::all();
         $this->selectedYear = Carbon::now()->year;
+        $this->estados = TaskStatus::all();
 
     }
 
@@ -61,9 +65,9 @@ class TasksTable extends Component
                             $q->where('budgets.reference', 'like', '%' . $this->buscar . '%');
                         });
                 })
-                ->when($this->selectedCategoria, function ($query) {
+                ->when($this->selectedEstado, function ($query) {
                     $query->whereHas('presupuestoConcepto', function ($query) {
-                        $query->where('budget_concepts.services_category_id', $this->selectedCategoria);
+                        $query->where('budget_concepts.services_category_id', $this->selectedEstado);
                     });
                 })
                 ->when($this->selectedCliente, function ($query) {
@@ -75,6 +79,9 @@ class TasksTable extends Component
                     $query->whereHas('usuario', function ($query) {
                         $query->where('admin_user_department_id', $this->selectedDepartamento);
                     });
+                })
+                ->when($this->selectedCategoria, function ($query) {
+                    $query->where('tasks.task_status_id', $this->selectedCategoria);
                 })
                 ->when($this->selectedYear, function ($query) {
                     $query->whereYear('tasks.created_at', $this->selectedYear);
@@ -114,7 +121,7 @@ class TasksTable extends Component
 
     public function updating($propertyName)
     {
-        if (in_array($propertyName, ['buscar', 'selectedCategoria', 'selectedCliente', 'selectedGestor','selectedEmpleado','selectedDepartamento'])) {
+        if (in_array($propertyName, ['buscar','selectedEstado', 'selectedCategoria', 'selectedCliente', 'selectedGestor','selectedEmpleado','selectedDepartamento'])) {
             $this->resetPage();
         }
     }

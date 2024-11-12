@@ -20,10 +20,10 @@ class AlertasPresupuestoAceptadoFinalizar extends Command
 
     public function handle()
     {
-        $pendientes = Budget::where('budget_status_id', 2)
+        $pendientes = Budget::where('budget_status_id', 3)
             ->where('updated_at', '<=', Carbon::now()->subHours(24))
-            ->whereDoesntHave('tasks', function ($query) {
-                $query->where('task_status_id', '!=', 3); // Excluye presupuestos con tareas que no tengan task_status_id = 3
+            ->whereHas('tasks', function ($query) {
+                $query->where('task_status_id', 3);
             })
             ->get();
 

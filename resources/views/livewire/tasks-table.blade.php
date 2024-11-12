@@ -31,6 +31,15 @@
                     </select>
                 </div>
                 <div class="mb-3 px-2 flex-fill" style="width: 150px">
+                    <label for="">EStados</label>
+                    <select wire:model="selectedEstado" name="" id="" class="form-select ">
+                        <option value="">Estados</option>
+                        @foreach ($estados as $estado)
+                            <option value="{{$estado->id}}">{{$estado->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3 px-2 flex-fill" style="width: 150px">
                     <label for="">Categorías</label>
                     <select wire:model="selectedCategoria" name="" id="" class="form-select ">
                         <option value="">Categorías</option>
