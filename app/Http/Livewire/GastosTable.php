@@ -49,7 +49,12 @@ class GastosTable extends Component
 
         $query = Gasto::select('*', DB::raw('quantity * (iva / 100) as iva_amount'), DB::raw('quantity + (COALESCE(quantity, 0) * (COALESCE(iva, 0) / 100)) as total_with_iva'))
                 ->when($this->buscar, function ($query) {
-                    $query->where('title', 'like', '%' . $this->buscar . '%');
+                    $query->where('title', 'like', '%' . $this->buscar . '%')
+                    ->orwhere('quantity', 'like', '%' . $this->buscar . '%')
+                    ->orwhere('date', 'like', '%' . $this->buscar . '%')
+                    ->orwhere('received_date', 'like', '%' . $this->buscar . '%')
+                    ->orWhereRaw('quantity * (iva / 100) like ?', ['%' . $this->buscar . '%']) // for iva_amount
+                    ->orWhereRaw('quantity + (COALESCE(quantity, 0) * (COALESCE(iva, 0) / 100)) like ?', ['%' . $this->buscar . '%']);
                 })
                 ->when($this->selectedYear, function ($query) {
                     $query->whereYear('created_at', $this->selectedYear);
