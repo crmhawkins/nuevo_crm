@@ -65,9 +65,9 @@ class TasksTable extends Component
                             $q->where('budgets.reference', 'like', '%' . $this->buscar . '%');
                         });
                 })
-                ->when($this->selectedEstado, function ($query) {
+                ->when($this->selectedCategoria, function ($query) {
                     $query->whereHas('presupuestoConcepto', function ($query) {
-                        $query->where('budget_concepts.services_category_id', $this->selectedEstado);
+                        $query->where('budget_concepts.services_category_id', $this->selectedCategoria);
                     });
                 })
                 ->when($this->selectedCliente, function ($query) {
@@ -80,8 +80,8 @@ class TasksTable extends Component
                         $query->where('admin_user_department_id', $this->selectedDepartamento);
                     });
                 })
-                ->when($this->selectedCategoria, function ($query) {
-                    $query->where('tasks.task_status_id', $this->selectedCategoria);
+                ->when($this->selectedEstado, function ($query) {
+                    $query->where('tasks.task_status_id', $this->selectedEstado);
                 })
                 ->when($this->selectedYear, function ($query) {
                     $query->whereYear('tasks.created_at', $this->selectedYear);
