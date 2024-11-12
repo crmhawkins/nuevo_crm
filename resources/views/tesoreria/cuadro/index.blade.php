@@ -510,7 +510,6 @@
         });
 
         $(document).on( "click", ".clickIngresos", function(){
-            console.log('click');
             var id = $(this).attr("data-value");
             var dia = $(this).attr("value");
             var mes = $(".monthActual").attr('content');
@@ -702,7 +701,6 @@
                                         importeFactura = importeFactura.replace(".", "");
                                         importeFactura = importeFactura.replace(",", ".");
                                         if(parseFloat(importe) >= parseFloat(importeFactura)){
-                                            console.log(importeFactura);
                                             flagImporte = false;
                                             swal.enableButtons();
                                             $(".swal2-messages").append("<span style='color:red;font-size: 20px;'>El importe no puede ser mayor o igual que el total en una factura cobrada parcialmente</span>");
@@ -724,7 +722,6 @@
                                     }
                                     //Comprobamos que todos los campos estan rellenos, para poder hacer el ingreso
                                     if(flagBanco && flagImporte){
-                                        console.log(importe);
                                         $.when( saveInvoiceDataAjax(estado, banco, importe, id, dia, mes, anio) ).then(function( data, textStatus, jqXHR ) {
                                             if (jqXHR.responseJSON.estado == "OK"){
                                                 refreshTableTesoreria();
@@ -972,12 +969,10 @@
                 var date = new Date(value.paid_date);
                 var day = date.getUTCDate();
                 var total;
-                console.log(value);
                 for (var i=1;i<=dias;i++){
                     if (i<=day){
                         switch(value.invoice_status_id){
                             case 1:
-                                console.log(value.invoice_status_id);
                                 if (i==day){
                                     total = (value.total-value.paid_amount);
                                     table +=  "<td value='"+i+"' data-value='"+value.id+"' class='clickActual' data-status='"+value.invoice_status_id+"' style='background-color:#B3E3FF;'>"+number_format(total, 2, ',', '.');+"</td>";
@@ -1001,9 +996,7 @@
                                 }
                             break;
                             case 4:
-                                console.log("I = "+i+". DAY="+day);
                                 if (i==day){
-                                    console.log("JOINK");
                                     total = (value.total-value.paid_amount);
                                     table +=  "<td value='"+i+"' data-value='"+value.id+"' class='clickActual' data-status='"+value.invoice_status_id+"' style='background-color:#ffc498;'>"+number_format(total, 2, ',', '.');+"</td>";
                                     pintada = true;
@@ -1208,9 +1201,7 @@
             $.each( data.bankAccounts, function( key, value ) {
                 var tabla = "<tr>";
                 tabla += "<td>"+value.name+"</td>";
-                console.log(data.BigArray['meses'][data.month]['bancos'][value.id]['Balance']);
                 $.each(data.BigArray['meses'][data.month]['bancos'][value.id]['Balance'], function (key2, value2){
-                    console.log(value2);
                     tabla += "<td>"+number_format(value2, 2, ',', '.');+"</td>";
                 });
                 tabla += "</tr>";

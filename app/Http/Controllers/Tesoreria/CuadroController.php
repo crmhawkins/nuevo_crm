@@ -445,7 +445,7 @@ class CuadroController extends Controller
             'bankAccounts' => BankAccounts::all(),
             'DiasDelMes' => $this->calcDaysMonth($month, $year),
             'BigArray' => [],
-            'month' => $month,
+            'month' => sprintf("%02d", $month),
             'arrayTotal' => [],
             'arrayTotalPrevisto' => [],
             'year' => $year,
