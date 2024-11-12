@@ -58,8 +58,8 @@ class AssociatedTable extends Component
             ->orwhere('associated_expenses.quantity', 'like', '%' . $this->buscar . '%')
             ->orwhere('associated_expenses.date', 'like', '%' . $this->buscar . '%')
             ->orwhere('associated_expenses.received_date', 'like', '%' . $this->buscar . '%')
-            ->orwhere('associated_expenses.iva_amount', 'like', '%' . $this->buscar . '%')
-            ->orwhere('associated_expenses.total_with_iva', 'like', '%' . $this->buscar . '%')
+            ->orwhere('iva_amount', 'like', '%' . $this->buscar . '%')
+            ->orwhere('total_with_iva', 'like', '%' . $this->buscar . '%')
             ->orwhere('suppliers.name', 'like', '%' . $this->buscar . '%')
             ->orWhereHas('OrdenCompra.Proveedor', function ($subQuery) {
                       $subQuery->where('suppliers.name', 'like', '%' . $this->buscar . '%');
