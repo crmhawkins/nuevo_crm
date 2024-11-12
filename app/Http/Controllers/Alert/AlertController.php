@@ -375,7 +375,7 @@ public function postpone(Request $request)
     $alert->cont_postpone = $alert->cont_postpone + 1;
     $alertSaved = $alert->save();
 
-    if($alertSaved->cont_postpone == 3){
+    if($alert->cont_postpone == 3){
         $alertapost = Alert::create([
             'admin_user_id' => 1,
             'stage_id' => 42,
