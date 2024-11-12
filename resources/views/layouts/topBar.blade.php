@@ -591,7 +591,7 @@
                         <li class="li-flex">
                             <div class="li-mensaje">${mensajeDetalle}</div>
                             <div class="li-boton">
-                                <button class="btn-pop" onclick="posponerAlerta(${alerta['id']})" title="Posponer"><i class="fa-regular fa-clock"></i></button>
+                                <button class="btn-pop" onclick="posponerAlerta(${index},${stage_id},${alerta['id']})" title="Posponer"><i class="fa-regular fa-clock"></i></button>
                                 <button class="btn-pop" onclick="manejarAlertaEspecifica(${stage_id}, ${index})" title="Ok"><i class="fa-solid fa-arrow-right"></i></button>
                             </div>
                         </li>`;
@@ -1297,7 +1297,8 @@
             });
         }
 
-        function posponerAlerta(id) {
+        function posponerAlerta(id,stage_id, index) {
+            eliminarAlertaDOM(stage_id, index);
             return $.ajax({
             type: "POST",
             url: '/alert/postpone',
