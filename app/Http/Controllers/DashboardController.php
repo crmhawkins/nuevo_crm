@@ -769,24 +769,27 @@ class DashboardController extends Controller
                                 ->whereRaw("TIME(start_time) > ?", [$horaLimiteEntradaUTC->format('H:i:s')])
                                 ->get();
 
-                            if (count($hourlyAverage) > 2) {
-                                $data = [
-                                    "admin_user_id" =>  1,
-                                    "stage_id" => 15,
-                                    "description" => $usuario->name . " ha llegado tarde 3 veces o mas este mes",
-                                    "status_id" => 1,
-                                    "reference_id" => $usuario->id,
-                                    "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
-                                ];
 
-                                $alert = Alert::create($data);
-                                $alertSaved = $alert->save();
-                            }
 
 
                             $fechaNow = Carbon::now();
 
                             if(count($todayJornada) > 0){
+
+                                if (count($hourlyAverage) > 2) {
+                                    $data = [
+                                        "admin_user_id" =>  1,
+                                        "stage_id" => 23,
+                                        "description" => $usuario->name . " ha llegado tarde 3 veces o mas este mes",
+                                        "status_id" => 1,
+                                        "reference_id" => $usuario->id,
+                                        "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
+                                    ];
+
+                                    $alert = Alert::create($data);
+                                    $alertSaved = $alert->save();
+                                }
+
                                 switch (count($hourlyAverage)) {
                                     case 1:
                                         $text = 'Hemos notado que hoy llegaste después de la hora límite de entrada (09:30). Entendemos que a veces pueden surgir imprevistos, pero te recordamos la importancia de respetar el horario para mantener la eficiencia en el equipo.';
