@@ -1278,7 +1278,11 @@
 
         // Función para eliminar la alerta del DOM
         function eliminarAlertaDOM(stage_id, index) {
+            const alertCountSpan = document.querySelector('.countAlertas');
+            let totalAlertas = 0;
             alertasAgrupadasPorStageId[stage_id].splice(index, 1);
+            totalAlertas += alertasAgrupadasPorStageId[stage_id].length;
+            alertCountSpan.textContent = totalAlertas;
             mostrarAlertaEspecifica(stage_id);
         }
 
