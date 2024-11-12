@@ -71,8 +71,8 @@
                             'received_date' => 'F.RECEPCION',
                             'date' => 'F.PAGO',
                             'state' => 'ESTADO',
-                            'transfer_movement' => 'TRAN',
                             'categoria_id' => 'CATEGORIA',
+                            'transfer_movement' => 'TRAN',
 
 
                         ] as $field => $label)

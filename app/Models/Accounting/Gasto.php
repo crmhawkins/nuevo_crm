@@ -60,4 +60,8 @@ class Gasto extends Model
     public function categoria(){
         return $this->belongsTo(CategoriaGastos::class,'categoria_id');
     }
+
+    public function estado(){
+        return $this->belongsTo(EstadosGastos::class,'state');
+    }
 }

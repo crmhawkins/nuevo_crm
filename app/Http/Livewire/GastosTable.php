@@ -54,7 +54,16 @@ class GastosTable extends Component
                     ->orwhere('date', 'like', '%' . $this->buscar . '%')
                     ->orwhere('received_date', 'like', '%' . $this->buscar . '%')
                     ->orWhereRaw('quantity * (iva / 100) like ?', ['%' . $this->buscar . '%']) // for iva_amount
-                    ->orWhereRaw('quantity + (COALESCE(quantity, 0) * (COALESCE(iva, 0) / 100)) like ?', ['%' . $this->buscar . '%']);
+                    ->orWhereRaw('quantity + (COALESCE(quantity, 0) * (COALESCE(iva, 0) / 100)) like ?', ['%' . $this->buscar . '%'])
+                    ->orWhereHas('bankAccount', function ($subQuery) {
+                        $subQuery->where('bankAccount.name', 'like', '%' . $this->buscar . '%');
+                    })
+                    ->orWhereHas('estado', function ($subQuery) {
+                        $subQuery->where('estado.nombre', 'like', '%' . $this->buscar . '%');
+                    })
+                    ->orWhereHas('categoria', function ($subQuery) {
+                        $subQuery->where('bankAccount.name', 'like', '%' . $this->buscar . '%');
+                    });
                 })
                 ->when($this->selectedYear, function ($query) {
                     $query->whereYear('created_at', $this->selectedYear);
