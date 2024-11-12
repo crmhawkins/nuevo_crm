@@ -135,7 +135,10 @@ class StatisticsController extends Controller
     {
         // Aquí recuperas los gastos mensuales agrupados por mes
         return DB::table('gastos')
-            ->where('transfer_movement', 0)
+            ->where(function($query) {
+                $query->where('transfer_movement', 0)
+                    ->orWhereNull('transfer_movement');
+            })
             ->whereYear('date', $anio)
             ->whereNull('deleted_at')
             ->select(DB::raw('MONTH(date) as mes'), DB::raw('SUM(quantity) as total'))
@@ -256,14 +259,6 @@ class StatisticsController extends Controller
             ->whereYear('created_at', $year)
             ->whereIn('invoice_status_id', [1,3, 4])
             ->get();
-
-        // $facturas->each(function ($factura) {
-        //     $budget = Budget::find($factura['budget_id']);
-        //     if($budget){
-        //         $factura->categoria = $budget->budgetConcepts->map(fn($concept) => ServiceCategories::find($concept->services_category_id)->name ?? 'Categoria no existe')->toArray();
-        //         $factura->cliente = Client::find($factura->client_id)->name;
-        //     }
-        // });
 
         return [
             'facturas' => $facturas,

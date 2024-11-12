@@ -275,6 +275,18 @@ class CuadroController extends Controller
         return $gastoTotal;
     }
 
+    public function calcTraspaso($year, $mes, $diaFormat, $idBank, $ingresoTotal){
+        $dateFilter =  $year . '-' . $mes . '-' . $diaFormat;
+
+        $ingresos = Ingreso::where('bank_id', $idBank)->where('date', $dateFilter)->get();
+        if ($ingresos) {
+            //$ingresoTotal = 0;
+            foreach ($ingresos as $ingreso) {
+                $ingresoTotal += $ingreso->quantity;
+            }
+        }
+        return $ingresoTotal;
+    }
     public function calcIngreso($year, $mes, $diaFormat, $idBank, $ingresoTotal){
         $dateFilter =  $year . '-' . $mes . '-' . $diaFormat;
 
@@ -426,144 +438,106 @@ class CuadroController extends Controller
         return $month == 2 ? ($year % 4 ? 28 : ($year % 100 ? 29 : ($year % 400 ? 28 : 29))) : (($month - 1) % 7 % 2 ? 30 : 31);
     }
 
-    public function calcBigArray($year, $month){
-
-        $arrayResult = array (
-            'nameMonth' => '',
-            'bankAccounts' => '',
-            'DiasDelMes' => '',
-            'BigArray' => '',
-            'month' => '',
-            'arrayTotal' => '',
-            'arrayTotalPrevisto' => '',
-            'year' => ''
-        );
-
-        if (!empty($month)){
-            $mesFormat = sprintf("%02d", $month);
-            $nameMonth = $this->getNamesMonth($mesFormat);
-            $arrayResult['month'] = $mesFormat;
-        }else{
-            $nameMonth = $this->getNameMonthActual();
-            $month = date('m');
-            $arrayResult['month'] = $month;
-        }
-
+    public function calcBigArray($year, $month)
+    {
+        $arrayResult = [
+            'nameMonth' => $this->getNamesMonth(sprintf("%02d", $month)),
+            'bankAccounts' => BankAccounts::all(),
+            'DiasDelMes' => $this->calcDaysMonth($month, $year),
+            'BigArray' => [],
+            'month' => $month,
+            'arrayTotal' => [],
+            'arrayTotalPrevisto' => [],
+            'year' => $year,
+        ];
         $banksAccounts = BankAccounts::all();
+        $bigArray = [];
+        $arrayTotal = [];
+        $arrayTotalPrevisto = [];
+        $anteriorbank = $this->initArray([]);
 
-        $arrayResult['nameMonth'] = $nameMonth;
-        $arrayResult['bankAccounts'] = $banksAccounts;
+        $fechaIVA = Carbon::createFromFormat('d/m/Y', '17/10/2024');
 
-        $bigArray = array ();
-        $arrayTotal = array ();
-        $arrayTotalPrevisto = array ();
+        // Agrupamos gastos, gastos asociados e ingresos con claves únicas "bank_id-fecha"
+        $gastosPorFecha = Gasto::whereYear('date', $year)->get()->groupBy(function($gasto) {
+            return $gasto->bank_id . '-' . Carbon::parse($gasto->date)->format('m-d');
+        });
 
-        if (!empty($year)){
-            $bigArray['año'] = $year;
-            $arrayTotal['año'] = $year;
-            $arrayTotalPrevisto['año'] = $year;
-            $arrayResult['year'] = $year;
-        }else{
-            $year = date('Y');
-            $bigArray['año'] = $year;
-            $arrayTotal['año'] = $year;
-            $arrayTotalPrevisto['año'] = $year;
-            $arrayResult['year'] = $year;
-        }
+        $gastosAsociadosPorFecha = AssociatedExpenses::where('state', 'PAGADO')
+            ->whereYear('date', $year)
+            ->get()
+            ->groupBy(function($gasto) {
+                return $gasto->bank_id . '-' . Carbon::parse($gasto->date)->format('m-d');
+        });
 
+        $ingresosPorFecha = Ingreso::whereYear('date', $year)->get()->groupBy(function($ingreso) {
+            return $ingreso->bank_id . '-' . Carbon::parse($ingreso->date)->format('m-d');
+        });
 
-        $anteriorbank = array();
-
-        $anteriorbank = $this->initArray($anteriorbank);
-        $diasDelMes = $this->calcDaysMonth($month, $year);
-
-        $arrayResult['DiasDelMes'] = $diasDelMes;
-
-        //MAIN ALGORITMO PARA GUARDAR EL BALANCE DE TODOS LOS DIAS SEGUN EL BANCO EN UN ARRAY
+        // Procesamiento principal
         for ($i = 1; $i <= 12; $i++) {
             $mesFormat = sprintf("%02d", $i);
-
-            //Obtenemos los dias del mes
             $diasMes = $this->calcDaysMonth($i, $year);
-            $nameMes = $this->getNamesMonth($mesFormat);
+            $bigArray['meses'][$mesFormat] = [
+                'nombre' => $this->getNamesMonth($mesFormat),
+                'diasTotal' => $diasMes
+            ];
 
-            $bigArray['meses'][$mesFormat]['nombre'] = $nameMes;
-            $bigArray['meses'][$mesFormat]['diasTotal'] = $diasMes;
-
-            foreach ($banksAccounts as $bankAccount) {
-
+            foreach ($arrayResult['bankAccounts'] as $bankAccount) {
                 $gastoTotal = 0;
                 $gastoC = 0;
                 $gastoA = 0;
                 $ingresoTotal = 0;
 
                 for ($j = 1; $j <= $diasMes; $j++) {
-                    $mes=(int)$mesFormat;
                     $diaFormat = sprintf("%02d", $j);
+                    $dateKey = "{$bankAccount->id}-{$mesFormat}-{$diaFormat}";
 
-                    //Recogemos el ultimo balance del mes anterior
-                    $totalGastosIngresos = $this->getLastData($anteriorbank, $mes, $bankAccount->id, $year);
-
-                    //Guardamos los datos de los bancos (Nombre y ID)
+                    // Balance del mes anterior
+                    $totalGastosIngresos = $this->getLastData($anteriorbank, $i, $bankAccount->id, $year);
                     $bigArray = $this->savesBanks($bigArray, $mesFormat, $bankAccount->id, $bankAccount->name);
 
-                    //Calculamos los gastos asociados de un dia entero
-                    $gastoA = $this->calcAssociatedExpenses($year, $i, $diaFormat, $bankAccount->id, $gastoA);
-
-                    //Guardamos en el dia los gastos Asociados
+                    // Gastos Asociados con IVA aplicado si corresponde
+                    $gastoA += isset($gastosAsociadosPorFecha[$dateKey])
+                        ? $gastosAsociadosPorFecha[$dateKey]->sum(function($gasto) use ($fechaIVA) {
+                            return $gasto->quantity * ($gasto->created_at >= $fechaIVA ? 1 + ($gasto->iva / 100) : 1);
+                        })
+                        : 0;
                     $bigArray = $this->saveAssociatedExpenses($bigArray, $mesFormat, $bankAccount->id, $j, $gastoA, $diaFormat);
 
-                    //Calculamos los gastos de un dia entero
-                    $gastoC = $this->calcGasto($year, $i, $diaFormat, $bankAccount->id, $gastoC);
+                    // Gastos Comunes con IVA aplicado si corresponde
+                    $gastoC += isset($gastosPorFecha[$dateKey])
+                        ? $gastosPorFecha[$dateKey]->sum(function($gasto) use ($fechaIVA) {
+                            return $gasto->quantity * ($gasto->created_at >= $fechaIVA ? 1 + ($gasto->iva / 100) : 1);
+                        })
+                        : 0;
+                    $bigArray = $this->saveGasto($bigArray, $mesFormat, $bankAccount->id, $j, $gastoC, $diaFormat);
 
-                    //Guardamos en el dia los gastos
-                    $bigArray = $this->saveGasto($bigArray, $mesFormat, $bankAccount->id, $j, $gastoTotal, $diaFormat);
-
-                    //Calculamos los ingresos de un dia entero
-                    $ingresoTotal = $this->calcIngreso($year, $i, $diaFormat, $bankAccount->id, $ingresoTotal);
-
-                    //Guardamos en el dia los ingresos
+                    // Ingresos
+                    $ingresoTotal += isset($ingresosPorFecha[$dateKey])
+                        ? $ingresosPorFecha[$dateKey]->sum('quantity')
+                        : 0;
                     $bigArray = $this->saveIngreso($bigArray, $mesFormat, $bankAccount->id, $j, $diaFormat, $ingresoTotal);
 
-                    //Calculamos el balance de ese dia
+                    // Cálculo diario del gasto total, balance y acumulación del balance diario
                     $gastoTotal = $gastoA + $gastoC;
                     $balance = $ingresoTotal - $gastoTotal;
-                    $totalGastosIngresos = $balance + $totalGastosIngresos;
-
-                    //Guardamos el balance
+                    $totalGastosIngresos += $balance;
                     $bigArray = $this->saveBalance($totalGastosIngresos, $bigArray, $mesFormat, $bankAccount->id, $j);
 
-                    //Guardamos el ultimo valor para el mes siguiente
-                    $anteriorbank = $this->savelastData($anteriorbank, $bankAccount->id, $bankAccount->name, $mes, $totalGastosIngresos);
-
+                    // Guardar último balance para el mes siguiente
+                    $anteriorbank = $this->savelastData($anteriorbank, $bankAccount->id, $bankAccount->name, $i, $totalGastosIngresos);
                 }
             }
         }
 
-        //Array Para Guardar los totales de cada dia
-        for ($i = 1; $i <= 12;$i++){
-            $mesFormat = sprintf("%02d", $i);
-            $dias = $this->calcDaysMonth($i, $year);
-            $nameMes = $this->getNamesMonth($i);
-            $arrayTotal = $this->putDaysAndMonths($dias, $nameMes, $arrayTotal, $mesFormat);
-
-            for ($j = 1; $j <= $dias; $j++){
-                $diaFormat = sprintf("%02d", $j);
-                $balance = 0;
-
-                foreach($banksAccounts as $bankAccount){
-                    $balance += $bigArray['meses'][$mesFormat]['bancos'][$bankAccount->id]['Balance'][$j];
-                }
-                $arrayTotal = $this->saveTotalBalance($arrayTotal, $mesFormat, $j, $balance);
-            }
-        }
-
-
-
-        //Array del total previsto
+        // Cálculo de los totales acumulados de cada mes
+        $arrayTotal = $this->calculateMonthlyTotals($bigArray, $arrayResult['bankAccounts'], $arrayTotal, $year);
+        // Cálculo de los totales previstos basados en las facturas pendientes
         $aux = 0;
         $facturas = $this->getAllInvoices($year);
-        for ($i = 1; $i <= 12;$i++){
+
+        foreach (range(1, 12) as $i) {
             $mesFormat = sprintf("%02d", $i);
             $dias = $this->calcDaysMonth($i, $year);
             $nameMes = $this->getNamesMonth($i);
@@ -576,7 +550,6 @@ class CuadroController extends Controller
                     $balance += $bigArray['meses'][$mesFormat]['bancos'][$bankAccount->id]['Balance'][$j];
                 }
 
-                //if ($j==06 && $i ==4){var_dump("Total de los bancos: ".$balance);}
 
                 foreach($facturas as $factura){
                     $dia = Carbon::parse($factura->paid_date)->format('d');
@@ -587,24 +560,14 @@ class CuadroController extends Controller
                             $balance = 0;
                             if($factura->invoice_status_id == 4){
                                 $facturaTotal = (float)$factura->total - (float)$factura->paid_amount;
-                                //if ($j==06 && $mes ==4){var_dump("1 facturatotal = totaldelafactura - totalyapagado |".$facturaTotal . " = " .$factura->total. " - ".$factura->paid_amount);}
                             }else{
                                 $facturaTotal = (float)$factura->total;
-                                //if ($j==06 && $mes ==4){var_dump("2 facturatotal |".$facturaTotal . " = " .$factura->total);}
                             }
-
-                            //if ($j==06 && $mes ==4){var_dump("3.1 balance += facturatotal + auxiliar| ".$balance . "+=".$facturaTotal. " + ".$aux );}
 
                             $balance += (float)$facturaTotal + $aux;
 
-                            //DEBUG
-                            //if ($j==06 && $mes ==4){var_dump("3.2 balance += facturatotal + auxiliar| ".$balance . "+=".$facturaTotal. " + ".$aux );}
-
-
-                            //if ($j==06 && $mes ==4){var_dump("4.1 auxiliar |".$aux." ".$factura->total);}
                             $aux += (float)$facturaTotal;
-                            //DEBUG
-                            //if ($j==06 && $mes ==4){var_dump("4.2 auxiliar += facturatotal| ".$aux . "+=".$facturaTotal);}
+
                         }
                     }else{
                         $balance = $aux;
@@ -617,15 +580,70 @@ class CuadroController extends Controller
             }
         }
 
+        // Asignación a array de resultado final
         $arrayResult['BigArray'] = $bigArray;
         $arrayResult['arrayTotal'] = $arrayTotal;
         $arrayResult['arrayTotalPrevisto'] = $arrayTotalPrevisto;
 
-        //dd($arrayResult);
-
         return $arrayResult;
-
     }
+
+
+    // Método auxiliar para calcular los totales mensuales
+    protected function calculateMonthlyTotals($bigArray, $bankAccounts, $arrayTotal, $year)
+    {
+        for ($i = 1; $i <= 12; $i++) {
+            $mesFormat = sprintf("%02d", $i);
+            $dias = $this->calcDaysMonth($i, $year);
+            $arrayTotal = $this->putDaysAndMonths($dias, $this->getNamesMonth($mesFormat), $arrayTotal, $mesFormat);
+
+            for ($j = 1; $j <= $dias; $j++) {
+                $balance = 0;
+                foreach ($bankAccounts as $bankAccount) {
+                    $balance += $bigArray['meses'][$mesFormat]['bancos'][$bankAccount->id]['Balance'][$j] ?? 0;
+                }
+                $arrayTotal = $this->saveTotalBalance($arrayTotal, $mesFormat, $j, $balance);
+            }
+        }
+        return $arrayTotal;
+    }
+
+    // Método auxiliar para calcular los totales previstos
+    protected function calculatePredictedTotals($bigArray, $arrayTotal, $year)
+    {
+        $arrayTotalPrevisto = [];
+        $aux = 0;
+        $facturas = $this->getAllInvoices($year);
+
+        foreach (range(1, 12) as $i) {
+            $mesFormat = sprintf("%02d", $i);
+            $dias = $this->calcDaysMonth($i, $year);
+            $arrayTotalPrevisto = $this->putDaysAndMonths($dias, $this->getNamesMonth($mesFormat), $arrayTotalPrevisto, $mesFormat);
+
+            foreach (range(1, $dias) as $j) {
+                $balance = $arrayTotal['meses'][$mesFormat]['TOTAL'][$j] ?? 0;
+
+                foreach ($facturas as $factura) {
+                    $diaFactura = Carbon::parse($factura->paid_date)->format('d');
+                    $mesFactura = Carbon::parse($factura->paid_date)->format('m');
+
+                    if ($diaFactura == $j && $mesFactura == $mesFormat) {
+                        $facturaTotal = ($factura->invoice_status_id == 4)
+                            ? (float)$factura->total - (float)$factura->paid_amount
+                            : (float)$factura->total;
+                        $balance += $facturaTotal + $aux;
+                        $aux += $facturaTotal;
+                    }
+                }
+
+                $arrayTotalPrevisto = $this->saveTotalBalancePrevisto($arrayTotalPrevisto, $mesFormat, $j, $balance);
+            }
+        }
+
+        return $arrayTotalPrevisto;
+    }
+
+
 
     public function getMonthYear ($year, $month){
 
