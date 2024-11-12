@@ -31,7 +31,7 @@
                     </select>
                 </div>
                 <div class="mb-3 px-2 flex-fill" style="width: 150px">
-                    <label for="">EStados</label>
+                    <label for="">Estados</label>
                     <select wire:model="selectedEstado" name="" id="" class="form-select ">
                         <option value="">Estados</option>
                         @foreach ($estados as $estado)
