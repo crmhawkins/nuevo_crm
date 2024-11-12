@@ -58,11 +58,16 @@ class AssociatedTable extends Component
             ->orwhere('associated_expenses.quantity', 'like', '%' . $this->buscar . '%')
             ->orwhere('associated_expenses.date', 'like', '%' . $this->buscar . '%')
             ->orwhere('associated_expenses.received_date', 'like', '%' . $this->buscar . '%')
+            ->orwhere('associated_expenses.purchase_order_id', 'like', '%' . $this->buscar . '%')
+            ->orwhere('associated_expenses.reference', 'like', '%' . $this->buscar . '%')
             ->orwhere('suppliers.name', 'like', '%' . $this->buscar . '%')
             ->orWhereRaw('associated_expenses.quantity * (associated_expenses.iva / 100) like ?', ['%' . $this->buscar . '%']) // for iva_amount
             ->orWhereRaw('associated_expenses.quantity + (COALESCE(associated_expenses.quantity, 0) * (COALESCE(associated_expenses.iva, 0) / 100)) like ?', ['%' . $this->buscar . '%']) // for total_with_iva
             ->orWhereHas('OrdenCompra.Proveedor', function ($subQuery) {
                       $subQuery->where('suppliers.name', 'like', '%' . $this->buscar . '%');
+                  })
+            ->orWhereHas('budget.cliente', function ($subQuery) {
+                      $subQuery->where('clients.name', 'like', '%' . $this->buscar . '%');
                   });
         })
         ->when($this->selectedBanco, function ($query) {
