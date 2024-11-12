@@ -81,13 +81,13 @@ public function getAlerts($alertas)
                             $budgetAlert = Budget::find($alerta->reference_id);
                             if ($budgetAlert) {
                                 $alertasActivadas[$contador]["presupuesto"] = $budgetAlert->reference;
-                                if (!$budgetAlert->client) {
+                                if (!$budgetAlert->cliente) {
                                     $alertasActivadas[$contador]["cliente"] = "SIN CLIENTE";
                                 } else {
-                                    if ($budgetAlert->client->company) {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->company;
+                                    if ($budgetAlert->cliente->company) {
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->company;
                                     } else {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->name;
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
 
@@ -106,13 +106,13 @@ public function getAlerts($alertas)
                             $budgetAlert = Budget::find($alerta->reference_id);
                             if ($budgetAlert) {
                                 $alertasActivadas[$contador]["presupuesto"] = $budgetAlert->reference;
-                                if (!$budgetAlert->client) {
+                                if (!$budgetAlert->cliente) {
                                     $alertasActivadas[$contador]["cliente"] = "SIN CLIENTE";
                                 } else {
-                                    if ($budgetAlert->client->company) {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->company;
+                                    if ($budgetAlert->cliente->company) {
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->company;
                                     } else {
-                                       $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->name;
+                                       $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
                                 if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
@@ -130,13 +130,13 @@ public function getAlerts($alertas)
                             $budgetAlert = Budget::find($alerta->reference_id);
                             if ($budgetAlert) {
                                 $alertasActivadas[$contador]["presupuesto"] = $budgetAlert->reference;
-                                if (!$budgetAlert->client) {
+                                if (!$budgetAlert->cliente) {
                                     $alertasActivadas[$contador]["cliente"] = "SIN CLIENTE";
                                 } else {
-                                    if ($budgetAlert->client->company) {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->company;
+                                    if ($budgetAlert->cliente->company) {
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->company;
                                     } else {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->name;
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
                                 if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
@@ -154,13 +154,13 @@ public function getAlerts($alertas)
                             $budgetAlert = Budget::find($alerta->reference_id);
                             if ($budgetAlert) {
                                 $alertasActivadas[$contador]["presupuesto"] = $budgetAlert->reference;
-                                if (!$budgetAlert->client) {
+                                if (!$budgetAlert->cliente) {
                                     $alertasActivadas[$contador]["cliente"] = "SIN CLIENTE";
                                 } else {
-                                    if ($budgetAlert->client->company) {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->company;
+                                    if ($budgetAlert->cliente->company) {
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->company;
                                     } else {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->name;
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
                                 if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
@@ -178,13 +178,13 @@ public function getAlerts($alertas)
                             $budgetAlert = Budget::find($alerta->reference_id);
                             if ($budgetAlert) {
                                 $alertasActivadas[$contador]["presupuesto"] = $budgetAlert->reference;
-                                if (!$budgetAlert->client) {
+                                if (!$budgetAlert->cliente) {
                                     $alertasActivadas[$contador]["cliente"] = "SIN CLIENTE";
                                 } else {
-                                    if ($budgetAlert->client->company) {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->company;
+                                    if ($budgetAlert->cliente->company) {
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->company;
                                     } else {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->name;
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
                                 if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
@@ -202,13 +202,13 @@ public function getAlerts($alertas)
                             $budgetAlert = Budget::find($alerta->reference_id);
                             if ($budgetAlert) {
                                 $alertasActivadas[$contador]["presupuesto"] = $budgetAlert->reference;
-                                if (!$budgetAlert->client) {
+                                if (!$budgetAlert->cliente) {
                                     $alertasActivadas[$contador]["cliente"] = "SIN CLIENTE";
                                 } else {
-                                    if ($budgetAlert->client->company) {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->company;
+                                    if ($budgetAlert->cliente->company) {
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->company;
                                     } else {
-                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->client->name;
+                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
                                 if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
@@ -250,7 +250,7 @@ public function getAlerts($alertas)
                             $budgetSendAlert = BudgetSend::find($alerta->reference_id);
                             if ($budgetSendAlert) {
                                 $alertasActivadas[$contador]["budget_send"] = $budgetSendAlert->budget_reference;
-                                $alertasActivadas[$contador]["budget_send_client"] = $budgetSendAlert->client->name;
+                                $alertasActivadas[$contador]["budget_send_client"] = $budgetSendAlert->cliente->name;
                             }
                             break;
                         case 15:

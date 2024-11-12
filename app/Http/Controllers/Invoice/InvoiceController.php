@@ -402,7 +402,7 @@ class InvoiceController extends Controller
 
         $numero = $partes[0];
         $serie = $partes[1];
-        $fac->setNumber($numero.'-',$serie);
+        $fac->setNumber($numero,$serie);
 
         // Asignamos la fecha
         $fecha = Carbon::parse($factura->created_at)->format('Y-m-d');

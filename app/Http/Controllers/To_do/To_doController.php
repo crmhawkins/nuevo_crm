@@ -63,8 +63,11 @@ class To_doController extends Controller
                 $data['admin_user_id'] = $user->admin_user_id;
 
                 Event::create($data);
+
             }
        }
+
+
 
         return redirect()->back()->with('toast', [
             'icon' => 'success',

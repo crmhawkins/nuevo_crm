@@ -10,6 +10,7 @@
         "beyondcode/laravel-websockets": "^1.14",
         "cloudconvert/cloudconvert-php": "^3.4",
         "guzzlehttp/guzzle": "^7.2",
+        "intervention/image": "^3.9",
         "jenssegers/agent": "^2.6",
         "josemmo/facturae-php": "^1.8",
         "laravel-views/laravel-views": "^2.4",

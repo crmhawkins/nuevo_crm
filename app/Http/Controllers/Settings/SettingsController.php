@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyDetails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class SettingsController extends Controller
 {
@@ -40,8 +42,10 @@ class SettingsController extends Controller
         // Guardar logo
         if ($request->hasFile('logo')) {
             $photo = $request->file('logo');
-            $imageName = random_int(0, 99999) . '-img.' . $photo->getClientOriginalExtension();
-            $path = $photo->storeAs('assets', $imageName, 'public');
+            $path = public_path('assets/images/logo/logo.png');
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($photo);
+            $image->toPng()->save($path);
             $data['logo'] = $path;
         }
 
@@ -83,13 +87,15 @@ class SettingsController extends Controller
         ]);
 
          // Guardar logo
-        if ($request->hasFile('logo')) {
+         if ($request->hasFile('logo')) {
             if ($configuracion->logo) {
                 Storage::disk('public')->delete($configuracion->logo);
             }
             $photo = $request->file('logo');
-            $imageName = random_int(0, 99999) . '-img.' . $photo->getClientOriginalExtension();
-            $path = $photo->storeAs('logo', $imageName, 'public');
+            $path = public_path('assets/images/logo/logo.png');
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($photo);
+            $image->toPng()->save($path);
             $data['logo'] = $path;
         }
 
