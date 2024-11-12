@@ -57,10 +57,10 @@ class GastosTable extends Component
                     ->orWhereRaw('quantity * (iva / 100) like ?', ['%' . $this->buscar . '%']) // for iva_amount
                     ->orWhereRaw('quantity + (COALESCE(quantity, 0) * (COALESCE(iva, 0) / 100)) like ?', ['%' . $this->buscar . '%'])
                     ->orWhereHas('bankAccount', function ($subQuery) {
-                        $subQuery->where('bankAccount.name', 'like', '%' . $this->buscar . '%');
+                        $subQuery->where('bank_accounts.name', 'like', '%' . $this->buscar . '%');
                     })
                     ->orWhereHas('categoria', function ($subQuery) {
-                        $subQuery->where('bankAccount.name', 'like', '%' . $this->buscar . '%');
+                        $subQuery->where('categoria_gastos.nombre', 'like', '%' . $this->buscar . '%');
                     });
                 })
                 ->when($this->selectedYear, function ($query) {
