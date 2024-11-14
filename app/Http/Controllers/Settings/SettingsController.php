@@ -39,14 +39,14 @@ class SettingsController extends Controller
             'price_hour', 'company_name', 'nif', 'address', 'bank_account_data', 'telephone', 'email','contrasena','postCode', 'town','province',
         ]);
 
-        // Guardar logo
         if ($request->hasFile('logo')) {
             $photo = $request->file('logo');
             $path = public_path('assets/images/logo/logo.png');
+            dd($path);
             $manager = new ImageManager(new Driver());
             $image = $manager->read($photo);
             $image->toPng()->save($path);
-            $data['logo'] = $path;
+            $data['logo'] = 'assets/images/logo/logo.png';
         }
 
         // Guardar certificado
@@ -88,15 +88,17 @@ class SettingsController extends Controller
 
          // Guardar logo
          if ($request->hasFile('logo')) {
-            if ($configuracion->logo) {
-                Storage::disk('public')->delete($configuracion->logo);
+            $oldLogoPath = public_path('assets/images/logo/logo.png');
+            if (file_exists($oldLogoPath)) {
+                unlink($oldLogoPath);
             }
             $photo = $request->file('logo');
             $path = public_path('assets/images/logo/logo.png');
+            dd($path);
             $manager = new ImageManager(new Driver());
             $image = $manager->read($photo);
             $image->toPng()->save($path);
-            $data['logo'] = $path;
+            $data['logo'] = 'assets/images/logo/logo.png';
         }
 
         // Guardar certificado
