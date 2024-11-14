@@ -47,7 +47,8 @@ class OrdersTodasTable extends Component
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%')
                         ->orWhere('quantity', 'like', '%' . $this->buscar . '%');
                 })
-                ->orWhere('purchase_order.created_at', 'like', '%' . $this->buscar . '%');
+                ->orWhere('purchase_order.created_at', 'like', '%' . $this->buscar . '%')
+                ->orWhere('purchase_order.id', 'like', '%' . $this->buscar . '%');
             })
             ->join('associated_expenses', 'purchase_order.id', '=', 'associated_expenses.purchase_order_id')
             ->join('budget_concepts', 'purchase_order.budget_concept_id', '=', 'budget_concepts.id') // Join para llegar a los conceptos
