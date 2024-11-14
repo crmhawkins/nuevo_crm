@@ -223,6 +223,7 @@ Route::post('/petition/destroy', [PetitionController::class, 'destroy'])->name('
 
 
 Route::get('/order', [OrdenesController::class, 'index'])->name('order.index');
+Route::get('/orderAll', [OrdenesController::class, 'indexAll'])->name('order.indexAll');
 
 // Budgets (PRESUPUESTOS)
 Route::get('/budgets', [BudgetController::class, 'index'])->name('presupuestos.index');

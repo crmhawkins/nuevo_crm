@@ -32,15 +32,14 @@ class OrdersTodasTable extends Component
     public function render()
     {
         $this->actualizar(); // Ahora se llama directamente en render para refrescar los clientes.
-        return view('livewire.orders-contable-table', [
+        return view('livewire.orders-todas-table', [
             'orders' => $this->orders
         ]);
     }
 
     protected function actualizar()
     {
-        $query = PurcharseOrder::where('state', 'PENDIENTE')
-            ->when($this->buscar,function ($query) {
+        $query = PurcharseOrder::when($this->buscar,function ($query) {
                 $query->whereHas('cliente', function ($subQuery) {
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%');
                 })
@@ -48,9 +47,7 @@ class OrdersTodasTable extends Component
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%')
                         ->orWhere('quantity', 'like', '%' . $this->buscar . '%');
                 })
-                ->orWhere('subject', 'like', '%' . $this->buscar . '%')
-                ->orWhere('date', 'like', '%' . $this->buscar . '%')
-                ;
+                ->orWhere('purchase_order.created_at', 'like', '%' . $this->buscar . '%');
             })
             ->join('associated_expenses', 'purchase_order.id', '=', 'associated_expenses.purchase_order_id')
             ->join('budget_concepts', 'purchase_order.budget_concept_id', '=', 'budget_concepts.id') // Join para llegar a los conceptos

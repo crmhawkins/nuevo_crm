@@ -31,7 +31,7 @@
                             'proveedorNombre' => 'PROVEEDOR',
                             'title' => 'CONCEPTO',
                             'clienteNombre' => 'CLIENTE',
-                            'date_aceptado' => 'FECHA ACEPTADA',
+                            'created_at' => 'FECHA CREACION',
                             'quantity' => 'IMPORTE',
                             'gestorNombre' => 'GESTOR',
                             'state' => 'ESTADO',
@@ -50,12 +50,13 @@
                 </thead>
                 <tbody>
                     @foreach ( $orders as $order )
+
                         <tr class="clickable-row" data-href="{{ route('gasto-asociado.edit', $order->id) }}">
                             <td>{{$order->reference}}</td>
-                            <td>{{$order->OrdenCompra->Proveedor->name ?? 'Proveedor no definido' }}</td>
+                            <td>{{$order->proveedorNombre}}</td>
                             <td>{{$order->title }}</td>
-                            <td>{{$order->OrdenCompra->cliente->name ?? 'Cliente no definido' }}</td>
-                            <td>{{$order->date_aceptado ? Carbon\Carbon::parse($order->date_aceptado)->format('d/m/Y') : $order->updated_at->format('d/m/Y')}}</td>
+                            <td>{{$order->clienteNombre ?? 'Cliente no definido' }}</td>
+                            <td>{{Carbon\Carbon::parse($order->created_at)->format('d/m/Y')}}</td>
                             <td>{{$order->quantity }}</td>
                             <td>{{$order->gestorNombre }}</td>
                             <td>{{$order->state }}</td>

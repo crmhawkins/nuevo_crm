@@ -267,6 +267,12 @@
                             <span>Facturas</span>
                         </a>
                     </li>
+                    <li class="sidebar-item {{ request()->routeIs('order.indexAll') ? 'active' : '' }}">
+                        <a href="{{route('order.indexAll')}}" class='sidebar-link'>
+                            <i class="fa-solid fa-file-invoice-dollar fs-5"></i>
+                            <span>Todas las ordenes</span>
+                        </a>
+                    </li>
                     <li class="sidebar-item has-sub {{ $tesoreriaActive ? 'active' : '' }}">
                         <a href="#" class='sidebar-link'>
                             <i class="fa-solid fa-coins fs-5"></i>

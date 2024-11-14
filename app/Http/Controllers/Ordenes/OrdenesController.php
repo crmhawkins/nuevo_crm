@@ -20,5 +20,10 @@ class OrdenesController extends Controller
         return view('orders.index');
     }
 
+    public function indexAll(){
+        return view('orders.indexAll');
+
+    }
+
 
 }
