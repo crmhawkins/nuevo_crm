@@ -24,8 +24,9 @@ class ProjectController extends Controller
     public function create()
     {
         session('clienteId') != null ? $clienteId = session('clienteId') : $clienteId = null;
-
         $clientes = Client::orderBy('id', 'asc')->get();
+
+
         return view('campania.create', compact('clientes', 'clienteId'));
 
     }
@@ -147,7 +148,11 @@ class ProjectController extends Controller
     public function createFromBudget(string $id)
     {
         $cliente = Client::find($id);
-        return view('campania.createFromBudget', compact('cliente'));
+        $rutaPrevia = app('router')->getRoutes()->match(app('request')->create(url()->previous()))->getName();
+
+        $presupuesto =  session()->get('presupuesto_id') ?? null;
+
+        return view('campania.createFromBudget', compact('cliente', 'presupuesto'));
     }
     public function createFromBudgetAndPetition(string $id, string $petitionid)
     {
@@ -157,6 +162,7 @@ class ProjectController extends Controller
     }
     public function storeFromBudget(Request $request)
     {        // Validamos los campos
+        session()->forget('presupuesto_id');
         $data = $this->validate($request, [
             'client_id' => 'required|integer',
             'name' => 'required|max:200',
@@ -171,7 +177,7 @@ class ProjectController extends Controller
         $data['admin_user_id'] = auth()->user()->id;
 
         $proyectoCreado = Project::create($data);
-
+        $presupuesto  =  $request->presupuesto_id ?? null;
         $projectId = $proyectoCreado->id;
         $clienteId = $request->client_id;
         $petitionId = $request->petition_id;
@@ -188,11 +194,12 @@ class ProjectController extends Controller
                 'mensaje' => 'Ocurrio un error en el servidor, intentelo mas tarde'
             ]);
         }
-
         if(isset($petitionId)){
             return redirect(route('presupuesto.createFromPetition', $petitionId))->with(['clienteId' => $clienteId,'projectId' => $projectId ]);
+        }elseif(isset($presupuesto)){
+            return redirect(route('presupuesto.edit', $presupuesto))->with(['clienteId' => $clienteId,'projectId' => $projectId ]);
         }else{
-            return redirect(route('presupuesto.create'))->with(['clienteId' => $clienteId,'projectId' => $projectId ]);
+             return redirect(route('presupuesto.create'))->with(['clienteId' => $clienteId,'projectId' => $projectId ]);
         }
     }
     public function updateFromWindow(Request $request)

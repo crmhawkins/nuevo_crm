@@ -38,6 +38,9 @@
                         @if (isset($petitionid))
                         <input type="text" name="petition_id" value="{{$petitionid}}" hidden>
                         @endif
+                        @if (isset($presupuesto))
+                        <input type="text" name="presupuesto_id" value="{{$presupuesto}}" hidden>
+                        @endif
 
                         <h3 class="mb-2 text-left uppercase">Cliente Asociado</h3>
                         <div class="form-control mb-4">{{$cliente->name}}</div>

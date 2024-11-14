@@ -46,15 +46,18 @@
                                                     </span>
                                             @enderror
                                         </div>
-                                        <div class="form-group mb-3">
+
+                                        <div class="form-group">
                                             <label class="mb-2 text-left">Campañas</label>
                                             <div class="flex flex-row align-items-start mb-0">
                                                 <select class=" form-select w-100 @error('project_id') is-invalid @enderror" name="project_id"  id="proyecto" @if($campanias != null )@if( $campanias->count() < 0){{'disabled'}} @endif @endif >
                                                             <option value="{{null}}">Seleccione una Campaña</option>
                                                             @foreach ( $campanias as $campania )
-                                                                <option value="{{$campania->id}}" @selected(old('project_id', $presupuesto->project_id) == $campania->id)>{{$campania->name}}</option>
+                                                                <option value="{{$campania->id}}"  @selected(old('project_id', $projectId ?? $presupuesto->project_id) == $campania->id) >{{$campania->name}}</option>
                                                             @endforeach
                                                 </select>
+                                                <button id="newCampania" type="button" class="btn btn-color-1 ml-3" style="height: fit-content"><i class="fa-solid fa-plus"></i></button>
+
                                             </div>
                                             @error('project_id')
                                                 <p class="invalid-feedback d-block" role="alert">
@@ -98,7 +101,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-12">
-                                        <div class="form-group mb-3">
+                                        <div class="form-group">
                                             <label class="text-left mb-2">Cliente Asociado:</label>
                                             <div class="flex flex-row align-items-start">
                                                 <select id="cliente" class=" w-100 form-select @error('client_id') is-invalid @enderror" name="client_id" >
@@ -111,6 +114,7 @@
                                                         <option value="">No existen clientes todavia</option>
                                                     @endif
                                                 </select>
+                                                <button id="newClient" type="button" class="btn btn-color-1 ml-3" style="height: fit-content" @if(isset($petitionId)){{'disabled'}}@endif><i class="fa-solid fa-plus"></i></button>
                                             </div>
                                             @error('client_id')
                                                 <p class="invalid-feedback d-block" role="alert">
@@ -315,9 +319,7 @@
                                                 <td id="base_amount"> {{ number_format((float)$presupuesto->base, 2, '.', '')  }}</td>
                                                 <td>
                                                     <input type="number" class="form-control" style="width:80px" id="iva" name="iva_percentage" min="0" max="100"
-                                                    @if($presupuesto->iva_percentage == null) value="21"
-                                                    @else value="{{ number_format((float)$presupuesto->iva_percentage, 2, '.', '')  }}"
-                                                    @endif >
+                                                value="{{ number_format((float)$presupuesto->iva_percentage, 2, '.', '')  }}" >
                                                 </td>
                                                 <td id="iva_amount">{{ number_format((float)$presupuesto->iva, 2, '.', '')  }}</td>
                                                 <td id="budget_total"><strong>{{ number_format((float)$presupuesto->total, 2, '.', '')  }} €</strong></td>
@@ -416,11 +418,52 @@
             window.open(finalUrl, '_self');
         });
 
-        // Boton Actualizar presupuesto
-        $('#actualizarPresupuesto').click(function(e){
-            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
-            $('#update').submit(); // Esto envía el formulario.
+        // Botón Actualizar presupuesto
+        $('#actualizarPresupuesto').click(function(e) {
+            e.preventDefault(); // Previene que el enlace navegue a otra página.
+
+            // Obtener los datos del formulario
+            var formData = $('#update').serialize();
+
+            // Enviar la solicitud AJAX
+            $.ajax({
+                url: $('#update').attr('action'), // La URL del formulario
+                type: 'POST', // El método HTTP
+                data: formData,
+                dataType: 'json', // Especifica que la respuesta será JSON
+                success: function(response) {
+                    // Manejar la respuesta JSON aquí
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Actualizado correctamente',
+                            text: 'El presupuesto se ha actualizado exitosamente.',
+                            showCancelButton: true,
+                            confirmButtonText: 'Ir a la lista',
+                            cancelButtonText: 'Seguir editando',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Redirigir a la lista (usar URL de la respuesta o una predeterminada)
+                                window.location.href = response.redirect;
+                            }
+                        });
+                    } else {
+                        Toast.fire({
+                            icon: "error",
+                            title: "Error al actualizar el presupuesto."
+                        })
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Toast.fire({
+                            icon: "error",
+                            title: "Error al actualizar el presupuesto."
+                        })
+                }
+            });
         });
+
 
         // Boton Aceptar presupuesto
         $('#aceptarPresupuesto').click(function(e){

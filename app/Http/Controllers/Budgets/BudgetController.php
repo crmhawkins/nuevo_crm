@@ -199,6 +199,7 @@ class BudgetController extends Controller
     public function edit(string $id)
     {
         $rutaPrevia = app('router')->getRoutes()->match(app('request')->create(url()->previous()))->getName();
+        session()->put('presupuesto_id', $id);
 
         // Verificar si la ruta comienza con 'presupuestos.index'
         if ($rutaPrevia && str_starts_with($rutaPrevia, 'presupuestos.index')) {
@@ -226,8 +227,9 @@ class BudgetController extends Controller
             $porcentaje = ($totalFacturado / $presupuesto->total) * 100;
         }else{ $porcentaje = 0;}
 
+        session('projectId') != null ? $projectId = session('projectId') : $projectId = null;
 
-        return view('budgets.edit', compact('presupuesto', 'campanias', 'gestores', 'formasPago','estadoPresupuesto', 'budgetConcepts','thisBudgetStatus','clientes','porcentaje'));
+        return view('budgets.edit', compact('projectId','presupuesto', 'campanias', 'gestores', 'formasPago','estadoPresupuesto', 'budgetConcepts','thisBudgetStatus','clientes','porcentaje'));
     }
 
     /**
@@ -348,14 +350,15 @@ class BudgetController extends Controller
         if($budgetupdated){
            $rutaPrevia = session()->get('ruta_previa','presupuestos.index');
 
-            return redirect()->route($rutaPrevia)->with('toast', [
-                'icon' => 'success',
-                'mensaje' => 'Presupuesto actualizado correctamente.'
+            return response()->json([
+                'success' => true,
+                'message' => 'Presupuesto actualizado correctamente.',
+                'redirect' => Route($rutaPrevia)
             ]);
         }else{
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'Error al actualizar el presupuesto.'
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el presupuesto.',
             ]);
         }
     }
