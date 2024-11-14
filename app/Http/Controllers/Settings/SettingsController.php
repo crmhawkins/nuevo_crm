@@ -93,6 +93,7 @@ class SettingsController extends Controller
             }
             $photo = $request->file('logo');
             $path = public_path('assets/images/logo/logo.png');
+            dd($path);
             $manager = new ImageManager(new Driver());
             $image = $manager->read($photo);
             $image->toPng()->save($path);
