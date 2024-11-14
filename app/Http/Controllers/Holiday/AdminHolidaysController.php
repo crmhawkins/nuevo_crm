@@ -312,9 +312,6 @@ class AdminHolidaysController extends Controller
     // Envía un mensaje al usuario cuando se acepta la petición
     public function sendEmail($empleado){
 
-        // $mailsCC = "nacho.moreno@lchawkins.com";
-        // $mailsCC[] = "alegar@lchawkins.com";
-
         // Si el estado es 1, es solicitud de vacaciones, el 2 es aceptada, el 3 es rechazada
         $estado = 2;
         $email = new MailHoliday($estado, $empleado);

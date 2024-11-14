@@ -2,9 +2,11 @@
 
 namespace App\Models\Tasks;
 
+use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Task extends Model
 {
@@ -72,8 +74,25 @@ class Task extends Model
     }
 
     public function tareaMaestra() {
-        return $this->belongsTo(\App\Models\Tasks\Task::class,'split_master_task_id');
+        return $this->belongsTo(\App\Models\Tasks\Task::class,'split_master_task_id','id');
     }
 
+    public function taskSplits() {
+        return $this->hasMany(\App\Models\Tasks\Task::class,'split_master_task_id');
+    }
+
+    public function real_time_maestra() {
+
+        // Obtener todas las tareas hijas y sumar sus horas en segundos
+        $totalSeconds = $this->taskSplits()->sum(DB::raw("TIME_TO_SEC(real_time)"));
+
+        // Calcular horas, minutos y segundos manualmente
+        $hours = floor($totalSeconds / 3600);
+        $minutes = floor(($totalSeconds % 3600) / 60);
+        $seconds = $totalSeconds % 60;
+
+        // Formatear a HH:MM:SS
+        return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+    }
 
 }

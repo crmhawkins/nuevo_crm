@@ -883,8 +883,7 @@ class BudgetConceptsController extends Controller
             $mailsBCC[] = $budgetSupplier->mail;
         }
 
-        // $mailsBCC[] = "emma@lchawkins.com";
-        // $mailsBCC[] = "ivan@lchawkins.com";
+
 
         $data = [];
         if($file[0] !== null)

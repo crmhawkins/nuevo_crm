@@ -63,7 +63,11 @@ class TasksTable extends Component
                           ->orWhere('tasks.description', 'like', '%' . $this->buscar . '%')
                           ->orWhereHas('presupuesto', function($q) {
                             $q->where('budgets.reference', 'like', '%' . $this->buscar . '%');
-                        });
+                        })
+                          ->orWhereHas('presupuesto.cliente', function($q) {
+                            $q->where('clients.name', 'like', '%' . $this->buscar . '%');
+                        })
+                        ;
                 })
                 ->when($this->selectedCategoria, function ($query) {
                     $query->whereHas('presupuestoConcepto', function ($query) {

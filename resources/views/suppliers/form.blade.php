@@ -1,7 +1,7 @@
 <form action="{{$action}}" method="POST" class="form-primary">
     @csrf
     @if(isset($proveedor))
-        @method('PUT')
+        @method('POST')
     @endif
     <div class="row">
         <div class="col-md-6">

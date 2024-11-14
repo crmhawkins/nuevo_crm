@@ -311,8 +311,7 @@ class Kernel extends ConsoleKernel
 
     public function sendEmailHorasTrabajadasUsuario($usuario, $mensajeHorasTrabajadas, $mensajeHorasProducidas){
 
-        // $mail = "nacho.moreno@lchawkins.com";
-        // $mailsCC[] = "alegar@lchawkins.com";
+
 
         $email = new MailHorasTrabajadasUsuario($mensajeHorasTrabajadas, $mensajeHorasProducidas);
 
@@ -325,7 +324,6 @@ class Kernel extends ConsoleKernel
 
         $mail = "ivan@hawkins.es";
         $mail2 = "nacho.moreno@lchawkins.com";
-        // $mailsCC[] = "alegar@lchawkins.com";
 
         $email = new MailHorasTrabajadas($arrayHorasTotal);
 

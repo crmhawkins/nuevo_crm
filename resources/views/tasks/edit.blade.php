@@ -104,7 +104,7 @@
                                 </div>
                                 <div class="col-6 mb-3">
                                     <label for="estimatedTime">Tiempo Estimado:</label>
-                                    <input type="text" name="estimatedTime" class="form-control" value="{{ $task->total_time_budget }}">
+                                    <input type="text" name="estimatedTime" class="form-control" value="{{($task->split_master_task_id == null) ? $task->total_time_budget : $task->estimated_time }}">
                                 </div>
                                 <div class="col-6 mb-3">
                                     <label for="status">Estado:</label>
@@ -169,7 +169,7 @@
 
             // Sumar las horas estimadas ya asignadas a otros empleados
             $('.table-employees tbody tr').each(function() {
-                var estimatedTime = $(this).find('input[name^="estimatedTime"]').val();
+                var estimatedTime = $(this).find('input[name^="realTime"]').val();
                 if (estimatedTime) {
                     // Convertir el valor de horas en formato 00:00:00 a decimal para la suma
                     var timeParts = estimatedTime.split(':');
