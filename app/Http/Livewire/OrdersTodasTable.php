@@ -49,6 +49,7 @@ class OrdersTodasTable extends Component
                 })
                 ->orWhere('purchase_order.created_at', 'like', '%' . $this->buscar . '%')
                 ->orWhere('purchase_order.id', 'like', '%' . $this->buscar . '%')
+                ->orWhere('budgets.reference', 'like', '%' . $this->buscar . '%')
                 ->orWhere('associated_expenses.reference', 'like', '%' . $this->buscar . '%');
             })
             ->join('associated_expenses', 'purchase_order.id', '=', 'associated_expenses.purchase_order_id')
