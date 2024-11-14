@@ -48,7 +48,8 @@ class OrdersTodasTable extends Component
                         ->orWhere('quantity', 'like', '%' . $this->buscar . '%');
                 })
                 ->orWhere('purchase_order.created_at', 'like', '%' . $this->buscar . '%')
-                ->orWhere('purchase_order.id', 'like', '%' . $this->buscar . '%');
+                ->orWhere('purchase_order.id', 'like', '%' . $this->buscar . '%')
+                ->orWhere('associated_expenses.reference', 'like', '%' . $this->buscar . '%');
             })
             ->join('associated_expenses', 'purchase_order.id', '=', 'associated_expenses.purchase_order_id')
             ->join('budget_concepts', 'purchase_order.budget_concept_id', '=', 'budget_concepts.id') // Join para llegar a los conceptos
@@ -56,7 +57,7 @@ class OrdersTodasTable extends Component
             ->join('admin_user', 'budgets.admin_user_id', '=', 'admin_user.id') // Join para llegar al usuario
             ->join('clients', 'purchase_order.client_id', '=', 'clients.id')
             ->join('suppliers', 'purchase_order.supplier_id', '=', 'suppliers.id')
-            ->select('associated_expenses.*', 'clients.name as clienteNombre','suppliers.name as proveedorNombre', 'admin_user.name as gestorNombre');
+            ->select('associated_expenses.*','purchase_order.id as orden', 'budgets.reference as presupuesto','clients.name as clienteNombre','suppliers.name as proveedorNombre', 'admin_user.name as gestorNombre');
 
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
