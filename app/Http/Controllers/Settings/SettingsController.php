@@ -87,16 +87,15 @@ class SettingsController extends Controller
 
          // Guardar logo
          if ($request->hasFile('logo')) {
-            $oldLogoPath = public_path('assets/images/logo/logo2.png');
+            $oldLogoPath = public_path('assets/images/logo/logo.png');
             if (file_exists($oldLogoPath)) {
                 unlink($oldLogoPath);
             }
             $photo = $request->file('logo');
-            $path = public_path('assets/images/logo/logo2.png');
+            $path = public_path('assets/images/logo/logo.png');
             $manager = new ImageManager(new Driver());
             $image = $manager->read($photo);
             $image->toPng()->save($path);
-            dd($path);
             $data['logo'] = 'assets/images/logo/logo.png';
         }
 

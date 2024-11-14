@@ -42,7 +42,7 @@
                                         <div class="mt-3">
                                             <label>Logo Actual:</label>
                                             <div>
-                                                <img src="{{ asset('storage/' . $configuracion->logo) }}" alt="Logo de la empresa" class="img-fluid" style="max-height: 200px;">
+                                                <img src="{{ asset($configuracion->logo) }}" alt="Logo de la empresa" class="img-fluid" style="max-height: 200px;">
                                             </div>
                                         </div>
                                     @endif
