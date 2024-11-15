@@ -43,7 +43,7 @@
                         @endif
 
                         <h3 class="mb-2 text-left uppercase">Cliente Asociado</h3>
-                        <div class="form-control mb-4">{{$cliente->company}}</div>
+                        <div class="form-control mb-4">{{$cliente->company ?? $cliente->name}}</div>
                         {{-- Nombre --}}
                         <div class="form-group">
                             <label class="text-uppercase" style="font-weight: bold" for="name">Nombre:</label>

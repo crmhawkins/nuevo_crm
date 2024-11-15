@@ -88,7 +88,7 @@
                     @foreach ( $budgets as $budget )
                         <tr class="clickable-row" data-href="{{route('presupuesto.edit', $budget->id)}}">
                             <td>{{$budget->reference}}</td>
-                            <td>{{$budget->cliente->company ??  ($budget->client_id ? 'Cliente borrado' : 'Sin cliente asignado') }}</td>
+                            <td>{{$budget->cliente->company ?? ($budget->cliente->name ?? ($budget->client_id ? 'Cliente borrado' : 'Sin cliente asignado')) }}</td>
                             <td>{{$budget->proyecto->name ?? ($budget->project_id ? 'Campaña borrada' : 'Sin campaña asignada') }}</td>
                             <td>{{$budget->creation_date}}</td>
                             <td>{{$budget->estadoPresupuesto->name ?? ($budget->budget_status_id ? 'Estado borrado' : 'Sin estado asignado') }}</td>

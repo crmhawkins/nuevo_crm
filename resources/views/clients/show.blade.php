@@ -22,10 +22,10 @@
                         @else
                             <img class="rounded-circle img-fuild avatar-table" alt="avatar1" src="{{asset('/storage/avatars/'.$cliente->image)}}" />
                         @endif --}}
-                        <h2 class="ms-2 fs-2">{{$cliente->company}}</h2>
+                        <h2 class="ms-2 fs-2">{{$cliente->company ?? $cliente->name}}</h2>
                         <span class="badge bg-warning h_fit_content ms-2">{{$cliente->gestor->name}}</span>
                     </div>
-                    <p class="text-subtitle text-muted">Información sobre el cliente {{$cliente->company}}.</p>
+                    <p class="text-subtitle text-muted">Información sobre el cliente {{$cliente->company ?? $cliente->name}}.</p>
                 </div>
 
                 <div class="col-12 col-md-6 order-md-2 order-first">
@@ -33,7 +33,7 @@
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
                             <li class="breadcrumb-item"><a href="{{route('clientes.index')}}">Clientes</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">{{$cliente->company}}</li>
+                            <li class="breadcrumb-item active" aria-current="page">{{$cliente->company ?? $cliente->name}}</li>
                         </ol>
                     </nav>
 
@@ -57,7 +57,7 @@
                                             @else
                                                 <img alt="avatar" class="rounded-circle img-fluid" style="width: 150px;" src="{{ asset('/storage/avatars/'.$cliente->image) }}" />
                                             @endif --}}
-                                            <h5 class="my-3">{{$cliente->company}}</h5>
+                                            <h5 class="my-3">{{$cliente->company ?? $cliente->name}}</h5>
                                             <p class="text-muted mb-1">{{$cliente->activity}}</p>
                                             <p class="text-m$clientelist-presupuestos-listuted mb-4">{{$cliente->identifier}}</p>
                                             <div class="d-flex justify-content-center mb-2">
