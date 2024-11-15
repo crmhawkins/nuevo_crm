@@ -39,7 +39,7 @@
                     <tr>
                         <th>
                             <a href="#" wire:click.prevent="sortBy('company')">
-                                EMPRESA
+                                CLIENTE
                                 @if ($sortColumn == 'company')
                                     <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
                                 @endif
