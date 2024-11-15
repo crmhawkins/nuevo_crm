@@ -37,6 +37,14 @@
              <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
+                        <th>
+                            <a href="#" wire:click.prevent="sortBy('company')">
+                                EMPRESA
+                                @if ($sortColumn == 'company')
+                                    <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                @endif
+                            </a>
+                        </th>
                         <th class="px-3">
                             <a href="#" wire:click.prevent="sortBy('name')">
                                 NOMBRE
@@ -70,14 +78,6 @@
                             </a>
                         </th>
                         <th>
-                            <a href="#" wire:click.prevent="sortBy('company')">
-                                EMPRESA
-                                @if ($sortColumn == 'company')
-                                    <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
-                                @endif
-                            </a>
-                        </th>
-                        <th>
                             <a href="#" wire:click.prevent="sortBy('admin_user_id')">
                                 GESTOR
                                 @if ($sortColumn == 'admin_user_id')
@@ -90,12 +90,12 @@
                 </thead>
                 <tbody>
                     @foreach ($clients as $client)
-                        <tr class="clickable-row" data-href="{{route('clientes.edit', $client->id)}}">
-                            <td class="px-3">{{ $client->name }}</td>
+                    <tr class="clickable-row" data-href="{{route('clientes.edit', $client->id)}}">
+                            <td class="px-3">{{ $client->company }}</td>
+                            <td >{{ $client->name }}</td>
                             <td>{{ $client->cif }}</td>
                             <td>{{ $client->identifier }}</td>
                             <td>{{ $client->activity }}</td>
-                            <td>{{ $client->company }}</td>
                             <td>{{ $client->gestor->name ?? 'Gestor Borrado' }}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{ route('clientes.show', $client->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar usuario"></a>
