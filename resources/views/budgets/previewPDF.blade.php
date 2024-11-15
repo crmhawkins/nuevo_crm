@@ -201,7 +201,7 @@
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['total'] }} &nbsp;€</td>
                                 </tr>
                                 @foreach($concept['description'] as $conceptDescriptionRow)
-                                <tr style="page-break-after: avoid;page-break-before: avoid;">
+                                <tr style="page-break-inside: auto;">
                                     <td colspan="6">
                                         <span style="font-size:10px">{{$conceptDescriptionRow}}</span>
                                     </td>
