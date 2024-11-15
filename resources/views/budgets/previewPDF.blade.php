@@ -111,7 +111,7 @@
                     </td>
                     <td align="right" style="width: 60%;padding-right:20px;">
                         <div style="border-style: solid;border-width: 1px;padding-left:15px;text-align:left;padding-bottom:15px;">
-                                <h3>{{ $budget->cliente->company }}</h3>
+                                <h3>{{ $budget->cliente->company ?? $budget->cliente->name }}</h3>
                                 <span style="text-align: left;font-size:12px">{{ $budget->cliente->address }}</span>
                                 <br>
                                 <span style="text-align: left;font-size:12px">{{ $budget->cliente->city }}</span>
@@ -185,8 +185,8 @@
                         </tr>
                         </thead>
                         <tbody>
-                            {{-- <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr> --}}
+                            <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 
 
                             @foreach($budgetConceptsFormated as $concept)
