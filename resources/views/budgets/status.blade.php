@@ -79,7 +79,7 @@
         <div class="drag-container" id="sortable-container">
             @foreach ($clientes as $cliente)
             <div class="drag-column ui-widget-content">
-                <div class="drag-column-header">{{ $cliente->name }}</div>
+                <div class="drag-column-header">{{ $cliente->company ?? $cliente->name }}</div>
                 <div class="drag-column-content">
                     @foreach ($cliente->presupuestos as $presupuesto)
                     <div class="drag-item" data-toggle="modal" data-target="#modalPresupuesto-{{ $presupuesto->id }}">

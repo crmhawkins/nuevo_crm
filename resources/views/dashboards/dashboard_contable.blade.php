@@ -222,7 +222,7 @@
                                                                 <div class="info">
                                                                     <div class="d-flex justify-content-evenly flex-wrap">
                                                                         @if($to_do->project_id)<a class="btn btn-outline-secondary mb-2" href="{{route('campania.edit',$to_do->project_id)}}"> Campaña {{$to_do->proyecto ? $to_do->proyecto->name : 'borrada'}}</a>@endif
-                                                                        @if($to_do->client_id)<a class="btn btn-outline-secondary mb-2" href="{{route('clientes.show',$to_do->client_id)}}"> Cliente {{$to_do->cliente ? $to_do->cliente->name : 'borrado'}}</a>@endif
+                                                                        @if($to_do->client_id)<a class="btn btn-outline-secondary mb-2" href="{{route('clientes.show',$to_do->client_id)}}"> Cliente {{$to_do->cliente ? ($to_do->cliente->company ?? $to_do->cliente->name) : 'borrado'}}</a>@endif
                                                                         @if($to_do->budget_id)<a class="btn btn-outline-secondary mb-2" href="{{route('presupuesto.edit',$to_do->budget_id)}}"> Presupuesto {{$to_do->presupuesto ? $to_do->presupuesto->concept : 'borrado'}}</a>@endif
                                                                         @if($to_do->task_id) <a class="btn btn-outline-secondary mb-2" href="{{route('tarea.edit',$to_do->task_id)}}"> Tarea {{$to_do->tarea ? $to_do->tarea->title : 'borrada'}}</a> @endif
                                                                     </div>
@@ -286,7 +286,7 @@
                                                                 <div class="info">
                                                                     <div class="d-flex justify-content-evenly flex-wrap">
                                                                         @if($to_do_finalizado->project_id)<a class="btn btn-outline-secondary mb-2"> Campaña {{$to_do_finalizado->proyecto ? $to_do_finalizado->proyecto->name : 'borrada'}}</a>@endif
-                                                                        @if($to_do_finalizado->client_id)<a class="btn btn-outline-secondary mb-2"> Cliente {{$to_do_finalizado->cliente ? $to_do_finalizado->cliente->name : 'borrado'}}</a>@endif
+                                                                        @if($to_do_finalizado->client_id)<a class="btn btn-outline-secondary mb-2"> Cliente {{$to_do_finalizado->cliente ? $to_do_finalizado->cliente->company ?? $to_do_finalizado->cliente->name : 'borrado'}}</a>@endif
                                                                         @if($to_do_finalizado->budget_id)<a class="btn btn-outline-secondary mb-2"> Presupuesto {{$to_do_finalizado->presupuesto ? $to_do_finalizado->presupuesto->concept : 'borrado'}}</a>@endif
                                                                         @if($to_do_finalizado->task_id) <a class="btn btn-outline-secondary mb-2"> Tarea {{$to_do_finalizado->tarea ? $to_do_finalizado->tarea->title : 'borrada'}}</a> @endif
                                                                     </div>
@@ -376,7 +376,7 @@
                                     <option value="">Seleccione cliente</option>
                                     @foreach ($clientes as $cliente)
                                         <option value="{{ $cliente->id }}" {{ old('client_id') == $cliente->id ? 'selected' : '' }}>
-                                            {{ $cliente->name }}
+                                            {{ $cliente->company ?? $cliente->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -442,7 +442,7 @@
                                     <option value="">Seleccione cliente</option>
                                     @foreach ($clientes as $cliente)
                                         <option value="{{ $cliente->id }}" {{ old('client_id') == $cliente->id ? 'selected' : '' }}>
-                                            {{ $cliente->name }}
+                                            {{ $cliente->company ?? $cliente->name }}
                                         </option>
                                     @endforeach
                                 </select>

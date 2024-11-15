@@ -59,7 +59,7 @@ class BudgetsUserTable extends Component
         $query = Budget::where('admin_user_id',auth()->user()->id)->
             when($this->buscar, function ($query) {
                 $query->whereHas('cliente', function ($subQuery) {
-                    $subQuery->where('name', 'like', '%' . $this->buscar . '%')
+                    $subQuery->where('company', 'like', '%' . $this->buscar . '%')
                             ->orWhere('email', 'like', '%' . $this->buscar . '%');
                 })
                 ->orWhereHas('proyecto', function ($subQuery) { // Busca en los conceptos de presupuesto

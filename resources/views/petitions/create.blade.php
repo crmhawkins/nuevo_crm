@@ -44,7 +44,7 @@
                                         <select id="cliente" class="w-100 form-select @error('client_id') is-invalid @enderror" name="client_id">
                                             <option value="">Seleccione o escriba un Cliente</option>
                                             @foreach ($clientes as $cliente)
-                                                <option data-email="{{ $cliente->email }}" data-phone="{{ $cliente->phone }}" value="{{ $cliente->id }}">{{ $cliente->name }}</option>
+                                                <option data-email="{{ $cliente->email }}" data-phone="{{ $cliente->phone }}" value="{{ $cliente->id }}">{{ $cliente->company ?? $cliente->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>

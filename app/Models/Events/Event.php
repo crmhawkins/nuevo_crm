@@ -70,7 +70,7 @@ class Event extends Model
 
     // Modificar el atributo 'client_id' para devolver el nombre del cliente en lugar del ID
     if (isset($attributes['client_id']) && $attributes['client_id'] !== null) {
-        $attributes['cliente_name'] = $this->cliente ? $this->cliente->name : 'No disponible';
+        $attributes['cliente_name'] = $this->cliente ? $this->cliente->company ?? $this->cliente->name : 'No disponible';
     }
     if (isset($attributes['budget_id']) && $attributes['budget_id'] !== null) {
         $attributes['presupuesto_ref'] = $this->presupuesto ? $this->presupuesto->reference : 'No disponible';

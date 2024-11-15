@@ -26,7 +26,7 @@
                     <select  wire:ignore  wire:model="selectedCliente" id="clientesChoices" class="form-select choices">
                         <option value="">Clientes</option>
                         @foreach ($clientes as $cliente)
-                            <option value="{{ $cliente->id }}">{{ $cliente->name }}</option>
+                            <option value="{{ $cliente->id }}">{{ $cliente->company ?? $cliente->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -127,7 +127,7 @@
                             <td class="px-3">{{$tarea->title}}</td>
                             <td class="">{{$tarea->prioridad ? $tarea->prioridad : 'Prioridad no asignada'}}</td>
                             <td class="">{{$tarea->estado ? $tarea->estado->name  : 'Estado no asignado'}}</td>
-                            <td class="">{{$tarea->presupuesto->cliente->name ?? 'No definido'}}</td>
+                            <td class="">{{$tarea->presupuesto->cliente->company ?? $tarea->presupuesto->cliente->name ?? 'Cliente Borrado'}}</td>
                             <td class="">{{$tarea->split_master_task_id ? ($tarea->usuario ? ($tarea->departamento ?? 'Usuario sin departamento'  ) : 'Usuario no asignado') : ''}}</td>
                             <td class="">{{$tarea->split_master_task_id ? ($tarea->empleado ?? 'No definido') : 'Tarea Maestra'}}</td>
                             <td class="">{{$tarea->gestor ?? 'No definido'}}</td>

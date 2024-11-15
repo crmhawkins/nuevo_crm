@@ -219,7 +219,7 @@
                                                                 @foreach ( $usuario->tareas as $tarea )
                                                                     <tr class="clickable-row" data-href="{{route('tarea.edit', $tarea->id)}}">
                                                                         <td>{{$tarea->title}}</td>
-                                                                        <td>{{$tarea->presupuesto->cliente->name}}</td>
+                                                                        <td>{{$tarea->presupuesto->cliente->company ?? $tarea->presupuesto->cliente->name ?? 'Cliente Borrado'}}</td>
                                                                         <td>{{$tarea->estimated_time}}</td>
                                                                         <td>{{$tarea->real_time}}</td>
                                                                         <td>{{$tarea->estado->name}}</td>

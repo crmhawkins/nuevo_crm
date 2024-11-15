@@ -65,7 +65,7 @@
                     <tr class="clickable-row" data-href="{{route('passwords.edit', $password->id)}}">
                         <td>{{$password->website}}</td>
                             <td>{{$password->user}}</td>
-                            <td>{{$password->cliente->name ?? ''}}</td>
+                            <td>{{$password->cliente->company ?? $password->cliente->name ?? 'Cliente Borrado'}}</td>
                             <td>
                                 <span class="password" style="display:none">{{ $password->password }}</span>
                                 <a class="showPassword"><i class="ojo fa-solid fa-eye ml-2"></i></a>

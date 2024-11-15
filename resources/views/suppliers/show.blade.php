@@ -253,7 +253,7 @@
                                                             <p class="mb-0">Cliente Asociado:</p>
                                                             </div>
                                                             <div class="col-sm-8">
-                                                            <p class="text-muted mb-0"><a href="{{route('clientes.show',$cliente->cliente->id)}}">{{$cliente->cliente->name}}</a></p>
+                                                            <p class="text-muted mb-0"><a href="{{route('clientes.show',$cliente->cliente->id)}}">{{$cliente->cliente->company ?? $cliente->cliente->name}}</a></p>
                                                             </div>
                                                         </div>
                                                         <hr>

@@ -975,7 +975,7 @@ class CuadroController extends Controller
             if($request->estado==3){
 
                 $factura->paid_amount = $factura->total;
-                $titulo = $factura->reference ." - ".$factura->cliente->name ." - ".$factura->concept;
+                $titulo = $factura->reference ." - ".($factura->cliente->company ?? $factura->cliente->name) ." - ".$factura->concept;
                 $date = Carbon::now()->format('Y-m-d');
                 $factura->paid_date = $request->anio.'-'.$request->mes.'-'.$request->dia;
                 $budget = Budget::where('id', $factura->budget_id)->first();
@@ -1010,7 +1010,7 @@ class CuadroController extends Controller
                 $totalPagado = $factura->paid_amount;
                 $totalPagado += $request->importe;
                 $factura->paid_amount = $totalPagado;
-                $titulo = $factura->reference ." - ".$factura->cliente->name ." - ".$factura->concept;
+                $titulo = $factura->reference ." - ".($factura->cliente->company ?? $factura->cliente->name)." - ".$factura->concept;
 
                 $date = Carbon::now()->format('Y-m-d');
                 $factura->paid_date = $date;

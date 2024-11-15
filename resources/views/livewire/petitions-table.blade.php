@@ -66,7 +66,7 @@
                 <tbody>
                     @foreach ( $petitions as $petition )
                         <tr class="clickable-row" data-href="{{route('peticion.edit', $petition->id)}}">
-                            <td>{{$petition->cliente->name ?? 'Sin cliente asignado'}}</td>
+                            <td>{{$petition->cliente->company ?? $petition->cliente->name ?? 'Cliente Borrado'}}</td>
                             <td>{{$petition->usuario->name}}</td>
                             <td>{{$petition->created_at->format('Y-m-d')}}</td>
                             <td style="max-width: 25rem">{{$petition->note}}</td>

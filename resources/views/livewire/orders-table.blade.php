@@ -54,7 +54,7 @@
                             <td>{{$order->reference}}</td>
                             <td>{{$order->OrdenCompra->Proveedor->name ?? 'Proveedor no definido' }}</td>
                             <td>{{$order->title }}</td>
-                            <td>{{$order->OrdenCompra->cliente->name ?? 'Cliente no definido' }}</td>
+                            <td>{{$order->OrdenCompra->cliente->company ?? $order->OrdenCompra->cliente->name ?? 'Cliente Borrado'}}</td>
                             <td>{{$order->created_at }}</td>
                             <td>{{$order->quantity }}</td>
                             <td>{{$order->gestorNombre }}</td>

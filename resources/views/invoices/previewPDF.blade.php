@@ -101,7 +101,7 @@
                             <p style="font-size:12px">Observaciones: <span style="padding-left:17px;">{{ $invoice->observations }}</span></p>
                         </td>
                         <td align="right" style="width: 50%;padding-right:20px;">
-                                    <h3>{{ $invoice->cliente->name }}</h3>
+                                    <h3>{{ $invoice->cliente->company ?? $invoice->cliente->name }}</h3>
                                     <span style="text-align: left;font-size:12px">{{ $invoice->cliente->address }}</span>
                                     <br>
                                     <span style="text-align: left;font-size:12px">{{ $invoice->cliente->city }}</span>

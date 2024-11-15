@@ -81,6 +81,7 @@
                             'iva_amount' => 'IVA',
                             'total_with_iva' => 'TOTAL',
                             'received_date' => 'F.RECEPCION',
+                            'date' => 'F.PAGO',
                             'bank_id' => 'BANCO',
                             'state' => 'ESTADO',
                             'categoria_id' => 'CATEGORIA',
@@ -110,6 +111,7 @@
                             <td>{{ number_format($gasto->iva_amount, 2) }}€</td>
                             <td>{{ number_format($gasto->total_with_iva, 2) }}€</td>
                             <td>{{ \Carbon\Carbon::parse($gasto->received_date)->format('d/m/Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($gasto->date)->format('d/m/Y') }}</td>
                             <td>{{$gasto->bankAccount->name ?? 'Banco no asociado'}}</td>
                             <td>{{$gasto->state}}</td>
                             <td>{{optional($gasto->categoria)->nombre ?? 'Sin categoria asignada'}}</td>

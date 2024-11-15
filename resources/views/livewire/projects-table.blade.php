@@ -61,7 +61,7 @@
                         <tr class="clickable-row" data-href="{{route('campania.edit', $project->id)}}">
                             <td class="px-3">{{$project->name}}</td>
                             <td>{{$project->description}}</td>
-                            <td>{{$project->cliente->name ?? 'Cliente Borrado'}}</td>
+                            <td>{{$project->cliente->company ?? $project->cliente->name ?? 'Cliente Borrado'}}</td>
                             <td>{{$project->usuario->name ?? 'Usuario Borrado'}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a class="" href="{{route('campania.edit', $project->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar Campaña"></a>

@@ -37,6 +37,7 @@ class ClientsTable extends Component
             ->when($this->buscar, function ($query) {
                 $query->where('name', 'like', '%' . $this->buscar . '%')
                       ->orWhere('email', 'like', '%' . $this->buscar . '%')
+                      ->orWhere('company', 'like', '%' . $this->buscar . '%')
                       ->orWhere('cif', 'like', '%' . $this->buscar . '%')
                       ->orWhere('identifier', 'like', '%' . $this->buscar . '%')
                       ->orWhere('activity', 'like', '%' . $this->buscar . '%');

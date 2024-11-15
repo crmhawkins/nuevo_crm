@@ -59,7 +59,7 @@
                                                         <p class="inv-to">Cliente</p>
                                                     </div>
                                                     <div class="col-xl-8 col-lg-7 col-md-6 col-sm-4">
-                                                        <p class="inv-customer-name">{{$presupuesto->cliente->name}}</p>
+                                                        <p class="inv-customer-name">{{$presupuesto->cliente->company ?? $presupuesto->cliente->name }}</p>
                                                         <p class="inv-street-addr">{{$presupuesto->cliente->address}}</p>
                                                         <p class="inv-email-address">{{$presupuesto->cliente->email}}</p>
                                                         <p class="inv-email-address">{{$presupuesto->cliente->phone}}</p>

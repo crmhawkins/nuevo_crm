@@ -96,7 +96,7 @@
                             <td class="">{{$tarea->title}}</td>
                             <td class="">{{$tarea->presupuestoConcepto->servicioCategoria->name ?? 'No definido' }}</td>
                             <td class="">{{$tarea->presupuestoConcepto->title ?? 'No definido'}}</td>
-                            <td class="">{{$tarea->presupuesto->cliente->name ?? 'No definido'}}</td>
+                            <td class="">{{$tarea->presupuesto->cliente->company ?? $tarea->presupuesto->cliente->name ?? 'Cliente Borrado'}}</td>
                             <td class="">{{$tarea->split_master_task_id ? ($tarea->usuario->name ?? 'No definido') : 'Tarea Maestra'}}</td>
                             <td class="">{{$tarea->gestor ?? 'No definido'}}</td>
                             <td class="">{{Carbon\Carbon::parse($tarea->created_at)->format('d/m/Y')}}</td>

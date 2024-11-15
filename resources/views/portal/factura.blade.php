@@ -54,7 +54,7 @@
                                 <div class="row">
                                     <div class="col">
                                         <p class="inv-to">Cliente</p>
-                                        <p class="inv-customer-name">{{ $invoice->cliente->name }}</p>
+                                        <p class="inv-customer-name">{{ $invoice->cliente->company ?? $invoice->cliente->name ?? 'Cliente Borrado' }}</p>
                                         <p class="inv-street-addr">{{ $invoice->cliente->address }}, {{ $invoice->cliente->city }}, {{ $invoice->cliente->province }} - {{ $invoice->cliente->zipcode }}</p>
                                         <p class="inv-email-address">{{ $invoice->cliente->email }}</p>
                                         <p class="inv-email-address">{{ $invoice->cliente->phone }}</p>

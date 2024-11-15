@@ -94,7 +94,7 @@
                             <td class="">{{$tarea->title}}</td>
                             <td class="">{{$tarea->presupuestoConcepto->servicioCategoria->name ?? 'No definido' }}</td>
                             <td class="">{{$tarea->presupuestoConcepto->title ?? 'No definido'}}</td>
-                            <td class="">{{$tarea->presupuesto->cliente->name ?? 'No definido'}}</td>
+                            <td class="">{{$tarea->presupuesto->cliente->company ?? $tarea->presupuesto->cliente->name ?? 'Cliente Borrado'}}</td>
                             <td class="">{{$tarea->gestor ?? 'No definido'}}</td>
                             <td class="">{{Carbon\Carbon::parse($tarea->created_at)->format('d/m/Y')}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">

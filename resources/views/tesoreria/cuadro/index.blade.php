@@ -154,7 +154,7 @@
                                 <tbody class="cuerpo">
                                 @foreach($globalArrayFactura['Facturas'] as $factura)
                                 <tr>
-                                    <td style="text-align:center;" data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}">{{ $factura->reference }}</td>
+                                    <td style="text-align:center;" data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ?? 'Cliente Borrado '}}">{{ $factura->reference }}</td>
                                     <?php
                                         $dia = Carbon\Carbon::parse($factura->paid_date)->format('d');
                                         $pintada = false;
@@ -164,28 +164,28 @@
                                             @switch($factura->invoice_status_id)
                                                 @case(1)
                                                     @if($i==$dia)
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" data-status="{{$factura->invoice_status_id}}" class="clickActual" style="background-color:#B3E3FF;">{{ number_format($factura->total-$factura->paid_amount, 2, ',', '.') }}</td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" data-status="{{$factura->invoice_status_id}}" class="clickActual" style="background-color:#B3E3FF;">{{ number_format($factura->total-$factura->paid_amount, 2, ',', '.') }}</td>
                                                     @else
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" class="click" style="background-color:#B3E3FF;"></td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" class="click" style="background-color:#B3E3FF;"></td>
                                                     @endif
                                                     @break
                                                 @case(2)
                                                     @if($i==$dia)
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" data-status="{{$factura->invoice_status_id}}" class="clickActual" style="background-color:#E07B7B;">{{ number_format($factura->total-$factura->paid_amount, 2, ',', '.') }}</td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" data-status="{{$factura->invoice_status_id}}" class="clickActual" style="background-color:#E07B7B;">{{ number_format($factura->total-$factura->paid_amount, 2, ',', '.') }}</td>
                                                     @else
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" class="click" style="background-color:#E07B7B;"></td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" class="click" style="background-color:#E07B7B;"></td>
                                                     @endif
                                                     @break
                                                 @case(3)
                                                     @if($i==$dia)
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" class='clickActual' data-status="{{$factura->invoice_status_id}}" style="background-color:#9DFFA5;">{{number_format($factura->total, 2, ',', '.') }}</td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" class='clickActual' data-status="{{$factura->invoice_status_id}}" style="background-color:#9DFFA5;">{{number_format($factura->total, 2, ',', '.') }}</td>
                                                     @else
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" class="click" style="background-color:#9DFFA5;"></td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" class="click" style="background-color:#9DFFA5;"></td>
                                                     @endif
                                                     @break
                                                 @case(4)
                                                     @if($i==$dia)
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" data-status="{{$factura->invoice_status_id}}" class="clickActual" style="background-color:#ffc498;">{{ number_format($factura->total-$factura->paid_amount, 2, ',', '.') }}</td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" data-status="{{$factura->invoice_status_id}}" class="clickActual" style="background-color:#ffc498;">{{ number_format($factura->total-$factura->paid_amount, 2, ',', '.') }}</td>
                                                         <?php $pintada = true; ?>
                                                     @else
                                                         @foreach($globalArrayFactura['PartialStatus'] as $pendiente)
@@ -194,13 +194,13 @@
                                                                     $diaPendiente = Carbon\Carbon::parse($pendiente['date'])->format('d');
                                                                 ?>
                                                                 @if($i==$diaPendiente)
-                                                                    <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" style="background-color:#9DFFA5;">{{ number_format($pendiente['quantity'], 2, ',', '.') }}</td>
+                                                                    <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" style="background-color:#9DFFA5;">{{ number_format($pendiente['quantity'], 2, ',', '.') }}</td>
                                                                     <?php $pintada = true; ?>
                                                                 @endif
                                                             @endif
                                                         @endforeach
                                                         @if($pintada==false)
-                                                            <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" style="background-color:#ffc498;"></td>
+                                                            <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}" style="background-color:#ffc498;"></td>
                                                         @else
                                                             <?php $pintada = false; ?>
                                                         @endif
@@ -212,13 +212,13 @@
                                             @switch($factura->invoice_status_id)
                                                 @case(3)
                                                     @if($i<=$day)
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" class="click" data-value="{{$factura->id}}"> </td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" class="click" data-value="{{$factura->id}}"> </td>
                                                     @else
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}"> </td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$factura->id}}"> </td>
                                                     @endif
                                                 @break
                                                 @default
-                                                <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" class="click" data-value="{{$factura->id}}"> </td>
+                                                <td data-toggle="tooltip" data-placement="top" title="{{$factura->cliente->company ?? $factura->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" class="click" data-value="{{$factura->id}}"> </td>
                                             @endswitch
                                         @endif
                                     @endfor
@@ -242,7 +242,7 @@
                                         @foreach($ingresos as $ingreso)
                                         <tr>
                                             @if($ingreso->getInvoice)
-                                                <td style="text-align:center;" data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name ?? 'Cliente Borrado '}}">{{ $ingreso->title }}</td>
+                                                <td style="text-align:center;" data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->company ?? $ingreso->getInvoice->cliente->name ?? 'Cliente Borrado '}}">{{ $ingreso->title }}</td>
                                                 <?php $dia = Carbon\Carbon::parse($ingreso->date)->format('d'); ?>
                                             @else
                                                 <?php $dia = Carbon\Carbon::parse($ingreso->date)->format('d'); ?>
@@ -252,20 +252,20 @@
                                                 @if($i<=$dia)
                                                     @if($i==$dia)
                                                         @if($ingreso->getInvoice)
-                                                            <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$ingreso->id}}" style="background-color:#76F380;">{{ number_format($ingreso->quantity, 2, ',', '.') }}</td>
+                                                            <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->company ?? $ingreso->getInvoice->cliente->name  ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$ingreso->id}}" style="background-color:#76F380;">{{ number_format($ingreso->quantity, 2, ',', '.') }}</td>
                                                         @else
                                                             <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" data-value="{{$ingreso->id}}" style="background-color:#76F380;">{{ number_format($ingreso->quantity, 2, ',', '.') }}</td>
                                                         @endif
                                                     @else
                                                         @if($ingreso->getInvoice)
-                                                            <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$ingreso->id}}" data-type="ingreso" class="clickIngresos" style="background-color:#76F380;"></td>
+                                                            <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->company ?? $ingreso->getInvoice->cliente->name  ??  'Cliente Borrado '}}" value="{{$i}}" data-value="{{$ingreso->id}}" data-type="ingreso" class="clickIngresos" style="background-color:#76F380;"></td>
                                                         @else
                                                             <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" data-value="{{$ingreso->id}}" data-type="ingreso" class="clickIngresos" style="background-color:#76F380;"></td>
                                                         @endif
                                                     @endif
                                                 @else
                                                     @if($ingreso->getInvoice)
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->name ??  'Cliente Borrado '}}" value="{{$i}}" class="clickIngresos" data-type="ingreso" data-value="{{$ingreso->id}}"> </td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$ingreso->getInvoice->cliente->company ?? $ingreso->getInvoice->cliente->name  ??  'Cliente Borrado '}}" value="{{$i}}" class="clickIngresos" data-type="ingreso" data-value="{{$ingreso->id}}"> </td>
                                                     @else
                                                         <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" class="clickIngresos" data-type="ingreso" data-value="{{$ingreso->id}}"> </td>
                                                     @endif
@@ -335,7 +335,7 @@
 
                                         <tr>
                                             @if($gasto->budget)
-                                                <td data-toggle="tooltip" data-placement="top" title="{{$gasto->budget->cliente->name}}" style="width: 150px;text-align:center;">{{ $gasto->title }}</td>
+                                                <td data-toggle="tooltip" data-placement="top" title="{{$gasto->budget->cliente->company ??  $gasto->budget->cliente->name}}" style="width: 150px;text-align:center;">{{ $gasto->title }}</td>
                                                 <?php $dia = Carbon\Carbon::parse($gasto->date)->format('d'); ?>
                                             @else
                                                 <td data-toggle="tooltip" data-placement="top" title="Sin cliente" style="width: 150px;text-align:center;">{{ $gasto->title }}</td>
@@ -345,20 +345,20 @@
                                                 @if($i<=$dia)
                                                     @if($i==$dia)
                                                         @if($gasto->budget)
-                                                            <td data-toggle="tooltip" data-placement="top" title="{{$gasto->budget->cliente->name}}" value="{{$i}}" data-value="{{$gasto->id}}" style="background-color:#E07B7B;">{{ number_format(($gasto->quantity * (1 + ($gasto->iva/100))), 2, ',', '.') }}</td>
+                                                            <td data-toggle="tooltip" data-placement="top" title="{{$gasto->budget->cliente->company ??  $gasto->budget->cliente->name}}" value="{{$i}}" data-value="{{$gasto->id}}" style="background-color:#E07B7B;">{{ number_format(($gasto->quantity * (1 + ($gasto->iva/100))), 2, ',', '.') }}</td>
                                                         @else
                                                             <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" data-value="{{$gasto->id}}" style="background-color:#E07B7B;">{{ number_format(($gasto->quantity * (1 + ($gasto->iva/100))), 2, ',', '.') }}</td>
                                                         @endif
                                                     @else
                                                         @if($gasto->budget)
-                                                            <td data-toggle="tooltip" data-placement="top" title="{{$gasto->budget->cliente->name}}" value="{{$i}}" data-value="{{$gasto->id}}" data-type="gastoAsociado" class="clickGastosAsociados" style="background-color:#E07B7B;"></td>
+                                                            <td data-toggle="tooltip" data-placement="top" title="{{$gasto->budget->cliente->company ??  $gasto->budget->cliente->name}}" value="{{$i}}" data-value="{{$gasto->id}}" data-type="gastoAsociado" class="clickGastosAsociados" style="background-color:#E07B7B;"></td>
                                                         @else
                                                             <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" data-value="{{$gasto->id}}" data-type="gastoAsociado" class="clickGastosAsociados" style="background-color:#E07B7B;"></td>
                                                         @endif
                                                     @endif
                                                 @else
                                                     @if($gasto->budget)
-                                                        <td data-toggle="tooltip" data-placement="top" title="{{$gasto->budget->cliente->name}}" value="{{$i}}" class="clickGastosAsociados" data-type="gastoAsociado" data-value="{{$gasto->id}}"> </td>
+                                                        <td data-toggle="tooltip" data-placement="top" title="{{$gasto->budget->cliente->company ??  $gasto->budget->cliente->name}}" value="{{$i}}" class="clickGastosAsociados" data-type="gastoAsociado" data-value="{{$gasto->id}}"> </td>
                                                     @else
                                                         <td data-toggle="tooltip" data-placement="top" title="Sin cliente" value="{{$i}}" class="clickGastosAsociados" data-type="gastoAsociado" data-value="{{$gasto->id}}"> </td>
                                                     @endif

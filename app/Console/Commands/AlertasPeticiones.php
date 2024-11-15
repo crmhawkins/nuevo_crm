@@ -42,7 +42,7 @@ class AlertasPeticiones extends Command
                     'status_id' => 1,
                     'activation_datetime' => Carbon::now(),
                     'cont_postpone' => $contPostpone,
-                    'description' => 'Peticion de ' . $petition->cliente->name,
+                    'description' => 'Peticion de ' . $petition->cliente->company  ?? $petition->cliente->name,
                 ]);
             }
         }
