@@ -44,7 +44,7 @@
                                             <select id="cliente" class="choices w-100 form-select @error('client_id') is-invalid @enderror" name="client_id">
                                                 @if ($clientes->count() > 0)
                                                     @foreach ( $clientes as $cliente )
-                                                        <option @if($clienteId != null || $clienteId != null) {{'selected'}} @endif data-id="{{$cliente->id}}" value="{{$cliente->id}}">{{$cliente->name}}</option>
+                                                        <option @if($clienteId != null || $clienteId != null) {{'selected'}} @endif data-id="{{$cliente->id}}" value="{{$cliente->id}}">{{$cliente->company}}</option>
                                                     @endforeach
                                                 @else
                                                     <option value="">No existen clientes todavia</option>

@@ -24,7 +24,7 @@
                     <select wire:key="{{rand()}}" wire:model="selectedCliente" name="selectedCliente" id="selectedCliente" class="form-select choices">
                         <option value=""> Seleccione un cliente </option>
                         @foreach ($clientes as $cliente)
-                            <option value="{{$cliente->id}}">{{$cliente->name}}</option>
+                            <option value="{{$cliente->id}}">{{$cliente->company}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -155,7 +155,7 @@
                         <select data-id="{{$item->id}}" name="cliente_id" id="cliente_id" style="width: 50px !important; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}};margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;">
                             <option value="">SC</option>
                             @foreach ($clientes as $cliente)
-                                <option value="{{$cliente->id}}" @if($item->cliente_id == $cliente->id) selected  @endif>{{$cliente->name}}</option>
+                                <option value="{{$cliente->id}}" @if($item->cliente_id == $cliente->id) selected  @endif>{{$cliente->company}}</option>
                             @endforeach
                         </select>
                     </td>

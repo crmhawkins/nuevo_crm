@@ -22,7 +22,7 @@
                         @else
                             <img class="rounded-circle img-fuild avatar-table" alt="avatar1" src="{{asset('/storage/avatars/'.$cliente->image)}}" />
                         @endif --}}
-                        <h2 class="ms-2 fs-2">{{$cliente->name}}</h2>
+                        <h2 class="ms-2 fs-2">{{$cliente->company}}</h2>
                         <span class="badge bg-warning h_fit_content ms-2">{{$cliente->gestor->name}}</span>
                     </div>
                     <p class="text-subtitle text-muted">Información sobre el cliente {{$cliente->company}}.</p>
@@ -33,7 +33,7 @@
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
                             <li class="breadcrumb-item"><a href="{{route('clientes.index')}}">Clientes</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">{{$cliente->name}}</li>
+                            <li class="breadcrumb-item active" aria-current="page">{{$cliente->company}}</li>
                         </ol>
                     </nav>
 

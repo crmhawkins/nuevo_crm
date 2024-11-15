@@ -98,7 +98,7 @@
               <i class="fa-solid fa-user"></i>
             </span>
             <span class="portal-sidebar__item-label">
-              {{$cliente->name}}
+              {{$cliente->company}}
             </span>
             <span class="portal-sidebar__item-arrow">
               <i class="fa-solid fa-angle-right"></i>

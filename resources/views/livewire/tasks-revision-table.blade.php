@@ -34,7 +34,7 @@
                     <select wire:model="selectedCliente" name="" id="" class="form-select ">
                         <option value="">-- Clientes --</option>
                         @foreach ($clientes as $cliente)
-                            <option value="{{$cliente->id}}">{{$cliente->name}}</option>
+                            <option value="{{$cliente->id}}">{{$cliente->company}}</option>
                         @endforeach
                     </select>
                 </div>

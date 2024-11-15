@@ -163,7 +163,7 @@
                                             @if ($clientes->count() > 0)
                                                 <option value="{{null}}">Seleccione un cliente asociado</option>
                                                 @foreach ( $clientes as $cliente )
-                                                    <option @if(old('client_id') == $cliente->id) {{'selected'}} @endif value="{{$cliente->id}}">{{$cliente->name}}</option>
+                                                    <option @if(old('client_id') == $cliente->id) {{'selected'}} @endif value="{{$cliente->id}}">{{$cliente->company}}</option>
                                                 @endforeach
                                             @else
                                                 <option value="{{null}}">No existen clientes todavia</option>

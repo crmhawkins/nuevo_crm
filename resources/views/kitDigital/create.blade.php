@@ -70,7 +70,7 @@
                                 <select class="form-control choices" id="cliente_id" name="cliente_id" onchange="setClienteName()">
                                     <option value="">Seleccione una opción</option>
                                   @foreach ($clientes as $cliente)
-                                  <option value="{{$cliente->id}}">{{$cliente->name}}</option>
+                                  <option value="{{$cliente->id}}">{{$cliente->company}}</option>
                                   @endforeach
                                 </select>
                                 @if ($errors->has('cliente_id'))

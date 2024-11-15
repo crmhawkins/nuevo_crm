@@ -41,7 +41,7 @@
                                   @if ($clientes->count() > 0)
                                       <option value="{{null}}">--- Seleccione un cliente ---</option>
                                         @foreach ( $clientes as $cliente )
-                                            <option {{old('client_id',$password->client_id) == $cliente->id ? 'selected' : '' }} data-id="{{$cliente->id}}" value="{{$cliente->id}}">{{$cliente->name}}</option>
+                                            <option {{old('client_id',$password->client_id) == $cliente->id ? 'selected' : '' }} data-id="{{$cliente->id}}" value="{{$cliente->id}}">{{$cliente->company}}</option>
                                         @endforeach
                                     @else
                                         <option value="">No existen clientes todavia</option>

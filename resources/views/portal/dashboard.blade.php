@@ -46,7 +46,7 @@
                 <span class="panel-title--emoji">👋</span>
               </div>
               <div class="col">
-                <div class="panel-title">Hola {{$cliente->name}},</div>
+                <div class="panel-title">Hola {{$cliente->company}},</div>
                 <div class="panel-subtitle">Has venido al lugar correcto</div>
               </div>
             </div>
