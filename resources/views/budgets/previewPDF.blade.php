@@ -139,10 +139,10 @@
             </table>
         </div>
         <br/>
-        <!--
+
         <div class="information" style="position: fixed; bottom: -60px; left: 0px; right: 0px; height: 120px;" >
         <div class="information" style="position: absolute; bottom: 0;padding-left:30px;padding-right:30px;margin-top:25px" >
-        -->
+
         <footer class="information pagenum" style="page-break-after: avoid;position: fixed; bottom: -60px;padding-left:30px;padding-right:30px;height: 140px;" >
             <hr style="margin-bottom: 0.1em;border-style:inset;border-width: 0.5px;color:black">
             <table width="100%;margin-bottom:5px">
