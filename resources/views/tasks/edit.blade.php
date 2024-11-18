@@ -267,7 +267,7 @@
                                 title: data.mensaje
                             })
                             .then(() => {
-                                window.location.href = "{{ route('peticion.index') }}";
+                                window.location.href = "{{ route('tareas.index') }}";
                             })
                         }
                     });

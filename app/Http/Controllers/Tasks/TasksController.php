@@ -329,14 +329,14 @@ class TasksController extends Controller
 
         if (!$tarea) {
             return response()->json([
-                'error' => true,
+                'status' => false,
                 'mensaje' => "Error en el servidor, intentelo mas tarde."
             ]);
         }
 
         $tarea->delete();
         return response()->json([
-            'icon' => 'success',
+            'status' => true,
             'mensaje' => 'El tarea borrada correctamente'
         ]);
     }
