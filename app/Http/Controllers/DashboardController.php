@@ -438,11 +438,20 @@ class DashboardController extends Controller
         ->whereDate('start_time', Carbon::today())
         ->get();
 
+        //Alertas de puntualidad
         if(count($todayJornada) == 1 ){
+
             $horaLimiteEntrada = Carbon::createFromTime(9, 30, 0, 'Europe/Madrid');
             $horaLimiteEntradaUTC = $horaLimiteEntrada->setTimezone('UTC');
             $mesActual = Carbon::now()->month;
             $añoActual = Carbon::now()->year;
+            $fechaActual = Carbon::now();
+
+            $tardehoy = Jornada::where('admin_user_id', $user->id)
+            ->whereDate('start_time', $fechaActual->toDateString())
+            ->whereTime('start_time', '>', $horaLimiteEntradaUTC->format('H:i:s'))
+            ->get();
+
 
             $hourlyAverage = Jornada::where('admin_user_id', $user->id)
                 ->whereMonth('start_time', $mesActual)
@@ -450,26 +459,28 @@ class DashboardController extends Controller
                 ->whereRaw("TIME(start_time) > ?", [$horaLimiteEntradaUTC->format('H:i:s')])
                 ->get();
 
-
-
-            if (count($hourlyAverage) > 2) {
-                $data = [
-                    "admin_user_id" =>  1,
-                    "stage_id" => 15,
-                    "description" => $user->name . " ha llegado tarde 3 veces o mas este mes",
-                    "status_id" => 1,
-                    "reference_id" => $user->id,
-                    "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
-                ];
-
-                $alert = Alert::create($data);
-                $alertSaved = $alert->save();
-            }
-
-
             $fechaNow = Carbon::now();
 
-            if(count($hourlyAverage) > 0){
+            if(count($tardehoy) > 0){
+
+                //Si hay mas de 3 veces
+                if (count($hourlyAverage) > 2) {
+                    $alertados = [1,8];
+                    foreach($alertados as $alertar){
+                        $data = [
+                            "admin_user_id" =>  $alertar,
+                            "stage_id" => 23,
+                            "description" => $user->name . " ha llegado tarde 3 veces o mas este mes",
+                            "status_id" => 1,
+                            "reference_id" => $user->id,
+                            "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
+                        ];
+
+                        $alert = Alert::create($data);
+                        $alertSaved = $alert->save();
+                    }
+                }
+
                 switch (count($hourlyAverage)) {
                     case 1:
                         $text = 'Hemos notado que hoy llegaste después de la hora límite de entrada (09:30). Entendemos que a veces pueden surgir imprevistos, pero te recordamos la importancia de respetar el horario para mantener la eficiencia en el equipo.';
@@ -498,6 +509,7 @@ class DashboardController extends Controller
                 $alertSaved = $alert->save();
             }
         }
+
 
         if($jornada){
             return response()->json(['success' => true]);
@@ -777,17 +789,20 @@ class DashboardController extends Controller
                             if(count($todayJornada) > 0){
 
                                 if (count($hourlyAverage) > 2) {
-                                    $data = [
-                                        "admin_user_id" =>  1,
-                                        "stage_id" => 23,
-                                        "description" => $usuario->name . " ha llegado tarde 3 veces o mas este mes",
-                                        "status_id" => 1,
-                                        "reference_id" => $usuario->id,
-                                        "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
-                                    ];
+                                    $alertados = [1,8];
+                                    foreach($alertados as $alertar){
+                                        $data = [
+                                            "admin_user_id" =>  $alertar,
+                                            "stage_id" => 23,
+                                            "description" => $usuario->name . " ha llegado tarde 3 veces o mas este mes",
+                                            "status_id" => 1,
+                                            "reference_id" => $usuario->id,
+                                            "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
+                                        ];
 
-                                    $alert = Alert::create($data);
-                                    $alertSaved = $alert->save();
+                                        $alert = Alert::create($data);
+                                        $alertSaved = $alert->save();
+                                    }
                                 }
 
                                 switch (count($hourlyAverage)) {
