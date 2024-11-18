@@ -42,7 +42,10 @@ class TasksController extends Controller
         $task = Task::find($id);
 
         if(!isset($task)){
-            return view('tasks.index');
+            return redirect()->route('tasks.index')->with('toast',[
+                'icon' => 'success',
+                'mensaje' => 'Tarea no encontrada'
+            ]);
         }
 
         $employees = User::where('inactive', 0)->get();
