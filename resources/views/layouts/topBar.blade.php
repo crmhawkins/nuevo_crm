@@ -1270,11 +1270,11 @@
 
                 case 42:
 
+                    console.log(alertaSeleccionada);
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-
                             switch (alertaSeleccionada['stage']) {
                                 case 1:
                                     window.open( "/petition/edit/" + alertaSeleccionada['referencia'] , '_blank');
