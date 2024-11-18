@@ -382,7 +382,6 @@ public function postpone(Request $request)
             'activation_datetime' => Carbon::now(),
             'status_id' => 1,
             'reference_id' => $alert->reference_id,
-            'cont_postpone' => 0,
             'description' => ($alert->adminUser->name ?? 'Usuario no encontrado') . " ha pospuesto 3 veces la alerta de " . $alert->stage->stage,
         ]);
     }

@@ -130,7 +130,7 @@
                     </div>
                     <div class="card-body">
                         <button id="actualizarTarea" class="btn btn-success btn-block mb-2">Actualizar</button>
-                        <button id="rectificar" class="btn btn-danger btn-block mb-2">Eliminar</button>
+                        <button id="deleteTask" data-id="{{$task->id}}" class="btn btn-danger btn-block mb-2">Eliminar</button>
                     </div>
                 </div>
             </div>
@@ -231,5 +231,65 @@
             $('#numEmployee').val(i);
         });
     });
+
+    $('#deleteTask').on('click', function(e){
+            e.preventDefault();
+            let id = $(this).data('id'); // Usa $(this) para obtener el atributo data-id
+            botonAceptar(id);
+        })
+
+        function botonAceptar(id){
+            // Salta la alerta para confirmar la eliminacion
+            Swal.fire({
+                title: "¿Estas seguro que quieres eliminar esta tarea?",
+                html: "<p>Esta acción es irreversible.</p>", // Corrige aquí
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: "Borrar",
+                cancelButtonText: "Cancelar",
+                // denyButtonText: `No Borrar`
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    // Llamamos a la funcion para borrar el usuario
+                    $.when( getDelete(id) ).then(function( data, textStatus, jqXHR ) {
+                        console.log(data)
+                        if (!data.status) {
+                            // Si recibimos algun error
+                            Toast.fire({
+                                icon: "error",
+                                title: data.mensaje
+                            })
+                        } else {
+                            // Todo a ido bien
+                            Toast.fire({
+                                icon: "success",
+                                title: data.mensaje
+                            })
+                            .then(() => {
+                                window.location.href = "{{ route('peticion.index') }}";
+                            })
+                        }
+                    });
+                }
+            });
+        }
+
+        function getDelete(id) {
+            // Ruta de la peticion
+            const url = '{{route("tarea.delete")}}'
+            // Peticion
+            return $.ajax({
+                type: "POST",
+                url: url,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: {
+                    'id': id,
+                },
+                dataType: "json"
+            });
+        }
 </script>
 @endsection

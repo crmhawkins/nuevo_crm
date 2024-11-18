@@ -315,9 +315,24 @@ class TasksController extends Controller
                 ];
             }
         }
+        return $events;
+    }
 
+    public function destroy(Request $request)
+    {
+        $tarea = Task::find($request->id);
 
-    return $events;
-}
+        if (!$tarea) {
+            return response()->json([
+                'error' => true,
+                'mensaje' => "Error en el servidor, intentelo mas tarde."
+            ]);
+        }
 
+        $tarea->delete();
+        return response()->json([
+            'error' => false,
+            'mensaje' => 'El proveedor fue borrado correctamente'
+        ]);
+    }
 }

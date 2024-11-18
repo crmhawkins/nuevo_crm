@@ -334,6 +334,7 @@ Route::get('/task/show/{id}', [TasksController::class, 'show'])->name('tarea.sho
 Route::post('/task/destroy', [TasksController::class, 'destroy'])->name('tarea.delete');
 Route::get('/task/calendar/{id}', [TasksController::class, 'calendar'])->name('tarea.calendar');
 
+
 // Dominios
 Route::get('/dominios', [DominiosController::class, 'index'])->name('dominios.index');
 Route::get('/dominios/create', [DominiosController::class, 'create'])->name('dominios.create');
