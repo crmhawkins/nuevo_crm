@@ -150,6 +150,7 @@ class HorasController extends Controller
         ->whereDate('created_at','>=', $ini)
         ->whereDate('created_at','<=', $fin)
         ->where('stage_id', 23)
+        ->whereRaw('admin_user_id = reference_id')
         ->get();
 
         $dias = $puntualidad->count();
