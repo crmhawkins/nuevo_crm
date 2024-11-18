@@ -1276,39 +1276,39 @@
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
                             switch (alertaSeleccionada['stage']) {
-                                case 1:
+                                case "1":
                                     window.open( "/petition/edit/" + alertaSeleccionada['referencia'] , '_blank');
                                     break;
 
-                                case 2:
+                                case "2":
                                     window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
                                     break;
 
-                                case 3:
+                                case "3":
                                     window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
                                     break;
 
-                                case 4:
+                                case "4":
                                     window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
                                     break;
 
-                                case 5:
+                                case "5":
                                     window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
                                     break;
 
-                                case 8:
+                                case "8":
                                     window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
                                     break;
 
-                                case 9:
+                                case "9":
                                     window.open( "/treasury", '_blank');
                                     break;
 
-                                case 21:
+                                case "21":
                                     window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
                                     break;
 
-                                case 33:
+                                case "33":
                                     window.open("dominios/edit/" + alertaSeleccionada['referencia'] , '_blank');
                                     break;
                             }
