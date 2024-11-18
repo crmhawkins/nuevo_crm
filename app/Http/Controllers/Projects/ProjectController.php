@@ -150,10 +150,16 @@ class ProjectController extends Controller
         $cliente = Client::find($id);
         $rutaPrevia = app('router')->getRoutes()->match(app('request')->create(url()->previous()))->getName();
 
+        if($rutaPrevia == 'presupuesto.edit') {
         $presupuesto =  session()->get('presupuesto_id') ?? null;
+        }else{
+            session()->forget('presupuesto_id');
+            $presupuesto =  null;
+        }
 
         return view('campania.createFromBudget', compact('cliente', 'presupuesto'));
     }
+
     public function createFromBudgetAndPetition(string $id, string $petitionid)
     {
         $cliente = Client::find($id);
