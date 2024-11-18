@@ -1269,8 +1269,6 @@
                     break;
 
                 case 42:
-
-                    console.log(alertaSeleccionada);
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
