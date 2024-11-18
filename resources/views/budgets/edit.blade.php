@@ -670,7 +670,7 @@
                                 toast.onmouseleave = Swal.resumeTimer;
                             },
                             didClose: () => {
-                                location.reload();
+                                window.location.href = '/tasks';
                             }
                         });
                     } else {
