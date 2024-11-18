@@ -237,7 +237,7 @@
                                         <thead>
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Option number</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
@@ -299,6 +299,7 @@
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
                                             </tr>
@@ -310,6 +311,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->OrdenCompra->cliente->name}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
                                            </tr>
                                            @endforeach
@@ -429,7 +431,7 @@
                                         <thead>
                                             <tr>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Option number</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
@@ -491,6 +493,7 @@
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
                                                 <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
                                             </tr>
@@ -502,6 +505,7 @@
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->OrdenCompra->cliente->name}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
                                            </tr>
                                            @endforeach
