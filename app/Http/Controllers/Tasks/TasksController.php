@@ -40,6 +40,11 @@ class TasksController extends Controller
     public function edit(string $id)
     {
         $task = Task::find($id);
+
+        if(!isset($task)){
+            return view('tasks.index');
+        }
+
         $employees = User::where('inactive', 0)->get();
         $prioritys = Priority::all();
         $status = TaskStatus::all();
@@ -331,8 +336,8 @@ class TasksController extends Controller
 
         $tarea->delete();
         return response()->json([
-            'error' => false,
-            'mensaje' => 'El proveedor fue borrado correctamente'
+            'icon' => 'success',
+            'mensaje' => 'El tarea borrada correctamente'
         ]);
     }
 }
