@@ -715,7 +715,6 @@
                     break;
 
                 case 6:
-                window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
@@ -733,7 +732,6 @@
                     break;
 
                 case 7:
-                window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
                 var id = alertaSeleccionada['id'];
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
@@ -1221,7 +1219,7 @@
                     var status = 2; //Resuelto
                     $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                         if (jqXHR.responseText != 503) {
-                        window.open("dominio-edit/" + alertaSeleccionada['dominio'].id, '_blank');
+                        window.open("dominios/edit/" + alertaSeleccionada['dominio'].id, '_blank');
                         eliminarAlertaDOM(stage_id, index);
                         } else {
                         swal(
@@ -1270,9 +1268,67 @@
                         });
                     break;
 
+                case 42:
+
+                var id = alertaSeleccionada['id'];
+                    var status = 2; //Resuelto
+                    $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                        if (jqXHR.responseText != 503) {
+
+                            switch (alertaSeleccionada['stage']) {
+                                case 1:
+                                    window.open( "/petition/edit/" + alertaSeleccionada['referencia'] , '_blank');
+                                    break;
+
+                                case 2:
+                                    window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
+                                    break;
+
+                                case 3:
+                                    window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
+                                    break;
+
+                                case 4:
+                                    window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
+                                    break;
+
+                                case 5:
+                                    window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
+                                    break;
+
+                                case 8:
+                                    window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
+                                    break;
+
+                                case 9:
+                                    window.open( "/treasury", '_blank');
+                                    break;
+
+                                case 21:
+                                    window.open( "/budget/edit/" + alertaSeleccionada['referencia'] , '_blank');
+                                    break;
+
+                                case 33:
+                                    window.open("dominios/edit/" + alertaSeleccionada['referencia'] , '_blank');
+                                    break;
+                            }
+
+                        eliminarAlertaDOM(stage_id, index);
+                        } else {
+                        swal(
+                            'Error',
+                            'Error al realizar la peticion',
+                            'error'
+                        );
+                        }
+                    });
+                    break;
+
                 default:
                     mostrarTiposDeAlertas();
                     break;
+
+
             }
         }
 

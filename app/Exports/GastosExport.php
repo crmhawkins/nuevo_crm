@@ -21,6 +21,7 @@ class GastosExport implements FromCollection, WithHeadings
     {
         return $this->gastos->map(function($gasto) {
             return [
+                $gasto->id,
                 optional($gasto->bankAccount)->name ?? 'Sin banco asignado',
                 $gasto->title,
                 $gasto->quantity,
@@ -42,6 +43,7 @@ class GastosExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'Id',
             'Banco',
             'Titulo',
             'Cantidad',

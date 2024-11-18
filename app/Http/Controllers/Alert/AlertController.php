@@ -358,6 +358,12 @@ public function getAlerts($alertas)
                             $dominio = Dominio::where('id', $alerta->reference_id)->first();
                             $alertasActivadas[$contador]["dominio"] = $dominio;
                             break;
+
+                        case 42:
+                            $part = explode('-', $alerta->reference_id);
+                            $alertasActivadas[$contador]["stage"] =  $part[0];
+                            $alertasActivadas[$contador]["referencia"] =  $part[1];
+                           break;
                     }
                 }
             }
@@ -381,7 +387,7 @@ public function postpone(Request $request)
             'stage_id' => 42,
             'activation_datetime' => Carbon::now(),
             'status_id' => 1,
-            'reference_id' => $alert->reference_id,
+            'reference_id' =>  $alert->stage_id .'-'. $alert->reference_id,
             'description' => ($alert->adminUser->name ?? 'Usuario no encontrado') . " ha pospuesto 3 veces la alerta de " . $alert->stage->stage,
         ]);
     }
