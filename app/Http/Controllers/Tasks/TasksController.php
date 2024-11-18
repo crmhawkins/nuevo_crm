@@ -42,7 +42,7 @@ class TasksController extends Controller
         $task = Task::find($id);
 
         if(!isset($task)){
-            return redirect()->route('tasks.index')->with('toast',[
+            return redirect()->route('tareas.index')->with('toast',[
                 'icon' => 'success',
                 'mensaje' => 'Tarea no encontrada'
             ]);
