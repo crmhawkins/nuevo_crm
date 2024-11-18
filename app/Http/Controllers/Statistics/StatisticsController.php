@@ -8,6 +8,7 @@ use App\Models\Budgets\Budget;
 use App\Models\Tasks\Task;
 use App\Models\Clients\Client;
 use App\Models\Accounting\AssociatedExpenses;
+use App\Models\Accounting\Gasto;
 use App\Models\PurcharseOrde\PurcharseOrder;
 use App\Models\Services\ServiceCategories;
 use App\Models\Invoices\Invoice;
@@ -35,8 +36,8 @@ class StatisticsController extends Controller
         $departamentosBeneficios = $this->beneficioDepartamentos($mes, $anio);
         $userProductivity = $this->productividadEmpleados($mes, $anio);
         $productivityValues = collect($userProductivity)->pluck('productividad')->toArray();
-        $iva = $this->trimestreIva($mes, $anio);
         $totalBeneficio = $this->calcularTotalBeneficio($anio);
+        $iva = $this->trimestreIva($mes, $anio);
         $anioActual = date("Y");
         $arrayAnios = [];
         for ($a = 2010; $a <= $anioActual; $a++) {
@@ -124,6 +125,7 @@ class StatisticsController extends Controller
     {
         // Aquí recuperas la facturación mensual agrupada por mes
         return Invoice::whereYear('created_at', $anio)
+            ->whereIn('invoice_status_id', [1,3, 4])
             ->select(DB::raw('MONTH(created_at) as mes'), DB::raw('SUM(total) as total'))
             ->groupBy('mes')
             ->orderBy('mes')
@@ -134,14 +136,12 @@ class StatisticsController extends Controller
     public function getExpensesMonthly($anio)
     {
         // Aquí recuperas los gastos mensuales agrupados por mes
-        return DB::table('gastos')
-            ->where(function($query) {
+        return Gasto::where(function($query) {
                 $query->where('transfer_movement', 0)
                     ->orWhereNull('transfer_movement');
             })
-            ->whereYear('date', $anio)
-            ->whereNull('deleted_at')
-            ->select(DB::raw('MONTH(date) as mes'), DB::raw('SUM(quantity) as total'))
+            ->whereYear('received_date', $anio)
+            ->select(DB::raw('MONTH(received_date) as mes'), DB::raw('SUM(quantity) as total'))
             ->groupBy('mes')
             ->orderBy('mes')
             ->pluck('total', 'mes')
@@ -151,8 +151,8 @@ class StatisticsController extends Controller
     public function getAssociatedExpensesMonthly($anio)
     {
         // Aquí recuperas los gastos asociados mensuales agrupados por mes
-        return AssociatedExpenses::whereYear('date', $anio)
-            ->select(DB::raw('MONTH(date) as mes'), DB::raw('SUM(quantity) as total'))
+        return AssociatedExpenses::whereYear('received_date', $anio)
+            ->select(DB::raw('MONTH(received_date) as mes'), DB::raw('SUM(quantity) as total'))
             ->groupBy('mes')
             ->orderBy('mes')
             ->pluck('total', 'mes')
@@ -165,6 +165,7 @@ class StatisticsController extends Controller
         $gastos = $this->getExpensesMonthly($anio);
         $gastosAsociados = $this->getAssociatedExpensesMonthly($anio);
 
+        //dd(array_sum($facturacion) - array_sum($gastos) - array_sum($gastosAsociados));
         return array_map(function ($facturado, $gasto, $gastoAsociado) {
             return $facturado - ($gasto ?? 0) - ($gastoAsociado ?? 0);
         }, $facturacion, $gastos, $gastosAsociados);
@@ -269,8 +270,8 @@ class StatisticsController extends Controller
     public function gastosComunes($mes, $year)
     {
         $gastosComunesMes = DB::table('gastos')
-            ->whereMonth('date', $mes)
-            ->whereYear('date', $year)
+            ->whereMonth('received_date', $mes)
+            ->whereYear('received_date', $year)
             ->whereNull('deleted_at')
             ->where(function($query) {
                 $query->where('transfer_movement', 0)
@@ -287,7 +288,7 @@ class StatisticsController extends Controller
     public function gastosComunesAnual($year)
     {
         $gastosComunesAnual = DB::table('gastos')
-            ->whereYear('date', $year)
+            ->whereYear('received_date', $year)
             ->whereNull('deleted_at')
             ->where(function($query) {
                 $query->where('transfer_movement', 0)
@@ -303,75 +304,91 @@ class StatisticsController extends Controller
 
     public function gastosAsociados($mes, $year)
     {
-        $facturas = Invoice::whereMonth('created_at', $mes)
-            ->whereYear('created_at', $year)
-            ->whereIn('invoice_status_id', [3, 4])
-            ->get();
 
-        $gastosAsociadosTotal = 0;
-        $arrayOrdenesCompra = [];
-
-        $facturas->each(function ($factura) use (&$gastosAsociadosTotal, &$arrayOrdenesCompra) {
-            $budget = Budget::find($factura['budget_id']);
-            if($budget){
-                $cliente = Client::find($budget->client_id)->name;
-
-                $budget->budgetConcepts->each(function ($concept) use ($budget, $factura, $cliente, &$gastosAsociadosTotal, &$arrayOrdenesCompra) {
-                    if ($concept->concept_type_id == 1 && $concept->purchase_price != '') {
-                        $gastosAsociadosTotal += $concept->purchase_price;
-                        $concept->budgetConcep = $budget->budgetConcepts;
-                        $concept->budgetComparar = $budget;
-                        $concept->client = $cliente;
-                        $concept->idinvoices = $factura->id;
-                        $concept->invoice = $factura;
-                        $concept->asociate = AssociatedExpenses::where('budget_id', $budget->id)
-                            ->whereMonth('date', $factura->created_at->format('m'))
-                            ->whereYear('date', $factura->created_at->format('Y'))
-                            ->get();
-                        $arrayOrdenesCompra[] = $concept;
-                    }
-                });
-            }
-        });
+        $gastosAsociados = AssociatedExpenses::whereMonth('received_date', $mes)
+        ->whereYear('received_date', $year)
+        ->get();
 
         return [
-            'array' => $arrayOrdenesCompra,
-            'total' => $gastosAsociadosTotal,
+            'array' => $gastosAsociados,
+            'total' => $gastosAsociados->sum('quantity'),
         ];
+        // $facturas = Invoice::whereMonth('created_at', $mes)
+        //     ->whereYear('created_at', $year)
+        //     ->whereIn('invoice_status_id', [3, 4])
+        //     ->get();
+
+        // $gastosAsociadosTotal = 0;
+        // $arrayOrdenesCompra = [];
+
+        // $facturas->each(function ($factura) use (&$gastosAsociadosTotal, &$arrayOrdenesCompra) {
+        //     $budget = Budget::find($factura['budget_id']);
+        //     if($budget){
+        //         $cliente = Client::find($budget->client_id)->name;
+
+        //         $budget->budgetConcepts->each(function ($concept) use ($budget, $factura, $cliente, &$gastosAsociadosTotal, &$arrayOrdenesCompra) {
+        //             if ($concept->concept_type_id == 1 && $concept->purchase_price != '') {
+        //                 $gastosAsociadosTotal += $concept->purchase_price;
+        //                 $concept->budgetConcep = $budget->budgetConcepts;
+        //                 $concept->budgetComparar = $budget;
+        //                 $concept->client = $cliente;
+        //                 $concept->idinvoices = $factura->id;
+        //                 $concept->invoice = $factura;
+        //                 $concept->asociate = AssociatedExpenses::where('budget_id', $budget->id)
+        //                     ->whereMonth('received_date', $factura->created_at->format('m'))
+        //                     ->whereYear('received_date', $factura->created_at->format('Y'))
+        //                     ->get();
+        //                 $arrayOrdenesCompra[] = $concept;
+        //             }
+        //         });
+        //     }
+        // });
+        // return [
+        //     'array' => $arrayOrdenesCompra,
+        //     'total' => $gastosAsociadosTotal,
+        // ];
     }
 
     public function gastosAsociadosAnual($year)
     {
-        $facturas = Invoice::whereYear('created_at', $year)
-            ->whereIn('invoice_status_id', [3, 4])
-            ->get();
 
-        $gastosAsociadosTotal = 0;
-        $arrayOrdenesCompra = [];
-
-        $facturas->each(function ($factura) use (&$gastosAsociadosTotal, &$arrayOrdenesCompra) {
-            $budget = Budget::find($factura['budget_id']);
-            if($budget){
-                $cliente = Client::find($budget->client_id)->name;
-
-                $budget->budgetConcepts->each(function ($concept) use ($budget, $factura, $cliente, &$gastosAsociadosTotal, &$arrayOrdenesCompra) {
-                    if ($concept->concept_type_id == 1 && $concept->purchase_price != '') {
-                        $gastosAsociadosTotal += $concept->purchase_price;
-                        $concept->budgetConcep = $budget->budgetConcepts;
-                        $concept->budgetComparar = $budget;
-                        $concept->client = $cliente;
-                        $concept->idinvoices = $factura->id;
-                        $concept->invoice = $factura;
-                        $arrayOrdenesCompra[] = $concept;
-                    }
-                });
-            }
-        });
+        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $year)->get();
 
         return [
-            'array' => $arrayOrdenesCompra,
-            'total' => $gastosAsociadosTotal,
+            'array' => $gastosAsociados,
+            'total' => $gastosAsociados->sum('quantity'),
         ];
+
+        // $facturas = Invoice::whereYear('created_at', $year)
+        //     ->whereIn('invoice_status_id', [3, 4])
+        //     ->get();
+
+        // $gastosAsociadosTotal = 0;
+        // $arrayOrdenesCompra = [];
+
+        // $facturas->each(function ($factura) use (&$gastosAsociadosTotal, &$arrayOrdenesCompra) {
+        //     $budget = Budget::find($factura['budget_id']);
+        //     if($budget){
+        //         $cliente = Client::find($budget->client_id)->name;
+
+        //         $budget->budgetConcepts->each(function ($concept) use ($budget, $factura, $cliente, &$gastosAsociadosTotal, &$arrayOrdenesCompra) {
+        //             if ($concept->concept_type_id == 1 && $concept->purchase_price != '') {
+        //                 $gastosAsociadosTotal += $concept->purchase_price;
+        //                 $concept->budgetConcep = $budget->budgetConcepts;
+        //                 $concept->budgetComparar = $budget;
+        //                 $concept->client = $cliente;
+        //                 $concept->idinvoices = $factura->id;
+        //                 $concept->invoice = $factura;
+        //                 $arrayOrdenesCompra[] = $concept;
+        //             }
+        //         });
+        //     }
+        // });
+        // return [
+        //     'array' => $arrayOrdenesCompra,
+        //     'total' => $gastosAsociadosTotal,
+        // ];
+
     }
 
     public function orderPago()
