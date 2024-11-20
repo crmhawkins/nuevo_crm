@@ -53,12 +53,12 @@
                     @foreach ( $orders as $order )
                         <tr class="clickable-row" data-href="{{ route('gasto-asociado.edit', $order->id) }}">
                             <td>{{$order->orden}}</td>
-                            <td>{{$order->reference}}</td>
+                            <td style="width: 150px" >{{$order->reference}}</td>
                             <td>{{$order->OrdenCompra->Proveedor->name ?? 'Proveedor no definido' }}</td>
                             <td>{{$order->title }}</td>
                             <td>{{$order->OrdenCompra->cliente->company ?? $order->OrdenCompra->cliente->name ?? 'Cliente Borrado'}}</td>
                             <td>{{$order->created_at }}</td>
-                            <td>{{$order->quantity }}</td>
+                            <td>{{number_format($order->quantity, 2, '.', ',') }} €</td>
                             <td>{{$order->gestorNombre }}</td>
                             <td>{{$order->state }}</td>
                             <td style="text-align: center;">@if($order->aceptado_gestor == 1) SI @else NO @endif</td>
