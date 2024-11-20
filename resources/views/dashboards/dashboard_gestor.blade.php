@@ -197,9 +197,11 @@
                                         <div class="card2 mt-4">
                                             <div class="card-body2">
                                                 <div id="to-do-container" class="d-flex row"  style="" >
-                                                    <button class="btn btn-outline-secondary mt-4 mx-3" onclick="showTodoModal()">
-                                                        <i class="fa-solid fa-plus"></i>
-                                                    </button>
+                                                        <div class="col-12 d-flex align-items-center pb-0">
+                                                            <button class="btn btn-outline-secondary w-100" onclick="showTodoModal()">
+                                                                <i class="fa-solid fa-plus"></i>
+                                                            </button>
+                                                        </div>
                                                     <div id="to-do" class="p-3">
                                                         @foreach ($to_dos as $to_do)
                                                             <div class="card mt-2" id="todo-card-{{$to_do->id}}">
