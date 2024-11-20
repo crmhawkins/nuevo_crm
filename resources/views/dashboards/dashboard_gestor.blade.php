@@ -197,7 +197,7 @@
                                         <div class="card2 mt-4">
                                             <div class="card-body2">
                                                 <div id="to-do-container" class="d-flex row"  style="" >
-                                                        <div class="col-12 d-flex align-items-center mt-2 pb-0">                                                            <button class="btn btn-outline-secondary w-100" onclick="showTodoModal()">
+                                                        <div class="col-12 d-flex align-items-center mt-2 pb-0" style="max-height: 50px;">                                                            <button class="btn btn-outline-secondary w-100" onclick="showTodoModal()">
                                                                 <i class="fa-solid fa-plus"></i>
                                                             </button>
                                                         </div>
