@@ -67,7 +67,9 @@
                                     <img src="{{asset('assets/icons/check.svg')}}" alt="Editar dominio" class="me-2">
                                 </a>
 
-                                <a class="m-2" href="{{route('gasto-asociado.edit', $order->id)}}" target="_blank"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
+                                <a class="m-2 btn btn-outline-secondary d-flex align-items-center" href="{{route('gasto-asociado.edit', $order->id)}}" target="_blank">
+                                    <img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"  class="me-2">
+                                </a>
                             </td>
                         </tr>
                     @endforeach
