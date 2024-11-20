@@ -85,13 +85,14 @@
 
     @include('partials.toast')
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
-    <script src="{{ asset('vendor/livewire/livewire.js') }}"></script>
 
     <script>
-        Livewire.on('toast', data => {
-            Toast.fire({
-                icon: data.icon,
-                title: data.mensaje
+        document.addEventListener('DOMContentLoaded', function() {
+            Livewire.on('toast', data => {
+                Toast.fire({
+                    icon: data.icon,
+                    title: data.mensaje
+                });
             });
         });
         $(document).ready(() => {
