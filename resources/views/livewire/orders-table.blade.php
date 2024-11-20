@@ -85,6 +85,7 @@
 
     @include('partials.toast')
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
+    <script src="{{ asset('vendor/livewire/livewire.js') }}"></script>
 
     <script>
         Livewire.on('toast', data => {
