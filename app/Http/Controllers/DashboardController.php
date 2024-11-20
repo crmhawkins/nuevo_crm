@@ -65,15 +65,15 @@ class DashboardController extends Controller
                     return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');
                 }
                 // Buscar los ingresos en el rango de fechas
-                $ingresos = Invoice::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
+                $ingresos = Invoice::whereBetween('created_at', [$fechaInicio, $fechaFin])->whereIn('invoice_status_id', [1,3, 4])->get();
                 // Buscar los gastos en el rango de fechas
-                $gastos = Gasto::whereBetween('created_at', [$fechaInicio, $fechaFin])->where(function($query) {
+                $gastos = Gasto::whereBetween('received_date', [$fechaInicio, $fechaFin])->where(function($query) {
                     $query->where('transfer_movement', 0)
                         ->orWhereNull('transfer_movement');
                 })->get();
 
                 // Buscar los gastos asociados en el rango de fechas
-                $gastosAsociados = AssociatedExpenses::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
+                $gastosAsociados = AssociatedExpenses::whereBetween('received_date', [$fechaInicio, $fechaFin])->get();
 
                 // Calcular la cantidad de cada tipo
                 $ingresosCount = $ingresos->count();
