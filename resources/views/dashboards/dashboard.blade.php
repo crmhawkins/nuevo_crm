@@ -177,15 +177,16 @@
                         <div class="card mb-3">
                             <div class="card-body">
                                 <div class="d-flex flex-wrap">
-                                    <div class="col-12 d-flex justify-content-center mb-4 align-items-center">
+                                    <div class="col-12 d-flex flex-wrap justify-content-center mb-4 align-items-center">
                                         <div class="mx-4 text-center">
                                             <h5 class="my-3">{{$user->name}}&nbsp;{{$user->surname}}</h5>
                                             <p class="text-muted mb-1">{{$user->departamento->name}}</p>
                                             <p class="text-muted mb-4">{{$user->acceso->name}}</p>
-                                            <div class="d-flex  align-items-center my-2">
+                                           {{-- <div class="d-flex  align-items-center my-2">
                                                 <input type="color" class="form-control form-control-color" style="padding: 0.4rem" id="color">
                                                 <label for="color" class="form-label m-2">Color</label>
-                                            </div>
+                                            </div> --}}
+
                                         </div>
                                         <div class="mx-4">
                                             @if ($user->image == null)
@@ -234,7 +235,7 @@
                                         aria-labelledby="list-todo-list">
                                         <div class="card2 mt-4">
                                             <div class="card-body2">
-                                                <div id="to-do-container" class="d-flex flex-column"  style="" >
+                                                <div id="to-do-container" class="d-flex row"  style="" >
                                                     <button class="btn btn-outline-secondary mt-4 mx-3" onclick="showTodoModal()">
                                                         <i class="fa-solid fa-plus"></i>
                                                     </button>
