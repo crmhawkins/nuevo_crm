@@ -27,6 +27,7 @@
                 <thead class="header-table">
                     <tr>
                         @foreach ([
+                            'orden' => 'ORDEN',
                             'reference' => 'PRESUPUESTO',
                             'proveedorNombre' => 'PROVEEDOR',
                             'title' => 'CONCEPTO',
@@ -51,6 +52,7 @@
                 <tbody>
                     @foreach ( $orders as $order )
                         <tr class="clickable-row" data-href="{{ route('gasto-asociado.edit', $order->id) }}">
+                            <td>{{$order->orden}}</td>
                             <td>{{$order->reference}}</td>
                             <td>{{$order->OrdenCompra->Proveedor->name ?? 'Proveedor no definido' }}</td>
                             <td>{{$order->title }}</td>
