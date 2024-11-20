@@ -94,6 +94,9 @@
             });
         });
         $(document).ready(() => {
+            $("#sidebar").remove();
+            $("#main").css("margin-left", "0px");
+
             $('.delete').on('click', function(e) {
                 e.preventDefault();
                 let id = $(this).data('id'); // Usa $(this) para obtener el atributo data-id
