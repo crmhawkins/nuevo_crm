@@ -63,9 +63,10 @@
                             <td>{{$order->state }}</td>
                             <td style="text-align: center;">@if($order->aceptado_gestor == 1) SI @else NO @endif</td>
                             <td class="d-flex flex-row justify-evenly align-middle">
-                                <a class="m-2" style="display: inline-flex; align-items: center; padding: 10px 15px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; text-decoration: none; cursor: pointer;" wire:click.prevent='postStatusChange({{ $order->id }})'>
-                                    <img src="{{asset('assets/icons/check.svg')}}" alt="Editar dominio">
+                                <a class="m-2 btn btn-outline-primary d-flex align-items-center" wire:click.prevent='postStatusChange({{ $order->id }})'>
+                                    <img src="{{asset('assets/icons/check.svg')}}" alt="Editar dominio" class="me-2">
                                 </a>
+
                                 <a class="m-2" href="{{route('gasto-asociado.edit', $order->id)}}" target="_blank"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
                             </td>
                         </tr>
