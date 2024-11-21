@@ -1,6 +1,6 @@
 <nav id="topbar" class="navbar">
     <header class="top-burguer">
-        <a href="#" class="burger-btn d-block">
+        <a href="#" class="burger-btn d-block d-lg-none">
             <i class="bi bi-list"></i>
         </a>
     </header>

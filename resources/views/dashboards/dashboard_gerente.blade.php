@@ -35,7 +35,7 @@
                     <div class="side-column">
                         <div class="mb-3 card-body">
                             <h5 class="card-title fw-bold">Presupuestos</h5>
-                            <div class="row row-cols-1 row-cols-3 g-4 mb-3 ">
+                            <div class="row row-cols-1 row-cols-xl-3 g-xl-4 g-3 mb-3">
                                 <div class="col">
                                     <div class="card h-100">
                                         <div class="card-body p-3">
@@ -65,7 +65,7 @@
                             <a href="{{route('presupuestos.indexUser')}}" class="btn btn-outline-secondary mb-2">Ver mis Presupuestos</a>
                             <a href="{{route('presupuestos.index')}}" class="btn btn-outline-secondary mb-2">Ver todos los Presupuestos</a>
                         </div>
-                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                        <div class="row row-cols-1 row-cols-xl-2 g-xl-4 g-1">
                             <div class="col">
                                 <div class="card2">
                                     <div class="mb-3 card-body">
@@ -104,7 +104,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                        <div class="row row-cols-1 row-cols-xl-2 g-xl-4 g-1">
                             <div class="col">
                                 <div class="card2">
                                     <div class="mb-3 card-body">
