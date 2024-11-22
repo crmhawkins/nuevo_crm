@@ -1,6 +1,7 @@
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
 @endsection
+<div>
     <div class="filtros row mb-4">
         <div class="col-md-6 col-sm-12">
             <div class="flex flex-row justify-start">
@@ -48,8 +49,7 @@
             <h3 class="text-center fs-3">No se encontraron registros de <strong>Vacaciones</strong></h3>
         </div>
     @endif
-
-</section>
+</div>
 
 @section('scripts')
     @include('partials.toast')
