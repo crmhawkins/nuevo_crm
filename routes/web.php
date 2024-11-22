@@ -549,9 +549,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/incidencias', [IncidenceController::class, 'index'])->name('incidencias.index');
     Route::get('/incidencias/create', [IncidenceController::class, 'create'])->name('incidencias.create');
     Route::get('/incidencias/edit/{id}', [IncidenceController::class, 'edit'])->name('incidencias.edit');
-    Route::post('/incidencias/store', [IncidenceController::class, 'storeAssociatedExpenses'])->name('incidencias.store');
-    Route::post('/incidencias/update/{id}', [IncidenceController::class, 'updateAssociatedExpenses'])->name('incidencias.update');
-    Route::post('/incidencias/destroy', [IncidenceController::class, 'destroyAssociatedExpenses'])->name('incidencias.delete');
+    Route::post('/incidencias/store', [IncidenceController::class, 'store'])->name('incidencias.store');
+    Route::post('/incidencias/update/{id}', [IncidenceController::class, 'update'])->name('incidencias.update');
+    Route::post('/incidencias/destroy', [IncidenceController::class, 'destroy'])->name('incidencias.delete');
 
     // web.php
     Route::post('/save-theme-preference', [UserController::class, 'saveThemePreference'])->name('saveThemePreference');
