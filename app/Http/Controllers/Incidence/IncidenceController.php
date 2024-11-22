@@ -25,7 +25,7 @@ class IncidenceController extends Controller
         $clientes = Client::all();
         $presupuestos = Budget::all();
         $suppliers = Supplier::all();
-        $users = User::all();
+        $users = User::where('inactive', 0)->get();
         $estados = IncidenceStatus::all();
 
         return view('incidences.create', compact('clientes', 'presupuestos', 'suppliers', 'users', 'estados'));
@@ -37,19 +37,19 @@ class IncidenceController extends Controller
         $this->validate($request, [
             'titulo' => 'required|max:255',
             'descripcion' => 'required',
-            'client_id' => 'required|exists:clients,id',
+            'client_id' => 'nullable|exists:clients,id',
             'budget_id' => 'nullable|exists:budgets,id',
             'supplier_id' => 'nullable|exists:suppliers,id',
-            'gestor_id' => 'required|exists:users,id',
-            'admin_user_id' => 'required|exists:users,id',
-            'status_id' => 'required|exists:incidence_statuses,id',
+            'gestor_id' => 'nullable',
+            'admin_user_id' => 'nullable',
+            'status' => 'nullable|exists:incidences_status,id',
         ], [
             'titulo.required' => 'El título es requerido para continuar',
             'descripcion.required' => 'La descripción es requerida para continuar',
             'client_id.required' => 'El cliente es requerido para continuar',
             'gestor_id.required' => 'El gestor es requerido para continuar',
             'admin_user_id.required' => 'El usuario administrador es requerido para continuar',
-            'status_id.required' => 'El estado es requerido para continuar',
+            'status.required' => 'El estado es requerido para continuar',
         ]);
 
         $data = $request->all();
@@ -60,7 +60,7 @@ class IncidenceController extends Controller
             'mensaje' => 'La incidencia se creó correctamente'
         ]);
 
-        return redirect()->route('incidences.index');
+        return redirect()->route('incidencias.index');
     }
 
     public function edit($id)
@@ -69,7 +69,7 @@ class IncidenceController extends Controller
         $clientes = Client::all();
         $presupuestos = Budget::all();
         $suppliers = Supplier::all();
-        $users = User::all();
+        $users = User::where('inactive', 0)->get();
         $estados = IncidenceStatus::all();
 
         return view('incidences.edit', compact('incidencia', 'clientes', 'presupuestos', 'suppliers', 'users', 'estados'));
@@ -83,19 +83,19 @@ class IncidenceController extends Controller
         $this->validate($request, [
             'titulo' => 'required|max:255',
             'descripcion' => 'required',
-            'client_id' => 'required|exists:clients,id',
+            'client_id' => 'nullable|exists:clients,id',
             'budget_id' => 'nullable|exists:budgets,id',
             'supplier_id' => 'nullable|exists:suppliers,id',
-            'gestor_id' => 'required|exists:users,id',
-            'admin_user_id' => 'required|exists:users,id',
-            'status_id' => 'required|exists:incidence_statuses,id',
+            'gestor_id' => 'nullable',
+            'admin_user_id' => 'nullable',
+            'status' => 'nullable|exists:incidence_statuses,id',
         ], [
             'titulo.required' => 'El título es requerido para continuar',
             'descripcion.required' => 'La descripción es requerida para continuar',
             'client_id.required' => 'El cliente es requerido para continuar',
             'gestor_id.required' => 'El gestor es requerido para continuar',
             'admin_user_id.required' => 'El usuario administrador es requerido para continuar',
-            'status_id.required' => 'El estado es requerido para continuar',
+            'status.required' => 'El estado es requerido para continuar',
         ]);
 
         $data = $request->all();
@@ -106,7 +106,7 @@ class IncidenceController extends Controller
             'mensaje' => 'La incidencia se actualizó correctamente'
         ]);
 
-        return redirect()->route('incidences.index');
+        return redirect()->route('incidencias.index');
     }
 
     public function destroy(Request $request)
@@ -115,14 +115,14 @@ class IncidenceController extends Controller
 
         if (!$incidencia) {
             return response()->json([
-                'error' => true,
+                'status' => true,
                 'mensaje' => "Error en el servidor, intentelo más tarde."
             ]);
         }
 
         $incidencia->delete();
         return response()->json([
-            'error' => false,
+            'status' => false,
             'mensaje' => 'La incidencia fue borrada correctamente'
         ]);
     }

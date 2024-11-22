@@ -57,9 +57,9 @@
         @enderror
     </div>
 
-    <div class="form-floating mb-4">
-        <textarea type="text" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion">{{old('descripcion', isset($incidencia) ? $incidencia->descripcion: '') }}</textarea>
+    <div class="form-group mb-4">
         <label class="mb-2 text-left uppercase" style="font-weight: bold" for="descripcion">Descripción</label>
+        <textarea type="text" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion">{{old('descripcion', isset($incidencia) ? $incidencia->descripcion: '') }}</textarea>
         @error('descripcion')
             <span class="invalid-feedback" role="alert">
                 <strong>{{ $message }}</strong>
@@ -131,12 +131,12 @@
     </div>
 
     <div class="form-group mb-4">
-        <label class="mb-2 text-left uppercase" style="font-weight: bold" for="status_id">Estado</label>
-        <select class="choices w-100 form-select @error('status_id') is-invalid @enderror" name="status_id">
+        <label class="mb-2 text-left uppercase" style="font-weight: bold" for="status">Estado</label>
+        <select class="choices w-100 form-select @error('status') is-invalid @enderror" name="status">
             @if ($estados->count() > 0)
                 <option value="{{null}}">--- Seleccione un estado ---</option>
                 @foreach ($estados as $estado)
-                    <option value="{{ $estado->id }}" {{ (isset($incidencia) && $incidencia->status_id == $estado->id) ? 'selected' : '' }}>
+                    <option value="{{ $estado->id }}" {{ (isset($incidencia) && $incidencia->status == $estado->id) ? 'selected' : '' }}>
                         {{ $estado->name }}
                     </option>
                 @endforeach
@@ -144,7 +144,7 @@
                 <option value="">No existen estados todavía</option>
             @endif
         </select>
-        @error('status_id')
+        @error('status')
             <span class="invalid-feedback" role="alert">
                 <strong>{{ $message }}</strong>
             </span>

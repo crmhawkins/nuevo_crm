@@ -78,7 +78,6 @@
                             <td>{{ $incidencia->adminUser ? $incidencia->adminUser->name . ' ' . $incidencia->adminUser->surname : 'Usuario no encontrado' }}</td>
                             <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d/m/Y') }}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
-                                <a href="{{ route('incidencias.show', $incidencia->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar incidencia"></a>
                                 <a href="{{ route('incidencias.edit', $incidencia->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Editar incidencia"></a>
                                 <a class="delete" data-id="{{ $incidencia->id }}" href="#"><img src="{{ asset('assets/icons/trash.svg') }}" alt="Eliminar incidencia"></a>
                             </td>
@@ -125,6 +124,8 @@
                             Toast.fire({
                                 icon: "error",
                                 title: data.mensaje
+                            }).then(() => {
+                                location.reload();
                             });
                         } else {
                             Toast.fire({
