@@ -480,6 +480,14 @@
                             <span>Vacaciones</span>
                         </a>
                         <ul class="submenu" style="{{ $vacacionesActive ? 'display:block;' : 'display:none;' }}">
+                            <li class="submenu-item {{ request()->routeIs('holiday.admin.index') ? 'active' : '' }}">
+                                <a href="{{route('holiday.admin.index')}}">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>
+                                        Ver Todos
+                                    </span>
+                                </a>
+                            </li>
                             <li class="submenu-item {{ request()->routeIs('holiday.admin.petitions') ? 'active' : '' }}">
                                 <a href="{{route('holiday.admin.petitions')}}">
                                     <i class="fa-solid fa-list"></i>

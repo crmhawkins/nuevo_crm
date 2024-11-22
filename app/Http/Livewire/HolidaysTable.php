@@ -67,12 +67,14 @@ class HolidaysTable extends Component
     protected function actualizargastos()
     {
         // Comprueba si se ha seleccionado "Todos" para la paginación
-        $query = Holidays::when($this->buscar, function ($query) {
-                    $query->whereHas('adminUser', function ($query) {
-                        $query->where('name', 'like', '%' . $this->buscar . '%')
-                        ->where('inactive', 0);
-                    });
-                }); // Obtiene todos los registros sin paginación
+        $query = Holidays::whereHas('adminUser', function ($query) {
+            $query->where('inactive', 0); // Filtra usuarios que no están inactivos
+        })
+        ->when($this->buscar, function ($query) {
+            $query->whereHas('adminUser', function ($query) {
+                $query->where('name', 'like', '%' . $this->buscar . '%');
+            });
+        }); // Obtiene todos los registros sin paginación
 
          // Aplica la ordenación
          $query->orderBy($this->sortColumn, $this->sortDirection);

@@ -262,10 +262,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::middleware(['access.level:3'])->group(function () {
 
         //Holidays(Vacaciones Admin)
-        Route::get('/holidays/index', [AdminHolidaysController::class, 'index'])->name('holiday.admin.index');
-        Route::get('/holidays/admin-create', [AdminHolidaysController::class, 'create'])->name('holiday.admin.create');
-        Route::get('/holidays/store', [AdminHolidaysController::class, 'store'])->name('holiday.admin.store');
-        Route::get('/holidays/destroy', [AdminHolidaysController::class, 'destroy'])->name('holiday.admin.destroy');
+        Route::get('/holiday/index', [AdminHolidaysController::class, 'index'])->name('holiday.admin.index');
+        Route::get('/holiday/admin-create', [AdminHolidaysController::class, 'create'])->name('holiday.admin.create');
+        Route::get('/holiday/store', [AdminHolidaysController::class, 'store'])->name('holiday.admin.store');
+        Route::get('/holiday/destroy', [AdminHolidaysController::class, 'destroy'])->name('holiday.admin.destroy');
         Route::get('/holidays/admin-edit/{id}', [AdminHolidaysController::class, 'edit'])->name('holiday.admin.edit');
         Route::post('/holidays/admin-update', [AdminHolidaysController::class, 'update'])->name('holiday.admin.update');
         Route::get('/holidays/petitions', [AdminHolidaysController::class, 'usersPetitions'])->name('holiday.admin.petitions');

@@ -26,13 +26,7 @@ class AdminHolidaysController extends Controller
     public function index()
     {
 
-        $userId = Auth::id();
-        $usuario = User::find($userId);
-
-        //$holidays = DB::table('holidays')->get();
-        $holidays = Holidays::orderBy('admin_user_id', 'asc')->get();
-
-        return view('admin.admin_holidays.index', compact('holidays','usuario'));
+        return view('holidays.indexAdmin');
     }
 
      /**
