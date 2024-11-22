@@ -43,6 +43,7 @@
                     $EmailConfig = request()->routeIs('admin.categoriaEmail.*') || request()->routeIs('admin.statusMail.*');
                     $BajaActive = request()->routeIs('bajas.*');
                     $StadisticsActive = request()->routeIs('estadistica.*');
+                    $IncidenciasActive = request()->routeIs('incidencias.*');
                     $admin = (Auth::user()->access_level_id == 1);
                     $gerente = (Auth::user()->access_level_id == 2);
                     $contable = (Auth::user()->access_level_id == 3);
@@ -252,6 +253,30 @@
                         </li>
                         <li class="submenu-item {{ request()->routeIs('reunion.create') ? 'active' : '' }}">
                             <a href="{{route('reunion.create')}}">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>
+                                    Crear nuevo
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item has-sub {{ $IncidenciasActive ? 'active' : '' }}">
+                    <a href="#" class='sidebar-link'>
+                        <i class="fa-solid fa-address-book fs-5"></i>
+                        <span>Incidencias</span>
+                    </a>
+                    <ul class="submenu" style="{{ $IncidenciasActive ? 'display:block;' : 'display:none;' }}">
+                        <li class="submenu-item {{ request()->routeIs('incidencias.index') ? 'active' : '' }}">
+                            <a href="{{route('incidencias.index')}}">
+                                <i class="fa-solid fa-list"></i>
+                                <span>
+                                    Ver todos
+                                </span>
+                            </a>
+                        </li>
+                        <li class="submenu-item {{ request()->routeIs('incidencias.create') ? 'active' : '' }}">
+                            <a href="{{route('incidencias.create')}}">
                                 <i class="fa-solid fa-plus"></i>
                                 <span>
                                     Crear nuevo

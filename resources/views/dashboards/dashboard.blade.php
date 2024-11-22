@@ -64,6 +64,8 @@
                             <a href="{{route('presupuesto.create')}}" class="btn btn-outline-primary mb-2">Nuevo Presupuesto</a>
                             <a href="{{route('presupuestos.indexUser')}}" class="btn btn-outline-secondary mb-2">Ver mis Presupuestos</a>
                             <a href="{{route('presupuestos.index')}}" class="btn btn-outline-secondary mb-2">Ver todos los Presupuestos</a>
+                            <a href="{{route('incidencias.index')}}" class="btn btn-outline-secondary mb-2">Ver Incidencias</a>
+                            <a href="{{route('incidencias.create')}}" class="btn btn-outline-danger mb-2">Nueva incidencia</a>
                         </div>
                         <div class="row row-cols-1 row-cols-xl-2 g-xl-4 g-1">
                             <div class="col">
