@@ -70,10 +70,10 @@ class GastosTable extends Component
                     $query->where('bank_id', $this->selectedBanco);
                 })
                 ->when($this->startDate, function ($query) {
-                    $query->whereDate('received_date', '>=', Carbon::parse($this->startDate));
+                    $query->whereDate('date', '>=', Carbon::parse($this->startDate));
                 })
                 ->when($this->endDate, function ($query) {
-                    $query->whereDate('received_date', '<=', Carbon::parse($this->endDate));
+                    $query->whereDate('date', '<=', Carbon::parse($this->endDate));
                 }); // Obtiene todos los registros sin paginación
 
          // Aplica la ordenación
