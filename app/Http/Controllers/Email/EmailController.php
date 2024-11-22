@@ -18,18 +18,26 @@ use Symfony\Component\Mime\Part\TextPart;
 
 class EmailController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $categoriaId = $request->input('categoria_id', null);  // Por defecto no filtra por categoría
 
-        // Obtén todos los correos electrónicos paginados
-        $emails = Email::where('admin_user_id', Auth::user()->id)
-        ->with(['status', 'category', 'user'])
-        ->orderBy('created_at', 'desc') // Ordenar por fecha en orden descendente (de más reciente a más antiguo)
-        ->paginate(15);
+        // Filtra los correos según la categoría si se especifica una
+        $query = Email::where('admin_user_id', Auth::user()->id)
+                      ->with(['status', 'category', 'user'])
+                      ->orderBy('created_at', 'desc');
+
+        if ($categoriaId) {
+            $query->where('category_id', $categoriaId);
+        }
+
+        $emails = $query->paginate(15);  // Pagina los resultados
+
         $categorias = CategoryEmail::all();
 
-        return view('emails.index', compact('emails','categorias'));
+        return view('emails.index', compact('emails', 'categorias', 'categoriaId'));
     }
+
     public function create()
     {
 
