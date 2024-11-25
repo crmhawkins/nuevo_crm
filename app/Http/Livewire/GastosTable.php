@@ -48,33 +48,35 @@ class GastosTable extends Component
         // Comprueba si se ha seleccionado "Todos" para la paginación
 
         $query = Gasto::select('*', DB::raw('quantity * (iva / 100) as iva_amount'), DB::raw('quantity + (COALESCE(quantity, 0) * (COALESCE(iva, 0) / 100)) as total_with_iva'))
-                ->when($this->buscar, function ($query) {
-                    $query->where('title', 'like', '%' . $this->buscar . '%')
-                    ->orwhere('quantity', 'like', '%' . $this->buscar . '%')
-                    ->orwhere('date', 'like', '%' . $this->buscar . '%')
-                    ->orwhere('received_date', 'like', '%' . $this->buscar . '%')
-                    ->orwhere('state', 'like', '%' . $this->buscar . '%')
-                    ->orWhereRaw('quantity * (iva / 100) like ?', ['%' . $this->buscar . '%']) // for iva_amount
-                    ->orWhereRaw('quantity + (COALESCE(quantity, 0) * (COALESCE(iva, 0) / 100)) like ?', ['%' . $this->buscar . '%'])
-                    ->orWhereHas('bankAccount', function ($subQuery) {
-                        $subQuery->where('bank_accounts.name', 'like', '%' . $this->buscar . '%');
-                    })
-                    ->orWhereHas('categoria', function ($subQuery) {
-                        $subQuery->where('categoria_gastos.nombre', 'like', '%' . $this->buscar . '%');
-                    });
-                })
-                ->when($this->selectedYear, function ($query) {
-                    $query->whereYear('created_at', $this->selectedYear);
-                })
-                ->when($this->selectedBanco, function ($query) {
-                    $query->where('bank_id', $this->selectedBanco);
-                })
-                ->when($this->startDate, function ($query) {
-                    $query->whereDate('date', '>=', Carbon::parse($this->startDate));
-                })
-                ->when($this->endDate, function ($query) {
-                    $query->whereDate('date', '<=', Carbon::parse($this->endDate));
-                }); // Obtiene todos los registros sin paginación
+            ->when($this->buscar, function ($query) {
+                $query->where(function ($subQuery) {
+                    $subQuery->where('title', 'like', '%' . $this->buscar . '%')
+                        ->orWhere('quantity', 'like', '%' . $this->buscar . '%')
+                        ->orWhere('date', 'like', '%' . $this->buscar . '%')
+                        ->orWhere('received_date', 'like', '%' . $this->buscar . '%')
+                        ->orWhere('state', 'like', '%' . $this->buscar . '%')
+                        ->orWhereRaw('quantity * (iva / 100) like ?', ['%' . $this->buscar . '%']) // for iva_amount
+                        ->orWhereRaw('quantity + (COALESCE(quantity, 0) * (COALESCE(iva, 0) / 100)) like ?', ['%' . $this->buscar . '%'])
+                        ->orWhereHas('bankAccount', function ($subQuery) {
+                            $subQuery->where('bank_accounts.name', 'like', '%' . $this->buscar . '%');
+                        })
+                        ->orWhereHas('categoria', function ($subQuery) {
+                            $subQuery->where('categoria_gastos.nombre', 'like', '%' . $this->buscar . '%');
+                        });
+                });
+            })
+            ->when($this->selectedYear, function ($query) {
+                $query->whereYear('created_at', $this->selectedYear);
+            })
+            ->when($this->selectedBanco, function ($query) {
+                $query->where('bank_id', $this->selectedBanco);
+            })
+            ->when($this->startDate, function ($query) {
+                $query->whereDate('date', '>=', Carbon::parse($this->startDate));
+            })
+            ->when($this->endDate, function ($query) {
+                $query->whereDate('date', '<=', Carbon::parse($this->endDate));
+            });
 
          // Aplica la ordenación
          $query->orderBy($this->sortColumn, $this->sortDirection);

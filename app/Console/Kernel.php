@@ -35,7 +35,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('Alertas:presupuestoAceptar')->dailyAt('03:00');
         $schedule->command('Alertas:presupuestoConfirmar')->dailyAt('03:00');
         $schedule->command('Alertas:presupuestoFinalizado')->dailyAt('03:00');
-        //$schedule->command('correos:categorizacion')->everyMinute();
+        $schedule->command('Alertas:HorasTrabajadas')->weeklyOn(5, '23:30');
 
 
         // $schedule->call(function () {

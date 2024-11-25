@@ -54,21 +54,23 @@ class AssociatedTable extends Component
         // Comprueba si se ha seleccionado "Todos" para la paginación
         $query = AssociatedExpenses::select('associated_expenses.*', 'suppliers.name as supplier_name', DB::raw('associated_expenses.quantity * (associated_expenses.iva / 100) as iva_amount'), DB::raw('associated_expenses.quantity + (COALESCE(associated_expenses.quantity, 0) * (COALESCE(associated_expenses.iva, 0) / 100)) as total_with_iva'))
         ->when($this->buscar, function ($query) {
-            $query->where('associated_expenses.title', 'like', '%' . $this->buscar . '%')
-            ->orwhere('associated_expenses.quantity', 'like', '%' . $this->buscar . '%')
-            ->orwhere('associated_expenses.date', 'like', '%' . $this->buscar . '%')
-            ->orwhere('associated_expenses.received_date', 'like', '%' . $this->buscar . '%')
-            ->orwhere('associated_expenses.purchase_order_id', 'like', '%' . $this->buscar . '%')
-            ->orwhere('associated_expenses.reference', 'like', '%' . $this->buscar . '%')
-            ->orwhere('suppliers.name', 'like', '%' . $this->buscar . '%')
-            ->orWhereRaw('associated_expenses.quantity * (associated_expenses.iva / 100) like ?', ['%' . $this->buscar . '%']) // for iva_amount
-            ->orWhereRaw('associated_expenses.quantity + (COALESCE(associated_expenses.quantity, 0) * (COALESCE(associated_expenses.iva, 0) / 100)) like ?', ['%' . $this->buscar . '%']) // for total_with_iva
-            ->orWhereHas('OrdenCompra.Proveedor', function ($subQuery) {
-                      $subQuery->where('suppliers.name', 'like', '%' . $this->buscar . '%');
-                  })
-            ->orWhereHas('OrdenCompra.cliente', function ($subQuery) {
-                      $subQuery->where('clients.name', 'like', '%' . $this->buscar . '%');
-                  });
+            $query->where(function ($subQuery) {
+                $subQuery->where('associated_expenses.title', 'like', '%' . $this->buscar . '%')
+                    ->orwhere('associated_expenses.quantity', 'like', '%' . $this->buscar . '%')
+                    ->orwhere('associated_expenses.date', 'like', '%' . $this->buscar . '%')
+                    ->orwhere('associated_expenses.received_date', 'like', '%' . $this->buscar . '%')
+                    ->orwhere('associated_expenses.purchase_order_id', 'like', '%' . $this->buscar . '%')
+                    ->orwhere('associated_expenses.reference', 'like', '%' . $this->buscar . '%')
+                    ->orwhere('suppliers.name', 'like', '%' . $this->buscar . '%')
+                    ->orWhereRaw('associated_expenses.quantity * (associated_expenses.iva / 100) like ?', ['%' . $this->buscar . '%']) // for iva_amount
+                    ->orWhereRaw('associated_expenses.quantity + (COALESCE(associated_expenses.quantity, 0) * (COALESCE(associated_expenses.iva, 0) / 100)) like ?', ['%' . $this->buscar . '%']) // for total_with_iva
+                    ->orWhereHas('OrdenCompra.Proveedor', function ($subQuery) {
+                            $subQuery->where('suppliers.name', 'like', '%' . $this->buscar . '%');
+                        })
+                    ->orWhereHas('OrdenCompra.cliente', function ($subQuery) {
+                            $subQuery->where('clients.name', 'like', '%' . $this->buscar . '%');
+                });
+            });
         })
         ->when($this->selectedBanco, function ($query) {
             $query->where('associated_expenses.bank_id', $this->selectedBanco);
