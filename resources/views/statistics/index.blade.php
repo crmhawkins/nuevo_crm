@@ -308,7 +308,7 @@
                                             @foreach($dataAsociadosAnual['array'] as $item)
                                             <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_order_id}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->OrdenCompra->cliente->name}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{optional(optional($item->OrdenCompra)->cliente)->name}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
