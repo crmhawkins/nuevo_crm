@@ -55,6 +55,7 @@ class Invoice extends Model
         'partial_number',// si es la primera, segunda...
         'rectification',
         'is_ceuta',
+        'created_at',
     ];
 
 
@@ -64,7 +65,7 @@ class Invoice extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at',
+         'created_at','updated_at', 'deleted_at',
     ];
 
     /**

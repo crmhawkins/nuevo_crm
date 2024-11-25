@@ -65,6 +65,7 @@ class InvoiceController extends Controller
             'note' => 'nullable',
             'show_summary' => 'nullable',
             'creation_date' => 'nullable',
+            'created_at' => 'nullable',
             'paid_date' => 'nullable'
         ]);
 

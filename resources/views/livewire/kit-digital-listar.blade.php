@@ -155,6 +155,7 @@
                     <td class="exclude" style="max-width: 50px"> <input data-id="{{$item->id}}" type="text" name="empresa" id="empresa" value="{{ $item->empresa }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none; margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                     <td class="exclude" style="max-width: 50px">
                         <select name="segmento" id="segmento" style="max-width: 50px;padding: 0.1rem 0.1rem 0.1rem 0.2rem; margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;" data-id="{{$item->id}}">
+                            <opcion value="">Seleccione un segmento</opcion>
                             @foreach ($segmentos as $segmento)
                                 <option value="{{$segmento['id']}}" @if($item->segmento == $segmento['id']) selected  @endif>{{$segmento['nombre']}}</option>
                             @endforeach
@@ -190,6 +191,7 @@
                     <td style="max-width: 50px" class="exclude"><input data-id="{{$item->id}}" type="text" name="contratos" id="contratos" value="{{ $item->contratos }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;width: 50px;text-align: center"></td>
                     <td style="max-width: 50px">
                         <select name="servicio_id" id="servicio_id" data-id="{{$item->id}}" style="background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}};margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;max-width: 60px">
+                            <option value="">Seleccione un servicio </option>
                             @foreach($servicios as $servicio)
                                 <option @if($item->servicio_id == $servicio->id) selected  @endif value="{{$servicio->id}}">{{$servicio->name}}</option>
                             @endforeach
