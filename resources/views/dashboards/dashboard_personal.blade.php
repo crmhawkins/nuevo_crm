@@ -139,7 +139,7 @@
     }
 
     #to-do {
-        max-height: 600px;
+        max-height: 550px;
         overflow-y: auto;
         border-radius: 10px;
         padding: 15px;
