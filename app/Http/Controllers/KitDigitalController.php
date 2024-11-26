@@ -112,15 +112,18 @@ class KitDigitalController extends Controller
                 }
             });
         }
-        $query->orderBy($sortColumn, $sortDirection);
-        // Aplicar ordenación y paginación
-        $kitDigitals = $perPage === 'all' ? $query->get() : $query->paginate(is_numeric($perPage) ? $perPage : 10);
 
         $Sumatorio = $query->get()->reduce(function ($carry, $item) {
             $cleanImporte = preg_replace('/[^\d,]/', '', $item->importe); // Elimina todo excepto números y coma
             $cleanImporte = str_replace(',', '.', $cleanImporte); // Convierte comas a puntos para decimales
             return $carry + (float)$cleanImporte;
         }, 0);
+
+        $query->orderBy($sortColumn, $sortDirection);
+        // Aplicar ordenación y paginación
+        $kitDigitals = $perPage === 'all' ? $query->get() : $query->paginate(is_numeric($perPage) ? $perPage : 10);
+
+
 
         return view('kitDigital.listarClientes', compact(
             'kitDigitals',
