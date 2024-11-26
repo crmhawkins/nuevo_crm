@@ -68,7 +68,7 @@ class KitDigitalController extends Controller
         }
 
         if ($selectedEstado) {
-            $query->where('estado_id', $selectedEstado);
+            $query->where('estado', $selectedEstado);
         }
 
         if ($selectedGestor) {
