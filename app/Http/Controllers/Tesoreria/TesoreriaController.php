@@ -170,9 +170,10 @@ class TesoreriaController extends Controller
 
     //Store
     public function storeTraspasos(Request $request ){
+
         $validated = $this->validate($request, [
-            'from_bank_id' => 'required|integer|exists:bank_accounts,id',
-            'to_bank_id' => 'required|integer|exists:bank_accounts,id',
+            'from_bank_id' => 'required',
+            'to_bank_id' => 'required',
             'amount' => 'required',
             'fecha' => 'required',
         ],[
@@ -183,11 +184,11 @@ class TesoreriaController extends Controller
         ]);
         $traspaso = new Traspaso( $validated);
         $traspaso->save();
-        session()->flash('toast', [
+
+        return redirect()->route('traspasos.index')->with('toast', [
             'icon' => 'success',
             'mensaje' => 'Se ha creado el traspaso con exito'
         ]);
-        return redirect()->route('traspasos.index');
     }
 
     public function storeIngresos(Request $request ){
@@ -431,8 +432,8 @@ class TesoreriaController extends Controller
             return redirect()->route('traspaso.index');
         }
         $validated = $this->validate($request, [
-            'from_bank_id' => 'required|integer|exists:bank_accounts,id',
-            'to_bank_id' => 'required|integer|exists:bank_accounts,id',
+            'from_bank_id' => 'required',
+            'to_bank_id' => 'required',
             'amount' => 'required',
             'fecha' => 'required',
         ],[
@@ -442,11 +443,10 @@ class TesoreriaController extends Controller
             'fecha.required' => 'La fecha es obligatoria.',
         ]);
         $traspaso->update($validated);
-        session()->flash('toast', [
+        return redirect()->route('traspasos.index')->with('toast', [
             'icon' => 'success',
             'mensaje' => 'Se ha actualizado el traspaso con exito'
-        ]);
-        return redirect()->route('traspasos.index');
+        ]);;
     }
 
     public function updateIngresos(Request $request, string $id){
