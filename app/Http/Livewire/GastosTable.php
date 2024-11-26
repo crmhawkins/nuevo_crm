@@ -80,10 +80,10 @@ class GastosTable extends Component
                 $query->whereDate('date', '<=', Carbon::parse($this->endDate));
             })
             ->when($this->startDateRecived, function ($query) {
-                $query->whereDate('received_date', '>=', Carbon::parse($this->startDate));
+                $query->whereDate('received_date', '>=', Carbon::parse($this->startDateRecived));
             })
             ->when($this->endDateRecived, function ($query) {
-                $query->whereDate('received_date', '<=', Carbon::parse($this->endDate));
+                $query->whereDate('received_date', '<=', Carbon::parse($this->endDateRecived));
             });
 
          // Aplica la ordenación
