@@ -87,6 +87,12 @@ class AssociatedTable extends Component
         ->when($this->endDate, function ($query) {
             $query->whereDate('associated_expenses.date', '<=', Carbon::parse($this->endDate));
         })
+        ->when($this->startDateRecived, function ($query) {
+            $query->whereDate('associated_expenses.received_date', '>=', Carbon::parse($this->startDateRecived));
+        })
+        ->when($this->endDateRecived, function ($query) {
+            $query->whereDate('associated_expenses.received_date', '<=', Carbon::parse($this->endDateRecived));
+        })
         ->join('purchase_order', 'associated_expenses.purchase_order_id', '=', 'purchase_order.id') // Join con la tabla purchase_order
         ->join('suppliers', 'purchase_order.supplier_id', '=', 'suppliers.id'); // Join con la tabla suppliers
 
