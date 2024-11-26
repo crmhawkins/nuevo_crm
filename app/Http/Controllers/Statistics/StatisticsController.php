@@ -313,10 +313,14 @@ class StatisticsController extends Controller
                 $query->where('transfer_movement', 0)
                       ->orWhereNull('transfer_movement');
             })
+            ->whereNotNull('iva')
+            ->where('iva', '>', 0)
             ->get();
 
         $gastosAsociados = AssociatedExpenses::whereMonth('received_date', $mes)
             ->whereYear('received_date', $year)
+            ->whereNotNull('iva')
+            ->where('iva', '>', 0)
             ->get();
 
         $ivaGastosComunes = $gastosComunesMes->sum(function ($gasto) {
@@ -345,9 +349,14 @@ class StatisticsController extends Controller
                 $query->where('transfer_movement', 0)
                       ->orWhereNull('transfer_movement');
             })
+            ->whereNotNull('iva') // Solo registros donde IVA no sea null
+            ->where('iva', '>', 0) // Solo registros donde IVA sea mayor que 0
             ->get();
 
-        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $year)->get();
+        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $year)
+            ->whereNotNull('iva')
+            ->where('iva', '>', 0)
+            ->get();
 
         $ivaGastosComunes = $gastosComunesAnual->sum(function ($gasto) {
             return $gasto->quantity * ($gasto->iva / 100);
