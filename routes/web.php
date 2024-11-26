@@ -329,7 +329,13 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/gasto/update/{id}', [TesoreriaController::class, 'updateGastos'])->name('gasto.update');
         Route::post('/gasto/destroy', [TesoreriaController::class, 'destroyGastos'])->name('gasto.delete');
 
-
+        //Traspasos
+        Route::get('/traspasos', [TesoreriaController::class, 'indexTraspasos'])->name('traspasos.index');
+        Route::get('/traspasos/create', [TesoreriaController::class, 'createTraspasos'])->name('traspasos.create');
+        Route::get('/traspasos/edit/{id}', [TesoreriaController::class, 'editTraspasos'])->name('traspasos.edit');
+        Route::post('/traspasos/store', [TesoreriaController::class, 'storeTraspasos'])->name('traspasos.store');
+        Route::post('/traspasos/update/{id}', [TesoreriaController::class, 'updateTraspasos'])->name('traspasos.update');
+        Route::post('/traspasos/destroy', [TesoreriaController::class, 'destroyTraspasos'])->name('traspasos.delete');
 
 
         // Gastos sin clasificar (TESORERIA)

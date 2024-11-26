@@ -10,6 +10,7 @@ use App\Models\Accounting\Gasto;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Accounting\Ingreso;
 use App\Models\Accounting\Iva;
+use App\Models\Accounting\Traspaso;
 use App\Models\Accounting\UnclassifiedExpenses;
 use App\Models\Budgets\Budget;
 use App\Models\Invoices\Invoice;
@@ -20,8 +21,9 @@ use Carbon\Carbon;
 
 class TesoreriaController extends Controller
 {
-    public function indexIngresos(){
 
+    //index
+    public function indexIngresos(){
         return view('tesoreria.ingresos.index');
     }
 
@@ -37,10 +39,20 @@ class TesoreriaController extends Controller
         return view('tesoreria.gastos-asociados.index');
     }
 
+    public function indexTraspasos(){
+        return view('tesoreria.traspasos.index');
+    }
+
+    //create
     public function createIngresos(){
         $banks = BankAccounts::all();
         $invoices = Invoice::all();
         return view('tesoreria.ingresos.create', compact('banks','invoices'));
+    }
+
+    public function createTraspasos(){
+        $banks = BankAccounts::all();
+        return view('tesoreria.traspasos.create', compact('banks'));
     }
 
     public function createGastos(){
@@ -60,6 +72,20 @@ class TesoreriaController extends Controller
         $categorias = CategoriaGastosAsociados::all();
 
         return view('tesoreria.gastos-asociados.create',compact( 'banks', 'paymentMethods','purchaseOrders','tiposIva','categorias'));
+    }
+
+    //edit
+    public function editTraspasos(string $id){
+        $traspaso = Traspaso::find($id);
+        if (!$traspaso) {
+            session()->flash('toast', [
+                'icon' => 'error',
+                'mensaje' => 'El Traspaso no existe'
+            ]);
+            return redirect()->route('traspaso.index');
+        }
+        $banks = BankAccounts::all();
+        return view('tesoreria.traspasos.edit', compact('traspaso','banks'));
     }
 
     public function editIngresos(string $id){
@@ -139,6 +165,29 @@ class TesoreriaController extends Controller
                   ->orWhere('id', $gasto->purchase_order_id);
         })->get();
         return view('tesoreria.gastos-asociados.edit',compact('gasto', 'banks', 'paymentMethods', 'budgets', 'purchaseOrders','tiposIva','categorias'));
+    }
+
+
+    //Store
+    public function storeTraspasos(Request $request ){
+        $validated = $this->validate($request, [
+            'from_bank_id' => 'required|integer|exists:bank_accounts,id',
+            'to_bank_id' => 'required|integer|exists:bank_accounts,id',
+            'amount' => 'required',
+            'fecha' => 'required',
+        ],[
+            'from_bank_id.required' => 'El banco de origen es obligatorio.',
+            'to_bank_id.required' => 'El banco de destino es obligatorio.',
+            'amount.required' => 'El monto es obligatorio.',
+            'fecha.required' => 'La fecha es obligatoria.',
+        ]);
+        $traspaso = new Traspaso( $validated);
+        $traspaso->save();
+        session()->flash('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Se ha creado el traspaso con exito'
+        ]);
+        return redirect()->route('traspasos.index');
     }
 
     public function storeIngresos(Request $request ){
@@ -371,6 +420,34 @@ class TesoreriaController extends Controller
            ], 201);
        }
     }
+    //update
+    public function updateTraspasos(Request $request, string $id){
+        $traspaso = Traspaso::find($id);
+        if (!$traspaso) {
+            session()->flash('toast', [
+                'icon' => 'error',
+                'mensaje' => 'El Traspaso no existe'
+            ]);
+            return redirect()->route('traspaso.index');
+        }
+        $validated = $this->validate($request, [
+            'from_bank_id' => 'required|integer|exists:bank_accounts,id',
+            'to_bank_id' => 'required|integer|exists:bank_accounts,id',
+            'amount' => 'required',
+            'fecha' => 'required',
+        ],[
+            'from_bank_id.required' => 'El banco de origen es obligatorio.',
+            'to_bank_id.required' => 'El banco de destino es obligatorio.',
+            'amount.required' => 'El monto es obligatorio.',
+            'fecha.required' => 'La fecha es obligatoria.',
+        ]);
+        $traspaso->update($validated);
+        session()->flash('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Se ha actualizado el traspaso con exito'
+        ]);
+        return redirect()->route('traspasos.index');
+    }
 
     public function updateIngresos(Request $request, string $id){
         $ingreso = Ingreso::find($id);
@@ -528,6 +605,20 @@ class TesoreriaController extends Controller
         return redirect()->route('gasto-asociados.index')->with('success', 'Gasto asociado actualizado exitosamente.');
     }
 
+    //destroy
+    public function destroyTraspasos(Request $request){
+        $id = $request->id;
+        if ($id != null) {
+            $traspaso = Traspaso::find($id);
+            if ($traspaso != null) {
+                $traspaso->delete();
+                return response()->json([
+                    'status' => true,
+                    'mensaje' => "El traspaso fue borrado con éxito."
+                ], 201);
+            }
+        }
+    }
 
     public function destroyIngresos(Request $request){
          $id = $request->id;

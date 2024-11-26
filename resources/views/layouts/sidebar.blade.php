@@ -38,7 +38,7 @@
                     $actasActive= request()->routeIs('reunion.*');
                     $cargoActive= request()->routeIs('cargo.*');
                     $departamentoActive= request()->routeIs('departamento.*');
-                    $tesoreriaActive = request()->routeIs('ingreso.*') || request()->routeIs('gasto.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*') || request()->routeIs('gastos-asociado.*') || request()->routeIs('categorias-gastos*');
+                    $tesoreriaActive = request()->routeIs('ingreso.*') || request()->routeIs('traspasos.*') || request()->routeIs('gasto.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*') || request()->routeIs('gastos-asociado.*') || request()->routeIs('categorias-gastos*');
                     $cofiguracionActive = request()->routeIs('configuracion.*');
                     $EmailConfig = request()->routeIs('admin.categoriaEmail.*') || request()->routeIs('admin.statusMail.*');
                     $BajaActive = request()->routeIs('bajas.*');
@@ -333,6 +333,22 @@
                                     <i class="fa-solid fa-plus"></i>
                                     <span>
                                         Añadir Gasto
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('traspasos.index') ? 'active' : '' }}">
+                                <a href="{{route('traspasos.index')}}">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>
+                                        Ver Traspasos
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('traspasos.create') ? 'active' : '' }}">
+                                <a href="{{route('traspasos.create')}}">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>
+                                        Añadir Traspaso
                                     </span>
                                 </a>
                             </li>
