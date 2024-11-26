@@ -21,6 +21,8 @@ class GastosTable extends Component
     public $selectedYear;
     public $startDate;
     public $endDate;
+    public $startDateRecived;
+    public $endDateRecived;
     public $selectedBanco;
     public $Bancos;
     public $clientes;
@@ -76,6 +78,12 @@ class GastosTable extends Component
             })
             ->when($this->endDate, function ($query) {
                 $query->whereDate('date', '<=', Carbon::parse($this->endDate));
+            })
+            ->when($this->startDateRecived, function ($query) {
+                $query->whereDate('received_date', '>=', Carbon::parse($this->startDate));
+            })
+            ->when($this->endDateRecived, function ($query) {
+                $query->whereDate('received_date', '<=', Carbon::parse($this->endDate));
             });
 
          // Aplica la ordenación
@@ -110,7 +118,7 @@ class GastosTable extends Component
 
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedBanco' || $propertyName === 'endDate'|| $propertyName === 'startDate'|| $propertyName === 'selectedYear') {
+        if ($propertyName === 'buscar' || $propertyName === 'startDateRecived' || $propertyName === 'endDateRecived' || $propertyName === 'selectedBanco' || $propertyName === 'endDate'|| $propertyName === 'startDate'|| $propertyName === 'selectedYear') {
             $this->resetPage(); // Resetear la paginación solo cuando estos filtros cambien.
         }
     }

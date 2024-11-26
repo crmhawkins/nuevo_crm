@@ -33,12 +33,20 @@
                     </select>
                 </div>
                 <div class="mr-3" style="width: 150px">
-                    <label for="">Fecha inicio</label>
+                    <label for="">F.Inicio Pago</label>
                     <input wire:model="startDate" type="date" class="form-control" placeholder="Fecha de inicio">
                 </div>
                 <div class="mr-3" style="width: 150px">
-                    <label for="">Fecha fin</label>
+                    <label for="">F.Fin Pago</label>
                     <input wire:model="endDate" type="date" class="form-control" placeholder="Fecha de fin">
+                </div>
+                <div class="mr-3" style="width: 150px">
+                    <label for="">F.Inicio Recibido</label>
+                    <input wire:model="startDateRecived" type="date" class="form-control" placeholder="Fecha de inicio">
+                </div>
+                <div class="mr-3" style="width: 150px">
+                    <label for="">F.Fin Recibido</label>
+                    <input wire:model="endDateRecived" type="date" class="form-control" placeholder="Fecha de fin">
                 </div>
                 <div class="mr-3" style="width: 100px">
                     <label for="">Año</label>

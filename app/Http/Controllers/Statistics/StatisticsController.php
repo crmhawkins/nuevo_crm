@@ -26,6 +26,8 @@ class StatisticsController extends Controller
         ini_set('memory_limit', '9024M');
 
         $dataBudgets = $this->proyectosActivos();
+        $dataIvaAnual = $this->ivaAnual($anio);
+        $dataIva = $this->iva($mes,$anio);
         $dataGastosComunes = $this->gastosComunes($mes, $anio);
         $dataGastosComunesAnual = $this->gastosComunesAnual($anio);
         $dataFacturacion = $this->invoices($mes, $anio);
@@ -300,6 +302,68 @@ class StatisticsController extends Controller
             'gastos' => $gastosComunesAnual,
             'total' => $gastosComunesAnual->sum('quantity'),
         ];
+    }
+    public function iva($mes, $year)
+    {
+        $gastosComunesMes = DB::table('gastos')
+            ->whereMonth('received_date', $mes)
+            ->whereYear('received_date', $year)
+            ->whereNull('deleted_at')
+            ->where(function($query) {
+                $query->where('transfer_movement', 0)
+                      ->orWhereNull('transfer_movement');
+            })
+            ->get();
+
+        $gastosAsociados = AssociatedExpenses::whereMonth('received_date', $mes)
+            ->whereYear('received_date', $year)
+            ->get();
+
+        $ivaGastosComunes = $gastosComunesMes->sum(function ($gasto) {
+            return $gasto->quantity * ($gasto->iva / 100);
+        });
+
+        // Calcular IVA de los gastos asociados
+        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $year)->get();
+
+        $ivaGastosAsociados = $gastosAsociados->sum(function ($gasto) {
+            return $gasto->quantity * ($gasto->iva / 100);
+        });
+
+        // Sumar ambos totales de IVA
+        $totalIva = $ivaGastosComunes + $ivaGastosAsociados;
+
+        return $totalIva;
+    }
+
+    public function ivaAnual($year)
+    {
+        $gastosComunesAnual = DB::table('gastos')
+            ->whereYear('received_date', $year)
+            ->whereNull('deleted_at')
+            ->where(function($query) {
+                $query->where('transfer_movement', 0)
+                      ->orWhereNull('transfer_movement');
+            })
+            ->get();
+
+        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $year)->get();
+
+        $ivaGastosComunes = $gastosComunesAnual->sum(function ($gasto) {
+            return $gasto->quantity * ($gasto->iva / 100);
+        });
+
+        // Calcular IVA de los gastos asociados
+        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $year)->get();
+
+        $ivaGastosAsociados = $gastosAsociados->sum(function ($gasto) {
+            return $gasto->quantity * ($gasto->iva / 100);
+        });
+
+        // Sumar ambos totales de IVA
+        $totalIva = $ivaGastosComunes + $ivaGastosAsociados;
+
+        return $totalIva;
     }
 
     public function gastosAsociados($mes, $year)

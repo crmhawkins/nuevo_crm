@@ -436,10 +436,10 @@
             var value = $(this).val();
             handleDataUpdate(id, value, key);
         });
+
         $('#formFiltros').on('change', 'input, select', function(e) {
             e.preventDefault();
             $('#formFiltros').submit(); // Esto envía el formulario.
-
         });
 
     });
