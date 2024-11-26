@@ -9,6 +9,7 @@ use App\Models\Accounting\Gasto;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Accounting\Ingreso;
 use App\Models\Accounting\LastYearsBalance;
+use App\Models\Accounting\Traspaso;
 use App\Models\Other\BankAccounts;
 use App\Models\Invoices\Invoice;
 use App\Models\Alerts\Alert;
@@ -474,6 +475,14 @@ class CuadroController extends Controller
             return $ingreso->bank_id . '-' . Carbon::parse($ingreso->date)->format('m-d');
         });
 
+        $traspasoOutPorFecha = Traspaso::whereYear('fecha', $year)->get()->groupBy(function($traspaso) {
+            return $traspaso->from_bank_id . '-' . Carbon::parse($traspaso->date)->format('m-d');
+        });
+
+        $traspasoInPorFecha = Traspaso::whereYear('fecha', $year)->get()->groupBy(function($traspaso) {
+            return $traspaso->to_bank_id . '-' . Carbon::parse($traspaso->date)->format('m-d');
+        });
+
         // Procesamiento principal
         for ($i = 1; $i <= 12; $i++) {
             $mesFormat = sprintf("%02d", $i);
@@ -488,6 +497,8 @@ class CuadroController extends Controller
                 $gastoC = 0;
                 $gastoA = 0;
                 $ingresoTotal = 0;
+                $traspasoIn = 0;
+                $traspasoOut = 0;
 
                 for ($j = 1; $j <= $diasMes; $j++) {
                     $diaFormat = sprintf("%02d", $j);
@@ -519,9 +530,17 @@ class CuadroController extends Controller
                         : 0;
                     $bigArray = $this->saveIngreso($bigArray, $mesFormat, $bankAccount->id, $j, $diaFormat, $ingresoTotal);
 
+                    // Traspasos
+                    $traspasoIn += isset($traspasoInPorFecha[$dateKey])
+                        ? $traspasoInPorFecha[$dateKey]->sum('amount')
+                        : 0;
+                    $traspasoOut += isset($traspasoOutPorFecha[$dateKey])
+                        ? $traspasoOutPorFecha[$dateKey]->sum('amount')
+                        : 0;
+
                     // Cálculo diario del gasto total, balance y acumulación del balance diario
-                    $gastoTotal = $gastoA + $gastoC;
-                    $balance = $ingresoTotal - $gastoTotal;
+                    $gastoTotal = $gastoA + $gastoC + $traspasoOut;
+                    $balance = $ingresoTotal + $traspasoIn - $gastoTotal ;
                     $totalGastosIngresos += $balance;
                     $bigArray = $this->saveBalance($totalGastosIngresos, $bigArray, $mesFormat, $bankAccount->id, $j);
 
