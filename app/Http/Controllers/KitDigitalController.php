@@ -16,16 +16,139 @@ use Illuminate\Support\Optional;
 class KitDigitalController extends Controller
 {
     public function index(){
-        $kitDigitals = KitDigital::where('enviado', 1)->get();
-
-        return view('kitDigital.indexWhatsapp', compact('kitDigitals'));
-
-
+        return view('kitDigital.indexWhatsapp');
     }
 
-    public function listarClientes(){
+    public function listarClientes(Request $request){
 
-        return view('kitDigital.listarClientes');
+        // Variables de filtro
+        $selectedCliente = $request->input('selectedCliente');
+        $selectedEstado = $request->input('selectedEstado');
+        $selectedGestor = $request->input('selectedGestor');
+        $selectedServicio = $request->input('selectedServicio');
+        $selectedEstadoFactura = $request->input('selectedEstadoFactura');
+        $selectedComerciales = $request->input('selectedComerciales');
+        $selectedSegmento = $request->input('selectedSegmento');
+        $selectedDateField = $request->input('selectedDateField');
+        $dateFrom = $request->input('dateFrom');
+        $dateTo = $request->input('dateTo');
+        $sortColumn = $request->input('sortColumn', 'created_at'); // Columna por defecto
+        $sortDirection = $request->input('sortDirection', 'desc'); // Dirección por defecto
+        $perPage = $request->input('perPage', 10);
+
+        // Cargando datos estáticos
+        $gestores = User::Where('access_level_id',4)->where('inactive', 0)->get();
+        $comerciales = User::whereIn('access_level_id', [1, 6])->where('inactive', 0)->get();
+        $servicios = KitDigitalServicios::all();
+        $estados = KitDigitalEstados::orderBy('orden', 'asc')->get();
+        $clientes = Client::where('is_client',true)->get();
+
+        $estados_facturas = [
+            ['id' => '0', 'nombre' => 'No abonada'],
+            ['id' => '1', 'nombre' => 'Abonada'],
+        ];
+        $segmentos  = [
+            ['id' => '1', 'nombre' => '1'],
+            ['id' => '2', 'nombre' => '2'],
+            ['id' => '3', 'nombre' => '3'],
+            ['id' => '30', 'nombre' => '3 Extra'],
+            ['id' => '4', 'nombre' => '4'],
+            ['id' => '5', 'nombre' => '5'],
+            ['id' => 'A', 'nombre' => 'A'],
+            ['id' => 'B', 'nombre' => 'B'],
+            ['id' => 'C', 'nombre' => 'C']
+        ];
+
+        // Construcción de la consulta principal
+        $query = KitDigital::query();
+
+        // Aplicar filtros
+        if ($selectedCliente) {
+            $query->where('cliente_id', $selectedCliente);
+        }
+
+        if ($selectedEstado) {
+            $query->where('estado_id', $selectedEstado);
+        }
+
+        if ($selectedGestor) {
+            $query->where('gestor', $selectedGestor);
+        }
+
+        if ($selectedServicio) {
+            $query->where('servicio_id', $selectedServicio);
+        }
+
+        if ($selectedEstadoFactura) {
+            $query->where('estado_factura', $selectedEstadoFactura);
+        }
+
+        if ($selectedComerciales) {
+            $query->where('comercial_id', $selectedComerciales);
+        }
+
+        if ($selectedSegmento) {
+            $query->where('segmento_id', $selectedSegmento);
+        }
+
+        if ($dateFrom && $dateTo && $selectedDateField) {
+            $query->whereBetween($selectedDateField, [$dateFrom, $dateTo]);
+        }
+
+        if ($buscar = $request->input('buscar')) {
+            $buscarLower = mb_strtolower(trim($buscar), 'UTF-8');  // Convertir la cadena a minúsculas y eliminar espacios al inicio y al final
+            $searchTerms = explode(" ", $buscarLower);  // Dividir la entrada en términos individuales
+
+            $query->where(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->Where(function ($subQuery) use ($term) {
+                        $subQuery->orWhereRaw('LOWER(contratos) LIKE ?', ["%{$term}%"])
+                                 ->orWhereRaw('LOWER(cliente) LIKE ?', ["%{$term}%"])
+                                 ->orWhereRaw('LOWER(expediente) LIKE ?', ["%{$term}%"])
+                                 ->orWhereRaw('LOWER(contacto) LIKE ?', ["%{$term}%"])
+                                 ->orWhereRaw('LOWER(importe) LIKE ?', ["%{$term}%"])
+                                 ->orWhereRaw('LOWER(telefono) LIKE ?', ["%{$term}%"]);
+                    });
+                }
+            });
+        }
+        $query->orderBy($sortColumn, $sortDirection);
+        // Aplicar ordenación y paginación
+        $kitDigitals = $perPage === 'all' ? $query->get() : $query->paginate(is_numeric($perPage) ? $perPage : 10);
+
+        $Sumatorio = $query->get()->reduce(function ($carry, $item) {
+            $cleanImporte = preg_replace('/[^\d,]/', '', $item->importe); // Elimina todo excepto números y coma
+            $cleanImporte = str_replace(',', '.', $cleanImporte); // Convierte comas a puntos para decimales
+            return $carry + (float)$cleanImporte;
+        }, 0);
+
+        return view('kitDigital.listarClientes', compact(
+            'kitDigitals',
+            'gestores',
+            'comerciales',
+            'servicios',
+            'estados',
+            'clientes',
+            'estados_facturas',
+            'Sumatorio',
+            'buscar',
+            'selectedCliente',
+            'selectedEstado',
+            'selectedGestor',
+            'selectedServicio',
+            'selectedEstadoFactura',
+            'selectedComerciales',
+            'selectedSegmento',
+            'dateFrom',
+            'dateTo',
+            'sortColumn',
+            'sortDirection',
+            'perPage',
+            'segmentos',
+            'selectedDateField'
+
+        ));
+
     }
 
     public function updateData(Request $request){

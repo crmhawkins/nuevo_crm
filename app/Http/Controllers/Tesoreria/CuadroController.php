@@ -457,7 +457,7 @@ class CuadroController extends Controller
         $arrayTotalPrevisto = [];
         $anteriorbank = $this->initArray([]);
 
-        $fechaIVA = Carbon::createFromFormat('d/m/Y', '17/10/2024');
+        $fechaIVA = Carbon::createFromFormat('d/m/Y', '01/01/2024');
 
         // Agrupamos gastos, gastos asociados e ingresos con claves únicas "bank_id-fecha"
         $gastosPorFecha = Gasto::whereYear('date', $year)->get()->groupBy(function($gasto) {
