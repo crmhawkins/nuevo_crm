@@ -32,7 +32,7 @@
             <div class="col-9">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('gasto.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('traspasos.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row mb-3">
                                 <div class="col-md-3 form-group mt-2" id="from_bank_id">
