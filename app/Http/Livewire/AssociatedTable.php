@@ -26,6 +26,8 @@ class AssociatedTable extends Component
     public $selectedSupplier;
     public $Suppliers;
     public $endDate;
+    public $startDateRecived;
+    public $endDateRecived;
     public $clientes;
     public $estados;
     public $perPage = 10;
