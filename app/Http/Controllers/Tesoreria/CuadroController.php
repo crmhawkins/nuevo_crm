@@ -519,7 +519,7 @@ class CuadroController extends Controller
                     // Gastos Asociados con IVA aplicado si corresponde
                     $gastoA += isset($gastosAsociadosPorFecha[$dateKey])
                         ? $gastosAsociadosPorFecha[$dateKey]->sum(function($gasto) use ($fechaIVA) {
-                            return $gasto->quantity * ($gasto->date >= $fechaIVA ? 1 + ($gasto->iva / 100) : 1);
+                            return $gasto->quantity * ($gasto->created_at >= $fechaIVA ? 1 + ($gasto->iva / 100) : 1);
                         })
                         : 0;
                     $bigArray = $this->saveAssociatedExpenses($bigArray, $mesFormat, $bankAccount->id, $j, $gastoA, $diaFormat);
@@ -527,7 +527,7 @@ class CuadroController extends Controller
                     // Gastos Comunes con IVA aplicado si corresponde
                     $gastoC += isset($gastosPorFecha[$dateKey])
                         ? $gastosPorFecha[$dateKey]->sum(function($gasto) use ($fechaIVA) {
-                            return $gasto->quantity * ($gasto->date >= $fechaIVA ? 1 + ($gasto->iva / 100) : 1);
+                            return $gasto->quantity * ($gasto->created_at >= $fechaIVA ? 1 + ($gasto->iva / 100) : 1);
                         })
                         : 0;
 
