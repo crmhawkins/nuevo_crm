@@ -501,38 +501,37 @@
                                     </div>
                                     <div class="modal-body">
                                         <table id="tablaGastosAsociados" style="width: 100%;">
-                                        <thead>
-                                            <tr>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Orden</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
-
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($dataAsociados['array'] as $item)
-                                            <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_order_id}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->OrdenCompra->cliente->name}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
-                                           </tr>
-                                           @endforeach
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataAsociados['total'], 2, ',', '.')}}</td>
-                                            </tr>
-                                        </tfoot>
+                                            <thead>
+                                                <tr>
+                                                    <th onclick="sortTable(0)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Orden</th>
+                                                    <th onclick="sortTable(1)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente</th>
+                                                    <th onclick="sortTable(2)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                    <th onclick="sortTable(3)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                    <th onclick="sortTable(4)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                    <th onclick="sortTable(5)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($dataAsociados['array'] as $item)
+                                                <tr>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_order_id}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->OrdenCompra->cliente->name}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">Total:</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataAsociados['total'], 2, ',', '.')}}</td>
+                                                </tr>
+                                            </tfoot>
                                         </table>
                                     </div>
                                 </div>
@@ -600,7 +599,31 @@
     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
+    <script>
+        function sortTable(columnIndex) {
+            const table = document.getElementById("tablaGastosAsociados");
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows);
 
+            // Toggle sorting direction
+            const ascending = table.dataset.sortDirection !== 'asc';
+            table.dataset.sortDirection = ascending ? 'asc' : 'desc';
+
+            // Sort rows based on the selected column
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].innerText.trim();
+                const bText = b.cells[columnIndex].innerText.trim();
+
+                // Handle numeric and text sorting
+                return ascending
+                    ? aText.localeCompare(bText, undefined, { numeric: true })
+                    : bText.localeCompare(aText, undefined, { numeric: true });
+            });
+
+            // Append sorted rows back to the tbody
+            rows.forEach(row => tbody.appendChild(row));
+        }
+    </script>
     <script>
         function getColorByIndex(index, opacity = 1) {
             const r = (index * 137 + 83) % 256; // Números primos para rotación
