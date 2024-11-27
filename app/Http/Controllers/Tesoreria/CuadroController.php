@@ -247,7 +247,7 @@ class CuadroController extends Controller
         if ($gastos) {
              //Recorremos todos los gastos de ese dia
             foreach ($gastos as $gasto) {
-                if ($gasto->created_at >= Carbon::createFromFormat('d/m/Y', '01/01/2024'))
+                if ($gasto->created_at >= Carbon::createFromFormat('d/m/Y', '17/10/2024'))
                 {
                     if(isset($gasto->iva)){
                         $gastoTotal += $gasto->quantity * (1 + ($gasto->iva/100));
@@ -268,11 +268,11 @@ class CuadroController extends Controller
         $gastosAsociados = AssociatedExpenses::where('bank_id', $idBank)->where('state','PAGADO')->where('date', $dateFilter)->get();
         if ($gastosAsociados) {
              //Recorremos todos los gastos de ese dia
-            foreach ($gastosAsociados as $gasto) {
-                if ($gasto->created_at >= Carbon::createFromFormat('d/m/Y', '01/01/2024'))
+             foreach ($gastosAsociados as $gasto) {
+                if ($gasto->created_at >= Carbon::createFromFormat('d/m/Y', '17/10/2024'))
                 {
                     if(isset($gasto->iva)){
-                        $gastoTotal += $gasto->quantity;
+                        $gastoTotal += $gasto->quantity * (1 + ($gasto->iva/100));
                     }else{
                         $gastoTotal += $gasto->quantity;
                     }
@@ -465,7 +465,7 @@ class CuadroController extends Controller
         $arrayTotalPrevisto = [];
         $anteriorbank = $this->initArray([]);
 
-        $fechaIVA = Carbon::createFromFormat('d/m/Y', '01/01/2024');
+        $fechaIVA = Carbon::createFromFormat('d/m/Y', '17/10/2024');
 
         // Agrupamos gastos, gastos asociados e ingresos con claves únicas "bank_id-fecha"
         $gastosPorFecha = Gasto::whereYear('date', $year)->get()->groupBy(function($gasto) {
