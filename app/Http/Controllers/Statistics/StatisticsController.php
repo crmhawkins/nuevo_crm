@@ -279,6 +279,8 @@ class StatisticsController extends Controller
                 $query->where('transfer_movement', 0)
                       ->orWhereNull('transfer_movement');
             })
+            ->whereNotNull('iva') // Filtra que iva no sea null
+            ->where('iva', '<>', 0) // Filtra que iva sea distinto de 0
             ->get();
 
         return [
