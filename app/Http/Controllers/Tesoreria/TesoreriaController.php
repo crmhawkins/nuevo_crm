@@ -302,6 +302,7 @@ class TesoreriaController extends Controller
             'documents' => 'nullable',
             'iva' => 'nullable',
             'categoria_id' => 'nullable',
+            'total' => 'nullable',
         ],[
             'title.required' => 'El título es obligatorio.',
             'title.string' => 'El título debe ser una cadena de texto.',
@@ -562,6 +563,8 @@ class TesoreriaController extends Controller
             'aceptado_gestor' => 'nullable|boolean',
             'iva' => 'nullable',
             'categoria_id' => 'nullable',
+            'total' => 'nullable',
+
 
         ], [
             'title.required' => 'El título es obligatorio.',
