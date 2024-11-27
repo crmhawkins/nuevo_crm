@@ -612,4 +612,5 @@ Route::post('/portal/setPin', [PortalClientesController::class, 'setPin'])->name
 Route::get('/portal/presupuesto/{id}', [PortalClientesController::class, 'showBudget'])->name('portal.showBudget');
 Route::get('/portal/factura/{id}', [PortalClientesController::class, 'showInvoice'])->name('portal.showInvoice');
 
+Route::get('/actualizar', [OrdenesController::class, 'actualizar'])->name('actualizar');
 
