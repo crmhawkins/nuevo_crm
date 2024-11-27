@@ -129,4 +129,5 @@
 @endsection
 
 @section('scripts')
+@include('partials.toast')
 @endsection

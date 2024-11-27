@@ -56,9 +56,19 @@ class SettingsController extends Controller
             $data['certificado'] = $path;
         }
 
-        CompanyDetails::create($data);
+        $savedConfig = CompanyDetails::create($data);
 
-        return redirect()->route('configuracion.index')->with('success', 'Configuración creada correctamente.');
+        if ($savedConfig) {
+            return redirect()->route('configuracion.index')->with('toast',[
+                'icon' => 'success',
+                'mensaje' => 'Configuración creada correctamente.',
+            ]);
+        }else{
+            return redirect()->route('configuracion.index')->with('toast',[
+                'icon' => 'error',
+                'mensaje' => 'Error al crear la configuración.',
+            ]);
+        }
     }
 
     public function update(Request $request, $id)
@@ -110,8 +120,18 @@ class SettingsController extends Controller
             $data['certificado'] = $path;
         }
 
-        $configuracion->update($data);
+        $updatedConfig = $configuracion->update($data);
 
-        return redirect()->route('configuracion.index')->with('success', 'Configuración actualizada correctamente.');
+        if ($updatedConfig) {
+            return redirect()->route('configuracion.index')->with('toast',[
+                'icon' => 'success',
+                'mensaje' => 'Configuración actualizada correctamente.',
+            ]);
+        }else{
+            return redirect()->route('configuracion.index')->with('toast',[
+                'icon' => 'error',
+                'mensaje' => 'Error al actualizar la configuración.',
+            ]);
+        }
     }
 }
