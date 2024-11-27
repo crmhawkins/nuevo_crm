@@ -37,7 +37,8 @@ class AssociatedExpenses extends Model
         'documents',
         'iva',
         'date_aceptado',
-        'categoria_id'
+        'categoria_id',
+        'total'
     ];
 
     /**
