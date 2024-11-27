@@ -66,22 +66,20 @@ class OrdenesController extends Controller
     $endDate = '2024-12-31';
 
     // Obtener los registros filtrados por la columna `received_date`
-    $expenses = AssociatedExpenses::whereBetween('received_date', [$startDate, $endDate])->get();
+    $expenses = AssociatedExpenses::whereBetween('received_date', [$startDate, $endDate])
+        ->where(function ($query) {
+            $query->whereNull('iva')
+                  ->orWhere('iva', 0.00);
+        })
+        ->get();
 
     // Preparar el array para el resultado final
     $result = $expenses->map(function ($expense) {
-        // Verificar si la columna `iva` es null o 0.00
-        if (is_null($expense->iva) || $expense->iva == 0.00) {
-            // Calcular IVA: (quantity * 21) / 121
-            $iva_cantidad = round(($expense->quantity * 21) / 121, 2);
+        // Calcular IVA: (quantity * 21) / 121
+        $iva_cantidad = round(($expense->quantity * 21) / 121, 2);
 
-            // Calcular total sin IVA: quantity - iva_cantidad
-            $total_sin_iva = round($expense->quantity - $iva_cantidad, 2);
-        } else {
-            // Si ya tiene IVA, usar los valores originales
-            $iva_cantidad = round($expense->iva, 2);
-            $total_sin_iva = round($expense->quantity - $iva_cantidad, 2);
-        }
+        // Calcular total sin IVA: quantity - iva_cantidad
+        $total_sin_iva = round($expense->quantity - $iva_cantidad, 2);
 
         // Validar que la suma de total_sin_iva + iva_cantidad sea igual a quantity
         $quantity = round($total_sin_iva + $iva_cantidad, 2);
@@ -93,7 +91,7 @@ class OrdenesController extends Controller
             'reference' => $expense->reference,
             'quantity' => $expense->quantity,
             'received_date' => $expense->received_date,
-            'iva' => $expense->iva,
+            'iva' => $expense->iva, // Originalmente null o 0.00
             'iva_cantidad' => $iva_cantidad,
             'total_sin_iva' => $total_sin_iva,
             'validated_quantity' => $quantity, // Validación para debug (opcional)
@@ -103,6 +101,7 @@ class OrdenesController extends Controller
     // Retornar el array completo
     return $result->toArray();
 }
+
 
 
 }
