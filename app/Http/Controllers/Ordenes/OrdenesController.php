@@ -26,14 +26,16 @@ class OrdenesController extends Controller
 
     }
 
-    public function actualizar2()
+    public function actualizar()
     {
         // Rango de fechas especificado
         $startDate = '2024-01-01';
         $endDate = '2024-01-31';
 
         // Obtener los registros filtrados por la columna `received_date`
-        $expenses = AssociatedExpenses::whereBetween('received_date', [$startDate, $endDate])->get();
+        $expenses = AssociatedExpenses::whereBetween('received_date', [$startDate, $endDate])
+        ->whereNull('iva')
+        ->get();
 
         // Preparar el array para el resultado final
         $result = $expenses->map(function ($expense) {
@@ -42,7 +44,7 @@ class OrdenesController extends Controller
 
             // Calcular total sin IVA: quantity - iva_cantidad
             $total_sin_iva = $expense->quantity - $iva_cantidad;
-
+            $total = number_format(($expense->quantity * $expense->iva / 100) + $expense->quantity, 2, '.', '');
             // Retornar el registro con las nuevas columnas
             return [
                 'id' => $expense->id,
@@ -52,6 +54,8 @@ class OrdenesController extends Controller
                 'received_date' => $expense->received_date,
                 'iva_cantidad' => $iva_cantidad,
                 'total_sin_iva' => $total_sin_iva,
+                'total' => $total,  // Total con IVA
+
             ];
         });
 
@@ -95,7 +99,7 @@ class OrdenesController extends Controller
         ];
     }
 
-    public function actualizar()
+    public function actualizar2()
 {
     // Filtrar registros del año 2024 completo
     $startDate = '2024-01-01';
