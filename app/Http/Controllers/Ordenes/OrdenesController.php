@@ -33,7 +33,7 @@ class OrdenesController extends Controller
         $endDate = '2024-01-31';
 
         // Obtener los registros filtrados por la columna `received_date`
-        $expenses = AssociatedExpenses::where('date', '>', $startDate)
+        $expenses = AssociatedExpenses::where('date', '>=', $startDate)
         ->whereNull('iva')
         ->get();
 
