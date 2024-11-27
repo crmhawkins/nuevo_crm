@@ -88,7 +88,7 @@ class KitDigitalController extends Controller
         }
 
         if ($selectedSegmento) {
-            $query->where('segmento_id', $selectedSegmento);
+            $query->where('segmento', $selectedSegmento);
         }
 
         if ($dateFrom && $dateTo && $selectedDateField) {
