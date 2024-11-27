@@ -124,6 +124,7 @@
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
+                                <input type="hidden" name="total" id="total" value="{{ $gasto->total }}">
                                 <div class="col-md-6 form-group mt-2">
                                     <label for="state">Estado:</label>
                                     <select class="form-select" id="state" name="state">
@@ -217,6 +218,7 @@
         let quantityWithIVA = quantity + (quantity * (iva / 100));
 
         // Set the value to the "Cantidad con iva" field
+        document.getElementById('total').value = quantityWithIVA;
         document.getElementById('quantityIva').value = quantityWithIVA.toFixed(2);
     }
 
