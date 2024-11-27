@@ -184,6 +184,7 @@
                                             <input  value="{{old('dateTo',$dateTo)}}" type="date" name="date_to" id="date_to" class="form-control">
                                         </div>
                                         <input type="hidden" name="sortColumn" value="{{old('sortColumn',$sortColumn)}}">
+                                        <input type="hidden" name="sortDirection" id="sortDirection" value="{{ old('sortDirection',$sortDirection)}}">
                                     </div>
                                 </form>
                                 <div class="col-md-12 col-sm-12 text-center">
@@ -221,7 +222,7 @@
                                         'nuevo_comentario' => 'N. COMENTARIO',
                                         ] as $field => $label)
                                         <th class="px-3">
-                                            <a id="sort" href="#" data-column="{{$field}}" >
+                                            <a class="sort" data-column="{{$field}}" >
                                                 {{ $label }}
                                                 @if ($sortColumn == $field)
                                                     <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
@@ -445,13 +446,29 @@
             $('#formFiltros').submit(); // Esto envía el formulario.
         });
 
-        $('#sort').on('click', function(e) {
+
+        $('.sort').on('click', function (e) {
             e.preventDefault();
-            // Obtener el valor del atributo 'href' o 'data-sort' y asignarlo a #sortColumn
-            $('#sortColumn').val($(this).data('column')); // O $(this).data('sort')
+            // Obtener la columna seleccionada del atributo data-column
+            var column = $(this).data('column');
+            // Obtener el valor actual del formulario
+            var currentColumn = $('#sortColumn').val();
+            var currentDirection = $('#sortDirection').val();
+            // Si la columna seleccionada es la misma, cambiar la dirección
+            if (column === currentColumn) {
+                var newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+                $('#sortDirection').val(newDirection);
+            } else {
+                // Si es una columna diferente, establecer 'asc' por defecto
+                $('#sortDirection').val('desc');
+            }
+
+            // Actualizar el valor de la columna seleccionada
+            $('#sortColumn').val(column);
+
+            // Enviar el formulario
             $('#formFiltros').submit();
         });
-
 
     });
     </script>
