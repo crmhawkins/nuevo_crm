@@ -530,6 +530,7 @@ class CuadroController extends Controller
                             return $gasto->quantity * ($gasto->date >= $fechaIVA ? 1 + ($gasto->iva / 100) : 1);
                         })
                         : 0;
+                    dd($gastoC);
                     $bigArray = $this->saveGasto($bigArray, $mesFormat, $bankAccount->id, $j, $gastoC, $diaFormat);
 
                     // Ingresos
