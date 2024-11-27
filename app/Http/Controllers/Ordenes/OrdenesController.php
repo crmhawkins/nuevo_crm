@@ -60,47 +60,41 @@ class OrdenesController extends Controller
     }
 
     public function actualizar()
-{
-    // Filtrar registros del año 2024 completo
-    $startDate = '2024-01-01';
-    $endDate = '2024-12-31';
+    {
+        // Filtrar registros del año 2024 completo
+        $startDate = '2024-01-01';
+        $endDate = '2024-12-31';
 
-    // Obtener los registros filtrados por la columna `received_date`
-    $expenses = AssociatedExpenses::whereBetween('received_date', [$startDate, $endDate])
-        ->where(function ($query) {
-            $query->whereNull('iva')
-                  ->orWhere('iva', 0.00);
-        })
-        ->get();
+        // Obtener los registros filtrados por la columna `received_date`
+        $expenses = AssociatedExpenses::whereBetween('received_date', [$startDate, $endDate])
+            ->where(function ($query) {
+                $query->whereNull('iva')
+                    ->orWhere('iva', 0.00);
+            })
+            ->get();
 
-    // Preparar el array para el resultado final
-    $result = $expenses->map(function ($expense) {
-        // Calcular IVA: (quantity * 21) / 121
-        $iva_cantidad = round(($expense->quantity * 21) / 121, 2);
+        // Recorrer y actualizar cada registro
+        foreach ($expenses as $expense) {
+            // Calcular IVA: (quantity * 21) / 121
+            $iva_cantidad = round(($expense->quantity * 21) / 121, 2);
 
-        // Calcular total sin IVA: quantity - iva_cantidad
-        $total_sin_iva = round($expense->quantity - $iva_cantidad, 2);
+            // Calcular total sin IVA: quantity - iva_cantidad
+            $total_sin_iva = round($expense->quantity - $iva_cantidad, 2);
 
-        // Validar que la suma de total_sin_iva + iva_cantidad sea igual a quantity
-        $quantity = round($total_sin_iva + $iva_cantidad, 2);
+            // Actualizar el registro en la base de datos
+            $expense->update([
+                'iva' => 21.00,
+                'quantity' => $total_sin_iva,
+            ]);
+        }
 
-        // Retornar el registro con las nuevas columnas
+        // Retornar mensaje de éxito o registros actualizados (opcional)
         return [
-            'id' => $expense->id,
-            'title' => $expense->title,
-            'reference' => $expense->reference,
-            'quantity' => $expense->quantity,
-            'received_date' => $expense->received_date,
-            'iva' => $expense->iva, // Originalmente null o 0.00
-            'iva_cantidad' => $iva_cantidad,
-            'total_sin_iva' => $total_sin_iva,
-            'validated_quantity' => $quantity, // Validación para debug (opcional)
+            'message' => 'Gastos actualizados correctamente.',
+            'updated_count' => $expenses->count(),
         ];
-    });
+    }
 
-    // Retornar el array completo
-    return $result->toArray();
-}
 
 
 
