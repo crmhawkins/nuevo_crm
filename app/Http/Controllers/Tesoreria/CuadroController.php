@@ -558,7 +558,7 @@ class CuadroController extends Controller
                 }
             }
         }
-        dd($bigArray);
+        //dd($bigArray);
         // Cálculo de los totales acumulados de cada mes
         $arrayTotal = $this->calculateMonthlyTotals($bigArray, $arrayResult['bankAccounts'], $arrayTotal, $year);
         // Cálculo de los totales previstos basados en las facturas pendientes
