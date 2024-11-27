@@ -272,12 +272,12 @@ class CuadroController extends Controller
                 if ($gasto->created_at >= Carbon::createFromFormat('d/m/Y', '01/01/2024'))
                 {
                     if(isset($gasto->iva)){
-                        $gastoTotal += $gasto->quantity * (1 + ($gasto->iva/100));
+                        $gastoTotal += $gasto->total;
                     }else{
-                        $gastoTotal += $gasto->quantity;
+                        $gastoTotal += $gasto->total;
                     }
                 }else{
-                    $gastoTotal += $gasto->quantity;
+                    $gastoTotal += $gasto->total;
                 }
             }
         }
