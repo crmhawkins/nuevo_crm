@@ -183,6 +183,7 @@
                                             <label class="titulo_filtros" for="date_to">Hasta</label>
                                             <input  value="{{old('dateTo',$dateTo)}}" type="date" name="date_to" id="date_to" class="form-control">
                                         </div>
+                                        <input type="hidden" name="sortColumn" value="{{old('sortColumn',$sortColumn)}}">
                                     </div>
                                 </form>
                                 <div class="col-md-12 col-sm-12 text-center">
@@ -220,7 +221,7 @@
                                         'nuevo_comentario' => 'N. COMENTARIO',
                                         ] as $field => $label)
                                         <th class="px-3">
-                                            <a href="#" wire:click.prevent="sortBy('{{ $field }}')">
+                                            <a id="sort" href="#" data-column="{{$field}}" >
                                                 {{ $label }}
                                                 @if ($sortColumn == $field)
                                                     <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
@@ -443,6 +444,14 @@
             e.preventDefault();
             $('#formFiltros').submit(); // Esto envía el formulario.
         });
+
+        $('#sort').on('click', function(e) {
+            e.preventDefault();
+            // Obtener el valor del atributo 'href' o 'data-sort' y asignarlo a #sortColumn
+            $('#sortColumn').val($(this).data('column')); // O $(this).data('sort')
+            $('#formFiltros').submit();
+        });
+
 
     });
     </script>

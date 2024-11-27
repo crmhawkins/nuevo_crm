@@ -327,8 +327,6 @@ class StatisticsController extends Controller
             return $gasto->quantity * ($gasto->iva / 100);
         });
 
-        // Calcular IVA de los gastos asociados
-        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $year)->get();
 
         $ivaGastosAsociados = $gastosAsociados->sum(function ($gasto) {
             return $gasto->quantity * ($gasto->iva / 100);
@@ -361,9 +359,6 @@ class StatisticsController extends Controller
         $ivaGastosComunes = $gastosComunesAnual->sum(function ($gasto) {
             return $gasto->quantity * ($gasto->iva / 100);
         });
-
-        // Calcular IVA de los gastos asociados
-        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $year)->get();
 
         $ivaGastosAsociados = $gastosAsociados->sum(function ($gasto) {
             return $gasto->quantity * ($gasto->iva / 100);

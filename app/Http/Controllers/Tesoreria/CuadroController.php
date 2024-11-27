@@ -247,9 +247,13 @@ class CuadroController extends Controller
         if ($gastos) {
              //Recorremos todos los gastos de ese dia
             foreach ($gastos as $gasto) {
-                if ($gasto->created_at >= Carbon::createFromFormat('d/m/Y', '17/10/2024'))
+                if ($gasto->created_at >= Carbon::createFromFormat('d/m/Y', '01/01/2024'))
                 {
-                    $gastoTotal += $gasto->quantity * (1 + ($gasto->iva/100));
+                    if(isset($gasto->iva)){
+                        $gastoTotal += $gasto->quantity * (1 + ($gasto->iva/100));
+                    }else{
+                        $gastoTotal += $gasto->quantity;
+                    }
                 }else{
                     $gastoTotal += $gasto->quantity;
                 }
@@ -265,9 +269,13 @@ class CuadroController extends Controller
         if ($gastosAsociados) {
              //Recorremos todos los gastos de ese dia
             foreach ($gastosAsociados as $gasto) {
-                if ($gasto->created_at >= Carbon::createFromFormat('d/m/Y', '17/10/2024'))
+                if ($gasto->created_at >= Carbon::createFromFormat('d/m/Y', '01/01/2024'))
                 {
-                    $gastoTotal += $gasto->quantity * (1 + ($gasto->iva/100));
+                    if(isset($gasto->iva)){
+                        $gastoTotal += $gasto->quantity * (1 + ($gasto->iva/100));
+                    }else{
+                        $gastoTotal += $gasto->quantity;
+                    }
                 }else{
                     $gastoTotal += $gasto->quantity;
                 }
