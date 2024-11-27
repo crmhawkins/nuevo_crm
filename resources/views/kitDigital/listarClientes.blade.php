@@ -183,7 +183,7 @@
                                             <label class="titulo_filtros" for="date_to">Hasta</label>
                                             <input  value="{{old('dateTo',$dateTo)}}" type="date" name="date_to" id="date_to" class="form-control">
                                         </div>
-                                        <input type="hidden" name="sortColumn" value="{{old('sortColumn',$sortColumn)}}">
+                                        <input type="hidden" name="sortColumn" id="sortColumn" value="{{old('sortColumn',$sortColumn)}}">
                                         <input type="hidden" name="sortDirection" id="sortDirection" value="{{ old('sortDirection',$sortDirection)}}">
                                     </div>
                                 </form>
@@ -451,6 +451,7 @@
             e.preventDefault();
             // Obtener la columna seleccionada del atributo data-column
             var column = $(this).data('column');
+            console.log(column);
             // Obtener el valor actual del formulario
             var currentColumn = $('#sortColumn').val();
             var currentDirection = $('#sortDirection').val();
@@ -465,6 +466,7 @@
 
             // Actualizar el valor de la columna seleccionada
             $('#sortColumn').val(column);
+            console.log(column);
 
             // Enviar el formulario
             $('#formFiltros').submit();
