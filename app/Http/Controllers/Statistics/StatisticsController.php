@@ -110,7 +110,7 @@ class StatisticsController extends Controller
             'userProductivity', 'iva', 'totalBeneficio', 'arrayAnios',
             'anioActual','countTotalBudgets','totalBeneficioAnual',
             'monthsToActually','billingMonthly','allArray',
-            'nameUsers','productivityValues','monthlyAveragesValues'
+            'nameUsers','productivityValues','monthlyAveragesValues','dataIvaAnual','dataIva'
         ));
     }
 
