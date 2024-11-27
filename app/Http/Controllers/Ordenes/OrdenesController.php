@@ -103,10 +103,6 @@ class OrdenesController extends Controller
 
         // Obtener los registros filtrados por la columna `received_date`
         $expenses = AssociatedExpenses::whereBetween('received_date', [$startDate, $endDate])
-            ->where(function ($query) {
-                $query->whereNull('iva')
-                      ->orWhere('iva', 0.00);
-            })
             ->get();
 
         // Recorrer y actualizar cada registro
