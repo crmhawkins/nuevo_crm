@@ -519,7 +519,7 @@ class CuadroController extends Controller
                     // Gastos Asociados con IVA aplicado si corresponde
                     $gastoA += isset($gastosAsociadosPorFecha[$dateKey])
                         ? $gastosAsociadosPorFecha[$dateKey]->sum(function($gasto) use ($fechaIVA) {
-                            return $gasto->total;
+                            return $gasto->quantity;
                         })
                         : 0;
                     $bigArray = $this->saveAssociatedExpenses($bigArray, $mesFormat, $bankAccount->id, $j, $gastoA, $diaFormat);
