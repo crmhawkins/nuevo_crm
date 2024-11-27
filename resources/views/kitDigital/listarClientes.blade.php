@@ -341,7 +341,7 @@
 
 
                             @if($perPage !== 'all')
-                            {{ $kitDigitals->links() }}
+                            {{ $kitDigitals->appends(request()->except('page'))->links() }}
                             @endif
                             <div class="col-md-12 col-sm-12 text-center" style="margin: 1rem 0">
                                 <span class="fs-3" >Sumatorio: <b>{{ number_format($Sumatorio, 2, ',', '.') .' €'}}</b></span>
