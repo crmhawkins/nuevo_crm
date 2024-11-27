@@ -96,40 +96,49 @@ class OrdenesController extends Controller
     }
 
     public function actualizar()
-    {
-        // Filtrar registros del año 2024 completo
-        $startDate = '2024-01-01';
-        $endDate = '2024-12-31';
+{
+    // Filtrar registros del año 2024 completo
+    $startDate = '2024-01-01';
+    $endDate = '2024-12-31';
 
-        // Obtener los registros filtrados por la columna `received_date`
-        $expenses = AssociatedExpenses::whereBetween('received_date', [$startDate, $endDate])
-            ->get();
+    // Obtener los registros filtrados por la columna `received_date`
+    $expenses = AssociatedExpenses::whereBetween('received_date', [$startDate, $endDate])
+        ->get();
 
-        // Recorrer y actualizar cada registro
-        foreach ($expenses as $expense) {
+    // Recorrer y actualizar cada registro
+    foreach ($expenses as $expense) {
+        // Si IVA es nulo o 0, aplicar cálculo
+        if (is_null($expense->iva) || $expense->iva == 0.00) {
             // Calcular IVA: (quantity * 21) / 121
             $iva_cantidad = round(($expense->quantity * 21) / 121, 2);
 
             // Calcular total sin IVA: quantity - iva_cantidad
             $total_sin_iva = round($expense->quantity - $iva_cantidad, 2);
 
-            // Calcular el total con IVA (quantity * iva / 100) + quantity
-            $total = round(($expense->quantity * $expense->iva / 100) + $expense->quantity, 2);
+            // Calcular el total con IVA: (quantity * iva / 100) + quantity
+            $total = round(($expense->quantity * 21 / 100) + $expense->quantity, 2);
+        } else {
+            // Si ya tiene IVA, usamos el valor de iva y calculamos el total
+            $iva_cantidad = $expense->iva;
+            $total_sin_iva = round($expense->quantity - $iva_cantidad, 2);
 
-            // Actualizar el registro en la base de datos
-            $expense->update([
-                'iva' => 21.00,
-                'quantity' => $total_sin_iva,
-                'total' => $total,
-            ]);
+            // Calculamos el total con IVA
+            $total = round(($expense->quantity * $expense->iva / 100) + $expense->quantity, 2);
         }
 
-        // Retornar mensaje de éxito o registros actualizados (opcional)
-        return [
-            'message' => 'Gastos actualizados correctamente.',
-            'updated_count' => $expenses->count(),
-        ];
+        // Actualizar el registro en la base de datos
+        $expense->update([
+            'total' => $total,  // Total con IVA
+        ]);
     }
+
+    // Retornar mensaje de éxito o registros actualizados (opcional)
+    return [
+        'message' => 'Gastos actualizados correctamente.',
+        'updated_count' => $expenses->count(),
+    ];
+}
+
 
 
 
