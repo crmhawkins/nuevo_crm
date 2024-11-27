@@ -110,20 +110,20 @@ class OrdenesController extends Controller
         // Si IVA es nulo o 0, aplicar cálculo
         if (is_null($expense->iva) || $expense->iva == 0.00) {
             // Calcular IVA: (quantity * 21) / 121
-            $iva_cantidad = round(($expense->quantity * 21) / 121, 2);
+            $iva_cantidad = number_format(($expense->quantity * 21) / 121, 2, '.', '');
 
             // Calcular total sin IVA: quantity - iva_cantidad
-            $total_sin_iva = round($expense->quantity - $iva_cantidad, 2);
+            $total_sin_iva = number_format($expense->quantity - $iva_cantidad, 2, '.', '');
 
             // Calcular el total con IVA: (quantity * iva / 100) + quantity
-            $total = round(($expense->quantity * 21 / 100) + $expense->quantity, 2);
+            $total = number_format(($expense->quantity * 21 / 100) + $expense->quantity, 2, '.', '');
         } else {
             // Si ya tiene IVA, usamos el valor de iva y calculamos el total
-            $iva_cantidad = $expense->iva;
-            $total_sin_iva = round($expense->quantity - $iva_cantidad, 2);
+            $iva_cantidad = number_format($expense->iva, 2, '.', '');
+            $total_sin_iva = number_format($expense->quantity - $iva_cantidad, 2, '.', '');
 
             // Calculamos el total con IVA
-            $total = round(($expense->quantity * $expense->iva / 100) + $expense->quantity, 2);
+            $total = number_format(($expense->quantity * $expense->iva / 100) + $expense->quantity, 2, '.', '');
         }
 
         // Actualizar el registro en la base de datos
@@ -138,6 +138,7 @@ class OrdenesController extends Controller
         'updated_count' => $expenses->count(),
     ];
 }
+
 
 
 
