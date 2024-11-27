@@ -272,12 +272,12 @@ class CuadroController extends Controller
                 if ($gasto->created_at >= Carbon::createFromFormat('d/m/Y', '01/01/2024'))
                 {
                     if(isset($gasto->iva)){
-                        $gastoTotal += $gasto->quantity * (1 + ($gasto->iva/100));
+                        $gastoTotal += $gasto->total;
                     }else{
-                        $gastoTotal += $gasto->quantity;
+                        $gastoTotal += $gasto->total;
                     }
                 }else{
-                    $gastoTotal += $gasto->quantity;
+                    $gastoTotal += $gasto->total;
                 }
             }
         }
@@ -519,7 +519,7 @@ class CuadroController extends Controller
                     // Gastos Asociados con IVA aplicado si corresponde
                     $gastoA += isset($gastosAsociadosPorFecha[$dateKey])
                         ? $gastosAsociadosPorFecha[$dateKey]->sum(function($gasto) use ($fechaIVA) {
-                            return $gasto->quantity * ($gasto->created_at >= $fechaIVA ? 1 + ($gasto->iva / 100) : 1);
+                            return $gasto->total;
                         })
                         : 0;
                     $bigArray = $this->saveAssociatedExpenses($bigArray, $mesFormat, $bankAccount->id, $j, $gastoA, $diaFormat);
