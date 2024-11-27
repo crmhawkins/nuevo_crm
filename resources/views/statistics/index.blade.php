@@ -207,6 +207,7 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
                         <div class="row mb-3">
                             <div class="col">
                                 <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
@@ -223,7 +224,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="modal fade" id="ModalGastosComunesAnual" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunesAnual" aria-hidden="true">
                                 <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
                                     <div class="modal-content">
@@ -331,23 +331,22 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col">
-                            <div class="card card-sm" >
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Iva Anual</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataIvaAnual, 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-danger font-12 font-weight-600">0%</span>
+                            <div class="col">
+                                <div class="card card-sm" >
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Iva Anual</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataIvaAnual, 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     <div class="row mb-3">
 
                         <div class="col">
