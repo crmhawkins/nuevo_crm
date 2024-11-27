@@ -34,8 +34,8 @@ class OrdenesController extends Controller
 
         // Obtener los registros filtrados por la columna `received_date`
         $expenses = AssociatedExpenses::where('date', '>', $startDate)
-    ->whereNull('iva')
-    ->get();
+        ->whereNull('iva')
+        ->get();
 
         // Preparar el array para el resultado final
         $result = $expenses->map(function ($expense) {
@@ -45,6 +45,12 @@ class OrdenesController extends Controller
             // Calcular total sin IVA: quantity - iva_cantidad
             $total_sin_iva = $expense->quantity - $iva_cantidad;
             $total = number_format(($expense->quantity * $expense->iva / 100) + $expense->quantity, 2, '.', '');
+
+            $expense->update([
+                'iva' => 21.00,
+                'quantity' => $total_sin_iva,
+                'total' => $total,
+            ]);
             // Retornar el registro con las nuevas columnas
             return [
                 'id' => $expense->id,
