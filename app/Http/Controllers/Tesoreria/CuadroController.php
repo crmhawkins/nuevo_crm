@@ -471,7 +471,7 @@ class CuadroController extends Controller
         $gastosPorFecha = Gasto::whereYear('date', $year)->get()->groupBy(function($gasto) {
             return $gasto->bank_id . '-' . Carbon::parse($gasto->date)->format('m-d');
         });
-        var_dump($gastosPorFecha);
+        //var_dump($gastosPorFecha);
 
         $gastosAsociadosPorFecha = AssociatedExpenses::where('state', 'PAGADO')
             ->whereYear('date', $year)
