@@ -83,7 +83,6 @@
                                 <div class="col-md-3 form-group mt-2">
                                     <label for="iva">IVA:</label>
                                     <select class="form-select" id="iva" name="iva">
-                                        <option value="">IVA</option>
                                         @foreach($tiposIva as $tipo)
                                             <option value="{{ $tipo->valor }}" {{ old('iva', $gasto->iva) == $tipo->valor ? 'selected' : '' }}>
                                                 {{ $tipo->nombre}}

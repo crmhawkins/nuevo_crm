@@ -329,6 +329,7 @@ class TesoreriaController extends Controller
             'state.max' => 'El estado no debe exceder los 255 caracteres.',
             'aceptado_gestor.boolean' => 'El campo aceptado gestor debe ser verdadero o falso.',
         ]);
+
         $purchaseOrder = PurcharseOrder::find($validated['purchase_order_id']);
         $precio = $purchaseOrder->concepto->purchase_price;
 
@@ -338,6 +339,7 @@ class TesoreriaController extends Controller
                 'mensaje' => 'La cantidad no coincide con la cantidad de la orden de compra'
             ]);
         }
+        $validated['total'] = number_format(($validated['quantity']  * $validated['iva'] / 100) + $validated['quantity'], 2, '.', '');
         // Crear el gasto asociado
         $associatedExpense = new AssociatedExpenses( $validated);
 
@@ -388,7 +390,8 @@ class TesoreriaController extends Controller
                    'purchase_order_id' => $purchaseOrder->id,
                    'state' => 'PENDIENTE', // Estado inicial, puedes cambiarlo si es necesario
                    'aceptado_gestor' => false,
-                   'documents' => $unclassifiedExpense->documents
+                   'documents' => $unclassifiedExpense->documents,
+
                ]);
                if($associatedExpense){
                    $unclassifiedExpense->message = 'Generado Gasto Asociado';
@@ -592,6 +595,7 @@ class TesoreriaController extends Controller
             'aceptado_gestor.boolean' => 'El campo aceptado gestor debe ser verdadero o falso.',
         ]);
 
+        $validated['total'] = number_format(($validated['quantity']  * $validated['iva'] / 100) + $validated['quantity'], 2, '.', '');
         // Actualizar el gasto asociado con los datos validados
         $gasto->update($validated);
 
