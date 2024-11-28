@@ -340,7 +340,7 @@ class TesoreriaController extends Controller
             ]);
         }
         $validated['total'] = number_format(($validated['quantity']  * $validated['iva'] / 100) + $validated['quantity'], 2, '.', '');
-        // Crear el gasto asociado
+        $validated['date'] = Carbon::parse($validated['date'])->format('Y-m-d');        // Crear el gasto asociado
         $associatedExpense = new AssociatedExpenses( $validated);
 
         // Asignar valores adicionales si es necesario
