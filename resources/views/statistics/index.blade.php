@@ -297,7 +297,7 @@
                                             <thead>
                                                 <tr>
                                                     <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Orden</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Proveedor </th>
                                                     <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
                                                     <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
                                                     <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
@@ -309,7 +309,7 @@
                                                 @foreach($dataAsociadosAnual['array'] as $item)
                                                 <tr>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_order_id}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{optional(optional($item->OrdenCompra)->cliente)->name}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{optional(optional($item->OrdenCompra)->Proveedor)->name}}</td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
@@ -504,7 +504,7 @@
                                             <thead>
                                                 <tr>
                                                     <th onclick="sortTable(0)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Orden</th>
-                                                    <th onclick="sortTable(1)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente</th>
+                                                    <th onclick="sortTable(1)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Proveedor</th>
                                                     <th onclick="sortTable(2)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
                                                     <th onclick="sortTable(3)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
                                                     <th onclick="sortTable(4)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
@@ -515,7 +515,7 @@
                                                 @foreach($dataAsociados['array'] as $item)
                                                 <tr>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_order_id}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->OrdenCompra->cliente->name}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{optional(optional($item->OrdenCompra)->Proveedor)->name}}</td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
