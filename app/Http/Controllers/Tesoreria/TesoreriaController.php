@@ -260,6 +260,7 @@ class TesoreriaController extends Controller
             'state.string' => 'El estado debe ser una cadena de texto.',
             'state.max' => 'El estado no debe exceder los 255 caracteres.',
         ]);
+        $validated['date'] = Carbon::parse($validated['date'])->format('Y-m-d');
 
         // Crear el gasto asociado
         $gasto = new Gasto( $validated);
@@ -531,6 +532,7 @@ class TesoreriaController extends Controller
             'state.max' => 'El estado no debe exceder los 255 caracteres.',
         ]);
         $validated['transfer_movement'] = $request->has('transfer_movement') ? 1 : 0;
+        $validated['date'] = Carbon::parse($validated['date'])->format('Y-m-d');
 
         // Actualizar el gasto con los datos validados
         $gasto->update($validated);
