@@ -166,10 +166,10 @@ class HorasController extends Controller
                     $horasProducidas = $this->tiempoProducidoDia($dia, $usuario->id);
                     $totalHorasTrabajadas += $horasTrabajadas;
                     $totalHorasProducidas += $horasProducidas;
-                    $horaHorasTrabajadasdia = floor($totalHorasTrabajadas / 60);
-                    $minutoHorasTrabajadasdia = ($totalHorasTrabajadas % 60);
-                    $horaHorasProducidasdia = floor($totalHorasProducidas / 60);
-                    $minutoHorasProducidasdia = ($totalHorasProducidas % 60);
+                    $horaHorasTrabajadasdia = floor($horasTrabajadas / 60);
+                    $minutoHorasTrabajadasdia = ($horasTrabajadas % 60);
+                    $horaHorasProducidasdia = floor($horasProducidas / 60);
+                    $minutoHorasProducidasdia = ($horasProducidas % 60);
                     $datosUsuario['horas_trabajadas'][$fecha] = "$horaHorasTrabajadasdia h $minutoHorasTrabajadasdia min";
                     $datosUsuario['horas_producidas'][$fecha] = "$horaHorasProducidasdia h $minutoHorasProducidasdia min";
                 }
