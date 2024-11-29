@@ -123,7 +123,7 @@
                                     <style>.text-danger {color: red;}</style>
                                     @enderror
                                 </div>
-                                <input type="hidden" name="total" id="total" value="{{ $gasto->total }}">
+                                <input type="hidden" name="total" id="total" value="">
                                 <div class="col-md-6 form-group mt-2">
                                     <label for="state">Estado:</label>
                                     <select class="form-select" id="state" name="state">
