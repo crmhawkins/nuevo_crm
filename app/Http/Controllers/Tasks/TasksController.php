@@ -177,8 +177,10 @@ class TasksController extends Controller
 
             $inicio = Carbon::createFromFormat('Y-m-d H:i:s', $event[1], 'UTC');
             $inicioEspaña = $inicio->setTimezone('Europe/Madrid');
-            $fin = Carbon::createFromFormat('Y-m-d H:i:s', $event[2], 'UTC');
-            $finEspaña = $fin->setTimezone('Europe/Madrid');
+            if(isset($event[2])){
+                $fin = Carbon::createFromFormat('Y-m-d H:i:s', $event[2], 'UTC');
+                $finEspaña = $fin->setTimezone('Europe/Madrid');
+            }
 
             $eventData[] = [
                 'id' => $event[3],
