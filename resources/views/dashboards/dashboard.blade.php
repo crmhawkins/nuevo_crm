@@ -5,6 +5,7 @@
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/css/dashboard.css')}}" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 @endsection
 
@@ -17,158 +18,180 @@
             </div>
 
             <div class="col-12 col-md-8 order-md-2 order-first">
-                <div class="row justify-end ">
-                    <button id="endllamadaBtn" class="btn jornada btn-danger mx-2 col-2" onclick="endLlamada()" style="display:none;">Finalizar llamada</button>
-                     <h2 id="timer" class="display-6 font-weight-bold col-3">00:00:00</h2>
-                    <button id="startJornadaBtn" class="btn jornada btn-primary mx-2 col-2" onclick="startJornada()">Inicio Jornada</button>
-                    <button id="startPauseBtn" class="btn jornada btn-secondary mx-2 col-2" onclick="startPause()" style="display:none;">Iniciar Pausa</button>
-                    <button id="endPauseBtn" class="btn jornada btn-dark mx-2 col-2" onclick="endPause()" style="display:none;">Finalizar Pausa</button>
-                    <button id="endJornadaBtn" class="btn jornada btn-danger mx-2 col-2" onclick="endJornada()" style="display:none;">Fin de Jornada</button>
-                </div>
+
             </div>
         </div>
     </div>
     <div class="card2 mt-4">
         <div class="card-body2">
             <div class="row justify-between">
-                <div class="col-md-6">
-                    <div class="side-column">
-                        <div class="mb-3 card-body">
-                            <h5 class="card-title fw-bold">Presupuestos</h5>
-                            <div class="row row-cols-1 row-cols-xl-3 g-xl-4 g-3 mb-3">
-                                <div class="col">
-                                    <div class="card h-100" >
-                                        <div class="card-body p-3">
-                                            <h5 class="card-title m-0 text-color-4 fw-bold">Pendientes de confirmar</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->presupuestosPorEstado(1))}}</b></span>
-                                        </div>
+                <div class="col-12">
+                    <div class="row row-cols-1 row-cols-xl-2 g-xl-4 g-3 mb-3">
+                        <div class="card2">
+                            <div class="card-body col">
+                                <div class="row justify-content-between">
+                                    <div class="col-5">
+                                        <h5 class="card-title fw-bold">Produccion</h5>
+                                    </div>
+                                    <div class="col-5" >
+                                        <input type="text" class="form-control produccion" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
                                     </div>
                                 </div>
-                                <div class="col">
-                                    <div class="card h-100" >
-                                        <div class="card-body p-3">
-                                            <h5 class="card-title m-0 text-color-4 fw-bold">Pendientes de aceptar</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->presupuestosPorEstado(2))}}</b></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="card h-100">
-                                        <div class="card-body p-3">
-                                            <h5 class="card-title m-0 text-color-4 fw-bold">Aceptados</h5>
-                                            <span class="display-6 m-0"><b>{{count($user->presupuestosPorEstado(3))}}</b></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="{{route('presupuesto.create')}}" class="btn btn-outline-primary mb-2">Nuevo Presupuesto</a>
-                            <a href="{{route('presupuestos.indexUser')}}" class="btn btn-outline-secondary mb-2">Ver mis Presupuestos</a>
-                            <a href="{{route('presupuestos.index')}}" class="btn btn-outline-secondary mb-2">Ver todos los Presupuestos</a>
-                            <a href="{{route('incidencias.index')}}" class="btn btn-outline-secondary mb-2">Ver Incidencias</a>
-                            <a href="{{route('incidencias.create')}}" class="btn btn-outline-danger mb-2">Nueva incidencia</a>
-                        </div>
-                        <div class="row row-cols-1 row-cols-xl-2 g-xl-4 g-1">
-                            <div class="col">
-                                <div class="card2">
-                                    <div class="mb-3 card-body">
-                                        <h5 class="card-title fw-bold">Petición</h5>
-                                        <div class="row mb-3 ">
-                                            <div class="col">
-                                                <div class="card">
-                                                    <div class="card-body p-3">
-                                                        <h5 class="card-title m-0 text-color-4  fw-bold">Pendientes</h5>
-                                                        <span class="display-6 m-0"><b>{{count($user->peticionesPendientes())}}</b></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <a href="{{route('peticion.create')}}" class="btn btn-outline-primary mb-2">Nueva Petición</a>
-                                        <a href="{{route('peticion.indexUser')}}" class="btn btn-outline-secondary mb-2">Ver Mis Peticiones</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="card2">
-                                    <div class="mb-3 card-body">
-                                        <h5 class="card-title fw-bold">Ordenes de Compra</h5>
-                                        <div class="row mb-3 ">
-                                            <div class="col">
-                                                <div class="card">
-                                                    <div id="ordenes" class="card-body p-3">
-                                                        <h5 class="card-title  m-0 text-color-4  fw-bold">Pendientes</h5>
-                                                        <span class="display-6  m-0"><b>{{count($user->ordenes())}}</b></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <a href="{{route('order.index')}}"  class="btn btn-outline-secondary">Ver Ordenes</a>
-                                    </div>
+                                <div class="table-responsive">
+                                    <table class="table producc">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Inpuntualidad</th>
+                                                <th>H.Oficinas</th>
+                                                <th>H.Producidas</th>
+                                                <th>Produc</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if(count($produccion) == 0)
+                                            <tr>
+                                                <td colspan="5">No hay datos disponibles</td>
+                                            </tr>
+                                            @else
+                                                @foreach($produccion as $p)
+                                                <tr>
+                                                    <td>{{$p['nombre']}}</td>
+                                                    <td>{{$p['inpuntualidad']}}</td>
+                                                    <td>{{$p['horas_oficinas']}}</td>
+                                                    <td>{{$p['horas_producidas']}}</td>
+                                                    <td>{{$p['productividad']}} %</td>
+                                                </tr>
+                                                @endforeach
+                                            @endif
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        <div class="row row-cols-1 row-cols-xl-2 g-xl-4 g-1">
-                            <div class="col">
-                                <div class="card2">
-                                    <div class="mb-3 card-body">
-                                        <h5 class="card-title fw-bold">Producción</h5>
-                                        <a href="{{route('presupuestos.status')}}" class="btn btn-outline-secondary mb-2">Ver Status Proyectos</a>
-                                        <a href="{{route('tareas.index')}}" class="btn btn-outline-secondary mb-2">Ver Tareas</a>
+                        <div class="card2">
+                            <div class="card-body col">
+                                <div class="row justify-content-between">
+                                    <div class="col-5">
+                                        <h5 class="card-title fw-bold">Gestion</h5>
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="text" class="form-control" id="dateRange" name="dateRange" value="">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col">
-                                <div class="card2">
-                                    <div class="mb-3 card-body">
-                                        <h5 class="card-title fw-bold">Gestión</h5>
-                                        <a href="{{route('reunion.create')}}" class="btn btn-outline-primary mb-2">Nueva Reunion</a>
-                                        <a href="{{route('reunion.index')}}" class="btn btn-outline-secondary mb-2">Ver Actas de reunion</a>
-                                        <a href="{{route('clientes.index')}}" class="btn btn-outline-secondary mb-2">Ver Clientes</a>
-                                        <a href="{{route('proveedores.index')}}" class="btn btn-outline-secondary mb-2">Ver Proveedores</a>
-                                        <a href="{{route('kitDigital.create')}}"  class="btn btn-outline-secondary mb-2">Tramitar Subvención</a>
-                                        <a target="_blank" href="{{route('kitDigital.index')}}" class="btn btn-outline-secondary mb-2">Kit Digital</a>
-                                        <a target="_blank" href="{{route('kitDigital.indexWhatsapp')}}" class="btn btn-outline-secondary mb-2">Kit Digital Whatsapp</a>
-                                    </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Inpuntualidad</th>
+                                                <th>H.Oficinas</th>
+                                                <th>Presu.Realizados</th>
+                                                <th>Llamadas</th>
+                                                <th>Preticiones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{-- @if(count($produccion) == 0) --}}
+                                            <tr>
+                                                <td colspan="5">No hay datos disponibles</td>
+                                            </tr>
+                                            {{-- @else
+                                                @foreach($produccion as $p)
+                                                <tr>
+                                                    <td>{{$p->nombre}}</td>
+                                                    <td>{{$p->inputtualidad}}</td>
+                                                    <td>{{$p->horas_oficinas}}</td>
+                                                    <td>{{$p->horas_producidas}}</td>
+                                                    <td>{{$p->productividad}}</td>
+                                                </tr>
+                                                @endforeach
+                                            @endif --}}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        <div class="row row-cols-1 row-cols-md-1 g-4">
-                            <div class="col">
-                                <div class="card2">
-                                    <div class="mb-3 card-body">
-                                        <h5 class="card-title fw-bold">Balance</h5>
-                                        <form action="dashboard" method="GET" class="row align-items-end">
-                                            <div class="col-4">
-                                                <label for="fecha_inicio">Fecha Inicio:</label>
-                                                <input type="date" name="fecha_inicio" class="form-control" value="{{ request('fecha_inicio') }}">
-                                            </div>
-
-                                            <div class="col-4">
-                                                <label for="fecha_fin" class="mt-2">Fecha Fin:</label>
-                                                <input type="date" name="fecha_fin" class="form-control" value="{{ request('fecha_fin') }}">
-                                            </div>
-
-                                            <div class="col-4">
-                                                <button class="btn btn-outline-secondary mt-3">Ver Balance</button>
-                                            </div>
-                                        </form>
-                                        <div class="card-body p-3">
-                                            <h5 class="card-title m-0 text-color-4 fw-bold">Ingresos</h5>
-                                            <span class="display-6 m-0"><b>{{ $totalIngresos }} €</b></span>
-
-                                            <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Gastos</h5>
-                                            <span class="display-6 m-0"><b>{{ $totalGastosComunes }} €</b></span>
-
-                                            <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Gastos Asociados</h5>
-                                            <span class="display-6 m-0"><b>{{ $totalGastosSociados }} €</b></span>
-
-                                            <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Resultado IVA</h5>
-                                            <span class="display-6 m-0"><b>{{ $totalGastosSociados }} €</b></span>
-
-                                            <hr class="mb-2 mt-2">
-                                            <h5 class="card-title m-0 text-color-4 fw-bold mt-2">Beneficios</h5>
-                                            <span class="display-6 m-0"><b>{{ $beneficios }} €</b></span>
-                                        </div>
+                        <div class="card2">
+                            <div class="card-body col">
+                                <div class="row justify-content-between">
+                                    <div class="col-5">
+                                        <h5 class="card-title fw-bold">Comercial</h5>
                                     </div>
+                                    <div class="col-5">
+                                        <input type="text" class="form-control" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>H.Oficinas</th>
+                                                <th>Leads</th>
+                                                <th>reticiones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{-- @if(count($produccion) == 0) --}}
+                                            <tr>
+                                                <td colspan="5">No hay datos disponibles</td>
+                                            </tr>
+                                            {{-- @else
+                                                @foreach($produccion as $p)
+                                                <tr>
+                                                    <td>{{$p->nombre}}</td>
+                                                    <td>{{$p->inputtualidad}}</td>
+                                                    <td>{{$p->horas_oficinas}}</td>
+                                                    <td>{{$p->horas_producidas}}</td>
+                                                    <td>{{$p->productividad}}</td>
+                                                </tr>
+                                                @endforeach
+                                            @endif --}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card2">
+                            <div class="card-body col">
+                                <div class="row justify-content-between">
+                                    <div class="col-5">
+                                        <h5 class="card-title fw-bold">Contabilidad</h5>
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="text" class="form-control" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Inpuntualidad</th>
+                                                <th>H.Oficinas</th>
+                                                <th>Fact.Realizados</th>
+                                                <th>Llamadas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{-- @if(count($produccion) == 0) --}}
+                                            <tr>
+                                                <td colspan="5">No hay datos disponibles</td>
+                                            </tr>
+                                            {{-- @else
+                                                @foreach($produccion as $p)
+                                                <tr>
+                                                    <td>{{$p->nombre}}</td>
+                                                    <td>{{$p->inputtualidad}}</td>
+                                                    <td>{{$p->horas_oficinas}}</td>
+                                                    <td>{{$p->horas_producidas}}</td>
+                                                    <td>{{$p->productividad}}</td>
+                                                </tr>
+                                                @endforeach
+                                            @endif --}}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -527,239 +550,6 @@
     });
 </script>
 <script>
-    let timerState = '{{ $jornadaActiva ? "running" : "stopped" }}'
-    let timerTime = {{ $timeWorkedToday }}; // In seconds, initialized with the time worked today
-    function getTime() {
-        fetch('/dashboard/timeworked', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({})
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    timerTime = data.time
-                    updateTime()
-                }
-            });
-    }
-
-
-    function updateTime() {
-        let hours = Math.floor(timerTime / 3600);
-        let minutes = Math.floor((timerTime % 3600) / 60);
-        let seconds = timerTime % 60;
-
-        hours = hours < 10 ? '0' + hours : hours;
-        minutes = minutes < 10 ? '0' + minutes : minutes;
-        seconds = seconds < 10 ? '0' + seconds : seconds;
-
-        document.getElementById('timer').textContent = `${hours}:${minutes}:${seconds}`;
-    }
-
-    function startTimer() {
-            timerState = 'running';
-            timerInterval = setInterval(() => {
-                timerTime++;
-                updateTime();
-            }, 1000);
-    }
-
-    function stopTimer() {
-            clearInterval(timerInterval);
-            timerState = 'stopped';
-    }
-
-    function startJornada() {
-        fetch('/start-jornada', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({})
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    startTimer();
-                    document.getElementById('startJornadaBtn').style.display = 'none';
-                    document.getElementById('startPauseBtn').style.display = 'block';
-                    document.getElementById('endJornadaBtn').style.display = 'block';
-                }
-            });
-    }
-
-    function endJornada() {
-    // Obtener el tiempo actualizado
-    getTime();
-
-    let now = new Date();
-    let currentHour = now.getHours();
-    let currentMinute = now.getMinutes();
-
-    // Convertir los segundos trabajados a horas
-    let workedHours = timerTime / 3600;
-
-    // Verificar si es antes de las 18:00 o si ha trabajado menos de 8 horas
-    if (currentHour < 18 || workedHours < 8) {
-        let title = '';
-        let text = '';
-
-        if (currentHour < 18) {
-            title = 'Horario de Salida Prematuro';
-            text = 'Es menos de las 18:00.  ';
-        }else{
-            if(workedHours < 8) {
-            title = ('Jornada Incompleta');
-            text = 'Has trabajado menos de 8 horas. Si no compensas el tiempo faltante,';
-            }
-        }
-
-        text += 'Se te descontará de tus vacaciones al final del mes.';
-
-        Swal.fire({
-            title: title,
-            text: text,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Finalizar Jornada',
-            cancelButtonText: 'Continuar Jornada'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                finalizarJornada();
-            }
-            // Si elige continuar, no hacemos nada, simplemente mantiene la jornada activa
-        });
-    } else {
-        // Si el tiempo es mayor o igual a 8 horas y es después de las 18:00, finalizamos directamente la jornada
-        finalizarJornada();
-    }
-}
-
-    function finalizarJornada() {
-        fetch('/end-jornada', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                stopTimer();
-                document.getElementById('startJornadaBtn').style.display = 'block';
-                document.getElementById('startPauseBtn').style.display = 'none';
-                document.getElementById('endJornadaBtn').style.display = 'none';
-                document.getElementById('endPauseBtn').style.display = 'none';
-            }
-        });
-    }
-
-    function startPause() {
-        fetch('/start-pause', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({})
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    stopTimer();
-                    document.getElementById('startPauseBtn').style.display = 'none';
-                    document.getElementById('endPauseBtn').style.display = 'block';
-                }
-            });
-    }
-
-    function endPause() {
-        fetch('/end-pause', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({})
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    startTimer();
-                    document.getElementById('startPauseBtn').style.display = 'block';
-                    document.getElementById('endPauseBtn').style.display = 'none';
-                }
-            });
-    }
-
-    function endLlamada() {
-        fetch('/dashboard/llamadafin', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({})
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('endllamadaBtn').style.display = 'none';
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: data.mensaje, // Aquí se muestra el mensaje del JSON
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                    });
-                }
-            });
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        updateTime(); // Initialize the timer display
-
-        setInterval(function() {
-            getTime();
-        }, 120000);
-
-        // Initialize button states based on jornada and pause
-        if ('{{ $jornadaActiva }}') {
-            document.getElementById('startJornadaBtn').style.display = 'none';
-            document.getElementById('endJornadaBtn').style.display = 'block';
-            if ('{{ $pausaActiva }}') {
-                document.getElementById('startPauseBtn').style.display = 'none';
-                document.getElementById('endPauseBtn').style.display = 'block';
-            } else {
-                document.getElementById('startPauseBtn').style.display = 'block';
-                document.getElementById('endPauseBtn').style.display = 'none';
-                startTimer(); // Start timer if not in pause
-            }
-        } else {
-            document.getElementById('startJornadaBtn').style.display = 'block';
-            document.getElementById('endJornadaBtn').style.display = 'none';
-            document.getElementById('startPauseBtn').style.display = 'none';
-            document.getElementById('endPauseBtn').style.display = 'none';
-        }
-
-        if ('{{ $llamadaActiva }}'){
-            document.getElementById('endllamadaBtn').style.display = 'block';
-        } else {
-            document.getElementById('endllamadaBtn').style.display = 'none';
-        }
-
-        });
-</script>
-<script>
         $('#todoboton').click(function(e){
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
             $('#todoform').submit(); // Esto envía el formulario.
@@ -858,130 +648,6 @@
             calendar.render();
         });
 
-</script>
-<script>
-    //     document.addEventListener('DOMContentLoaded', function() {
-    //         const clientSelect = document.getElementById('client_id');
-    //         const budgetSelect = document.getElementById('budget_id');
-    //         const projectSelect = document.getElementById('project_id');
-
-    //         // Función para actualizar presupuestos basados en el cliente seleccionado
-    //         function updateBudgets(clientId) {
-    //             fetch('/budgets-by-client', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                 },
-    //                 body: JSON.stringify({ client_id: clientId })
-    //             })
-    //             .then(response => response.json())
-    //             .then(budgets => {
-    //                 budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-    //                 budgets.forEach(budget => {
-    //                     budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
-    //                 });
-    //                 budgetSelect.disabled = false;
-    //             });
-    //         }
-    //         // Función para actualizar presupuestos basados en el cliente seleccionado
-    //         function updateBudgetsbyprojects(projectId) {
-    //             fetch('/budgets-by-project', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                 },
-    //                 body: JSON.stringify({ project_id: projectId })
-    //             })
-    //             .then(response => response.json())
-    //             .then(budgets => {
-    //                 budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-    //                 budgets.forEach(budget => {
-    //                     budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
-    //                 });
-    //                 budgetSelect.disabled = false;
-    //             });
-    //         }
-
-    //         // Función para actualizar campañas basadas en el cliente seleccionado
-    //         function updateProjects(clientId) {
-    //             fetch('/projects-from-client', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                 },
-    //                 body: JSON.stringify({ client_id: clientId })
-    //             })
-    //             .then(response => response.json())
-    //             .then(projects => {
-    //                 projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
-    //                 projects.forEach(project => {
-    //                     projectSelect.innerHTML += `<option value="${project.id}">${project.name}</option>`;
-    //                 });
-    //                 projectSelect.disabled = false;
-    //             });
-    //         }
-
-    //         // Cuando se selecciona un cliente, actualiza presupuestos y campañas
-    //         clientSelect.addEventListener('change', function() {
-    //             const clientId = this.value;
-    //             if (clientId) {
-    //                 updateBudgets(clientId);
-    //                 updateProjects(clientId);
-    //             } else {
-    //                 budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-    //                 projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
-    //                 budgetSelect.disabled = true;
-    //                 projectSelect.disabled = true;
-    //             }
-    //         });
-
-    //         // Cuando se selecciona un presupuesto, actualiza el cliente y la campaña
-    //         budgetSelect.addEventListener('change', function() {
-    //             const budgetId = this.value;
-    //             if (budgetId) {
-    //                 fetch('/budget-by-id', {
-    //                     method: 'POST',
-    //                     headers: {
-    //                         'Content-Type': 'application/json',
-    //                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                     },
-    //                     body: JSON.stringify({ budget_id: budgetId })
-    //                 })
-    //                 .then(response => response.json())
-    //                 .then(budget => {
-    //                     clientSelect.value = budget.client_id;
-    //                     //updateProjects(budget.client_id);
-    //                     projectSelect.value = budget.project_id;
-    //                     //console.log(budget.project_id;);
-
-    //                 });
-    //             }
-    //         });
-
-    //         // Cuando se selecciona una campaña, actualiza el cliente y el presupuesto
-    //         projectSelect.addEventListener('change', function() {
-    //             const projectId = this.value;
-    //             if (projectId) {
-    //                 fetch('/project-by-id', {
-    //                     method: 'POST',
-    //                     headers: {
-    //                         'Content-Type': 'application/json',
-    //                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                     },
-    //                     body: JSON.stringify({ project_id: projectId })
-    //                 })
-    //                 .then(response => response.json())
-    //                 .then(project => {
-    //                     clientSelect.value = project.client_id;
-    //                     updateBudgetsbyprojects(project.id);
-    //                     budgetSelect.value = ''; // O puedes poner una lógica para seleccionar un presupuesto por defecto
-    //                 });
-    //             }
-    //         });
-    //     });
 </script>
 <script>
     function showTodoModal() {
@@ -1289,6 +955,77 @@
         });
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#dateRange", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            locale: "es",
+        });
+    });
+</script>
+<script>
+ $(document).ready(function () {
+    // Escucha el evento change en el input con la clase 'produccion'
+    $('.produccion').on('change', function (e) {
+        console.log(e);
+        // Obtén el valor del input que cambió
+        let dateRange = $(this).val();
+
+        if(dateRange.includes('a')) {
+            fetchProductionData(dateRange);
+        }
+        // Muestra el valor en la consola (solo para verificar que se obtuvo bien)
+        // Llama a la función para recargar los datos con fetch
+        //fetchProductionData(dateRange);
+    });
+
+    // Función que hace el fetch para recargar los datos
+    function fetchProductionData(dateRange) {
+        fetch('/get-productividad', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Asegúrate de tener el token CSRF
+            },
+            body: JSON.stringify({ dateRange: dateRange })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Datos recibidos:", data);
+                // Aquí puedes actualizar la tabla con los datos recibidos
+                // Ejemplo de actualización de tabla
+                updateTable(data);
+            })
+            .catch(error => console.error('Error al recargar los datos:', error));
+    }
+
+    // Función para actualizar la tabla con los datos recibidos
+    function updateTable(data) {
+        let tbody = $('.producc tbody');
+        tbody.empty(); // Limpia el contenido actual de la tabla
+
+        if (data.length === 0) {
+            tbody.append('<tr><td colspan="5">No hay datos disponibles</td></tr>');
+        } else {
+            data.forEach(item => {
+                let row = `
+                    <tr>
+                        <td>${item.nombre}</td>
+                        <td>${item.inpuntualidad}</td>
+                        <td>${item.horas_oficinas}</td>
+                        <td>${item.horas_producidas ?? ''}</td>
+                        <td>${item.productividad ?? ''}%</td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+        }
+    }
+});
+</script>
 @endsection
 

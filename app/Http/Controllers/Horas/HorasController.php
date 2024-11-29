@@ -222,9 +222,7 @@ class HorasController extends Controller
 
     public function horasTrabajadasDia($dia, $id){
 
-        // Fechas, la función se llamará los viernes por lo que se manipulan respecto a esto,
         $totalWorkedSeconds = 0;
-        // Jornada donde el año fecha y día de hoy
         $jornadas = Jornada::where('admin_user_id', $id)
         ->whereDate('start_time', $dia)
         ->get();

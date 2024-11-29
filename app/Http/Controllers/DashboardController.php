@@ -50,16 +50,12 @@ class DashboardController extends Controller
             $pausaActiva = $jornadaActiva->pausasActiva();
         }
 
-
-
-
-
         switch($acceso){
             case(1):
                  // Obtener las fechas de la solicitud, o asignar fechas predeterminadas si no están presentes
                 $fechaInicio = $request->input('fecha_inicio') ?? date('Y-m-01'); // Primer día del mes actual
                 $fechaFin = $request->input('fecha_fin') ?? date('Y-m-d'); // Día actual
-
+                $produccion = $this->produccion($fechaInicio, $fechaFin);
                 // Validar las fechas
                 if (!$fechaInicio || !$fechaFin) {
                     return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');
@@ -114,7 +110,8 @@ class DashboardController extends Controller
                     'totalGastosComunes',
                     'totalGastosSociados',
                     'beneficios',
-                    'to_dos_finalizados'
+                    'to_dos_finalizados',
+                    'produccion'
                 ));
             case(2):
                 $clientes = Client::where('is_client',true)->get();
@@ -285,6 +282,7 @@ class DashboardController extends Controller
                 return view('dashboards.dashboard_comercial', compact('user','diasDiferencia','estadosKit','comisionRestante','ayudas','comisionTramitadas','comisionPendiente', 'comisionCurso', 'pedienteCierre','timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
         }
     }
+
     public function parseFlexibleTime($time) {
         list($hours, $minutes, $seconds) = explode(':', $time);
         return ($hours * 60) + $minutes + ($seconds / 60); // Convert to total minutes
@@ -948,6 +946,7 @@ class DashboardController extends Controller
         // return "{$hours}:{$minutes}:{$seconds}";
         return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
     }
+
     function convertToNumber($importe) {
         // Elimina los puntos de separación de miles
         $importe = str_replace('.', '', $importe);
@@ -1014,5 +1013,125 @@ class DashboardController extends Controller
         } else {
             return 503;
         }
+    }
+
+    public function puntualidad($ini, $fin, $id){
+        $puntualidad = Alert::where('admin_user_id', $id)
+        ->whereDate('created_at','>=', $ini)
+        ->whereDate('created_at','<=', $fin)
+        ->where('stage_id', 23)
+        ->whereRaw('admin_user_id = reference_id')
+        ->get();
+
+        $dias = $puntualidad->count();
+
+        return $dias;
+    }
+
+    public function productividad($ini, $fin, $id){
+
+        $tareasFinalizadas = Task::where('admin_user_id', $id)
+        ->where('task_status_id', 3)
+        ->whereDate('updated_at','>=', $ini)
+        ->whereDate('updated_at','<=', $fin)
+        ->get();
+
+        $totalProductividad = 0;
+        $totalEstimatedTime = 0;
+        $totalRealTime = 0;
+
+        foreach ($tareasFinalizadas as $tarea) {
+            // Parse estimated and real times into total minutes
+            $totalEstimatedTime += $this->parseFlexibleTime($tarea->estimated_time);
+            $totalRealTime += $this->parseFlexibleTime($tarea->real_time);
+        }
+
+        // Calculate the total productivity as a percentage
+        if ($totalRealTime > 0) {
+            $totalProductividad = ($totalEstimatedTime / $totalRealTime) * 100;
+        } else {
+            $totalProductividad = 0; // Set to 0 if no real time to avoid division by zero
+        }
+        return number_format(($totalProductividad), 2, ',', '.');
+    }
+
+    public function horasTrabajadasEnRango($fechaInicio, $fechaFin, $id) {
+        $totalWorkedSeconds = 0;
+
+        $jornadas = Jornada::where('admin_user_id', $id)
+                            ->whereDate('start_time', '>=', $fechaInicio)
+                            ->whereDate('start_time', '<=', $fechaFin)
+                            ->get();
+
+        foreach ($jornadas as $jornada) {
+            if ($jornada->end_time) {
+                $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time);
+            } else {
+                $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds(Carbon::now());
+            }
+            $totalPauseSeconds = 0;
+            if ($jornada->pauses) {
+                foreach ($jornada->pauses as $pause) {
+                    $totalPauseSeconds += Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? Carbon::now());
+                }
+            }
+            $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
+        }
+        // Convertir segundos a formato hh:mm:ss
+        $horas = floor($totalWorkedSeconds / 3600);
+        $minutos = floor(($totalWorkedSeconds % 3600) / 60);
+        // Formatear la salida para asegurar siempre dos dígitos
+        $tiempoFormateado = sprintf('%02d h %02d m', $horas, $minutos);
+
+        return $tiempoFormateado;
+    }
+
+    public function tiempoProducidoEnRango($fechaInicio, $fechaFin, $id) {
+        $tiempoTarea = 0;
+        // Filtrar las tareas que estén dentro del rango de fechas
+        $tareas = LogTasks::where('admin_user_id', $id)
+                          ->whereDate('date_start', '>=', $fechaInicio)
+                          ->whereDate('date_start', '<=', $fechaFin)
+                          ->get();
+        // Recorrer todas las tareas dentro del rango de fechas
+        foreach ($tareas as $tarea) {
+            if ($tarea->status == 'Pausada' && $tarea->date_end) {
+                $tiempoInicio = Carbon::parse($tarea->date_start);
+                $tiempoFinal = Carbon::parse($tarea->date_end);
+                $tiempoTarea += $tiempoInicio->diffInMinutes($tiempoFinal);
+            }
+        }
+        // Convertir minutos a formato hh:mm:ss
+        $horas = floor($tiempoTarea / 60);
+        $minutos = $tiempoTarea % 60;
+        // Formatear la salida para asegurar siempre dos dígitos
+        $tiempoFormateado = sprintf('%02d h %02d m', $horas, $minutos);
+
+        return $tiempoFormateado;
+    }
+
+    public function produccion($fechaInicio , $fechaFin)
+    {
+        $user = User::where('inactive',0)->where('access_level_id',5)->get();
+        $data = [];
+        foreach ($user as $usuario) {
+            $data[] = [
+                'nombre' => $usuario->name,
+                'inpuntualidad' => $this->puntualidad($fechaInicio, $fechaFin, $usuario->id),
+                'horas_oficinas' => $this->horasTrabajadasEnRango($fechaInicio, $fechaFin, $usuario->id),
+                'horas_producidas' => $this->tiempoProducidoEnRango($fechaInicio, $fechaFin, $usuario->id),
+                'productividad' => $this->productividad($fechaInicio, $fechaFin, $usuario->id)
+            ];
+        }
+        return $data;
+    }
+
+    public function getProduccion(Request $request)
+    {
+        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')) );
+        $fechaInicio = Carbon::parse($fechas[0]);
+        $fechaFin = Carbon::parse($fechas[1]);
+        $produccion = $this->produccion($fechaInicio, $fechaFin);
+        return $produccion;
     }
 }

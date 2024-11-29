@@ -459,7 +459,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/productividad', [ProductividadController::class, 'index'])->name('productividad.index');
     });
 
-
+    Route::post('/get-productividad', [DashboardController::class, 'getProduccion'])->name('productividad.get');
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     //Alertas
