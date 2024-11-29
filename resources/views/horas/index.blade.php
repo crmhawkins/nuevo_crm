@@ -86,8 +86,8 @@
                                                 @foreach($todosLosDias as $fecha)
                                                 <tr>
                                                     <td><strong>{{ $fecha }}:</strong></td>
-                                                    <td>Trabajadas: {{ $usuario['horas_trabajadas'][$fecha] ?? '0' }} min</td>
-                                                    <td>Producidas: {{ $usuario['horas_producidas'][$fecha] ?? '0' }} min</td>
+                                                    <td>Trabajadas: {{ $usuario['horas_trabajadas'][$fecha] ?? '0' }} </td>
+                                                    <td>Producidas: {{ $usuario['horas_producidas'][$fecha] ?? '0' }} </td>
                                                 </tr>
                                                 @endforeach
                                             </tbody>
