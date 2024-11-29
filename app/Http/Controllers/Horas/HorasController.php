@@ -166,8 +166,14 @@ class HorasController extends Controller
                     $datosUsuario['horas_producidas'][$fecha] = $horasProducidas;
                 }
 
-                $datosUsuario['total_horas_trabajadas'] = $totalHorasTrabajadas;
-                $datosUsuario['total_horas_producidas'] = $totalHorasProducidas;
+                $horaHorasTrabajadas = floor($totalHorasTrabajadas / 60);
+                $minutoHorasTrabajadas = ($totalHorasTrabajadas % 60);
+
+                $horaHorasProducidas = floor($totalHorasProducidas / 60);
+                $minutoHorasProducidas = ($totalHorasProducidas % 60);
+
+                $datosUsuario['total_horas_trabajadas'] = "$horaHorasTrabajadas h $minutoHorasTrabajadas min";
+                $datosUsuario['total_horas_producidas'] = "$horaHorasProducidas h $minutoHorasProducidas min";
                 $arrayUsuarios[] = $datosUsuario;
             }
         }
