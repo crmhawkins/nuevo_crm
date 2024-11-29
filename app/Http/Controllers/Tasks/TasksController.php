@@ -174,11 +174,17 @@ class TasksController extends Controller
         // Convertir los eventos en formato adecuado para FullCalendar (si no están ya en ese formato)
         $eventData = [];
         foreach ($events as $event) {
+
+            $inicio = Carbon::createFromFormat('Y-m-d H:i:s', $event[1], 'UTC');
+            $inicioEspaña = $inicio->setTimezone('Europe/Madrid');
+            $fin = Carbon::createFromFormat('Y-m-d H:i:s', $event[2], 'UTC');
+            $finEspaña = $inicio->setTimezone('Europe/Madrid');
+
             $eventData[] = [
                 'id' => $event[3],
                 'title' => $event[0],
-                'start' => \Carbon\Carbon::parse($event[1])->addHours(2)->toIso8601String(), // Aquí debería estar la fecha y hora de inicio
-                'end' => $event[2] ? \Carbon\Carbon::parse($event[2])->addHours(2)->toIso8601String() : null , // Aquí debería estar la fecha y hora de fin
+                'start' => $inicioEspaña->toIso8601String(), // Aquí debería estar la fecha y hora de inicio
+                'end' => $event[2] ? $finEspaña->toIso8601String() : null , // Aquí debería estar la fecha y hora de fin
                 'allDay' => false, // Indica si el evento es de todos los días
                 'color' =>$event[4]
             ];
