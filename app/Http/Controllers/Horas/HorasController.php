@@ -158,12 +158,20 @@ class HorasController extends Controller
 
                 // Calcular horas por cada día dentro del rango
                 foreach ($todosLosDias as $fecha => $dia) {
+                    $horaHorasTrabajadasdia = 0;
+                    $minutoHorasTrabajadasdia = 0;
+                    $horaHorasProducidasdia = 0;
+                    $minutoHorasProducidasdia = 0;
                     $horasTrabajadas = $this->horasTrabajadasDia($dia, $usuario->id);
                     $horasProducidas = $this->tiempoProducidoDia($dia, $usuario->id);
                     $totalHorasTrabajadas += $horasTrabajadas;
                     $totalHorasProducidas += $horasProducidas;
-                    $datosUsuario['horas_trabajadas'][$fecha] = $horasTrabajadas;
-                    $datosUsuario['horas_producidas'][$fecha] = $horasProducidas;
+                    $horaHorasTrabajadasdia = floor($totalHorasTrabajadas / 60);
+                    $minutoHorasTrabajadasdia = ($totalHorasTrabajadas % 60);
+                    $horaHorasProducidasdia = floor($totalHorasProducidas / 60);
+                    $minutoHorasProducidasdia = ($totalHorasProducidas % 60);
+                    $datosUsuario['horas_trabajadas'][$fecha] = "$horaHorasTrabajadasdia h $minutoHorasTrabajadasdia min";
+                    $datosUsuario['horas_producidas'][$fecha] = "$horaHorasProducidasdia h $minutoHorasProducidasdia min";
                 }
 
                 $horaHorasTrabajadas = floor($totalHorasTrabajadas / 60);
