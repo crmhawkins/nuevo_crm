@@ -459,7 +459,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/productividad', [ProductividadController::class, 'index'])->name('productividad.index');
     });
 
-    Route::post('/get-productividad', [DashboardController::class, 'getProduccion'])->name('productividad.get');
+    Route::post('/get-produccion', [DashboardController::class, 'getProduccion'])->name('productividad.get');
+    Route::post('/get-gestion', [DashboardController::class, 'getGestion'])->name('gestion.get');
+    Route::post('/get-comercial', [DashboardController::class, 'getComercial'])->name('comercial.get');
+    Route::post('/get-contabilidad', [DashboardController::class, 'getContabilidad'])->name('contabilidad.get');
+
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     //Alertas

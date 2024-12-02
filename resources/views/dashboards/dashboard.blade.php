@@ -76,11 +76,11 @@
                                         <h5 class="card-title fw-bold">Gestion</h5>
                                     </div>
                                     <div class="col-5">
-                                        <input type="text" class="form-control" id="dateRange" name="dateRange" value="">
+                                        <input type="text" class="form-control gestion" id="dateRange" name="dateRange" value="">
                                     </div>
                                 </div>
                                 <div class="table-responsive">
-                                    <table class="table">
+                                    <table class="table gest">
                                         <thead>
                                             <tr>
                                                 <th>Nombre</th>
@@ -88,25 +88,28 @@
                                                 <th>H.Oficinas</th>
                                                 <th>Presu.Realizados</th>
                                                 <th>Llamadas</th>
-                                                <th>Preticiones</th>
+                                                <th>Kits</th>
+                                                <th>Peticiones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {{-- @if(count($produccion) == 0) --}}
+                                            @if(count($gestion) == 0)
                                             <tr>
                                                 <td colspan="5">No hay datos disponibles</td>
                                             </tr>
-                                            {{-- @else
-                                                @foreach($produccion as $p)
+                                            @else
+                                                @foreach($gestion as $g)
                                                 <tr>
-                                                    <td>{{$p->nombre}}</td>
-                                                    <td>{{$p->inputtualidad}}</td>
-                                                    <td>{{$p->horas_oficinas}}</td>
-                                                    <td>{{$p->horas_producidas}}</td>
-                                                    <td>{{$p->productividad}}</td>
+                                                    <td>{{$g['nombre']}}</td>
+                                                    <td>{{$g['inpuntualidad']}}</td>
+                                                    <td>{{$g['horas_oficinas']}}</td>
+                                                    <td>{{$g['presu_generados']}}</td>
+                                                    <td>{{$g['llamadas']}}</td>
+                                                    <td>{{$g['kits']}}</td>
+                                                    <td>{{$g['peticiones']}}</td>
                                                 </tr>
                                                 @endforeach
-                                            @endif --}}
+                                            @endif
                                         </tbody>
                                     </table>
                                 </div>
@@ -119,11 +122,11 @@
                                         <h5 class="card-title fw-bold">Comercial</h5>
                                     </div>
                                     <div class="col-5">
-                                        <input type="text" class="form-control" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
+                                        <input type="text" class="form-control comercial" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
                                     </div>
                                 </div>
                                 <div class="table-responsive">
-                                    <table class="table">
+                                    <table class="table comerc">
                                         <thead>
                                             <tr>
                                                 <th>Nombre</th>
@@ -160,11 +163,11 @@
                                         <h5 class="card-title fw-bold">Contabilidad</h5>
                                     </div>
                                     <div class="col-5">
-                                        <input type="text" class="form-control" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
+                                        <input type="text" class="form-control contable" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
                                     </div>
                                 </div>
                                 <div class="table-responsive">
-                                    <table class="table">
+                                    <table class="table contab">
                                         <thead>
                                             <tr>
                                                 <th>Nombre</th>
@@ -968,64 +971,233 @@
     });
 </script>
 <script>
- $(document).ready(function () {
-    // Escucha el evento change en el input con la clase 'produccion'
-    $('.produccion').on('change', function (e) {
-        console.log(e);
-        // Obtén el valor del input que cambió
-        let dateRange = $(this).val();
+    $(document).ready(function () {
+        // Escucha el evento change en el input con la clase 'produccion'
+        $('.produccion').on('change', function (e) {
+            console.log(e);
+            // Obtén el valor del input que cambió
+            let dateRange = $(this).val();
 
-        if(dateRange.includes('a')) {
-            fetchProductionData(dateRange);
-        }
-        // Muestra el valor en la consola (solo para verificar que se obtuvo bien)
-        // Llama a la función para recargar los datos con fetch
-        //fetchProductionData(dateRange);
-    });
+            if(dateRange.includes('a')) {
+                fetchProductionData(dateRange);
+            }
+            // Muestra el valor en la consola (solo para verificar que se obtuvo bien)
+            // Llama a la función para recargar los datos con fetch
+            //fetchProductionData(dateRange);
+        });
 
-    // Función que hace el fetch para recargar los datos
-    function fetchProductionData(dateRange) {
-        fetch('/get-productividad', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Asegúrate de tener el token CSRF
-            },
-            body: JSON.stringify({ dateRange: dateRange })
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Datos recibidos:", data);
-                // Aquí puedes actualizar la tabla con los datos recibidos
-                // Ejemplo de actualización de tabla
-                updateTable(data);
+        // Función que hace el fetch para recargar los datos
+        function fetchProductionData(dateRange) {
+            fetch('/get-produccion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Asegúrate de tener el token CSRF
+                },
+                body: JSON.stringify({ dateRange: dateRange })
             })
-            .catch(error => console.error('Error al recargar los datos:', error));
-    }
-
-    // Función para actualizar la tabla con los datos recibidos
-    function updateTable(data) {
-        let tbody = $('.producc tbody');
-        tbody.empty(); // Limpia el contenido actual de la tabla
-
-        if (data.length === 0) {
-            tbody.append('<tr><td colspan="5">No hay datos disponibles</td></tr>');
-        } else {
-            data.forEach(item => {
-                let row = `
-                    <tr>
-                        <td>${item.nombre}</td>
-                        <td>${item.inpuntualidad}</td>
-                        <td>${item.horas_oficinas}</td>
-                        <td>${item.horas_producidas ?? ''}</td>
-                        <td>${item.productividad ?? ''}%</td>
-                    </tr>
-                `;
-                tbody.append(row);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Datos recibidos:", data);
+                    // Aquí puedes actualizar la tabla con los datos recibidos
+                    // Ejemplo de actualización de tabla
+                    updateTableProduccion(data);
+                })
+                .catch(error => console.error('Error al recargar los datos:', error));
         }
-    }
-});
+
+        // Función para actualizar la tabla con los datos recibidos
+        function updateTableProduccion(data) {
+            let tbody = $('.producc tbody');
+            tbody.empty(); // Limpia el contenido actual de la tabla
+
+            if (data.length === 0) {
+                tbody.append('<tr><td colspan="5">No hay datos disponibles</td></tr>');
+            } else {
+                data.forEach(item => {
+                    let row = `
+                        <tr>
+                            <td>${item.nombre}</td>
+                            <td>${item.inpuntualidad}</td>
+                            <td>${item.horas_oficinas}</td>
+                            <td>${item.horas_producidas ?? ''}</td>
+                            <td>${item.productividad ?? ''}%</td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+            }
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        // Escucha el evento change en el input con la clase 'produccion'
+        $('.gestion').on('change', function (e) {
+            // Obtén el valor del input que cambió
+            let dateRange = $(this).val();
+
+            if(dateRange.includes('a')) {
+                fetchGestionData(dateRange);
+            }
+
+        });
+
+        // Función que hace el fetch para recargar los datos
+        function fetchGestionData(dateRange) {
+            fetch('/get-gestion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Asegúrate de tener el token CSRF
+                },
+                body: JSON.stringify({ dateRange: dateRange })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Datos recibidos:", data);
+                    // Aquí puedes actualizar la tabla con los datos recibidos
+                    // Ejemplo de actualización de tabla
+                    updateTablegestion(data);
+                })
+                .catch(error => console.error('Error al recargar los datos:', error));
+        }
+
+        // Función para actualizar la tabla con los datos recibidos
+        function updateTablegestion(data) {
+            let tbody = $('.gest tbody');
+            tbody.empty(); // Limpia el contenido actual de la tabla
+
+            if (data.length === 0) {
+                tbody.append('<tr><td colspan="5">No hay datos disponibles</td></tr>');
+            } else {
+                data.forEach(item => {
+                    let row = `
+                        <tr>
+                            <td>${item.nombre}</td>
+                            <td>${item.inpuntualidad}</td>
+                            <td>${item.horas_oficinas}</td>
+                            <td>${item.horas_producidas ?? ''}</td>
+                            <td>${item.productividad ?? ''}%</td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+            }
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        // Escucha el evento change en el input con la clase 'produccion'
+        $('.comercial').on('change', function (e) {
+            console.log(e);
+            // Obtén el valor del input que cambió
+            let dateRange = $(this).val();
+
+            if(dateRange.includes('a')) {
+                fetchComencialData(dateRange);
+            }
+            // Muestra el valor en la consola (solo para verificar que se obtuvo bien)
+            // Llama a la función para recargar los datos con fetch
+            //fetchProductionData(dateRange);
+        });
+
+        // Función que hace el fetch para recargar los datos
+        function fetchComencialData(dateRange) {
+            fetch('/get-comercial', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Asegúrate de tener el token CSRF
+                },
+                body: JSON.stringify({ dateRange: dateRange })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Datos recibidos:", data);
+                    // Aquí puedes actualizar la tabla con los datos recibidos
+                    // Ejemplo de actualización de tabla
+                    updateTableComercial(data);
+                })
+                .catch(error => console.error('Error al recargar los datos:', error));
+        }
+
+        // Función para actualizar la tabla con los datos recibidos
+        function updateTableComercial(data) {
+            let tbody = $('.comerc tbody');
+            tbody.empty(); // Limpia el contenido actual de la tabla
+
+            if (data.length === 0) {
+                tbody.append('<tr><td colspan="5">No hay datos disponibles</td></tr>');
+            } else {
+                data.forEach(item => {
+                    let row = `
+                        <tr>
+                            <td>${item.nombre}</td>
+                            <td>${item.inpuntualidad}</td>
+                            <td>${item.horas_oficinas}</td>
+                            <td>${item.horas_producidas ?? ''}</td>
+                            <td>${item.productividad ?? ''}%</td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+            }
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('.contable').on('change', function (e) {
+
+            let dateRange = $(this).val();
+
+            if(dateRange.includes('a')) {
+                fetchContabilidadData(dateRange);
+            }
+
+        });
+
+        function fetchContabilidadData(dateRange) {
+            fetch('get-contabilidad', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Asegúrate de tener el token CSRF
+                },
+                body: JSON.stringify({ dateRange: dateRange })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Datos recibidos:", data);
+                    updateTableContabilidad(data);
+                })
+                .catch(error => console.error('Error al recargar los datos:', error));
+        }
+
+        function updateTableContabilidad(data) {
+            let tbody = $('.contab tbody');
+            tbody.empty(); // Limpia el contenido actual de la tabla
+
+            if (data.length === 0) {
+                tbody.append('<tr><td colspan="5">No hay datos disponibles</td></tr>');
+            } else {
+                data.forEach(item => {
+                    let row = `
+                        <tr>
+                            <td>${item.nombre}</td>
+                            <td>${item.inpuntualidad}</td>
+                            <td>${item.horas_oficinas}</td>
+                            <td>${item.horas_producidas ?? ''}</td>
+                            <td>${item.productividad ?? ''}%</td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+            }
+        }
+    });
 </script>
 @endsection
 

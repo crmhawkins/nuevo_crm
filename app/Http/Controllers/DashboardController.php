@@ -16,6 +16,8 @@ use App\Models\Jornada\Pause;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
 use App\Models\Llamadas\Llamada;
+use App\Models\Petitions\Petition;
+use App\Models\Logs\LogActions;
 use App\Models\Notes\Note;
 use App\Models\ProductividadMensual;
 use App\Models\Projects\Project;
@@ -56,6 +58,7 @@ class DashboardController extends Controller
                 $fechaInicio = $request->input('fecha_inicio') ?? date('Y-m-01'); // Primer día del mes actual
                 $fechaFin = $request->input('fecha_fin') ?? date('Y-m-d'); // Día actual
                 $produccion = $this->produccion($fechaInicio, $fechaFin);
+                $gestion = $this->gestion($fechaInicio, $fechaFin);
                 // Validar las fechas
                 if (!$fechaInicio || !$fechaFin) {
                     return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');
@@ -111,7 +114,8 @@ class DashboardController extends Controller
                     'totalGastosSociados',
                     'beneficios',
                     'to_dos_finalizados',
-                    'produccion'
+                    'produccion',
+                    'gestion'
                 ));
             case(2):
                 $clientes = Client::where('is_client',true)->get();
@@ -1086,7 +1090,7 @@ class DashboardController extends Controller
         return $tiempoFormateado;
     }
 
-    public function tiempoProducidoEnRango($fechaInicio, $fechaFin, $id) {
+    public function tiempoProducidoEnRango($fechaInicio, $fechaFin, $id){
         $tiempoTarea = 0;
         // Filtrar las tareas que estén dentro del rango de fechas
         $tareas = LogTasks::where('admin_user_id', $id)
@@ -1110,7 +1114,116 @@ class DashboardController extends Controller
         return $tiempoFormateado;
     }
 
+    public function presupuestosCreados($fechaInicio , $fechaFin , $id){
+
+        $presupuestos = Budget::where('admin_user_id',$id)
+            ->whereDate('created_at', '>=', $fechaInicio)
+            ->whereDate('created_at', '<=', $fechaFin)
+            ->get();
+
+        return $presupuestos->count();
+    }
+
+    public function llamadas($fechaInicio , $fechaFin , $id){
+
+        $llamadas = Llamada::where('admin_user_id',$id)
+            ->whereDate('created_at', '>=', $fechaInicio)
+            ->whereDate('created_at', '<=', $fechaFin)
+            ->get();
+
+        return $llamadas->count();
+    }
+
+    public function peticiones($fechaInicio , $fechaFin , $id){
+
+        $peticiones = Petition::where('admin_user_id',$id)
+            ->whereDate('created_at', '>=', $fechaInicio)
+            ->whereDate('created_at', '<=', $fechaFin)
+            ->where('finished',1)
+            ->get();
+
+        return $peticiones->count();
+    }
+
+    public function gestionkit($fechaInicio , $fechaFin , $id){
+
+        $logActions = LogActions::where('tipo', 1)
+        ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+        ->where('admin_user_id', $id)
+        ->get();
+
+        $referenceIdsUniquePerDay = $logActions->groupBy(function ($action) {
+            // Agrupar por la fecha
+            return Carbon::parse($action->created_at)->format('Y-m-d');
+        })->map(function ($group) {
+            // Para cada grupo, pluck y unique los referenceIds
+            return $group->pluck('reference_id')->unique();
+        });
+
+
+        $totalCounts = $referenceIdsUniquePerDay->map(function ($ids) {
+            // Contar el número de reference_ids únicos en cada subcolección
+            return $ids->count();
+        });
+
+        // Si quieres el total global de todos los días
+        $globalTotal = $totalCounts->sum();
+
+        return $globalTotal;
+    }
+
     public function produccion($fechaInicio , $fechaFin)
+    {
+        $user = User::where('inactive',0)->where('access_level_id',5)->get();
+        $data = [];
+        foreach ($user as $usuario) {
+            $data[] = [
+                'nombre' => $usuario->name,
+                'inpuntualidad' => $this->puntualidad($fechaInicio, $fechaFin, $usuario->id),
+                'horas_oficinas' => $this->horasTrabajadasEnRango($fechaInicio, $fechaFin, $usuario->id),
+                'horas_producidas' => $this->tiempoProducidoEnRango($fechaInicio, $fechaFin, $usuario->id),
+                'productividad' => $this->productividad($fechaInicio, $fechaFin, $usuario->id)
+            ];
+        }
+        return $data;
+    }
+
+    public function gestion($fechaInicio , $fechaFin)
+    {
+        $user = User::where('inactive',0)->where('access_level_id',4)->get();
+        $data = [];
+        foreach ($user as $usuario) {
+            $data[] = [
+                'nombre' => $usuario->name,
+                'inpuntualidad' => $this->puntualidad($fechaInicio, $fechaFin, $usuario->id),
+                'horas_oficinas' => $this->horasTrabajadasEnRango($fechaInicio, $fechaFin, $usuario->id),
+                'presu_generados' => $this->presupuestosCreados($fechaInicio, $fechaFin, $usuario->id),
+                'llamadas' => $this->llamadas($fechaInicio, $fechaFin, $usuario->id),
+                'kits' => $this->gestionkit($fechaInicio, $fechaFin, $usuario->id),
+                'peticiones' => $this->peticiones($fechaInicio, $fechaFin, $usuario->id),
+
+            ];
+        }
+        return $data;
+    }
+
+    public function contabilidad($fechaInicio , $fechaFin)
+    {
+        $user = User::where('inactive',0)->where('access_level_id',5)->get();
+        $data = [];
+        foreach ($user as $usuario) {
+            $data[] = [
+                'nombre' => $usuario->name,
+                'inpuntualidad' => $this->puntualidad($fechaInicio, $fechaFin, $usuario->id),
+                'horas_oficinas' => $this->horasTrabajadasEnRango($fechaInicio, $fechaFin, $usuario->id),
+                'horas_producidas' => $this->tiempoProducidoEnRango($fechaInicio, $fechaFin, $usuario->id),
+                'productividad' => $this->productividad($fechaInicio, $fechaFin, $usuario->id)
+            ];
+        }
+        return $data;
+    }
+
+    public function comercial($fechaInicio , $fechaFin)
     {
         $user = User::where('inactive',0)->where('access_level_id',5)->get();
         $data = [];
@@ -1133,5 +1246,29 @@ class DashboardController extends Controller
         $fechaFin = Carbon::parse($fechas[1]);
         $produccion = $this->produccion($fechaInicio, $fechaFin);
         return $produccion;
+    }
+    public function getGestion(Request $request)
+    {
+        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')) );
+        $fechaInicio = Carbon::parse($fechas[0]);
+        $fechaFin = Carbon::parse($fechas[1]);
+        $gestion = $this->gestion($fechaInicio, $fechaFin);
+        return $gestion;
+    }
+    public function getComercial(Request $request)
+    {
+        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')) );
+        $fechaInicio = Carbon::parse($fechas[0]);
+        $fechaFin = Carbon::parse($fechas[1]);
+        $comercial = $this->comercial($fechaInicio, $fechaFin);
+        return $comercial;
+    }
+    public function getContabilidad(Request $request)
+    {
+        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')) );
+        $fechaInicio = Carbon::parse($fechas[0]);
+        $fechaFin = Carbon::parse($fechas[1]);
+        $contabilidad = $this->contabilidad($fechaInicio, $fechaFin);
+        return $contabilidad;
     }
 }
