@@ -1077,8 +1077,10 @@
                             <td>${item.nombre}</td>
                             <td>${item.inpuntualidad}</td>
                             <td>${item.horas_oficinas}</td>
-                            <td>${item.horas_producidas ?? ''}</td>
-                            <td>${item.productividad ?? ''}%</td>
+                            <td>${item.presu_generados ?? ''}</td>
+                            <td>${item.llamadas ?? ''}%</td>
+                            <td>${item.kits ?? ''}%</td>
+                            <td>${item.peticiones ?? ''}%</td>
                         </tr>
                     `;
                     tbody.append(row);
