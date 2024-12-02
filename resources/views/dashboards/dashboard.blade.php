@@ -132,25 +132,24 @@
                                                 <th>Nombre</th>
                                                 <th>H.Oficinas</th>
                                                 <th>Leads</th>
-                                                <th>reticiones</th>
+                                                <th>peticiones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {{-- @if(count($produccion) == 0) --}}
+                                            @if(count($comercial) == 0)
                                             <tr>
                                                 <td colspan="5">No hay datos disponibles</td>
                                             </tr>
-                                            {{-- @else
-                                                @foreach($produccion as $p)
+                                            @else
+                                                @foreach($comercial as $c)
                                                 <tr>
-                                                    <td>{{$p->nombre}}</td>
-                                                    <td>{{$p->inputtualidad}}</td>
-                                                    <td>{{$p->horas_oficinas}}</td>
-                                                    <td>{{$p->horas_producidas}}</td>
-                                                    <td>{{$p->productividad}}</td>
+                                                    <td>{{$c['nombre']}}</td>
+                                                    <td>{{$c['horas_oficinas']}}</td>
+                                                    <td>{{$c['kits_creados']}}</td>
+                                                    <td>{{$c['peticiones']}}</td>
                                                 </tr>
                                                 @endforeach
-                                            @endif --}}
+                                            @endif
                                         </tbody>
                                     </table>
                                 </div>
@@ -178,21 +177,21 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {{-- @if(count($produccion) == 0) --}}
+                                            @if(count($contabilidad) == 0)
                                             <tr>
                                                 <td colspan="5">No hay datos disponibles</td>
                                             </tr>
-                                            {{-- @else
-                                                @foreach($produccion as $p)
+                                            @else
+                                                @foreach($contabilidad as $contable)
                                                 <tr>
-                                                    <td>{{$p->nombre}}</td>
-                                                    <td>{{$p->inputtualidad}}</td>
-                                                    <td>{{$p->horas_oficinas}}</td>
-                                                    <td>{{$p->horas_producidas}}</td>
-                                                    <td>{{$p->productividad}}</td>
+                                                    <td>{{$contable['nombre']}}</td>
+                                                    <td>{{$contable['inpuntualidad']}}</td>
+                                                    <td>{{$contable['horas_oficinas']}}</td>
+                                                    <td>{{$contable['facturas']}}</td>
+                                                    <td>{{$contable['llamadas']}}</td>
                                                 </tr>
                                                 @endforeach
-                                            @endif --}}
+                                            @endif
                                         </tbody>
                                     </table>
                                 </div>
@@ -1137,10 +1136,9 @@
                     let row = `
                         <tr>
                             <td>${item.nombre}</td>
-                            <td>${item.inpuntualidad}</td>
                             <td>${item.horas_oficinas}</td>
-                            <td>${item.horas_producidas ?? ''}</td>
-                            <td>${item.productividad ?? ''}%</td>
+                            <td>${item.kits_creados}</td>
+                            <td>${item.peticiones ?? ''}</td>
                         </tr>
                     `;
                     tbody.append(row);
@@ -1191,8 +1189,8 @@
                             <td>${item.nombre}</td>
                             <td>${item.inpuntualidad}</td>
                             <td>${item.horas_oficinas}</td>
-                            <td>${item.horas_producidas ?? ''}</td>
-                            <td>${item.productividad ?? ''}%</td>
+                            <td>${item.facturas ?? ''}</td>
+                            <td>${item.llamadas ?? ''}</td>
                         </tr>
                     `;
                     tbody.append(row);

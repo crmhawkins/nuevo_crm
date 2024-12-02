@@ -59,6 +59,8 @@ class DashboardController extends Controller
                 $fechaFin = $request->input('fecha_fin') ?? date('Y-m-d'); // Día actual
                 $produccion = $this->produccion($fechaInicio, $fechaFin);
                 $gestion = $this->gestion($fechaInicio, $fechaFin);
+                $contabilidad = $this->contabilidad($fechaInicio, $fechaFin);
+                $comercial = $this->comercial($fechaInicio, $fechaFin);
                 // Validar las fechas
                 if (!$fechaInicio || !$fechaFin) {
                     return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');
@@ -115,7 +117,9 @@ class DashboardController extends Controller
                     'beneficios',
                     'to_dos_finalizados',
                     'produccion',
-                    'gestion'
+                    'gestion',
+                    'contabilidad',
+                    'comercial'
                 ));
             case(2):
                 $clientes = Client::where('is_client',true)->get();
@@ -1124,6 +1128,16 @@ class DashboardController extends Controller
         return $presupuestos->count();
     }
 
+    public function facturasCreados($fechaInicio , $fechaFin , $id){
+
+        $facturas = Invoice::where('admin_user_id',$id)
+            ->whereDate('created_at', '>=', $fechaInicio)
+            ->whereDate('created_at', '<=', $fechaFin)
+            ->get();
+
+        return $facturas->count();
+    }
+
     public function llamadas($fechaInicio , $fechaFin , $id){
 
         $llamadas = Llamada::where('admin_user_id',$id)
@@ -1143,6 +1157,26 @@ class DashboardController extends Controller
             ->get();
 
         return $peticiones->count();
+    }
+
+    public function peticionesCreadas($fechaInicio , $fechaFin , $id){
+
+        $peticiones = Petition::where('admin_user_id',$id)
+            ->whereDate('created_at', '>=', $fechaInicio)
+            ->whereDate('created_at', '<=', $fechaFin)
+            ->get();
+
+        return $peticiones->count();
+    }
+
+    public function kitsCreados($fechaInicio , $fechaFin , $id){
+
+        $kits = KitDigital::where('comercial_id',$id)
+            ->whereDate('created_at', '>=', $fechaInicio)
+            ->whereDate('created_at', '<=', $fechaFin)
+            ->get();
+
+        return $kits->count();
     }
 
     public function gestionkit($fechaInicio , $fechaFin , $id){
@@ -1209,15 +1243,15 @@ class DashboardController extends Controller
 
     public function contabilidad($fechaInicio , $fechaFin)
     {
-        $user = User::where('inactive',0)->where('access_level_id',5)->get();
+        $user = User::where('inactive',0)->where('access_level_id',3)->get();
         $data = [];
         foreach ($user as $usuario) {
             $data[] = [
                 'nombre' => $usuario->name,
                 'inpuntualidad' => $this->puntualidad($fechaInicio, $fechaFin, $usuario->id),
                 'horas_oficinas' => $this->horasTrabajadasEnRango($fechaInicio, $fechaFin, $usuario->id),
-                'horas_producidas' => $this->tiempoProducidoEnRango($fechaInicio, $fechaFin, $usuario->id),
-                'productividad' => $this->productividad($fechaInicio, $fechaFin, $usuario->id)
+                'facturas' => $this->facturasCreados($fechaInicio, $fechaFin, $usuario->id),
+                'llamadas' => $this->llamadas($fechaInicio, $fechaFin, $usuario->id),
             ];
         }
         return $data;
@@ -1225,15 +1259,14 @@ class DashboardController extends Controller
 
     public function comercial($fechaInicio , $fechaFin)
     {
-        $user = User::where('inactive',0)->where('access_level_id',5)->get();
+        $user = User::where('inactive',0)->where('access_level_id',6)->get();
         $data = [];
         foreach ($user as $usuario) {
             $data[] = [
                 'nombre' => $usuario->name,
-                'inpuntualidad' => $this->puntualidad($fechaInicio, $fechaFin, $usuario->id),
                 'horas_oficinas' => $this->horasTrabajadasEnRango($fechaInicio, $fechaFin, $usuario->id),
-                'horas_producidas' => $this->tiempoProducidoEnRango($fechaInicio, $fechaFin, $usuario->id),
-                'productividad' => $this->productividad($fechaInicio, $fechaFin, $usuario->id)
+                'kits_creados' => $this->kitsCreados($fechaInicio, $fechaFin, $usuario->id),
+                'peticiones' => $this->peticionesCreadas($fechaInicio, $fechaFin, $usuario->id),
             ];
         }
         return $data;
