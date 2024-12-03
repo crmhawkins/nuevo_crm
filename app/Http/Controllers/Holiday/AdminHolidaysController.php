@@ -149,6 +149,7 @@ class AdminHolidaysController extends Controller
                         'endTrue' => (new \DateTime($value->to))->format('Y-m-d'), // Fecha de fin
                         'color' => $color, // Color del evento
                         'id' => $value->id,
+                        'created_at' => $value->created_at,
                     ];
                 }
             }
