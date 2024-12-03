@@ -96,6 +96,7 @@
                         <p><strong>Usuario:</strong> <span id="holidayUser"></span></p>
                         <p><strong>Fecha de inicio:</strong> <span id="holidayStart"></span></p>
                         <p><strong>Fecha de fin:</strong> <span id="holidayEnd"></span></p>
+                        <p><strong>Fecha de solicitud:</strong> <span id="holidayCreate"></span></p>
                         <input type="hidden" id="holidayId">
                     </div>
                     <div class="modal-footer">
@@ -146,6 +147,7 @@
                         $('#holidayEnd').text(info.event.endTrue ? info.event.endTrue.toLocaleDateString() : 'N/A');
                         $('#holidayUser').text(info.event.title ?? 'Usuario sin nombre');
                         $('#holidayId').val(info.event.id);
+                        $('#holidayCreate').val(info.event.created_at);
                         $('#holidayModal').modal('show');
                 }
             });
