@@ -146,8 +146,8 @@
                         $('#holidayStart').text(info.event.start.toLocaleDateString());
                         $('#holidayEnd').text(info.event.endTrue ? info.event.endTrue.toLocaleDateString() : 'N/A');
                         $('#holidayUser').text(info.event.title ?? 'Usuario sin nombre');
+                        $('#holidayCreate').text(info.event.extendedProps.created_at);
                         $('#holidayId').val(info.event.id);
-                        $('#holidayCreate').val(info.event.created_at);
                         $('#holidayModal').modal('show');
                 }
             });

@@ -130,7 +130,7 @@ class AdminHolidaysController extends Controller
         if ($data->count()) {
             foreach ($data as $value) {
                 $color = '#FFFFFF'; // Color por defecto
-
+                //dd($value);
                 // Asignar color según el estado
                 if ($value->holidays_status_id == 1) {
                     $color = '#C3EBC4'; // Color para estado 1
@@ -149,12 +149,12 @@ class AdminHolidaysController extends Controller
                         'endTrue' => (new \DateTime($value->to))->format('Y-m-d'), // Fecha de fin
                         'color' => $color, // Color del evento
                         'id' => $value->id,
-                        'created_at' => $value->created_at,
+                        'created_at' => (new \DateTime($value->created_at))->format('Y-m-d')
                     ];
+
                 }
             }
         }
-
         return view('holidays.gestion',compact('numberOfholidaysPetitions','holydayEvents'));
     }
 
