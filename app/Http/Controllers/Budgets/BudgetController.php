@@ -158,7 +158,7 @@ class BudgetController extends Controller
             'admin_user_id.required' => 'El gestor es requerido para continuar',
             'concept.required' => 'El concepto es requerido para continuar',
         ]);
-
+        $data['iva_percentage'] = 21;
         $budgetTemporal = Budget::where('temp', true)->orderBy('created_at', 'desc')->first();
         $referenceTemp = $budgetTemporal === null ? 'temp_00' : $this->generateReferenceTemp($budgetTemporal->reference);
 
@@ -294,6 +294,11 @@ class BudgetController extends Controller
             if ($data['creation_date'] != null){
                 $data['creation_date'] = date('Y-m-d', strtotime(str_replace('/', '-',  $data['creation_date'])));
             }
+        }
+
+        if(isset($data['is_ceuta'])){
+           $data['iva_percentage'] = 0;
+           $data['iva'] = 0;
         }
 
         if(!isset($data['iva_percentage'])){
