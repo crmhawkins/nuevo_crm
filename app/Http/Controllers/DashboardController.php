@@ -428,7 +428,7 @@ class DashboardController extends Controller
                 $kit->save();
             }
 
-            return response()->json(['success' => true ,'mensaje' => 'Llamada Finalizada']);
+            return redirect()->back()->with('success', 'Llamada Finalizada');
         }
 
     }
