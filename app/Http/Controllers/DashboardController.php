@@ -386,8 +386,8 @@ class DashboardController extends Controller
     public function llamada(Request $request){
         $user = Auth::user();
         $data = $request->validate([
-            'client_id' => 'nullable|required_without:phone',
-            'phone' => 'nullable|required_without:client_id',
+            'client_id' => 'nullable',
+            'phone' => 'nullable',
             'comentario'=> 'nullable'
         ], [
             'client_id.required_without' => 'El campo cliente es obligatorio si el teléfono no está presente.',
