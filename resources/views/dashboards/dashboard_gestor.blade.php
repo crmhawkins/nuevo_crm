@@ -922,10 +922,13 @@
         var llamadaModal = new bootstrap.Modal(document.getElementById('llamadaModal'));
         llamadaModal.show();
     }
-    function hideLlamadaModal() {
-        var llamadaModal = new bootstrap.Modal(document.getElementById('llamadaModal'));
-        llamadaModal.hide();
+
+    function closeLlamadaModal() {
+        var llamadaModal = document.getElementById('llamadaModal');
+        llamadaModal.modal('hide');
     }
+
+
     function showFinLlamadaModal() {
         var llamadaModal = new bootstrap.Modal(document.getElementById('finllamadaModal'));
         llamadaModal.show();
@@ -1003,7 +1006,7 @@
             })
             .then(data => {
                 if (data.success) {
-                    hideLlamadaModal();
+                    closeLlamadaModal();
                     showFinLlamadaModal();
                 } else {
                     Swal.fire({

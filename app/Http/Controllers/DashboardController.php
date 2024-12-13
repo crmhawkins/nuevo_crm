@@ -394,6 +394,15 @@ class DashboardController extends Controller
             'client_id.required_without' => 'El campo cliente es obligatorio si el teléfono no está presente.',
             'phone.required_without' => 'El campo teléfono es obligatorio si el cliente no está presente.',
         ]);
+        $llamadaactiva = Llamada::where('admin_user_id', $user->id)->where('is_active', true)->first();
+
+        if ($llamadaactiva) {
+            $llamadaactiva->update([
+                'end_time' => Carbon::now(),
+                'is_active' => false,
+            ]);
+        }
+
         $llamada =  Llamada::create([
             'admin_user_id' => $user->id,
             'start_time' => Carbon::now(),
