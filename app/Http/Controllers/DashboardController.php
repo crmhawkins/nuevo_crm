@@ -388,7 +388,8 @@ class DashboardController extends Controller
         $data = $request->validate([
             'client_id' => 'nullable',
             'phone' => 'nullable',
-            'comentario'=> 'nullable'
+            'comentario'=> 'nullable',
+            'kit_id' => 'nullable'
         ], [
             'client_id.required_without' => 'El campo cliente es obligatorio si el teléfono no está presente.',
             'phone.required_without' => 'El campo teléfono es obligatorio si el cliente no está presente.',
@@ -421,7 +422,7 @@ class DashboardController extends Controller
                 'comentario' => $data['comentario'] ?? null
             ]);
 
-            if(isset($data['comentario']) && $llamada->kit_id == null){
+            if(isset($data['comentario']) && $llamada->kit_id != null){
                 $kit = KitDigital::find($llamada->kit_id);
                 $kit->comentario = $data['comentario'];
                 $kit->save();
