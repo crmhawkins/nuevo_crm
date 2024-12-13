@@ -434,10 +434,14 @@ class DashboardController extends Controller
             if(isset($data['comentario']) && $llamada->kit_id != null){
                 $kit = KitDigital::find($llamada->kit_id);
                 $kit->comentario = $data['comentario'];
+                $kit->fecha_actualizacion = Carbon::now();
                 $kit->save();
             }
 
-            return redirect()->back()->with('success', 'Llamada Finalizada');
+            return redirect()->back()->with('toast', [
+                'icon' => 'success',
+                'mensaje' => 'Llamada Finalizada'
+             ]);
         }
 
     }
