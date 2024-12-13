@@ -29,8 +29,7 @@ class ClientController extends Controller
      */
     public function create()
     {
-        // $gestores = User::where('access_level_id', 4)->get();
-        $gestores = User::all();
+        $gestores = User::where('inactive', 0)->where('access_level_id',4)->get();
         $clientes = Client::all();
         $countries = Country::all();
 
@@ -337,7 +336,7 @@ class ClientController extends Controller
      */
     public function edit(string $id)
     {
-        $gestores = User::all();
+        $gestores = User::where('inactive', 0)->where('access_level_id',4)->get();
         $clientes = Client::all();
         $cliente = Client::find($id);
         $contactos = Contact::where('client_id', $id)->get();
