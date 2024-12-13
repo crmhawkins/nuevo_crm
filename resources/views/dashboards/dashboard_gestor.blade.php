@@ -924,8 +924,7 @@
     }
 
     function closeLlamadaModal() {
-        var llamadaModal = document.getElementById('llamadaModal');
-        llamadaModal.modal('hide');
+        $('#llamadaModal').modal('hide');
     }
 
 
