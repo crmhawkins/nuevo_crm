@@ -197,9 +197,10 @@ class UserController extends Controller
         } else {
             unset($data['password']);
         }
-
+        if (!isset($data['inactive'])) {
+            $data['inactive'] = 0;
+        }
         $data['role'] = 'Admin';
-        $data['inactive'] = 0;
 
         $user->update($data);
 

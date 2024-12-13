@@ -16,7 +16,9 @@ class Llamada extends Model
         'end_time',
         'is_active',
         'phone',
-        'client_id'
+        'client_id',
+        'kit_id',
+        'comentario'
     ];
 
     public function user() {

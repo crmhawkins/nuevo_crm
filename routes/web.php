@@ -482,6 +482,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/dashboard/timeworked', [DashboardController::class, 'timeworked'])->name('user.time');
     Route::post('/dashboard/updateStatusAlertAndAcceptHours', [DashboardController::class, 'updateStatusAlertAndAcceptHours'])->name('user.updateStatusAlertAndAcceptHours');
     Route::post('/dashboard/responseAlert', [DashboardController::class, 'responseAlert'])->name('user.responseAlert');
+    Route::post('/dashboard/getkits', [DashboardController::class, 'getKitDigital'])->name('kits.get');
 
     Route::post('/start-jornada', [DashboardController::class, 'startJornada'])->name('dashboard.startJornada');
     Route::post('/end-jornada', [DashboardController::class, 'endJornada'])->name('dashboard.endJornada');

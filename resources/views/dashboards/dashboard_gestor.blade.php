@@ -351,7 +351,7 @@
                                 <div class=" d-flex justify-content-center">
                                     <button class="btn btn-primary mx-2">Enviar Archivos</button>
                                     <button class="btn btn-secondary mx-2">Correo</button>
-                                    <button class="btn btn-primary mx-2" onclick="showLlamadaModal()">Iniciar LLamada</button>
+                                    <button class="btn btn-primary mx-2" id="iniciarLlamada">Iniciar LLamada</button>
                                 </div>
                             </div>
                         </div>
@@ -386,17 +386,42 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
-                                <div class="col-md-12 mb-3">
-                                    <label for="phone" class="form-label">Telefono</label>
-                                    <input type="text" class="form-control" id="phone" name="phone">
-                                </div>
+                            </div>
+                            <div class="col-md-12 mb-3" id='cliente_kit'>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="phone" class="form-label">Telefono</label>
+                                <input type="text" class="form-control" id="phone" name="phone">
                             </div>
                             <input type="hidden" name="admin_user_id" value="{{ $user->id }}">
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button id="iniciarllamada" type="submit" class="btn btn-primary">Iniciar</button>
+                        <button type="button" id="iniciada"  class="btn btn-primary">Iniciar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="finllamadaModal" tabindex="-1" aria-labelledby="finllamadaModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="todofinLlamadaLabel">Llamada</h5>
+                </div>
+                <form id="FinLlamadaform" action="{{ route('llamada.end') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="phone" class="form-label">Comentario</label>
+                                <textarea class="form-control" id="comentario" name="comentario" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Finalizar</button>
                     </div>
                 </form>
             </div>
@@ -889,130 +914,6 @@
 
 </script>
 <script>
-    //     document.addEventListener('DOMContentLoaded', function() {
-    //         const clientSelect = document.getElementById('client_id');
-    //         const budgetSelect = document.getElementById('budget_id');
-    //         const projectSelect = document.getElementById('project_id');
-
-    //         // Función para actualizar presupuestos basados en el cliente seleccionado
-    //         function updateBudgets(clientId) {
-    //             fetch('/budgets-by-client', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                 },
-    //                 body: JSON.stringify({ client_id: clientId })
-    //             })
-    //             .then(response => response.json())
-    //             .then(budgets => {
-    //                 budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-    //                 budgets.forEach(budget => {
-    //                     budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
-    //                 });
-    //                 budgetSelect.disabled = false;
-    //             });
-    //         }
-    //         // Función para actualizar presupuestos basados en el cliente seleccionado
-    //         function updateBudgetsbyprojects(projectId) {
-    //             fetch('/budgets-by-project', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                 },
-    //                 body: JSON.stringify({ project_id: projectId })
-    //             })
-    //             .then(response => response.json())
-    //             .then(budgets => {
-    //                 budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-    //                 budgets.forEach(budget => {
-    //                     budgetSelect.innerHTML += `<option value="${budget.id}">${budget.reference}</option>`;
-    //                 });
-    //                 budgetSelect.disabled = false;
-    //             });
-    //         }
-
-    //         // Función para actualizar campañas basadas en el cliente seleccionado
-    //         function updateProjects(clientId) {
-    //             fetch('/projects-from-client', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                 },
-    //                 body: JSON.stringify({ client_id: clientId })
-    //             })
-    //             .then(response => response.json())
-    //             .then(projects => {
-    //                 projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
-    //                 projects.forEach(project => {
-    //                     projectSelect.innerHTML += `<option value="${project.id}">${project.name}</option>`;
-    //                 });
-    //                 projectSelect.disabled = false;
-    //             });
-    //         }
-
-    //         // Cuando se selecciona un cliente, actualiza presupuestos y campañas
-    //         clientSelect.addEventListener('change', function() {
-    //             const clientId = this.value;
-    //             if (clientId) {
-    //                 updateBudgets(clientId);
-    //                 updateProjects(clientId);
-    //             } else {
-    //                 budgetSelect.innerHTML = '<option value="">Seleccione presupuesto</option>';
-    //                 projectSelect.innerHTML = '<option value="">Seleccione campaña</option>';
-    //                 budgetSelect.disabled = true;
-    //                 projectSelect.disabled = true;
-    //             }
-    //         });
-
-    //         // Cuando se selecciona un presupuesto, actualiza el cliente y la campaña
-    //         budgetSelect.addEventListener('change', function() {
-    //             const budgetId = this.value;
-    //             if (budgetId) {
-    //                 fetch('/budget-by-id', {
-    //                     method: 'POST',
-    //                     headers: {
-    //                         'Content-Type': 'application/json',
-    //                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                     },
-    //                     body: JSON.stringify({ budget_id: budgetId })
-    //                 })
-    //                 .then(response => response.json())
-    //                 .then(budget => {
-    //                     clientSelect.value = budget.client_id;
-    //                     //updateProjects(budget.client_id);
-    //                     projectSelect.value = budget.project_id;
-    //                     //console.log(budget.project_id;);
-
-    //                 });
-    //             }
-    //         });
-
-    //         // Cuando se selecciona una campaña, actualiza el cliente y el presupuesto
-    //         projectSelect.addEventListener('change', function() {
-    //             const projectId = this.value;
-    //             if (projectId) {
-    //                 fetch('/project-by-id', {
-    //                     method: 'POST',
-    //                     headers: {
-    //                         'Content-Type': 'application/json',
-    //                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    //                     },
-    //                     body: JSON.stringify({ project_id: projectId })
-    //                 })
-    //                 .then(response => response.json())
-    //                 .then(project => {
-    //                     clientSelect.value = project.client_id;
-    //                     updateBudgetsbyprojects(project.id);
-    //                     budgetSelect.value = ''; // O puedes poner una lógica para seleccionar un presupuesto por defecto
-    //                 });
-    //             }
-    //         });
-    //     });
-</script>
-<script>
     function showTodoModal() {
         var todoModal = new bootstrap.Modal(document.getElementById('todoModal'));
         todoModal.show();
@@ -1021,6 +922,102 @@
         var llamadaModal = new bootstrap.Modal(document.getElementById('llamadaModal'));
         llamadaModal.show();
     }
+    function showFinLlamadaModal() {
+        var llamadaModal = new bootstrap.Modal(document.getElementById('finllamadaModal'));
+        llamadaModal.show();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalLlamada = document.getElementById('iniciarLlamada');
+        const iniciarLlamada = document.getElementById('iniciada');
+        const cliente_kit = document.getElementById('cliente_kit');
+        var loader = document.getElementById('loadingOverlay');
+
+        modalLlamada.addEventListener('click', function() {
+            loader.style.display = "block";
+            fetch('/dashboard/getkits', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    let optionsHtml = `<label for="kit_id" class="form-label">Cliente de kit</label>
+                                    <select class="form-select choices" id="kit_id" name="kit_id">
+                                        <option value="">Seleccione cliente</option>`;
+
+                    data.kits.forEach(kit => {
+                        const servicioNombre = kit.servicios ? kit.servicios.name : 'Servicio no especificado';
+                        optionsHtml += `<option value="${kit.id}">
+                                            ${kit.cliente} - ${servicioNombre}
+                                        </option>`;
+                    });
+
+                    optionsHtml += `</select>`;
+                    cliente_kit.innerHTML = optionsHtml;
+                     new Choices('#kit_id', {
+                        removeItemButton: true, // Permite a los usuarios eliminar una selección
+                        searchEnabled: true,  // Habilita la búsqueda dentro del selector
+                        paste: false          // Deshabilita la capacidad de pegar texto en el campo
+                    });
+                    loader.style.display = "none";
+                    showLlamadaModal();
+                } else {
+                    loader.style.display = "none";
+                    cliente_kit.innerHTML = `<span>Error: No se pudieron cargar los datos.</span>`;
+                }
+            })
+            .catch(error => {
+                loader.style.display = "none";
+                console.error('Error:', error);
+                cliente_kit.innerHTML = `<span>Error: ${error.message}</span>`;
+            });
+        });
+
+        iniciarLlamada.addEventListener('click', function() {
+            const formllamada = document.getElementById('Llamadaform');
+            const formData = new FormData(formllamada);
+
+            fetch(formllamada.action, {
+                method: formllamada.method,
+                body: formData,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud');
+                }
+                return response.json(); // o .text(), dependiendo de la respuesta esperada
+            })
+            .then(data => {
+                if (data.success) {
+                    showFinLlamadaModal();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al generar la llamada.',
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Hubo un problema con el envío:', error);
+                alert('Ocurrió un error al enviar el formulario.');
+            });
+
+        });
+
+    });
+
+
     document.addEventListener('DOMContentLoaded', function() {
         const progressCircles = document.querySelectorAll('.progress-circle');
 

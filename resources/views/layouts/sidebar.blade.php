@@ -580,6 +580,30 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="sidebar-item has-sub {{ $personalActive ? 'active' : '' }}">
+                        <a href="#" class='sidebar-link'>
+                            <i class="fa-solid fa-user-group fs-5"></i>
+                            <span>Personal</span>
+                        </a>
+                        <ul class="submenu" style="{{ $personalActive ? 'display:block;' : 'display:none;' }}">
+                            <li class="submenu-item {{ request()->routeIs('users.index') ? 'active' : '' }}">
+                                <a href="{{route('users.index')}}">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>
+                                        Ver todos
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('users.create') ? 'active' : '' }}">
+                                <a href="{{route('users.create')}}">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>
+                                        Crear usuario
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     @if ($admin || $gerente )
                         <li class="sidebar-item has-sub {{ $servicesActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
@@ -669,30 +693,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="sidebar-item has-sub {{ $personalActive ? 'active' : '' }}">
-                            <a href="#" class='sidebar-link'>
-                                <i class="fa-solid fa-user-group fs-5"></i>
-                                <span>Personal</span>
-                            </a>
-                            <ul class="submenu" style="{{ $personalActive ? 'display:block;' : 'display:none;' }}">
-                                <li class="submenu-item {{ request()->routeIs('users.index') ? 'active' : '' }}">
-                                    <a href="{{route('users.index')}}">
-                                        <i class="fa-solid fa-list"></i>
-                                        <span>
-                                            Ver todos
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="submenu-item {{ request()->routeIs('users.create') ? 'active' : '' }}">
-                                    <a href="{{route('users.create')}}">
-                                        <i class="fa-solid fa-plus"></i>
-                                        <span>
-                                            Crear usuario
-                                        </span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+
 
                         <li class="sidebar-item has-sub {{ $cofiguracionActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
@@ -751,7 +752,6 @@
                         </li>
                     @endif
                 @endif
-
 
             </ul>
         </div>

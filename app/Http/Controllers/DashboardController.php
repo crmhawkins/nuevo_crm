@@ -167,7 +167,6 @@ class DashboardController extends Controller
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
                 $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;
-
                 return view('dashboards.dashboard_gestor', compact(
                     'user',
                     'tareas',
@@ -181,7 +180,7 @@ class DashboardController extends Controller
                     'jornadaActiva',
                     'pausaActiva',
                     'llamadaActiva',
-                    'to_dos_finalizados'
+                    'to_dos_finalizados',
                 ));
             case(5):
                 $tareas = $user->tareas->whereIn('task_status_id', [1, 2, 5]);
@@ -399,25 +398,35 @@ class DashboardController extends Controller
             'start_time' => Carbon::now(),
             'is_active' => true,
             'client_id' => $data['client_id'] ?? null,
+            'kit_id' => $data['kit_id'] ?? null,
             'phone'=> $data['phone'] ?? null,
-            'comentario' => $data['comentario'] ?? null
         ]);
-        return redirect()->back()->with('toast', [
-            'icon' => 'success',
-            'mensaje' => 'Llamada iniciada'
-        ]);
+        return response()->json(['success' => true ,'mensaje' => 'Llamada iniciada']);
+
 
     }
 
-    public function finalizar()
+    public function finalizar(Request $request)
     {
         $user = Auth::user();
+        $data = $request->validate([
+            'comentario' => 'nullable',
+
+        ]);
         $llamada = Llamada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($llamada) {
             $finllamada = $llamada->update([
                 'end_time' => Carbon::now(),
                 'is_active' => false,
+                'comentario' => $data['comentario'] ?? null
             ]);
+
+            if(isset($data['comentario']) && $llamada->kit_id == null){
+                $kit = KitDigital::find($llamada->kit_id);
+                $kit->comentario = $data['comentario'];
+                $kit->save();
+            }
+
             return response()->json(['success' => true ,'mensaje' => 'Llamada Finalizada']);
         }
 
@@ -1304,4 +1313,24 @@ class DashboardController extends Controller
         $contabilidad = $this->contabilidad($fechaInicio, $fechaFin);
         return $contabilidad;
     }
+
+    public function getKitDigital()
+    {
+        try {
+            $kits = kitDigital::whereNotIn('estado', [6, 1])
+                            ->with('servicios') // Asegúrate de especificar los campos que necesitas de la relación
+                            ->get(['id', 'cliente', 'servicio_id']); // Asegúrate de que los campos aquí sean correctos
+
+            return response()->json([
+                'success' => true,
+                'kits' => $kits
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los datos: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }
