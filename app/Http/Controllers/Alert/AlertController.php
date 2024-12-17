@@ -74,7 +74,7 @@ public function getAlerts($alertas)
                         case 1:
                             $client = Client::find($alerta->reference_id);
                             if ($client) {
-                                $alertasActivadas[$contador]["client"] = $client->name;
+                                $alertasActivadas[$contador]["client"] = $client->name ?? "SIN NOMBRE";
                             }
                             break;
                         case 2:
