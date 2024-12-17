@@ -250,7 +250,7 @@ public function getAlerts($alertas)
                             $budgetSendAlert = BudgetSend::find($alerta->reference_id);
                             if ($budgetSendAlert) {
                                 $alertasActivadas[$contador]["budget_send"] = $budgetSendAlert->budget_reference;
-                                $alertasActivadas[$contador]["budget_send_client"] = $budgetSendAlert->cliente->name;
+                                $alertasActivadas[$contador]["budget_send_client"] = $budgetSendAlert->client->name;
                             }
                             break;
                         case 15:
