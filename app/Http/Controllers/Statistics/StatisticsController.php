@@ -47,13 +47,13 @@ class StatisticsController extends Controller
             'facturas' => $dataFacturacionAll['facturasAnuales'],
             'total' => $dataFacturacionAll['totalAnual'],
         ];
-        $dataAsociadosAll = $this->calcularFacturas($anio , $mes);
+        $dataAsociadosAll = $this->calcularGastosAsociados($anio , $mes);
         $dataAsociados = [
-            'array' => $dataAsociadosAll['facturasMensuales'],
+            'array' => $dataAsociadosAll['gastosMensuales'],
             'total' => $dataAsociadosAll['totalMensual'],
         ];
         $dataAsociadosAnual = [
-            'array' => $dataAsociadosAll['facturasAnuales'],
+            'array' => $dataAsociadosAll['gastosAnuales'],
             'total' => $dataAsociadosAll['totalAnual'],
         ];
         //$departamentos = $this->departamentosFacturacionMes($mes, $anio);
@@ -331,13 +331,13 @@ class StatisticsController extends Controller
     public function calcularGastosComunes($year, $mes)
     {
         // Consulta única para obtener los gastos comunes del año completo
-        $gastosComunes = DB::table('gastos')
-            ->whereYear('received_date', $year)
-            ->whereNull('deleted_at')
+        $gastosComunes = Gasto::whereYear('received_date', $year)
             ->where(function ($query) {
                 $query->where('transfer_movement', 0)
                       ->orWhereNull('transfer_movement');
             })
+            ->whereNotNull('iva') // Filtra que iva no sea null
+            ->where('iva', '<>', 0) // Filtra que iva sea distinto de 0
             ->get();
 
         // Calcular el total anual
