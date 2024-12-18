@@ -398,9 +398,9 @@ class InvoiceController extends Controller
         $conceptos = InvoiceConcepts::where('invoice_id', $factura->id)->get();
         $kitdigital  = false;
 
-        $facturaconcepts = explode('/', $factura->reference);
+        $facturaconcepts = explode('/', $factura->concept);
         $kit = $facturaconcepts[0];
-dd($kit);
+
         if($kit == 'KD'){
             $kitdigital = true;
         }
