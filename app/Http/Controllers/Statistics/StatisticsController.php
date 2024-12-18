@@ -347,7 +347,9 @@ class StatisticsController extends Controller
         $gastosMensuales = [];
         if (!is_null($mes)) {
             $gastosMensuales = $gastosComunes->filter(function ($gasto) use ($mes) {
-                return Carbon::parse($gasto->received_date)->month == $mes;
+                return Carbon::parse($gasto->received_date)->month == $mes
+                && $gasto->iva !== null
+                && $gasto->iva != 0;
             });
             $totalMensual = $gastosMensuales->sum('quantity');
         }
