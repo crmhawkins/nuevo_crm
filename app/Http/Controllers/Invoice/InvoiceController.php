@@ -451,6 +451,7 @@ class InvoiceController extends Controller
             ]));
         }
         foreach ($conceptos as $key => $concepto) {
+            dd($kitdigital);
             if($kitdigital){
                 $item = new FacturaeItem([
                     "name" => $factura->concept.' '.$factura->project->name ,
