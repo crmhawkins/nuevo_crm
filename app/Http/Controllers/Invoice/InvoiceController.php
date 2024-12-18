@@ -396,11 +396,18 @@ class InvoiceController extends Controller
         $empresa = CompanyDetails::first();
         $cliente = Client::where('id', $factura->client_id)->first();
         $conceptos = InvoiceConcepts::where('invoice_id', $factura->id)->get();
+        $kitdigital  = false;
+
+        $facturaconcepts = explode('/', $factura->reference);
+        $kit = $facturaconcepts[0];
+
+        if($kit == 'KD'){
+            $kitdigital = true;
+        }
 
         $fac = new Facturae();
 
         $partes = explode('-', $factura->reference);
-
         $numero = $partes[0];
         $numero = str_replace('/', '', $numero);
         $serie = $partes[1];
@@ -444,29 +451,38 @@ class InvoiceController extends Controller
             ]));
         }
         foreach ($conceptos as $key => $concepto) {
-            if ($concepto->discount > 0) {
-               $item =  new FacturaeItem([
-                    "articleCode" => $concepto->services_category_id,
-                    "name" => $concepto->title,
-                    "unitPriceWithoutTax" => $concepto->total_no_discount / $concepto->units,
-                    "quantity" => $concepto->units,
-                    "discounts" => [
-                          ["reason" => "Descuento", "amount" => $concepto->discount]
-                    ],
-                    "taxes" => [Facturae::TAX_IVA => $factura->iva_percentage],
-                    "specialTaxableEventCode" => $factura->iva_percentage == 0 ? FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT : null,
-                    "specialTaxableEventReason" => $factura->iva_percentage == 0 ? "Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial." : null,
-                ]);
-            }else {
+            if($kitdigital){
                 $item = new FacturaeItem([
-                    "articleCode" => $concepto->services_category_id,
-                    "name" => $concepto->title,
+                    "name" => $factura->concept.' '.$factura->project->name ,
                     "unitPriceWithoutTax" => $concepto->total_no_discount / $concepto->units,
                     "quantity" => $concepto->units,
                     "taxes" => [Facturae::TAX_IVA => $factura->iva_percentage],
                     "specialTaxableEventCode" => $factura->iva_percentage == 0 ? FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT : null,
                     "specialTaxableEventReason" => $factura->iva_percentage == 0 ? "Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial." : null,
                 ]);
+            }else{
+                if ($concepto->discount > 0) {
+                   $item =  new FacturaeItem([
+                        "name" => $concepto->title,
+                        "unitPriceWithoutTax" => $concepto->total_no_discount / $concepto->units,
+                        "quantity" => $concepto->units,
+                        "discounts" => [
+                              ["reason" => "Descuento", "amount" => $concepto->discount]
+                        ],
+                        "taxes" => [Facturae::TAX_IVA => $factura->iva_percentage],
+                        "specialTaxableEventCode" => $factura->iva_percentage == 0 ? FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT : null,
+                        "specialTaxableEventReason" => $factura->iva_percentage == 0 ? "Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial." : null,
+                    ]);
+                }else {
+                    $item = new FacturaeItem([
+                        "name" => $concepto->title,
+                        "unitPriceWithoutTax" => $concepto->total_no_discount / $concepto->units,
+                        "quantity" => $concepto->units,
+                        "taxes" => [Facturae::TAX_IVA => $factura->iva_percentage],
+                        "specialTaxableEventCode" => $factura->iva_percentage == 0 ? FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT : null,
+                        "specialTaxableEventReason" => $factura->iva_percentage == 0 ? "Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial." : null,
+                    ]);
+                }
             }
 
             $fac->addItem($item);
