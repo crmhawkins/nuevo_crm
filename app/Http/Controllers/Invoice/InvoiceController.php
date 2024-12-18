@@ -417,15 +417,29 @@ class InvoiceController extends Controller
         $fecha = Carbon::parse($factura->created_at)->format('Y-m-d');
         $fac->setIssueDate($fecha);
 
+        $isceuta = $factura->is_ceuta == 1 ? true : false;
+
         // Incluimos los datos del vendedor
-        $fac->setSeller(new FacturaeParty([
-            "taxNumber" => $empresa->nif,
-            "name"      => $empresa->company_name,
-            "address"   => $empresa->address,
-            "postCode"  => $empresa->postCode,
-            "town"      => $empresa->town,
-            "province"  => $empresa->province
-        ]));
+        if($isceuta){
+            $fac->setSeller(new FacturaeParty([
+                "taxNumber" => $empresa->nif,
+                "name"      => $empresa->company_name,
+                "address"   => "CALLE DELGADO SERRANO N1 3D",
+                "postCode"  => "51001",
+                "town"      => "CEUTA",
+                "province"  => "CEUTA"
+            ]));
+
+        }else{
+            $fac->setSeller(new FacturaeParty([
+                "taxNumber" => $empresa->nif,
+                "name"      => $empresa->company_name,
+                "address"   => $empresa->address,
+                "postCode"  => $empresa->postCode,
+                "town"      => $empresa->town,
+                "province"  => $empresa->province
+            ]));
+        }
 
         if($cliente->tipoCliente == 1){
             $fac->setBuyer(new FacturaeParty([
