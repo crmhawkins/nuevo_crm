@@ -400,7 +400,7 @@ class InvoiceController extends Controller
 
         $facturaconcepts = explode('/', $factura->reference);
         $kit = $facturaconcepts[0];
-
+dd($kit);
         if($kit == 'KD'){
             $kitdigital = true;
         }
@@ -451,7 +451,6 @@ class InvoiceController extends Controller
             ]));
         }
         foreach ($conceptos as $key => $concepto) {
-            dd($kitdigital);
             if($kitdigital){
                 $item = new FacturaeItem([
                     "name" => $factura->concept.' '.$factura->project->name ,
