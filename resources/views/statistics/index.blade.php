@@ -599,7 +599,7 @@
     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
-    <script>
+    {{-- <script>
         function sortTable(columnIndex) {
             const table = document.getElementById("tablaGastosAsociados");
             const tbody = table.tBodies[0];
@@ -623,7 +623,7 @@
             // Append sorted rows back to the tbody
             rows.forEach(row => tbody.appendChild(row));
         }
-    </script>
+    </script> --}}
     <script>
         function getColorByIndex(index, opacity = 1) {
             const r = (index * 137 + 83) % 256; // Números primos para rotación
