@@ -402,6 +402,7 @@ class InvoiceController extends Controller
         $partes = explode('-', $factura->reference);
 
         $numero = $partes[0];
+        $numero = str_replace('/', '', $numero);
         $serie = $partes[1];
         $fac->setNumber($numero,$serie);
 
