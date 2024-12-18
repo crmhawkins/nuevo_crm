@@ -424,7 +424,7 @@ class InvoiceController extends Controller
             $fac->setSeller(new FacturaeParty([
                 "taxNumber" => $empresa->nif,
                 "name"      => $empresa->company_name,
-                "address"   => "Calle Delgado Serrano Nº1, 3ºD, 1ªOficina",
+                "address"   => "CALLE DELGADO SERRANO N1 3D",
                 "postCode"  => "51001",
                 "town"      => "CEUTA",
                 "province"  => "CEUTA"
