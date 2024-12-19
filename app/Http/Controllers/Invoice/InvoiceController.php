@@ -512,7 +512,7 @@ class InvoiceController extends Controller
                 $fac->addLegalLiteral("ISP resto de soluciones Operación con inversión del sujeto pasivo conforme al Art. 84 (Uno.2º) de la Ley 37/1992 del IVA");
             }
         }
-        $fac->addLegalLiteral("Financiado por el Programa Kit Digital. Plan de Recuperación, Transformación y Resiliencia de EspañaNext Generation EU. IMPORTE SUBVENCIONADO: " . number_format($factura->total, 2) . "€");
+        $fac->addLegalLiteral("Financiado por el Programa Kit Digital. Plan de Recuperación, Transformación y Resiliencia de EspañaNext Generation EU. IMPORTE SUBVENCIONADO: " . number_format($factura->base, 2) . "€");
 
 
         $certificado = $empresa->certificado;
