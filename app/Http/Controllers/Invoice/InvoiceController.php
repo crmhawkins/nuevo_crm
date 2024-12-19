@@ -61,6 +61,7 @@ class InvoiceController extends Controller
 
         $data = $request->validate([
             'invoice_status_id' => 'required',
+            'concept' => 'required',
             'observations' => 'nullable',
             'note' => 'nullable',
             'show_summary' => 'nullable',

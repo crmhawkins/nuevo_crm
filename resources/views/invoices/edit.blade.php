@@ -76,7 +76,7 @@
                                     <div class="col-md-6 col-sm-12">
                                         <div class="form-group mb-3">
                                             <label class="mb-2 text-left" for="concept">Concepto:</label>
-                                            <input type="text" class="form-control @error('concept') is-invalid @enderror" id="concept" value="{{ $factura->concept }}" name="concept" disabled>
+                                            <input type="text" class="form-control @error('concept') is-invalid @enderror" id="concept" value="{{ $factura->concept }}" name="concept">
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-12">
