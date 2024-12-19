@@ -66,7 +66,8 @@ class InvoiceController extends Controller
             'show_summary' => 'nullable',
             'creation_date' => 'nullable',
             'created_at' => 'nullable',
-            'paid_date' => 'nullable'
+            'paid_date' => 'nullable',
+            'concept' => 'nullable',
         ]);
 
         // Formulario datos
