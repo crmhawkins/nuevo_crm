@@ -405,7 +405,6 @@ class InvoiceController extends Controller
             $kitdigital = true;
         }
 
-        dd('llega');
         $fac = new Facturae();
 
         $partes = explode('-', $factura->reference);
