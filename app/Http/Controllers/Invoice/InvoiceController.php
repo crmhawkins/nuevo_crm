@@ -405,6 +405,7 @@ class InvoiceController extends Controller
             $kitdigital = true;
         }
 
+        dd('llega');
         $fac = new Facturae();
 
         $partes = explode('-', $factura->reference);
@@ -503,7 +504,11 @@ class InvoiceController extends Controller
         }
 
         if ($factura->iva_percentage == 0) {
-            $fac->addLegalLiteral("Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial.");
+            if($factura->is_ceuta){
+                $fac->addLegalLiteral("Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial.");
+            }else{
+                $fac->addLegalLiteral("ISP resto de soluciones Operación con inversión del sujeto pasivo conforme al Art. 84 (Uno.2º) de la Ley 37/1992 del IVA");
+            }
         }
         $fac->addLegalLiteral("Financiado por el Programa Kit Digital. Plan de Recuperación, Transformación y Resiliencia de EspañaNext Generation EU. IMPORTE SUBVENCIONADO: " . number_format($factura->total, 2) . "€");
 
