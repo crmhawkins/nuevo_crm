@@ -338,6 +338,20 @@ class CuadroController extends Controller
         return $array;
     }
 
+    public function saveTraspasoOUt($array, $mes, $idBank, $dias, $diaFormat, $traspasos){
+        $array['meses'][$mes]['bancos'][$idBank]['traspasosoutMes'][$dias] = $diaFormat;
+        $array['meses'][$mes]['bancos'][$idBank]['traspasosoutMes'][$dias] = $traspasos;
+
+        return $array;
+    }
+
+    public function saveTraspasoIn($array, $mes, $idBank, $dias, $diaFormat, $traspasos){
+        $array['meses'][$mes]['bancos'][$idBank]['traspasosinMes'][$dias] = $diaFormat;
+        $array['meses'][$mes]['bancos'][$idBank]['traspasosinMes'][$dias] = $traspasos;
+
+        return $array;
+    }
+
     public function savesBanks($array, $mes, $idBank, $nameBank){
         $array['meses'][$mes]['bancos'][$idBank]['id'] = $idBank;
         $array['meses'][$mes]['bancos'][$idBank]['nombre'] = $nameBank;
@@ -485,11 +499,11 @@ class CuadroController extends Controller
         });
 
         $traspasoOutPorFecha = Traspaso::whereYear('fecha', $year)->get()->groupBy(function($traspaso) {
-            return $traspaso->from_bank_id . '-' . Carbon::parse($traspaso->date)->format('m-d');
+            return $traspaso->from_bank_id . '-' . Carbon::parse($traspaso->fecha)->format('m-d');
         });
 
         $traspasoInPorFecha = Traspaso::whereYear('fecha', $year)->get()->groupBy(function($traspaso) {
-            return $traspaso->to_bank_id . '-' . Carbon::parse($traspaso->date)->format('m-d');
+            return $traspaso->to_bank_id . '-' . Carbon::parse($traspaso->fecha)->format('m-d');
         });
 
         // Procesamiento principal
@@ -548,6 +562,9 @@ class CuadroController extends Controller
                         ? $traspasoOutPorFecha[$dateKey]->sum('amount')
                         : 0;
 
+                    $bigArray = $this->saveTraspasoOut($bigArray, $mesFormat, $bankAccount->id, $j, $diaFormat, $traspasoOut);
+                    $bigArray = $this->saveTraspasoIn($bigArray, $mesFormat, $bankAccount->id, $j, $diaFormat, $traspasoIn);
+
                     // Cálculo diario del gasto total, balance y acumulación del balance diario
                     $gastoTotal = $gastoA + $gastoC + $traspasoOut;
                     $balance = $ingresoTotal + $traspasoIn - $gastoTotal ;
@@ -559,7 +576,7 @@ class CuadroController extends Controller
                 }
             }
         }
-        //dd($bigArray);
+        //dd($bigArray['meses'][12]);
         // Cálculo de los totales acumulados de cada mes
         $arrayTotal = $this->calculateMonthlyTotals($bigArray, $arrayResult['bankAccounts'], $arrayTotal, $year);
         // Cálculo de los totales previstos basados en las facturas pendientes
