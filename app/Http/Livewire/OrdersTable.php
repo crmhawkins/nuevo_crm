@@ -61,7 +61,7 @@ class OrdersTable extends Component
             ->join('admin_user', 'budgets.admin_user_id', '=', 'admin_user.id') // Join para llegar al usuario
             ->join('clients', 'purchase_order.client_id', '=', 'clients.id')
             ->join('suppliers', 'purchase_order.supplier_id', '=', 'suppliers.id')
-            ->select('associated_expenses.*', 'clients.name as clienteNombre','suppliers.name as proveedorNombre', 'admin_user.name as gestorNombre','purchase_order.id as orden' );
+            ->select('associated_expenses.*', 'clients.name as clienteNombre','suppliers.name as proveedorNombre', 'admin_user.name as gestorNombre','purchase_order.id as orden','budgets.id as presupuesto' );
 
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
