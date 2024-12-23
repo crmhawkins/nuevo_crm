@@ -476,12 +476,9 @@ class InvoiceController extends Controller
         if (!empty($camposFaltantes)) {
             $mensaje = "Por favor, rellena los siguientes campos: " . implode(", ", $camposFaltantes);
 
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => $mensaje
-            ]);
+            return response()->json(['error' => $mensaje], 422);
+
         }
-        dd($camposFaltantes);
 
         if($cliente->tipoCliente == 1){
             $fac->setBuyer(new FacturaeParty([
@@ -558,16 +555,12 @@ class InvoiceController extends Controller
         $contrasena = $empresa->contrasena;
 
         if (empty($certificado)) {
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'Falta el certificado.'
-            ]);
+            return response()->json(['error' => 'Falta el certificado.'], 422);
+
         }
         if (empty($contrasena)) {
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'Falta la contraseña del certificado.'
-            ]);
+            return response()->json(['error' => 'Falta la contraseña del certificado.'], 422);
+
         }
 
         $encryptedStore = file_get_contents(asset('storage/'.$certificado));
@@ -583,10 +576,8 @@ class InvoiceController extends Controller
                 'Content-Disposition' => 'attachment; filename="' . $numero . '-' . $serie . '.xsig"',
             ])->deleteFileAfterSend(true); // Borra el archivo después de enviarlo
         } else {
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'El archivo no se generó correctamente.'
-            ]);
+            return response()->json(['error' => 'El archivo no se generó correctamente.'], 500);
+
         }
 
     }
