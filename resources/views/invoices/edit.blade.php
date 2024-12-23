@@ -456,7 +456,7 @@
                         xhr.response.text().then(function (text) {
                             try {
                                 // Intenta analizar la respuesta como JSON
-                                const errorResponse = JSON.parse(text);
+                                const errorResponse = JSON.parse(error);
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error',
