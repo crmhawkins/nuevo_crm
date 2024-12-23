@@ -36,7 +36,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('Alertas:presupuestoConfirmar')->dailyAt('03:00');
         $schedule->command('Alertas:presupuestoFinalizado')->dailyAt('03:00');
         $schedule->command('Alertas:HorasTrabajadas')->weeklyOn(5, '23:30');
-
+        $schedule->command('Ordenes:Alerta')->dailyAt('07:00')->when(function () {
+            return now()->isLastOfMonth();
+        });
 
         // $schedule->call(function () {
         //     $users = User::where('inactive', 0)->where('id', '!=', 101)->get();
