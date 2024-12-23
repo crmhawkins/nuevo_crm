@@ -410,53 +410,24 @@
             });
         });
 
-        $('#electronica').click(function(e) {
-            e.preventDefault(); // Evita la navegación predeterminada del enlace
+        $('#electronica').click(function (e) {
+            e.preventDefault();
 
             const idFactura = @json($factura->id);
             $.ajax({
-                url: '{{ route("factura.electronica") }}', // Verifica que esta URL sea correcta
+                url: '{{ route("factura.electronica") }}',
                 type: 'POST',
-                data: {
-                    id: idFactura
-                },
+                data: { id: idFactura },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
                 },
-                xhrFields: {
-                    responseType: 'blob' // Necesario para manejar la descarga del archivo
-                },
-                success: function(response) {
-                    // Crea una URL para el blob y fuerza la descarga
-                    const blob = new Blob([response], { type: 'application/xsig' });
-                    const link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.xsig';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                success: function (response, status, xhr) {
+                    const contentType = xhr.getResponseHeader('Content-Type');
 
-                    // Mostrar mensaje de éxito
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Factura electrónica generada correctamente.',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        didOpen: (toast) => {
-                            toast.onmouseenter = Swal.stopTimer;
-                            toast.onmouseleave = Swal.resumeTimer;
-                        }
-                    });
-                },
-                error: function(xhr) {
-                    console.log(xhr);
-                    const reader = new FileReader();
-                    reader.onload = function () {
+                    if (contentType && contentType.includes('application/json')) {
+                        // Si es JSON, es un error
                         try {
-                            const errorResponse = JSON.parse(reader.result);
+                            const errorResponse = JSON.parse(response);
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
@@ -468,7 +439,6 @@
                                 timerProgressBar: true
                             });
                         } catch (e) {
-                            console.error('No se pudo analizar la respuesta como JSON:', e);
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
@@ -479,12 +449,60 @@
                                 timer: 3000,
                                 timerProgressBar: true
                             });
+                            console.error('Error al analizar la respuesta:', e);
                         }
-                    };
-                    reader.readAsText(xhr.response); // Convertir el Blob en texto
+                    } else {
+                        // Si no es JSON, asumimos que es un archivo descargable
+                        const blob = new Blob([response], { type: 'application/octet-stream' });
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.xsig';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Factura electrónica generada correctamente.',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    // Manejo de errores
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorResponse.error || 'Ocurrió un error inesperado.',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                    } catch (e) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudo procesar la respuesta del servidor.',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                        console.error('Error al analizar la respuesta:', e);
+                    }
                 }
             });
         });
+
         //Boton de generar tareas
         $('#rectificar').click(function(e){
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
