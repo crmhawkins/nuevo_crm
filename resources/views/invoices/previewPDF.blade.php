@@ -187,7 +187,7 @@
             </div>
         </main>
 
-        <footer class="information pagenum" style="position: fixed; bottom:-160px;padding-left:30px;padding-right:30px;height: 140px;" >
+        <footer class="information pagenum" style="page-break-after: avoid;position: fixed; bottom:-160px;padding-left:30px;padding-right:30px;height: 140px;" >
             <hr style="margin-bottom: 0.1em;border-style:inset;border-width: 0.5px;color:black">
             <table width="100%;margin-bottom:5px">
                 <tr>
