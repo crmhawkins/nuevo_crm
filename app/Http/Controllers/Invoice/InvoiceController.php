@@ -473,16 +473,13 @@ class InvoiceController extends Controller
                 $camposFaltantes[] = $campo;
             }
         }
-
         if (!empty($camposFaltantes)) {
-
             $mensaje = "Por favor, rellena los siguientes campos: " . implode(", ", $camposFaltantes);
 
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => $mensaje
-            ]);
+            return response()->json(['error' => $mensaje, 'status' => false]);
+
         }
+
 
         if($cliente->tipoCliente == 1){
 
@@ -563,17 +560,14 @@ class InvoiceController extends Controller
         $contrasena = $empresa->contrasena;
 
         if (empty($certificado)) {
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'Falta el certificado.'
-            ]);
+            return response()->json(['error' => 'Falta el certificado.', 'status' => false]);
+
         }
         if (empty($contrasena)) {
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'Falta la contraseña del certificado.'
-            ]);
+            return response()->json(['error' => 'Falta la contraseña del certificado.', 'status' => false]);
+
         }
+
 
         $encryptedStore = file_get_contents(asset('storage/'.$certificado));
         $fac->sign($encryptedStore, null, $contrasena);
@@ -588,13 +582,12 @@ class InvoiceController extends Controller
                 'Content-Disposition' => 'attachment; filename="' . $numero . '-' . $serie . '.xsig"',
             ])->deleteFileAfterSend(true); // Borra el archivo después de enviarlo
         } else {
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'El archivo no se generó correctamente.'
-            ]);
+            return response()->json(['error' => 'El archivo no se generó correctamente.', 'status' => false]);
+
         }
 
     }
+
 
     public function show(string $id)
     {
