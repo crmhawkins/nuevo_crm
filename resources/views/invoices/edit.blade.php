@@ -427,13 +427,12 @@
                     responseType: 'blob' // Necesario para manejar la descarga del archivo
                 },
                 success: function(response) {
-                    if(response.status == false){
-                        const error = response.error;
+                    if(!response.status){
 
                         Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: error,
+                        text: response.error,
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
