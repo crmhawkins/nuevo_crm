@@ -421,9 +421,6 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                xhrFields: {
-                    responseType: 'blob' // Tratamos la respuesta como un blob
-                },
                 success: function (response, status, xhr) {
                     const contentType = xhr.getResponseHeader('Content-Type');
 
