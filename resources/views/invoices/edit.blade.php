@@ -410,7 +410,7 @@
             });
         });
 
-        $('#electronica').click(function (e) {
+        $('#electronica').click(function(e) {
             e.preventDefault(); // Evita la navegación predeterminada del enlace
 
             const idFactura = @json($factura->id);
@@ -426,7 +426,7 @@
                 xhrFields: {
                     responseType: 'blob' // Necesario para manejar la descarga del archivo
                 },
-                success: function (response) {
+                success: function(response) {
                     // Crea una URL para el blob y fuerza la descarga
                     const blob = new Blob([response], { type: 'application/xsig' });
                     const link = document.createElement('a');
@@ -451,60 +451,23 @@
                         }
                     });
                 },
-                error: function (xhr) {
-                    if (xhr.status === 422 || xhr.status === 500) {
-                        xhr.response.error().then(function (error) {
-                            try {
-                                // Intenta analizar la respuesta como JSON
-                                const errorResponse = JSON.parse(error);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: errorResponse.error || 'Ocurrió un error inesperado.',
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true,
-                                    didOpen: (toast) => {
-                                        toast.onmouseenter = Swal.stopTimer;
-                                        toast.onmouseleave = Swal.resumeTimer;
-                                    }
-                                });
-                            } catch (e) {
-                                // Si no es JSON, muestra el texto directamente
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: text || 'Ocurrió un error inesperado.',
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true,
-                                    didOpen: (toast) => {
-                                        toast.onmouseenter = Swal.stopTimer;
-                                        toast.onmouseleave = Swal.resumeTimer;
-                                    }
-                                });
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true,
-                            didOpen: (toast) => {
-                                toast.onmouseenter = Swal.stopTimer;
-                                toast.onmouseleave = Swal.resumeTimer;
-                            }
-                        });
-                    }
+                error: function(xhr) {
+                    // Manejo de errores
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al generar la factura electrónica. Por favor, inténtalo de nuevo.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    console.error(xhr.responseText);
                 }
             });
         });
