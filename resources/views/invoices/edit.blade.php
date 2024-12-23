@@ -453,25 +453,42 @@
                 },
                 error: function (xhr) {
                     if (xhr.status === 422 || xhr.status === 500) {
-                        const reader = new FileReader();
-                        reader.onload = function () {
-                            const errorResponse = JSON.parse(reader.result);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: errorResponse.error,
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                                didOpen: (toast) => {
-                                    toast.onmouseenter = Swal.stopTimer;
-                                    toast.onmouseleave = Swal.resumeTimer;
-                                }
-                            });
-                        };
-                        reader.readAsText(xhr.response);
+                        xhr.response.text().then(function (text) {
+                            try {
+                                // Intenta analizar la respuesta como JSON
+                                const errorResponse = JSON.parse(text);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: errorResponse.error || 'Ocurrió un error inesperado.',
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.onmouseenter = Swal.stopTimer;
+                                        toast.onmouseleave = Swal.resumeTimer;
+                                    }
+                                });
+                            } catch (e) {
+                                // Si no es JSON, muestra el texto directamente
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: text || 'Ocurrió un error inesperado.',
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.onmouseenter = Swal.stopTimer;
+                                        toast.onmouseleave = Swal.resumeTimer;
+                                    }
+                                });
+                            }
+                        });
                     } else {
                         Swal.fire({
                             icon: 'error',
