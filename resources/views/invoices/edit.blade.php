@@ -477,6 +477,7 @@
         },
         error: function (xhr) {
             // Manejo de errores en la solicitud
+            console.log(xhr.response);
             xhr.response.text().then(function (text) {
                 let errorMessage = 'Ocurrió un error al generar la factura electrónica. Por favor, inténtalo de nuevo.';
                 try {
