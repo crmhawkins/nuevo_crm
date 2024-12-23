@@ -410,93 +410,68 @@
             });
         });
 
-        $('#electronica').click(function (e) {
-            e.preventDefault();
+        $('#electronica').click(function(e) {
+            e.preventDefault(); // Evita la navegación predeterminada del enlace
 
             const idFactura = @json($factura->id);
             $.ajax({
-                url: '{{ route("factura.electronica") }}',
+                url: '{{ route("factura.electronica") }}', // Verifica que esta URL sea correcta
                 type: 'POST',
-                data: { id: idFactura },
+                data: {
+                    id: idFactura
+                },
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
                 },
-                success: function (response, status, xhr) {
-                    const contentType = xhr.getResponseHeader('Content-Type');
-
-                    if (contentType.includes('application/json')) {
-                        // Si es JSON, se trata de un error
-                        const reader = new FileReader();
-                        reader.onload = function () {
-                            const errorResponse = JSON.parse(reader.result);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: errorResponse.error || 'Ocurrió un error inesperado.',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        };
-                        reader.readAsText(response); // Convertir el blob en texto
-                    } else {
-                        // Si no es JSON, es un archivo descargable
-                        const blob = new Blob([response], { type: 'application/xsig' });
-                        const link = document.createElement('a');
-                        link.href = window.URL.createObjectURL(blob);
-                        link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.xsig';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Factura electrónica generada correctamente.',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-                    }
+                xhrFields: {
+                    responseType: 'blob' // Necesario para manejar la descarga del archivo
                 },
-                error: function (xhr) {
-                    const reader = new FileReader();
-                    reader.onload = function () {
-                        try {
-                            const errorResponse = JSON.parse(reader.result);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: errorResponse.error || 'Ocurrió un error inesperado.',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        } catch (e) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'No se pudo procesar la respuesta del servidor.',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                            console.error('Error al analizar la respuesta:', e);
+                success: function(response) {
+                    // Crea una URL para el blob y fuerza la descarga
+                    const blob = new Blob([response], { type: 'application/xsig' });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.xsig';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Factura electrónica generada correctamente.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
                         }
-                    };
-                    reader.readAsText(xhr.response); // Convertir el Blob en texto
+                    });
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                    // Manejo de errores
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al generar la factura electrónica. Por favor, inténtalo de nuevo.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    console.error(xhr.responseText);
                 }
             });
         });
-
-
         //Boton de generar tareas
         $('#rectificar').click(function(e){
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
