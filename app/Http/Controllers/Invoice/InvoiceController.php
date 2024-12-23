@@ -476,7 +476,7 @@ class InvoiceController extends Controller
         if (!empty($camposFaltantes)) {
             $mensaje = "Por favor, rellena los siguientes campos: " . implode(", ", $camposFaltantes);
 
-            return response()->json(['error' => $mensaje], 422);
+            return response()->json(['error' => $mensaje, 'status' => false]);
 
         }
 
@@ -555,11 +555,11 @@ class InvoiceController extends Controller
         $contrasena = $empresa->contrasena;
 
         if (empty($certificado)) {
-            return response()->json(['error' => 'Falta el certificado.'], 422);
+            return response()->json(['error' => 'Falta el certificado.', 'status' => false]);
 
         }
         if (empty($contrasena)) {
-            return response()->json(['error' => 'Falta la contraseña del certificado.'], 422);
+            return response()->json(['error' => 'Falta la contraseña del certificado.', 'status' => false]);
 
         }
 
@@ -576,7 +576,7 @@ class InvoiceController extends Controller
                 'Content-Disposition' => 'attachment; filename="' . $numero . '-' . $serie . '.xsig"',
             ])->deleteFileAfterSend(true); // Borra el archivo después de enviarlo
         } else {
-            return response()->json(['error' => 'El archivo no se generó correctamente.'], 500);
+            return response()->json(['error' => 'El archivo no se generó correctamente.', 'status' => false]);
 
         }
 

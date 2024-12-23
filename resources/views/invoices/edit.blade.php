@@ -427,19 +427,13 @@
                     responseType: 'blob' // Necesario para manejar la descarga del archivo
                 },
                 success: function(response) {
-                    // Crea una URL para el blob y fuerza la descarga
-                    const blob = new Blob([response], { type: 'application/xsig' });
-                    const link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.xsig';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    if(response.status == false){
 
-                    // Mostrar mensaje de éxito
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Factura electrónica generada correctamente.',
+                        error = response.error;
+                        Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error,
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
@@ -450,6 +444,34 @@
                             toast.onmouseleave = Swal.resumeTimer;
                         }
                     });
+
+                    }else{
+                    // Crea una URL para el blob y fuerza la descarga
+
+                        const blob = new Blob([response], { type: 'application/xsig' });
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.xsig';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Factura electrónica generada correctamente.',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.onmouseenter = Swal.stopTimer;
+                                toast.onmouseleave = Swal.resumeTimer;
+                            }
+                        });
+
+                    }
                 },
                 error: function(xhr) {
                     // Manejo de errores
