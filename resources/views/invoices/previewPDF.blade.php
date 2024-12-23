@@ -161,10 +161,10 @@
                     </table>
                 </div>
             </div>
-            <div style="breakNow">
+            <div style="page-break-inside: avoid; display: table; width: 100%;">
                 <div class="information">
-                    <div style="page-break-after: avoid; height: 140px;padding-left:35px">
-                            <br><br><br><br>
+                    <div style="height: 140px; padding-left: 35px;">
+                        <br><br><br><br>
                         <table id="summary" style="border-collapse: collapse;width: 100%;">
                             <tr>
                                 <th style="text-align:center">Bruto</th>
