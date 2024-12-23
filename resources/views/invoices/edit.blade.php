@@ -428,8 +428,8 @@
                 },
                 success: function(response) {
                     if(response.status == false){
+                        const = response.error;
 
-                        error = response.error;
                         Swal.fire({
                         icon: 'error',
                         title: 'Error',
