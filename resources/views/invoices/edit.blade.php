@@ -427,11 +427,10 @@
                     if (contentType && contentType.includes('application/json')) {
                         // Si es JSON, es un error
                         try {
-                            const errorResponse = JSON.parse(response);
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: errorResponse.error || 'Ocurrió un error inesperado.',
+                                text: response.error || 'Ocurrió un error inesperado.',
                                 toast: true,
                                 position: 'top-end',
                                 showConfirmButton: false,
