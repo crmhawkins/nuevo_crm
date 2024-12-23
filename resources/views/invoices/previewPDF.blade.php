@@ -161,7 +161,7 @@
                     </table>
                 </div>
             </div>
-            <div style="page-break-after: auto">
+            <div>
                 <div class="information">
                     <div style="page-break-after: avoid; height: 140px;padding-left:35px">
                             <br><br><br><br>
