@@ -444,7 +444,48 @@ class InvoiceController extends Controller
             ]));
         }
 
+        if ($cliente->tipoCliente == 1) {
+            $camposRequeridos = [
+                'CIF' => $cliente->cif,
+                'Nombre' => $cliente->name,
+                'Primer Apellido' => $cliente->primerApellido,
+                'Segundo Apellido' => $cliente->segundoApellido,
+                'Dirección' => $cliente->address,
+                'Código Postal' => $cliente->zipcode,
+                'Ciudad' => $cliente->city,
+                'Provincia' => $cliente->province
+            ];
+        } else {
+            $camposRequeridos = [
+                'CIF' => $cliente->cif,
+                'Nombre de la Empresa' => $cliente->company,
+                'Dirección' => $cliente->address,
+                'Código Postal' => $cliente->zipcode,
+                'Ciudad' => $cliente->city,
+                'Provincia' => $cliente->province
+            ];
+        }
+
+        // Verificar si hay algún campo vacío
+        $camposFaltantes = [];
+        foreach ($camposRequeridos as $campo => $valor) {
+            if (empty($valor)) {
+                $camposFaltantes[] = $campo;
+            }
+        }
+
+        if (!empty($camposFaltantes)) {
+
+            $mensaje = "Por favor, rellena los siguientes campos: " . implode(", ", $camposFaltantes);
+
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => $mensaje
+            ]);
+        }
+
         if($cliente->tipoCliente == 1){
+
             $fac->setBuyer(new FacturaeParty([
                 "isLegalEntity" => false,       // Importante!
                 "taxNumber"     => $cliente->cif,
@@ -457,6 +498,7 @@ class InvoiceController extends Controller
                 "province"      => $cliente->province
             ]));
         }else {
+
             $fac->setBuyer(new FacturaeParty([
                 "isLegalEntity" => true,       // Importante!
                 "taxNumber"     => $cliente->cif,
@@ -467,6 +509,8 @@ class InvoiceController extends Controller
                 "province"      => $cliente->province,
             ]));
         }
+
+
         foreach ($conceptos as $key => $concepto) {
             if($kitdigital){
                 $item = new FacturaeItem([
