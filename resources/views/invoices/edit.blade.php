@@ -423,7 +423,7 @@
                 },
                 success: function (response, status, xhr) {
                     const contentType = xhr.getResponseHeader('Content-Type');
-
+                    console.log(response);
                     if (contentType && contentType.includes('application/json')) {
                         // Si es JSON, es un error
                         try {
