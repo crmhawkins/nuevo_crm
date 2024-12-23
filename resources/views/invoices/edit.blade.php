@@ -422,13 +422,13 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 xhrFields: {
-                    responseType: 'blob'
+                    responseType: 'blob' // Tratamos la respuesta como un blob
                 },
                 success: function (response, status, xhr) {
                     const contentType = xhr.getResponseHeader('Content-Type');
 
                     if (contentType.includes('application/json')) {
-                        // Si es JSON, es un error
+                        // Si es JSON, se trata de un error
                         const reader = new FileReader();
                         reader.onload = function () {
                             const errorResponse = JSON.parse(reader.result);
@@ -443,7 +443,7 @@
                                 timerProgressBar: true
                             });
                         };
-                        reader.readAsText(response);
+                        reader.readAsText(response); // Convertir el blob en texto
                     } else {
                         // Si no es JSON, es un archivo descargable
                         const blob = new Blob([response], { type: 'application/xsig' });
@@ -466,28 +466,39 @@
                     }
                 },
                 error: function (xhr) {
-                    xhr.response.text().then(function (text) {
-                        let errorMessage = 'Ocurrió un error al generar la factura electrónica.';
+                    const reader = new FileReader();
+                    reader.onload = function () {
                         try {
-                            const errorResponse = JSON.parse(text);
-                            errorMessage = errorResponse.error || errorMessage;
+                            const errorResponse = JSON.parse(reader.result);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: errorResponse.error || 'Ocurrió un error inesperado.',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
                         } catch (e) {
-                            console.error('No se pudo analizar el error:', e);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'No se pudo procesar la respuesta del servidor.',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
+                            console.error('Error al analizar la respuesta:', e);
                         }
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: errorMessage,
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-                    });
+                    };
+                    reader.readAsText(xhr.response); // Convertir el Blob en texto
                 }
             });
         });
+
 
         //Boton de generar tareas
         $('#rectificar').click(function(e){
