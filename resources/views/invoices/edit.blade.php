@@ -410,74 +410,34 @@
             });
         });
 
-        $('#electronica').click(function(e) {
-            e.preventDefault(); // Evita la navegación predeterminada del enlace
+        $('#electronica').click(function (e) {
+    e.preventDefault(); // Evita la navegación predeterminada del enlace
 
-            const idFactura = @json($factura->id);
-            $.ajax({
-                url: '{{ route("factura.electronica") }}', // Verifica que esta URL sea correcta
-                type: 'POST',
-                data: {
-                    id: idFactura
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
-                },
-                xhrFields: {
-                    responseType: 'blob' // Necesario para manejar la descarga del archivo
-                },
-                success: function(response) {
-                    if(!response.status){
+    const idFactura = @json($factura->id);
+    $.ajax({
+        url: '{{ route("factura.electronica") }}', // Verifica que esta URL sea correcta
+        type: 'POST',
+        data: {
+            id: idFactura
+        },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+        },
+        xhrFields: {
+            responseType: 'blob' // Necesario para manejar la descarga del archivo
+        },
+        success: function (response) {
+            // Manejo de éxito o errores en la respuesta
+            const contentType = response.type;
 
-                        Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.error,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        didOpen: (toast) => {
-                            toast.onmouseenter = Swal.stopTimer;
-                            toast.onmouseleave = Swal.resumeTimer;
-                        }
-                    });
-
-                    }else{
-                    // Crea una URL para el blob y fuerza la descarga
-
-                        const blob = new Blob([response], { type: 'application/xsig' });
-                        const link = document.createElement('a');
-                        link.href = window.URL.createObjectURL(blob);
-                        link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.xsig';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-
-                        // Mostrar mensaje de éxito
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Factura electrónica generada correctamente.',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true,
-                            didOpen: (toast) => {
-                                toast.onmouseenter = Swal.stopTimer;
-                                toast.onmouseleave = Swal.resumeTimer;
-                            }
-                        });
-
-                    }
-                },
-                error: function(xhr) {
-                    // Manejo de errores
+            if (contentType === 'application/json') {
+                // Si el contenido es JSON, se trata de un error
+                response.text().then(function (text) {
+                    const errorResponse = JSON.parse(text);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Ocurrió un error al generar la factura electrónica. Por favor, inténtalo de nuevo.',
+                        text: errorResponse.error || 'Ocurrió un error inesperado.',
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
@@ -488,10 +448,61 @@
                             toast.onmouseleave = Swal.resumeTimer;
                         }
                     });
-                    console.error(xhr.responseText);
+                });
+            } else {
+                // Si el contenido no es JSON, asumimos que es un archivo descargable
+                const blob = new Blob([response], { type: 'application/xsig' });
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.xsig';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Mostrar mensaje de éxito
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Factura electrónica generada correctamente.',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+            }
+        },
+        error: function (xhr) {
+            // Manejo de errores en la solicitud
+            xhr.response.text().then(function (text) {
+                let errorMessage = 'Ocurrió un error al generar la factura electrónica. Por favor, inténtalo de nuevo.';
+                try {
+                    const errorResponse = JSON.parse(text);
+                    errorMessage = errorResponse.error || errorMessage;
+                } catch (e) {
+                    console.error('No se pudo analizar la respuesta del error:', e);
                 }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
             });
-        });
+        }
+    });
+});
         //Boton de generar tareas
         $('#rectificar').click(function(e){
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
