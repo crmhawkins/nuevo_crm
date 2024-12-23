@@ -453,22 +453,35 @@
                 },
                 error: function(xhr) {
                     console.log(xhr);
-                    // Manejo de errores
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Ocurrió un error al generar la factura electrónica. Por favor, inténtalo de nuevo.',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        didOpen: (toast) => {
-                            toast.onmouseenter = Swal.stopTimer;
-                            toast.onmouseleave = Swal.resumeTimer;
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        try {
+                            const errorResponse = JSON.parse(reader.result);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: errorResponse.error || 'Ocurrió un error inesperado.',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
+                        } catch (e) {
+                            console.error('No se pudo analizar la respuesta como JSON:', e);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'No se pudo procesar la respuesta del servidor.',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
                         }
-                    });
-                    console.error(xhr.responseText);
+                    };
+                    reader.readAsText(xhr.response); // Convertir el Blob en texto
                 }
             });
         });
