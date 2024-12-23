@@ -453,7 +453,7 @@
                 },
                 error: function (xhr) {
                     if (xhr.status === 422 || xhr.status === 500) {
-                        xhr.response.text().then(function (text) {
+                        xhr.response.text().then(function (error) {
                             try {
                                 // Intenta analizar la respuesta como JSON
                                 const errorResponse = JSON.parse(error);
