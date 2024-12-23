@@ -473,7 +473,6 @@ class InvoiceController extends Controller
                 $camposFaltantes[] = $campo;
             }
         }
-dd($camposFaltantes);
         if (!empty($camposFaltantes)) {
             $mensaje = "Por favor, rellena los siguientes campos: " . implode(", ", $camposFaltantes);
 
@@ -482,6 +481,7 @@ dd($camposFaltantes);
                 'mensaje' => $mensaje
             ]);
         }
+        dd($camposFaltantes);
 
         if($cliente->tipoCliente == 1){
             $fac->setBuyer(new FacturaeParty([
