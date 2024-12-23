@@ -428,7 +428,7 @@
                 },
                 success: function(response) {
                     if(response.status == false){
-                        const = response.error;
+                        const error = response.error;
 
                         Swal.fire({
                         icon: 'error',
