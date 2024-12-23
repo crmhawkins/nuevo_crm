@@ -27,11 +27,12 @@
                 <thead class="header-table">
                     <tr>
                         @foreach ([
-                            'reference' => 'PRESUPUESTO',
+                            'reference' => 'REFERENCIA',
                             'proveedorNombre' => 'PROVEEDOR',
                             'title' => 'CONCEPTO',
                             'clienteNombre' => 'CLIENTE',
-                            'date_aceptado' => 'FECHA ACEPTADA',
+                            'received_date' => 'FECHA RECEPCIÓN',
+                            //'date_aceptado' => 'FECHA ACEPTACIÓN',
                             'quantity' => 'IMPORTE',
                             'gestorNombre' => 'GESTOR',
                             'state' => 'ESTADO',
@@ -55,13 +56,18 @@
                             <td>{{$order->OrdenCompra->Proveedor->name ?? 'Proveedor no definido' }}</td>
                             <td>{{$order->title }}</td>
                             <td>{{$order->OrdenCompra->cliente->name ?? 'Cliente no definido' }}</td>
-                            <td>{{$order->date_aceptado ? Carbon\Carbon::parse($order->date_aceptado)->format('d/m/Y') : $order->updated_at->format('d/m/Y')}}</td>
+                            <td>{{$order->received_date ? Carbon\Carbon::parse($order->received_date)->format('d/m/Y') : 'Sin fecha' }}</td>
+                            {{-- <td>{{$order->date_aceptado ? Carbon\Carbon::parse($order->date_aceptado)->format('d/m/Y') : 'Sin fecha' }}</td> --}}
                             <td>{{$order->quantity }}</td>
                             <td>{{$order->gestorNombre }}</td>
                             <td>{{$order->state }}</td>
                             <td style="text-align: center;">@if($order->aceptado_gestor == 1) SI @else NO @endif</td>
                             <td class="d-flex flex-row justify-evenly align-middle">
-                                <a class="m-2" href="{{route('gasto-asociado.edit', $order->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar Gasto"></a>
+                                <a class="m-2  btn btn-outline-secondary d-flex align-items-center" href="{{route('gasto-asociado.edit', $order->id)}}" target="_blank">
+                                    <img src="{{asset('assets/icons/edit.svg')}}" alt="Editar Gasto" class="me-3 p-1"></a>
+                                <a class="m-2  btn btn-outline-secondary d-flex align-items-center" href="{{route('presupuesto.edit', $order->presupuesto)}}" target="_blank">
+                                    <img src="{{asset('assets/icons/file-text.svg')}}" alt="Editar dominio"  class="me-3 p-1">
+                                </a>
                             </td>
                         </tr>
                     @endforeach

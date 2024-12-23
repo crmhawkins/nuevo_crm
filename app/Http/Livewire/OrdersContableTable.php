@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\CrmActivities\CrmActivitiesMeetings;
 use App\Models\Users\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -39,8 +40,14 @@ class OrdersContableTable extends Component
 
     protected function actualizar()
     {
+        $now = Carbon::now();
+        $cutoffDate = $now->day <= 10
+            ? $now->subMonthNoOverflow()->startOfMonth()->addDays(22) // Día 23 del mes anterior
+            : $now->startOfMonth()->addDays(22); // Día 23 del mes actual
+
         $query = AssociatedExpenses::where('state', 'PENDIENTE')
             ->where('aceptado_gestor',1)
+            ->whereDate('date_aceptado', '<', $cutoffDate) // Fecha antes del 23
             ->when($this->buscar,function ($query) {
                 $query->whereHas('cliente', function ($subQuery) {
                     $subQuery->where('name', 'like', '%' . $this->buscar . '%');
@@ -59,7 +66,7 @@ class OrdersContableTable extends Component
             ->join('admin_user', 'budgets.admin_user_id', '=', 'admin_user.id') // Join para llegar al usuario
             ->join('clients', 'purchase_order.client_id', '=', 'clients.id')
             ->join('suppliers', 'purchase_order.supplier_id', '=', 'suppliers.id')
-            ->select('associated_expenses.*', 'clients.name as clienteNombre','suppliers.name as proveedorNombre', 'admin_user.name as gestorNombre');
+            ->select('associated_expenses.*', 'clients.name as clienteNombre','suppliers.name as proveedorNombre', 'admin_user.name as gestorNombre','purchase_order.id as orden','budgets.id as presupuesto');
 
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
