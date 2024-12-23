@@ -473,9 +473,8 @@ class InvoiceController extends Controller
                 $camposFaltantes[] = $campo;
             }
         }
-
+dd($camposFaltantes);
         if (!empty($camposFaltantes)) {
-
             $mensaje = "Por favor, rellena los siguientes campos: " . implode(", ", $camposFaltantes);
 
             return redirect()->back()->with('toast', [
