@@ -290,11 +290,11 @@ class StatisticsController extends Controller
         // Obtener ingresos del mes y año especificado
         $ingresos = Ingreso::whereMonth('date', $mes)
             ->whereYear('date', $year)
-            ->whereIn('invoice_id', function ($query) {
-                // $query->select('id')
-                //     ->from('invoices');
-                    // ->whereIn('invoice_status_id', [1, 3, 4]);
-            })
+            // ->whereIn('invoice_id', function ($query) {
+            //     // $query->select('id')
+            //     //     ->from('invoices');
+            //         // ->whereIn('invoice_status_id', [1, 3, 4]);
+            // })
             ->get();
 
         $gastosAsociados = 0;
