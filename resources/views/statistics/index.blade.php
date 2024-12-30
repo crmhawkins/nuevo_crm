@@ -223,8 +223,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <h4>Datos Mensuales</h4>
                     <div class="row mb-3">
                         <div class="col">
                             <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
@@ -364,6 +362,8 @@
                             </div>
                         </div>
                     </div>
+                    <h4>Datos Mensuales</h4>
+
                     <div class="row mb-3">
 
                         <div class="col">
