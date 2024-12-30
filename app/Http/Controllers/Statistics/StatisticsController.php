@@ -298,6 +298,7 @@ class StatisticsController extends Controller
             ->get();
 
         $gastosAsociados = 0;
+        $gastosAsociadosArray = [];
 
         foreach ($ingresos as $ingreso) {
             // Obtener la factura asociada al ingreso
@@ -312,6 +313,7 @@ class StatisticsController extends Controller
                     $ordenCompra = $concepto->orden()->first();
                     if ($ordenCompra) {
                         $gastosAsociados += $ordenCompra->amount;
+                        array_push($gastosAsociadosArray, $ordenCompra);
                     }
                 }
             }
@@ -332,6 +334,7 @@ class StatisticsController extends Controller
             'ingresos' => $ingresos->sum('quantity'), // Sumar cantidades de ingresos
             'ingresos_array' => $ingresos, // Sumar cantidades de ingresos
             'gastos_asociados' => $gastosAsociados, // Total de gastos asociados
+            'gastos_asociados_array' => $gastosAsociadosArray, // Total de gastos asociados
             'gastos_comunes' => $gastosComunes->sum('quantity'), // Total de gastos comunes
         ];
     }
