@@ -82,10 +82,13 @@
                     <tr>
                         @foreach ([
                             'reference' => 'REFERENCIA',
-                            'client_id' => 'CLIENTE',
+                            'client_name' => 'CLIENTE',
+                            'client_cif' => 'CIF',
                             'project_id' => 'CAMPAÑA',
                             'created_at' => 'FECHA CREACION',
                             'invoice_status_id' => 'ESTADO',
+                            'base' => 'BASE',
+                            'iva' => 'IVA',
                             'total' => 'TOTAL',
                             'admin_user_id' => 'GESTOR',
 
@@ -105,10 +108,13 @@
                     @foreach ( $invoices as $invoice )
                     <tr class="clickable-row" data-href="{{route('factura.edit', $invoice->id)}}">
                         <td>{{$invoice->reference}}</td>
-                            <td>{{$invoice->cliente->name ??  ($invoice->client_id ? 'Cliente borrado' : 'Sin cliente asignado')}}</td>
+                            <td>{{optional($invoice->cliente)->name ??  ($invoice->client_id ? 'Cliente borrado' : 'Sin cliente asignado')}}</td>
+                            <td>{{optional($invoice->cliente)->cif ??  ($invoice->client_id ? 'Cliente borrado' : 'Sin cliente asignado')}}</td>
                             <td>{{$invoice->project->name ?? ($invoice->project_id ? 'Campaña borrada' : 'Sin campaña asignada')}}</td>
                             <td>{{Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y')}}</td>
                             <td>{{$invoice->invoiceStatus->name ?? ($invoice->invoice_status_id ? 'Estado borrado' : 'Sin estado asignado')}}</td>
+                            <td>{{number_format((float)$invoice->base, 2, '.', '') }}€</td>
+                            <td>{{number_format((float)$invoice->iva, 2, '.', '') }}€</td>
                             <td>{{number_format((float)$invoice->total, 2, '.', '') }}€</td>
                             <td>{{$invoice->adminUser->name ?? ($invoice->admin_user_id ? 'Gestor borrado' : 'Sin gestor asignado')}}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">

@@ -55,6 +55,7 @@ class InvoicesTable extends Component
                     $query->where('reference', 'like', '%' . $this->buscar . '%')
                         ->orWhereHas('cliente', function ($subQuery) {
                             $subQuery->where('name', 'like', '%' . $this->buscar . '%')
+                                    ->orWhere('cif', 'like', '%' . $this->buscar . '%')
                                     ->orWhere('email', 'like', '%' . $this->buscar . '%');
                         })
                         ->orWhereHas('project', function ($subQuery) {
@@ -63,30 +64,35 @@ class InvoicesTable extends Component
                 });
             })
             ->when($this->selectedGestor, function ($query) {
-                $query->where('admin_user_id', $this->selectedGestor);
+                $query->where('invoices.admin_user_id', $this->selectedGestor);
             })
             ->when($this->selectedEstados, function ($query) {
-                $query->where('invoice_status_id', $this->selectedEstados);
+                $query->where('invoices.invoice_status_id', $this->selectedEstados);
             })
             ->when($this->selectedYear, function ($query) {
-                $query->whereYear('created_at', $this->selectedYear);
+                $query->whereYear('invoices.created_at', $this->selectedYear);
             })
             ->when($this->minImporte, function ($query) {
-                $query->where('total', '>=', $this->minImporte);
+                $query->where('invoices.total', '>=', $this->minImporte);
             })
             ->when($this->maxImporte, function ($query) {
-                $query->where('total', '<=', $this->maxImporte);
+                $query->where('invoices.total', '<=', $this->maxImporte);
             })
             ->when($this->startDate, function ($query) {
-                $query->whereDate('created_at', '>=', Carbon::parse($this->startDate));
+                $query->whereDate('invoices.created_at', '>=', Carbon::parse($this->startDate));
             })
             ->when($this->endDate, function ($query) {
-                $query->whereDate('created_at', '<=', Carbon::parse($this->endDate));
+                $query->whereDate('invoices.created_at', '<=', Carbon::parse($this->endDate));
             });
 
 
-       // Aplica la ordenación
-       $query->orderBy($this->sortColumn, $this->sortDirection);
+            if ($this->sortColumn == 'client_name') {
+                $query->orderBy('client_id', $this->sortDirection);
+            } elseif ($this->sortColumn == 'client_cif') {
+                $query->orderBy('client_id', $this->sortDirection);
+            } else {
+                $query->orderBy($this->sortColumn, $this->sortDirection);
+            }
 
        // Verifica si se seleccionó 'all' para mostrar todos los registros
        $this->budgets = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
