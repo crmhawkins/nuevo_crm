@@ -661,7 +661,7 @@
                                                 <tr>
                                                     <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                     <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha</th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold; width=auto;">Fecha</th>
                                                     <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
                                                     <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
@@ -671,7 +671,7 @@
                                                 @foreach($cashflow['gastos_asociados_array'] as $item)
                                                 <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->note}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"><a href="@if ($item->budget_concept_id) {{route('budgetConcepts.editTypeSupplier', $item->budget_concept_id )}} @endif" target="_blank" rel="noopener noreferrer">{{$item->budget_concept_id ?? 'N\A'}}</a></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray; width=auto; color:blue"><a href="@if ($item->budget_concept_id) {{route('budgetConcepts.editTypeSupplier', $item->budget_concept_id )}} @endif" target="_blank" rel="noopener noreferrer">{{$item->budget_concept_id ?? 'N\A'}}</a></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->shipping_date}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->status}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->amount}} €</td>
