@@ -330,6 +330,7 @@ class StatisticsController extends Controller
 
         return [
             'ingresos' => $ingresos->sum('quantity'), // Sumar cantidades de ingresos
+            'ingresos_array' => $ingresos, // Sumar cantidades de ingresos
             'gastos_asociados' => $gastosAsociados, // Total de gastos asociados
             'gastos_comunes' => $gastosComunes->sum('quantity'), // Total de gastos comunes
         ];

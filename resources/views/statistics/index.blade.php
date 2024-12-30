@@ -608,11 +608,11 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach($dataGastosComunesAnual['gastos'] as $item)
+                                                @foreach($cashflow['ingresos_array'] as $item)
                                                 <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoice_id ?? 'N\A'}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->date}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}}</td>
                                             </tr>
                                             @endforeach
@@ -622,7 +622,7 @@
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataGastosComunesAnual['total'], 2, ',', '.')}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($cashflow['ingresos'], 2, ',', '.')}}</td>
                                                 </tr>
                                             </tfoot>
                                             </table>
