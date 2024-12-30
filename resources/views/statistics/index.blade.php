@@ -574,7 +574,7 @@
                     <h4>Cash Flow</h4>
                     <div class="row mb-3">
                         <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalIngresosCash" style="cursor:pointer;">
                                 <div class="card-body">
                                     <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Ingresos</span>
                                     <div class="d-flex align-items-end justify-content-between">
@@ -583,6 +583,49 @@
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="ModalIngresosCash" tabindex="-1" role="dialog" aria-labelledby="ModalIngresosCash" aria-hidden="true">
+                                <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Ingresos</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($dataGastosComunesAnual['gastos'] as $item)
+                                                <tr>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}}</td>
+                                            </tr>
+                                            @endforeach
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataGastosComunesAnual['total'], 2, ',', '.')}}</td>
+                                                </tr>
+                                            </tfoot>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
