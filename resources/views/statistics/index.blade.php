@@ -441,7 +441,7 @@
                             <div class="col-12 mb-2">
                                 <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunes" style="cursor:pointer;">
                                     <div class="card-body">
-                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes Deducibles</span>
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes Totales</span>
                                         <div class="d-flex align-items-end justify-content-between">
                                             <div>
                                                 <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataGastosComunesTotales['total'], 2, ',', '.')}}</span>
