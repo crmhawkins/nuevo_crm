@@ -54,7 +54,7 @@
                             <h3 class="text-uppercase">Datos Anuales</h3>
                             <div class="row">
                                 {{-- Proyectos Activos Anuales --}}
-                                <div class="col">
+                                <div class="col-12 mb-2">
                                     <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalProyectos" style="cursor:pointer;">
                                         <div class="card-body">
                                             <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Proyectos Activos</span>
@@ -115,7 +115,7 @@
                                     </div>
                                 </div>
                                 {{-- Presupuestos Activos Anuales --}}
-                                <div class="col">
+                                <div class="col-12 mb-2">
                                     <div class="card card-sm">
                                         <div class="card-body">
                                             <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Presupuestos</span>
@@ -128,7 +128,7 @@
                                     </div>
                                 </div>
                                 <!-- Facturación Anual -->
-                                <div class="col">
+                                <div class="col-12 mb-2">
                                     <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacionanual" style="cursor:pointer;">
                                         <div class="card-body">
                                             <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Facturación Anual</span>
@@ -195,7 +195,7 @@
                                     </div>
                                 </div>
                                 {{-- Facturacion Anual Base Imponible --}}
-                                <div class="col">
+                                <div class="col-12 mb-2">
                                     <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacionanual" style="cursor:pointer;">
                                         <div class="card-body">
                                             <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Facturación Anual Base Imponible</span>
@@ -211,7 +211,7 @@
                                     </div>
                                 </div>
                                 {{-- Beneficio Anual --}}
-                                <div class="col">
+                                <div class="col-12 mb-2">
                                     <div class="card card-sm">
                                         <div class="card-body">
                                             <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Beneficios Anual</span>
@@ -227,7 +227,7 @@
                                     </div>
                                 </div>
                                 {{-- Gastos Comunes Anuales --}}
-                                <div class="col">
+                                <div class="col-12 mb-2">
                                     <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
                                         <div class="card-body">
                                             <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes Anual</span>
@@ -286,7 +286,7 @@
                                     </div>
                                 </div>
                                 {{-- Gastos Asociados Anuales --}}
-                                <div class="col">
+                                <div class="col-12 mb-2">
                                     <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociadosAnual" style="cursor:pointer;">
                                         <div class="card-body">
                                             <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Asociados Anual</span>
@@ -350,7 +350,7 @@
                                     </div>
                                 </div>
                                 {{-- Iva Anual --}}
-                                <div class="col">
+                                <div class="col-12 mb-2">
                                     <div class="card card-sm" >
                                         <div class="card-body">
                                             <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Iva Anual</span>
@@ -371,7 +371,7 @@
                         <div class="col-md-4">
                             <h3 class="text-uppercase">Datos Mensuales</h3>
                             {{-- Facturacion Mensual --}}
-                            <div class="col">
+                            <div class="col-12 mb-2">
                                 <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacion" style="cursor:pointer;">
                                     <div class="card-body">
                                         <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Facturación Mensual</span>
@@ -438,7 +438,7 @@
                                 </div>
                             </div>
                             {{-- Gastos Comunes Deducibles --}}
-                            <div class="col">
+                            <div class="col-12 mb-2">
                                 <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunes" style="cursor:pointer;">
                                     <div class="card-body">
                                         <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes Deducibles</span>
@@ -497,7 +497,7 @@
                                 </div>
                             </div>
                             {{-- Gastos Asociados --}}
-                            <div class="col">
+                            <div class="col-12 mb-2">
                                 <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociados" style="cursor:pointer;">
                                     <div class="card-body">
                                         <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Asociados </span>
@@ -560,7 +560,7 @@
                                 </div>
                             </div>
                             {{-- Iva Mensual --}}
-                            <div class="col">
+                            <div class="col-12 mb-2">
                                 <div class="card card-sm">
                                     <div class="card-body">
                                         <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Iva</span>
@@ -580,7 +580,7 @@
                         <div class="col-md-4">
                             <h3 class="text-uppercase">Cash Flow</h3>
                             {{-- Ingresos --}}
-                            <div class="col">
+                            <div class="col-12 mb-2">
                                 <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalIngresosCash" style="cursor:pointer;">
                                     <div class="card-body">
                                         <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Ingresos</span>
@@ -639,7 +639,7 @@
                                 </div>
                             </div>
                             {{-- Gastos Asociados --}}
-                            <div class="col">
+                            <div class="col-12 mb-2">
                                 <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociadosCash" style="cursor:pointer;">
                                     <div class="card-body">
                                         <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Asociados</span>
@@ -700,7 +700,7 @@
                                 </div>
                             </div>
                             {{-- Gastos Comunes --}}
-                            <div class="col">
+                            <div class="col-12 mb-2">
                                 <div class="card card-sm" >
                                     <div class="card-body">
                                         <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes</span>
@@ -716,7 +716,7 @@
                                 </div>
                             </div>
                             {{-- Beneficio --}}
-                            <div class="col">
+                            <div class="col-12 mb-2">
                                 <div class="card card-sm" >
                                     <div class="card-body">
                                         <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Diferencia</span>
