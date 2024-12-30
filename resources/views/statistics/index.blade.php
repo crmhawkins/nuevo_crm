@@ -601,8 +601,8 @@
                                             <thead>
                                                 <tr>
                                                     <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Factura</th>
+                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha</th>
                                                     <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
                                                 </tr>
@@ -611,9 +611,9 @@
                                                 @foreach($cashflow['ingresos_array'] as $item)
                                                 <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoice_id ?? 'N\A'}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"><a href="{{route('factura.edit', $item->invoice_id )}}" target="_blank" rel="noopener noreferrer">{{$item->invoice_id ?? 'N\A'}}</a></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->date}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}}</td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}} @</td>
                                             </tr>
                                             @endforeach
                                             </tbody>
@@ -622,7 +622,7 @@
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($cashflow['ingresos'], 2, ',', '.')}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($cashflow['ingresos'], 2, ',', '.')}} @</td>
                                                 </tr>
                                             </tfoot>
                                             </table>
