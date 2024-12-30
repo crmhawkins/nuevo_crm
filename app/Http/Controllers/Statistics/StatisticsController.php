@@ -311,7 +311,7 @@ class StatisticsController extends Controller
                     // Sumar el total de órdenes de compra asociadas a cada concepto
                     $ordenCompra = $concepto->orden()->first();
                     if ($ordenCompra) {
-                        $gastosAsociados += $ordenCompra->total;
+                        $gastosAsociados += $ordenCompra->amount;
                     }
                 }
             }
