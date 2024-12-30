@@ -318,14 +318,20 @@ class StatisticsController extends Controller
         }
 
         // Obtener los gastos comunes del mes y año
-        $gastosComunes = Gasto::whereMonth('date', $mes)
-            ->whereYear('date', $year)
-            ->sum('quantity');
+        $gastosComunes = DB::table('gastos')
+            ->whereMonth('received_date', $mes)
+            ->whereYear('received_date', $year)
+            ->whereNull('deleted_at')
+            ->where(function($query) {
+                $query->where('transfer_movement', 0)
+                      ->orWhereNull('transfer_movement');
+            })
+            ->get();
 
         return [
             'ingresos' => $ingresos->sum('quantity'), // Sumar cantidades de ingresos
             'gastos_asociados' => $gastosAsociados, // Total de gastos asociados
-            'gastos_comunes' => $gastosComunes, // Total de gastos comunes
+            'gastos_comunes' => $gastosComunes->sum('quantity'), // Total de gastos comunes
         ];
     }
 
