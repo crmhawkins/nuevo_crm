@@ -324,10 +324,10 @@ class StatisticsController extends Controller
             ->whereMonth('received_date', $mes)
             ->whereYear('received_date', $year)
             ->whereNull('deleted_at')
-            ->where(function($query) {
-                $query->where('transfer_movement', 0)
-                      ->orWhereNull('transfer_movement');
-            })
+            // ->where(function($query) {
+            //     $query->where('transfer_movement', 0)
+            //           ->orWhereNull('transfer_movement');
+            // })
             ->get();
 
         return [
