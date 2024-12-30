@@ -292,8 +292,8 @@ class StatisticsController extends Controller
             ->whereYear('date', $year)
             ->whereIn('invoice_id', function ($query) {
                 $query->select('id')
-                    ->from('invoices')
-                    ->whereIn('invoice_status_id', [1, 3, 4]);
+                    ->from('invoices');
+                    // ->whereIn('invoice_status_id', [1, 3, 4]);
             })
             ->get();
 
@@ -324,9 +324,11 @@ class StatisticsController extends Controller
 
         return [
             'ingresos' => $ingresos->sum('quantity'), // Sumar cantidades de ingresos
-            'gastos' => $gastosAsociados + $gastosComunes, // Total de gastos asociados y comunes
+            'gastos_asociados' => $gastosAsociados, // Total de gastos asociados
+            'gastos_comunes' => $gastosComunes, // Total de gastos comunes
         ];
     }
+
 
 
     public function gastosComunes($mes, $year)
