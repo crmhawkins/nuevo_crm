@@ -31,7 +31,7 @@
                 </div>
             </div>
         </div>
-        {{var_dump($cashflow)}}
+        {{-- {{var_dump($cashflow)}} --}}
         <section class="section pt-4">
             <div class="card">
                 <div class="card-body">
@@ -622,7 +622,7 @@
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                     <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($cashflow['ingresos'], 2, ',', '.')}} @</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($cashflow['ingresos'], 2, ',', '.')}} €</td>
                                                 </tr>
                                             </tfoot>
                                             </table>
