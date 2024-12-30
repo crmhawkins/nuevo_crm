@@ -364,73 +364,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <h4>Cash Flow</h4>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Ingresos</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['ingresos'], 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-danger font-12 font-weight-600">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociadosAnual" style="cursor:pointer;">
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Asociados</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['gastos_asociados'], 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-danger font-12 font-weight-600">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col">
-                            <div class="card card-sm" >
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['gastos_comunes'], 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-danger font-12 font-weight-600">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card card-sm" >
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Diferencia</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['ingresos'] - ($cashflow['gastos_comunes'] + $cashflow['gastos_asociados']), 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-danger font-12 font-weight-600">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="row mb-3">
 
                         <div class="col">
@@ -628,6 +561,72 @@
                                     <div class="d-flex align-items-end justify-content-between">
                                         <div>
                                             <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataIva, 2, ',', '.')}}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-danger font-12 font-weight-600">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4>Cash Flow</h4>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
+                                <div class="card-body">
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Ingresos</span>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['ingresos'], 2, ',', '.') €}}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-danger font-12 font-weight-600">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociadosAnual" style="cursor:pointer;">
+                                <div class="card-body">
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Asociados</span>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['gastos_asociados'], 2, ',', '.') €}}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-danger font-12 font-weight-600">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card card-sm" >
+                                <div class="card-body">
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes</span>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['gastos_comunes'], 2, ',', '.') €}}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-danger font-12 font-weight-600">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card card-sm" >
+                                <div class="card-body">
+                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Diferencia</span>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['ingresos'] - ($cashflow['gastos_comunes'] + $cashflow['gastos_asociados']), 2, ',', '.')  €}}</span>
                                         </div>
                                         <div>
                                             <span class="text-danger font-12 font-weight-600">0%</span>
