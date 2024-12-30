@@ -668,7 +668,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach($cashflow['ingresos_array'] as $item)
+                                                @foreach($cashflow['gastos_asociados_array'] as $item)
                                                 <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->note}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;"><a href="@if ($item->budget_concept_id) {{route('budgetConcepts.editTypeSupplier', $item->budget_concept_id )}} @endif" target="_blank" rel="noopener noreferrer">{{$item->budget_concept_id ?? 'N\A'}}</a></td>
