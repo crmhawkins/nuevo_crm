@@ -437,6 +437,65 @@
                                     </div>
                                 </div>
                             </div>
+                            {{-- Gastos Comunes Totales --}}
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunes" style="cursor:pointer;">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes Deducibles</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataGastosComunesTotales['total'], 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="ModalGastosComunes" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunes" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Gatos Comunes</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <table id="tablaGastosComunes" style="width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($dataGastosComunesTotales['gastos'] as $item)
+                                                    <tr>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
+                                                   </tr>
+                                                   @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataGastosComunes['total'], 2, ',', '.')}}</td>
+                                                    </tr>
+                                                </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             {{-- Gastos Comunes Deducibles --}}
                             <div class="col-12 mb-2">
                                 <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunes" style="cursor:pointer;">

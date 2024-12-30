@@ -31,6 +31,7 @@ class StatisticsController extends Controller
         $dataIvaAnual = $this->ivaAnual($anio);
         $dataIva = $this->iva($mes,$anio);
         $dataGastosComunes = $this->gastosComunes($mes, $anio);
+        $dataGastosComunesTotales = $this->gastosComunesTotales($mes, $anio);
         $dataGastosComunesAnual = $this->gastosComunesAnual($anio);
         $dataFacturacion = $this->invoices($mes, $anio);
         $dataFacturacionAnno = $this->invoicesYear($anio);
@@ -114,7 +115,7 @@ class StatisticsController extends Controller
             'userProductivity', 'iva', 'totalBeneficio', 'arrayAnios',
             'anioActual','countTotalBudgets','totalBeneficioAnual',
             'monthsToActually','billingMonthly','allArray',
-            'nameUsers','productivityValues','monthlyAveragesValues','dataIvaAnual','dataIva','dataFacturacionAnnoBase', 'cashflow'
+            'nameUsers','productivityValues','monthlyAveragesValues','dataIvaAnual','dataIva','dataFacturacionAnnoBase', 'cashflow','dataGastosComunesTotales'
         ));
     }
 
@@ -353,6 +354,24 @@ class StatisticsController extends Controller
             })
             ->whereNotNull('iva') // Filtra que iva no sea null
             ->where('iva', '<>', 0) // Filtra que iva sea distinto de 0
+            ->get();
+
+        return [
+            'gastos' => $gastosComunesMes,
+            'total' => $gastosComunesMes->sum('quantity'),
+        ];
+    }
+
+    public function gastosComunesTotales($mes, $year)
+    {
+        $gastosComunesMes = DB::table('gastos')
+            ->whereMonth('received_date', $mes)
+            ->whereYear('received_date', $year)
+            ->whereNull('deleted_at')
+            ->where(function($query) {
+                $query->where('transfer_movement', 0)
+                      ->orWhereNull('transfer_movement');
+            })
             ->get();
 
         return [
