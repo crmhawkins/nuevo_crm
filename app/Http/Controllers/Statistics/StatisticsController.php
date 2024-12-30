@@ -9,6 +9,8 @@ use App\Models\Tasks\Task;
 use App\Models\Clients\Client;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Accounting\Gasto;
+use App\Models\Accounting\Ingreso;
+use App\Models\Budgets\BudgetConcept;
 use App\Models\PurcharseOrde\PurcharseOrder;
 use App\Models\Services\ServiceCategories;
 use App\Models\Invoices\Invoice;
@@ -32,10 +34,12 @@ class StatisticsController extends Controller
         $dataGastosComunesAnual = $this->gastosComunesAnual($anio);
         $dataFacturacion = $this->invoices($mes, $anio);
         $dataFacturacionAnno = $this->invoicesYear($anio);
+		$dataFacturacionAnnoBase = $this->invoicesYearBaseImponible($anio);
         $dataAsociados = $this->gastosAsociados($mes, $anio);
         $dataAsociadosAnual = $this->gastosAsociadosAnual($anio);
         $departamentos = $this->departamentosFacturacionMes($mes, $anio);
         $departamentosBeneficios = $this->beneficioDepartamentos($mes, $anio);
+        $cashflow = $this->cashFlow($mes, $anio);
         $userProductivity = $this->productividadEmpleados($mes, $anio);
         $productivityValues = collect($userProductivity)->pluck('productividad')->toArray();
         $totalBeneficio = $this->calcularTotalBeneficio($anio);
@@ -110,7 +114,7 @@ class StatisticsController extends Controller
             'userProductivity', 'iva', 'totalBeneficio', 'arrayAnios',
             'anioActual','countTotalBudgets','totalBeneficioAnual',
             'monthsToActually','billingMonthly','allArray',
-            'nameUsers','productivityValues','monthlyAveragesValues','dataIvaAnual','dataIva'
+            'nameUsers','productivityValues','monthlyAveragesValues','dataIvaAnual','dataIva','dataFacturacionAnnoBase', 'cashflow'
         ));
     }
 
@@ -256,6 +260,18 @@ class StatisticsController extends Controller
         ];
     }
 
+	public function invoicesYearBaseImponible($year)
+    {
+        $facturas = Invoice::whereYear('created_at', $year)
+            ->whereIn('invoice_status_id', [1,3, 4])
+            ->get();
+
+        return [
+            'facturas' => $facturas,
+            'total' => $facturas->sum('base'),
+        ];
+    }
+
     public function invoices($mes, $year)
     {
         $facturas = Invoice::whereMonth('created_at', $mes)
@@ -268,6 +284,50 @@ class StatisticsController extends Controller
             'total' => $facturas->sum('total'),
         ];
     }
+
+    public function cashFlow($mes, $year)
+    {
+        // Obtener ingresos del mes y año especificado
+        $ingresos = Ingreso::whereMonth('date', $mes)
+            ->whereYear('date', $year)
+            ->whereIn('invoice_id', function ($query) {
+                $query->select('id')
+                    ->from('invoices')
+                    ->whereIn('invoice_status_id', [1, 3, 4]);
+            })
+            ->get();
+
+        $gastosAsociados = 0;
+
+        foreach ($ingresos as $ingreso) {
+            // Obtener la factura asociada al ingreso
+            $factura = $ingreso->getInvoice()->first();
+
+            if ($factura && $factura->budget_id) {
+                // Obtener conceptos del presupuesto asociado a la factura
+                $conceptos = BudgetConcept::where('budget_id', $factura->budget_id)->get();
+
+                foreach ($conceptos as $concepto) {
+                    // Sumar el total de órdenes de compra asociadas a cada concepto
+                    $ordenCompra = $concepto->orden()->first();
+                    if ($ordenCompra) {
+                        $gastosAsociados += $ordenCompra->total;
+                    }
+                }
+            }
+        }
+
+        // Obtener los gastos comunes del mes y año
+        $gastosComunes = Gasto::whereMonth('date', $mes)
+            ->whereYear('date', $year)
+            ->sum('quantity');
+
+        return [
+            'ingresos' => $ingresos->sum('quantity'), // Sumar cantidades de ingresos
+            'gastos' => $gastosAsociados + $gastosComunes, // Total de gastos asociados y comunes
+        ];
+    }
+
 
     public function gastosComunes($mes, $year)
     {
