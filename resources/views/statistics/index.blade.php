@@ -611,7 +611,7 @@
                                                 @foreach($cashflow['ingresos_array'] as $item)
                                                 <tr>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"><a href="{{route('factura.edit', $item->invoice_id )}}" target="_blank" rel="noopener noreferrer">{{$item->invoice_id ?? 'N\A'}}</a></td>
+                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"><a href="@if ($item->invoice_id) {{route('factura.edit', $item->invoice_id )}} @endif" target="_blank" rel="noopener noreferrer">{{$item->invoice_id ?? 'N\A'}}</a></td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->date}}</td>
                                                 <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}} @</td>
                                             </tr>
