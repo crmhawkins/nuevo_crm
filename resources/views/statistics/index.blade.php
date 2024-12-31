@@ -634,6 +634,36 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Iva Emitido</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataFacturacion['ivas'], 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Iva a Pagar</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataFacturacion['ivas'] - $dataIva, 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-md-4">

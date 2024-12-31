@@ -282,6 +282,7 @@ class StatisticsController extends Controller
 
         return [
             'facturas' => $facturas,
+            'ivas' => $facturas->sum('iva'),
             'total' => $facturas->sum('total'),
         ];
     }
