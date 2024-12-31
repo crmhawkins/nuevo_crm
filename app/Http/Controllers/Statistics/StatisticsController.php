@@ -322,8 +322,8 @@ class StatisticsController extends Controller
 
         // Obtener los gastos comunes del mes y año
         $gastosComunes = DB::table('gastos')
-            ->whereMonth('received_date', $mes)
-            ->whereYear('received_date', $year)
+            ->whereMonth('date', $mes)
+            ->whereYear('date', $year)
             ->whereNull('deleted_at')
             // ->where(function($query) {
             //     $query->where('transfer_movement', 0)
