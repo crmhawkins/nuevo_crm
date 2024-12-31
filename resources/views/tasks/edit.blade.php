@@ -144,7 +144,13 @@
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script>
     $(document).ready(function() {
-        var totalTimeBudget = parseFloat('{{ $task->total_time_budget }}'); // Tiempo total estimado de la tarea
+        var totalTimeBudgethourformat = '{{ $task->total_time_budget }}'; // Tiempo total estimado de la tarea
+        if(totalTimeBudgethourformat != null && totalTimeBudgethourformat != '' && totalTimeBudgethourformat != '0'){
+            var totalTimeParts = totalTimeBudgethourformat.split(':');
+            var totalTimeBudget = parseInt(totalTimeParts[0]) + (parseInt(totalTimeParts[1]) / 60) + (parseInt(totalTimeParts[2]) / 3600);
+        }else{
+            var totalTimeBudget = 0;
+        }
         var i = {{ count($data) }};
 
         // Función para convertir un número decimal de horas a formato 00:00:00
