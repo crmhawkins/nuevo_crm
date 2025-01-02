@@ -51,6 +51,7 @@ use App\Http\Controllers\Settings\UserSettingsController;
 use App\Http\Controllers\Statistics\StatisticsController;
 use App\Http\Controllers\Tesoreria\CategoriaAsociadosController;
 use App\Http\Controllers\Tesoreria\CategoriaGastosController;
+use App\Http\Controllers\Tesoreria\CierreController;
 use App\Http\Controllers\Tesoreria\IvaController;
 use App\Http\Controllers\Users\DepartamentController;
 use App\Http\Controllers\Users\PositionController;
@@ -457,6 +458,15 @@ Route::group(['middleware' => 'auth'], function () {
 
         //Productividad
         Route::get('/productividad', [ProductividadController::class, 'index'])->name('productividad.index');
+
+        //Cierre
+        Route::get('/cierre', [CierreController::class, 'index'])->name('cierre.index');
+        Route::get('/cierre/create', [CierreController::class, 'create'])->name('cierre.create');
+        Route::post('/cierre/store', [CierreController::class, 'store'])->name('cierre.store');
+        Route::get('/cierre/edit/{id}', [CierreController::class, 'edit'])->name('cierre.edit');
+        Route::post('/cierre/update/{id}', [CierreController::class, 'update'])->name('cierre.update');
+        Route::post('/cierre/destroy', [CierreController::class, 'destroy'])->name('cierre.delete');
+
     });
 
     Route::post('/get-produccion', [DashboardController::class, 'getProduccion'])->name('productividad.get');

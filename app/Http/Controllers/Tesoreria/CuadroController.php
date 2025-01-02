@@ -372,8 +372,7 @@ class CuadroController extends Controller
             $mes = $mes - 1;
             $ultmes = $arrayBanks['bancos'][$id_bank][$mes]['Ultimo'];
             return $ultmes;
-        }else
-        {
+        }else{
             $lastYearBalance = LastYearsBalance::where('year',$year)->get();
 
             foreach($lastYearBalance as $balance){

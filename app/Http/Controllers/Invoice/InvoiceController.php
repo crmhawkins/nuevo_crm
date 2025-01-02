@@ -223,9 +223,10 @@ class InvoiceController extends Controller
         foreach ($invoices as $invoice) {
 
             $pdf = $this->createPDF($invoice);
-
+            $nombre = $invoice->reference;
+            $nombre = str_replace('/', '_', $nombre);
             // Guardar el archivo PDF en la carpeta temporal
-            $pdfFilePath = $tempDirectory . 'factura_' . $invoice->reference . '_' . Carbon::now()->format('Y-m-d') . '.pdf';
+            $pdfFilePath = $tempDirectory . 'factura_' . $nombre . '_' . Carbon::now()->format('Y-m-d') . '.pdf';
             $pdf->save($pdfFilePath);
 
             // Añadir el archivo generado al array
