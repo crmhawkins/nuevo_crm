@@ -598,7 +598,8 @@
                                 toast.onmouseleave = Swal.resumeTimer;
                             },
                             didClose: () => {
-                                location.reload();
+                                window.location.href = '/invoice/edit/' + response.id ; // Redirige a la URL deseada
+
                             }
                         });
                     } else {
@@ -971,7 +972,8 @@
                                         toast.onmouseleave = Swal.resumeTimer;
                                     },
                                     didClose: () => {
-                                        location.reload();
+                                        window.location.href = '/invoice/edit/' + response.id ; // Redirige a la URL deseada
+
                                     }
                                 });
                             } else {

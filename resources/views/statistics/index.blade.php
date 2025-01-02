@@ -31,7 +31,7 @@
                 </div>
             </div>
         </div>
-
+        {{-- {{var_dump($cashflow)}} --}}
         <section class="section pt-4">
             <div class="card">
                 <div class="card-body">
@@ -49,173 +49,692 @@
                             </div>
                         </form>
                     </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3 class="text-uppercase">Datos Anuales</h3>
+                            <div class="row">
+                                {{-- Proyectos Activos Anuales --}}
+                                <div class="col-12 mb-2">
+                                    <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalProyectos" style="cursor:pointer;">
+                                        <div class="card-body">
+                                            <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Proyectos Activos</span>
+                                            <div class="d-flex align-items-end justify-content-between">
+                                                <div>
+                                                    <span class="d-block display-6 font-weight-400 text-dark">{{$dataBudgets['total']}}+</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal fade" id="ModalProyectos" tabindex="-1" role="dialog" aria-labelledby="ModalProyectos" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Proyectos Activos</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table id="tablaProyectosActivos" style="width: 100%;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
+                                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+                                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach($dataBudgets['ProjectsActive'] as $item)
+                                                            <tr>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->cliente->company ?? $item->cliente->name ?? 'Cliente Borrado'}}</td>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->estadoPresupuesto->name}}</td>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
+                                                            </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                        <tfoot>
+                                                            <tr>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataBudgets['ProjectsActive']->sum('total'), 2, ',', '.')}}</td>
+                                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Presupuestos Activos Anuales --}}
+                                <div class="col-12 mb-2">
+                                    <div class="card card-sm">
+                                        <div class="card-body">
+                                            <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Presupuestos</span>
+                                            <div class="d-flex align-items-end justify-content-between">
+                                                <div>
+                                                    <span class="d-block display-6 font-weight-400 text-dark"><span class="counter-anim">{{number_format($countTotalBudgets, 2, ',', '.')}}</span> €</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Facturación Anual -->
+                                <div class="col-12 mb-2">
+                                    <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacionanual" style="cursor:pointer;">
+                                        <div class="card-body">
+                                            <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Facturación Anual</span>
+                                            <div class="d-flex align-items-end justify-content-between">
+                                                <div>
+                                                    <span class="d-block display-6 font-weight-400 text-dark">€ {{number_format($dataFacturacionAnno['total'], 2, ',', '.')}}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-success font-12 font-weight-600">+0%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal fade" id="ModalFacturacionanual" tabindex="-1" role="dialog" aria-labelledby="ModalFacturacionanual" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Facturacion Anual</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table id="tablaFacturacionAnual" style="width: 100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                            <th style="max-width: 500px; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
+                                                            <th class="w-full-th" style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($dataFacturacionAnno['facturas'] as $item)
+                                                        <tr>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->cliente->company ?? $item->cliente->name ?? 'Cliente Borrado'}}</td>
+                                                            <td style="max-width: 500px; padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoiceStatus->name}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->project_id}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->total, 2, ',', '.')}}</td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataFacturacionAnno['total'], 2, ',', '.')}}</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Facturacion Anual Base Imponible --}}
+                                <div class="col-12 mb-2">
+                                    <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacionanual" style="cursor:pointer;">
+                                        <div class="card-body">
+                                            <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Facturación Anual Base Imponible</span>
+                                            <div class="d-flex align-items-end justify-content-between">
+                                                <div>
+                                                    <span class="d-block display-6 font-weight-400 text-dark">€ {{number_format($dataFacturacionAnnoBase['total'], 2, ',', '.')}}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-success font-12 font-weight-600">+0%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Beneficio Anual --}}
+                                <div class="col-12 mb-2">
+                                    <div class="card card-sm">
+                                        <div class="card-body">
+                                            <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Beneficios Anual</span>
+                                            <div class="d-flex align-items-end justify-content-between">
+                                                <div>
+                                                    <span class="d-block display-6 font-weight-400 text-dark">{{number_format($totalBeneficioAnual, 2, ',', '.')}}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-danger font-12 font-weight-600">0%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Gastos Comunes Anuales --}}
+                                <div class="col-12 mb-2">
+                                    <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
+                                        <div class="card-body">
+                                            <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes Anual</span>
+                                            <div class="d-flex align-items-end justify-content-between">
+                                                <div>
+                                                    <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataGastosComunesAnual['total'], 2, ',', '.')}}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-danger font-12 font-weight-600">0%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal fade" id="ModalGastosComunesAnual" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunesAnual" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Gatos Comunes Anual</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
 
-                    <div class="row mb-3">
-                        <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalProyectos" style="cursor:pointer;">
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Proyectos Activos</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{$dataBudgets['total']}}+</span>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($dataGastosComunesAnual['gastos'] as $item)
+                                                        <tr>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataGastosComunesAnual['total'], 2, ',', '.')}}</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Gastos Asociados Anuales --}}
+                                <div class="col-12 mb-2">
+                                    <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociadosAnual" style="cursor:pointer;">
+                                        <div class="card-body">
+                                            <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Asociados Anual</span>
+                                            <div class="d-flex align-items-end justify-content-between">
+                                                <div>
+                                                    <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataAsociadosAnual['total'], 2, ',', '.')}}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-danger font-12 font-weight-600">0%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal fade" id="ModalGastosAsociadosAnual" tabindex="-1" role="dialog" aria-labelledby="ModalGastosAsociadosAnual" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Gatos Asociados Anual</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table id="tablaGastosAsociadosAnual" style="width: 100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Orden</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Proveedor </th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($dataAsociadosAnual['array'] as $item)
+                                                        <tr>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_order_id}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{optional(optional($item->OrdenCompra)->Proveedor)->name}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataAsociadosAnual['total'], 2, ',', '.')}}</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Iva Anual --}}
+                                <div class="col-12 mb-2">
+                                    <div class="card card-sm" >
+                                        <div class="card-body">
+                                            <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Iva Anual</span>
+                                            <div class="d-flex align-items-end justify-content-between">
+                                                <div>
+                                                    <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataIvaAnual, 2, ',', '.')}}</span>
+                                                </div>
+                                                <div>
+                                                    <span class="text-danger font-12 font-weight-600">0%</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="modal fade" id="ModalProyectos" tabindex="-1" role="dialog" aria-labelledby="ModalProyectos" aria-hidden="true">
-                            <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Proyectos Activos</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
+
+                        <div class="col-md-4">
+                            <h3 class="text-uppercase">Datos Mensuales</h3>
+                            {{-- Facturacion Mensual --}}
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacion" style="cursor:pointer;">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Facturación Mensual</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">€ {{number_format($dataFacturacion['total'], 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-success font-12 font-weight-600">+0%</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="modal-body">
-                                        <table id="tablaProyectosActivos" style="width: 100%;">
-                                            <thead>
-                                                <tr>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($dataBudgets['ProjectsActive'] as $item)
-                                                <tr>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->cliente->company ?? $item->cliente->name ?? 'Cliente Borrado'}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->estadoPresupuesto->name}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->total}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
+                                </div>
+                                <div class="modal fade" id="ModalFacturacion" tabindex="-1" role="dialog" aria-labelledby="ModalFacturacion" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Facturacion</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <table id="tablaFacturacion" style="width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
+                                                        <th class="w-full-th" style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($dataFacturacion['facturas'] as $item)
+                                                    <tr>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->cliente->company ?? $item->cliente->name ?? 'Cliente Borrado'}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoiceStatus->name}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->project_id}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->total, 2, ',', '.')}}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataFacturacion['total'], 2, ',', '.')}}</td>
+                                                    </tr>
+                                                </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- Gastos Comunes Totales --}}
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunes" style="cursor:pointer;">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes Totales</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataGastosComunesTotales['total'], 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="ModalGastosComunes" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunes" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Gatos Comunes</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <table id="tablaGastosComunes" style="width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($dataGastosComunesTotales['gastos'] as $item)
+                                                    <tr>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
+                                                   </tr>
+                                                   @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataGastosComunes['total'], 2, ',', '.')}}</td>
+                                                    </tr>
+                                                </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- Gastos Comunes Deducibles --}}
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunes" style="cursor:pointer;">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes Deducibles</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataGastosComunes['total'], 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="ModalGastosComunes" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunes" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Gatos Comunes</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <table id="tablaGastosComunes" style="width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($dataGastosComunes['gastos'] as $item)
+                                                    <tr>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                       <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
+                                                   </tr>
+                                                   @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataGastosComunes['total'], 2, ',', '.')}}</td>
+                                                    </tr>
+                                                </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- Gastos Asociados --}}
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociados" style="cursor:pointer;">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Asociados </span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataAsociados['total'], 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="ModalGastosAsociados" tabindex="-1" role="dialog" aria-labelledby="ModalGastosAsociados" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Gatos Asociados</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <table id="tablaGastosAsociados" style="width: 100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th onclick="sortTable(0)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Orden</th>
+                                                            <th onclick="sortTable(1)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Proveedor</th>
+                                                            <th onclick="sortTable(2)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                            <th onclick="sortTable(3)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
+                                                            <th onclick="sortTable(4)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                            <th onclick="sortTable(5)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($dataAsociados['array'] as $item)
+                                                        <tr>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_order_id}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{optional(optional($item->OrdenCompra)->Proveedor)->name}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">Total:</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataAsociados['total'], 2, ',', '.')}}</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- Iva Mensual --}}
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Iva</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataIva, 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Iva Emitido</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataFacturacion['ivas'], 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Iva a Pagar</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataFacturacion['ivas'] - $dataIva, 2, ',', '.')}}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <h3 class="text-uppercase">Cash Flow</h3>
+                            {{-- Ingresos --}}
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalIngresosCash" style="cursor:pointer;">
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Ingresos</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['ingresos'], 2, ',', '.')}} €</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="ModalIngresosCash" tabindex="-1" role="dialog" aria-labelledby="ModalIngresosCash" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Ingresos</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Factura</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($cashflow['ingresos_array'] as $item)
+                                                    <tr>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"><a href="@if ($item->invoice_id) {{route('factura.edit', $item->invoice_id )}} @endif" target="_blank" rel="noopener noreferrer">{{$item->invoice_id ?? 'N\A'}}</a></td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->date}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}} €</td>
                                                 </tr>
                                                 @endforeach
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataBudgets['ProjectsActive']->sum('total'), 2, ',', '.')}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Presupuestos</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark"><span class="counter-anim">{{number_format($countTotalBudgets, 2, ',', '.')}}</span> €</span>
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($cashflow['ingresos'], 2, ',', '.')}} €</td>
+                                                    </tr>
+                                                </tfoot>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Facturación Anual Modal -->
-                        <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacionanual" style="cursor:pointer;">
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación Anual</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">€ {{number_format($dataFacturacionAnno['total'], 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-success font-12 font-weight-600">+0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal fade" id="ModalFacturacionanual" tabindex="-1" role="dialog" aria-labelledby="ModalFacturacionanual" aria-hidden="true">
-                            <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Facturacion Anual</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <table id="tablaFacturacionAnual" style="width: 100%;">
-                                        <thead>
-                                            <tr>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
-                                                <th style="max-width: 500px; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
-                                                <th class="w-full-th" style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($dataFacturacionAnno['facturas'] as $item)
-                                            <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->cliente->company ?? $item->cliente->name ?? 'Cliente Borrado'}}</td>
-                                                <td style="max-width: 500px; padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoiceStatus->name}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->project_id}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->total, 2, ',', '.')}}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataFacturacionAnno['total'], 2, ',', '.')}}</td>
-                                            </tr>
-                                        </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Beneficios Anual</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($totalBeneficioAnual, 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-danger font-12 font-weight-600">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        <div class="row mb-3">
-                            <div class="col">
-                                <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunesAnual" style="cursor:pointer;">
+                            {{-- Gastos Asociados --}}
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociadosCash" style="cursor:pointer;">
                                     <div class="card-body">
-                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Comunes Anual</span>
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Asociados</span>
                                         <div class="d-flex align-items-end justify-content-between">
                                             <div>
-                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataGastosComunesAnual['total'], 2, ',', '.')}}</span>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['gastos_asociados'], 2, ',', '.')}} €</span>
                                             </div>
                                             <div>
                                                 <span class="text-danger font-12 font-weight-600">0%</span>
@@ -223,121 +742,76 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="modal fade" id="ModalGastosComunesAnual" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunesAnual" aria-hidden="true">
-                                <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Gatos Comunes Anual</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <table id="tablaGastosComunesAnual" style="width: 100%;">
-                                            <thead>
-                                                <tr>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
-
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($dataGastosComunesAnual['gastos'] as $item)
-                                                <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}}</td>
-                                            </tr>
-                                            @endforeach
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataGastosComunesAnual['total'], 2, ',', '.')}}</td>
-                                                </tr>
-                                            </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col">
-                                <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociadosAnual" style="cursor:pointer;">
-                                    <div class="card-body">
-                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Asociados Anual</span>
-                                        <div class="d-flex align-items-end justify-content-between">
-                                            <div>
-                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataAsociadosAnual['total'], 2, ',', '.')}}</span>
+                                <div class="modal fade" id="ModalGastosAsociadosCash" tabindex="-1" role="dialog" aria-labelledby="ModalGastosAsociadosCash" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Ingresos</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
                                             </div>
-                                            <div>
-                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            <div class="modal-body">
+                                                <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold; width=auto;">Fecha de E.</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                        <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($cashflow['gastos_asociados_array'] as $item)
+                                                    <tr>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->note}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray; width=auto; color:blue"><a href="@if ($item->budget_concept_id) {{route('budgetConcepts.editTypeSupplier', $item->budget_concept_id )}} @endif" target="_blank" rel="noopener noreferrer">{{$item->budget_concept_id ?? 'N\A'}}</a></td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->shipping_date}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->status}}</td>
+                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->amount}} €</td>
+                                                </tr>
+                                                @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($cashflow['gastos_asociados'], 2, ',', '.')}} €</td>
+                                                    </tr>
+                                                </tfoot>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal fade" id="ModalGastosAsociadosAnual" tabindex="-1" role="dialog" aria-labelledby="ModalGastosAsociadosAnual" aria-hidden="true">
-                                <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Gatos Asociados Anual</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <table id="tablaGastosAsociadosAnual" style="width: 100%;">
-                                            <thead>
-                                                <tr>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Orden</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Proveedor </th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
-                                                    <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
-
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($dataAsociadosAnual['array'] as $item)
-                                                <tr>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_order_id}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{optional(optional($item->OrdenCompra)->Proveedor)->name}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
-                                            </tr>
-                                            @endforeach
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataAsociadosAnual['total'], 2, ',', '.')}}</td>
-                                                </tr>
-                                            </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col">
+                            {{-- Gastos Comunes --}}
+                            <div class="col-12 mb-2">
                                 <div class="card card-sm" >
                                     <div class="card-body">
-                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Iva Anual</span>
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes</span>
                                         <div class="d-flex align-items-end justify-content-between">
                                             <div>
-                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataIvaAnual, 2, ',', '.')}}</span>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['gastos_comunes'], 2, ',', '.')}} €</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- Beneficio --}}
+                            <div class="col-12 mb-2">
+                                <div class="card card-sm" >
+                                    <div class="card-body">
+                                        <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Diferencia</span>
+                                        <div class="d-flex align-items-end justify-content-between">
+                                            <div>
+                                                <span class="d-block display-6 font-weight-400 text-dark">{{number_format($cashflow['ingresos'] - ($cashflow['gastos_comunes'] + $cashflow['gastos_asociados']), 2, ',', '.')}} €</span>
                                             </div>
                                             <div>
                                                 <span class="text-danger font-12 font-weight-600">0%</span>
@@ -347,211 +821,7 @@
                                 </div>
                             </div>
                         </div>
-                    <div class="row mb-3">
 
-                        <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalFacturacion" style="cursor:pointer;">
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Facturación</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">€ {{number_format($dataFacturacion['total'], 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-success font-12 font-weight-600">+0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal fade" id="ModalFacturacion" tabindex="-1" role="dialog" aria-labelledby="ModalFacturacion" aria-hidden="true">
-                            <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Facturacion</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <table id="tablaFacturacion" style="width: 100%;">
-                                        <thead>
-                                            <tr>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Cliente </th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Campaña</th>
-                                                <th class="w-full-th" style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Fecha Creacion</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($dataFacturacion['facturas'] as $item)
-                                            <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->reference}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->cliente->company ?? $item->cliente->name ?? 'Cliente Borrado'}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->concept}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->invoiceStatus->name}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->project_id}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->created_at}}</td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->total, 2, ',', '.')}}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataFacturacion['total'], 2, ',', '.')}}</td>
-                                            </tr>
-                                        </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosComunes" style="cursor:pointer;">
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Comunes</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataGastosComunes['total'], 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-danger font-12 font-weight-600">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal fade" id="ModalGastosComunes" tabindex="-1" role="dialog" aria-labelledby="ModalGastosComunes" aria-hidden="true">
-                            <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Gatos Comunes</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <table id="tablaGastosComunes" style="width: 100%;">
-                                        <thead>
-                                            <tr>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
-                                                <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
-
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($dataGastosComunes['gastos'] as $item)
-                                            <tr>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
-                                               <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
-                                           </tr>
-                                           @endforeach
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataGastosComunes['total'], 2, ',', '.')}}</td>
-                                            </tr>
-                                        </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col">
-                            <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastosAsociados" style="cursor:pointer;">
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Gastos Asociados </span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataAsociados['total'], 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-danger font-12 font-weight-600">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal fade" id="ModalGastosAsociados" tabindex="-1" role="dialog" aria-labelledby="ModalGastosAsociados" aria-hidden="true">
-                            <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Gatos Asociados</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <table id="tablaGastosAsociados" style="width: 100%;">
-                                            <thead>
-                                                <tr>
-                                                    <th onclick="sortTable(0)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Orden</th>
-                                                    <th onclick="sortTable(1)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Proveedor</th>
-                                                    <th onclick="sortTable(2)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
-                                                    <th onclick="sortTable(3)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">F.Recepción</th>
-                                                    <th onclick="sortTable(4)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
-                                                    <th onclick="sortTable(5)" style="cursor: pointer; border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($dataAsociados['array'] as $item)
-                                                <tr>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->purchase_order_id}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{optional(optional($item->OrdenCompra)->Proveedor)->name}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->received_date}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state ?? 'N\A'}}</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($item->quantity, 2, ',', '.')}}</td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">Total:</td>
-                                                    <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($dataAsociados['total'], 2, ',', '.')}}</td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-10">Iva</span>
-                                    <div class="d-flex align-items-end justify-content-between">
-                                        <div>
-                                            <span class="d-block display-6 font-weight-400 text-dark">{{number_format($dataIva, 2, ',', '.')}}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-danger font-12 font-weight-600">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
 
@@ -584,6 +854,7 @@
                             </div>
                         </div>
                     </div>
+
 
                 </div>
             </div>

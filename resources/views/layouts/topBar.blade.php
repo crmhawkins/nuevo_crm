@@ -304,7 +304,8 @@
             33: 'Dominio a punto de expirar',
             40: 'Aviso de Tarea - Se está sobrepasando las horas estimadas',
             41: 'Tarea en Revision',
-            42: 'Alerta pospuesta 3 veces'
+            42: 'Alerta pospuesta 3 veces',
+            43: 'Alerta Ordenes a pagar',
         };
 
         // Función para obtener las alertas usando fetch
@@ -577,6 +578,10 @@
                         botonposponer = false;
                         break;
                     case 42:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
+                        break;
+                    case 43:
                         mensajeDetalle =  alerta['description'];
                         botonposponer = false;
                         break;
@@ -1321,12 +1326,25 @@
                         }
                     });
                     break;
-
+                    case 43:
+                    var id = alertaSeleccionada['id'];
+                    var status = 2;
+                    $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                                if (jqXHR.responseText != 503) {
+                                window.open( "/order", '_blank');
+                                eliminarAlertaDOM(stage_id, index);
+                                } else {
+                                swal(
+                                    'Error',
+                                    'Error al realizar la peticion',
+                                    'error'
+                                );
+                                }
+                            });
+                        break;
                 default:
                     mostrarTiposDeAlertas();
                     break;
-
-
             }
         }
 

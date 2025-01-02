@@ -24,9 +24,12 @@ class InvoicesExport implements FromCollection, WithHeadings
             return [
                 $invoice->reference,
                 optional($invoice->cliente)->name ?? 'Cliente borrado',
+                optional($invoice->cliente)->cif ?? 'Cliente borrado',
                 optional($invoice->project)->name ?? 'Sin campaña asignada',
                 $invoice->created_at->format('d/m/Y'),
                 optional($invoice->invoiceStatus)->name ?? 'Sin estado asignado',
+                $invoice->base,
+                $invoice->iva,
                 $invoice->total,
                 optional($invoice->adminUser)->name ?? 'Sin gestor asignado',
             ];
@@ -41,9 +44,12 @@ class InvoicesExport implements FromCollection, WithHeadings
         return [
             'Referencia',
             'Cliente',
+            'Cif',
             'Campaña',
             'Fecha Creación',
             'Estado',
+            'Base',
+            'Iva',
             'Total',
             'Gestor',
         ];

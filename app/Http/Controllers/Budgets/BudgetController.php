@@ -1282,7 +1282,8 @@ class BudgetController extends Controller
             // Respuesta
             return response()->json([
                 'status' => true,
-                'mensaje' => "Factura generada correctamente"
+                'mensaje' => "Factura generada correctamente",
+                'id' => $invoice->id,
             ]);
         }
     }
@@ -1466,7 +1467,8 @@ class BudgetController extends Controller
             // Respuesta
             return response()->json([
                 'status' => true,
-                'mensaje' => "Factura generada correctamente"
+                'mensaje' => "Factura generada correctamente",
+                'id' => $invoice->id,
             ]);
         }
     }
@@ -1647,7 +1649,8 @@ class BudgetController extends Controller
             // Respuesta
             return response()->json([
                 'status' => true,
-                'mensaje' => "Factura parcial generada correctamente"
+                'mensaje' => "Factura parcial generada correctamente",
+                'id' => $invoice->id,
             ]);
         }
     }

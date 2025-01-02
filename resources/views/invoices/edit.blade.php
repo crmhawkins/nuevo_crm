@@ -349,6 +349,7 @@
             e.preventDefault(); // Esto previene que el enlace navegue a otra página.
 
             const idFactura = @json($factura->id);
+            const referencia = @json($factura->reference);
             $.ajax({
                 url: '{{ route("factura.generarPDF") }}', // Asegúrate de que la URL es correcta
                 type: 'POST',
@@ -366,7 +367,7 @@
                     const blob = new Blob([response], { type: 'application/pdf' });
                     const link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
-                    link.download = 'factura_' + idFactura + '_' + new Date().toISOString().slice(0, 10) + '.pdf';
+                    link.download = 'factura_' + referencia + '_' + '.pdf';
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);

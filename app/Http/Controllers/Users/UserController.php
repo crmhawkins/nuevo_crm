@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\RequestStore;
+use App\Models\Holidays\Holidays;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
 use Illuminate\Http\Request;
@@ -116,6 +117,11 @@ class UserController extends Controller
 
         //   dd($data);
           $usuarioCreado = User::create($data);
+          $usuariovacaciones = Holidays::create([
+            'admin_user_id' => $usuarioCreado->id,
+            'quantity' => 0,
+            'first_period' => 0,
+          ]);
 
         session()->flash('toast', [
             'icon' => 'success',

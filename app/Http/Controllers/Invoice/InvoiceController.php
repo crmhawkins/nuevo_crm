@@ -61,6 +61,7 @@ class InvoiceController extends Controller
 
         $data = $request->validate([
             'invoice_status_id' => 'required',
+            'concept' => 'required',
             'observations' => 'nullable',
             'note' => 'nullable',
             'show_summary' => 'nullable',
@@ -223,9 +224,10 @@ class InvoiceController extends Controller
         foreach ($invoices as $invoice) {
 
             $pdf = $this->createPDF($invoice);
-
+            $nombre = $invoice->reference;
+            $nombre = str_replace('/', '_', $nombre);
             // Guardar el archivo PDF en la carpeta temporal
-            $pdfFilePath = $tempDirectory . 'factura_' . $invoice->reference . '_' . Carbon::now()->format('Y-m-d') . '.pdf';
+            $pdfFilePath = $tempDirectory . 'factura_' . $nombre . '_' . Carbon::now()->format('Y-m-d') . '.pdf';
             $pdf->save($pdfFilePath);
 
             // Añadir el archivo generado al array
@@ -484,6 +486,7 @@ class InvoiceController extends Controller
         }
 
         if($cliente->tipoCliente == 1){
+
             $fac->setBuyer(new FacturaeParty([
                 "isLegalEntity" => false,       // Importante!
                 "taxNumber"     => $cliente->cif,
@@ -496,6 +499,7 @@ class InvoiceController extends Controller
                 "province"      => $cliente->province
             ]));
         }else {
+
             $fac->setBuyer(new FacturaeParty([
                 "isLegalEntity" => true,       // Importante!
                 "taxNumber"     => $cliente->cif,
@@ -506,6 +510,8 @@ class InvoiceController extends Controller
                 "province"      => $cliente->province,
             ]));
         }
+
+
         foreach ($conceptos as $key => $concepto) {
             if($kitdigital){
                 $item = new FacturaeItem([
@@ -566,6 +572,7 @@ class InvoiceController extends Controller
 
         }
 
+
         $encryptedStore = file_get_contents(asset('storage/'.$certificado));
         $fac->sign($encryptedStore, null, $contrasena);
 
@@ -583,6 +590,7 @@ class InvoiceController extends Controller
         }
 
     }
+
 
     public function show(string $id)
     {

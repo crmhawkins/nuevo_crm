@@ -9,6 +9,8 @@ use App\Models\Tasks\Task;
 use App\Models\Clients\Client;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Accounting\Gasto;
+use App\Models\Accounting\Ingreso;
+use App\Models\Budgets\BudgetConcept;
 use App\Models\PurcharseOrde\PurcharseOrder;
 use App\Models\Services\ServiceCategories;
 use App\Models\Invoices\Invoice;
@@ -29,13 +31,16 @@ class StatisticsController extends Controller
         $dataIvaAnual = $this->ivaAnual($anio);
         $dataIva = $this->iva($mes,$anio);
         $dataGastosComunes = $this->gastosComunes($mes, $anio);
+        $dataGastosComunesTotales = $this->gastosComunesTotales($mes, $anio);
         $dataGastosComunesAnual = $this->gastosComunesAnual($anio);
         $dataFacturacion = $this->invoices($mes, $anio);
         $dataFacturacionAnno = $this->invoicesYear($anio);
+		$dataFacturacionAnnoBase = $this->invoicesYearBaseImponible($anio);
         $dataAsociados = $this->gastosAsociados($mes, $anio);
         $dataAsociadosAnual = $this->gastosAsociadosAnual($anio);
         $departamentos = $this->departamentosFacturacionMes($mes, $anio);
         $departamentosBeneficios = $this->beneficioDepartamentos($mes, $anio);
+        $cashflow = $this->cashFlow($mes, $anio);
         $userProductivity = $this->productividadEmpleados($mes, $anio);
         $productivityValues = collect($userProductivity)->pluck('productividad')->toArray();
         $totalBeneficio = $this->calcularTotalBeneficio($anio);
@@ -110,7 +115,7 @@ class StatisticsController extends Controller
             'userProductivity', 'iva', 'totalBeneficio', 'arrayAnios',
             'anioActual','countTotalBudgets','totalBeneficioAnual',
             'monthsToActually','billingMonthly','allArray',
-            'nameUsers','productivityValues','monthlyAveragesValues','dataIvaAnual','dataIva'
+            'nameUsers','productivityValues','monthlyAveragesValues','dataIvaAnual','dataIva','dataFacturacionAnnoBase', 'cashflow','dataGastosComunesTotales'
         ));
     }
 
@@ -256,6 +261,18 @@ class StatisticsController extends Controller
         ];
     }
 
+	public function invoicesYearBaseImponible($year)
+    {
+        $facturas = Invoice::whereYear('created_at', $year)
+            ->whereIn('invoice_status_id', [1,3, 4])
+            ->get();
+
+        return [
+            'facturas' => $facturas,
+            'total' => $facturas->sum('base'),
+        ];
+    }
+
     public function invoices($mes, $year)
     {
         $facturas = Invoice::whereMonth('created_at', $mes)
@@ -265,9 +282,66 @@ class StatisticsController extends Controller
 
         return [
             'facturas' => $facturas,
+            'ivas' => $facturas->sum('iva'),
             'total' => $facturas->sum('total'),
         ];
     }
+
+    public function cashFlow($mes, $year)
+    {
+        // Obtener ingresos del mes y año especificado
+        $ingresos = Ingreso::whereMonth('date', $mes)
+            ->whereYear('date', $year)
+            // ->whereIn('invoice_id', function ($query) {
+            //     // $query->select('id')
+            //     //     ->from('invoices');
+            //         // ->whereIn('invoice_status_id', [1, 3, 4]);
+            // })
+            ->get();
+
+        $gastosAsociados = 0;
+        $gastosAsociadosArray = [];
+
+        foreach ($ingresos as $ingreso) {
+            // Obtener la factura asociada al ingreso
+            $factura = $ingreso->getInvoice()->first();
+
+            if ($factura && $factura->budget_id) {
+                // Obtener conceptos del presupuesto asociado a la factura
+                $conceptos = BudgetConcept::where('budget_id', $factura->budget_id)->get();
+
+                foreach ($conceptos as $concepto) {
+                    // Sumar el total de órdenes de compra asociadas a cada concepto
+                    $ordenCompra = $concepto->orden()->first();
+                    if ($ordenCompra) {
+                        $gastosAsociados += $ordenCompra->amount;
+                        array_push($gastosAsociadosArray, $ordenCompra);
+                    }
+                }
+            }
+        }
+
+        // Obtener los gastos comunes del mes y año
+        $gastosComunes = DB::table('gastos')
+            ->whereMonth('date', $mes)
+            ->whereYear('date', $year)
+            ->whereNull('deleted_at')
+            // ->where(function($query) {
+            //     $query->where('transfer_movement', 0)
+            //           ->orWhereNull('transfer_movement');
+            // })
+            ->get();
+
+        return [
+            'ingresos' => $ingresos->sum('quantity'), // Sumar cantidades de ingresos
+            'ingresos_array' => $ingresos, // Sumar cantidades de ingresos
+            'gastos_asociados' => $gastosAsociados, // Total de gastos asociados
+            'gastos_asociados_array' => $gastosAsociadosArray, // Total de gastos asociados
+            'gastos_comunes' => $gastosComunes->sum('quantity'), // Total de gastos comunes
+        ];
+    }
+
+
 
     public function gastosComunes($mes, $year)
     {
@@ -281,6 +355,24 @@ class StatisticsController extends Controller
             })
             ->whereNotNull('iva') // Filtra que iva no sea null
             ->where('iva', '<>', 0) // Filtra que iva sea distinto de 0
+            ->get();
+
+        return [
+            'gastos' => $gastosComunesMes,
+            'total' => $gastosComunesMes->sum('quantity'),
+        ];
+    }
+
+    public function gastosComunesTotales($mes, $year)
+    {
+        $gastosComunesMes = DB::table('gastos')
+            ->whereMonth('received_date', $mes)
+            ->whereYear('received_date', $year)
+            ->whereNull('deleted_at')
+            ->where(function($query) {
+                $query->where('transfer_movement', 0)
+                      ->orWhereNull('transfer_movement');
+            })
             ->get();
 
         return [
