@@ -585,13 +585,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/emails/create', [EmailController::class, 'create'])->name('admin.emails.create');
     Route::get('/email/{email}/show', [EmailController::class, 'show'])->name('admin.emails.show');
     Route::post('/emails/send', [EmailController::class, 'sendEmail'])->name('admin.emails.send');
+    Route::get('/emails/forward/{emailId}', [EmailController::class, 'forward'])->name('admin.emails.forward');
     Route::get('/emails/relpy/{emailId}', [EmailController::class, 'reply'])->name('admin.emails.reply');
     Route::post('/emails/sendReply/{emailId}', [EmailController::class, 'replyToEmail'])->name('admin.emails.sendReply');
+    Route::post('/emails/sendForward/{emailId}', [EmailController::class, 'forwardEmail'])->name('admin.emails.sendforward');
     Route::get('/emails/settings', [UserSettingsController::class, 'emailSettings'])->name('admin.emailConfig.settings');
     Route::post('/emails/settings/store', [UserSettingsController::class, 'store'])->name('admin.emailConfig.store');
     Route::put('/emails/settings/update/{id}', [UserSettingsController::class, 'update'])->name('admin.emailConfig.update');
     Route::post('/emails/unread', [EmailController::class, 'countUnread'])->name('admin.emails.unread');
     Route::post('/emails/delete', [EmailController::class, 'destroy'])->name('admin.emails.destroy');
+    Route::post('/emails/destroy-multiple', [EmailController::class, 'destroyMultiple'])->name('admin.emails.destroyMultiple');
 
 
 

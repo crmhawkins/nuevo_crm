@@ -21,17 +21,28 @@ class EmailController extends Controller
     public function index(Request $request)
     {
         $categoriaId = $request->input('categoria_id', null);  // Por defecto no filtra por categoría
+        $search = $request->input('search', null);
+        $query = Email::query();
 
         // Filtra los correos según la categoría si se especifica una
-        $query = Email::where('admin_user_id', Auth::user()->id)
+        $query->where('admin_user_id', Auth::user()->id)
                       ->with(['status', 'category', 'user'])
                       ->orderBy('created_at', 'desc');
 
         if ($categoriaId) {
-            $query->where('category_id', $categoriaId);
+            $query->where(function($q) use ($categoriaId) {
+                $q->where('category_id', $categoriaId);
+            });
         }
 
-        $emails = $query->paginate(15);  // Pagina los resultados
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('sender', 'like', "%{$search}%")
+                  ->orWhere('subject', 'like', "%{$search}%");
+            });
+        }
+
+        $emails = $query->paginate(15)->appends($request->all());
 
         $categorias = CategoryEmail::all();
 
@@ -42,12 +53,13 @@ class EmailController extends Controller
     {
 
         $Emails = Email::select('to')
-                            ->distinct()
-                            ->whereNotNull('to')
-                            ->pluck('to');
+            ->distinct()
+            ->where('admin_user_id', Auth::user()->id)
+            ->whereNotNull('to')
+            ->pluck('to');
 
 
-                            $emailPattern = '/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/';
+        $emailPattern = '/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/';
 
         // Arreglo para almacenar correos separados
         $separatedEmails = [];
@@ -60,11 +72,15 @@ class EmailController extends Controller
             $separatedEmails = array_merge($separatedEmails, $matches[0]);
         }
 
-        // Filtramos los correos para eliminar los que contienen 'guest.booking.com'
-        $previousEmails = array_filter($separatedEmails, function ($email) {
+        // Filtrar los correos para eliminar los que contienen 'guest.booking.com'
+        $filteredEmails = array_filter($separatedEmails, function ($email) {
             return !str_contains($email, '@guest.booking.com');
         });
 
+        // Eliminar duplicados del array final
+        $normalizedEmails = array_map('strtolower', $filteredEmails);
+
+        $previousEmails = array_unique($normalizedEmails);
         return view('emails.create',compact('previousEmails'));
     }
 
@@ -96,9 +112,9 @@ class EmailController extends Controller
     public function forward($emailId)
     {
         // Busca el email en la base de datos
-        $email = Email::find($emailId);
+        $correo = Email::find($emailId);
 
-        if (!$email) {
+        if (!$correo) {
             return redirect()->back()->with('toast', [
                 'icon' => 'error',
                 'mensaje' => 'Email no encontrado'
@@ -106,7 +122,7 @@ class EmailController extends Controller
         }
 
         // Obtén la configuración de correo electrónico del usuario correspondiente
-        $correoConfig = UserEmailConfig::where('admin_user_id', $email->admin_user_id)->first();
+        $correoConfig = UserEmailConfig::where('admin_user_id', $correo->admin_user_id)->first();
 
         if (!$correoConfig) {
             return redirect()->back()->with('toast', [
@@ -115,7 +131,40 @@ class EmailController extends Controller
             ]);
         }
 
-        return view('emails.forward', compact('email', 'correoConfig'));
+        try {
+            $Emails = Email::select('to')
+            ->distinct()
+            ->where('admin_user_id', Auth::user()->id)
+            ->whereNotNull('to')
+            ->pluck('to');
+
+
+        $emailPattern = '/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/';
+
+        // Arreglo para almacenar correos separados
+        $separatedEmails = [];
+
+        foreach ($Emails as $email) {
+            // Aplicamos la expresión regular para extraer todos los correos electrónicos en cada elemento
+            preg_match_all($emailPattern, $email, $matches);
+
+            // Añadimos los correos encontrados al array de correos separados
+            $separatedEmails = array_merge($separatedEmails, $matches[0]);
+        }
+
+        // Filtrar los correos para eliminar los que contienen 'guest.booking.com'
+        $filteredEmails = array_filter($separatedEmails, function ($email) {
+            return !str_contains($email, '@guest.booking.com');
+        });
+
+        // Eliminar duplicados del array final
+        $normalizedEmails = array_map('strtolower', $filteredEmails);
+
+        $previousEmails = array_unique($normalizedEmails);
+        } catch (\Throwable $th) {
+            $previousEmails = [];
+        }
+        return view('emails.forward', compact('correo', 'correoConfig', 'previousEmails'));
     }
 
     // Mostrar un correo específico
@@ -147,11 +196,34 @@ class EmailController extends Controller
         // Validar la solicitud
         $request->validate([
             'message' => 'required|string',
-            'to' => 'required|email',  // Añadimos el campo 'to' para definir el destinatario al reenviar
-            'cc' => 'nullable|string',
-            'bcc' => 'nullable|string',
+            'to' => 'required',  // Añadimos el campo 'to' para definir el destinatario al reenviar
+            'cc' => 'nullable',
+            'bcc' => 'nullable',
             'attachments.*' => 'file'
         ]);
+
+        $todata = json_decode($request->to,true);
+        $to = array_map(function ($item) {
+            return $item['value'];
+        }, $todata);
+
+        if ($request->filled('cc')) {
+            $ccdata = json_decode($request->cc,true);
+            $cc = array_map(function ($item) {
+                return $item['value'];
+            }, $ccdata);
+        }else{
+            $cc = null;
+        }
+
+        if ($request->filled('bcc')) {
+            $bccdata = json_decode($request->bcc,true);
+            $bcc = array_map(function ($item) {
+                return $item['value'];
+            }, $bccdata);
+        }else{
+            $bcc = null;
+        }
 
         // Busca el email en la base de datos
         $email = Email::find($emailId);
@@ -184,23 +256,23 @@ class EmailController extends Controller
         ]);
 
         // Configurar el reenvío con adjuntos
-        Mail::send([], [], function ($message) use ($request, $email, $correoConfig) {
+        Mail::send([], [], function ($message) use ($request, $to, $cc, $bcc, $email, $correoConfig) {
             $firma = $correoConfig->firma;
             $mensajeConFirma = $request->message . "<br><br>" . $firma;
 
             $message->from($correoConfig->username)
-                    ->to($request->to)  // Aquí el destinatario del reenvío
+                    ->to($to)  // Aquí el destinatario del reenvío
                     ->subject('Fwd: ' . $email->subject)
                     ->html($mensajeConFirma)
                     ->replyTo($correoConfig->username);
 
                 // Añadir CC y BCC si están presentes
                 if ($request->filled('cc')) {
-                    $message->cc(explode(',', $request->cc));
+                    $message->cc($cc);
                 }
 
                 if ($request->filled('bcc')) {
-                    $message->bcc(explode(',', $request->bcc));
+                    $message->bcc( $bcc);
                 }
 
             // Adjuntar archivos originales si existen
@@ -225,12 +297,18 @@ class EmailController extends Controller
         $firma = $correoConfig->firma;
         $mensajeConFirma = $request->message . "<br><br>" . $firma;
 
+        $tostring = implode(',', $to);
+        if ($request->filled('cc')) {
+            $ccstring = implode(',', $cc);
+        }else{
+            $ccstring = null;
+        }
         // Guardar el correo reenviado como respuesta en la base de datos
         $forwardedEmail = Email::create([
             'admin_user_id' => $correoConfig->admin_user_id,
             'sender' => $correoConfig->username,
-            'to' => $request->to,
-            'cc' => $request->cc,
+            'to' => $tostring,
+            'cc' => $ccstring,
             'subject' => 'Fwd: ' . $email->subject,
             'body' => $mensajeConFirma,
             'message_id' => uniqid(),
@@ -390,13 +468,36 @@ class EmailController extends Controller
     {
         // Validar la solicitud
         $request->validate([
-            'to' => 'required|email',
-            'subject' => 'required|string',
-            'message' => 'required|string',
-            'cc' => 'nullable|string',
-            'bcc' => 'nullable|string',
+            'to' => 'required',
+            'subject' => 'required',
+            'message' => 'required',
+            'cc' => 'nullable',
+            'bcc' => 'nullable',
             'attachments.*' => 'file'
         ]);
+
+        $todata = json_decode($request->to,true);
+        $to = array_map(function ($item) {
+            return $item['value'];
+        }, $todata);
+
+        if ($request->filled('cc')) {
+            $ccdata = json_decode($request->cc,true);
+            $cc = array_map(function ($item) {
+                return $item['value'];
+            }, $ccdata);
+        }else{
+            $cc = null;
+        }
+
+        if ($request->filled('bcc')) {
+            $bccdata = json_decode($request->bcc,true);
+            $bcc = array_map(function ($item) {
+                return $item['value'];
+            }, $bccdata);
+        }else{
+            $bcc = null;
+        }
 
         // Obtén la configuración de correo electrónico del usuario correspondiente
         $correoConfig = UserEmailConfig::where('admin_user_id', auth()->id())->first();
@@ -417,7 +518,7 @@ class EmailController extends Controller
             'mail.from.name' => $correoConfig->user->name.' '.$correoConfig->user->surname, // Nombre del remitente
         ]);
         // Configurar y enviar el nuevo mensaje con adjuntos
-        Mail::send([], [], function ($message) use ($request, $correoConfig) {
+        Mail::send([], [], function ($message) use ($request, $to, $cc, $bcc, $correoConfig) {
             $firma = $correoConfig->firma;
 
             $mensajeConFirma = $request->message . "<br><br>" . $firma;
@@ -425,18 +526,18 @@ class EmailController extends Controller
 
 
             $message->from($correoConfig->username)
-                    ->to($request->to)
+                    ->to($to)
                     ->subject($request->subject)
                     ->html($mensajeConFirma)
                     ->text($mensajeTextoPlano)  // Agregar texto plano
                     ->replyTo($correoConfig->username);
 
                     if ($request->filled('cc')) {
-                        $message->cc(explode(',', $request->cc));
+                        $message->cc($cc);
                     }
 
                     if ($request->filled('bcc')) {
-                        $message->bcc(explode(',', $request->bcc));
+                        $message->bcc($bcc);
                     }
 
             // Adjuntar archivos si existen
@@ -453,12 +554,19 @@ class EmailController extends Controller
         $firma = $correoConfig->firma;
         $mensajeConFirma = $request->message . "<br><br>" . $firma;
 
+        $tostring = implode(',', $to);
+        if ($request->filled('cc')) {
+            $ccstring = implode(',', $cc);
+        }else{
+            $ccstring = null;
+        }
+
          // Guardar el correo como enviado en la base de datos
         $email = Email::create([
             'admin_user_id' => $correoConfig->admin_user_id,
             'sender' => $correoConfig->username,
-            'to' => $request->to,
-            'cc' => $request->cc,
+            'to' => $tostring,
+            'cc' => $ccstring,
             'subject' => $request->subject,
             'body' => $mensajeConFirma,
             'message_id' => uniqid(),
@@ -511,6 +619,27 @@ class EmailController extends Controller
                 'mensaje' => 'No tienes permisos para eliminar este correo'
             ]);
         }
+    }
+
+    public function destroyMultiple(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'No se seleccionaron correos para eliminar.'
+            ]);
+        }
+
+        $deleted = Email::whereIn('id', $ids)
+                        ->where('admin_user_id', Auth::id())
+                        ->delete();
+
+        return redirect()->route('admin.emails.index')->with('toast', [
+            'icon' => 'success',
+            'mensaje' => "Se eliminaron $deleted correos correctamente."
+        ]);
     }
 
 }
