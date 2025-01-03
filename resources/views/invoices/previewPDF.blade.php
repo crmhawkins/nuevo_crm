@@ -128,19 +128,13 @@
                         @if ($invoice->is_ceuta)
                             IPOINT COMUNICACION MASIVA SL.CIF: B72139868 - Calle Delgado Serrano Nº1, 3ºD (Ceuta 51001)
                         @else
-                        @if( Carbon\Carbon::parse($invoice->created_at) >= Carbon\Carbon::parse("2021/02/01"))
                         IPOINT COMUNICACION MASIVA SL.CIF: B72139868 - Urb. Parque del Oeste nº5 11205 Algeciras (Cádiz)
-                        @endif
                         @endif
                     </td>
                 </tr>
                 <tr>
                     <td align="left" style="width: 50%;">
-                        @if( Carbon\Carbon::parse($invoice->created_at) >= Carbon\Carbon::parse("2021/02/01"))
-                            BANKINTER: ES84 0128 0733 2001 0007 1396
-                        @else
-                            Santander: ES81 0049 1672 4225 10049483
-                        @endif
+                            BANKINTER: ES07 0128 0733 2101 0007 0696
                         </td>
                     </tr>
             </table>
