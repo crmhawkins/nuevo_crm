@@ -247,7 +247,7 @@ class HorasController extends Controller
         ->whereDate('start_time', $dia)
         ->first();
 
-        $inicio = Carbon::createFromFormat('Y-m-d H:i:s', $jornada[1], 'UTC');
+        $inicio = Carbon::createFromFormat('Y-m-d H:i:s', $jornada->start_time, 'UTC');
         $inicioEspaña = $inicio->setTimezone('Europe/Madrid');
 
         return $inicioEspaña->format('H:i:s');
