@@ -54,6 +54,7 @@ class ProductividadController extends Controller{
                 'tareasfinalizadas' => Count($tareasFinalizadas),
                 'horasReales'=>$this->convertirTiempo($totalRealTime),
                 'horasEstimadas'=> $this->convertirTiempo($totalEstimatedTime),
+                'tareas' => $tareasFinalizadas // Agregar las tareas finalizadas
 
             ];
         }

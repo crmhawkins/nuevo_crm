@@ -170,8 +170,10 @@ class HorasController extends Controller
                     $minutoHorasTrabajadasdia = ($horasTrabajadas % 60);
                     $horaHorasProducidasdia = floor($horasProducidas / 60);
                     $minutoHorasProducidasdia = ($horasProducidas % 60);
+                    $horaInicio = $this->horaInicioJornada($dia, $usuario->id);
                     $datosUsuario['horas_trabajadas'][$fecha] = "$horaHorasTrabajadasdia h $minutoHorasTrabajadasdia min";
                     $datosUsuario['horas_producidas'][$fecha] = "$horaHorasProducidasdia h $minutoHorasProducidasdia min";
+                    $datosUsuario['inicio_jornada'][$fecha] = $horaInicio;
                 }
 
                 $horaHorasTrabajadas = floor($totalHorasTrabajadas / 60);
@@ -239,6 +241,17 @@ class HorasController extends Controller
 
         return $horasTrabajadasFinal;
     }
+    public function horaInicioJornada($dia, $id){
+
+        $jornada = Jornada::where('admin_user_id', $id)
+        ->whereDate('start_time', $dia)
+        ->first();
+
+        $inicio = Carbon::createFromFormat('Y-m-d H:i:s', $jornada[1], 'UTC');
+        $inicioEspaña = $inicio->setTimezone('Europe/Madrid');
+
+        return $inicioEspaña->format('H:i:s');
+    }
 
     public function tiempoProducidoDia($dia, $id) {
         $tiempoTarea = 0;
@@ -282,4 +295,5 @@ class HorasController extends Controller
         return $diasTotales;
 
     }
+
 }
