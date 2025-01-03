@@ -245,8 +245,10 @@ class HorasController extends Controller
 
         $jornada = Jornada::where('admin_user_id', $id)
         ->whereDate('start_time', $dia)
-        ->first();
-
+        ->get()->first();
+        if(!isset($jornada)){
+            return 'N/A';
+        }
         $inicio = Carbon::createFromFormat('Y-m-d H:i:s', $jornada->start_time, 'UTC');
         $inicioEspaña = $inicio->setTimezone('Europe/Madrid');
 
