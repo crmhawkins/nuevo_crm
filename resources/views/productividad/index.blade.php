@@ -33,9 +33,13 @@
                 {{-- Selector de Mes y Año --}}
                 <form action="{{ route('productividad.index') }}" method="GET" class="mb-4">
                     <div class="row">
-                        <div class="col-md-4">
-                            <label for="mes" class="form-label">Seleccione el Mes</label>
-                            <input type="month" id="mes" name="mes" class="form-control" value="{{ request('mes', now()->format('Y-m')) }}">
+                        <div class="col-md-3">
+                            <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
+                            <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="{{ request('fecha_inicio') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fecha_fin" class="form-label">Fecha Fin</label>
+                            <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ request('fecha_fin') }}">
                         </div>
                         <div class="col-md-2 align-self-end">
                             <button type="submit" class="btn btn-outline-primary">Ver Productividad</button>
@@ -106,7 +110,16 @@
 
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#dateRange", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            locale: "es",
+        });
+    });
     $(document).ready(function () {
         // Añadir lógica para abrir y cerrar los detalles
         $('#table1 tbody').on('click', '.toggle-details', function () {

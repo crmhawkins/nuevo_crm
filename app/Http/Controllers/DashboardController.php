@@ -559,7 +559,13 @@ class DashboardController extends Controller
                 'end_time' => Carbon::now(),
                 'is_active' => false,
             ]);
-
+            $pause = Pause::where('jornada_id', $jornada->id)->whereNull('end_time')->first();
+            if ($pause){
+                $finPause = $pause->update([
+                    'end_time' => Carbon::now(),
+                    'is_active' => false,
+                ]);
+            }
             if($finJornada){
                 return response()->json(['success' => true]);
             }else{
@@ -1226,6 +1232,7 @@ class DashboardController extends Controller
         // Si quieres el total global de todos los días
         $globalTotal = $totalCounts->sum();
 
+        //dd($referenceIdsUniquePerDay);
         return $globalTotal;
     }
 
@@ -1303,6 +1310,7 @@ class DashboardController extends Controller
         $produccion = $this->produccion($fechaInicio, $fechaFin);
         return $produccion;
     }
+
     public function getGestion(Request $request)
     {
         $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')) );

@@ -8,21 +8,27 @@ use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class ProductividadController extends Controller{
-
-    public function index(Request $request)    {
+class ProductividadController extends Controller
+{
+    public function index(Request $request)
+    {
+        // Obtiene los usuarios activos con nivel de acceso 5
         $usuarios = User::where('inactive', 0)->where('access_level_id', 5)->get();
-        $fecha = $request->mes ?? now()->format('Y-m');
-        $year = Carbon::parse($fecha)->format('Y');
-        $month = Carbon::parse($fecha)->format('m');
+
+        // Obtiene las fechas del rango o establece valores predeterminados
+        $fechaInicio = $request->input('fecha_inicio') ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+        $fechaFin = $request->input('fecha_fin') ?? Carbon::now()->endOfMonth()->format('Y-m-d');
+
+        // Convierte las fechas a objetos Carbon
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
 
         $productividadUsuarios = []; // Array para almacenar la productividad de cada usuario
 
         foreach ($usuarios as $user) {
             $tareasFinalizadas = Task::where('admin_user_id', $user->id)
                 ->where('task_status_id', 3)
-                ->whereMonth('updated_at', $month)
-                ->whereYear('updated_at', $year)
+                ->whereBetween('updated_at', [$fechaInicio, $fechaFin])
                 ->get();
 
             $totalProductividad = 0;
@@ -51,24 +57,25 @@ class ProductividadController extends Controller{
                 'id' => $user->id,
                 'nombre' => $user->name,
                 'productividad' => round($totalProductividad, 2), // Redondea a 2 decimales
-                'tareasfinalizadas' => Count($tareasFinalizadas),
-                'horasReales'=>$this->convertirTiempo($totalRealTime),
-                'horasEstimadas'=> $this->convertirTiempo($totalEstimatedTime),
+                'tareasfinalizadas' => $totalTareas,
+                'horasReales' => $this->convertirTiempo($totalRealTime),
+                'horasEstimadas' => $this->convertirTiempo($totalEstimatedTime),
                 'tareas' => $tareasFinalizadas // Agregar las tareas finalizadas
-
             ];
         }
 
         // Pasa el array de productividad a la vista
-        return view('productividad.index', compact('productividadUsuarios'));
+        return view('productividad.index', compact('productividadUsuarios', 'fechaInicio', 'fechaFin'));
     }
 
-    public function parseFlexibleTime($time) {
+    public function parseFlexibleTime($time)
+    {
         list($hours, $minutes, $seconds) = explode(':', $time);
         return ($hours * 60) + $minutes + ($seconds / 60); // Convert to total minutes
     }
 
-    function convertirTiempo($minutos) {
+    function convertirTiempo($minutos)
+    {
         $horas = floor($minutos / 60);            // Divide minutos entre 60 para obtener las horas
         $minutosRestantes = $minutos % 60;        // Usa módulo para obtener los minutos restantes
         $segundos = ($minutos - floor($minutos)) * 60;  // Calcula los segundos

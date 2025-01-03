@@ -725,7 +725,7 @@
                                                 <div class="mx-4 my-2">
                                                     <p style="color:#4D989E">Horas Producidas Hoy</p>
                                                     <p style="font-weight: bold;font-size: 2rem;">{{ $tiempoProducidoHoy['horas'] }}</p>
-                                                    <p style="color:#4D989E">Horas Producidas Mesual</p>
+                                                    <p style="color:#4D989E">Horas Producidas Mensual</p>
                                                     <p style="font-weight: bold;font-size: 2rem;">{{ $horasMes }}</p>
                                                 </div>
                                             </div>
