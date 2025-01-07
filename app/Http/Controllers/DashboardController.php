@@ -1071,6 +1071,7 @@ class DashboardController extends Controller
         ->where('task_status_id', 3)
         ->whereDate('updated_at','>=', $ini)
         ->whereDate('updated_at','<=', $fin)
+        ->whereRaw("TIME_TO_SEC(real_time) > 1740") // 29 minutos en segundos
         ->get();
 
         $totalProductividad = 0;
@@ -1198,15 +1199,6 @@ class DashboardController extends Controller
         return $peticiones->count();
     }
 
-    public function kitsCreados($fechaInicio , $fechaFin , $id){
-
-        $kits = KitDigital::where('comercial_id',$id)
-            ->whereDate('created_at', '>=', $fechaInicio)
-            ->whereDate('created_at', '<=', $fechaFin)
-            ->get();
-
-        return $kits->count();
-    }
 
     public function gestionkit($fechaInicio , $fechaFin , $id){
 
@@ -1236,8 +1228,21 @@ class DashboardController extends Controller
         return $globalTotal;
     }
 
+    public function kitsCreados($fechaInicio , $fechaFin , $id){
+
+        $logActions = LogActions::where('tipo', 1)
+        ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+        ->where('admin_user_id', $id)
+        ->where('action', 'like', '%Crear kit digital%')
+        ->get();
+
+        return $logActions->count();
+    }
+
     public function produccion($fechaInicio , $fechaFin)
     {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
         $user = User::where('inactive',0)->where('access_level_id',5)->get();
         $data = [];
         foreach ($user as $usuario) {
@@ -1254,6 +1259,8 @@ class DashboardController extends Controller
 
     public function gestion($fechaInicio , $fechaFin)
     {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
         $user = User::where('inactive',0)->where('access_level_id',4)->get();
         $data = [];
         foreach ($user as $usuario) {
@@ -1264,6 +1271,7 @@ class DashboardController extends Controller
                 'presu_generados' => $this->presupuestosCreados($fechaInicio, $fechaFin, $usuario->id),
                 'llamadas' => $this->llamadas($fechaInicio, $fechaFin, $usuario->id),
                 'kits' => $this->gestionkit($fechaInicio, $fechaFin, $usuario->id),
+                'kitsCreados' => $this->kitsCreados($fechaInicio, $fechaFin, $usuario->id),
                 'peticiones' => $this->peticiones($fechaInicio, $fechaFin, $usuario->id),
 
             ];
@@ -1273,6 +1281,8 @@ class DashboardController extends Controller
 
     public function contabilidad($fechaInicio , $fechaFin)
     {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
         $user = User::where('inactive',0)->where('access_level_id',3)->get();
         $data = [];
         foreach ($user as $usuario) {
@@ -1289,6 +1299,8 @@ class DashboardController extends Controller
 
     public function comercial($fechaInicio , $fechaFin)
     {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
         $user = User::where('inactive',0)->where('access_level_id',6)->get();
         $data = [];
         foreach ($user as $usuario) {

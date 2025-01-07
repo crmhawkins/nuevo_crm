@@ -655,7 +655,7 @@ class EmailController extends Controller
         // Sustituye los marcadores de posición con los datos del usuario
         $firma = str_replace(
             ['{{nombre}}', '{{puesto}}', '{{correo}}'],
-            [$usuario->name.' '.$usuario->surname, $usuario->posicion->name, $usuario->email],
+            [$usuario->name.' '.$usuario->surname, $usuario->departamento->name, $usuario->email],
             $plantilla
         );
 

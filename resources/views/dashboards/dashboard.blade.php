@@ -100,6 +100,7 @@
                                                             <th>Presup</th>
                                                             <th>Llamadas</th>
                                                             <th>Kits</th>
+                                                            <th>Kits.creados</th>
                                                             <th>Peticiones</th>
                                                         </tr>
                                                     </thead>
@@ -117,6 +118,7 @@
                                                                 <td>{{$g['presu_generados']}}</td>
                                                                 <td>{{$g['llamadas']}}</td>
                                                                 <td>{{$g['kits']}}</td>
+                                                                <td>{{$g['kitsCreados']}}</td>
                                                                 <td>{{$g['peticiones']}}</td>
                                                             </tr>
                                                             @endforeach
@@ -1088,6 +1090,7 @@
                             <td>${item.presu_generados ?? ''}</td>
                             <td>${item.llamadas ?? ''}</td>
                             <td>${item.kits ?? ''}</td>
+                            <td>${item.kitsCreados ?? ''}</td>
                             <td>${item.peticiones ?? ''}</td>
                         </tr>
                     `;

@@ -29,6 +29,7 @@ class ProductividadController extends Controller
             $tareasFinalizadas = Task::where('admin_user_id', $user->id)
                 ->where('task_status_id', 3)
                 ->whereBetween('updated_at', [$fechaInicio, $fechaFin])
+                ->whereRaw("TIME_TO_SEC(real_time) > 1740") // 29 minutos en segundos
                 ->get();
 
             $totalProductividad = 0;
