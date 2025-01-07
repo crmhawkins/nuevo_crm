@@ -33,6 +33,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dominios\DominiosController;
 use App\Http\Controllers\Email\CategoryEmailController;
 use App\Http\Controllers\Email\EmailController;
+use App\Http\Controllers\Email\FirmaController;
 use App\Http\Controllers\Email\StatusMailController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\GrupoContabilidadController;
@@ -596,7 +597,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/emails/delete', [EmailController::class, 'destroy'])->name('admin.emails.destroy');
     Route::post('/emails/destroy-multiple', [EmailController::class, 'destroyMultiple'])->name('admin.emails.destroyMultiple');
 
-
+    //firma
+    Route::get('/firma/emails', [FirmaController::class, 'firma'])->name('admin.firma');
+    Route::post('/firma/emails/store', [FirmaController::class, 'store'])->name('admin.firma.store');
+    Route::put('/firma/emails/update/{id}', [FirmaController::class, 'update'])->name('admin.firma.update');
 
     Route::post('/save-order', [BudgetController::class, 'saveOrder'])->name('save.order');
 

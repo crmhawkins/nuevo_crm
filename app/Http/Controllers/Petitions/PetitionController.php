@@ -59,13 +59,12 @@ class PetitionController extends Controller
             $dataClient = $this->validate($request, [
                 'name' => 'required|max:200',
                 'admin_user_id' => 'required|exists:admin_user,id',
-                'email' => 'required|email:filter',
+                'email' => 'nullable|email:filter',
                 'phone' => 'required',
             ], [
                 'name.required' => 'El nombre es requerido para continuar',
                 'admin_user_id.required' => 'El gestor es requerido para continuar',
                 'admin_user_id.exists' => 'El gestor debe ser valido para continuar',
-                'email.required' => 'El email es requerido para continuar',
                 'email.email' => 'El email debe ser un email valido',
                 'phone.required' => 'El telefono es requerido para continuar',
             ]);

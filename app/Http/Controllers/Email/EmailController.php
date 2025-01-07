@@ -9,7 +9,9 @@ use Webklex\PHPIMAP\ClientManager;
 use App\Http\Controllers\Controller;
 use App\Models\Email\Attachment;
 use App\Models\Email\CategoryEmail;
+use App\Models\Email\Firma;
 use App\Models\Email\UserEmailConfig;
+use App\Models\Users\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Mime\Part\Multipart\AlternativePart;
@@ -257,7 +259,7 @@ class EmailController extends Controller
 
         // Configurar el reenvío con adjuntos
         Mail::send([], [], function ($message) use ($request, $to, $cc, $bcc, $email, $correoConfig) {
-            $firma = $correoConfig->firma;
+            $firma = $this->generarFirma(auth()->id());
             $mensajeConFirma = $request->message . "<br><br>" . $firma;
 
             $message->from($correoConfig->username)
@@ -294,7 +296,7 @@ class EmailController extends Controller
             }
         });
 
-        $firma = $correoConfig->firma;
+        $firma = $this->generarFirma(auth()->id());
         $mensajeConFirma = $request->message . "<br><br>" . $firma;
 
         $tostring = implode(',', $to);
@@ -396,7 +398,7 @@ class EmailController extends Controller
 
         // Configurar la respuesta con adjuntos
         Mail::send([], [], function ($message) use ($request, $recipient, $email, $messageId, $correoConfig) {
-            $firma = $correoConfig->firma;
+            $firma = $this->generarFirma(auth()->id());
             $mensajeConFirma = $request->message . "<br><br>" . $firma;
             $message->from($correoConfig->username)
                     ->to($recipient)
@@ -426,7 +428,7 @@ class EmailController extends Controller
             }
         });
 
-        $firma = $correoConfig->firma;
+        $firma = $this->generarFirma(auth()->id());
         $mensajeConFirma = $request->message . "<br><br>" . $firma;
 
         // Guardar el correo como respuesta en la base de datos
@@ -519,7 +521,7 @@ class EmailController extends Controller
         ]);
         // Configurar y enviar el nuevo mensaje con adjuntos
         Mail::send([], [], function ($message) use ($request, $to, $cc, $bcc, $correoConfig) {
-            $firma = $correoConfig->firma;
+            $firma = $this->generarFirma(auth()->id());
 
             $mensajeConFirma = $request->message . "<br><br>" . $firma;
             $mensajeTextoPlano = strip_tags($request->message . "\n\n" . $firma); // Versión en texto plano
@@ -551,7 +553,7 @@ class EmailController extends Controller
             }
         });
 
-        $firma = $correoConfig->firma;
+        $firma = $this->generarFirma(auth()->id());
         $mensajeConFirma = $request->message . "<br><br>" . $firma;
 
         $tostring = implode(',', $to);
@@ -640,6 +642,24 @@ class EmailController extends Controller
             'icon' => 'success',
             'mensaje' => "Se eliminaron $deleted correos correctamente."
         ]);
+    }
+
+    function generarFirma($usuarioId)
+    {
+        // Recupera la plantilla de la base de datos o archivo de configuración
+        $plantilla = Firma::get()->first()->firma;; // Aquí va la plantilla completa
+
+        // Recupera los datos del usuario
+        $usuario = User::find($usuarioId);
+
+        // Sustituye los marcadores de posición con los datos del usuario
+        $firma = str_replace(
+            ['{{nombre}}', '{{puesto}}', '{{correo}}'],
+            [$usuario->name.' '.$usuario->surname, $usuario->posicion->name, $usuario->email],
+            $plantilla
+        );
+
+        return $firma;
     }
 
 }
