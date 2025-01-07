@@ -191,6 +191,7 @@ class DashboardController extends Controller
                     ->where('task_status_id', 3)
                     ->whereMonth('updated_at', Carbon::now()->month)
                     ->whereYear('updated_at', Carbon::now()->year)
+                    ->whereRaw("TIME_TO_SEC(real_time) > 1740") // 29 minutos en segundos
                     ->get();
 
                 $totalProductividad = 0;
