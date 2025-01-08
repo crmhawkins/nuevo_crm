@@ -30,8 +30,8 @@ class KitDigitalController extends Controller
         $selectedComerciales = $request->input('selectedComerciales');
         $selectedSegmento = $request->input('selectedSegmento');
         $selectedDateField = $request->input('selectedDateField');
-        $dateFrom = $request->input('dateFrom');
-        $dateTo = $request->input('dateTo');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
         $sortColumn = $request->input('sortColumn', 'created_at'); // Columna por defecto
         $sortDirection = $request->input('sortDirection', 'desc'); // Dirección por defecto
         $perPage = $request->input('perPage', 10);
