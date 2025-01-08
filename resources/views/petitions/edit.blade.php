@@ -76,6 +76,18 @@
                                             @enderror
                                         </div>
                                     </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label class="mb-2 text-left">Telefono</label>
+                                            <input type="text" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ $peticion->cliente->phone}}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label class="mb-2 text-left">Email</label>
+                                            <input type="text" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ $peticion->cliente->email}}" disabled>
+                                        </div>
+                                    </div>
                                     <div class="col-md-12 col-sm-12">
                                         <div class="form-group mb-3">
                                             <label for="note">Nota Interna:</label>
