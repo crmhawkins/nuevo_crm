@@ -245,8 +245,9 @@ class DashboardController extends Controller
                 $productividadIndividual = $totalTareas > 0 ? $totalProductividad : 0;
                 $horasMes = $this->tiempoProducidoMes($user->id);
 
-                $nota = $this->nota($user->id);
-
+                $data = $this->nota($user->id);
+                $nota = $data['puntuacion'];
+                $bajas = $data['bajas'];
 
                 return view('dashboards.dashboard_personal', compact(
                     'user',
@@ -264,7 +265,8 @@ class DashboardController extends Controller
                     'totalRealTime',
                     'horasMes',
                     'to_dos_finalizados',
-                    'nota'
+                    'nota',
+                    'bajas'
                 ));
             case(6):
                 $ayudas = KitDigital::where('comercial_id', $user->id)->get();
@@ -298,12 +300,12 @@ class DashboardController extends Controller
     public function nota($userId ){
         $productividad = $this->productividadMesAnterior($userId);
         $horasMes = $this->tiempoProducidoMesanterior($userId);
-//dd($productividad, $horasMes);
         $partes = explode(':', $horasMes);
         $horas = $partes[0];
         $minutos = $partes[1];
         $segundos = $partes[2];
         $totalHorasproducidas = $horas + $minutos/60 + $segundos/3600;
+
         $startOfMonth = Carbon::now()->subMonth()->startOfMonth();
         $endOfMonth = Carbon::now()->subMonth()->endOfMonth();
         $period = CarbonPeriod::create($startOfMonth, $endOfMonth);
@@ -313,7 +315,7 @@ class DashboardController extends Controller
 
         $diasReales = $diasLaborables->count();
         $vacaciones = $this->vacaciones($startOfMonth, $endOfMonth, $userId);
-        $bajas = $this->bajas($startOfMonth, $endOfMonth, $userId);
+        $bajas = $this->bajas($userId,$startOfMonth, $endOfMonth);
         $festivos = $this->festivos($startOfMonth, $endOfMonth,$diasLaborables );
 
         $diasTotales = $diasReales - $vacaciones - $bajas - $festivos;
@@ -322,8 +324,12 @@ class DashboardController extends Controller
         $putuacionProductividad = $productividad/20;
         $putuacionHoras = (($totalHorasproducidas*100)/$horasTotales)/20;
         $putuacion = $putuacionProductividad + $putuacionHoras;
-        //dd($putuacion, $putuacionProductividad, $putuacionHoras);
-        return $putuacion;
+
+        $data = [
+            'puntuacion' => $putuacion,
+            'bajas' => $bajas,
+        ];
+        return $data;
     }
 
     public function productividadMesAnterior($id){
@@ -1419,7 +1425,6 @@ class DashboardController extends Controller
         // Si quieres el total global de todos los días
         $globalTotal = $totalCounts->sum();
 
-        //dd($referenceIdsUniquePerDay);
         return $globalTotal;
     }
 
