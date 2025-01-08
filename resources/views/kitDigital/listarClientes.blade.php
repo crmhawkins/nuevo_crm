@@ -441,9 +441,24 @@
             handleDataUpdate(id, value, key);
         });
 
-        $('#formFiltros').on('change', 'input, select', function(e) {
-            e.preventDefault();
-            $('#formFiltros').submit(); // Esto envía el formulario.
+
+
+        $('#formFiltros').on('change', 'input, select', function (e) {
+            const selectedDateField = $('#selectedDateField').val();
+            const dateFrom = $('#date_from').val();
+            const dateTo = $('#date_to').val();
+
+            // Verificar si el campo cambiado es uno de los tres del filtro por fecha
+            if ($(this).is('#selectedDateField, #date_from, #date_to')) {
+                // Comprobar si los tres campos tienen valores
+                if (selectedDateField && dateFrom && dateTo) {
+                    $('#formFiltros').submit(); // Enviar el formulario si están completos
+                } else {
+                    e.preventDefault(); // Prevenir el envío si falta alguno
+                }
+            } else {
+                $('#formFiltros').submit(); // Enviar el formulario para otros campos
+            }
         });
 
 
