@@ -142,6 +142,7 @@ class TasksTable extends Component
 
         // Obtener todas las tareas, ordenadas por usuario, prioridad y fecha de creación
         $tareas = Task::with('usuario') // Asumimos que tienes una relación 'user' en Task
+                    ->whereIn('task_status_id', [1, 2]) // Filtramos para incluir solo los status 1 y 2
                     ->orderBy('admin_user_id', 'asc') // Ordenamos por usuario
                     ->orderBy('priority_id', 'asc') // Ordenamos por prioridad
                     ->orderBy('created_at', 'asc') // Ordenamos por fecha de creación

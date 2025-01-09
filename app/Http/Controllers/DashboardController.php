@@ -42,7 +42,12 @@ class DashboardController extends Controller
         $acceso = Auth::user()->access_level_id;
         $user = User::find($id);
         $users = User::where('inactive',0)->get();
-        $to_dos = $user->todos->where('finalizada',false);
+        $to_dos = $user->todos()
+            ->where('finalizada', false)
+            ->whereDoesntHave('todoUsers', function ($query) use ($user) {
+                $query->where('admin_user_id', $user->id)
+                    ->where('completada', true);
+            })->get();
         $to_dos_finalizados = $user->todos->where('finalizada',true);
         $timeWorkedToday = $this->calculateTimeWorkedToday($user);
         $jornadaActiva = $user->activeJornada();
@@ -320,9 +325,15 @@ class DashboardController extends Controller
 
         $diasTotales = $diasReales - $vacaciones - $bajas - $festivos;
         $horasTotales = $diasTotales * 7;
-
-        $putuacionProductividad = $productividad/20;
+        if($totalHorasproducidas >= ($horasTotales*0.5)){
+            $putuacionProductividad = $productividad/20;
+        }else{
+            $putuacionProductividad = 0;
+        }
         $putuacionHoras = (($totalHorasproducidas*100)/$horasTotales)/20;
+
+        //dd($productividad,$putuacionProductividad, $putuacionHoras);
+
         $putuacion = $putuacionProductividad + $putuacionHoras;
 
         $data = [
