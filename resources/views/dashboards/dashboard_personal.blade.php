@@ -153,6 +153,8 @@
         overflow: hidden;
         border: 1px solid black;
         border-radius: 20px;
+        align-content: flex-start;
+
     }
 
     .info {

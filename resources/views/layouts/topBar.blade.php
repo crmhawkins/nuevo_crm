@@ -306,6 +306,9 @@
             41: 'Tarea en Revision',
             42: 'Alerta pospuesta 3 veces',
             43: 'Alerta Ordenes a pagar',
+            44: 'To-Do Nuevo',
+            45: 'Nuevo mensaje en To-Do',
+            46: 'To-Do Completado'
         };
 
         // Función para obtener las alertas usando fetch
@@ -582,6 +585,18 @@
                         botonposponer = false;
                         break;
                     case 43:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
+                        break;
+                    case 44:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
+                        break;
+                    case 45:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
+                        break;
+                    case 46:
                         mensajeDetalle =  alerta['description'];
                         botonposponer = false;
                         break;
@@ -1342,6 +1357,56 @@
                                 }
                             });
                         break;
+
+                    case 44:
+                    var id = alertaSeleccionada['id'];
+                        var status = 2; //Resuelto
+                        $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                        break;
+
+                    case 45:
+                    var id = alertaSeleccionada['id'];
+                        var status = 2; //Resuelto
+                        $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                        break;
+
+                    case 46:
+                    var id = alertaSeleccionada['id'];
+                        var status = 2; //Resuelto
+                        $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                        break;
+
+
                 default:
                     mostrarTiposDeAlertas();
                     break;

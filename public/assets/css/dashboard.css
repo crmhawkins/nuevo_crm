@@ -105,6 +105,7 @@
     border-color:black;
     border-width: thin;
     border-radius: 20px;
+    align-content: flex-start;
 }
 
 .info {
