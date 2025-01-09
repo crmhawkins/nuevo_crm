@@ -130,12 +130,10 @@
     @include('partials.toast')
 
     <script>
-        $(document).ready(() => {
-            $('.delete').on('click', function(e) {
-                e.preventDefault();
-                let id = $(this).data('id');
-                botonAceptar(id);
-            });
+        $(document).on('click', '.delete', function (e) {
+            e.preventDefault();
+            let id = $(this).data('id'); // Obtiene el ID del botón clicado
+            botonAceptar(id); // Llama a la función
         });
 
         function botonAceptar(id) {
