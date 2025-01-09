@@ -62,7 +62,7 @@ class MessageController extends Controller
                     'activation_datetime' => Carbon::now(),
                     'status_id' => 1,
                     'reference_id' => $todo->id,
-                    'description' => 'Nuevo mensaje en todo'. $todo->titulo
+                    'description' => 'Nuevo mensaje en todo '. $todo->titulo
 
                 ];
                 $alert = Alert::create($data);

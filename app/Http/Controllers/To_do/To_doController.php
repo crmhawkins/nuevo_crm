@@ -60,7 +60,7 @@ class To_doController extends Controller
                 'activation_datetime' => Carbon::now(),
                 'status_id' => 1,
                 'reference_id' => $todo->id,
-                'description' => 'Nuevo To-Do con titulo :'.$todo->titulo,
+                'description' => 'Nuevo To-Do con titulo : '.$todo->titulo,
 
             ];
             $alert = Alert::create($data);
