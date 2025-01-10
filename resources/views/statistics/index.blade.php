@@ -816,8 +816,8 @@
                                                     <table id="tablaGastosComunesAnual" style="width: 100%;">
                                                     <thead>
                                                         <tr>
-                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
                                                             <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Factura Asoc.</th>
                                                             <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold; width=auto;">Fecha de E.</th>
                                                             <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
                                                             <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
@@ -827,11 +827,11 @@
                                                     <tbody>
                                                         @foreach($cashflow['gastos_comunes_array'] as $item)
                                                         <tr>
-                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->note}}</td>
-                                                        <td style="padding: 0.3rem; border: 1px solid lightgray; width=auto; color:blue"><a href="@if ($item->budget_concept_id) {{route('budgetConcepts.editTypeSupplier', $item->budget_concept_id )}} @endif" target="_blank" rel="noopener noreferrer">{{$item->budget_concept_id ?? 'N\A'}}</a></td>
-                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->shipping_date}}</td>
-                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->status}}</td>
-                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->amount}} €</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->title}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray; width=auto; color:blue"><a href="@if ($item->invoice_id) {{route('factura.edit', $item->invoice_id )}} @endif" target="_blank" rel="noopener noreferrer">{{$item->invoice_id ?? 'N\A'}}</a></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->date}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->state}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->quantity}} €</td>
                                                     </tr>
                                                     @endforeach
                                                     </tbody>
