@@ -338,6 +338,7 @@ class StatisticsController extends Controller
             'gastos_asociados' => $gastosAsociados, // Total de gastos asociados
             'gastos_asociados_array' => $gastosAsociadosArray, // Total de gastos asociados
             'gastos_comunes' => $gastosComunes->sum('quantity'), // Total de gastos comunes
+            'gastos_comunes_array' => $gastosComunes, // Total de gastos comunes
         ];
     }
 
