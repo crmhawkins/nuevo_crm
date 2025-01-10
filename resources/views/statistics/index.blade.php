@@ -840,7 +840,7 @@
                                                             <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                             <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
                                                             <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
-                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($cashflow['gastos_asociados'], 2, ',', '.')}} €</td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($cashflow['gastos_comunes'], 2, ',', '.')}} €</td>
                                                         </tr>
                                                     </tfoot>
                                                     </table>
