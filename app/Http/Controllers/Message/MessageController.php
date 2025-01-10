@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Message;
 
 use App\Http\Controllers\Controller;
+use App\Models\Alerts\Alert;
 use App\Models\Clients\Client;
 use App\Models\Todo\Messages;
+use App\Models\Todo\Todo;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
@@ -37,13 +40,34 @@ class MessageController extends Controller
             $message->archivo = $filename;
         }
 
-        $message->save();
+        $messagesaved = $message->save();
 
         $message->reads()->create([
             'admin_user_id' => $message->admin_user_id,
             'is_read' => true,
             'read_at' => now(),
         ]);
+
+        if($messagesaved){
+            $todo = Todo::find($message->todo_id);
+            $users = $todo->TodoUsers
+            ->pluck('admin_user_id') // Obtén todos los admin_user_id
+            ->reject(function ($adminUserId) use ($message) {
+                return $adminUserId == $message->admin_user_id; // Excluye el admin_user_id del remitente
+            });
+            foreach ($users as $user) {
+                $data = [
+                    'admin_user_id' => $user,
+                    'stage_id' => 45,
+                    'activation_datetime' => Carbon::now(),
+                    'status_id' => 1,
+                    'reference_id' => $todo->id,
+                    'description' => 'Nuevo mensaje en todo '. $todo->titulo
+
+                ];
+                $alert = Alert::create($data);
+            }
+        }
 
         return redirect()->back()->with('toast', [
              'icon' => 'success',

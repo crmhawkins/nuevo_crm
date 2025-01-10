@@ -7,8 +7,10 @@ use App\Models\Accounting\Gasto;
 use App\Models\Accounting\Ingreso;
 use App\Models\Alerts\Alert;
 use App\Models\Alerts\AlertStatus;
+use App\Models\Bajas\Baja;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
+use App\Models\Holidays\HolidaysPetitions;
 use App\Models\HoursMonthly\HoursMonthly;
 use App\Models\Invoices\Invoice;
 use App\Models\Jornada\Jornada;
@@ -28,6 +30,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -39,7 +42,12 @@ class DashboardController extends Controller
         $acceso = Auth::user()->access_level_id;
         $user = User::find($id);
         $users = User::where('inactive',0)->get();
-        $to_dos = $user->todos->where('finalizada',false);
+        $to_dos = $user->todos()
+            ->where('finalizada', false)
+            ->whereDoesntHave('todoUsers', function ($query) use ($user) {
+                $query->where('admin_user_id', $user->id)
+                    ->where('completada', true);
+            })->get();
         $to_dos_finalizados = $user->todos->where('finalizada',true);
         $timeWorkedToday = $this->calculateTimeWorkedToday($user);
         $jornadaActiva = $user->activeJornada();
@@ -191,6 +199,7 @@ class DashboardController extends Controller
                     ->where('task_status_id', 3)
                     ->whereMonth('updated_at', Carbon::now()->month)
                     ->whereYear('updated_at', Carbon::now()->year)
+                    ->whereRaw("TIME_TO_SEC(real_time) > 1740") // 29 minutos en segundos
                     ->get();
 
                 $totalProductividad = 0;
@@ -241,8 +250,9 @@ class DashboardController extends Controller
                 $productividadIndividual = $totalTareas > 0 ? $totalProductividad : 0;
                 $horasMes = $this->tiempoProducidoMes($user->id);
 
-
-
+                $data = $this->nota($user->id);
+                $nota = $data['puntuacion'];
+                $bajas = $data['bajas'];
 
                 return view('dashboards.dashboard_personal', compact(
                     'user',
@@ -259,7 +269,9 @@ class DashboardController extends Controller
                     'totalEstimatedTime',
                     'totalRealTime',
                     'horasMes',
-                    'to_dos_finalizados'
+                    'to_dos_finalizados',
+                    'nota',
+                    'bajas'
                 ));
             case(6):
                 $ayudas = KitDigital::where('comercial_id', $user->id)->get();
@@ -290,6 +302,167 @@ class DashboardController extends Controller
         }
     }
 
+    public function nota($userId ){
+        $productividad = $this->productividadMesAnterior($userId);
+        $horasMes = $this->tiempoProducidoMesanterior($userId);
+        $partes = explode(':', $horasMes);
+        $horas = $partes[0];
+        $minutos = $partes[1];
+        $segundos = $partes[2];
+        $totalHorasproducidas = $horas + $minutos/60 + $segundos/3600;
+
+        $startOfMonth = Carbon::now()->subMonth()->startOfMonth();
+        $endOfMonth = Carbon::now()->subMonth()->endOfMonth();
+        $period = CarbonPeriod::create($startOfMonth, $endOfMonth);
+        $diasLaborables = $period->filter(function (Carbon $date) {
+            return !$date->isWeekend(); // Retorna true si NO es sábado ni domingo
+        });
+
+        $diasReales = $diasLaborables->count();
+        $vacaciones = $this->vacaciones($startOfMonth, $endOfMonth, $userId);
+        $bajas = $this->bajas($userId,$startOfMonth, $endOfMonth);
+        $festivos = $this->festivos($startOfMonth, $endOfMonth,$diasLaborables );
+
+        $diasTotales = $diasReales - $vacaciones - $bajas - $festivos;
+        $horasTotales = $diasTotales * 7;
+        if($totalHorasproducidas >= ($horasTotales*0.5)){
+            $putuacionProductividad = $productividad/20;
+        }else{
+            $putuacionProductividad = 0;
+        }
+        $putuacionHoras = (($totalHorasproducidas*100)/$horasTotales)/20;
+
+        //dd($productividad,$putuacionProductividad, $putuacionHoras);
+
+        $putuacion = $putuacionProductividad + $putuacionHoras;
+
+        $data = [
+            'puntuacion' => $putuacion,
+            'bajas' => $bajas,
+        ];
+        return $data;
+    }
+
+    public function productividadMesAnterior($id){
+        $month = Carbon::now()->subMonth();
+        $year = $month->year;
+
+        $tareasFinalizadas = Task::where('admin_user_id', $id)
+        ->where('task_status_id', 3)
+        ->whereMonth('updated_at', $month)
+        ->whereYear('updated_at', $year)
+        ->whereRaw("TIME_TO_SEC(real_time) > 1740") // 29 minutos en segundos
+        ->get();
+
+        $totalProductividad = 0;
+        $totalTareas = $tareasFinalizadas->count();
+        $totalEstimatedTime = 0;
+        $totalRealTime = 0;
+
+
+        foreach ($tareasFinalizadas as $tarea) {
+            // Parse estimated and real times into total minutes
+            $totalEstimatedTime += $this->parseFlexibleTime($tarea->estimated_time);
+            $totalRealTime += $this->parseFlexibleTime($tarea->real_time);
+        }
+
+        // Calculate the total productivity as a percentage
+        if ($totalRealTime > 0) {
+            $totalProductividad = ($totalEstimatedTime / $totalRealTime) * 100;
+        } else {
+            $totalProductividad = 0; // Set to 0 if no real time to avoid division by zero
+        }
+
+        // Set productivity to 0 if no tasks
+        $totalProductividad = $totalTareas > 0 ? $totalProductividad : 0;
+        return $totalProductividad;
+    }
+
+    public function festivos($startOfMonth, $endOfMonth, $diasLaborables)
+    {
+        // Obtener fechas de jornadas iniciadas en el período
+        $jornadas = Jornada::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->distinct()
+            ->pluck('created_at')
+            ->map(function ($date) {
+                return Carbon::parse($date)->format('Y-m-d');
+            });
+
+        // Filtrar días laborales sin jornada
+        $diasSinJornada = $diasLaborables->filter(function (Carbon $date) use ($jornadas) {
+            return !$jornadas->contains($date->format('Y-m-d'));
+        });
+
+        return $diasSinJornada->count();
+    }
+
+    public function vacaciones($ini, $fin, $id){
+        $vacaciones = HolidaysPetitions::where('admin_user_id', $id)
+        ->whereDate('from','>=', $ini)
+        ->whereDate('to','<=', $fin)
+        ->where('holidays_status_id', 1)
+        ->get();
+
+        $dias = $vacaciones->sum('total_days');
+
+        return $dias;
+    }
+
+    public function bajas($id, $ini, $fin)
+    {
+        $diasTotales = 0;
+
+        // Obtener las bajas del usuario dentro del rango especificado
+        $bajas = Baja::where('admin_user_id', $id)
+            ->where(function ($query) use ($ini, $fin) {
+                $query->whereBetween('inicio', [$ini, $fin])
+                    ->orWhereBetween('fin', [$ini, $fin])
+                    ->orWhere(function ($query) use ($ini, $fin) {
+                        $query->where('inicio', '<=', $ini)
+                                ->where('fin', '>=', $fin);
+                    });
+            })->get();
+
+        foreach ($bajas as $baja) {
+            $inicioBaja = Carbon::parse($baja->inicio);
+            $finBaja = Carbon::parse($baja->fin) ?? Carbon::now();
+
+            // Ajustar fechas al intervalo especificado
+            $fechaInicio = $inicioBaja->greaterThan($ini) ? $inicioBaja : Carbon::parse($ini);
+            $fechaFin = $finBaja->lessThan($fin) ? $finBaja : Carbon::parse($fin);
+
+            // Crear un período para las fechas ajustadas
+            $period = CarbonPeriod::create($fechaInicio, $fechaFin);
+
+            // Contar solo los días laborables en el período
+            $diasLaborables = $period->filter(function (Carbon $date) {
+                return !$date->isWeekend(); // Excluir sábados y domingos
+            })->count();
+
+            $diasTotales += $diasLaborables;
+        }
+
+        return $diasTotales;
+    }
+
+    function getWorkingDaysInMonthUntilToday($year, $month) {
+        // Obtener el día actual
+        $currentDay = date('j');
+        $totalDays = 0;
+
+        // Iterar sobre los días del mes hasta el día actual
+        for ($day = 1; $day <= $currentDay; $day++) {
+            $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+            $weekday = date('N', strtotime($date)); // 1 (lunes) a 7 (domingo)
+
+            // Contar solo si es un día laborable (lunes a viernes)
+            if ($weekday >= 1 && $weekday <= 5) {
+                $totalDays++;
+            }
+        }
+
+        return $totalDays;
+    }
     public function parseFlexibleTime($time) {
         list($hours, $minutes, $seconds) = explode(':', $time);
         return ($hours * 60) + $minutes + ($seconds / 60); // Convert to total minutes
@@ -298,6 +471,45 @@ class DashboardController extends Controller
     public function tiempoProducidoMes($id)
     {
         $mes = Carbon::now();
+        $tiempoTotalMes = 0;
+
+        // Obtener todas las tareas del usuario en el mes actual
+        $tareasMes = LogTasks::where('admin_user_id', $id)
+            ->whereYear('date_start', $mes->year)
+            ->whereMonth('date_start', $mes->month)
+            ->get();
+
+        foreach($tareasMes as $tarea) {
+            if ($tarea->status == 'Pausada') {
+                $tiempoInicio = Carbon::parse($tarea->date_start);
+                $tiempoFinal = Carbon::parse($tarea->date_end);
+                $tiempoTotalMes += $tiempoFinal->diffInSeconds($tiempoInicio);
+            }
+        }
+
+        // Formatear el tiempo total en horas, minutos y segundos
+        $hours = floor($tiempoTotalMes / 3600);
+        $minutes = floor(($tiempoTotalMes % 3600) / 60);
+        $seconds = $tiempoTotalMes % 60;
+
+        $result = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+
+        // Calcular el porcentaje del tiempo trabajado en relación al total
+        $totalHorasMensuales = 7 * 20; // Ejemplo de 20 días laborales y 7 horas diarias
+        $horas_mes_porcentaje = $hours + ($minutes / 60);
+        $porcentaje = ($horas_mes_porcentaje / $totalHorasMensuales) * 100;
+
+        $data = [
+            'horas' => $result,
+            'porcentaje' => $porcentaje
+        ];
+
+        return $result;
+    }
+
+    public function tiempoProducidoMesanterior($id)
+    {
+        $mes = Carbon::now()->subMonth()->startOfMonth();
         $tiempoTotalMes = 0;
 
         // Obtener todas las tareas del usuario en el mes actual
@@ -559,7 +771,13 @@ class DashboardController extends Controller
                 'end_time' => Carbon::now(),
                 'is_active' => false,
             ]);
-
+            $pause = Pause::where('jornada_id', $jornada->id)->whereNull('end_time')->first();
+            if ($pause){
+                $finPause = $pause->update([
+                    'end_time' => Carbon::now(),
+                    'is_active' => false,
+                ]);
+            }
             if($finJornada){
                 return response()->json(['success' => true]);
             }else{
@@ -1065,6 +1283,7 @@ class DashboardController extends Controller
         ->where('task_status_id', 3)
         ->whereDate('updated_at','>=', $ini)
         ->whereDate('updated_at','<=', $fin)
+        ->whereRaw("TIME_TO_SEC(real_time) > 1740") // 29 minutos en segundos
         ->get();
 
         $totalProductividad = 0;
@@ -1192,15 +1411,6 @@ class DashboardController extends Controller
         return $peticiones->count();
     }
 
-    public function kitsCreados($fechaInicio , $fechaFin , $id){
-
-        $kits = KitDigital::where('comercial_id',$id)
-            ->whereDate('created_at', '>=', $fechaInicio)
-            ->whereDate('created_at', '<=', $fechaFin)
-            ->get();
-
-        return $kits->count();
-    }
 
     public function gestionkit($fechaInicio , $fechaFin , $id){
 
@@ -1229,8 +1439,21 @@ class DashboardController extends Controller
         return $globalTotal;
     }
 
+    public function kitsCreados($fechaInicio , $fechaFin , $id){
+
+        $logActions = LogActions::where('tipo', 1)
+        ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+        ->where('admin_user_id', $id)
+        ->where('action', 'like', '%Crear kit digital%')
+        ->get();
+
+        return $logActions->count();
+    }
+
     public function produccion($fechaInicio , $fechaFin)
     {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
         $user = User::where('inactive',0)->where('access_level_id',5)->get();
         $data = [];
         foreach ($user as $usuario) {
@@ -1247,6 +1470,8 @@ class DashboardController extends Controller
 
     public function gestion($fechaInicio , $fechaFin)
     {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
         $user = User::where('inactive',0)->where('access_level_id',4)->get();
         $data = [];
         foreach ($user as $usuario) {
@@ -1257,6 +1482,7 @@ class DashboardController extends Controller
                 'presu_generados' => $this->presupuestosCreados($fechaInicio, $fechaFin, $usuario->id),
                 'llamadas' => $this->llamadas($fechaInicio, $fechaFin, $usuario->id),
                 'kits' => $this->gestionkit($fechaInicio, $fechaFin, $usuario->id),
+                'kitsCreados' => $this->kitsCreados($fechaInicio, $fechaFin, $usuario->id),
                 'peticiones' => $this->peticiones($fechaInicio, $fechaFin, $usuario->id),
 
             ];
@@ -1266,6 +1492,8 @@ class DashboardController extends Controller
 
     public function contabilidad($fechaInicio , $fechaFin)
     {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
         $user = User::where('inactive',0)->where('access_level_id',3)->get();
         $data = [];
         foreach ($user as $usuario) {
@@ -1282,6 +1510,8 @@ class DashboardController extends Controller
 
     public function comercial($fechaInicio , $fechaFin)
     {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
         $user = User::where('inactive',0)->where('access_level_id',6)->get();
         $data = [];
         foreach ($user as $usuario) {
@@ -1303,6 +1533,7 @@ class DashboardController extends Controller
         $produccion = $this->produccion($fechaInicio, $fechaFin);
         return $produccion;
     }
+
     public function getGestion(Request $request)
     {
         $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')) );

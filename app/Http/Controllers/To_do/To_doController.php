@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\To_do;
 
 use App\Http\Controllers\Controller;
+use App\Models\Alerts\Alert;
 use App\Models\Events\Event;
 use App\Models\Todo\Todo;
 use App\Models\Todo\TodoUsers;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -45,7 +47,24 @@ class To_doController extends Controller
                 ]);
             }
         }
+        $users = $todo->TodoUsers
+        ->pluck('admin_user_id') // Obtén todos los admin_user_id
+        ->reject(function ($adminUserId) use ($todo) {
+            return $adminUserId == $todo->admin_user_id; // Excluye el admin_user_id del remitente
+        });
 
+        foreach ($users as $user) {
+            $data = [
+                'admin_user_id' => $user,
+                'stage_id' => 44,
+                'activation_datetime' => Carbon::now(),
+                'status_id' => 1,
+                'reference_id' => $todo->id,
+                'description' => 'Nuevo To-Do con titulo : '.$todo->titulo,
+
+            ];
+            $alert = Alert::create($data);
+        }
 
         if($request->agendar == true){
 
@@ -103,7 +122,17 @@ class To_doController extends Controller
         $todo = Todo::find($id);
         $todouser = $todo->TodoUsers->where('admin_user_id',$user->id)->first();
         $todouserupdated = $todouser->update([ 'completada' => true]);
-        if($todouserupdated){
+        if ($todouserupdated) {
+            $data = [
+                'admin_user_id' => $todo->admin_user_id,
+                'stage_id' => 46,
+                'activation_datetime' => Carbon::now(),
+                'status_id' => 1,
+                'reference_id' => $todo->id,
+                'description' => 'El to-do con titulo "'.$todo->titulo.'" ha sido completado por '.$user->name,
+            ];
+            $alert = Alert::create($data);
+
             return response()->json([
                 'success' =>true
             ]);

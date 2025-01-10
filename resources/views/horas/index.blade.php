@@ -68,9 +68,7 @@
                                 <tr class="usuario-row">
                                     <td>{{ $usuario['usuario'] }}</td>
                                     <td>{{ $usuario['departamento'] }}</td>
-                                    {{-- <td>{{ $usuario['vacaciones'] }} días</td>
-                                    <td>{{ $usuario['puntualidad'] }} días</td>
-                                    <td>{{ $usuario['baja'] }} días</td> --}}
+
                                     <td>{{ $usuario['total_horas_trabajadas'] }} </td>
                                     <td>{{ $usuario['total_horas_producidas'] }}</td>
                                     <td>
@@ -88,6 +86,12 @@
                                                     <td><strong>{{ $fecha }}:</strong></td>
                                                     <td>Trabajadas: {{ $usuario['horas_trabajadas'][$fecha] ?? '0' }} </td>
                                                     <td>Producidas: {{ $usuario['horas_producidas'][$fecha] ?? '0' }} </td>
+                                                    <td>
+                                                        Entrada:
+                                                        <span class="{{ isset($usuario['inicio_jornada'][$fecha]) && $usuario['inicio_jornada'][$fecha] > '09:30:00' ? 'text-danger' : '' }}">
+                                                            {{ $usuario['inicio_jornada'][$fecha] ?? '0' }}
+                                                        </span>
+                                                    </td>
                                                 </tr>
                                                 @endforeach
                                             </tbody>

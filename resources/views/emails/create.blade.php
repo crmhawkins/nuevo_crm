@@ -3,9 +3,14 @@
 @section('titulo', 'Enviar Nuevo Correo')
 
 @section('css')
-<link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
-<link rel="stylesheet" href="{{ asset('assets/vendors/choices.js/choices.min.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote/dist/summernote-bs4.min.css">
+<style>
+.input-correos{
+    padding: 0 !important;
+    display: flex !important;
+}
+</style>
 @endsection
 
 @section('content')
@@ -38,7 +43,7 @@
                             {{-- Destinatario (con tags) --}}
                             <div class="mb-3">
                                 <label for="to" class="form-label">Destinatario</label>
-                                <input type="text" class="form-control @error('to') is-invalid @enderror" id="to" name="to" value="{{ old('to') }}" required>
+                                <input type="text" class="form-control input-correos @error('to') is-invalid @enderror" id="to" name="to" value="{{ old('to') }}" required>
                                 @error('to')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -47,7 +52,7 @@
                             {{-- CC (con tags) --}}
                             <div class="mb-3">
                                 <label for="cc" class="form-label">CC (Con Copia)</label>
-                                <input type="text" class="form-control @error('cc') is-invalid @enderror" id="cc" name="cc" value="{{ old('cc') }}">
+                                <input type="text" class="form-control input-correos @error('cc') is-invalid @enderror" id="cc" name="cc" value="{{ old('cc') }}">
                                 @error('cc')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -56,7 +61,7 @@
                             {{-- BCC (con tags) --}}
                             <div class="mb-3">
                                 <label for="bcc" class="form-label">BCC (Copia Oculta)</label>
-                                <input type="text" class="form-control @error('bcc') is-invalid @enderror" id="bcc" name="bcc" value="{{ old('bcc') }}">
+                                <input type="text" class="form-control input-correos @error('bcc') is-invalid @enderror" id="bcc" name="bcc" value="{{ old('bcc') }}">
                                 @error('bcc')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -103,52 +108,52 @@
 @endsection
 
 @section('scripts')
-@include('partials.toast')
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote/dist/summernote-bs4.min.js"></script>
-<script src="{{ asset('assets/vendors/choices.js/choices.min.js') }}"></script>
 <script>
-    $(document).ready(function() {
-        // Inicializa el editor de texto enriquecido
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializa Summernote
         $('.summernote').summernote({
             height: 200
         });
 
-        // Lista de correos previos convertida a un array
+        // Lista de correos previos
+       //const previousEmails = @json($previousEmails);
         const previousEmails = Object.values(@json($previousEmails));  // Asegúrate de convertir a array
-        console.log(previousEmails);
 
-        // Inicializa Choices.js en los campos con tags y autocompletado
-        const toField = new Choices('#to', {
-            removeItemButton: true,
-            duplicateItemsAllowed: false,
-            editItems: true,
-            placeholder: true,
-            maxItemCount: -1,  // Sin límite de tags
-            paste: true,
-            searchEnabled: true, // Habilitar búsqueda/autocompletado
-            choices: previousEmails.map(email => ({ value: email, label: email })),
+        // Configura Tagify para cada campo
+        const toInput = document.querySelector('#to');
+        const ccInput = document.querySelector('#cc');
+        const bccInput = document.querySelector('#bcc');
+
+        new Tagify(toInput, {
+            whitelist: previousEmails,
+            pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            dropdown: {
+                enabled: 1,
+                maxItems: 10
+            },
+            delimiters: ",",
         });
 
-        const ccField = new Choices('#cc', {
-            removeItemButton: true,
-            duplicateItemsAllowed: false,
-            editItems: true,
-            placeholder: true,
-            maxItemCount: -1,
-            paste: true,
-            searchEnabled: true, // Habilitar búsqueda/autocompletado
-            choices: previousEmails.map(email => ({ value: email, label: email })),
+        new Tagify(ccInput, {
+            whitelist: previousEmails,
+            pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            dropdown: {
+                enabled: 1,
+                maxItems: 10
+            },
+            delimiters: ",",
         });
 
-        const bccField = new Choices('#bcc', {
-            removeItemButton: true,
-            duplicateItemsAllowed: false,
-            editItems: true,
-            placeholder: true,
-            maxItemCount: -1,
-            paste: true,
-            searchEnabled: true, // Habilitar búsqueda/autocompletado
-            choices: previousEmails.map(email => ({ value: email, label: email })),
+        new Tagify(bccInput, {
+            whitelist: previousEmails,
+            pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            dropdown: {
+                enabled: 1,
+                maxItems: 10
+            },
+            delimiters: ",",
         });
     });
 </script>

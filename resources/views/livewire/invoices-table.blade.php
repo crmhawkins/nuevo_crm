@@ -108,7 +108,7 @@
                     @foreach ( $invoices as $invoice )
                     <tr class="clickable-row" data-href="{{route('factura.edit', $invoice->id)}}">
                         <td>{{$invoice->reference}}</td>
-                            <td>{{optional($invoice->cliente)->name ??  ($invoice->client_id ? 'Cliente borrado' : 'Sin cliente asignado')}}</td>
+                            <td>{{optional($invoice->cliente)->company ?? (optional($invoice->cliente)->name ??  ($invoice->client_id ? 'Cliente borrado' : 'Sin cliente asignado'))}}</td>
                             <td>{{optional($invoice->cliente)->cif ??  ($invoice->client_id ? 'Cliente borrado' : 'Sin cliente asignado')}}</td>
                             <td>{{$invoice->project->name ?? ($invoice->project_id ? 'Campaña borrada' : 'Sin campaña asignada')}}</td>
                             <td>{{Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y')}}</td>

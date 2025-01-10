@@ -52,9 +52,9 @@ class Incidences extends Model
     {
         return $this->belongsTo(User::class, 'admin_user_id');
     }
-    public function gestor_id()
+    public function gestor()
     {
-        return $this->belongsTo(User::class, 'admin_user_id');
+        return $this->belongsTo(User::class, 'gestor_id');
     }
     public function presupuesto()
     {

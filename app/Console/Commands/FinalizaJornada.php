@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Jornada\Pause;
 use App\Models\Tasks\LogTasks;
 use App\Models\Users\User;
 use Illuminate\Console\Command;
@@ -37,6 +38,13 @@ class FinalizaJornada extends Command
             $jornada->end_time = $lastTask->date_end;
             $jornada->is_active = false;
             $jornada->save();
+            $pause = Pause::where('jornada_id', $jornada->id)->whereNull('end_time')->first();
+            if ($pause){
+                $pause->update([
+                    'end_time' =>  $jornada->end_time,
+                    'is_active' => false,
+                ]);
+            }
         }
 
         $this->info('Comando completado: Jornadas finalizadas');

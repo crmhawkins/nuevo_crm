@@ -8,9 +8,9 @@
 <style>
     /* Estilos básicos */
 
-    .progress-circle {
-        width: 120px;
-        height: 120px;
+    /* .progress-circle {
+        width: 90px;
+        height: 90px;
         border-radius: 50%;
         background: conic-gradient(
             var(--progress-color) calc(var(--percentage, 0) * 1%),
@@ -23,7 +23,7 @@
     }
 
     .progress-number {
-        font-size: 1.5rem;
+        font-size: 0.2rem;
         font-weight: bold;
         color: var(--progress-color);
         position: absolute;
@@ -31,8 +31,8 @@
 
     .progress-circle::before {
         content: '';
-        width: 100px;
-        height: 100px;
+        width: 75px;
+        height: 75px;
         background-color: #fff;
         border-radius: 50%;
         position: absolute;
@@ -46,7 +46,7 @@
         color: var(--progress-color);
         position: absolute;
         z-index: 2;
-    }
+    } */
     span.tarea-gestor {
         display: block;
         font-size: 0.9rem;
@@ -153,6 +153,8 @@
         overflow: hidden;
         border: 1px solid black;
         border-radius: 20px;
+        align-content: flex-start;
+
     }
 
     .info {
@@ -689,14 +691,27 @@
                                 <div class="card-body">
                                     <div class="d-flex flex-wrap">
                                         <div class="col-12 d-flex flex-wrap justify-content-center mb-4 align-items-center">
-                                            <div class="mx-4 text-center">
-                                                <h5 class="my-3">{{$user->name}}&nbsp;{{$user->surname}}</h5>
-                                                <p class="text-muted mb-1">{{$user->departamento->name}}</p>
-                                                <p class="text-muted mb-4">{{$user->acceso->name}}</p>
-                                                {{-- <div class="d-flex  align-items-center my-2">
-                                                    <input type="color" class="form-control form-control-color" style="padding: 0.4rem" id="color">
-                                                    <label for="color" class="form-label m-2">Color</label>
-                                                </div> --}}
+                                            <div>
+                                                <div class="mx-4 text-center">
+                                                    <h5 class="my-3">{{$user->name}}&nbsp;{{$user->surname}}</h5>
+                                                    <p class="text-muted mb-1">{{$user->departamento->name}}</p>
+                                                    <p class="text-muted mb-4">{{$user->acceso->name}}</p>
+
+                                                    {{-- <div class="d-flex  align-items-center my-2">
+                                                        <input type="color" class="form-control form-control-color" style="padding: 0.4rem" id="color">
+                                                        <label for="color" class="form-label m-2">Color</label>
+                                                    </div> --}}
+                                                </div>
+                                                <div>
+                                                    <p>Privilegios adquiridos:</p>
+                                                    <ul>
+                                                        <li class="{{($nota >=5 && $bajas < 1)? 'text-green-500' : 'text-red-500'}}">Jornada Flexible</li>
+                                                        <li class="{{($nota >=6 && $bajas < 1) ? 'text-green-500' : 'text-red-500'}}">Viernes intensivo</li>
+                                                        <li class="{{($nota >=7 && $bajas < 1) ? 'text-green-500' : 'text-red-500'}}">Uso Del movil personal en oficina</li>
+                                                        <li class="{{($nota >=9 && $bajas < 1) ? 'text-green-500' : 'text-red-500'}}">Reseña en Oficina</li>
+                                                        <li class="{{($nota >=10 && $bajas < 1) ? 'text-green-500' : 'text-red-500'}}">Plus Economico</li>
+                                                    </ul>
+                                                </div>
                                             </div>
                                             <div class="mx-4">
                                                 @if ($user->image == null)
@@ -706,27 +721,32 @@
                                                 @endif
                                             </div>
                                             <div>
-                                                <div class="d-flex justify-content-center align-items-center">
+                                                <div class="d-flex justify-content-center align-items-center my-2">
                                                     <div class="mx-4 text-center">
+                                                        <h1 class="fs-5">Valor</h1>
+
+                                                        <div class="card" style="border: 1px solid {{ $nota >= 7 ? 'green' : 'gray' }}; padding: 10px;">
+                                                            <h5 class="m-0 fs-4" style="color: {{ $nota >= 7 ? 'green' : 'gray' }};">
+                                                                {{ number_format($nota, 2) }}
+                                                            </h5>
+                                                        </div>
+                                                    </div>
+                                                    {{-- <div class="mx-4 text-center">
                                                         <h1 class="fs-5">Productividad</h1>
                                                         <div class="progress-circle"
                                                             data-percentage="{{ number_format($productividadIndividual, 2) }}">
                                                         </div>
-
-                                                    </div>
-                                                    <div class="mx-4 text-center">
-                                                        <div class="card" style="border: 1px solid {{ $user->bono > 0 ? 'green' : 'gray' }}; padding: 10px;">
-                                                            <h5 class="m-0" style="color: {{ $user->bono > 0 ? 'green' : 'gray' }};">
-                                                                {{ $user->bono > 0 ? 'Bono: ' . $user->bono.' €' : 'Sin bono' }}
-                                                            </h5>
-                                                        </div>
-                                                    </div>
+                                                    </div> --}}
                                                 </div>
-                                                <div class="mx-4 my-2">
-                                                    <p style="color:#4D989E">Horas Producidas Hoy</p>
-                                                    <p style="font-weight: bold;font-size: 2rem;">{{ $tiempoProducidoHoy['horas'] }}</p>
-                                                    <p style="color:#4D989E">Horas Producidas Mesual</p>
-                                                    <p style="font-weight: bold;font-size: 2rem;">{{ $horasMes }}</p>
+                                                <div class="mx-4 d-flex my-2">
+                                                    <div class="text-center mr-2">
+                                                        <p style="color:#4D989E">H.Producidas Hoy</p>
+                                                        <p style="font-weight: bold;font-size: 1rem;">{{ $tiempoProducidoHoy['horas'] }}</p>
+                                                    </div>
+                                                    <div class="text-center">
+                                                        <p style="color:#4D989E">H.Producidas Mensual</p>
+                                                        <p style="font-weight: bold;font-size: 1rem;">{{ $horasMes }}</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1323,26 +1343,26 @@
             var todoModal = new bootstrap.Modal(document.getElementById('todoModal'));
             todoModal.show();
         }
-        document.addEventListener('DOMContentLoaded', function() {
-            const progressCircles = document.querySelectorAll('.progress-circle');
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     const progressCircles = document.querySelectorAll('.progress-circle');
 
-            progressCircles.forEach(circle => {
-                const percentage = circle.getAttribute('data-percentage');
-                circle.style.setProperty('--percentage', percentage);
+        //     progressCircles.forEach(circle => {
+        //         const percentage = circle.getAttribute('data-percentage');
+        //         circle.style.setProperty('--percentage', percentage);
 
-                let progressColor;
+        //         let progressColor;
 
-                if (percentage  >= 100) {
-                    progressColor = '#28a745'; //Verde
-                } else if (percentage >= 75) {
-                    progressColor = '#ff9f00'; // Naranja
-                } else {
-                    progressColor = '#dc3545'; //Rojo
-                }
+        //         if (percentage  >= 100) {
+        //             progressColor = '#28a745'; //Verde
+        //         } else if (percentage >= 75) {
+        //             progressColor = '#ff9f00'; // Naranja
+        //         } else {
+        //             progressColor = '#dc3545'; //Rojo
+        //         }
 
-                circle.style.setProperty('--progress-color', progressColor);
-            });
-        });
+        //         circle.style.setProperty('--progress-color', progressColor);
+        //     });
+        // });
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

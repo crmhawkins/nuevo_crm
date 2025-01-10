@@ -96,7 +96,7 @@
                         <h1 style="font-weight: normal;vertical-align:bottom"><cite>PRESUPUESTO</cite></h1>
                     </td>
                     <td align="right" style="width: auto;padding-left:20px;padding-right:45px">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1JSTbvPQy4RdU-Av5a1Rv6JdYIZZrRrhbCA&s" alt="Logo" width="200" class="logo"/>
+                        <img src="https://crm.hawkins.es/assets/images/logo/logo.png" alt="Logo" width="200" class="logo"/>
                     </td>
                 </tr>
             </table>

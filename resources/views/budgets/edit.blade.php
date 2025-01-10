@@ -78,7 +78,7 @@
                                         </div>
                                         <div class="form-group mb-3">
                                             <label class="mb-2 text-left" for="budget_status_id">Estado:</label>
-                                            <select class="form-control @error('budget_status_id') is-invalid @enderror" id="budget_status_id" name="budget_status_id">
+                                            <select class="form-control @error('budget_status_id') is-invalid @enderror" id="budget_status_id" name="budget_status_id" >
                                                 @foreach ( $estadoPresupuesto as $estado )
                                                     <option value="{{ $estado->id }}" {{ $presupuesto->budget_status_id == $estado->id ? 'selected' : '' }}>{{ $estado->name }} </option>
 
@@ -183,8 +183,8 @@
                                     <div class="col-12">
                                         <h3 class="text-center text-uppercase fs-5 mb-3">Conceptos</h3>
                                         <div class="d-inline-block m-auto text-center w-100">
-                                            <button id="btnPropio" type="button" class="btn btn-dark">Propio</button>
-                                            <button id="btnProveedor" type="button" class="btn btn-secondary">Proveedor</button>
+                                            <button id="btnPropio" type="button" class="btn btn-dark" {{ in_array($presupuesto->budget_status_id, [5, 6, 7, 8]) ? 'disabled' : '' }}>Propio</button>
+                                            <button id="btnProveedor" type="button" class="btn btn-secondary" {{ in_array($presupuesto->budget_status_id, [5, 6, 7, 8]) ? 'disabled' : '' }}>Proveedor</button>
                                         </div>
                                     </div>
                                 </div>
@@ -226,11 +226,11 @@
                                                 <tr class="budgetRow" data-child-value="{{$budgetConcept->concept}}">
                                                     <td class="details-control">
                                                         @if($budgetConcept->concept_type_id == 2)
-                                                            <a href="{{route('budgetConcepts.editTypeOwn', $budgetConcept->id)}}" class="btn btn-success">
+                                                            <a href="{{route('budgetConcepts.editTypeOwn', $budgetConcept->id)}}" class="btn btn-success {{ in_array($presupuesto->budget_status_id, [5, 6, 7, 8]) ? 'disabled' : '' }}">
                                                                 <i class="fas fa-arrow-down" style="color:white;"></i>
                                                             </a>
                                                         @else
-                                                            <a href="{{route('budgetConcepts.editTypeSupplier', $budgetConcept->id)}}" class="btn btn-success">
+                                                            <a href="{{route('budgetConcepts.editTypeSupplier', $budgetConcept->id)}}" class="btn btn-success {{ in_array($presupuesto->budget_status_id, [5, 6, 7, 8]) ? 'disabled' : '' }}" >
                                                                 <i class="fas fa-arrow-down" style="color:white;"></i>
                                                             </a>
                                                         @endif
@@ -272,7 +272,7 @@
                                                     </td>
                                                     <td class="budgetDiscountRow">
                                                         @if(!$budgetConcept->discount)
-                                                            <input type="number" data-id-budget="{{ $presupuesto->id }}" data-id="{{ $budgetConcept->id }}" class="form-control discountInput" style="width:80px" name="discount[{{ $budgetConcept->id }}]" min="0" max="100"  value="0" data-subtotal="{{$subtotal}}">
+                                                            <input type="number" data-id-budget="{{ $presupuesto->id }}" data-id="{{ $budgetConcept->id }}" class="form-control discountInput" style="width:80px" name="discount[{{ $budgetConcept->id }}]" min="0" max="100"  value="0" data-subtotal="{{$subtotal}}" >
                                                         @else
                                                             <input type="number" data-id-budget="{{ $presupuesto->id }}" data-id="{{ $budgetConcept->id }}" class="form-control discountInput" style="width:80px" name="discount[{{ $budgetConcept->id }}]" min="0" max="100" value="{{ $budgetConcept->discount }}" data-subtotal="{{$subtotal}}">
                                                         @endif
@@ -285,9 +285,9 @@
                                                             {{-- <a class="btn btn-success" href="{{ route('admin.budget_concepts.editTypeOwn',$budgetConcept->id) }}"><i class="fas fa-pencil-alt"></i></a> --}}
                                                         @endif
                                                         @if($budgetConcept->concept_type_id == 1)
-                                                            <a id="deleteOwn" data-id="{{$budgetConcept->id}}" class="btn btn-danger destroyConceptOwn" data-concept-id="{{$budgetConcept->id}}" style="color:white" ><i class="fas fa-times"></i></a>
+                                                            <a id="deleteOwn" data-id="{{$budgetConcept->id}}" class="btn btn-danger destroyConceptOwn {{ in_array($presupuesto->budget_status_id, [5, 6, 7, 8]) ? 'disabled' : '' }}" data-concept-id="{{$budgetConcept->id}}" style="color:white" ><i class="fas fa-times"></i></a>
                                                         @else
-                                                            <a id="deleteOwn" data-id="{{$budgetConcept->id}}" class="btn btn-danger destroyConceptOwn" data-concept-id="{{$budgetConcept->id}}" style="color:white" ><i class="fas fa-times"></i></a>
+                                                            <a id="deleteOwn" data-id="{{$budgetConcept->id}}" class="btn btn-danger destroyConceptOwn {{ in_array($presupuesto->budget_status_id, [5, 6, 7, 8]) ? 'disabled' : '' }}" data-concept-id="{{$budgetConcept->id}}" style="color:white" ><i class="fas fa-times"></i></a>
                                                         @endif
                                                     </td>
                                                 </tr>
@@ -319,7 +319,7 @@
                                                 <td id="base_amount"> {{ number_format((float)$presupuesto->base, 2, '.', '')  }}</td>
                                                 <td>
                                                     <input type="number" class="form-control" style="width:80px" id="iva" name="iva_percentage" min="0" max="100"
-                                                value="{{ number_format((float)$presupuesto->iva_percentage, 2, '.', '')  }}" >
+                                                value="{{ number_format((float)$presupuesto->iva_percentage, 2, '.', '')  }}"  >
                                                 </td>
                                                 <td id="iva_amount">{{ number_format((float)$presupuesto->iva, 2, '.', '')  }}</td>
                                                 <td id="budget_total"><strong>{{ number_format((float)$presupuesto->total, 2, '.', '')  }} €</strong></td>
@@ -358,7 +358,7 @@
                                 <hr>
                             </div>
                             <a href="" id="actualizarPresupuesto" class="btn btn-success btn-block mb-3">Actualizar</a>
-                            <a href="" id="aceptarPresupuesto" class="btn btn-primary btn-block mb-3">Aceptar</a>
+                            <a href="" id="aceptarPresupuesto" class="btn btn-primary btn-block mb-3 {{ in_array($presupuesto->budget_status_id, [3 ,5, 6, 7, 8]) ? 'disabled' : '' }}" >Aceptar</a>
                             <a href="" id="cancelarPresupuesto"class="btn btn-danger btn-block mb-3">Cancelar</a>
                             <form action="{{ route('presupuesto.duplicate', $presupuesto->id) }}" method="POST">
                                 @csrf

@@ -25,175 +25,193 @@
     <div class="card2 mt-4">
         <div class="card-body2">
             <div class="row justify-between">
-                <div class="col-12">
-                    <div class="row row-cols-1 row-cols-xl-2 g-xl-4 g-3 mb-3">
-                        <div class="card2">
-                            <div class="card-body col">
-                                <div class="row justify-content-between">
-                                    <div class="col-5">
-                                        <h5 class="card-title fw-bold">Produccion</h5>
-                                    </div>
-                                    <div class="col-5" >
-                                        <input type="text" class="form-control produccion" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
-                                    </div>
+                <div class="col-md-6">
+                    <div class="card2">
+                        <div class="card-body p-2 col">
+                            <div class="row justify-content-between">
+                                <div class="col-7">
+                                    <h5 class="card-title fw-bold">Panel de Tablas</h5>
                                 </div>
-                                <div class="table-responsive">
-                                    <table class="table producc">
-                                        <thead>
-                                            <tr>
-                                                <th>Nombre</th>
-                                                <th>Inpuntualidad</th>
-                                                <th>H.Oficinas</th>
-                                                <th>H.Producidas</th>
-                                                <th>Produc</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @if(count($produccion) == 0)
-                                            <tr>
-                                                <td colspan="5">No hay datos disponibles</td>
-                                            </tr>
-                                            @else
-                                                @foreach($produccion as $p)
-                                                <tr>
-                                                    <td>{{$p['nombre']}}</td>
-                                                    <td>{{$p['inpuntualidad']}}</td>
-                                                    <td>{{$p['horas_oficinas']}}</td>
-                                                    <td>{{$p['horas_producidas']}}</td>
-                                                    <td>{{$p['productividad']}} %</td>
-                                                </tr>
-                                                @endforeach
-                                            @endif
-                                        </tbody>
-                                    </table>
+                                <div class="col-5">
+                                    <input type="text" class="form-control date-range p-1 rangofecha" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
                                 </div>
                             </div>
-                        </div>
-                        <div class="card2">
-                            <div class="card-body col">
-                                <div class="row justify-content-between">
-                                    <div class="col-5">
-                                        <h5 class="card-title fw-bold">Gestion</h5>
-                                    </div>
-                                    <div class="col-5">
-                                        <input type="text" class="form-control gestion" id="dateRange" name="dateRange" value="">
-                                    </div>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table gest">
-                                        <thead>
-                                            <tr>
-                                                <th>Nombre</th>
-                                                <th>Inpuntualidad</th>
-                                                <th>H.Oficinas</th>
-                                                <th>Presu.Realizados</th>
-                                                <th>Llamadas</th>
-                                                <th>Kits</th>
-                                                <th>Peticiones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @if(count($gestion) == 0)
-                                            <tr>
-                                                <td colspan="5">No hay datos disponibles</td>
-                                            </tr>
-                                            @else
-                                                @foreach($gestion as $g)
-                                                <tr>
-                                                    <td>{{$g['nombre']}}</td>
-                                                    <td>{{$g['inpuntualidad']}}</td>
-                                                    <td>{{$g['horas_oficinas']}}</td>
-                                                    <td>{{$g['presu_generados']}}</td>
-                                                    <td>{{$g['llamadas']}}</td>
-                                                    <td>{{$g['kits']}}</td>
-                                                    <td>{{$g['peticiones']}}</td>
-                                                </tr>
-                                                @endforeach
-                                            @endif
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card2">
-                            <div class="card-body col">
-                                <div class="row justify-content-between">
-                                    <div class="col-5">
-                                        <h5 class="card-title fw-bold">Comercial</h5>
-                                    </div>
-                                    <div class="col-5">
-                                        <input type="text" class="form-control comercial" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
+
+                            <div class="accordion mt-2" id="accordionExample">
+                                <!-- Producción -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingProduccion">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProduccion" aria-expanded="true" aria-controls="collapseProduccion">
+                                            Producción
+                                        </button>
+                                    </h2>
+                                    <div id="collapseProduccion" class="accordion-collapse collapse" aria-labelledby="headingProduccion" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm producc">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nombre</th>
+                                                            <th>Inpunt</th>
+                                                            <th>H.Oficina</th>
+                                                            <th>H.Produc</th>
+                                                            <th>Produc</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if(count($produccion) == 0)
+                                                        <tr>
+                                                            <td colspan="5">No hay datos disponibles</td>
+                                                        </tr>
+                                                        @else
+                                                            @foreach($produccion as $p)
+                                                            <tr>
+                                                                <td>{{$p['nombre']}}</td>
+                                                                <td><a  href="/jornadas" target="_blank">{{$p['inpuntualidad']}}</a></td>
+                                                                <td><a  href="/jornadas" target="_blank">{{$p['horas_oficinas']}}</a></td>
+                                                                <td><a  href="/jornadas" target="_blank">{{$p['horas_producidas']}}</a></td>
+                                                                <td><a href="/productividad" target="_blank">{{$p['productividad']}} %</a></td>
+                                                            </tr>
+                                                            @endforeach
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="table-responsive">
-                                    <table class="table comerc">
-                                        <thead>
-                                            <tr>
-                                                <th>Nombre</th>
-                                                <th>H.Oficinas</th>
-                                                <th>Leads</th>
-                                                <th>peticiones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @if(count($comercial) == 0)
-                                            <tr>
-                                                <td colspan="5">No hay datos disponibles</td>
-                                            </tr>
-                                            @else
-                                                @foreach($comercial as $c)
-                                                <tr>
-                                                    <td>{{$c['nombre']}}</td>
-                                                    <td>{{$c['horas_oficinas']}}</td>
-                                                    <td>{{$c['kits_creados']}}</td>
-                                                    <td>{{$c['peticiones']}}</td>
-                                                </tr>
-                                                @endforeach
-                                            @endif
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card2">
-                            <div class="card-body col">
-                                <div class="row justify-content-between">
-                                    <div class="col-5">
-                                        <h5 class="card-title fw-bold">Contabilidad</h5>
+
+                                <!-- Gestión -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingGestion">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGestion" aria-expanded="false" aria-controls="collapseGestion">
+                                            Gestión
+                                        </button>
+                                    </h2>
+                                    <div id="collapseGestion" class="accordion-collapse collapse" aria-labelledby="headingGestion" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm gest">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nombre</th>
+                                                            <th>Inpunt</th>
+                                                            <th>H.Oficina</th>
+                                                            <th>Presup</th>
+                                                            <th>Llamadas</th>
+                                                            <th>Kits</th>
+                                                            <th>Kits.creados</th>
+                                                            <th>Peticiones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if(count($gestion) == 0)
+                                                        <tr>
+                                                            <td colspan="7">No hay datos disponibles</td>
+                                                        </tr>
+                                                        @else
+                                                            @foreach($gestion as $g)
+                                                            <tr>
+                                                                <td>{{$g['nombre']}}</td>
+                                                                <td><a  href="/jornadas" target="_blank">{{$g['inpuntualidad']}}</a></td>
+                                                                <td><a  href="/jornadas" target="_blank">{{$g['horas_oficinas']}}</a></td>
+                                                                <td>{{$g['presu_generados']}}</td>
+                                                                <td>{{$g['llamadas']}}</td>
+                                                                <td>{{$g['kits']}}</td>
+                                                                <td>{{$g['kitsCreados']}}</td>
+                                                                <td>{{$g['peticiones']}}</td>
+                                                            </tr>
+                                                            @endforeach
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-5">
-                                        <input type="text" class="form-control contable" id="dateRange" name="dateRange" value="{{ request('dateRange') }}">
+                                </div>
+
+                                <!-- Comercial -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingComercial">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseComercial" aria-expanded="false" aria-controls="collapseComercial">
+                                            Comercial
+                                        </button>
+                                    </h2>
+                                    <div id="collapseComercial" class="accordion-collapse collapse" aria-labelledby="headingComercial" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm comerc">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nombre</th>
+                                                            <th>H.Oficina</th>
+                                                            <th>Leads</th>
+                                                            <th>Peticiones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if(count($comercial) == 0)
+                                                        <tr>
+                                                            <td colspan="4">No hay datos disponibles</td>
+                                                        </tr>
+                                                        @else
+                                                            @foreach($comercial as $c)
+                                                            <tr>
+                                                                <td>{{$c['nombre']}}</td>
+                                                                <td><a  href="/jornadas" target="_blank">{{$c['horas_oficinas']}}</a></td>
+                                                                <td>{{$c['kits_creados']}}</td>
+                                                                <td>{{$c['peticiones']}}</td>
+                                                            </tr>
+                                                            @endforeach
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="table-responsive">
-                                    <table class="table contab">
-                                        <thead>
-                                            <tr>
-                                                <th>Nombre</th>
-                                                <th>Inpuntualidad</th>
-                                                <th>H.Oficinas</th>
-                                                <th>Fact.Realizados</th>
-                                                <th>Llamadas</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @if(count($contabilidad) == 0)
-                                            <tr>
-                                                <td colspan="5">No hay datos disponibles</td>
-                                            </tr>
-                                            @else
-                                                @foreach($contabilidad as $contable)
-                                                <tr>
-                                                    <td>{{$contable['nombre']}}</td>
-                                                    <td>{{$contable['inpuntualidad']}}</td>
-                                                    <td>{{$contable['horas_oficinas']}}</td>
-                                                    <td>{{$contable['facturas']}}</td>
-                                                    <td>{{$contable['llamadas']}}</td>
-                                                </tr>
-                                                @endforeach
-                                            @endif
-                                        </tbody>
-                                    </table>
+
+                                <!-- Contabilidad -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingContabilidad">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContabilidad" aria-expanded="false" aria-controls="collapseContabilidad">
+                                            Contabilidad
+                                        </button>
+                                    </h2>
+                                    <div id="collapseContabilidad" class="accordion-collapse collapse" aria-labelledby="headingContabilidad" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm contab">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nombre</th>
+                                                            <th>Inpunt</th>
+                                                            <th>H.Oficina</th>
+                                                            <th>Fact</th>
+                                                            <th>Llamadas</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if(count($contabilidad) == 0)
+                                                        <tr>
+                                                            <td colspan="5">No hay datos disponibles</td>
+                                                        </tr>
+                                                        @else
+                                                            @foreach($contabilidad as $contable)
+                                                            <tr>
+                                                                <td>{{$contable['nombre']}}</td>
+                                                                <td><a  href="/jornadas" target="_blank">{{$contable['inpuntualidad']}}</a></td>
+                                                                <td><a  href="/jornadas" target="_blank">{{$contable['horas_oficinas']}}</a></td>
+                                                                <td>{{$contable['facturas']}}</td>
+                                                                <td>{{$contable['llamadas']}}</td>
+                                                            </tr>
+                                                            @endforeach
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -215,7 +233,7 @@
                                             </div> --}}
 
                                         </div>
-                                        <div class="mx-4">
+                                        {{-- <div class="mx-4">
                                             @if ($user->image == null)
                                                 <img alt="avatar" class="rounded-circle img-fluid  m-auto" style="width: 150px;" src="{{asset('assets/images/guest.webp')}}" />
                                             @else
@@ -233,7 +251,7 @@
                                                     {{ $user->bono > 0 ? 'Bono: ' . $user->bono.' €' : 'Sin bono' }}
                                                 </h5>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                     <div class="col-12 d-flex flex-wrap justify-content-center">
                                         <div class="my-2 text-center">
@@ -972,13 +990,16 @@
 <script>
     $(document).ready(function () {
         // Escucha el evento change en el input con la clase 'produccion'
-        $('.produccion').on('change', function (e) {
+        $('.rangofecha').on('change', function (e) {
             console.log(e);
             // Obtén el valor del input que cambió
             let dateRange = $(this).val();
 
             if(dateRange.includes('a')) {
                 fetchProductionData(dateRange);
+                fetchGestionData(dateRange);
+                fetchComencialData(dateRange);
+                fetchContabilidadData(dateRange);
             }
             // Muestra el valor en la consola (solo para verificar que se obtuvo bien)
             // Llama a la función para recargar los datos con fetch
@@ -1000,16 +1021,18 @@
                     console.log("Datos recibidos:", data);
                     // Aquí puedes actualizar la tabla con los datos recibidos
                     // Ejemplo de actualización de tabla
-                    updateTableProduccion(data);
+                    updateTableProduccion(data,dateRange);
                 })
                 .catch(error => console.error('Error al recargar los datos:', error));
         }
 
         // Función para actualizar la tabla con los datos recibidos
-        function updateTableProduccion(data) {
+        function updateTableProduccion(data,dateRange) {
             let tbody = $('.producc tbody');
             tbody.empty(); // Limpia el contenido actual de la tabla
-
+            let dates = dateRange.split(' a ');
+            let startDate = dates[0];
+            let endDate = dates[1];
             if (data.length === 0) {
                 tbody.append('<tr><td colspan="5">No hay datos disponibles</td></tr>');
             } else {
@@ -1017,30 +1040,16 @@
                     let row = `
                         <tr>
                             <td>${item.nombre}</td>
-                            <td>${item.inpuntualidad}</td>
-                            <td>${item.horas_oficinas}</td>
-                            <td>${item.horas_producidas ?? ''}</td>
-                            <td>${item.productividad ?? ''}%</td>
+                            <td><a  href="/jornadas?fecha_inicio=${startDate}&fecha_fin=${endDate}" target="_blank">${item.inpuntualidad}</a></td>
+                            <td><a  href="/jornadas?fecha_inicio=${startDate}&fecha_fin=${endDate}" target="_blank">${item.horas_oficinas}</a></td>
+                            <td><a  href="/jornadas?fecha_inicio=${startDate}&fecha_fin=${endDate}" target="_blank">${item.horas_producidas ?? ''}</a></td>
+                            <td><a href="/productividad?fecha_inicio=${startDate}&fecha_fin=${endDate}" target="_blank">${item.productividad ?? ''}%</a></td>
                         </tr>
                     `;
                     tbody.append(row);
                 });
             }
         }
-    });
-</script>
-<script>
-    $(document).ready(function () {
-        // Escucha el evento change en el input con la clase 'produccion'
-        $('.gestion').on('change', function (e) {
-            // Obtén el valor del input que cambió
-            let dateRange = $(this).val();
-
-            if(dateRange.includes('a')) {
-                fetchGestionData(dateRange);
-            }
-
-        });
 
         // Función que hace el fetch para recargar los datos
         function fetchGestionData(dateRange) {
@@ -1057,16 +1066,18 @@
                     console.log("Datos recibidos:", data);
                     // Aquí puedes actualizar la tabla con los datos recibidos
                     // Ejemplo de actualización de tabla
-                    updateTablegestion(data);
+                    updateTablegestion(data,dateRange);
                 })
                 .catch(error => console.error('Error al recargar los datos:', error));
         }
 
         // Función para actualizar la tabla con los datos recibidos
-        function updateTablegestion(data) {
+        function updateTablegestion(data,dateRange) {
             let tbody = $('.gest tbody');
             tbody.empty(); // Limpia el contenido actual de la tabla
-
+            let dates = dateRange.split(' a ');
+            let startDate = dates[0];
+            let endDate = dates[1];
             if (data.length === 0) {
                 tbody.append('<tr><td colspan="5">No hay datos disponibles</td></tr>');
             } else {
@@ -1074,11 +1085,12 @@
                     let row = `
                         <tr>
                             <td>${item.nombre}</td>
-                            <td>${item.inpuntualidad}</td>
-                            <td>${item.horas_oficinas}</td>
+                            <td><a  href="/jornadas?fecha_inicio=${startDate}&fecha_fin=${endDate}" target="_blank">${item.inpuntualidad}</a></td>
+                            <td><a  href="/jornadas?fecha_inicio=${startDate}&fecha_fin=${endDate}" target="_blank">${item.horas_oficinas}</a></td>
                             <td>${item.presu_generados ?? ''}</td>
                             <td>${item.llamadas ?? ''}</td>
                             <td>${item.kits ?? ''}</td>
+                            <td>${item.kitsCreados ?? ''}</td>
                             <td>${item.peticiones ?? ''}</td>
                         </tr>
                     `;
@@ -1086,23 +1098,7 @@
                 });
             }
         }
-    });
-</script>
-<script>
-    $(document).ready(function () {
-        // Escucha el evento change en el input con la clase 'produccion'
-        $('.comercial').on('change', function (e) {
-            console.log(e);
-            // Obtén el valor del input que cambió
-            let dateRange = $(this).val();
 
-            if(dateRange.includes('a')) {
-                fetchComencialData(dateRange);
-            }
-            // Muestra el valor en la consola (solo para verificar que se obtuvo bien)
-            // Llama a la función para recargar los datos con fetch
-            //fetchProductionData(dateRange);
-        });
 
         // Función que hace el fetch para recargar los datos
         function fetchComencialData(dateRange) {
@@ -1119,16 +1115,18 @@
                     console.log("Datos recibidos:", data);
                     // Aquí puedes actualizar la tabla con los datos recibidos
                     // Ejemplo de actualización de tabla
-                    updateTableComercial(data);
+                    updateTableComercial(data,dateRange);
                 })
                 .catch(error => console.error('Error al recargar los datos:', error));
         }
 
         // Función para actualizar la tabla con los datos recibidos
-        function updateTableComercial(data) {
+        function updateTableComercial(data,dateRange) {
             let tbody = $('.comerc tbody');
             tbody.empty(); // Limpia el contenido actual de la tabla
-
+            let dates = dateRange.split(' a ');
+            let startDate = dates[0];
+            let endDate = dates[1];
             if (data.length === 0) {
                 tbody.append('<tr><td colspan="5">No hay datos disponibles</td></tr>');
             } else {
@@ -1136,7 +1134,7 @@
                     let row = `
                         <tr>
                             <td>${item.nombre}</td>
-                            <td>${item.horas_oficinas}</td>
+                            <td><a  href="/jornadas?fecha_inicio=${startDate}&fecha_fin=${endDate}" target="_blank">${item.horas_oficinas}</a></td>
                             <td>${item.kits_creados}</td>
                             <td>${item.peticiones ?? ''}</td>
                         </tr>
@@ -1145,19 +1143,6 @@
                 });
             }
         }
-    });
-</script>
-<script>
-    $(document).ready(function () {
-        $('.contable').on('change', function (e) {
-
-            let dateRange = $(this).val();
-
-            if(dateRange.includes('a')) {
-                fetchContabilidadData(dateRange);
-            }
-
-        });
 
         function fetchContabilidadData(dateRange) {
             fetch('get-contabilidad', {
@@ -1171,15 +1156,17 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log("Datos recibidos:", data);
-                    updateTableContabilidad(data);
+                    updateTableContabilidad(data,dateRange);
                 })
                 .catch(error => console.error('Error al recargar los datos:', error));
         }
 
-        function updateTableContabilidad(data) {
+        function updateTableContabilidad(data,dateRange) {
             let tbody = $('.contab tbody');
             tbody.empty(); // Limpia el contenido actual de la tabla
-
+            let dates = dateRange.split(' a ');
+            let startDate = dates[0];
+            let endDate = dates[1];
             if (data.length === 0) {
                 tbody.append('<tr><td colspan="5">No hay datos disponibles</td></tr>');
             } else {
@@ -1187,8 +1174,8 @@
                     let row = `
                         <tr>
                             <td>${item.nombre}</td>
-                            <td>${item.inpuntualidad}</td>
-                            <td>${item.horas_oficinas}</td>
+                            <td><a  href="/jornadas?fecha_inicio=${startDate}&fecha_fin=${endDate}" target="_blank">${item.inpuntualidad}</td>
+                            <td><a  href="/jornadas?fecha_inicio=${startDate}&fecha_fin=${endDate}" target="_blank">${item.horas_oficinas}</td>
                             <td>${item.facturas ?? ''}</td>
                             <td>${item.llamadas ?? ''}</td>
                         </tr>
@@ -1198,6 +1185,7 @@
             }
         }
     });
+
 </script>
 @endsection
 

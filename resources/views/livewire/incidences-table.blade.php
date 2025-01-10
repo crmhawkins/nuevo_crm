@@ -55,9 +55,25 @@
             <table class="table table-hover">
                 <thead class="header-table">
                     <th class="px-3">
+                        <a href="#" wire:click.prevent="sortBy('gestor_id')">
+                            Gestor
+                            @if ($sortColumn == 'gestor_id')
+                                <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-3">
                         <a href="#" wire:click.prevent="sortBy('admin_user_id')">
                             USUARIO
                             @if ($sortColumn == 'admin_user_id')
+                                <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th class="px-3">
+                        <a href="#" wire:click.prevent="sortBy('titulo')">
+                            TITULO
+                            @if ($sortColumn == 'titulo')
                                 <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
                             @endif
                         </a>
@@ -75,7 +91,9 @@
                 <tbody>
                     @foreach ($incidencias as $incidencia)
                         <tr class="clickable-row" data-href="{{ route('incidencias.edit', $incidencia->id) }}">
-                            <td>{{ $incidencia->adminUser ? $incidencia->adminUser->name . ' ' . $incidencia->adminUser->surname : 'Usuario no encontrado' }}</td>
+                            <td>{{ $incidencia->gestor ? $incidencia->gestor->name . ' ' . $incidencia->gestor->surname : 'Gestor no Asignado'}}</td>
+                            <td>{{ $incidencia->adminUser ? $incidencia->adminUser->name . ' ' . $incidencia->adminUser->surname : 'Usuario no Asignado'}}</td>
+                            <td>{{ $incidencia->titulo}}</td>
                             <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d/m/Y') }}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a href="{{ route('incidencias.edit', $incidencia->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Editar incidencia"></a>
@@ -101,12 +119,10 @@
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 
     <script>
-        $(document).ready(() => {
-            $('.delete').on('click', function(e) {
-                e.preventDefault();
-                let id = $(this).data('id');
-                botonAceptar(id);
-            });
+        $(document).on('click', '.delete', function (e) {
+            e.preventDefault();
+            let id = $(this).data('id'); // Obtiene el ID del botón clicado
+            botonAceptar(id); // Llama a la función
         });
 
         function botonAceptar(id){

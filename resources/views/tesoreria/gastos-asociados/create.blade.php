@@ -84,7 +84,7 @@
                                     <label for="iva">IVA:</label>
                                     <select class="form-select" id="iva" name="iva">
                                         @foreach($tiposIva as $tipo)
-                                            <option value="{{ $tipo->valor }}">
+                                            <option {{ 21 == $tipo->valor ? 'selected' : '' }} value="{{ $tipo->valor }}">
                                                 {{ $tipo->nombre}}
                                             </option>
                                         @endforeach
@@ -141,7 +141,8 @@
                                         <option value="">-- Selecciona un Orden de compra --</option>
                                         @if (count($purchaseOrders) > 0)
                                             @foreach($purchaseOrders as $order)
-                                                <option data-title="{{ $order->concepto->title ?? '' }}" {{ old('purchase_order_id') == $order->id ? 'selected' : '' }} value="{{ $order->id }}">Nº {{ $order->id }} - {{ $order->concepto->purchase_price ?? '' }} €</option>
+                                                <option value="{{ $order->id }}" {{ old('purchase_order_id') == $order->id ? 'selected' : '' }}
+                                                >Nº {{ $order->id }} - {{ $order->concepto->purchase_price ?? '' }} €</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -195,18 +196,35 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const purchaseOrderSelect = document.getElementById('purchase_order_id');
+        const titleInput = document.getElementById('title'); // Campo de título
+        const quantityInput = document.getElementById('quantity'); // Campo de cantidad
+
         const choices = new Choices(purchaseOrderSelect, {
             placeholder: true,
             searchEnabled: true,  // Habilita la búsqueda en el select
             itemSelectText: '',   // Texto vacío para el item seleccionado
         });
 
+        const orderData = {};
+        // Inicializa los datos de las órdenes de compra
+        @foreach($purchaseOrders as $order)
+            orderData[{{ $order->id }}] = {
+                title: "{{ $order->concepto->title ?? '' }}",
+                reference: "{{ $order->concepto->reference ?? '' }}",
+                quantity: "{{ $order->concepto->purchase_price ?? '' }}",
+                iva: "{{ $order->concepto->iva ?? '' }}"
+            };
+        @endforeach
+
         purchaseOrderSelect.addEventListener('change', function() {
-            const selectedOption = purchaseOrderSelect.options[purchaseOrderSelect.selectedIndex];
-            const title = selectedOption.getAttribute('data-title');  // Obtener el título del concepto
-            if (title) {
-                titleInput.value = title;  // Actualizar el campo de título
+            const selectedId = purchaseOrderSelect.value; // Obtener el ID seleccionado
+
+            if (orderData[selectedId]) {
+                titleInput.value = orderData[selectedId].title || '';
+                quantityInput.value = orderData[selectedId].quantity || '';
+                calculateCantidadConIVA();
             }
+
         });
     });
     function calculateCantidadConIVA() {

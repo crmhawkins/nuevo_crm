@@ -53,6 +53,9 @@
                                     <i class="bi bi-reply"></i> Responder
                                 </a>
                                 @endif
+                                <a href="{{ route('admin.emails.forward', $email->id) }}" class="btn btn-outline-primary mt-3">
+                                    Reenviar <i class="fa-solid fa-share"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
