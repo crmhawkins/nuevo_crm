@@ -370,9 +370,15 @@ class InvoiceController extends Controller
         // Respuesta
         if(File::delete($filename)){
             // Respuesta
-            return 200;
+            return response()->json([
+                'status' => true,
+                'mensaje' => "Factura enviada correctamente."
+            ]);
         }else{
-            return 404;
+            return response()->json([
+                'status' => false,
+                'mensaje' => "Error al enviar la factura."
+            ]);
         }
 
     }

@@ -627,7 +627,7 @@
                                 icon: "success",
                                 title: data.mensaje
                             }).then(() => {
-                                window.location.href = "{{ route('presupuestos.index') }}";
+                                window.location.href = "{{ route('facturas.index') }}";
                             });
                         }
                     });
