@@ -645,7 +645,9 @@ class CuadroController extends Controller
             for ($j = 1; $j <= $dias; $j++) {
                 $balance = 0;
                 foreach ($bankAccounts as $bankAccount) {
-                    $balance += $bigArray['meses'][$mesFormat]['bancos'][$bankAccount->id]['Balance'][$j] ?? 0;
+                    if($bankAccount->id != 7){
+                        $balance += $bigArray['meses'][$mesFormat]['bancos'][$bankAccount->id]['Balance'][$j] ?? 0;
+                    }
                 }
                 $arrayTotal = $this->saveTotalBalance($arrayTotal, $mesFormat, $j, $balance);
             }
