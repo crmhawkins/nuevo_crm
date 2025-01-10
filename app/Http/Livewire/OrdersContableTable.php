@@ -42,8 +42,8 @@ class OrdersContableTable extends Component
     {
         $now = Carbon::now();
         $cutoffDate = $now->day <= 10
-            ? $now->subMonthNoOverflow()->startOfMonth()->addDays(22) // Día 23 del mes anterior
-            : $now->startOfMonth()->addDays(22); // Día 23 del mes actual
+            ? $now->subMonthNoOverflow()->startOfMonth()->addDays(24) // Día 23 del mes anterior
+            : $now->startOfMonth()->addDays(24); // Día 23 del mes actual
 
         $query = AssociatedExpenses::where('state', 'PENDIENTE')
             ->where('aceptado_gestor',1)
