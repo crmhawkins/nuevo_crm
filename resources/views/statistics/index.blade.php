@@ -790,7 +790,7 @@
                             </div>
                             {{-- Gastos Comunes --}}
                             <div class="col-12 mb-2">
-                                <div class="card card-sm" >
+                                <div class="card card-sm" data-bs-toggle="modal" data-bs-target="#ModalGastoComunesCash" style="cursor:pointer;" >
                                     <div class="card-body">
                                         <span class="d-block font-11 font-weight-500 text-dark text-uppercase mb-1">Gastos Comunes</span>
                                         <div class="d-flex align-items-end justify-content-between">
@@ -799,6 +799,52 @@
                                             </div>
                                             <div>
                                                 <span class="text-danger font-12 font-weight-600">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal fade" id="ModalGastoComunesCash" tabindex="-1" role="dialog" aria-labelledby="ModalGastoComunesCash" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg-custom modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Gastos Comunes</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table id="tablaGastosComunesAnual" style="width: 100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Referencia</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Concepto</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold; width=auto;">Fecha de E.</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Estado</th>
+                                                            <th style="border: 2px solid lightsteelblue; padding: 0.3rem; color: white; background-color: dodgerblue; font-weight: bold;">Importe</th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($cashflow['gastos_comunes_array'] as $item)
+                                                        <tr>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->note}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray; width=auto; color:blue"><a href="@if ($item->budget_concept_id) {{route('budgetConcepts.editTypeSupplier', $item->budget_concept_id )}} @endif" target="_blank" rel="noopener noreferrer">{{$item->budget_concept_id ?? 'N\A'}}</a></td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->shipping_date}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->status}}</td>
+                                                        <td style="padding: 0.3rem; border: 1px solid lightgray;">{{$item->amount}} €</td>
+                                                    </tr>
+                                                    @endforeach
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;"></td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">Total: </td>
+                                                            <td style="padding: 0.3rem; border: 1px solid lightgray;">{{number_format($cashflow['gastos_asociados'], 2, ',', '.')}} €</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                    </table>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
