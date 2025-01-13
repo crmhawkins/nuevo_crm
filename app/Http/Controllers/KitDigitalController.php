@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AyudasExport;
 use App\Models\Clients\Client;
 use Illuminate\Http\Request;
 use App\Models\KitDigital;
@@ -12,6 +13,7 @@ use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Optional;
+use Maatwebsite\Excel\Facades\Excel;
 
 class KitDigitalController extends Controller
 {
@@ -390,4 +392,82 @@ class KitDigitalController extends Controller
 
          return view('whatsapp.whatsappIndividual', compact('resultado','cliente'));
      }
+
+
+    public function exportToExcel(Request $request)
+    {
+        // Variables de filtro
+        $selectedCliente = $request->input('selectedCliente');
+        $selectedEstado = $request->input('selectedEstado');
+        $selectedGestor = $request->input('selectedGestor');
+        $selectedServicio = $request->input('selectedServicio');
+        $selectedEstadoFactura = $request->input('selectedEstadoFactura');
+        $selectedComerciales = $request->input('selectedComerciales');
+        $selectedSegmento = $request->input('selectedSegmento');
+        $selectedDateField = $request->input('selectedDateField');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $sortColumn = $request->input('sortColumn', 'created_at'); // Columna por defecto
+        $sortDirection = $request->input('sortDirection', 'desc'); // Dirección por defecto
+        // Construcción de la consulta principal
+        $query = KitDigital::query();
+
+        // Aplicar filtros
+        if ($selectedCliente) {
+            $query->where('cliente_id', $selectedCliente);
+        }
+
+        if ($selectedEstado) {
+            $query->where('estado', $selectedEstado);
+        }
+
+        if ($selectedGestor) {
+            $query->where('gestor', $selectedGestor);
+        }
+
+        if ($selectedServicio) {
+            $query->where('servicio_id', $selectedServicio);
+        }
+
+        if ($selectedEstadoFactura) {
+            $query->where('estado_factura', $selectedEstadoFactura);
+        }
+
+        if ($selectedComerciales) {
+            $query->where('comercial_id', $selectedComerciales);
+        }
+
+        if ($selectedSegmento) {
+            $query->where('segmento', $selectedSegmento);
+        }
+
+        if ($dateFrom && $dateTo && $selectedDateField) {
+            $query->whereBetween($selectedDateField, [$dateFrom, $dateTo]);
+        }
+
+        if ($buscar = $request->input('buscar')) {
+            $buscarLower = mb_strtolower(trim($buscar), 'UTF-8');  // Convertir la cadena a minúsculas y eliminar espacios al inicio y al final
+            $searchTerms = explode(" ", $buscarLower);  // Dividir la entrada en términos individuales
+
+            $query->where(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->Where(function ($subQuery) use ($term) {
+                        $subQuery->orWhereRaw('LOWER(contratos) LIKE ?', ["%{$term}%"])
+                                    ->orWhereRaw('LOWER(cliente) LIKE ?', ["%{$term}%"])
+                                    ->orWhereRaw('LOWER(expediente) LIKE ?', ["%{$term}%"])
+                                    ->orWhereRaw('LOWER(contacto) LIKE ?', ["%{$term}%"])
+                                    ->orWhereRaw('LOWER(importe) LIKE ?', ["%{$term}%"])
+                                    ->orWhereRaw('LOWER(telefono) LIKE ?', ["%{$term}%"]);
+                    });
+                }
+            });
+        }
+
+
+        $query->orderBy($sortColumn, $sortDirection);
+        // Aplicar ordenación y paginación
+        $kitDigitals =  $query->get();
+        // Exporta los datos a Excel
+        return Excel::download(new AyudasExport($kitDigitals), 'KitDigital.xlsx');
+    }
 }

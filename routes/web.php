@@ -42,6 +42,7 @@ use App\Http\Controllers\Holiday\AdminHolidaysController;
 use App\Http\Controllers\Horas\HorasController;
 use App\Http\Controllers\Incidence\IncidenceController;
 use App\Http\Controllers\KitDigitalController;
+use App\Http\Controllers\Llamadas\LlamadasController;
 use App\Http\Controllers\Logs\LogActionsController;
 use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
@@ -251,6 +252,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/kit-digital/store', [KitDigitalController::class, 'store'])->name('kitDigital.store');
         Route::post('/kit-digital/updatedata', [KitDigitalController::class, 'updateData'])->name('kitDigital.updateData');
         Route::get('/kit-digital/whatsapp/{id}', [KitDigitalController::class, 'whatsapp'])->name('kitDigital.whatsapp');
+        Route::post('/kit-digital/excel', [KitDigitalController::class, 'exportToExcel'])->name('kitDigital.Excel');
 
          // Gastos asociados (TESORERIA)
          Route::get('/gastos-asociados', [TesoreriaController::class, 'indexAssociatedExpenses'])->name('gasto-asociados.index');
@@ -490,6 +492,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/dashboard/setStatusTask', [DashboardController::class, 'setStatusTask'])->name('dashboard.setStatusTask');
     Route::post('/dashboard/llamada', [DashboardController::class, 'llamada'])->name('llamada.store');
     Route::post('/dashboard/llamadafin', [DashboardController::class, 'finalizar'])->name('llamada.end');
+    Route::post('/dashboard/llamadaInforme', [DashboardController::class, 'informeLlamadas'])->name('llamada.informe');
     Route::post('/dashboard/timeworked', [DashboardController::class, 'timeworked'])->name('user.time');
     Route::post('/dashboard/updateStatusAlertAndAcceptHours', [DashboardController::class, 'updateStatusAlertAndAcceptHours'])->name('user.updateStatusAlertAndAcceptHours');
     Route::post('/dashboard/responseAlert', [DashboardController::class, 'responseAlert'])->name('user.responseAlert');
@@ -619,7 +622,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('/actualizar', [AccionesController::class, 'actualizar'])->name('acciones.actualizar');
 
-
+    //LLamadas
+    Route::get('/llamadas', [LlamadasController::class, 'index'])->name('llamadas.index');
 
 });
 // Portal Clientes

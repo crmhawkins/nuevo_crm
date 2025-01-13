@@ -187,8 +187,34 @@
                                         <input type="hidden" name="sortDirection" id="sortDirection" value="{{ old('sortDirection',$sortDirection)}}">
                                     </div>
                                 </form>
-                                <div class="col-md-12 col-sm-12 text-center">
-                                    <span class="fs-3" >Sumatorio: <b>{{ number_format($Sumatorio, 2, ',', '.') .' €'}}</b></span>
+                                <div class="row" >
+                                    <div class="col-md-8 col-sm-6 text-end">
+                                        <span class="fs-3" >Sumatorio: <b>{{ number_format($Sumatorio, 2, ',', '.') .' €'}}</b></span>
+                                    </div>
+                                    <div class="col-md-4 text-end mb-3">
+                                        <form id="exportToExcelForm" action="{{ route('kitDigital.Excel') }}" method="POST">
+                                            <!-- Filtros ocultos para exportar -->
+                                            @csrf
+                                            <input type="hidden" name="selectedCliente" value="{{ $selectedCliente }}">
+                                            <input type="hidden" name="selectedEstado" value="{{ $selectedEstado }}">
+                                            <input type="hidden" name="selectedGestor" value="{{ $selectedGestor }}">
+                                            <input type="hidden" name="selectedServicio" value="{{ $selectedServicio }}">
+                                            <input type="hidden" name="selectedEstadoFactura" value="{{ $selectedEstadoFactura }}">
+                                            <input type="hidden" name="selectedComerciales" value="{{ $selectedComerciales }}">
+                                            <input type="hidden" name="selectedSegmento" value="{{ $selectedSegmento }}">
+                                            <input type="hidden" name="selectedDateField" value="{{ $selectedDateField }}">
+                                            <input type="hidden" name="date_from" value="{{ $dateFrom }}">
+                                            <input type="hidden" name="date_to" value="{{ $dateTo }}">
+                                            <input type="hidden" name="buscar" value="{{ $buscar }}">
+                                            <input type="hidden" name="sortColumn" value="{{ $sortColumn }}">
+                                            <input type="hidden" name="sortDirection" value="{{ $sortDirection }}">
+
+                                            <!-- Botón de exportar -->
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fa fa-file-excel"></i> Exportar a Excel
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -370,7 +396,25 @@
     @include('partials.toast')
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
     <script>
-
+        $(document).ready(function () {
+            // Sincronizar filtros con el formulario de exportación
+            $('#formFiltros').on('change', 'input, select', function () {
+                    const exportForm = $('#exportToExcelForm');
+                    exportForm.find('[name="selectedCliente"]').val($('select[name="selectedCliente"]').val());
+                    exportForm.find('[name="selectedEstado"]').val($('select[name="selectedEstado"]').val());
+                    exportForm.find('[name="selectedGestor"]').val($('select[name="selectedGestor"]').val());
+                    exportForm.find('[name="selectedServicio"]').val($('select[name="selectedServicio"]').val());
+                    exportForm.find('[name="selectedEstadoFactura"]').val($('select[name="selectedEstadoFactura"]').val());
+                    exportForm.find('[name="selectedComerciales"]').val($('select[name="selectedComerciales"]').val());
+                    exportForm.find('[name="selectedSegmento"]').val($('select[name="selectedSegmento"]').val());
+                    exportForm.find('[name="selectedDateField"]').val($('select[name="selectedDateField"]').val());
+                    exportForm.find('[name="date_from"]').val($('input[name="date_from"]').val());
+                    exportForm.find('[name="date_to"]').val($('input[name="date_to"]').val());
+                    exportForm.find('[name="buscar"]').val($('input[name="buscar"]').val());
+                    exportForm.find('[name="sortColumn"]').val($('#sortColumn').val());
+                    exportForm.find('[name="sortDirection"]').val($('#sortDirection').val());
+            });
+        });
         function redirectToWhatsapp(id) {
             window.open(`/kit-digital/whatsapp/${id}`, '_blank');
         }
