@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Llamadas;
 use App\Http\Controllers\Controller;
 use App\Models\Llamadas\Llamada;
 use App\Models\Users\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class LlamadaController extends Controller
@@ -15,8 +16,8 @@ class LlamadaController extends Controller
         // Variables de filtro
         $buscar = $request->input('buscar');
         $selectedGestor = $request->input('selectedGestor');
-        $dateFrom = $request->input('fecha_inicio');
-        $dateTo = $request->input('fecha_fin');
+        $dateFrom = Carbon::parse($request->input('fecha_inicio'))->startOfDay();
+        $dateTo = Carbon::parse($request->input('fecha_fin'))->endOfDay();
         $sortColumn = $request->input('sortColumn', 'created_at'); // Columna por defecto
         $sortDirection = $request->input('sortDirection', 'desc'); // Dirección por defecto
         $perPage = $request->input('perPage', 10);
