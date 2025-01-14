@@ -24,10 +24,12 @@ class DepartamentController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:255',
         ]);
 
         $department = new UserDepartament();
         $department->name = $request->name;
+        $department->phone = $request->phone;
         $department->save();
 
         return redirect()->route('departamento.index')->with('toast', [
@@ -46,10 +48,13 @@ class DepartamentController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:255',
         ]);
+
 
         $department = UserDepartament::findOrFail($id);
         $department->name = $request->name;
+        $department->phone = $request->phone;
         $department->save();
 
         return redirect()->route('departamento.index')->with('toast', [
