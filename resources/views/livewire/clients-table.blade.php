@@ -130,13 +130,21 @@
     @include('partials.toast')
 
     <script>
-        $(document).ready(() => {
-            $(document).on('click', '.delete', function (e) {
-                e.preventDefault();
-                let id = $(this).data('id');
-                botonAceptar(id);
-            });
-        });
+      document.addEventListener('livewire:load', () => {
+    attachDeleteEvent();
+});
+
+document.addEventListener('livewire:update', () => {
+    attachDeleteEvent();
+});
+
+function attachDeleteEvent() {
+    $(document).on('click', '.delete', function (e) {
+        e.preventDefault();
+        let id = $(this).data('id');
+        botonAceptar(id);
+    });
+}
 
         function botonAceptar(id) {
             Swal.fire({
