@@ -810,6 +810,7 @@
                                                                             @if($to_do->client_id)<a class="btn btn-outline-secondary mb-2"> Cliente {{$to_do->cliente ? $to_do->cliente->name : 'borrado'}}</a>@endif
                                                                             @if($to_do->budget_id)<a class="btn btn-outline-secondary mb-2"> Presupuesto {{$to_do->presupuesto ? $to_do->presupuesto->concept : 'borrado'}}</a>@endif
                                                                             @if($to_do->task_id) <a class="btn btn-outline-secondary mb-2"> Tarea {{$to_do->tarea ? $to_do->tarea->title : 'borrada'}}</a> @endif
+                                                                            @if($to_do->url) <a class="btn btn-outline-secondary mb-2" href="{{$to_do->url}}"> Informe de llamadas</a> @endif
                                                                         </div>
                                                                         <div class="participantes d-flex flex-wrap mt-2">
                                                                             <h3 class="m-2">Participantes</h3>
@@ -874,6 +875,7 @@
                                                                             @if($to_do_finalizado->client_id)<a class="btn btn-outline-secondary mb-2"> Cliente {{$to_do_finalizado->cliente ? $to_do_finalizado->cliente->name : 'borrado'}}</a>@endif
                                                                             @if($to_do_finalizado->budget_id)<a class="btn btn-outline-secondary mb-2"> Presupuesto {{$to_do_finalizado->presupuesto ? $to_do_finalizado->presupuesto->concept : 'borrado'}}</a>@endif
                                                                             @if($to_do_finalizado->task_id) <a class="btn btn-outline-secondary mb-2"> Tarea {{$to_do_finalizado->tarea ? $to_do_finalizado->tarea->title : 'borrada'}}</a> @endif
+                                                                            @if($to_do_finalizado->url) <a class="btn btn-outline-secondary mb-2" href="{{$to_do_finalizado->url}}"> Informe de llamadas</a> @endif
                                                                         </div>
                                                                         <div class="participantes d-flex flex-wrap mt-2">
                                                                             <h3 class="m-2">Participantes</h3>

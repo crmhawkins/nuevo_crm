@@ -25,6 +25,8 @@ use App\Models\ProductividadMensual;
 use App\Models\Projects\Project;
 use App\Models\Tasks\LogTasks;
 use App\Models\Tasks\Task;
+use App\Models\Todo\Todo;
+use App\Models\Todo\TodoUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Users\User;
@@ -1575,6 +1577,63 @@ class DashboardController extends Controller
                 'success' => false,
                 'message' => 'Error al obtener los datos: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function informeLlamadas(Request $request){
+        $user = auth()->user();
+        $data = $request->validate([
+            'fecha_inicio' => 'required',
+            'fecha_fin' => 'required',
+            'admin_user_ids' => 'nullable|array',
+            'admin_user_ids.*' => 'exists:admin_user,id',
+        ], [
+            'fecha_inicio.required' => 'El campo Fecha Inicio es obligatorio.',
+            'fecha_fin.required' => 'El campo Fecha Fin es obligatorio.',
+        ]);
+
+        $url = url('/llamadas?selectedGestor='.$user->id.'&fecha_inicio='.$data['fecha_inicio'].'&fecha_fin='.$data['fecha_fin']);
+
+        $validatedData['titulo'] = 'Informe de llamadas';
+        $validatedData['url'] = $url;
+        $validatedData['admin_user_id'] = $user->id;
+        $validatedData['admin_user_ids'] = $data['admin_user_ids'];
+        $validatedData['finalizada'] = false;
+
+        $todo = Todo::create($validatedData);
+
+        TodoUsers::create([
+            'todo_id' => $todo->id,
+            'admin_user_id' => $validatedData['admin_user_id'],
+            'completada' => false  // Asumimos que la tarea no está completada por los usuarios al inicio
+        ]);
+        // Asociar múltiples usuarios a la tarea
+        if(isset($validatedData['admin_user_ids'])){
+            foreach ($validatedData['admin_user_ids'] as $userId) {
+                TodoUsers::create([
+                    'todo_id' => $todo->id,
+                    'admin_user_id' => $userId,
+                    'completada' => false  // Asumimos que la tarea no está completada por los usuarios al inicio
+                ]);
+            }
+        }
+        $users = $todo->TodoUsers
+        ->pluck('admin_user_id') // Obtén todos los admin_user_id
+        ->reject(function ($adminUserId) use ($todo) {
+            return $adminUserId == $todo->admin_user_id; // Excluye el admin_user_id del remitente
+        });
+
+        foreach ($users as $user) {
+            $data = [
+                'admin_user_id' => $user,
+                'stage_id' => 44,
+                'activation_datetime' => Carbon::now(),
+                'status_id' => 1,
+                'reference_id' => $todo->id,
+                'description' => 'Nuevo To-Do con titulo : '.$todo->titulo,
+
+            ];
+            $alert = Alert::create($data);
         }
     }
 

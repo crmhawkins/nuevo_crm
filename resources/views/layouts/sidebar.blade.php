@@ -38,12 +38,13 @@
                     $actasActive= request()->routeIs('reunion.*');
                     $cargoActive= request()->routeIs('cargo.*');
                     $departamentoActive= request()->routeIs('departamento.*');
-                    $tesoreriaActive = request()->routeIs('ingreso.*') || request()->routeIs('traspasos.*') || request()->routeIs('gasto.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*') || request()->routeIs('gastos-asociado.*') || request()->routeIs('categorias-gastos*');
+                    $tesoreriaActive = request()->routeIs('ingreso.*') || request()->routeIs('cierre.*') || request()->routeIs('traspasos.*') || request()->routeIs('gasto.*') || request()->routeIs('gasto-asociado.*') || request()->routeIs('gasto-sin-clasificar.*') || request()->routeIs('gastos-asociado.*') || request()->routeIs('categorias-gastos*');
                     $cofiguracionActive = request()->routeIs('configuracion.*');
                     $EmailConfig = request()->routeIs('admin.categoriaEmail.*') || request()->routeIs('admin.statusMail.*');
                     $BajaActive = request()->routeIs('bajas.*');
                     $StadisticsActive = request()->routeIs('estadistica.*');
                     $IncidenciasActive = request()->routeIs('incidencias.*');
+                    $LlamadasActive = request()->routeIs('llamadas.*');
                     $admin = (Auth::user()->access_level_id == 1);
                     $gerente = (Auth::user()->access_level_id == 2);
                     $contable = (Auth::user()->access_level_id == 3);
@@ -285,6 +286,12 @@
                         </li>
                     </ul>
                 </li>
+                <li class="sidebar-item {{ request()->routeIs('llamadas.index') ? 'active' : '' }}">
+                    <a href="{{route('llamadas.index')}}" class='sidebar-link'>
+                        <i class="fa-solid fa-file-invoice-dollar fs-5"></i>
+                        <span>Llamadas</span>
+                    </a>
+                </li>
                 @if ($admin || $gerente || $contable)
                     <li class="sidebar-item {{ request()->routeIs('facturas.index') ? 'active' : '' }}">
                         <a href="{{route('facturas.index')}}" class='sidebar-link'>
@@ -413,6 +420,14 @@
                                     <i class="fa-solid fa-plus"></i>
                                     <span>
                                        Crear categoria de gastos asociados
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="submenu-item {{ request()->routeIs('cierre.index') ? 'active' : '' }}">
+                                <a target="_blank" href="{{route('cierre.index')}}">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>
+                                       Cierres de caja
                                     </span>
                                 </a>
                             </li>

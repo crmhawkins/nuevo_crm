@@ -103,7 +103,7 @@ class GetCorreos extends Command
                         $this->error("Error procesando mensaje: {$e->getMessage()}");
                     }
                 }
-
+                    $this->info("Correos procesados para '{$correo->username}'");
                 $client->disconnect();
             } catch (\Exception $e) {
                 $this->error("Error con la configuración del correo '{$correo->username}': {$e->getMessage()}");

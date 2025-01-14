@@ -29,7 +29,8 @@ class Todo extends Model
         'client_id',
         'budget_id',
         'task_id',
-        'finalizada'
+        'finalizada',
+        'url',
     ];
 
      /**

@@ -226,6 +226,7 @@
                                                                         @if($to_do->client_id)<a class="btn btn-outline-secondary mb-2" href="{{route('clientes.show',$to_do->client_id)}}"> Cliente {{$to_do->cliente ? $to_do->cliente->name : 'borrado'}}</a>@endif
                                                                         @if($to_do->budget_id)<a class="btn btn-outline-secondary mb-2" href="{{route('presupuesto.edit',$to_do->budget_id)}}"> Presupuesto {{$to_do->presupuesto ? $to_do->presupuesto->concept : 'borrado'}}</a>@endif
                                                                         @if($to_do->task_id) <a class="btn btn-outline-secondary mb-2" href="{{route('tarea.edit',$to_do->task_id)}}"> Tarea {{$to_do->tarea ? $to_do->tarea->title : 'borrada'}}</a> @endif
+                                                                        @if($to_do->url) <a class="btn btn-outline-secondary mb-2" href="{{$to_do->url}}"> Informe de llamadas</a> @endif
                                                                     </div>
                                                                     <div class="participantes d-flex flex-wrap mt-2">
                                                                         <h3 class="m-2">Participantes</h3>
@@ -290,6 +291,7 @@
                                                                         @if($to_do_finalizado->client_id)<a class="btn btn-outline-secondary mb-2"> Cliente {{$to_do_finalizado->cliente ? $to_do_finalizado->cliente->name : 'borrado'}}</a>@endif
                                                                         @if($to_do_finalizado->budget_id)<a class="btn btn-outline-secondary mb-2"> Presupuesto {{$to_do_finalizado->presupuesto ? $to_do_finalizado->presupuesto->concept : 'borrado'}}</a>@endif
                                                                         @if($to_do_finalizado->task_id) <a class="btn btn-outline-secondary mb-2"> Tarea {{$to_do_finalizado->tarea ? $to_do_finalizado->tarea->title : 'borrada'}}</a> @endif
+                                                                        @if($to_do_finalizado->url) <a class="btn btn-outline-secondary mb-2" href="{{$to_do_finalizado->url}}"> Informe de llamadas</a> @endif
                                                                     </div>
                                                                     <div class="participantes d-flex flex-wrap mt-2">
                                                                         <h3 class="m-2">Participantes</h3>
@@ -352,6 +354,7 @@
                                     <button class="btn btn-primary mx-2">Enviar Archivos</button>
                                     <button class="btn btn-secondary mx-2">Correo</button>
                                     <button class="btn btn-primary mx-2" id="iniciarLlamada">Iniciar LLamada</button>
+                                    <button class="btn btn-outline-secondary mx-2" onclick="showInforme()">Informe de llamada</button>
                                 </div>
                             </div>
                         </div>
@@ -417,6 +420,51 @@
                             <div class="col-md-12 mb-3">
                                 <label for="phone" class="form-label">Comentario</label>
                                 <textarea class="form-control" id="comentario" name="comentario" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Finalizar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="informeLlamada" tabindex="-1" aria-labelledby="informeLlamadaModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="informeLlamada">Informe de llamada</h5>
+                </div>
+                <form id="informeLlamada" action="{{ route('llamada.informe') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="admin_user_ids" class="form-label">Usuarios</label>
+                                <select class="form-select" id="admin_user_ids2" name="admin_user_ids[]" multiple>
+                                    <option value="">Seleccione usuarios</option>
+                                    @foreach ($users as $gestor)
+                                        @if ($gestor->id !== auth()->id()) <!-- Excluir al usuario logueado -->
+                                            <option value="{{ $gestor->id }}" {{ in_array($gestor->id, old('admin_user_ids', [])) ? 'selected' : '' }}>
+                                                {{ $gestor->name }} {{ $gestor->surname }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                                @error('admin_user_ids')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                            <div  class="mb-3 px-2 flex-fill" style="width: 140px">
+                                <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
+                                <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="{{ request('fecha_inicio') }}">
+                            </div>
+                            <div  class="mb-3 px-2 flex-fill" style="width: 140px">
+                                <label for="fecha_fin" class="form-label">Fecha Fin</label>
+                                <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ request('fecha_fin') }}">
                             </div>
                         </div>
                     </div>
@@ -567,6 +615,11 @@
     var enRutaEspecifica = true;
     document.addEventListener('DOMContentLoaded', function() {
         var multipleCancelButton = new Choices('#admin_user_ids', {
+            removeItemButton: true, // Permite a los usuarios eliminar una selección
+            searchEnabled: true,  // Habilita la búsqueda dentro del selector
+            paste: false          // Deshabilita la capacidad de pegar texto en el campo
+        });
+        var multipleCancelButton = new Choices('#admin_user_ids2', {
             removeItemButton: true, // Permite a los usuarios eliminar una selección
             searchEnabled: true,  // Habilita la búsqueda dentro del selector
             paste: false          // Deshabilita la capacidad de pegar texto en el campo
@@ -921,6 +974,10 @@
     function showLlamadaModal() {
         var llamadaModal = new bootstrap.Modal(document.getElementById('llamadaModal'));
         llamadaModal.show();
+    }
+    function showInforme() {
+        var informeModal = new bootstrap.Modal(document.getElementById('informeLlamada'));
+        informeModal.show();
     }
 
     function closeLlamadaModal() {

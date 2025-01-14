@@ -25,7 +25,8 @@ class To_doController extends Controller
             'project_id' => 'nullable|exists:projects,id',
             'admin_user_ids' => 'nullable|array',
             'admin_user_ids.*' => 'exists:admin_user,id',
-            'admin_user_id' =>'required'
+            'admin_user_id' =>'required',
+            'url' => 'nullable',
         ]);
 
         $validatedData['finalizada'] = false;
