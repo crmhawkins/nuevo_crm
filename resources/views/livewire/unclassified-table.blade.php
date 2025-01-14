@@ -90,11 +90,11 @@ document.addEventListener('livewire:update', () => {
 });
 
 function attachDeleteEvent() {
-    $(document).on('click', '.delete', function (e) {
-        e.preventDefault();
-        let id = $(this).data('id');
-        botonAceptar(id);
-    });
+            $('.delete').on('click', function(e) {
+            e.preventDefault();
+                let id = $(this).data('id');
+                botonAceptar(id);
+            });
 }
 
         function botonAceptar(id){
