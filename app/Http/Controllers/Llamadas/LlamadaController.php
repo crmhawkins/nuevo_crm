@@ -7,7 +7,7 @@ use App\Models\Llamadas\Llamada;
 use App\Models\Users\User;
 use Illuminate\Http\Request;
 
-class LlamadasController extends Controller
+class LlamadaController extends Controller
 {
 
     public function index(Request $request){

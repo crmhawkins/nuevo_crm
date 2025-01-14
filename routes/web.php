@@ -42,7 +42,7 @@ use App\Http\Controllers\Holiday\AdminHolidaysController;
 use App\Http\Controllers\Horas\HorasController;
 use App\Http\Controllers\Incidence\IncidenceController;
 use App\Http\Controllers\KitDigitalController;
-use App\Http\Controllers\Llamadas\LlamadasController;
+use App\Http\Controllers\Llamadas\LlamadaController;
 use App\Http\Controllers\Logs\LogActionsController;
 use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
@@ -623,7 +623,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/actualizar', [AccionesController::class, 'actualizar'])->name('acciones.actualizar');
 
     //LLamadas
-    Route::get('/llamadas', [LlamadasController::class, 'index'])->name('llamadas.index');
+    Route::get('/llamadas', [LlamadaController::class, 'index'])->name('llamadas.index');
 
 });
 // Portal Clientes
