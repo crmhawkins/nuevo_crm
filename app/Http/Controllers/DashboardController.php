@@ -993,7 +993,7 @@ class DashboardController extends Controller
                                 $data["description"] = 'Aviso de Tarea - Se está sobrepasando las horas estimadas en la tarea ' . $tarea->title;
                             }
 
-                            $existe = Alert::where('stage_id', $data["stage_id"]) ->where('reference_id', $tarea->id)->where('description', $data["description"])->exists();
+                            $existe = Alert::where('status_id',1)->where('stage_id', $data["stage_id"]) ->where('reference_id', $tarea->id)->where('description', $data["description"])->exists();
                             // Crear y guardar la alerta
                             if (!$existe) {
                                 $alert = Alert::create($data);
