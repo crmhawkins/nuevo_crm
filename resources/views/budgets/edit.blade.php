@@ -1063,7 +1063,7 @@
 
         function botonEnviar(id) {
             // Obtén el correo del cliente asociado desde el backend
-            const defaultEmail = "{{ $clientes->where('id', $presupuesto->client_id)->first()->email }}";
+            const defaultEmail = "{{ optional($clientes->where('id', $presupuesto->client_id)->first())->email }}";
 
             // Salta la alerta para pedir los correos y permitir la subida de archivos
             Swal.fire({
