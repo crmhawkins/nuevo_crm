@@ -53,6 +53,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Nombre</th>
+                            <th>Nota</th>
                             <th>Productividad (%)</th>
                             <th>Tareas finalizadas</th>
                             <th>Horas Estimadas</th>
@@ -65,6 +66,7 @@
                             <tr class="usuario-row">
                                 <td>{{ $usuario['id'] }}</td>
                                 <td>{{ $usuario['nombre'] }}</td>
+                                <td>{{ number_format($usuario['nota'] , 2) }}</td>
                                 <td>{{ $usuario['productividad'] }}%</td>
                                 <td>{{ $usuario['tareasfinalizadas'] }}</td>
                                 <td>{{ $usuario['horasEstimadas'] }}</td>
