@@ -74,13 +74,13 @@
                         <i class="fa-solid fa-people-group  fs-5"></i>
                         <span>Gestión</span>
                     </a>
-                    <ul class="submenu" style="{{ $gestionActive ? 'display:block;' : 'display:none' }}">
+                    <ul class="submenu" style="{{ ($gestionActive || $gestor ) ? 'display:block;' : 'display:none' }}">
                         <li class="sidebar-item is_sub has-sub {{ $clientesActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="fa-solid fa-people-group  fs-5"></i>
                                 <span>Clientes</span>
                             </a>
-                            <ul class="submenu" style="{{ $clientesActive ? 'display:block;' : 'display:none' }}">
+                            <ul class="submenu" style="{{ $clientesActive  ? 'display:block;' : 'display:none' }}">
                                 <li class="submenu-item {{ request()->routeIs('clientes.index') ? 'active' : '' }} ">
                                     <a href="{{route('clientes.index')}}">
                                         <i class="fa-solid fa-list fs-5"></i>
