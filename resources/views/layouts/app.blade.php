@@ -162,6 +162,36 @@
                 });
             });
         });
+        document.addEventListener("DOMContentLoaded", function() {
+            const rows = document.querySelectorAll("tr.clickable-row-sta");
+
+            // Agregar evento de clic a las filas
+            rows.forEach(row => {
+                row.addEventListener("click", () => {
+                    const href = row.dataset.href;
+                    if (href) {
+                        window.open(href, '_blank');
+                    }
+                });
+            });
+
+            // Detener la propagación de los eventos de clic en los enlaces dentro de las filas
+            const links = document.querySelectorAll("tr.clickable-row-sta a");
+
+            links.forEach(link => {
+                link.addEventListener("click", (event) => {
+                    event.stopPropagation(); // Detiene la propagación del evento
+                });
+            });
+
+            // Si tienes botones o cualquier otro elemento interactivo, repite el proceso anterior para ellos
+            const buttons = document.querySelectorAll("tr.clickable-row-sta button");
+            buttons.forEach(button => {
+                button.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                });
+            });
+        });
     </script>
 </body>
 </html>
