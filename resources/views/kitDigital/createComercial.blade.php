@@ -138,6 +138,7 @@
 
 
 @include('partials.toast')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js" crossorigin="anonymous"></script>
@@ -151,7 +152,12 @@
 
         var response = grecaptcha.getResponse();
         if(response.length == 0) {
-            alert("Debes verificar el CAPTCHA.");
+            Swal.fire({  // Utiliza SweetAlert2 para mostrar el mensaje
+            title: 'Error',
+            text: 'Debes verificar el CAPTCHA.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
         } else {
             this.submit();
         }
