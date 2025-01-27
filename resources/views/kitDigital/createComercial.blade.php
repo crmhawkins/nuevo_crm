@@ -137,7 +137,7 @@
     </div>
 
 
-
+@include('partials.toast')
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js" crossorigin="anonymous"></script>
