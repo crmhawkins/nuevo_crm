@@ -333,7 +333,6 @@ class KitDigitalController extends Controller
             'ciudad' => 'El campo es obligatorio',
         ]);
         $data['estado'] = 18;
-        dd($data);
 
         $kit = KitDigital::create($data);
         LogActions::create([
