@@ -640,3 +640,6 @@ Route::get('/portal/factura/{id}', [PortalClientesController::class, 'showInvoic
 
 Route::get('/actualizar', [OrdenesController::class, 'actualizar'])->name('actualizar');
 
+//Publico
+Route::get('/kit-digital/create-comercial', [KitDigitalController::class, 'createComercial'])->name('kitDigital.createComercial');
+Route::post('/kit-digital/store-comercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');

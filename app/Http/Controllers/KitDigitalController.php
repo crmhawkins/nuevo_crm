@@ -264,6 +264,16 @@ class KitDigitalController extends Controller
 
         return view('kitDigital.create', compact('usuario','clientes','servicios', 'estados', 'gestores','comerciales'));
     }
+    public function createComercial(){
+        $usuario = Auth::user();
+        $servicios = KitDigitalServicios::all();
+        $estados = KitDigitalEstados::orderBy('nombre', 'asc')->get();
+        $clientes = Client::where('is_client', true)->get();
+        $gestores = User::where('access_level_id', 4)->where('inactive', 0)->get();
+        $comerciales = User::where('access_level_id', 6)->where('inactive', 0)->orWhere('access_level_id', 11)->get();
+
+        return view('kitDigital.createComercial', compact('usuario','clientes','servicios', 'estados', 'gestores','comerciales'));
+    }
 
     public function store(Request $request){
 
@@ -292,58 +302,34 @@ class KitDigitalController extends Controller
     }
     public function storeComercial(Request $request){
 
-        $this->validate($request,[
+        $data =  $this->validate($request,[
             'cliente' => 'required',
+            'nif' => 'required',
+            'email' => 'required',
             'telefono' => 'required',
-            'segmento' => 'required',
-            'estado' => 'required',
+            'direccion' => 'required',
+            'cp' => 'required',
+            'ciudad' => 'required',
+            'comercial_id' => 'nullable',
+            'comentario' => 'nullable',
+            'g-recaptcha-response' => 'required|captcha',
         ],[
             'cliente.required' => 'El campo es obligatorio.',
-            'telefono.required' => 'El campo es obligatorio.',
-            'segmento.required' => 'El campo es obligatorio.',
-            'estado.required' => 'El campo es obligatorio.',
+            'nif' => 'El campo es obligatorio',
+            'email' => 'El campo es obligatorio',
+            'telefono' => 'El campo es obligatorio',
+            'direccion' => 'El campo es obligatorio',
+            'cp' => 'El campo es obligatorio',
+            'ciudad' => 'El campo es obligatorio',
         ]);
-        $data = $request->all();
-        $data['comercial_id'] = Auth::user()->id;
+        $data['estado'] = 18;
+        dd($data);
 
-        switch ($data['segmento']) {
-            case '1':
-                $data['importe'] = '12000,00';
-                break;
-            case '2':
-                $data['importe'] = '6000,00';
-                break;
-            case '3':
-                $data['importe'] = '2000,00';
-                break;
-            case '30':
-                $data['importe'] = '1000,00';
-                break;
-            case '4':
-                $data['importe'] = '25000,00';
-                break;
-            case '5':
-                $data['importe'] = '29000,00';
-                break;
-            case 'A':
-                $data['importe'] = '12000,00';
-                break;
-            case 'B':
-                $data['importe'] = '18000,00';
-                break;
-            case 'C':
-                $data['importe'] = '24000,00';
-                break;
-            default:
-            $data['importe'] = '0,00';
-                break;
-        }
         $kit = KitDigital::create($data);
         LogActions::create([
             'tipo' => 1,
-            'admin_user_id' => Auth::user()->id,
             'action' => 'Crear kit digital',
-            'description' => 'Crear kit digital por comercial',
+            'description' => 'Crear kit digital por formulario publico',
             'reference_id' => $kit->id,
         ]);
         return redirect()->back()->with('toast', [
