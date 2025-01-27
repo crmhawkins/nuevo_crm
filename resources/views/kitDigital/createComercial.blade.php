@@ -121,7 +121,7 @@
                                             <label class="form-label" for="comentario">Comentario</label>
                                             <textarea class="form-control" rows="5" id="comentario" name="comentario">{{ old('comentario') }}</textarea>
                                         </div>
-                                        <div class="g-recaptcha" data-sitekey="{{env('NOCAPTCHA_SITEKEY')}}"></div>
+                                        <div class="g-recaptcha mt-2" data-sitekey="{{env('NOCAPTCHA_SITEKEY')}}"></div>
 
                                         <!-- Botón de acción -->
                                         <div class="col-12 mt-4">
