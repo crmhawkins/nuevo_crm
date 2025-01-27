@@ -121,11 +121,8 @@
                                             <label class="form-label" for="comentario">Comentario</label>
                                             <textarea class="form-control" rows="5" id="comentario" name="comentario">{{ old('comentario') }}</textarea>
                                         </div>
-                                        {!! NoCaptcha::renderJs() !!}
-                                        {!! NoCaptcha::display() !!}
-                                        @if ($errors->has('g-recaptcha-response'))
-                                            <div class="alert alert-danger">{{ $errors->first('g-recaptcha-response') }}</div>
-                                        @endif
+                                        <div class="g-recaptcha" data-sitekey="{{env('NOCAPTCHA_SITEKEY')}}"></div>
+
                                         <!-- Botón de acción -->
                                         <div class="col-12 mt-4">
                                             <button type="submit" class="btn btn-success btn-block w-100">Guardar</button>
@@ -141,7 +138,7 @@
 
 
 
-
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js" crossorigin="anonymous"></script>
 <script src="{{ asset('assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
@@ -149,7 +146,16 @@
 <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
 <script src="{{ asset('assets/js/main.js') }}"></script>
 <script>
+    document.getElementById('ayudaForm').addEventListener('submit', function(event) {
+        event.preventDefault();
 
+        var response = grecaptcha.getResponse();
+        if(response.length == 0) {
+            alert("Debes verificar el CAPTCHA.");
+        } else {
+            this.submit();
+        }
+    });
    document.addEventListener("DOMContentLoaded", function() {
        var loader = document.getElementById('loadingOverlay');
        if (loader) {

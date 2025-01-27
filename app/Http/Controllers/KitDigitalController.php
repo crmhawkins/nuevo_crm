@@ -302,6 +302,17 @@ class KitDigitalController extends Controller
     }
     public function storeComercial(Request $request){
 
+        $secretKey = env('NOCAPTCHA_SECRET');
+        $captcha = $request->input('g-recaptcha-response');
+        $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$captcha");
+        $responseKeys = json_decode($response, true);
+
+        if(intval($responseKeys["success"]) !== 1) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Error en la verificación de reCAPTCHA. Inténtalo de nuevo.'
+             ]);
+        }
         $data =  $this->validate($request,[
             'cliente' => 'required',
             'nif' => 'required',
@@ -312,7 +323,6 @@ class KitDigitalController extends Controller
             'ciudad' => 'required',
             'comercial_id' => 'nullable',
             'comentario' => 'nullable',
-            'g-recaptcha-response' => 'required|captcha',
         ],[
             'cliente.required' => 'El campo es obligatorio.',
             'nif' => 'El campo es obligatorio',
