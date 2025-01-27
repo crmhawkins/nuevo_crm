@@ -10,36 +10,6 @@
         .modal-dialog.modal-lg-custom {
             max-width: 60%;
         }
-
-            /* Estilo personalizado para el buscador de DataTables */
-    .dataTables_filter {
-        float: right; /* Alinea el buscador a la derecha */
-        text-align: right;
-    }
-    .dataTables_filter label {
-        width: 100%;
-        display: flex;
-        align-items: center;
-    }
-    .dataTables_filter input {
-        margin-left: .5em;
-        padding: .5em;
-        width: 100%; /* Asegura que el input toma el ancho necesario */
-        box-shadow: 0 4px 6px rgba(0,0,0,.1); /* Sombra ligera para el input */
-    }
-    /* Ajustes para que la tabla sea más compacta y moderna */
-    table.dataTable {
-        width: 100%; /* Asegura que las tablas ocupen todo el espacio disponible */
-        margin-top: 12px !important;
-        margin-bottom: 12px !important;
-    }
-    table.dataTable thead th, table.dataTable tfoot th {
-        padding: 10px 18px; /* Espaciado interno más generoso para cabeceras y pies */
-        border-bottom: 2px solid #dee2e6; /* Línea más definida en el pie y la cabecera */
-    }
-    table.dataTable.no-footer {
-        border-bottom: none; /* Evita bordes innecesarios en el pie cuando no hay pie de página */
-    }
     </style>
 @endsection
 
