@@ -505,6 +505,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Jornadas
     Route::get('/jornadas', [HorasController::class, 'indexHoras'])->name('horas.index');
+    Route::get('/jornadas/calendar/{id}', [HorasController::class, 'calendar'])->name('horas.calendar');
     Route::get('/exportarjornadas', [HorasController::class, 'exportHoras'])->name('horas.export');
 
     //Events(Eventos del to-do)

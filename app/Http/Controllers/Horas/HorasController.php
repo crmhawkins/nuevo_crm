@@ -13,6 +13,7 @@ use App\Models\Users\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class HorasController extends Controller
@@ -298,4 +299,160 @@ class HorasController extends Controller
 
     }
 
+    public function calendar($id)
+    {
+        $user = User::where('id', $id)->first();
+
+        // Obtener los eventos de tareas para el usuario
+        $events = $this->getjornadas($id);
+        // Convertir los eventos en formato adecuado para FullCalendar (si no están ya en ese formato)
+        $eventData = [];
+        foreach ($events as $event) {
+
+            $inicio = Carbon::createFromFormat('Y-m-d H:i:s', $event[1], 'UTC');
+            $inicioEspaña = $inicio->setTimezone('Europe/Madrid');
+            if(isset($event[2])){
+                $fin = Carbon::createFromFormat('Y-m-d H:i:s', $event[2], 'UTC');
+                $finEspaña = $fin->setTimezone('Europe/Madrid');
+            }
+
+            $eventData[] = [
+                'title' => $event[0],
+                'start' => $inicioEspaña->toIso8601String(), // Aquí debería estar la fecha y hora de inicio
+                'end' => $event[2] ? $finEspaña->toIso8601String() : null , // Aquí debería estar la fecha y hora de fin
+                'allDay' => false, // Indica si el evento es de todos los días
+                'color' =>$event[3]
+            ];
+        }
+        // Datos adicionales de horas trabajadas y producidas
+        $horas_hoy = $this->getHorasTrabajadasHoy($user);
+        $horas_hoy2 = $this->getHorasTrabajadasHoy2($user);
+
+        // Pasar los datos de eventos a la vista como JSON
+        return view('horas.timeLine', [
+            'user' => $user,
+            'horas_hoy' => $horas_hoy,
+            'horas_hoy2' => $horas_hoy2,
+            'events' => $eventData // Enviar los eventos como JSON
+        ]);
+    }
+
+
+    // Horas producidas hoy
+    public function getHorasTrabajadasHoy($user)
+    {
+        // Se obtiene los datos
+        $id = $user->id;
+        $fecha = Carbon::now()->toDateString();;
+        $resultado = 0;
+        $totalMinutos2 = 0;
+
+        $logsTasks = LogTasks::where('admin_user_id', $id)
+        ->whereDate('date_start', '=', $fecha)
+        ->get();
+
+        foreach($logsTasks as $item){
+            if($item->date_end == null){
+                $item->date_end = Carbon::now();
+            }
+            $to_time2 = strtotime($item->date_start);
+            $from_time2 = strtotime($item->date_end);
+            $minutes2 = ($from_time2 - $to_time2) / 60;
+            $totalMinutos2 += $minutes2;
+        }
+
+        $hora2 = floor($totalMinutos2 / 60);
+        $minuto2 = ($totalMinutos2 % 60);
+        $horas_dia2 = $hora2 . ' Horas y ' . $minuto2 . ' minutos';
+
+        $resultado = $horas_dia2;
+
+        return $resultado;
+    }
+
+    // Horas trabajadas hoy
+    public function getHorasTrabajadasHoy2($user)
+    {
+         // Se obtiene los datos
+         $id = $user->id;
+         $fecha = Carbon::now()->toDateString();
+         $hoy = Carbon::now();
+         $resultado = 0;
+         $totalMinutos2 = 0;
+
+
+        $almuerzoHoras = 0;
+
+        $jornadas = Jornada::where('admin_user_id', $id)
+        ->whereDate('start_time', $hoy)
+        ->get();
+
+        $totalWorkedSeconds = 0;
+        foreach($jornadas as $jornada){
+            $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? Carbon::now());
+            $totalPauseSeconds = $jornada->pauses->sum(function ($pause) {
+                return Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? Carbon::now());
+            });
+            $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
+        }
+        $horasTrabajadasFinal = $totalWorkedSeconds / 60;
+
+        $hora = floor($horasTrabajadasFinal / 60);
+        $minuto = ($horasTrabajadasFinal % 60);
+
+        $horas_dia = $hora . ' Horas y ' . $minuto . ' minutos';
+
+        return $horas_dia;
+    }
+
+    public function getjornadas($idUsuario)
+    {
+        $events = [];
+        $jornadas = Jornada::where('admin_user_id', $idUsuario)->get();
+        $now = Carbon::now()->format('Y-m-d H:i:s');
+
+
+        foreach ($jornadas as $index => $log) {
+
+           $fin = $now;
+
+           if ($log->end_time == null) {
+                $events[] =[
+                    'Jornada sin finalizar',
+                    $log->start_time,
+                    $fin,
+                    '#FD994E'
+
+                ];
+            } else {
+                $events[] = [
+                    'Jornada finalizada',
+                    $log->date_start,
+                    $log->date_end,
+                    '#FD994E'
+
+                ];
+            }
+
+            $pausas = $log->pauses;
+            foreach ($pausas as $pausa) {
+                if ($pausa->end_time == null) {
+                    $events[] = [
+                        'Pausa sin finalizar',
+                        $pausa->start_time,
+                        $fin,
+                        '#FF0000'
+                    ];
+                } else {
+                    $events[] = [
+                        'Pausa finalizada',
+                        $pausa->start_time,
+                        $pausa->end_time,
+                        '#FF0000'
+                    ];
+                }
+            }
+        }
+        return $events;
+    }
 }

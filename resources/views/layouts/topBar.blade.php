@@ -322,7 +322,6 @@
             .then(response => response.json())
             .then(count => {
 
-                console.log('Correos sin leer:', count);
                 actualizarContadorCorreos(count);
             })
             .catch(error => console.error('Error al obtener los correos:', error));
@@ -337,7 +336,6 @@
             .then(response => response.json())
             .then(alertas => {
 
-                console.log('Alertas recibidas:', alertas);
                 agruparAlertas(alertas);
                 actualizarContadorAlertas();
             })
@@ -1028,7 +1026,6 @@
                     break;
 
                 case 22:
-                console.log('Mostrando alerta 22:', alertaSeleccionada);
 
                     Swal.fire({
                             title: "Horas Trabajadas del Mes",
@@ -1489,11 +1486,9 @@
 
 
        document.addEventListener('DOMContentLoaded', (event) => {
-            console.log('DOM completamente cargado y analizado');
             const alertButton = document.getElementById('btnAbrirAlertas');
             if (alertButton) {
                 alertButton.addEventListener('click', function() {
-                    console.log('Botón de alertas clicado');
                     mostrarTiposDeAlertas();
                 });
             } else {

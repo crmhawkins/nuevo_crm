@@ -192,17 +192,15 @@ class TasksController extends Controller
             ];
         }
         // Datos adicionales de horas trabajadas y producidas
-        $horas = $this->getHorasTrabajadas($user);
+        //$horas = $this->getHorasTrabajadas($user);
         $horas_hoy = $this->getHorasTrabajadasHoy($user);
         $horas_hoy2 = $this->getHorasTrabajadasHoy2($user);
-        $horas_dia = $this->getHorasTrabajadasDia($user);
+        //$horas_dia = $this->getHorasTrabajadasDia($user);
 
         // Pasar los datos de eventos a la vista como JSON
         return view('tasks.timeLine', [
             'user' => $user,
-            'horas' => $horas,
             'horas_hoy' => $horas_hoy,
-            'horas_dia' => $horas_dia,
             'horas_hoy2' => $horas_hoy2,
             'events' => $eventData // Enviar los eventos como JSON
         ]);
