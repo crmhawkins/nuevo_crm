@@ -75,7 +75,7 @@
                                         <button class="btn btn-outline-secondary toggle-details" type="button" data-toggle="collapse" data-target="#detalles-{{ $loop->index }}" aria-expanded="false">
                                             Ver Detalles
                                         </button>
-                                        <a class="btn btn-outline-secondary" href="{{route('horas.calendar',$usuario->id)}}" target="_blank">
+                                        <a class="btn btn-outline-secondary" href="{{route('horas.calendar',$usuario['id'])}}" target="_blank">
                                             Ver calendario
                                         </a>
                                     </td>

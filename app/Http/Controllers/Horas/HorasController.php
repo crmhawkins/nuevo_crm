@@ -148,6 +148,7 @@ class HorasController extends Controller
         foreach ($users as $usuario) {
             if ($usuario->id != 81 && $usuario->id != 52) { // Filtro de usuarios específicos
                 $datosUsuario = [
+                    'id' => $usuario->id,
                     'usuario' => $usuario->name . ' ' . $usuario->surname,
                     'departamento' => $usuario->departamento->name,
                     'horas_trabajadas' => [],
