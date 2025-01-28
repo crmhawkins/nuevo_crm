@@ -305,6 +305,7 @@ class HorasController extends Controller
 
         // Obtener los eventos de tareas para el usuario
         $events = $this->getjornadas($id);
+        dd($events);
         // Convertir los eventos en formato adecuado para FullCalendar (si no están ya en ese formato)
         $eventData = [];
         foreach ($events as $event) {
