@@ -1564,8 +1564,7 @@ class DashboardController extends Controller
     public function getKitDigital()
     {
         try {
-            $kits = kitDigital::whereNotIn('estado', [6, 1])
-                            ->with('servicios') // Asegúrate de especificar los campos que necesitas de la relación
+            $kits = kitDigital::with('servicios') // Asegúrate de especificar los campos que necesitas de la relación
                             ->get(['id', 'cliente', 'servicio_id']); // Asegúrate de que los campos aquí sean correctos
 
             return response()->json([
