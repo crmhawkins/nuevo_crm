@@ -35,7 +35,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('Alertas:presupuestoAceptar')->dailyAt('03:00');
         $schedule->command('Alertas:presupuestoConfirmar')->dailyAt('03:00');
         $schedule->command('Alertas:presupuestoFinalizado')->dailyAt('03:00');
-        $schedule->command('Alertas:HorasTrabajadas')->weeklyOn(5, '23:30');
+        $schedule->command('Alertas:HorasTrabajadas')->weeklyOn(5, '07:30');
         $schedule->command('Ordenes:Alerta')->dailyAt('07:00')->when(function () {
             return now()->isLastOfMonth();
         });
@@ -92,7 +92,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $this->sendEmailHoras();
         //})->everyMinute();
-        })->weeklyOn(5, '23:30');
+        })->weeklyOn(6, '08:30');
         // $schedule->call(function () {
         //     $users = User::where('inactive',0)->get();
         //     $fechaNow = Carbon::now();
@@ -289,6 +289,7 @@ class Kernel extends ConsoleKernel
                     $horaHorasProducidas = floor($horasProducidasSemana / 60);
                     $minutoHorasProducidas = ($horasProducidasSemana % 60);
 
+
                         // Si el usuario es acces_level_id 5, se muestran las horas trabajadas y producidas, si no, se muestran las pruducidas solamente
                         if ($usuario->access_level_id == 5) {
                             $mensajeHorasTrabajadas = "Ha trabajado ". $horaHorasTrabajadas . " Horas y " . $minutoHorasTrabajadas . ' minutos'. ' esta semana.';
@@ -368,9 +369,6 @@ class Kernel extends ConsoleKernel
 
     public function horasTrabajadasDia($dia, $id){
 
-        // Fechas, la función se llamará los viernes por lo que se manipulan respecto a esto,
-        $lunes = Carbon::now()->startOfWeek();
-        $hoy = $dia->format('Y/m/d');
 
         $totalWorkedSeconds = 0;
         // Jornada donde el año fecha y día de hoy

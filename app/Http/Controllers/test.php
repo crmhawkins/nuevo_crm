@@ -1,28 +1,18 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Http\Controllers;
 
-use App\Models\Alerts\Alert;
-use App\Models\Budgets\Budget;
 use App\Models\Jornada\Jornada;
+
 use App\Models\Tasks\LogTasks;
 use App\Models\Users\User;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 
-class Alertashorastrabajadas extends Command
+
+class test extends Controller
 {
-    protected $signature = 'Alertas:HorasTrabajadas';
-    protected $description = 'Crear alertas de presupuesto Finalizado y no facturado';
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    public function handle()
-    {
+    public function test0(){
         $lunes = Carbon::now()->startOfWeek();
         $semana = [
             'lunes' => $lunes,
@@ -38,7 +28,7 @@ class Alertashorastrabajadas extends Command
         $EnOficina = 8; // Horas esperadas en oficina
         $EnOficinaviernes = 7; // Horas esperadas en oficina el viernes
         $producido = 7; // Horas esperadas de producción
-
+        $array = [];
         foreach ($users as $usuario) {
             $horasTrabajadasSemana = 0;
             $horasProducidasSemana = 0;
@@ -71,8 +61,13 @@ class Alertashorastrabajadas extends Command
 
                     $balanceHorasTrabajadas += $balanceDiarioTrabajadas;
                     $balanceHorasProducidas += $balanceDiarioProducidas;
+
                 }
             }
+            array_push($array, $usuario->name);
+            array_push($array, $balanceHorasTrabajadas / 60);
+            array_push($array, $balanceHorasProducidas / 60);
+
 
             if ($balanceHorasTrabajadas < 0 || $balanceHorasProducidas < 0) {
                 $mensajeDeuda = $usuario->name.''.$usuario->surname." debe las sigientes horas :\n";
@@ -84,35 +79,66 @@ class Alertashorastrabajadas extends Command
                     $mensajeDeuda .= " En producción: " . floor(abs($balanceHorasProducidas) / 60) . " horas y " . (abs($balanceHorasProducidas) % 60) . " minutos.\n";
                 }
 
-                Alert::Create([
-                    'admin_user_id' => $usuario->id,
-                    'stage_id' => 31,
-                    'activation_datetime' => Carbon::now(),
-                    'status_id' => 1,
-                    'reference_id' => $usuario->id,
-                    'description' => $mensajeDeuda
-                ]);
-
-                $alertados = [1,8];
-                foreach($alertados as $alertar){
-                    $data = [
-                    'admin_user_id' => $alertar,
-                    'stage_id' => 31,
-                    'activation_datetime' => Carbon::now(),
-                    'status_id' => 1,
-                    'reference_id' => $usuario->id,
-                    'description' => $mensajeDeuda
-                    ];
-
-                    $alert = Alert::create($data);
-                    $alertSaved = $alert->save();
-                }
-
             }
 
         }
+        dd($array);
+    }
+    public function test(){
+            $users = User::where('inactive', 0)->where('id', '!=', 101)->get();
+            $descontarausuarios = [];
+            foreach ($users as $user) {
 
-        $this->info('Cálculo completado.');
+                $startOfWeek = Carbon::now()->startOfWeek();
+                $endOfWeek = $startOfWeek->copy()->addDays(4);
+
+                $jornadas = $user->jornadas()
+                    ->whereBetween('start_time', [$startOfWeek, $endOfWeek])
+                    ->whereNotNull('end_time')
+                    ->get();
+
+                // Calcular tiempo trabajado por día
+                $descontar = 0;
+
+                $jornadasPorDia = $jornadas->groupBy(function ($jornada) {
+                    return Carbon::parse($jornada->start_time)->format('Y-m-d'); // Agrupar por día
+                });
+
+                foreach ($jornadasPorDia as $day => $dayJornadas) {
+
+
+                    $totalWorkedSeconds = 0;
+                    $isFriday = Carbon::parse($day)->isFriday();
+
+                    foreach ($dayJornadas as $jornada) {
+                        $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? $jornada->start_time);
+                        $totalPauseSeconds = $jornada->pauses->sum(function ($pause) {
+                            return Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? $pause->start_time);
+                        });
+                        $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
+                    }
+
+                    // Convertir los segundos trabajados en horas
+                    $workedHours = $totalWorkedSeconds / 3600;
+                    // Calcular la diferencia: 7 horas si es viernes, 8 horas en el resto de días
+                    $targetHours = $isFriday ? 7 : 8;
+                    $difference = $targetHours - $workedHours;
+
+                    if ($difference > 0) {
+                        // El usuario trabajó menos de las horas objetivo, debe compensar
+                        $descontar += $difference;
+                    } elseif ($difference < 0) {
+                        $descontar -= $difference;
+                    }
+                }
+                $descontarDias = $descontar ;
+
+                array_push($descontarausuarios, $user->name);
+                array_push($descontarausuarios, $jornadas);
+                array_push($descontarausuarios, $descontarDias);
+            }
+            dd($descontarausuarios);
+            $this->info('Comando completado: Vacaciones');
     }
 
     public function tiempoProducidoDia($dia, $id) {

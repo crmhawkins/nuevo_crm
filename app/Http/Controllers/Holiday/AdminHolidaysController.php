@@ -159,6 +159,55 @@ class AdminHolidaysController extends Controller
     }
 
      /**
+     * Gestión de peticiónes de un usuario
+     *
+     * @param  HolidaysPetitions  $holidayPetition
+     *
+     */
+
+    public function userPetitions($id){
+        $user = User::find($id);
+        $holidaysPetitions = HolidaysPetitions::where('admin_user_id',$id)->orderBy('created_at', 'asc')->get();
+        $numberOfholidaysPetitions = HolidaysPetitions::where('admin_user_id',$id)->where('holidays_status_id', 3)->count();
+
+        $diasDisponibles = Holidays::where('admin_user_id',$id)->get()->first()->quantity;
+        $diasDisfrutados = HolidaysPetitions::where('admin_user_id',$id)->where('holidays_status_id', 1)->sum('total_days');
+
+        $holydayEvents = [];
+        $data = HolidaysPetitions::where('admin_user_id',$id)->orderBy('created_at', 'asc')->get();
+
+        if ($data->count()) {
+            foreach ($data as $value) {
+                $color = '#FFFFFF'; // Color por defecto
+                //dd($value);
+                // Asignar color según el estado
+                if ($value->holidays_status_id == 1) {
+                    $color = '#C3EBC4'; // Color para estado 1
+                } elseif ($value->holidays_status_id == 2) {
+                    $color = '#FBC4C4'; // Color para estado 2
+                } elseif ($value->holidays_status_id == 3) {
+                    $color = '#FFDD9E'; // Color para estado 3
+                }
+
+                // Verificar si el usuario está asociado con la petición
+                if ($value->adminUser) {
+                    $holydayEvents[] = [
+                        'title' => $value->adminUser->name, // Título del evento
+                        'start' => (new \DateTime($value->from))->format('Y-m-d'), // Fecha de inicio
+                        'end' => (new \DateTime($value->to . ' +1 day'))->format('Y-m-d'), // Fecha de fin
+                        'endTrue' => (new \DateTime($value->to))->format('Y-m-d'), // Fecha de fin
+                        'color' => $color, // Color del evento
+                        'id' => $value->id,
+                        'created_at' => (new \DateTime($value->created_at))->format('Y-m-d')
+                    ];
+
+                }
+            }
+        }
+        return view('holidays.gestionUser',compact('numberOfholidaysPetitions','holydayEvents','diasDisponibles','diasDisfrutados','user'));
+    }
+
+     /**
      * Gestión de una petición
      *
      * @param  HolidaysPetitions  $holidayPetition

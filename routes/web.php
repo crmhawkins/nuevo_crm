@@ -55,6 +55,7 @@ use App\Http\Controllers\Tesoreria\CategoriaAsociadosController;
 use App\Http\Controllers\Tesoreria\CategoriaGastosController;
 use App\Http\Controllers\Tesoreria\CierreController;
 use App\Http\Controllers\Tesoreria\IvaController;
+use App\Http\Controllers\test;
 use App\Http\Controllers\Users\DepartamentController;
 use App\Http\Controllers\Users\PositionController;
 use App\Http\Controllers\Whatsapp\WhatsappController;
@@ -273,6 +274,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/holidays/admin-edit/{id}', [AdminHolidaysController::class, 'edit'])->name('holiday.admin.edit');
         Route::post('/holidays/admin-update', [AdminHolidaysController::class, 'update'])->name('holiday.admin.update');
         Route::get('/holidays/petitions', [AdminHolidaysController::class, 'usersPetitions'])->name('holiday.admin.petitions');
+        Route::get('/holidays/petitions-user/{id}', [AdminHolidaysController::class, 'userPetitions'])->name('holiday.admin.petitions-user');
         Route::get('/holidays/record', [AdminHolidaysController::class, 'addedRecord'])->name('holiday.admin.record');
         Route::get('/holidays/history', [AdminHolidaysController::class, 'allHistory'])->name('holiday.admin.history');
         Route::get('/holidays/managePetition/{id}', [AdminHolidaysController::class, 'managePetition'])->name('holiday.admin.managePetition');
@@ -644,3 +646,5 @@ Route::get('/actualizar', [OrdenesController::class, 'actualizar'])->name('actua
 //Publico
 Route::get('/kit-digital/create-comercial', [KitDigitalController::class, 'createComercial'])->name('kitDigital.createComercial');
 Route::post('/kit-digital/store-comercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');
+
+Route::get('/test', [test::class, 'test']);
