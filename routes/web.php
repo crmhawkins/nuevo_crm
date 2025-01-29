@@ -1,7 +1,6 @@
 <?php
 
 use App\Events\RecargarPagina;
-use App\Http\Controllers\AccionesController;
 use App\Http\Controllers\Alert\AlertController;
 use App\Http\Controllers\Bajas\BajaController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
@@ -58,6 +57,7 @@ use App\Http\Controllers\Tesoreria\IvaController;
 use App\Http\Controllers\test;
 use App\Http\Controllers\Users\DepartamentController;
 use App\Http\Controllers\Users\PositionController;
+use App\Http\Controllers\Whatsapp\AccionesController;
 use App\Http\Controllers\Whatsapp\WhatsappController;
 
 /*

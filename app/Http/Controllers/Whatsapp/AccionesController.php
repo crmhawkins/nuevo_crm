@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Whatsapp;
 
 use App\Http\Controllers\Whatsapp\WhatsappController;
 use Illuminate\Http\Request;
@@ -248,8 +248,8 @@ Muchas gracias!';
 
             // $phones = array_unique($phones, SORT_REGULAR);
         $mensajeEnvio = "Buenas!
-Me llamo Hera y te escribo de Hawkins, tu agente digitalizador para las subvenciones del kit digital.
-Te escribo principalmente para recordarte que ahora con tu kit digital te podemos solicitar un ordenador portátil o sobre mesa totalmente gratis. Quieres que te llamemos y te ampliemos la información? Quedo a la espera muchas gracias!";
+            Me llamo Hera y te escribo de Hawkins, tu agente digitalizador para las subvenciones del kit digital.
+            Te escribo principalmente para recordarte que ahora con tu kit digital te podemos solicitar un ordenador portátil o sobre mesa totalmente gratis. Quieres que te llamemos y te ampliemos la información? Quedo a la espera muchas gracias!";
         foreach($phones as $entry){
             $mensajeCreado = Mensaje::where('ayuda_id',$entry['id'] )->first();
             if (!$mensajeCreado) {
