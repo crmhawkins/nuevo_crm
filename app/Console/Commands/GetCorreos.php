@@ -44,7 +44,7 @@ class GetCorreos extends Command
                 $client->connect();
 
                 $inbox = $client->getFolder('INBOX');
-                $messages = $inbox->messages()->unseen()->get();
+                $messages = $inbox->messages()->unseen()->limit(20)->get();
 
                 foreach ($messages as $message) {
                     try {
