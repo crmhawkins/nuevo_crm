@@ -76,7 +76,6 @@ class ApiController extends Controller
             return response()->json([
                 'success' => true,
                 'ayudas' => 'Actualizado con exito',
-                'result'=> $ayuda
             ], 200);
         }else{
             return response()->json([
