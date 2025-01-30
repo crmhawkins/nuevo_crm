@@ -314,6 +314,24 @@
             @endphp
 
             @foreach ($messages as $message)
+            @if ($message->is_automatic)
+                @if ($message->respuesta)
+                    <div class="row no-gutters justify-content-end">
+                        <div class="col-md-6 chat-bubble2 chat-bubble2--right">
+                            {{ $message->respuesta }}
+                            <p class="fecha_mensaje"><small>{{ $message->created_at }}</small></p>
+                        </div>
+                    </div>
+                @endif
+                @if ($message->mensaje)
+                    <div class="row no-gutters">
+                        <div class="col-md-6 {{ $message->respuesta ? 'chat-bubble chat-bubble--left' : 'chat-bubble2 chat-bubble2--right' }}">
+                            {{ $message->mensaje }}
+                            <p class="fecha_mensaje"><small>{{ $message->created_at }}</small></p>
+                        </div>
+                    </div>
+                @endif
+            @else
                 @if ($message->mensaje)
                     <div class="row no-gutters">
                         <div class="col-md-6 {{ $message->respuesta ? 'chat-bubble chat-bubble--left' : 'chat-bubble2 chat-bubble2--right' }}">
@@ -331,6 +349,7 @@
                         </div>
                     </div>
                 @endif
+            @endif
             @endforeach
         </div>
         {{-- <div class="chat-box-tray">

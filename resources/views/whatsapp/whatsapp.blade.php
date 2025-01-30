@@ -500,8 +500,14 @@
                 }
 
                 dataMensaje.push(templateChat)
-                $('#contenedorChat').append(templateChat)
-                $('#contenedorChat').append(templateChatRespuesta)
+                if (value.respuesta != null) {
+                    $('#contenedorChat').append(templateChatRespuesta)
+                    $('#contenedorChat').append(templateChat)
+                }else{
+                    $('#contenedorChat').append(templateChat)
+                    $('#contenedorChat').append(templateChatRespuesta)
+
+                }
             })
 
             var templateFinal = `
