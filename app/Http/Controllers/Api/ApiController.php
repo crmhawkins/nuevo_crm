@@ -13,7 +13,7 @@ class ApiController extends Controller
 {
     public function getayudas(Request $request){
 
-        $kitDigitals = EnvioDani::where('enviado', '!=', 1)->get();
+        $kitDigitals = EnvioDani::wherenull('enviado')->get();
 
         return $kitDigitals;
 
