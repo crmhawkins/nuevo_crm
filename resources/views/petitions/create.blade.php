@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titulo', 'Crear Cliente')
+@section('titulo', 'Crear Petición')
 
 @section('css')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -109,17 +109,17 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12 col-md-12">
-                            <div class="form-group mb-3">
-                                <label class="mb-2 text-left" for="note">Concepto:</label>
-                                <textarea class="form-control @error('note') is-invalid @enderror" id="note" name="note">{{ old('note') }}</textarea>
-                                @error('note')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12">
+                                <div class="form-group mb-3">
+                                    <label class="mb-2 text-left" for="note">Concepto:</label>
+                                    <textarea class="form-control @error('note') is-invalid @enderror" id="note" name="note">{{ old('note') }}</textarea>
+                                    @error('note')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
                     </div>

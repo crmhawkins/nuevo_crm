@@ -12,10 +12,7 @@ class ApiController extends Controller
 {
     public function getayudas(Request $request){
 
-        $kitDigitals = KitDigital::where('estado', 18 )->where(function($query) {
-            $query->where('enviado', '!=', 1)
-                  ->orWhereNull('enviado');
-        })->get();
+        $kitDigitals = KitDigital::where('enviado', '=', 2)->get();
 
         return $kitDigitals;
 
@@ -32,9 +29,11 @@ class ApiController extends Controller
     {
         if($request->ayuda_id != null){
             $ayuda = KitDigital::find($request->ayuda_id);
-
-            $ayuda->mensaje = $request->mensaje;
-            $ayuda->mensaje_interpretado = $request->mensaje_interpretado;
+            $ayuda->enviado = 1;
+            if($request->mensaje != null){
+                $ayuda->mensaje = $request->mensaje;
+                $ayuda->mensaje_interpretado = $request->mensaje_interpretado;
+            }
             $actualizado = $ayuda->save();
         }
 
