@@ -38,7 +38,7 @@ class ApiController extends Controller
             $actualizado = $ayuda->save();
         }
 
-            $isAutomatico = Mensaje::where('remitente', $request->phone)
+        $isAutomatico = Mensaje::where('remitente', $request->remitente)
             ->where('is_automatic', true)
             ->where('mensaje', null)
             ->where('created_at', '>=', Carbon::now()->subDay())
