@@ -45,7 +45,7 @@ class ApiController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if($isAutomatico != null) {
+        if($isAutomatico) {
             $mensaje = $request->mensaje;
             $isAutomatico ->mensaje = $mensaje;
             $isAutomatico ->save();
@@ -63,10 +63,8 @@ class ApiController extends Controller
                 'type' => 'text',
                 'date' => Carbon::now()
             ];
-
         $mensajeCreado = Mensaje::create($dataRegistrar);
         $actualizado = true;
-
         }
 
         if($actualizado){
