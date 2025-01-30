@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\KitDigital;
+use App\Models\Whatsapp\Mensaje;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller
@@ -14,10 +16,6 @@ class ApiController extends Controller
             $query->where('enviado', '!=', 1)
                   ->orWhereNull('enviado');
         })->get();
-        // $kitDigitals = KitDigital::where(function($query) {
-        //     $query->where('enviado', '!=', 1)
-        //           ->orWhereNull('enviado');
-        // })->get();
 
         return $kitDigitals;
 
@@ -32,12 +30,45 @@ class ApiController extends Controller
 
     public function updateMensajes(Request $request)
     {
-       // Storage::disk('local')->put('Respuesta_Peticion_ChatGPT-Model.txt', $request->all() );
+        if($request->ayuda_id != null){
             $ayuda = KitDigital::find($request->ayuda_id);
 
             $ayuda->mensaje = $request->mensaje;
             $ayuda->mensaje_interpretado = $request->mensaje_interpretado;
             $actualizado = $ayuda->save();
+        }
+
+            $isAutomatico = Mensaje::where('remitente', $request->phone)
+            ->where('is_automatic', true)
+            ->where('mensaje', null)
+            ->where('created_at', '>=', Carbon::now()->subDay())
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if($isAutomatico != null) {
+            $mensaje = $request->mensaje;
+            $isAutomatico ->mensaje = $mensaje;
+            $isAutomatico ->save();
+        }else {
+            $dataRegistrar = [
+                'id_mensaje' => $request->id,
+                'id_three' => null,
+                'remitente' => $request->phone,
+                'mensaje' => $request->mensaje,
+                'respuesta' => $request->respuesta,
+                'status' => $request->status,
+                'status_mensaje' => $request->status_mensaje,
+                'is_automatic' => $request->is_automatic,
+                'type' => 'text',
+                'date' => Carbon::now()
+            ];
+
+        $mensajeCreado = Mensaje::create($dataRegistrar);
+        }
+
+
+
+
 
         if($actualizado){
             return response()->json([
