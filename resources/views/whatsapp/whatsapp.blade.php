@@ -500,7 +500,7 @@
                 }
 
                 dataMensaje.push(templateChat)
-                if (value.respuesta != null) {
+                if (value.is_automatic != null) {
                     $('#contenedorChat').append(templateChatRespuesta)
                     $('#contenedorChat').append(templateChat)
                 }else{
