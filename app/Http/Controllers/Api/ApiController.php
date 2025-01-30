@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\EnvioDani;
 use App\Models\KitDigital;
 use App\Models\Whatsapp\Mensaje;
 use Carbon\Carbon;
@@ -12,7 +13,7 @@ class ApiController extends Controller
 {
     public function getayudas(Request $request){
 
-        $kitDigitals = KitDigital::where('enviado', '=', 2)->get();
+        $kitDigitals = EnvioDani::where('enviado', '!=', 1)->get();
 
         return $kitDigitals;
 
@@ -29,6 +30,11 @@ class ApiController extends Controller
     {
         if($request->ayuda_id != null){
             $ayuda = KitDigital::find($request->ayuda_id);
+            $envioDani = EnvioDani::where('kit_id', $request->ayuda_id)->get()->first();
+            if($envioDani){
+                $envioDani->enviado = 1;
+                $envioDani->save();
+            }
             $ayuda->enviado = 1;
             if($request->mensaje != null){
                 $ayuda->mensaje = $request->mensaje;
