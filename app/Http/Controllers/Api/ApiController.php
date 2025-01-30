@@ -49,11 +49,12 @@ class ApiController extends Controller
             $mensaje = $request->mensaje;
             $isAutomatico ->mensaje = $mensaje;
             $isAutomatico ->save();
+            $actualizado = true;
         }else {
             $dataRegistrar = [
-                'id_mensaje' => $request->id,
+                'id_mensaje' => $request->id_mensaje,
                 'id_three' => null,
-                'remitente' => $request->phone,
+                'remitente' => $request->remitente,
                 'mensaje' => $request->mensaje,
                 'respuesta' => $request->respuesta,
                 'status' => $request->status,
@@ -64,11 +65,9 @@ class ApiController extends Controller
             ];
 
         $mensajeCreado = Mensaje::create($dataRegistrar);
+        $actualizado = true;
+
         }
-
-
-
-
 
         if($actualizado){
             return response()->json([
