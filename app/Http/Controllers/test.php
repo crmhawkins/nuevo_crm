@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Holidays\Holidays;
 use App\Models\Jornada\Jornada;
 
 use App\Models\Tasks\LogTasks;
@@ -88,7 +89,7 @@ class test extends Controller
             $users = User::where('inactive', 0)->where('id', '!=', 101)->get();
             $descontarausuarios = [];
             foreach ($users as $user) {
-
+                $holiday = Holidays::where('admin_user_id', $user->id)->first()->quantity;
                 $startOfWeek = Carbon::now()->startOfWeek();
                 $endOfWeek = $startOfWeek->copy()->addDays(4);
 
@@ -103,7 +104,8 @@ class test extends Controller
                 $jornadasPorDia = $jornadas->groupBy(function ($jornada) {
                     return Carbon::parse($jornada->start_time)->format('Y-m-d'); // Agrupar por día
                 });
-
+                array_push($descontarausuarios, $user->name);
+                array_push($descontarausuarios, $holiday);
                 foreach ($jornadasPorDia as $day => $dayJornadas) {
 
 
@@ -118,24 +120,31 @@ class test extends Controller
                         $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
                     }
 
-                    // Convertir los segundos trabajados en horas
-                    $workedHours = $totalWorkedSeconds / 3600;
-                    // Calcular la diferencia: 7 horas si es viernes, 8 horas en el resto de días
+                     // Calcular la diferencia: 7 horas si es viernes, 8 horas en el resto de días
                     $targetHours = $isFriday ? 7 : 8;
-                    $difference = $targetHours - $workedHours;
+                    $targetseconds = $targetHours * 3600;
+                    $difference = $targetseconds - $totalWorkedSeconds;
 
                     if ($difference > 0) {
                         // El usuario trabajó menos de las horas objetivo, debe compensar
                         $descontar += $difference;
                     } elseif ($difference < 0) {
-                        $descontar -= $difference;
+                        $descontar += $difference;
                     }
-                }
-                $descontarDias = $descontar ;
 
-                array_push($descontarausuarios, $user->name);
-                array_push($descontarausuarios, $jornadas);
-                array_push($descontarausuarios, $descontarDias);
+                }
+                $holidaysecond = $holiday * 8 * 60 * 60;
+                array_push($descontarausuarios, $holidaysecond);
+                array_push($descontarausuarios, $descontar);
+                if ($descontar > 0) {
+                    $newHolidaysecond = $holidaysecond - $descontar ;
+                    $newHoliday = $newHolidaysecond / 8 / 3600;
+                }else{
+                    $newHoliday = $holidaysecond/ 8 / 3600;
+                }
+                array_push($descontarausuarios, $newHoliday);
+
+
             }
             dd($descontarausuarios);
             $this->info('Comando completado: Vacaciones');

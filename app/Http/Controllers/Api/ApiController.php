@@ -8,6 +8,7 @@ use App\Models\KitDigital;
 use App\Models\Whatsapp\Mensaje;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ApiController extends Controller
 {
@@ -28,9 +29,11 @@ class ApiController extends Controller
 
     public function updateMensajes(Request $request)
     {
+        Storage::disk('local')->put("Request_Update_Mensajes.txt", $request->all());
+
         if($request->ayuda_id != null){
-            $ayuda = KitDigital::find($request->ayuda_id);
             $envioDani = EnvioDani::where('kit_id', $request->ayuda_id)->get()->first();
+            $ayuda = KitDigital::find($request->ayuda_id);
             if($envioDani){
                 $envioDani->enviado = 1;
                 $envioDani->save();

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Whatsapp\Mensaje;
 use App\Models\Whatsapp\RespuestasMensajes;
 use App\Http\Controllers\Controller;
-
+use App\Models\KitDigital;
 use Carbon\Carbon;
 
 
@@ -145,10 +145,10 @@ class AccionesController extends Controller
             case 18:
                 $template = 'kit_digital_leads2';
                 $mensajeEnvio = 'Buenas tardes!
-Me llamo Hera y te escribo de Hawkins, tu agente digitalizador para las subvenciones del kit digital.
-Te escribo principalmente para preguntarte si estás interesado en que te consigamos las subvención y el portátil gratis o por el contrario te demos de baja de la lista de interesados.
-Te ruego que nos indiques si quieres que te contactemos o en caso contrario que me indiques si quieres que te demos de baja del directorio para no molestarte más.
-Muchas gracias!';
+                    Me llamo Hera y te escribo de Hawkins, tu agente digitalizador para las subvenciones del kit digital.
+                    Te escribo principalmente para preguntarte si estás interesado en que te consigamos las subvención y el portátil gratis o por el contrario te demos de baja de la lista de interesados.
+                    Te ruego que nos indiques si quieres que te contactemos o en caso contrario que me indiques si quieres que te demos de baja del directorio para no molestarte más.
+                    Muchas gracias!';
             break;
             case 4:
                 $template = 'kit_digital_aceptado';
@@ -413,66 +413,66 @@ Muchas gracias!';
                return redirect()->route('acciones.index');
    }
 	public function actualizar(){
-	$count = 0;
-	  $isAutomatico = Mensaje::where('is_automatic', true)
-		   ->where('mensaje', null)
-           ->where('created_at', '>=', '2024-10-09')
-           ->get();
+        $count = 0;
+        $isAutomatico = Mensaje::where('is_automatic', true)
+            ->where('mensaje', null)
+            ->where('created_at', '>=', '2024-10-09')
+            ->get();
 
-	 $curl = curl_init();
-    curl_setopt_array($curl, [
-        CURLOPT_URL => 'https://crm.hawkins.es/api/getAyudas',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => json_encode(['estado' => 18]),
-        CURLOPT_HTTPHEADER => [
-            'Content-Type: application/json'
-        ],
-    ]);
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://crm.hawkins.es/api/getAyudas',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode(['estado' => 18]),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json'
+            ],
+        ]);
 
-    $response = curl_exec($curl);
-    curl_close($curl);
-    $clientes = json_decode($response, true); // Suponiendo que esto devuelve una lista de clientes
-   foreach ($isAutomatico as $mensaje) {
-      foreach ($clientes as $cliente) {
-          if (isset($cliente['id']) && $cliente['id'] == $mensaje->ayuda_id) {
+        $response = curl_exec($curl);
+        curl_close($curl);
+        $clientes = json_decode($response, true); // Suponiendo que esto devuelve una lista de clientes
+        foreach ($isAutomatico as $mensaje) {
+            foreach ($clientes as $cliente) {
+                if (isset($cliente['id']) && $cliente['id'] == $mensaje->ayuda_id) {
 
-			  $dataSend = [
-                    'ayuda_id' =>  $mensaje->ayuda_id, // Asumiendo que esta es la manera correcta de obtener el id
-                    'mensaje' => null,
-                    'mensaje_interpretado' => 4
-                ];
+                    $dataSend = [
+                        'ayuda_id' =>  $mensaje->ayuda_id, // Asumiendo que esta es la manera correcta de obtener el id
+                        'mensaje' => null,
+                        'mensaje_interpretado' => 4
+                    ];
 
-                // Enviar la actualización
-                $curl = curl_init();
-                curl_setopt_array($curl, [
-                    CURLOPT_URL => 'https://crm.hawkins.es/api/updateMensajes',
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'POST',
-                    CURLOPT_POSTFIELDS => json_encode($dataSend),
-                    CURLOPT_HTTPHEADER => [
-                        'Content-Type: application/json'
-                    ],
-                ]);
+                    // Enviar la actualización
+                    $curl = curl_init();
+                    curl_setopt_array($curl, [
+                        CURLOPT_URL => 'https://crm.hawkins.es/api/updateMensajes',
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => '',
+                        CURLOPT_MAXREDIRS => 10,
+                        CURLOPT_TIMEOUT => 0,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => 'POST',
+                        CURLOPT_POSTFIELDS => json_encode($dataSend),
+                        CURLOPT_HTTPHEADER => [
+                            'Content-Type: application/json'
+                        ],
+                    ]);
 
-                $response = curl_exec($curl);
-				$count ++;
-                curl_close($curl);
+                    $response = curl_exec($curl);
+                    $count ++;
+                    curl_close($curl);
                 }
             }
         }
-		// Puedes retornar el contador o realizar otras acciones después del bucle
-    return $count;
+            // Puedes retornar el contador o realizar otras acciones después del bucle
+        return $count;
     }
 
 
@@ -539,6 +539,49 @@ Muchas gracias!';
 
     return redirect()->route('acciones.index');
 }
+
+    public function getayudas(Request $request){
+
+        $kitDigitals = KitDigital::where('estado', 18 )->where(function($query) {
+            $query->where('enviado', '!=', 1)
+                ->orWhereNull('enviado');
+        })->get();
+
+
+        return $kitDigitals;
+
+    }
+    public function updateAyudas($id){
+        $kitDigital = KitDigital::find($id);
+        $kitDigital->enviado = 1;
+        $kitDigital->save();
+
+        return response()->json(['success' => $id]);
+    }
+
+    public function updateMensajes(Request $request)
+    {
+    // Storage::disk('local')->put('Respuesta_Peticion_ChatGPT-Model.txt', $request->all() );
+            $ayuda = KitDigital::find($request->ayuda_id);
+
+            $ayuda->mensaje = $request->mensaje;
+            $ayuda->mensaje_interpretado = $request->mensaje_interpretado;
+            $actualizado = $ayuda->save();
+
+        if($actualizado){
+            return response()->json([
+                'success' => true,
+                'ayudas' => 'Actualizado con exito',
+                'result'=> $ayuda
+            ], 200);
+        }else{
+            return response()->json([
+                'success' => false,
+                'ayudas' => 'Error al Actualizar.'
+            ], 200);
+        }
+
+    }
 
 
 }
