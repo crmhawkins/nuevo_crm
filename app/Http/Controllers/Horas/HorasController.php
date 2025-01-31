@@ -187,11 +187,11 @@ class HorasController extends Controller
                     ->exists(); // Verifica si el usuario inició jornada
                     if ($jornadas) {
 
-                        $horasEsperadas = ($dia->format('l') === 'Friday') ? $EnOficinaviernes * 60 : $EnOficina * 60;
-                        $horasProducidasDiaEsperadas = $producido * 60;
+                        $horasEsperadaspordia = ($dia->format('l') === 'Friday') ? $EnOficinaviernes * 60 : $EnOficina * 60;
+                        $horasProducidasEsperadasPordia = $producido * 60;
 
-                        $horasEsperadas += $horasEsperadas;
-                        $horasProducidasEsperadas += $horasProducidasDiaEsperadas;
+                        $horasEsperadas += $horasEsperadaspordia;
+                        $horasProducidasEsperadas += $horasProducidasEsperadasPordia;
 
                     }
                 }
@@ -209,7 +209,7 @@ class HorasController extends Controller
                 $minutoHorasProducidas = ($totalHorasProducidas % 60);
 
                 $datosUsuario['total_horas_trabajadas_esperadas'] = "$totalhorasEsperadas h $totalminutoProducidasEsperadas min";
-                $datosUsuario['total_horas_producidas_esperadas'] = "$totalhorasProducidasEsperadas h $totalminutoProducidasDiaEsperadas min";
+                $datosUsuario['total_horas_producidas_esperadas'] = ($usuario->access_level_id == 5) ? "$totalhorasProducidasEsperadas h $totalminutoProducidasDiaEsperadas min" : '';
                 $datosUsuario['total_horas_trabajadas'] = "$horaHorasTrabajadas h $minutoHorasTrabajadas min";
                 $datosUsuario['total_horas_producidas'] = "$horaHorasProducidas h $minutoHorasProducidas min";
                 $arrayUsuarios[] = $datosUsuario;
