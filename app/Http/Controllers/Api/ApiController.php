@@ -52,7 +52,7 @@ class ApiController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if($isAutomatico) {
+        if($isAutomatico && $request->is_automatic == false) {
             $mensaje = $request->mensaje;
             $isAutomatico ->mensaje = $mensaje;
             $actualizado = $isAutomatico ->save();
