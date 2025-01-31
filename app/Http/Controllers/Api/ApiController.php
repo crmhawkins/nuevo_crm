@@ -42,7 +42,7 @@ class ApiController extends Controller
                 $ayuda->mensaje = $request->mensaje;
                 $ayuda->mensaje_interpretado = $request->mensaje_interpretado;
             }
-            $actualizado = $ayuda->save();
+            $ayuda->save();
         }
 
         $isAutomatico = Mensaje::where('remitente', $request->remitente)
@@ -55,8 +55,8 @@ class ApiController extends Controller
         if($isAutomatico) {
             $mensaje = $request->mensaje;
             $isAutomatico ->mensaje = $mensaje;
-            $isAutomatico ->save();
-            $actualizado = true;
+            $actualizado = $isAutomatico ->save();
+
         }else {
             $dataRegistrar = [
                 'id_mensaje' => $request->id_mensaje,
@@ -71,7 +71,7 @@ class ApiController extends Controller
                 'date' => Carbon::now()
             ];
         $mensajeCreado = Mensaje::create($dataRegistrar);
-        $actualizado = true;
+        $actualizado = isset($mensajeCreado);
         }
 
         if($actualizado){
