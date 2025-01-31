@@ -75,7 +75,7 @@ class ApiController extends Controller
         }
 
         if($actualizado){
-            Storage::disk('local')->put("Request".Carbon::now()."_Update_Mensajes.txt", $request->all());
+            Storage::disk('local')->put("Request".Carbon::now()."_Update_Mensajes.txt", implode($request->all()));
 
             return response()->json([
                 'success' => true,
