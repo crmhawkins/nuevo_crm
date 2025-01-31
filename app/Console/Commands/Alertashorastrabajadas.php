@@ -52,6 +52,7 @@ class Alertashorastrabajadas extends Command
             foreach ($semana as $dia => $fecha) {
                 $jornadas = Jornada::where('admin_user_id', $usuario->id)
                     ->whereDate('start_time', $fecha)
+                    ->whereNotNull('end_time')
                     ->exists(); // Verifica si el usuario inició jornada
 
                 if ($jornadas) {
