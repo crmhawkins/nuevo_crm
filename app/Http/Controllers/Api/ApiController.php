@@ -29,7 +29,7 @@ class ApiController extends Controller
 
     public function updateMensajes(Request $request)
     {
-        Storage::disk('local')->put("Request_Update_Mensajes.txt", $request->all());
+        Storage::disk('local')->put("Request".Carbon::now()."_Update_Mensajes.txt", $request->all());
 
         if($request->ayuda_id != null){
             $envioDani = EnvioDani::where('kit_id', $request->ayuda_id)->get()->first();

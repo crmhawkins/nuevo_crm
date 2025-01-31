@@ -271,7 +271,7 @@
         var APP_URL = '{{ url('/') }}';
         var alertasAgrupadasPorStageId = {};  // Objeto para almacenar las alertas agrupadas
         var mapeoMensajes = {
-            1: 'Alerta Peticion - Tienes peticiones pendientes',
+            1: 'Alerta Petición pendiente',
             2: 'Presupuesto Pendiente de Confirmar',
             3: 'Presupuesto Pendiente de Aceptar',
             4: 'Presupuesto Aceptado',
@@ -308,7 +308,10 @@
             43: 'Alerta Ordenes a pagar',
             44: 'To-Do Nuevo',
             45: 'Nuevo mensaje en To-Do',
-            46: 'To-Do Completado'
+            46: 'To-Do Completado',
+            47: 'Incidencia Creada',
+            48: 'To-Do no Completado',
+            49: 'Correos no leído',
         };
 
         // Función para obtener las alertas usando fetch

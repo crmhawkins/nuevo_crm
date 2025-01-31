@@ -47,7 +47,7 @@ class AlertasPeticiones extends Command
 
                 $alert = Alert::create([
                     'reference_id' => $petition->id,
-                    'admin_user_id' => '1',
+                    'admin_user_id' => 1,
                     'stage_id' => 1,
                     'status_id' => 1,
                     'activation_datetime' => Carbon::now(),
