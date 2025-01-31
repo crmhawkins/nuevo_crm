@@ -69,8 +69,8 @@
                                     <td>{{ $usuario['usuario'] }}</td>
                                     <td>{{ $usuario['departamento'] }}</td>
 
-                                    <td>{{ $usuario['total_horas_trabajadas']."/".$usuario['total_horas_trabajadas_esperadas'] }} </td>
-                                    <td>{{ $usuario['total_horas_producidas']."/".$usuario['total_horas_producidas_esperadas'] }}</td>
+                                    <td>{{ $usuario['total_horas_trabajadas']." / ".$usuario['total_horas_trabajadas_esperadas'] }} </td>
+                                    <td>{{ $usuario['total_horas_producidas'].(($usuario['total_horas_producidas_esperadas'] !='') ? "/".$usuario['total_horas_producidas_esperadas'] : '') }}</td>
                                     <td>
                                         <button class="btn btn-outline-secondary toggle-details" type="button" data-toggle="collapse" data-target="#detalles-{{ $loop->index }}" aria-expanded="false">
                                             Ver Detalles
