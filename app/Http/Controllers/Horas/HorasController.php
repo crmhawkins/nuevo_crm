@@ -135,12 +135,6 @@ class HorasController extends Controller
 
         // Generar array de todos los días dentro del rango
         $periodo = Carbon::parse($fechaInicio)->daysUntil($fechaFin);
-        $todosLosDias = [];
-        foreach ($periodo as $dia) {
-            if (!in_array($dia->format('l'), ['Saturday', 'Sunday'])) {
-                $todosLosDias[$dia->format('Y-m-d')] = $dia->copy();
-            }
-        }
 
         // Obtener todos los usuarios activos
         $users = User::where('inactive', 0)->get();
@@ -151,6 +145,36 @@ class HorasController extends Controller
         $producido = 7; // Horas esperadas de producción
         // Recorrido de usuarios y cálculo de horas por cada día
         foreach ($users as $usuario) {
+            $bajas = Baja::where('admin_user_id', $usuario->id)->where('inicio', '<=', $fechaFin)->where('fin', '>=', $fechaInicio)->get();
+            $vacaciones = HolidaysPetitions::where('admin_user_id', $usuario->id)->where('from', '<=', $fechaFin)->where('to', '>=', $fechaInicio)->where('holidays_status_id', 1)->get();
+            $todosLosDias = [];
+            foreach ($periodo as $dia) {
+                if (!in_array($dia->format('l'), ['Saturday', 'Sunday'])) { // Excluir fines de semana
+                    $esBaja = false;
+                    $esVacaciones = false;
+
+                    // Comprobar si el día está en un rango de baja
+                    foreach ($bajas as $inicio => $fin) {
+                        if ($dia->between(Carbon::parse($inicio), Carbon::parse($fin))) {
+                            $esBaja = true;
+                            break;
+                        }
+                    }
+
+                    // Comprobar si el día está en un rango de vacaciones
+                    foreach ($vacaciones as $inicio => $fin) {
+                        if ($dia->between(Carbon::parse($inicio), Carbon::parse($fin))) {
+                            $esVacaciones = true;
+                            break;
+                        }
+                    }
+
+                    // Si no es baja ni vacaciones, lo añadimos al array de días válidos
+                    if (!$esBaja && !$esVacaciones) {
+                        $todosLosDias[$dia->format('Y-m-d')] = $dia->copy();
+                    }
+                }
+            }
             if ($usuario->id != 81 && $usuario->id != 52) { // Filtro de usuarios específicos
                 $datosUsuario = [
                     'id' => $usuario->id,
