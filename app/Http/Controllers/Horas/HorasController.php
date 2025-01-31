@@ -144,6 +144,9 @@ class HorasController extends Controller
         $users = User::where('inactive', 0)->get();
         $arrayUsuarios = [];
 
+        $EnOficina = 8; // Horas esperadas en oficina
+        $EnOficinaviernes = 7; // Horas esperadas en oficina el viernes
+        $producido = 7; // Horas esperadas de producción
         // Recorrido de usuarios y cálculo de horas por cada día
         foreach ($users as $usuario) {
             if ($usuario->id != 81 && $usuario->id != 52) { // Filtro de usuarios específicos
@@ -157,7 +160,8 @@ class HorasController extends Controller
 
                 $totalHorasTrabajadas = 0;
                 $totalHorasProducidas = 0;
-
+                $horasEsperadas = 0;
+                $horasProducidasEsperadas = 0;
                 // Calcular horas por cada día dentro del rango
                 foreach ($todosLosDias as $fecha => $dia) {
                     $horaHorasTrabajadasdia = 0;
@@ -176,7 +180,27 @@ class HorasController extends Controller
                     $datosUsuario['horas_trabajadas'][$fecha] = "$horaHorasTrabajadasdia h $minutoHorasTrabajadasdia min";
                     $datosUsuario['horas_producidas'][$fecha] = "$horaHorasProducidasdia h $minutoHorasProducidasdia min";
                     $datosUsuario['inicio_jornada'][$fecha] = $horaInicio;
+
+                    $jornadas = Jornada::where('admin_user_id', $usuario->id)
+                    ->whereDate('start_time', $dia)
+                    ->whereNotNull('end_time')
+                    ->exists(); // Verifica si el usuario inició jornada
+                    if ($jornadas) {
+
+                        $horasEsperadas = ($dia->format('l') === 'Friday') ? $EnOficinaviernes * 60 : $EnOficina * 60;
+                        $horasProducidasDiaEsperadas = $producido * 60;
+
+                        $horasEsperadas += $horasEsperadas;
+                        $horasProducidasEsperadas += $horasProducidasDiaEsperadas;
+
+                    }
                 }
+
+                $totalhorasEsperadas = floor($horasEsperadas / 60);
+                $totalminutoProducidasEsperadas = ($horasEsperadas % 60);
+
+                $totalhorasProducidasEsperadas = floor($horasProducidasEsperadas / 60);
+                $totalminutoProducidasDiaEsperadas = ($horasProducidasEsperadas % 60);
 
                 $horaHorasTrabajadas = floor($totalHorasTrabajadas / 60);
                 $minutoHorasTrabajadas = ($totalHorasTrabajadas % 60);
@@ -184,6 +208,8 @@ class HorasController extends Controller
                 $horaHorasProducidas = floor($totalHorasProducidas / 60);
                 $minutoHorasProducidas = ($totalHorasProducidas % 60);
 
+                $datosUsuario['total_horas_trabajadas_esperadas'] = "$totalhorasEsperadas h $totalminutoProducidasEsperadas min";
+                $datosUsuario['total_horas_producidas_esperadas'] = "$totalhorasProducidasEsperadas h $totalminutoProducidasDiaEsperadas min";
                 $datosUsuario['total_horas_trabajadas'] = "$horaHorasTrabajadas h $minutoHorasTrabajadas min";
                 $datosUsuario['total_horas_producidas'] = "$horaHorasProducidas h $minutoHorasProducidas min";
                 $arrayUsuarios[] = $datosUsuario;
