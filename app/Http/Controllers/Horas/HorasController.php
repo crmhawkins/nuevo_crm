@@ -137,7 +137,9 @@ class HorasController extends Controller
         $periodo = Carbon::parse($fechaInicio)->daysUntil($fechaFin);
         $todosLosDias = [];
         foreach ($periodo as $dia) {
-            $todosLosDias[$dia->format('Y-m-d')] = $dia->copy();
+            if (!in_array($dia->format('l'), ['Saturday', 'Sunday'])) {
+                $todosLosDias[$dia->format('Y-m-d')] = $dia->copy();
+            }
         }
 
         // Obtener todos los usuarios activos
