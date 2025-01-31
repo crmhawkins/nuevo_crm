@@ -194,24 +194,24 @@ class HorasController extends Controller
                     $minutoHorasTrabajadasdia = 0;
                     $horaHorasProducidasdia = 0;
                     $minutoHorasProducidasdia = 0;
-                    $horasTrabajadas = $this->horasTrabajadasDia($dia, $usuario->id);
-                    $horasProducidas = $this->tiempoProducidoDia($dia, $usuario->id);
-                    $totalHorasTrabajadas += $horasTrabajadas;
-                    $totalHorasProducidas += $horasProducidas;
-                    $horaHorasTrabajadasdia = floor($horasTrabajadas / 60);
-                    $minutoHorasTrabajadasdia = ($horasTrabajadas % 60);
-                    $horaHorasProducidasdia = floor($horasProducidas / 60);
-                    $minutoHorasProducidasdia = ($horasProducidas % 60);
-                    $horaInicio = $this->horaInicioJornada($dia, $usuario->id);
-                    $datosUsuario['horas_trabajadas'][$fecha] = "$horaHorasTrabajadasdia h $minutoHorasTrabajadasdia min";
-                    $datosUsuario['horas_producidas'][$fecha] = "$horaHorasProducidasdia h $minutoHorasProducidasdia min";
-                    $datosUsuario['inicio_jornada'][$fecha] = $horaInicio;
 
                     $jornadas = Jornada::where('admin_user_id', $usuario->id)
                     ->whereDate('start_time', $dia)
                     ->whereNotNull('end_time')
                     ->exists(); // Verifica si el usuario inició jornada
                     if ($jornadas) {
+                        $horasTrabajadas = $this->horasTrabajadasDia($dia, $usuario->id);
+                        $horasProducidas = $this->tiempoProducidoDia($dia, $usuario->id);
+                        $totalHorasTrabajadas += $horasTrabajadas;
+                        $totalHorasProducidas += $horasProducidas;
+                        $horaHorasTrabajadasdia = floor($horasTrabajadas / 60);
+                        $minutoHorasTrabajadasdia = ($horasTrabajadas % 60);
+                        $horaHorasProducidasdia = floor($horasProducidas / 60);
+                        $minutoHorasProducidasdia = ($horasProducidas % 60);
+                        $horaInicio = $this->horaInicioJornada($dia, $usuario->id);
+                        $datosUsuario['horas_trabajadas'][$fecha] = "$horaHorasTrabajadasdia h $minutoHorasTrabajadasdia min";
+                        $datosUsuario['horas_producidas'][$fecha] = "$horaHorasProducidasdia h $minutoHorasProducidasdia min";
+                        $datosUsuario['inicio_jornada'][$fecha] = $horaInicio;
 
                         $horasEsperadaspordia = ($dia->format('l') === 'Friday') ? $EnOficinaviernes * 60 : $EnOficina * 60;
                         $horasProducidasEsperadasPordia = $producido * 60;
