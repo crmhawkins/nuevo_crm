@@ -154,16 +154,16 @@ class HorasController extends Controller
                     $esVacaciones = false;
 
                     // Comprobar si el día está en un rango de baja
-                    foreach ($bajas as $inicio => $fin) {
-                        if ($dia->between(Carbon::parse($inicio), Carbon::parse($fin))) {
+                    foreach ($bajas as $baja) {
+                        if ($dia->between(Carbon::parse($baja->inicio), Carbon::parse($baja->fin))) {
                             $esBaja = true;
                             break;
                         }
                     }
 
                     // Comprobar si el día está en un rango de vacaciones
-                    foreach ($vacaciones as $inicio => $fin) {
-                        if ($dia->between(Carbon::parse($inicio), Carbon::parse($fin))) {
+                    foreach ($vacaciones as $vacacion) {
+                        if ($dia->between(Carbon::parse($vacacion->from), Carbon::parse($vacacion->to))) {
                             $esVacaciones = true;
                             break;
                         }
