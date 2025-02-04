@@ -98,4 +98,5 @@
         $("#main").css("margin-left", "0px");
         // Función para manejar la actualización de datos
         });
+    </script>
 @endsection
