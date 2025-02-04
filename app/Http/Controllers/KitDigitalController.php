@@ -353,7 +353,7 @@ class KitDigitalController extends Controller
      {
         $cliente = KitDigital::find($id)->cliente;
 
-        $primerMensaje = Mensaje::where('ayuda_id', $cliente->id)->first();
+        $primerMensaje = Mensaje::where('ayuda_id', $id)->first();
 
         $mensajes = Mensaje::where('remitente', $primerMensaje->remitente)->get();
 
