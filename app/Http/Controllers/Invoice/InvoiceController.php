@@ -348,8 +348,6 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::where('id', $request->id)->get()->first();
 
-        $
-
         $filename = $this->savePDF($invoice);
 
         $data = [
