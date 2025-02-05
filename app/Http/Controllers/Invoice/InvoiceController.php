@@ -349,6 +349,8 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::where('id', $request->id)->get()->first();
 
+        $
+
         $filename = $this->savePDF($invoice);
 
         $data = [
@@ -387,7 +389,7 @@ class InvoiceController extends Controller
     public function savePDF(Invoice $invoice){
 
 
-        $name = 'factura_' . $invoice['reference'];
+        $name = 'factura_' . str_replace('/','-',$invoice['reference']);
         $pathToSaveInvoice =  storage_path('app/public/assets/temp/' . $name . '.pdf');
         $directory = storage_path('app/public/assets/temp');
         if (!file_exists($directory)) {
