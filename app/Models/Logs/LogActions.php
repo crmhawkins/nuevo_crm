@@ -69,9 +69,9 @@ class LogActions extends Model
             case 1:
                 return $this->ayudas->cliente;
             case 2:
-                return $this->presupuesto->cliente;
+                return $this->presupuesto->cliente->company ?? $this->presupuesto->cliente->name;
             case 3:
-                return $this->factura->cliente;
+                return $this->factura->cliente->company ?? $this->factura->cliente->name;
             default:
                 return null;
 

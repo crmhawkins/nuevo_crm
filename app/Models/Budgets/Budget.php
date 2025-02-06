@@ -147,7 +147,7 @@ class Budget extends Model
                 LogActions::create([
                     'tipo' => 2,
                     'admin_user_id' => $userId,
-                    'action' => 'Actualizar presupuesto',
+                    'action' => 'Actualizar presupuesto' . $budget->reference,
                     'description' => 'De  "'.(is_null($oldValue) ? 'N/A' : (string)$oldValue).'"  a  "'. (is_null($newValue) ? 'N/A' : (string)$newValue).'"',
                     'reference_id' => $budget->id,
                 ]);
