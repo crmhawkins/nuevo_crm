@@ -98,6 +98,8 @@ class GetCorreos extends Command
 
                             $email->update(['body' => $body]);
                             $message->setFlag('Seen');
+                            //$message->delete(); // Elimina el mensaje del servidor
+
                         }
                     } catch (\Exception $e) {
                         $this->error("Error procesando mensaje: {$e->getMessage()}");

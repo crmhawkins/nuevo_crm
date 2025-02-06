@@ -91,7 +91,7 @@ public function getAlerts($alertas)
                                     }
                                 }
 
-                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
+                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 7 || $budgetAlert->budget_status_id == 6 || $budgetAlert->budget_status_id == 8) {
                                     $alerta->status_id = 2;
                                     $alerta->save();
                                     $alerta->delete();
@@ -115,7 +115,7 @@ public function getAlerts($alertas)
                                        $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
-                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
+                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 7 || $budgetAlert->budget_status_id == 6 || $budgetAlert->budget_status_id == 8) {
                                     $alerta->status_id = 2;
                                     $alerta->save();
                                     $alerta->delete();
@@ -139,7 +139,7 @@ public function getAlerts($alertas)
                                         $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
-                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
+                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 7 || $budgetAlert->budget_status_id == 6 || $budgetAlert->budget_status_id == 8) {
                                     $alerta->status_id = 2;
                                     $alerta->save();
                                     $alerta->delete();
@@ -163,7 +163,7 @@ public function getAlerts($alertas)
                                         $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
-                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
+                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 7 || $budgetAlert->budget_status_id == 6 || $budgetAlert->budget_status_id == 8) {
                                     $alerta->status_id = 2;
                                     $alerta->save();
                                     $alerta->delete();
@@ -187,7 +187,7 @@ public function getAlerts($alertas)
                                         $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
-                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
+                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 7 || $budgetAlert->budget_status_id == 6 || $budgetAlert->budget_status_id == 8) {
                                     $alerta->status_id = 2;
                                     $alerta->save();
                                     $alerta->delete();
@@ -211,7 +211,7 @@ public function getAlerts($alertas)
                                         $alertasActivadas[$contador]["cliente"] = $budgetAlert->cliente->name;
                                     }
                                 }
-                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 5 || $budgetAlert->budget_status_id == 6) {
+                                if ($budgetAlert->budget_status_id == 4 || $budgetAlert->budget_status_id == 7 || $budgetAlert->budget_status_id == 6 || $budgetAlert->budget_status_id == 8) {
                                     $alerta->status_id = 2;
                                     $alerta->save();
                                     $alerta->delete();

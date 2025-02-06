@@ -13,12 +13,10 @@ use Illuminate\Support\Facades\Storage;
 class ApiController extends Controller
 {
     public function getayudas(Request $request){
-
         $kitDigitals = EnvioDani::wherenull('enviado')->get();
-
         return $kitDigitals;
-
     }
+
     public function updateAyudas($id){
         $kitDigital = KitDigital::find($id);
         $kitDigital->enviado = 1;

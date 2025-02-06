@@ -14,7 +14,7 @@ use Carbon\CarbonInterval;
 class Alertashorastrabajadas extends Command
 {
     protected $signature = 'Alertas:HorasTrabajadas';
-    protected $description = 'Crear alertas de presupuesto Finalizado y no facturado';
+    protected $description = 'Crear alertas de horas trabajadas';
 
     public function __construct()
     {

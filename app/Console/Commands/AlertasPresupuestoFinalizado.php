@@ -39,7 +39,7 @@ class AlertasPresupuestoFinalizado extends Command
                 // Determinar el valor de cont_postpone: suma 1 si hay una alerta previa, o inicia en 1
                 $contPostpone = $latestAlertWithStatus2 ? $latestAlertWithStatus2->cont_postpone + 1 : 0;
 
-                $usuarios = User::where('access_level_id', 3)->get();
+                $usuarios = User::where('access_level_id',3)->where('inactive',0)->get();
                 foreach ($usuarios as $usuario) {
                     $alert = Alert::create([
                         'reference_id' => $pendiente->id,

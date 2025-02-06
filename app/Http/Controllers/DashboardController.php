@@ -973,6 +973,7 @@ class DashboardController extends Controller
                             // Calcular el porcentaje de exceso basado en segundos
                             $exceedPercentage = ($realTimeInSeconds / $estimatedTimeInSeconds) * 100;
 
+
                             // Inicializar datos comunes de la alerta
                             $data = [
                                 "admin_user_id" => $tarea->gestor_id,
@@ -998,6 +999,10 @@ class DashboardController extends Controller
                             if (!$existe) {
                                 $alert = Alert::create($data);
                                 $alertSaved = $alert->save();
+
+                                $data["admin_user_id"] = 1;
+                                $alertAdmin = Alert::create($data);
+                                $alertSaved = $alertAdmin->save();
                             }
                         }
 
