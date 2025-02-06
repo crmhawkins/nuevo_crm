@@ -2,11 +2,16 @@
 
 namespace App\Models\Budgets;
 
+use App\Models\Alerts\Alert;
 use App\Models\Invoices\Invoice;
+use App\Models\Logs\LogActions;
 use App\Models\Tasks\Task;
+use App\Models\Users\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Budget extends Model
 {
@@ -52,7 +57,7 @@ class Budget extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(\App\Models\Users\User::class, 'admin_user_id');
+        return $this->belongsTo(User::class, 'admin_user_id');
     }
     public function referencia()
     {
@@ -84,9 +89,29 @@ class Budget extends Model
     }
     public function cambiarEstadoPresupuesto($nuevoEstadoId)
     {
-        if ($nuevoEstadoId == 4) {
-            $this->tasks()->update(['task_status_id' => 4]);
+        switch($nuevoEstadoId) {
+            case 4:
+                $this->tasks()->update(['task_status_id' => 4]);
+                break;
+            case 5:
+                $usuarios = User::where('access_level_id',3)->where('inactive',0)->get();
+
+                foreach ($usuarios as $usuario) {
+                    $alert = Alert::create([
+                        'reference_id' => $this->id,
+                        'admin_user_id' => $usuario->id,
+                        'stage_id' => 5,
+                        'status_id' => 1,
+                        'activation_datetime' => Carbon::now(),
+                        'description' => 'Presupuesto ' . $this->reference.' esta finalizado y no esta facturado.'
+                    ]);
+                }
+
+                break;
+            default:
+                break;
         }
+
     }
     public function tasks()
     {
@@ -105,5 +130,28 @@ class Budget extends Model
         ];
 
         return $statusColors[$this->budget_status_id] ?? '#CCCCCC'; // Default to grey if not found
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updated(function ($budget) {
+            $changed = $budget->getDirty(); // Obtiene los campos que han cambiado
+            $userId =Auth::user()->id; // Obtiene el ID del usuario autenticado
+
+            foreach ($changed as $field => $newValue) {
+
+                $oldValue = $budget->getOriginal($field);
+
+                LogActions::create([
+                    'tipo' => 2,
+                    'admin_user_id' => $userId,
+                    'action' => 'Actualizar presupuesto',
+                    'description' => 'De  "'.(is_null($oldValue) ? 'N/A' : (string)$oldValue).'"  a  "'. (is_null($newValue) ? 'N/A' : (string)$newValue).'"',
+                    'reference_id' => $budget->id,
+                ]);
+            }
+        });
     }
 }
