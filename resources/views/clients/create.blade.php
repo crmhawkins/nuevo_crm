@@ -492,7 +492,7 @@
                         Swal.fire({
                             title: 'Cliente existente',
                             html: `Ya existe un cliente con este nombre o nombre de empresa.<br><br>
-                                   <strong>Nombre del contacto:</strong> ${cliente.name}<br>
+                                   <strong>Nombre del contacto:</strong> ${cliente.name} ${cliente.primerApellido} ${cliente.segundoApellido}<br>
                                    <strong>Nombre de la empresa:</strong> ${cliente.company}<br><br>
                                    ¿Estás seguro de que quieres crear uno nuevo?`,
                             icon: 'warning',
