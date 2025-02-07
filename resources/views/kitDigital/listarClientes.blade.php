@@ -227,7 +227,7 @@
                                         'segmento' => 'SEG',
                                         'cliente_id' => 'CLI. A.',
                                         'cliente' => 'CLIENTE',
-                                        'facturado' => 'Fact.',
+                                        'facturado' => 'FACT',
                                         'contacto' => 'CONTACTO',
                                         'telefono' => 'TELEFONO',
                                         'expediente' => 'EXPEDIENTE',
@@ -282,7 +282,7 @@
                                             </div>
                                         </td>
                                         <td style="max-width: 70px !important"><input data-id="{{$item->id}}" type="text" name="cliente" id="cliente" value="{{ $item->cliente }}" style="max-width: 70px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem"></td>
-                                        <td style="max-width: 50px"><input {{$item->facturado == 1 ? 'checked' : ''}}class="form-check-input" type="checkbox" value="1" name="facturado"><input type="hidden" name="facturado" value="0"></td>
+                                        <td style="max-width: 50px"><input data-id="{{$item->id}}" {{$item->facturado == 1 ? 'checked' : ''}}class="form-check-input" type="checkbox" value="1" name="facturado"><input  data-id="{{$item->id}}" type="hidden" name="facturado" value="0"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="telefono" id="telefono" value="{{ $item->telefono }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                         <td style="max-width: 50px" class="exclude"><input data-id="{{$item->id}}" type="text" name="expediente" id="expediente" value="{{ $item->expediente }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
