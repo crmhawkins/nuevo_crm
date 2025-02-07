@@ -227,8 +227,7 @@
                                         'segmento' => 'SEG',
                                         'cliente_id' => 'CLI. A.',
                                         'cliente' => 'CLIENTE',
-                                        'mensaje_interpretado' => 'INTERES.',
-                                        'mensaje' => 'IA',
+                                        'facturado' => 'Fact.',
                                         'contacto' => 'CONTACTO',
                                         'telefono' => 'TELEFONO',
                                         'expediente' => 'EXPEDIENTE',
@@ -283,16 +282,7 @@
                                             </div>
                                         </td>
                                         <td style="max-width: 70px !important"><input data-id="{{$item->id}}" type="text" name="cliente" id="cliente" value="{{ $item->cliente }}" style="max-width: 70px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem"></td>
-                                        <td style="max-width: 50px">
-                                            <input disabled data-id="{{$item->id}}" type="text" name="mensaje_interpretado" id="mensaje_interpretado"
-                                            value="{{ $item->mensaje_interpretado == 1 ? 'Si' : ($item->mensaje_interpretado == 2 ? 'No se' : ($item->mensaje_interpretado === 0 ? 'No' : ($item->mensaje_interpretado === 3 ? 'Error' : ($item->mensaje_interpretado === 4 ? 'No respondio' : '')))) }}"
-                                            style="height: fit-content; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border: none; margin-bottom: 0 !important; font-size: 0.75rem; text-align: center; width: 56px;">
-                                        </td>
-                                        <td style="max-width: 50px">
-                                            {{-- <textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea> --}}
-                                            <button type="button" class="btn btn-sm btn-light" onclick="redirectToWhatsapp({{$item->id}})">Ver</button>
-
-                                        </td>
+                                        <td style="max-width: 50px"><input {{$item->facturado == 1 ? 'checked' : ''}}class="form-check-input" type="checkbox" value="1" name="facturado"><input type="hidden" name="facturado" value="0"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="telefono" id="telefono" value="{{ $item->telefono }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                         <td style="max-width: 50px" class="exclude"><input data-id="{{$item->id}}" type="text" name="expediente" id="expediente" value="{{ $item->expediente }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
