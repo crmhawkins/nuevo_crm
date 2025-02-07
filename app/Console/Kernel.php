@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('vacacioner:add')->monthlyOn(1, '08:00');
-        $schedule->command('correos:categorizacion')->everyMinute();
+        $schedule->command('correos:categorizacion')->everyFiveMinutes();
         $schedule->command('correos:get')->everyMinute();
         $schedule->command('correos:getFacturas')->everyMinute();
         $schedule->command('Jornada:finalizar')->dailyAt('03:00');
