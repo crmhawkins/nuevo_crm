@@ -534,11 +534,16 @@ class ClientController extends Controller
     }
 
     public function verificarClienteExistente(Request $request)
-{
-    $clienteExistente = Client::where('name', $request->name)
-        ->orWhere('company', $request->company)
+    {
+        $clienteExistente = Client::where(function ($query) use ($request) {
+            $query->where('name', 'like', '%' . $request->name. '%')
+                  ->where('primerApellido', 'like', '%' . $request->primerApellido. '%')
+                  ->where('segundoApellido', 'like', '%' . $request->segundoApellido. '%');
+        })
+        ->orWhere('company', 'like', '%' . $request->company. '%')
         ->first();
 
-    return response()->json($clienteExistente);
-}
+        return response()->json($clienteExistente);
+    }
+
 }

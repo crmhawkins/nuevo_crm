@@ -472,6 +472,8 @@
             e.preventDefault();
 
             var name = $('#name').val();
+            var primerApellido = $('#primerApellido').val();
+            var segundoApellido = $('#segundoApellido').val();
             var company = $('#company').val();
             var form = this;
 
@@ -481,6 +483,8 @@
                 data: {
                     _token: '{{ csrf_token() }}',
                     name: name,
+                    primerApellido: primerApellido,
+                    segundoApellido: segundoApellido,
                     company: company
                 },
                 success: function(cliente) {
