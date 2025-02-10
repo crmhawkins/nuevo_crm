@@ -84,8 +84,8 @@ class Categorizacion extends Command
             No necesito que me digas la explicacion del correo, solo el ID de la categoria.
 
                 ",
-            "model" => "mistral",
-            // "model" => "deepseek-r1:14b",
+            //"model" => "mistral",
+            "model" => "deepseek-r1:14b",
         );
         //$this->info('enviado : ' . $data['question']);
 
