@@ -50,7 +50,7 @@ class GetCorreos extends Command
                     try {
                         $messageId = $message->getMessageId();
 
-                        if (!Email::where('message_id', $messageId)->exists()) {
+                        if (!Email::where('message_id', $messageId)->where('admin_user_id',$correo->admin_user_id)->exists()) {
                             $sender = $message->getFrom()[0]->mail;
                             $subject = $message->getSubject();
                             $body = $message->getHTMLBody() ?: $message->getTextBody();
