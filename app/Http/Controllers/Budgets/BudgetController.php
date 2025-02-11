@@ -1041,7 +1041,7 @@ class BudgetController extends Controller
     }
     public function generateInvoice(Request $request){
 
-        if(Auth::user()->access_level_id >= 3){
+        if(Auth::user()->access_level_id < 3){
             return response()->json([
                 'status' => false,
                 'mensaje' => "No tienes permisos para generar facturas"
@@ -1481,7 +1481,7 @@ class BudgetController extends Controller
     }
 
     public function generateInvoicePartial(Request $request){
-        if(Auth::user()->access_level_id >= 3){
+        if(Auth::user()->access_level_id < 3){
             return response()->json([
                 'status' => false,
                 'mensaje' => "No tienes permisos para generar facturas"
