@@ -248,7 +248,7 @@
                                         'comentario' => 'COMENTARIO',
                                         'nuevo_comentario' => 'N. COMENTARIO',
                                         ] as $field => $label)
-                                        <th class="px-3">
+                                        <th class="px-2">
                                             <a class="sort" data-column="{{$field}}" >
                                                 {{ $label }}
                                                 @if ($sortColumn == $field)
