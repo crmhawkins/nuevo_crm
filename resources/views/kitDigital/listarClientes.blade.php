@@ -68,6 +68,9 @@
         color: black !important;
         /* Puedes agregar más estilos aquí */
     }
+    .table>:not(caption)>*>*{
+        padding: 0.75rem !important;
+    }
 </style>
 @endsection
 
@@ -220,7 +223,7 @@
                         </div>
                         @if ( $kitDigitals )
                         <div class="table-responsive">
-                            <table class="table-sm">
+                            <table class="table table-sm">
                                 <thead class="header-table">
                                     @foreach ([
                                         'empresa' => 'EMP',
