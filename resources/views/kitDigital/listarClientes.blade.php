@@ -220,7 +220,7 @@
                         </div>
                         @if ( $kitDigitals )
                         <div class="table-responsive">
-                            <table class="table table-sm">
+                            <table class="table-sm">
                                 <thead class="header-table">
                                     @foreach ([
                                         'empresa' => 'EMP',
