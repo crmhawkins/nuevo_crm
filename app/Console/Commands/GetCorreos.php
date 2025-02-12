@@ -50,57 +50,57 @@ class GetCorreos extends Command
                     try {
                         $messageId = $message->getMessageId();
 
-                        if (!Email::where('message_id', $messageId)->where('admin_user_id',$correo->admin_user_id)->exists()) {
-                            $sender = $message->getFrom()[0]->mail;
-                            $subject = $message->getSubject();
-                            $body = $message->getHTMLBody() ?: $message->getTextBody();
+                        $sender = $message->getFrom()[0]->mail;
+                        $subject = $message->getSubject();
+                        $body = $message->getHTMLBody() ?: $message->getTextBody();
 
-                            $toRecipients = $message->getTo();
-                            $ccRecipients = $message->getCc();
+                        $toRecipients = $message->getTo();
+                        $ccRecipients = $message->getCc();
 
-                            $toList = collect($toRecipients)->pluck('mail')->implode(', ');
-                            $ccList = collect($ccRecipients)->pluck('mail')->implode(', ');
+                        $toList = collect($toRecipients)->pluck('mail')->implode(', ');
+                        $ccList = collect($ccRecipients)->pluck('mail')->implode(', ');
 
-                            $email = Email::create([
-                                'admin_user_id' => $correo->admin_user_id,
-                                'sender' => $sender,
-                                'subject' => $subject,
-                                'body' => $body,
-                                'message_id' => $messageId,
-                                'status_id' => 1,
-                                'cc' => $ccList,
-                                'to' => $toList,
-                            ]);
+                        $email = Email::create([
+                            'admin_user_id' => $correo->admin_user_id,
+                            'sender' => $sender,
+                            'subject' => $subject,
+                            'body' => $body,
+                            'message_id' => $messageId,
+                            'status_id' => 1,
+                            'cc' => $ccList,
+                            'to' => $toList,
+                        ]);
 
-                            $attachments = $message->getAttachments();
-                            foreach ($attachments as $attachment) {
-                                try {
-                                    $filename = $attachment->getName();
-                                    $file_path = "emails/" . $email->id . "/" . $filename;
-                                    Storage::disk('public')->put($file_path, $attachment->getContent());
+                        $attachments = $message->getAttachments();
+                        foreach ($attachments as $attachment) {
+                            try {
+                                $filename = $attachment->getName();
+                                $file_path = "emails/" . $email->id . "/" . $filename;
+                                Storage::disk('public')->put($file_path, $attachment->getContent());
 
-                                    $cid = $attachment->getContentId();
-                                    if ($cid) {
-                                        $cid = str_replace(['<', '>'], '', $cid);
-                                        $public_path = asset('storage/' . $file_path);
-                                        $body = str_replace("cid:$cid", $public_path, $body);
-                                    }
-
-                                    Attachment::create([
-                                        'email_id' => $email->id,
-                                        'file_path' => $file_path,
-                                        'file_name' => $filename,
-                                    ]);
-                                } catch (\Exception $e) {
-                                    $this->error("Error procesando adjunto: {$e->getMessage()}");
+                                $cid = $attachment->getContentId();
+                                if ($cid) {
+                                    $cid = str_replace(['<', '>'], '', $cid);
+                                    $public_path = asset('storage/' . $file_path);
+                                    $body = str_replace("cid:$cid", $public_path, $body);
                                 }
+
+                                Attachment::create([
+                                    'email_id' => $email->id,
+                                    'file_path' => $file_path,
+                                    'file_name' => $filename,
+                                ]);
+                            } catch (\Exception $e) {
+                                $this->error("Error procesando adjunto: {$e->getMessage()}");
                             }
-
-                            $email->update(['body' => $body]);
-                            $message->setFlag('Seen');
-                            $message->delete(); // Elimina el mensaje del servidor
-
                         }
+
+                        $email->update(['body' => $body]);
+                        $message->setFlag('Seen');
+                        if($correo->admin_user_id != 54){
+                            $message->delete(); // Elimina el mensaje del servidor
+                        }
+
                     } catch (\Exception $e) {
                         $this->error("Error procesando mensaje: {$e->getMessage()}");
                     }
