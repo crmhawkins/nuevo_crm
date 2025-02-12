@@ -54,7 +54,9 @@ class KitDigital extends Model
         'date',
         'enviado',
         'direccion',
-        'ciudad'
+        'ciudad',
+        'certificado_hacienda',
+        'certificado_seguridad',
     ];
 
     /**

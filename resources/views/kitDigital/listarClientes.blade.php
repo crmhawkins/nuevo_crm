@@ -228,6 +228,9 @@
                                         'cliente_id' => 'CLI. A.',
                                         'cliente' => 'CLIENTE',
                                         'facturado' => 'FACT',
+                                        'estado_factura' => 'E.F',
+                                        'certificado_hacienda' => 'C.H',
+                                        'certificado_seguridad' => 'C.S',
                                         'contacto' => 'CONTACTO',
                                         'telefono' => 'TELEFONO',
                                         'expediente' => 'EXPEDIENTE',
@@ -237,7 +240,6 @@
                                         'created_at' => 'F.CREA.',
                                         'fecha_actualizacion' => 'F.ACT.',
                                         'importe' => 'IMPORTE',
-                                        'estado_factura' => 'ESTADO FACTURA',
                                         'banco' => 'EN BANCO',
                                         'fecha_acuerdo' => 'F. ACUERDO',
                                         'plazo_maximo_entrega' => 'PLZ. MAX',
@@ -283,6 +285,15 @@
                                         </td>
                                         <td style="max-width: 70px !important"><input data-id="{{$item->id}}" type="text" name="cliente" id="cliente" value="{{ $item->cliente }}" style="max-width: 70px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" {{$item->facturado == 1 ? 'checked' : ''}} class="form-check-input" type="checkbox" value="1" name="facturado"></td>
+                                        <td style="max-width: 50px" @if($item->estado_factura == 0) style="background-color: #f25757; color: white;" @else style="background-color: #2cbc09; color: white;" @endif >
+                                            <select name="estado_factura" id="estado_factura" data-id="{{$item->id}}" style="background-color: {{$item->estado_factura == 1 ? '#2cbc09': '#f25757'}}; color: white;margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem; width: 66px;">
+                                                <option value="">Seleccione un estado</option>
+                                                    <option @if($item->estado_factura == 1) selected style="height: fit-content;background-color: #2cbc09; color: white;" @endif value="1">A</option>
+                                                    <option @if($item->estado_factura == 0) selected style="height: fit-content;background-color: #f25757; color: white;" @endif value="0">N</option>
+                                            </select>
+                                        </td>
+                                        <td style="max-width: 50px"><input data-id="{{$item->id}}" {{$item->certificado_hacienda == 1 ? 'checked' : ''}} class="form-check-input" type="checkbox" value="1" name="certificado_hacienda"></td>
+                                        <td style="max-width: 50px"><input data-id="{{$item->id}}" {{$item->certificado_seguridad == 1 ? 'checked' : ''}} class="form-check-input" type="checkbox" value="1" name="certificado_hacienda"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="telefono" id="telefono" value="{{ $item->telefono }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                         <td style="max-width: 50px" class="exclude"><input data-id="{{$item->id}}" type="text" name="expediente" id="expediente" value="{{ $item->expediente }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
@@ -306,13 +317,6 @@
                                         <td style="max-width: 98px"><input data-id="{{$item->id}}" type="date" name="created_at" id="created_at" value="{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d')  }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;" disabled></td>
                                         <td style="max-width: 98px"><input data-id="{{$item->id}}" type="date" name="fecha_actualizacion" id="fecha_actualizacion" value="{{ $item->fecha_actualizacion }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="importe" id="importe" value="{{ $item->importe }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem; text-align: center;width: 50px"></td>
-                                        <td style="max-width: 50px" @if($item->estado_factura == 0) style="background-color: #f25757; color: white;" @else style="background-color: #2cbc09; color: white;" @endif >
-                                            <select name="estado_factura" id="estado_factura" data-id="{{$item->id}}" style="background-color: {{$item->estado_factura == 1 ? '#2cbc09': '#f25757'}}; color: white;margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem; width: 66px;">
-                                                <option value="">Seleccione un estado</option>
-                                                    <option @if($item->estado_factura == 1) selected style="height: fit-content;background-color: #2cbc09; color: white;" @endif value="1">Abonada</option>
-                                                    <option @if($item->estado_factura == 0) selected style="height: fit-content;background-color: #f25757; color: white;" @endif value="0">No Abonada</option>
-                                            </select>
-                                        </td>
                                         <td style="max-width: 98px"><input  data-id="{{$item->id}}" type="date" name="banco" id="banco" value="{{ $item->banco }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;max-width: 98px"></td>
                                         <td style="max-width: 98px"><input data-id="{{$item->id}}" type="date" name="fecha_acuerdo" id="fecha_acuerdo" value="{{ $item->fecha_acuerdo }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;max-width: 80px"></td>
                                         <td style="max-width: 80px"><input data-id="{{$item->id}}" type="date" name="plazo_maximo_entrega" id="plazo_maximo_entrega" value="{{ $item->plazo_maximo_entrega }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;max-width: 80px"></td>
