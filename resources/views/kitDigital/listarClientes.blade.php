@@ -386,11 +386,6 @@
 
 @section('scripts')
 
-@include('partials.toast')
-<script src="{{asset('assets/vendors/choices.js/choices.min.js')}}" defer></script>
-<script src="{{asset('assets/js/kit.js')}}" defer></script>
-<script>
-    var enRutaNoMostrar = true;
-</script>
-@endsection
+    @include('partials.toast')
 
+@endsection
