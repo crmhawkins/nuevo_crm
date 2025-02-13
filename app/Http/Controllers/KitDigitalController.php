@@ -13,6 +13,7 @@ use App\Models\Users\User;
 use App\Models\Whatsapp\Mensaje;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Optional;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -116,11 +117,11 @@ class KitDigitalController extends Controller
             });
         }
 
-        $Sumatorio = $query->get()->reduce(function ($carry, $item) {
-            $cleanImporte = preg_replace('/[^\d,]/', '', $item->importe); // Elimina todo excepto números y coma
-            $cleanImporte = str_replace(',', '.', $cleanImporte); // Convierte comas a puntos para decimales
-            return $carry + (float)$cleanImporte;
-        }, 0);
+        $Sumatorio = $query->get(['importe'])->sum(function ($item) {
+            $cleanImporte = preg_replace('/[^\d,]/', '', $item->importe); // Elimina caracteres no numéricos
+            $cleanImporte = str_replace(',', '.', $cleanImporte); // Cambia comas por puntos
+            return (float)$cleanImporte;
+        });
 
         $query->orderBy($sortColumn, $sortDirection);
         // Aplicar ordenación y paginación
