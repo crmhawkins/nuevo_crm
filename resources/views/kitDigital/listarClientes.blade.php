@@ -18,9 +18,7 @@
         font-size: 0.85rem; /* Ajusta el tamaño del texto para los encabezados */
     }
 
-    .table td, .table th {
-        padding: 0.5rem; /* Ajusta el padding para las celdas */
-    }
+
 
     .long-text {
         max-width: 250px; /* Máximo ancho para el texto largo */
@@ -68,9 +66,7 @@
         color: black !important;
         /* Puedes agregar más estilos aquí */
     }
-    .table>:not(caption)>*>*{
-        padding: 0.75rem !important;
-    }
+
 </style>
 @endsection
 
@@ -393,6 +389,7 @@
     @include('partials.toast')
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
     <script>
+        var enRutaNoMostrar = true;
         $(document).ready(function () {
             // Sincronizar filtros con el formulario de exportación
             $('#formFiltros').on('change', 'input, select', function () {

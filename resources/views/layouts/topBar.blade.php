@@ -1499,8 +1499,11 @@
             }
 
             // Llamada inicial para cargar alertas
-            obtenerAlertas();
+            if (window.enRutaNoMostrar) {
+            return;
+            }
             obtenerCorreos();
+            obtenerAlertas();
         });
     </script>
     <style>
