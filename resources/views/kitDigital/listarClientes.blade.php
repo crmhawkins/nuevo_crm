@@ -76,10 +76,6 @@
         <section class="section pt-4">
             <div class="card">
                 <div class="card-body">
-                    @section('css')
-                    <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
-                    @endsection
-
                     <div>
                         <div class="filtros row mb-4">
                             <div class="col-md-12 col-sm-12">
