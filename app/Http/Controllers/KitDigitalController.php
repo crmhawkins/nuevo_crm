@@ -41,11 +41,12 @@ class KitDigitalController extends Controller
         $perPage = $request->input('perPage', 10);
 
         // Cargando datos estáticos
-        $gestores = User::Where('access_level_id',4)->where('inactive', 0)->get();
-        $comerciales = User::whereIn('access_level_id', [1, 6])->where('inactive', 0)->get();
-        $servicios = KitDigitalServicios::all();
-        $estados = KitDigitalEstados::orderBy('orden', 'asc')->get();
-        $clientes = Client::where('is_client',true)->get();
+        $gestores = cache()->remember('gestores', 60, fn() => User::where('access_level_id', 4)->where('inactive', 0)->get());
+        $comerciales = cache()->remember('comerciales', 60, fn() => User::whereIn('access_level_id', [1, 6])->where('inactive', 0)->get());
+        $servicios = cache()->remember('servicios', 60, fn() => KitDigitalServicios::all());
+        $estados = cache()->remember('estados', 60, fn() => KitDigitalEstados::orderBy('orden', 'asc')->get());
+        $clientes = cache()->remember('clientes', 60, fn() => Client::where('is_client', true)->get());
+
 
         $estados_facturas = [
             ['id' => '0', 'nombre' => 'No abonada'],
@@ -65,7 +66,7 @@ class KitDigitalController extends Controller
 
         // Construcción de la consulta principal
         $query = KitDigital::query();
-
+        $query->with(['estados', 'Client', 'comercial','servicios']);
         // Aplicar filtros
         if ($selectedCliente) {
             $query->where('cliente_id', $selectedCliente);
