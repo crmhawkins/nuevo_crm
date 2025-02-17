@@ -209,7 +209,7 @@ class BudgetController extends Controller
         $presupuesto = Budget::find($id);
         $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
 
-        $gestores = User::all();
+        $gestores = User::whereIn('access_level_id',[2, 3, 4])->where('inactive', 0)->get();
         if (!$presupuesto) {
             return redirect()->route('presupuestos.index')->with('toast', [
                 'icon' => 'error',
