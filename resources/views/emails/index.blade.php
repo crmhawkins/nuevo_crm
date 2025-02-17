@@ -234,6 +234,9 @@ $(document).ready(() => {
     $(document).on('click', function(e) {
         $('#emailContextMenu').hide();
     });
+    $(window).on('scroll', function() {
+        $('#emailContextMenu').hide();
+    });
 });
 
 function changeEmailStatus(emailId, status) {
