@@ -662,4 +662,38 @@ class EmailController extends Controller
         return $firma;
     }
 
+    function setEmailStatus(Request $request)
+    {
+        $email = Email::find($request->id);
+        if (!$email) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Correo no encontrado'
+            ]);
+        }
+        if ($email->admin_user_id == Auth::user()->id) {
+            $email->status_id = $request->status;
+            $emailSaved = $email->save();
+
+            if ($emailSaved) {
+                return response()->json([
+                    'status' => true,
+                    'statusName' =>  optional($email->status)->name,
+                    'statusColor' => optional($email->status)->color,
+                    'message' => 'Correo actualizado correctamente'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No se pudo actualizar el correo'
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'No tienes permisos para actualizar este correo'
+            ]);
+        }
+    }
+
 }
