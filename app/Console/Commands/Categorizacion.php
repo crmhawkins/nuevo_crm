@@ -85,8 +85,7 @@ class Categorizacion extends Command
 
                 ",
             //"model" => "mistral",
-            //"model" => "deepseek-r1:14b",
-            "model" => "llama3.2-vision:latest",
+            "model" => "deepseek-r1:14b",
         );
         //$this->info('enviado : ' . $data['question']);
 
