@@ -35,12 +35,16 @@ class EmailController extends Controller
             $query->where(function($q) use ($categoriaId) {
                 $q->where('category_id', $categoriaId);
             });
+        }else{
+            $query->where('category_id', '!=', 6);
+
         }
 
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('sender', 'like', "%{$search}%")
-                  ->orWhere('subject', 'like', "%{$search}%");
+                  ->orWhere('subject', 'like', "%{$search}%")
+                  ->orWhere('body', 'like', "%{$search}%");
             });
         }
 
