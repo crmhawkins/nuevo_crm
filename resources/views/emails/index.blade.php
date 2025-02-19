@@ -42,14 +42,23 @@
                             <i class="fa-solid fa-plus me-1"></i> Nuevo Correo
                         </a>
                     </div>
-                    <form method="GET" action="{{ route('admin.emails.index') }}" class="d-flex col-md-6">
-                        <div class="col-10 mr-2">
-                            <input type="text" name="search" class="form-control p-2" placeholder="Buscar por remitente o asunto" value="{{ request('search') }}">
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa-solid fa-search "></i> Buscar
-                        </button>
-                    </form>
+
+                    <div class="col-md-6">
+                        <form method="GET" action="{{ route('admin.emails.index') }}" class="d-flex">
+                            <div class="col-9">
+                                <input type="text" name="search" class="form-control p-2" placeholder="Buscar por remitente o asunto" value="{{ request('search') }}">
+                            </div>
+                            <div class="col-3 d-flex justify-content-around">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-search "></i> Buscar
+                                </button>
+                                <a class="btn btn-primary" href="{{ route('admin.emails.getCorreos') }}">
+                                    <i class="fa-solid fa-sync me-1"></i>
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
             </div>
             <div class="card-body">
