@@ -75,9 +75,16 @@
                                         <button class="btn btn-outline-secondary toggle-details" type="button" data-toggle="collapse" data-target="#detalles-{{ $loop->index }}" aria-expanded="false">
                                             Ver Detalles
                                         </button>
-                                        <a class="btn btn-outline-secondary" href="{{route('horas.calendar',$usuario['id'])}}" target="_blank">
-                                            Ver calendario
-                                        </a>
+                                    @if($usuario['access_level_id'] == 5)
+                                    <a class="btn btn-outline-secondary" href="{{route('tarea.calendar',$usuario->id)}}" target="_blank">
+                                        Ver calendario
+                                    </a>
+                                    @else
+                                    <a class="btn btn-outline-secondary" href="{{route('horas.calendar',$usuario['id'])}}" target="_blank">
+                                        Ver calendario
+                                    </a>
+                                    @endif
+
                                     </td>
                                 </tr>
                                 <tr id="detalles-{{ $loop->index }}" class="collapse">
