@@ -70,7 +70,7 @@
 
                         @if (strip_tags($bodyWithoutLinks) != $bodyWithoutLinks)
                             {{-- Si el cuerpo tiene etiquetas HTML (ignorando <a>) --}}
-                            {!! $email->body !!}
+                            <iframe id="emailFrame" width="100%" height="500px" style="border: none;"></iframe>
                         @else
                             {{-- Si es texto plano (o solo contiene enlaces) --}}
                             <p style="white-space: pre-wrap;">{!! $email->body !!}</p>
@@ -98,4 +98,28 @@
         </div>
     </section>
 </div>
+@endsection
+
+@section('scripts')
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var frame = document.getElementById('emailFrame');
+        var frameDoc = frame.contentDocument || frame.contentWindow.document;
+
+        // Inyectar HTML y luego ajustar la altura
+        frameDoc.open();
+        frameDoc.write(`{!! addslashes($email->body) !!}`);
+        frameDoc.close();
+
+        // Esperar a que el contenido se cargue y luego ajustar la altura
+        frame.onload = function() {
+            setTimeout(function() { // Usar setTimeout para asegurarse de que se cargue completamente
+                var body = frame.contentWindow.document.body, html = frame.contentWindow.document.documentElement;
+                var height = Math.max( body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight );
+                frame.style.height = height + 'px';
+            }, 0);
+        };
+    });
+</script>
 @endsection
