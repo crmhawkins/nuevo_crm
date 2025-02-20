@@ -76,7 +76,7 @@
                                             Ver Detalles
                                         </button>
                                     @if($usuario['access_level_id'] == 5)
-                                    <a class="btn btn-outline-secondary" href="{{route('tarea.calendar',$usuario->id)}}" target="_blank">
+                                    <a class="btn btn-outline-secondary" href="{{route('tarea.calendar',$usuario['id'])}}" target="_blank">
                                         Ver calendario
                                     </a>
                                     @else
