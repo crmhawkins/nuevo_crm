@@ -17,11 +17,14 @@ class ApiController extends Controller
         $segmentos = ['A', 'B', 'C'];  // Define los segmentos que deseas incluir
 
         $kitDigitals = KitDigital::where('estado', 18)
-                             ->whereIn('segmento', $segmentos)  // Usar whereIn para múltiples valores
-                             ->where(function($query) {
-                                 $query->where('enviado', '!=', 1)
-                                       ->orWhereNull('enviado');
-                             })->get();
+                         ->whereIn('segmento', $segmentos)  // Usar whereIn para múltiples valores
+                         ->where(function($query) {
+                             $query->where('enviado', '!=', 1)
+                                   ->orWhereNull('enviado');
+                         })
+                         ->whereNotNull('telefono')  // Asegurarse de que 'telefono' no sea nulo
+                         ->get();
+
 
         return $kitDigitals;
     }
