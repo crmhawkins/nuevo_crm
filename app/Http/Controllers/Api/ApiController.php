@@ -13,7 +13,16 @@ use Illuminate\Support\Facades\Storage;
 class ApiController extends Controller
 {
     public function getayudas(Request $request){
-        $kitDigitals = EnvioDani::wherenull('enviado')->get();
+
+        $segmentos = ['A', 'B', 'C'];  // Define los segmentos que deseas incluir
+
+        $kitDigitals = KitDigital::where('estado', 18)
+                             ->whereIn('segmento', $segmentos)  // Usar whereIn para múltiples valores
+                             ->where(function($query) {
+                                 $query->where('enviado', '!=', 1)
+                                       ->orWhereNull('enviado');
+                             })->get();
+
         return $kitDigitals;
     }
 
@@ -27,14 +36,8 @@ class ApiController extends Controller
 
     public function updateMensajes(Request $request)
     {
-
         if($request->ayuda_id != null){
-            $envioDani = EnvioDani::where('kit_id', $request->ayuda_id)->get()->first();
             $ayuda = KitDigital::find($request->ayuda_id);
-            if($envioDani){
-                $envioDani->enviado = 1;
-                $envioDani->save();
-            }
             $ayuda->enviado = 1;
             if($request->mensaje != null){
                 $ayuda->mensaje = $request->mensaje;
