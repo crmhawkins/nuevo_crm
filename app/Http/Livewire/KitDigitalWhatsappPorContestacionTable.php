@@ -58,7 +58,7 @@ class KitDigitalWhatsappPorContestacionTable extends Component
         $buscarLower = mb_strtolower(trim($this->buscar), 'UTF-8');  // Convertir la cadena a minúsculas y eliminar espacios al inicio y al final
         $searchTerms = explode(" ", $buscarLower);  // Dividir la entrada en términos individuales
 
-        $query = KitDigital::query()->join('envio_dani', 'envio_dani.kit_id', '=', 'ayudas.id');
+        $query = KitDigital::where('updated_at', '<=', '2025-02-26')->where('enviado', 1);
         // Aplica el orden
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
