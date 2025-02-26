@@ -19,7 +19,7 @@
                     <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{route('nominas.index')}}">Contrato</a></li>
+                            <li class="breadcrumb-item"><a href="{{route('contratos.index')}}">Contrato</a></li>
                             <li class="breadcrumb-item active" aria-current="page">Editar Contrato</li>
                         </ol>
                     </nav>

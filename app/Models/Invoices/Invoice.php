@@ -4,6 +4,7 @@ namespace App\Models\Invoices;
 
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
+use App\Models\Logs\LogActions;
 use App\Models\PaymentMethods\PaymentMethod;
 use App\Models\Projects\Project;
 use App\Models\Users\User;
@@ -11,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Invoice extends Model
 {
@@ -154,5 +156,29 @@ class Invoice extends Model
         }
 
         return $count > 0 ? $totalDuration / $count : 0; // Retorna la duración promedio
+    }
+
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updated(function ($invoice) {
+            $changed = $invoice->getDirty(); // Obtiene los campos que han cambiado
+            $userId = Auth::user()->id; // Obtiene el ID del usuario autenticado
+
+            foreach ($changed as $field => $newValue) {
+
+                $oldValue = $invoice->getOriginal($field);
+
+                LogActions::create([
+                    'tipo' => 3,
+                    'admin_user_id' => $userId,
+                    'action' => 'Actualizar Factura ' . $invoice->reference,
+                    'description' => 'De  "'.(is_null($oldValue) ? 'N/A' : (string)$oldValue).'"  a  "'. (is_null($newValue) ? 'N/A' : (string)$newValue).'"',
+                    'reference_id' => $invoice->id,
+                ]);
+            }
+        });
     }
 }

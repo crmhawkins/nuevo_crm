@@ -35,12 +35,18 @@ class EmailController extends Controller
             $query->where(function($q) use ($categoriaId) {
                 $q->where('category_id', $categoriaId);
             });
+        }else{
+            $query->where(function($q){
+                $q->where('category_id', '!=', 6)
+                ->orWhereNull('category_id');
+            });
         }
 
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('sender', 'like', "%{$search}%")
-                  ->orWhere('subject', 'like', "%{$search}%");
+                  ->orWhere('subject', 'like', "%{$search}%")
+                  ->orWhere('body', 'like', "%{$search}%");
             });
         }
 
@@ -654,12 +660,149 @@ class EmailController extends Controller
 
         // Sustituye los marcadores de posición con los datos del usuario
         $firma = str_replace(
-            ['{{nombre}}', '{{puesto}}', '{{correo}}'],
-            [$usuario->name.' '.$usuario->surname, $usuario->departamento->name, $usuario->email],
+            ['{{nombre}}', '{{puesto}}', '{{correo}}','{{telefono}}'],
+            [$usuario->name.' '.$usuario->surname, optional($usuario->departamento)->name, $usuario->email, str_replace(' ','',$usuario->phone ?? (optional($usuario->departamento)->phone ??  '956662942'))],
             $plantilla
         );
 
         return $firma;
+    }
+
+    function setEmailStatus(Request $request)
+    {
+        $email = Email::find($request->id);
+        if (!$email) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Correo no encontrado'
+            ]);
+        }
+        if ($email->admin_user_id == Auth::user()->id) {
+            $email->status_id = $request->status;
+            $emailSaved = $email->save();
+
+            if ($emailSaved) {
+                return response()->json([
+                    'status' => true,
+                    'statusName' =>  optional($email->status)->name,
+                    'statusColor' => optional($email->status)->color,
+                    'message' => 'Correo actualizado correctamente'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No se pudo actualizar el correo'
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'No tienes permisos para actualizar este correo'
+            ]);
+        }
+    }
+
+    function getCorreos(){
+
+        $userid = Auth::user()->id;
+
+        $correo = UserEmailConfig::where('admin_user_id', $userid)->get()->first();
+
+        if (!$correo) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'No hay configuraciones de correo disponibles'
+            ]);
+        }
+
+        try {
+            $ClientManager = new ClientManager();
+            $client = $ClientManager->make([
+                'host' => $correo->host,
+                'port' => $correo->port,
+                'username' => $correo->username,
+                'password' => $correo->password,
+                'encryption' => 'ssl',
+                'validate_cert' => true,
+                'protocol' => 'imap',
+            ]);
+
+            $client->connect();
+
+            $inbox = $client->getFolder('INBOX');
+            $messages = $inbox->messages()->unseen()->limit(10)->get();
+
+            foreach ($messages as $message) {
+                try {
+                    $messageId = $message->getMessageId();
+
+                    $sender = $message->getFrom()[0]->mail;
+                    $subject = $message->getSubject();
+                    $body = $message->getHTMLBody() ?: $message->getTextBody();
+
+                    $toRecipients = $message->getTo();
+                    $ccRecipients = $message->getCc();
+
+                    $toList = collect($toRecipients)->pluck('mail')->implode(', ');
+                    $ccList = collect($ccRecipients)->pluck('mail')->implode(', ');
+
+                    $email = Email::create([
+                        'admin_user_id' => $correo->admin_user_id,
+                        'sender' => $sender,
+                        'subject' => $subject,
+                        'body' => $body,
+                        'message_id' => $messageId,
+                        'status_id' => 1,
+                        'cc' => $ccList,
+                        'to' => $toList,
+                    ]);
+
+                    $attachments = $message->getAttachments();
+                    foreach ($attachments as $attachment) {
+                        try {
+                            $filename = $attachment->getName();
+                            $file_path = "emails/" . $email->id . "/" . $filename;
+                            Storage::disk('public')->put($file_path, $attachment->getContent());
+
+                            $cid = $attachment->getContentId();
+                            if ($cid) {
+                                $cid = str_replace(['<', '>'], '', $cid);
+                                $public_path = asset('storage/' . $file_path);
+                                $body = str_replace("cid:$cid", $public_path, $body);
+                            }
+
+                            Attachment::create([
+                                'email_id' => $email->id,
+                                'file_path' => $file_path,
+                                'file_name' => $filename,
+                            ]);
+                        } catch (\Exception $e) {
+                            $this->error("Error procesando adjunto: {$e->getMessage()}");
+                        }
+                    }
+
+                    $email->update(['body' => $body]);
+                    $message->setFlag('Seen');
+                    if($correo->admin_user_id != 54){
+                        $message->delete(); // Elimina el mensaje del servidor
+                    }
+
+                } catch (\Exception $e) {
+                    $this->error("Error procesando mensaje: {$e->getMessage()}");
+                }
+            }
+            $client->disconnect();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Error con la configuración del correo'
+            ]);
+        }
+
+        return redirect()->route('admin.emails.index')->with('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Correos procesados correctamente'
+        ]);
     }
 
 }

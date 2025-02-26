@@ -14,7 +14,7 @@ use Carbon\CarbonInterval;
 class Alertashorastrabajadas extends Command
 {
     protected $signature = 'Alertas:HorasTrabajadas';
-    protected $description = 'Crear alertas de presupuesto Finalizado y no facturado';
+    protected $description = 'Crear alertas de horas trabajadas';
 
     public function __construct()
     {
@@ -50,30 +50,33 @@ class Alertashorastrabajadas extends Command
             $detalleDiasDeuda = []; // Para registrar los días que contribuyen a la deuda
 
             foreach ($semana as $dia => $fecha) {
-                $horasTrabajadas = $this->horasTrabajadasDia($fecha, $usuario->id);
-                $horasProducidas = $this->tiempoProducidoDia($fecha, $usuario->id);
+                $jornadas = Jornada::where('admin_user_id', $usuario->id)
+                    ->whereDate('start_time', $fecha)
+                    ->whereNotNull('end_time')
+                    ->exists(); // Verifica si el usuario inició jornada
 
-                // Calcular horas esperadas para este día
-                $horasEsperadas = ($dia === 'viernes') ? $EnOficinaviernes * 60 : $EnOficina * 60;
-                $horasProducidasDiaEsperadas = $producido * 60;
+                if ($jornadas) {
+                    $horasTrabajadas = $this->horasTrabajadasDia($fecha, $usuario->id);
+                    $horasProducidas = $this->tiempoProducidoDia($fecha, $usuario->id);
 
-                // Actualizar totales
-                $horasTrabajadasSemana += $horasTrabajadas;
-                $horasProducidasSemana += $horasProducidas;
-                $horasEsperadasSemana += $horasEsperadas;
-                $horasProducidasEsperadas += $horasProducidasDiaEsperadas;
+                    $horasEsperadas = ($dia === 'viernes') ? $EnOficinaviernes * 60 : $EnOficina * 60;
+                    $horasProducidasDiaEsperadas = $producido * 60;
 
-                // Calcular balance diario y actualizar balance semanal
-                $balanceDiarioTrabajadas = $horasTrabajadas - $horasEsperadas;
-                $balanceDiarioProducidas = $horasProducidas - $horasProducidasDiaEsperadas;
+                    $horasTrabajadasSemana += $horasTrabajadas;
+                    $horasProducidasSemana += $horasProducidas;
+                    $horasEsperadasSemana += $horasEsperadas;
+                    $horasProducidasEsperadas += $horasProducidasDiaEsperadas;
 
-                $balanceHorasTrabajadas += $balanceDiarioTrabajadas;
-                $balanceHorasProducidas += $balanceDiarioProducidas;
+                    $balanceDiarioTrabajadas = $horasTrabajadas - $horasEsperadas;
+                    $balanceDiarioProducidas = $horasProducidas - $horasProducidasDiaEsperadas;
 
+                    $balanceHorasTrabajadas += $balanceDiarioTrabajadas;
+                    $balanceHorasProducidas += $balanceDiarioProducidas;
+                }
             }
 
             if ($balanceHorasTrabajadas < 0 || $balanceHorasProducidas < 0) {
-                $mensajeDeuda = "Debe de la semana pasada :\n";
+                $mensajeDeuda = $usuario->name.''.$usuario->surname." debe las sigientes horas :\n";
                 if ($balanceHorasTrabajadas < 0) {
                     $mensajeDeuda .= " En oficina: " . floor(abs($balanceHorasTrabajadas) / 60) . " horas y " . (abs($balanceHorasTrabajadas) % 60) . " minutos.\n";
                 }
@@ -90,6 +93,21 @@ class Alertashorastrabajadas extends Command
                     'reference_id' => $usuario->id,
                     'description' => $mensajeDeuda
                 ]);
+
+                $alertados = [1,8];
+                foreach($alertados as $alertar){
+                    $data = [
+                    'admin_user_id' => $alertar,
+                    'stage_id' => 31,
+                    'activation_datetime' => Carbon::now(),
+                    'status_id' => 1,
+                    'reference_id' => $usuario->id,
+                    'description' => $mensajeDeuda
+                    ];
+
+                    $alert = Alert::create($data);
+                    $alertSaved = $alert->save();
+                }
 
             }
 

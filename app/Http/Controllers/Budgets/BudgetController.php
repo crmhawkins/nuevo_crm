@@ -209,7 +209,7 @@ class BudgetController extends Controller
         $presupuesto = Budget::find($id);
         $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
 
-        $gestores = User::all();
+        $gestores = User::whereIn('access_level_id',[2, 3, 4])->where('inactive', 0)->get();
         if (!$presupuesto) {
             return redirect()->route('presupuestos.index')->with('toast', [
                 'icon' => 'error',
@@ -1040,6 +1040,13 @@ class BudgetController extends Controller
         }
     }
     public function generateInvoice(Request $request){
+
+        if(Auth::user()->access_level_id < 3){
+            return response()->json([
+                'status' => false,
+                'mensaje' => "No tienes permisos para generar facturas"
+            ]);
+        }
         $budget = Budget::find($request->id);
 
 
@@ -1062,6 +1069,17 @@ class BudgetController extends Controller
                 'mensaje' => "Un presupuesto sin conceptos no puede generar factura."
             ]);
         }
+
+        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
+            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
+            $porcentaje = 1 - ($totalFacturado / $budget->total);
+            if($porcentaje == 0){
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
+                ]);
+            }
+        }else{ $porcentaje = 1;}
 
         // Validación campos array data
         if( $budget->discount_percentage){
@@ -1128,17 +1146,6 @@ class BudgetController extends Controller
 
         }
 
-
-        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
-            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
-            $porcentaje = 1 - ($totalFacturado / $budget->total);
-            if($porcentaje == 0){
-                return response()->json([
-                    'status' => false,
-                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
-                ]);
-            }
-        }else{ $porcentaje = 1;}
 
         $data = [
             'budget_id' => $budget->id,
@@ -1310,6 +1317,16 @@ class BudgetController extends Controller
                 'mensaje' => "Un presupuesto sin conceptos no puede generar factura."
             ]);
         }
+        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
+            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
+            $porcentaje = 1 - ($totalFacturado / $budget->total);
+            if($porcentaje == 0){
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
+                ]);
+            }
+        }else{ $porcentaje = 1;}
 
         // Validación campos array data
         if( $budget->discount_percentage){
@@ -1324,16 +1341,7 @@ class BudgetController extends Controller
             $referenceGenerationResult = $this->generateInvoiceReference($budget);
         }
 
-        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
-            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
-            $porcentaje = 1 - ($totalFacturado / $budget->total);
-            if($porcentaje == 0){
-                return response()->json([
-                    'status' => false,
-                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
-                ]);
-            }
-        }else{ $porcentaje = 1;}
+
         $data = [
             'budget_id' => $budget->id,
             'reference' => $referenceGenerationResult['reference'],
@@ -1474,8 +1482,15 @@ class BudgetController extends Controller
     }
 
     public function generateInvoicePartial(Request $request){
+        if(Auth::user()->access_level_id < 3){
+            return response()->json([
+                'status' => false,
+                'mensaje' => "No tienes permisos para generar facturas"
+            ]);
+        }
         $budget = Budget::find($request->id);
         $porcentaje = $request['percentage'];
+
         if($porcentaje == 0){
             return response()->json([
                 'status' => false,
@@ -1509,6 +1524,7 @@ class BudgetController extends Controller
         $base = ($budget->base * $porcentaje) / 100;
         $iva = ($budget->iva * $porcentaje) / 100;
         $discount = ($budget->discount * $porcentaje) / 100;
+
 
         $budget->invoiced_advance = $porcentaje;
 

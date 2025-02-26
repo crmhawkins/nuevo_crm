@@ -73,6 +73,15 @@
                             @enderror
                         </div>
                         <div class="form-group mt-3">
+                            <label for="phone">Telefono:</label>
+                            <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" value="{{$usuario->phone}}" name="phone">
+                            @error('phone')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                            @enderror
+                        </div>
+                        <div class="form-group mt-3">
                             <label for="password">Password:</label>
                             <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" autocomplete="new-password" value="{{ old('password') }}" name="password">
                             @error('password')

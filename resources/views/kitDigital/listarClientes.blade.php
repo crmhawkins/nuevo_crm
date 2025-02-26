@@ -1,75 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.appkit')
 
 @section('titulo', 'Kit Digital - Listar Clientes')
-
-@section('css')
-<link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
-<link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
-<style>
-        /* Estilos específicos para la tabla */
-    .table-responsive {
-        overflow-x: auto; /* Asegura un desplazamiento suave en pantallas pequeñas */
-        overflow-y: hidden; /* Asegura un desplazamiento suave en pantallas pequeñas */
-    }
-
-    .header-table th {
-        vertical-align: bottom; /* Alinea el texto de los encabezados en la parte inferior */
-        white-space: nowrap; /* Evita que los encabezados se rompan en líneas */
-        font-size: 0.85rem; /* Ajusta el tamaño del texto para los encabezados */
-    }
-
-    .table td, .table th {
-        padding: 0.5rem; /* Ajusta el padding para las celdas */
-    }
-
-    .long-text {
-        max-width: 250px; /* Máximo ancho para el texto largo */
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    th {
-    white-space: nowrap !important;
-    }
-    .titulo_filtros {
-    white-space: nowrap !important;
-    }
-    /* Cambia el estilo del select */
-    .cliente .choices {
-        width: 50px !important;
-        margin-bottom: 0 !important;
-        font-size: 0.75rem;
-        height: fit-content;
-    }
-    .cliente .choices__inner {
-        padding-bottom: 0 !important;
-        display: block !important;
-        vertical-align: top !important;
-        width: 100% !important;
-        background-color: transparent !important;
-        padding: 0.1rem 0.1rem 0.1rem 0.2rem !important;
-        border: 1px solid rgb(175, 175, 175) !important;
-        border-radius: 2.5px !important;
-        font-size: 0.75rem !important;
-        min-height: 0px !important;
-        overflow: hidden !important;
-        box-shadow: none !important;
-    }
-
-    /* Estilo del dropdown */
-    .cliente .choices__list {
-        width: 200px; /* Cambia el ancho del dropdown */
-        max-width: 400px; /* Ajusta el ancho máximo como desees */
-    }
-    .choices__list.choices__list--single {
-        padding: 0.1rem 0.1rem 0.1rem 0.2rem !important;
-    }
-    .cliente .choices__item.choices__item--choice.choices__item--selectable {
-        color: black !important;
-        /* Puedes agregar más estilos aquí */
-    }
-</style>
-@endsection
 
 @section('content')
 
@@ -80,7 +11,6 @@
                     @section('css')
                     <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
                     @endsection
-
                     <div>
                         <div class="filtros row mb-4">
                             <div class="col-md-12 col-sm-12">
@@ -187,8 +117,34 @@
                                         <input type="hidden" name="sortDirection" id="sortDirection" value="{{ old('sortDirection',$sortDirection)}}">
                                     </div>
                                 </form>
-                                <div class="col-md-12 col-sm-12 text-center">
-                                    <span class="fs-3" >Sumatorio: <b>{{ number_format($Sumatorio, 2, ',', '.') .' €'}}</b></span>
+                                <div class="row" >
+                                    <div class="col-md-8 col-sm-6 text-end">
+                                        <span class="fs-3" >Sumatorio: <b>{{ number_format($Sumatorio, 2, ',', '.') .' €'}}</b></span>
+                                    </div>
+                                    <div class="col-md-4 text-end mb-3">
+                                        <form id="exportToExcelForm" action="{{ route('kitDigital.Excel') }}" method="POST">
+                                            <!-- Filtros ocultos para exportar -->
+                                            @csrf
+                                            <input type="hidden" name="selectedCliente" value="{{ $selectedCliente }}">
+                                            <input type="hidden" name="selectedEstado" value="{{ $selectedEstado }}">
+                                            <input type="hidden" name="selectedGestor" value="{{ $selectedGestor }}">
+                                            <input type="hidden" name="selectedServicio" value="{{ $selectedServicio }}">
+                                            <input type="hidden" name="selectedEstadoFactura" value="{{ $selectedEstadoFactura }}">
+                                            <input type="hidden" name="selectedComerciales" value="{{ $selectedComerciales }}">
+                                            <input type="hidden" name="selectedSegmento" value="{{ $selectedSegmento }}">
+                                            <input type="hidden" name="selectedDateField" value="{{ $selectedDateField }}">
+                                            <input type="hidden" name="date_from" value="{{ $dateFrom }}">
+                                            <input type="hidden" name="date_to" value="{{ $dateTo }}">
+                                            <input type="hidden" name="buscar" value="{{ $buscar }}">
+                                            <input type="hidden" name="sortColumn" value="{{ $sortColumn }}">
+                                            <input type="hidden" name="sortDirection" value="{{ $sortDirection }}">
+
+                                            <!-- Botón de exportar -->
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fa fa-file-excel"></i> Exportar a Excel
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -201,8 +157,10 @@
                                         'segmento' => 'SEG',
                                         'cliente_id' => 'CLI. A.',
                                         'cliente' => 'CLIENTE',
-                                        'mensaje_interpretado' => 'INTERES.',
-                                        'mensaje' => 'IA',
+                                        'facturado' => 'FACT',
+                                        'estado_factura' => 'E.F',
+                                        'certificado_hacienda' => 'C.H',
+                                        'certificado_seguridad' => 'C.S',
                                         'contacto' => 'CONTACTO',
                                         'telefono' => 'TELEFONO',
                                         'expediente' => 'EXPEDIENTE',
@@ -212,7 +170,6 @@
                                         'created_at' => 'F.CREA.',
                                         'fecha_actualizacion' => 'F.ACT.',
                                         'importe' => 'IMPORTE',
-                                        'estado_factura' => 'ESTADO FACTURA',
                                         'banco' => 'EN BANCO',
                                         'fecha_acuerdo' => 'F. ACUERDO',
                                         'plazo_maximo_entrega' => 'PLZ. MAX',
@@ -221,7 +178,7 @@
                                         'comentario' => 'COMENTARIO',
                                         'nuevo_comentario' => 'N. COMENTARIO',
                                         ] as $field => $label)
-                                        <th class="px-3">
+                                        <th class="px-2">
                                             <a class="sort" data-column="{{$field}}" >
                                                 {{ $label }}
                                                 @if ($sortColumn == $field)
@@ -245,28 +202,24 @@
                                         </td>
                                         <td style="width: 50px !important; ">
                                             <div class="d-flex cliente">
-                                                <select class="choices" data-id="{{$item->id}}" name="cliente_id" id="cliente_id" style="width: 50px !important; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}};margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem;">
-                                                    <option value="">SC</option>
-                                                    @foreach ($clientes as $cliente)
-                                                        <option value="{{$cliente->id}}" @if($item->cliente_id == $cliente->id) selected  @endif>{{$cliente->company ?? $cliente->name}}</option>
-                                                    @endforeach
-                                                </select>
-                                                <a href="{{route('clientes.create')}}" target="blank" class="btn btn-sm btn-light ml-1">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                 </a>
+                                                <input id="cliente-nombre-{{ $item->id }}" type="text" value="{{optional($item->Client)->company ?? optional($item->Client)->name}}" style="max-width: 70px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem" disabled>
+                                                <button class="btn btn-sm btn-light ml-1" data-bs-toggle="modal" data-bs-target="#clienteModal"
+                                                data-id="{{ $item->id }}" onclick="seleccionarCliente({{ $item->id }})">
+                                                    <i class="fa-solid fa-edit"></i>
+                                                </button>
                                             </div>
                                         </td>
                                         <td style="max-width: 70px !important"><input data-id="{{$item->id}}" type="text" name="cliente" id="cliente" value="{{ $item->cliente }}" style="max-width: 70px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem"></td>
-                                        <td style="max-width: 50px">
-                                            <input disabled data-id="{{$item->id}}" type="text" name="mensaje_interpretado" id="mensaje_interpretado"
-                                            value="{{ $item->mensaje_interpretado == 1 ? 'Si' : ($item->mensaje_interpretado == 2 ? 'No se' : ($item->mensaje_interpretado === 0 ? 'No' : ($item->mensaje_interpretado === 3 ? 'Error' : ($item->mensaje_interpretado === 4 ? 'No respondio' : '')))) }}"
-                                            style="height: fit-content; background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border: none; margin-bottom: 0 !important; font-size: 0.75rem; text-align: center; width: 56px;">
+                                        <td style="max-width: 20px"><input data-id="{{$item->id}}" {{$item->facturado == 1 ? 'checked' : ''}} class="form-check-input" type="checkbox" value="1" name="facturado"></td>
+                                        <td style="max-width: 20px" @if($item->estado_factura == 0) style="background-color: #f25757; color: white;" @else style="background-color: #2cbc09; color: white;" @endif >
+                                            <select name="estado_factura" id="estado_factura" data-id="{{$item->id}}" style="background-color: {{$item->estado_factura == 1 ? '#2cbc09': '#f25757'}}; color: white;margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem; width: 20px;">
+                                                <option value=""> </option>
+                                                    <option @if($item->estado_factura == 1) selected style="height: fit-content;background-color: #2cbc09; color: white;" @endif value="1">A</option>
+                                                    <option @if($item->estado_factura == 0) selected style="height: fit-content;background-color: #f25757; color: white;" @endif value="0">N</option>
+                                            </select>
                                         </td>
-                                        <td style="max-width: 50px">
-                                            {{-- <textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:100%;">{{ $item->mensaje }}</textarea> --}}
-                                            <button type="button" class="btn btn-sm btn-light" onclick="redirectToWhatsapp({{$item->id}})">Ver</button>
-
-                                        </td>
+                                        <td style="max-width: 20px"><input data-id="{{$item->id}}" {{$item->certificado_hacienda == 1 ? 'checked' : ''}} class="form-check-input" type="checkbox" value="1" name="certificado_hacienda"></td>
+                                        <td style="max-width: 20px"><input data-id="{{$item->id}}" {{$item->certificado_seguridad == 1 ? 'checked' : ''}} class="form-check-input" type="checkbox" value="1" name="certificado_seguridad"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="contacto" id="contacto" value="{{ $item->contacto }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="telefono" id="telefono" value="{{ $item->telefono }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                         <td style="max-width: 50px" class="exclude"><input data-id="{{$item->id}}" type="text" name="expediente" id="expediente" value="{{ $item->expediente }}" style="max-width: 50px;height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
@@ -290,13 +243,6 @@
                                         <td style="max-width: 98px"><input data-id="{{$item->id}}" type="date" name="created_at" id="created_at" value="{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d')  }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;" disabled></td>
                                         <td style="max-width: 98px"><input data-id="{{$item->id}}" type="date" name="fecha_actualizacion" id="fecha_actualizacion" value="{{ $item->fecha_actualizacion }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                         <td style="max-width: 50px"><input data-id="{{$item->id}}" type="text" name="importe" id="importe" value="{{ $item->importe }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem; text-align: center;width: 50px"></td>
-                                        <td style="max-width: 50px" @if($item->estado_factura == 0) style="background-color: #f25757; color: white;" @else style="background-color: #2cbc09; color: white;" @endif >
-                                            <select name="estado_factura" id="estado_factura" data-id="{{$item->id}}" style="background-color: {{$item->estado_factura == 1 ? '#2cbc09': '#f25757'}}; color: white;margin-bottom: 0 !important;font-size: 0.75rem;height: fit-content;padding: 0.1rem 0.1rem 0.1rem 0.2rem; width: 66px;">
-                                                <option value="">Seleccione un estado</option>
-                                                    <option @if($item->estado_factura == 1) selected style="height: fit-content;background-color: #2cbc09; color: white;" @endif value="1">Abonada</option>
-                                                    <option @if($item->estado_factura == 0) selected style="height: fit-content;background-color: #f25757; color: white;" @endif value="0">No Abonada</option>
-                                            </select>
-                                        </td>
                                         <td style="max-width: 98px"><input  data-id="{{$item->id}}" type="date" name="banco" id="banco" value="{{ $item->banco }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;max-width: 98px"></td>
                                         <td style="max-width: 98px"><input data-id="{{$item->id}}" type="date" name="fecha_acuerdo" id="fecha_acuerdo" value="{{ $item->fecha_acuerdo }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;max-width: 80px"></td>
                                         <td style="max-width: 80px"><input data-id="{{$item->id}}" type="date" name="plazo_maximo_entrega" id="plazo_maximo_entrega" value="{{ $item->plazo_maximo_entrega }}" style="height: fit-content;background-color: {{$item->estados->color}}; color: {{$item->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;max-width: 80px"></td>
@@ -323,20 +269,39 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                            <!-- Modal Structure -->
-                            <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="editModalLabel">Editar</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                            <div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content shadow-lg border-0">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title" id="clienteModalLabel">
+                                                <i class="fa-solid fa-user-tag"></i> Seleccionar Cliente
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <textarea id="modal-textarea" class="form-control" rows="4"></textarea>
+                                            <input type="hidden" id="clienteIdSeleccionado">
+
+                                            <div class="d-flex align-items-center gap-2">
+                                                <select id="clienteSelect" class="form-select choices flex-grow-1">
+                                                    <option value="">Seleccione un cliente</option>
+                                                    @foreach ($clientes as $cliente)
+                                                        <option value="{{ $cliente->id }}">{{ $cliente->company ?? $cliente->name }}</option>
+                                                    @endforeach
+                                                </select>
+
+                                                <a href="{{ route('clientes.create') }}" target="_blank" class="btn btn-success btn-sm px-3">
+                                                    <i class="fa-solid fa-plus"></i>
+                                                </a>
+                                            </div>
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                            <button type="button" class="btn btn-primary" id="saveChanges">Guardar Cambios</button>
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                <i class="fa-solid fa-times"></i> Cancelar
+                                            </button>
+                                            <button type="button" class="btn btn-primary" onclick="guardarCliente()">
+                                                <i class="fa-solid fa-save"></i> Guardar
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -364,129 +329,6 @@
         </section>
     </div>
 @endsection
-
 @section('scripts')
 
-    @include('partials.toast')
-    <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
-    <script>
-
-        function redirectToWhatsapp(id) {
-            window.open(`/kit-digital/whatsapp/${id}`, '_blank');
-        }
-
-        $(document).ready(function() {
-
-        $("#sidebar").remove();
-        $("#main").css("margin-left", "0px");
-
-
-        // Función para manejar la actualización de datos
-        function handleDataUpdate(id, value, key) {
-            $.ajax({
-                type: "POST",
-                url: "{{ route('kitDigital.updateData') }}", // Asegúrate que esta es la ruta correcta
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                },
-                data: {
-                    id: id,
-                    value: value,
-                    key: key
-                },
-                success: function(data) {
-                    if (data.icon === 'success') {
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true,
-                            didOpen: (toast) => {
-                                toast.addEventListener('mouseenter', Swal.stopTimer);
-                                toast.addEventListener('mouseleave', Swal.resumeTimer);
-                            }
-                        });
-
-                        Toast.fire({
-                            icon: data.icon, // Corregido: Se agregó una coma al final
-                            title: data.mensaje // Corregido: Se agregó una coma al final
-                        });
-                    }else{
-                        Swal.fire({
-                            icon: data.icon,
-                            title: data.mensaje,
-                            confirmButtonText: 'Ok',
-                            backdrop: true // Agrega un fondo oscurecido
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error de servidor',
-                        text: 'Ha ocurrido un error. Por favor, intenta de nuevo.',
-                        confirmButtonText: 'Ok',
-                        backdrop: true // Agrega un fondo oscurecido
-                    });
-                }
-            });
-        }
-
-        // Detectar cambios en inputs, selects y textareas dentro de la tabla
-        $('.table').on('change', 'input, select, textarea', function() {
-            var id = $(this).data('id');  // Asegúrate de que cada fila tenga un atributo data-id
-            var key = $(this).attr('name');
-            var value = $(this).val();
-            handleDataUpdate(id, value, key);
-        });
-
-
-
-        $('#formFiltros').on('change', 'input, select', function (e) {
-            const selectedDateField = $('#selectedDateField').val();
-            const dateFrom = $('#date_from').val();
-            const dateTo = $('#date_to').val();
-
-            // Verificar si el campo cambiado es uno de los tres del filtro por fecha
-            if ($(this).is('#selectedDateField, #date_from, #date_to')) {
-                // Comprobar si los tres campos tienen valores
-                if (selectedDateField && dateFrom && dateTo) {
-                    $('#formFiltros').submit(); // Enviar el formulario si están completos
-                } else {
-                    e.preventDefault(); // Prevenir el envío si falta alguno
-                }
-            } else {
-                $('#formFiltros').submit(); // Enviar el formulario para otros campos
-            }
-        });
-
-
-        $('.sort').on('click', function (e) {
-            e.preventDefault();
-            // Obtener la columna seleccionada del atributo data-column
-            var column = $(this).data('column');
-            console.log(column);
-            // Obtener el valor actual del formulario
-            var currentColumn = $('#sortColumn').val();
-            var currentDirection = $('#sortDirection').val();
-            // Si la columna seleccionada es la misma, cambiar la dirección
-            if (column === currentColumn) {
-                var newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
-                $('#sortDirection').val(newDirection);
-            } else {
-                // Si es una columna diferente, establecer 'asc' por defecto
-                $('#sortDirection').val('desc');
-            }
-
-            // Actualizar el valor de la columna seleccionada
-            $('#sortColumn').val(column);
-            console.log(column);
-
-            // Enviar el formulario
-            $('#formFiltros').submit();
-        });
-
-    });
-    </script>
 @endsection

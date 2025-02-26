@@ -21,7 +21,7 @@
                     <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{(Auth::user()->id = $contrato->admin_user_id) ? route('contratos.index_user',Auth::user()->id) : route('contratos.index')}}">Nominas</a></li>
+                            <li class="breadcrumb-item"><a href="{{(Auth::user()->id = $contrato->admin_user_id) ? route('contratos.index_user',Auth::user()->id) : route('contratos.index')}}">Contratos</a></li>
                             <li class="breadcrumb-item active" aria-current="page">Ver contrato</li>
                         </ol>
                     </nav>

@@ -472,6 +472,8 @@
             e.preventDefault();
 
             var name = $('#name').val();
+            var primerApellido = $('#primerApellido').val();
+            var segundoApellido = $('#segundoApellido').val();
             var company = $('#company').val();
             var form = this;
 
@@ -481,6 +483,8 @@
                 data: {
                     _token: '{{ csrf_token() }}',
                     name: name,
+                    primerApellido: primerApellido,
+                    segundoApellido: segundoApellido,
                     company: company
                 },
                 success: function(cliente) {
@@ -488,7 +492,7 @@
                         Swal.fire({
                             title: 'Cliente existente',
                             html: `Ya existe un cliente con este nombre o nombre de empresa.<br><br>
-                                   <strong>Nombre del contacto:</strong> ${cliente.name}<br>
+                                   <strong>Nombre del contacto:</strong> ${cliente.name} ${cliente.primerApellido} ${cliente.segundoApellido}<br>
                                    <strong>Nombre de la empresa:</strong> ${cliente.company}<br><br>
                                    ¿Estás seguro de que quieres crear uno nuevo?`,
                             icon: 'warning',

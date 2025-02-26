@@ -97,7 +97,7 @@
                             <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d/m/Y') }}</td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 <a href="{{ route('incidencias.edit', $incidencia->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Editar incidencia"></a>
-                                <a class="delete" data-id="{{ $incidencia->id }}" href="#"><img src="{{ asset('assets/icons/trash.svg') }}" alt="Eliminar incidencia"></a>
+                                <a class="delete" data-id="{{ $incidencia->id }}" href=""><img src="{{ asset('assets/icons/trash.svg') }}" alt="Eliminar incidencia"></a>
                             </td>
                         </tr>
                     @endforeach

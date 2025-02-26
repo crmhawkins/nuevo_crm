@@ -22,6 +22,7 @@ class UserDepartament extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'phone',
     ];
 
     protected $dates = [

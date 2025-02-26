@@ -500,8 +500,14 @@
                 }
 
                 dataMensaje.push(templateChat)
-                $('#contenedorChat').append(templateChat)
-                $('#contenedorChat').append(templateChatRespuesta)
+                if (value.is_automatic == true) {
+                    $('#contenedorChat').append(templateChatRespuesta)
+                    $('#contenedorChat').append(templateChat)
+                }else{
+                    $('#contenedorChat').append(templateChat)
+                    $('#contenedorChat').append(templateChatRespuesta)
+
+                }
             })
 
             var templateFinal = `

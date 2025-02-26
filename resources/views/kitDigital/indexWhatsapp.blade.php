@@ -46,12 +46,12 @@
                         <div>
                             <span>Es movil</span>
                         </div>
-                        @livewire('kit-digital-whatsapp-table')
+                        @livewire('kit-digital-whatsapp-por-contestacion-table')
 
                     @else
                         {{-- Contenido para dispositivos de escritorio --}}
                         {{-- <livewire:users-table-view> --}}
-                          @livewire('kit-digital-whatsapp-table')
+                          @livewire('kit-digital-whatsapp-por-contestacion-table')
                     @endif
                 </div>
             </div>

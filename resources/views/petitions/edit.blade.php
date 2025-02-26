@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titulo', 'Editar Presupuesto')
+@section('titulo', 'Editar petición')
 
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
@@ -82,10 +82,25 @@
                                             <input type="text" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ optional($peticion->cliente)->phone}}" disabled>
                                         </div>
                                     </div>
+
                                     <div class="col-md-6 col-sm-12">
                                         <div class="form-group mb-3">
                                             <label class="mb-2 text-left">Email</label>
                                             <input type="text" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ optional($peticion->cliente)->email}}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label class="mb-2 text-left">Finalizada</label>
+                                            <select class="choices form-select w-100 @error('finished') is-invalid @enderror" name="finished">
+                                                <option value="{{0}}">No </option>
+                                                <option value="{{1}}">Si</option>
+                                            </select>
+                                            @error('finished')
+                                                <p class="invalid-feedback d-block" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </p>
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-sm-12">

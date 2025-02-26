@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AyudasExport;
 use App\Models\Clients\Client;
 use Illuminate\Http\Request;
 use App\Models\KitDigital;
@@ -9,9 +10,12 @@ use App\Models\KitDigitalEstados;
 use App\Models\KitDigitalServicios;
 use App\Models\Logs\LogActions;
 use App\Models\Users\User;
+use App\Models\Whatsapp\Mensaje;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Optional;
+use Maatwebsite\Excel\Facades\Excel;
 
 class KitDigitalController extends Controller
 {
@@ -37,11 +41,12 @@ class KitDigitalController extends Controller
         $perPage = $request->input('perPage', 10);
 
         // Cargando datos estáticos
-        $gestores = User::Where('access_level_id',4)->where('inactive', 0)->get();
-        $comerciales = User::whereIn('access_level_id', [1, 6])->where('inactive', 0)->get();
-        $servicios = KitDigitalServicios::all();
-        $estados = KitDigitalEstados::orderBy('orden', 'asc')->get();
-        $clientes = Client::where('is_client',true)->get();
+        $gestores = cache()->remember('gestores', 60, fn() => User::where('access_level_id', 4)->where('inactive', 0)->get());
+        $comerciales = cache()->remember('comerciales', 60, fn() => User::whereIn('access_level_id', [1, 6])->where('inactive', 0)->get());
+        $servicios = cache()->remember('servicios', 60, fn() => KitDigitalServicios::all());
+        $estados = cache()->remember('estados', 60, fn() => KitDigitalEstados::orderBy('orden', 'asc')->get());
+        $clientes = cache()->remember('clientes', 60, fn() => Client::where('is_client', true)->get());
+
 
         $estados_facturas = [
             ['id' => '0', 'nombre' => 'No abonada'],
@@ -61,7 +66,7 @@ class KitDigitalController extends Controller
 
         // Construcción de la consulta principal
         $query = KitDigital::query();
-
+        $query->with(['estados', 'Client', 'comercial','servicios']);
         // Aplicar filtros
         if ($selectedCliente) {
             $query->where('cliente_id', $selectedCliente);
@@ -113,11 +118,11 @@ class KitDigitalController extends Controller
             });
         }
 
-        $Sumatorio = $query->get()->reduce(function ($carry, $item) {
-            $cleanImporte = preg_replace('/[^\d,]/', '', $item->importe); // Elimina todo excepto números y coma
-            $cleanImporte = str_replace(',', '.', $cleanImporte); // Convierte comas a puntos para decimales
-            return $carry + (float)$cleanImporte;
-        }, 0);
+        $Sumatorio = $query->get(['importe'])->sum(function ($item) {
+            $cleanImporte = preg_replace('/[^\d,]/', '', $item->importe); // Elimina caracteres no numéricos
+            $cleanImporte = str_replace(',', '.', $cleanImporte); // Cambia comas por puntos
+            return (float)$cleanImporte;
+        });
 
         $query->orderBy($sortColumn, $sortDirection);
         // Aplicar ordenación y paginación
@@ -262,6 +267,16 @@ class KitDigitalController extends Controller
 
         return view('kitDigital.create', compact('usuario','clientes','servicios', 'estados', 'gestores','comerciales'));
     }
+    public function createComercial(){
+        $usuario = Auth::user();
+        $servicios = KitDigitalServicios::all();
+        $estados = KitDigitalEstados::orderBy('nombre', 'asc')->get();
+        $clientes = Client::where('is_client', true)->get();
+        $gestores = User::where('access_level_id', 4)->where('inactive', 0)->get();
+        $comerciales = User::where('access_level_id', 6)->where('inactive', 0)->orWhere('access_level_id', 11)->get();
+
+        return view('kitDigital.createComercial', compact('usuario','clientes','servicios', 'estados', 'gestores','comerciales'));
+    }
 
     public function store(Request $request){
 
@@ -290,58 +305,43 @@ class KitDigitalController extends Controller
     }
     public function storeComercial(Request $request){
 
-        $this->validate($request,[
+        $secretKey = env('NOCAPTCHA_SECRET');
+        $captcha = $request->input('g-recaptcha-response');
+        $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$captcha");
+        $responseKeys = json_decode($response, true);
+
+        if(intval($responseKeys["success"]) !== 1) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Error en la verificación de reCAPTCHA. Inténtalo de nuevo.'
+             ]);
+        }
+        $data =  $this->validate($request,[
             'cliente' => 'required',
+            'nif' => 'required',
+            'email' => 'required',
             'telefono' => 'required',
-            'segmento' => 'required',
-            'estado' => 'required',
+            'direccion' => 'required',
+            'cp' => 'required',
+            'ciudad' => 'required',
+            'comercial_id' => 'nullable',
+            'comentario' => 'nullable',
         ],[
             'cliente.required' => 'El campo es obligatorio.',
-            'telefono.required' => 'El campo es obligatorio.',
-            'segmento.required' => 'El campo es obligatorio.',
-            'estado.required' => 'El campo es obligatorio.',
+            'nif' => 'El campo es obligatorio',
+            'email' => 'El campo es obligatorio',
+            'telefono' => 'El campo es obligatorio',
+            'direccion' => 'El campo es obligatorio',
+            'cp' => 'El campo es obligatorio',
+            'ciudad' => 'El campo es obligatorio',
         ]);
-        $data = $request->all();
-        $data['comercial_id'] = Auth::user()->id;
+        $data['estado'] = 18;
 
-        switch ($data['segmento']) {
-            case '1':
-                $data['importe'] = '12000,00';
-                break;
-            case '2':
-                $data['importe'] = '6000,00';
-                break;
-            case '3':
-                $data['importe'] = '2000,00';
-                break;
-            case '30':
-                $data['importe'] = '1000,00';
-                break;
-            case '4':
-                $data['importe'] = '25000,00';
-                break;
-            case '5':
-                $data['importe'] = '29000,00';
-                break;
-            case 'A':
-                $data['importe'] = '12000,00';
-                break;
-            case 'B':
-                $data['importe'] = '18000,00';
-                break;
-            case 'C':
-                $data['importe'] = '24000,00';
-                break;
-            default:
-            $data['importe'] = '0,00';
-                break;
-        }
         $kit = KitDigital::create($data);
         LogActions::create([
             'tipo' => 1,
-            'admin_user_id' => Auth::user()->id,
             'action' => 'Crear kit digital',
-            'description' => 'Crear kit digital por comercial',
+            'description' => 'Crear kit digital por formulario publico',
             'reference_id' => $kit->id,
         ]);
         return redirect()->back()->with('toast', [
@@ -353,41 +353,102 @@ class KitDigitalController extends Controller
      // Vista de los mensajes
      public function whatsapp($id)
      {
-          $cliente = KitDigital::find($id)->cliente;
+        $cliente = KitDigital::find($id)->cliente;
 
-           $curl = curl_init();
+        $primerMensaje = Mensaje::where('ayuda_id', $id)->first();
 
-           curl_setopt_array($curl, [
-               CURLOPT_URL => 'https://asistente.crmhawkins.com/listar-mensajes/'.$id,
-               CURLOPT_RETURNTRANSFER => true,
-               CURLOPT_ENCODING => '',
-               CURLOPT_MAXREDIRS => 10,
-               CURLOPT_TIMEOUT => 0,
-               CURLOPT_FOLLOWLOCATION => true,
-               CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-               CURLOPT_CUSTOMREQUEST => 'POST',
-               CURLOPT_HTTPHEADER => [
-                   'Content-Type: application/json'
-               ],
-           ]);
-
-           $response = curl_exec($curl);
+        $mensajes = Mensaje::where('remitente', $primerMensaje->remitente)->get();
 
 
-           curl_close($curl);
+        $resultado = [];
+        foreach ($mensajes as $elemento) {
 
-         $mensajes = json_decode($response);
-         $resultado = [];
-         foreach ($mensajes as $elemento) {
-
-             $remitenteSinPrefijo = $elemento->remitente;
+            $remitenteSinPrefijo = $elemento->remitente;
 
 
-             $elemento->nombre_remitente = 'Desconocido';
+            $elemento->nombre_remitente = 'Desconocido';
            $resultado[]  = $elemento;
 
-         }
+        }
 
-         return view('whatsapp.whatsappIndividual', compact('resultado','cliente'));
+        return view('whatsapp.whatsappIndividual', compact('resultado','cliente'));
      }
+
+
+    public function exportToExcel(Request $request)
+    {
+        // Variables de filtro
+        $selectedCliente = $request->input('selectedCliente');
+        $selectedEstado = $request->input('selectedEstado');
+        $selectedGestor = $request->input('selectedGestor');
+        $selectedServicio = $request->input('selectedServicio');
+        $selectedEstadoFactura = $request->input('selectedEstadoFactura');
+        $selectedComerciales = $request->input('selectedComerciales');
+        $selectedSegmento = $request->input('selectedSegmento');
+        $selectedDateField = $request->input('selectedDateField');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $sortColumn = $request->input('sortColumn', 'created_at'); // Columna por defecto
+        $sortDirection = $request->input('sortDirection', 'desc'); // Dirección por defecto
+        // Construcción de la consulta principal
+        $query = KitDigital::query();
+
+        // Aplicar filtros
+        if ($selectedCliente) {
+            $query->where('cliente_id', $selectedCliente);
+        }
+
+        if ($selectedEstado) {
+            $query->where('estado', $selectedEstado);
+        }
+
+        if ($selectedGestor) {
+            $query->where('gestor', $selectedGestor);
+        }
+
+        if ($selectedServicio) {
+            $query->where('servicio_id', $selectedServicio);
+        }
+
+        if ($selectedEstadoFactura) {
+            $query->where('estado_factura', $selectedEstadoFactura);
+        }
+
+        if ($selectedComerciales) {
+            $query->where('comercial_id', $selectedComerciales);
+        }
+
+        if ($selectedSegmento) {
+            $query->where('segmento', $selectedSegmento);
+        }
+
+        if ($dateFrom && $dateTo && $selectedDateField) {
+            $query->whereBetween($selectedDateField, [$dateFrom, $dateTo]);
+        }
+
+        if ($buscar = $request->input('buscar')) {
+            $buscarLower = mb_strtolower(trim($buscar), 'UTF-8');  // Convertir la cadena a minúsculas y eliminar espacios al inicio y al final
+            $searchTerms = explode(" ", $buscarLower);  // Dividir la entrada en términos individuales
+
+            $query->where(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->Where(function ($subQuery) use ($term) {
+                        $subQuery->orWhereRaw('LOWER(contratos) LIKE ?', ["%{$term}%"])
+                                    ->orWhereRaw('LOWER(cliente) LIKE ?', ["%{$term}%"])
+                                    ->orWhereRaw('LOWER(expediente) LIKE ?', ["%{$term}%"])
+                                    ->orWhereRaw('LOWER(contacto) LIKE ?', ["%{$term}%"])
+                                    ->orWhereRaw('LOWER(importe) LIKE ?', ["%{$term}%"])
+                                    ->orWhereRaw('LOWER(telefono) LIKE ?', ["%{$term}%"]);
+                    });
+                }
+            });
+        }
+
+
+        $query->orderBy($sortColumn, $sortDirection);
+        // Aplicar ordenación y paginación
+        $kitDigitals =  $query->get();
+        // Exporta los datos a Excel
+        return Excel::download(new AyudasExport($kitDigitals), 'KitDigital.xlsx');
+    }
 }

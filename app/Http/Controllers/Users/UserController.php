@@ -95,6 +95,7 @@ class UserController extends Controller
             'access_level_id' => 'required|exists:admin_user_access_level,id',
             'admin_user_department_id' => 'required|exists:admin_user_department,id',
             'admin_user_position_id' => 'required|exists:admin_user_position,id',
+            'phone' => 'nullable',
         ], [
             'name.required' => 'El nombre es requerido para continuar',
             'surname.required' => 'Los apellidos son requeridos para continuar',
@@ -179,6 +180,8 @@ class UserController extends Controller
             'access_level_id' => 'required|exists:admin_user_access_level,id',
             'admin_user_department_id' => 'required|exists:admin_user_department,id',
             'admin_user_position_id' => 'required|exists:admin_user_position,id',
+            'phone' => 'nullable',
+
         ], [
             'name.required' => 'El nombre es requerido para continuar',
             'surname.required' => 'Los apellidos son requeridos para continuar',

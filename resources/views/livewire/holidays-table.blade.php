@@ -33,7 +33,7 @@
                 </thead>
                 <tbody>
                     @foreach ($holidays as $holiday)
-                        <tr >
+                        <tr class="clickable-row" data-href="{{route('holiday.admin.petitions-user', $holiday->adminUser->id)}}">
                             <td>{{$holiday->adminUser ? optional($holiday->adminUser)->name.' '.optional($holiday->adminUser)->surname : 'Usuario Borrado'}}</td>
                             <td>{{ number_format($holiday->quantity, 2) }}</td>
                         </tr>

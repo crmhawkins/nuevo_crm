@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
+use App\Models\KitDigital;
 use Illuminate\Support\Facades\Http;
 
 class WhatsappController extends Controller
@@ -723,12 +724,16 @@ class WhatsappController extends Controller
 
             // Busca el cliente cuyo teléfono coincide con el remitente del mensaje.
             $cliente = Client::where('phone', $remitenteSinPrefijo)->first();
+            $kit = KitDigital::where('telefono', $remitenteSinPrefijo)->first();
 
             // Si se encontró un cliente, añade su nombre al elemento del mensaje.
             if ($cliente) {
                 $elemento['nombre_remitente'] = $cliente->name;
-            } else {
+            } elseif($kit) {
                 // Si no se encuentra el cliente, puedes optar por dejar el campo vacío o asignar un valor predeterminado.
+                $elemento['nombre_remitente'] = $kit->cliente;
+            }else{
+
                 $elemento['nombre_remitente'] = 'Desconocido';
             }
 

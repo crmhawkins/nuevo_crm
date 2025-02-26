@@ -69,12 +69,22 @@
                                     <td>{{ $usuario['usuario'] }}</td>
                                     <td>{{ $usuario['departamento'] }}</td>
 
-                                    <td>{{ $usuario['total_horas_trabajadas'] }} </td>
-                                    <td>{{ $usuario['total_horas_producidas'] }}</td>
+                                    <td>{{ $usuario['total_horas_trabajadas']." / ".$usuario['total_horas_trabajadas_esperadas'] }} </td>
+                                    <td>{{ $usuario['total_horas_producidas'].(($usuario['total_horas_producidas_esperadas'] !='') ? " / ".$usuario['total_horas_producidas_esperadas'] : '') }}</td>
                                     <td>
                                         <button class="btn btn-outline-secondary toggle-details" type="button" data-toggle="collapse" data-target="#detalles-{{ $loop->index }}" aria-expanded="false">
                                             Ver Detalles
                                         </button>
+                                    @if($usuario['access_level_id'] == 5)
+                                    <a class="btn btn-outline-secondary" href="{{route('tarea.calendar',$usuario['id'])}}" target="_blank">
+                                        Ver calendario
+                                    </a>
+                                    @else
+                                    <a class="btn btn-outline-secondary" href="{{route('horas.calendar',$usuario['id'])}}" target="_blank">
+                                        Ver calendario
+                                    </a>
+                                    @endif
+
                                     </td>
                                 </tr>
                                 <tr id="detalles-{{ $loop->index }}" class="collapse">

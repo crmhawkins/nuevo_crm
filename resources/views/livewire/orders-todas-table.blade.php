@@ -64,7 +64,7 @@
                             <td>{{$order->quantity }}</td>
                             <td>{{$order->gestorNombre }}</td>
                             <td>{{$order->state ?? 'No Contabilizado'}}</td>
-                            <td style="text-align: center;">@if($order->aceptado_gestor == 1) SI @else NO @endif</td>
+                            <td style="text-align: center;">{{($order->aceptado_gestor === 1) ? 'Si' : (($order->aceptado_gestor === 0) ? 'Rechazado' : 'NO')}}</td>
                             <td class="d-flex flex-row justify-evenly align-middle">
                                 @if ($order->id)
                                     <a class="m-2" href="{{route('gasto-asociado.edit', $order->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar Gasto"></a>

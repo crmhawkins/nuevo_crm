@@ -366,8 +366,10 @@
                             </form>
                             <a href="" id="generatePdf" class="btn btn-dark btn-block mb-3">Generar PDF</a>
                             <a href="" id="enviarEmail" data-id="{{$presupuesto->id}}" class="btn btn-dark btn-block mb-3">Enviar por email</a>
+                            @if (Auth::user()->access_level_id <= 3)
                             <a href="" id="generateInvoice" class="btn btn-dark btn-block mb-3">Generar factura</a>
                             <a href="" id="generateInvoicePartial" class="btn btn-dark btn-block mb-3">Generar factura parcial</a>
+                            @endif
                             <a href="" id="generateTask" class="btn btn-dark btn-block mb-3">Generar tareas</a>
                             <a href="" id="deletePresupuesto" data-id="{{$presupuesto->id}}" class="btn btn-outline-danger btn-block mb-3">Eliminar</a>
                         </div>
@@ -1063,7 +1065,7 @@
 
         function botonEnviar(id) {
             // Obtén el correo del cliente asociado desde el backend
-            const defaultEmail = "{{ $clientes->where('id', $presupuesto->client_id)->first()->email }}";
+            const defaultEmail = "{{ optional($clientes->where('id', $presupuesto->client_id)->first())->email }}";
 
             // Salta la alerta para pedir los correos y permitir la subida de archivos
             Swal.fire({

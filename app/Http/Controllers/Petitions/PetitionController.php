@@ -76,7 +76,7 @@ class PetitionController extends Controller
         $data = $this->validate($request, [
             'client_id' => 'required|integer',
             'admin_user_id' => 'required|integer',
-            'note' => 'required|max:255',
+            'note' => 'required',
         ], [
             'client_id.required' => 'El cliente es requerido para continuar',
             'admin_user_id.required' => 'El gestor es requerido para continuar',
@@ -131,6 +131,7 @@ class PetitionController extends Controller
             'client_id' => 'required|integer',
             'admin_user_id' => 'required|integer',
             'note' => 'required|max:255',
+            'finished' => 'nullable',
         ], [
             'client_id.required' => 'El cliente es requerido para continuar',
             'admin_user_id.required' => 'El gestor es requerido para continuar',

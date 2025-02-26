@@ -271,7 +271,7 @@
         var APP_URL = '{{ url('/') }}';
         var alertasAgrupadasPorStageId = {};  // Objeto para almacenar las alertas agrupadas
         var mapeoMensajes = {
-            1: 'Alerta Peticion - Tienes peticiones pendientes',
+            1: 'Alerta Petición pendiente',
             2: 'Presupuesto Pendiente de Confirmar',
             3: 'Presupuesto Pendiente de Aceptar',
             4: 'Presupuesto Aceptado',
@@ -308,7 +308,10 @@
             43: 'Alerta Ordenes a pagar',
             44: 'To-Do Nuevo',
             45: 'Nuevo mensaje en To-Do',
-            46: 'To-Do Completado'
+            46: 'To-Do Completado',
+            47: 'Incidencia Creada',
+            48: 'To-Do no Completado',
+            49: 'Correos no leído',
         };
 
         // Función para obtener las alertas usando fetch
@@ -322,7 +325,6 @@
             .then(response => response.json())
             .then(count => {
 
-                console.log('Correos sin leer:', count);
                 actualizarContadorCorreos(count);
             })
             .catch(error => console.error('Error al obtener los correos:', error));
@@ -337,7 +339,6 @@
             .then(response => response.json())
             .then(alertas => {
 
-                console.log('Alertas recibidas:', alertas);
                 agruparAlertas(alertas);
                 actualizarContadorAlertas();
             })
@@ -1028,7 +1029,6 @@
                     break;
 
                 case 22:
-                console.log('Mostrando alerta 22:', alertaSeleccionada);
 
                     Swal.fire({
                             title: "Horas Trabajadas del Mes",
@@ -1489,11 +1489,9 @@
 
 
        document.addEventListener('DOMContentLoaded', (event) => {
-            console.log('DOM completamente cargado y analizado');
             const alertButton = document.getElementById('btnAbrirAlertas');
             if (alertButton) {
                 alertButton.addEventListener('click', function() {
-                    console.log('Botón de alertas clicado');
                     mostrarTiposDeAlertas();
                 });
             } else {
@@ -1501,8 +1499,11 @@
             }
 
             // Llamada inicial para cargar alertas
-            obtenerAlertas();
+            if (window.enRutaNoMostrar) {
+            return;
+            }
             obtenerCorreos();
+            obtenerAlertas();
         });
     </script>
     <style>

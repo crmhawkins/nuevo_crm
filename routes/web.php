@@ -1,7 +1,6 @@
 <?php
 
 use App\Events\RecargarPagina;
-use App\Http\Controllers\AccionesController;
 use App\Http\Controllers\Alert\AlertController;
 use App\Http\Controllers\Bajas\BajaController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
@@ -42,6 +41,7 @@ use App\Http\Controllers\Holiday\AdminHolidaysController;
 use App\Http\Controllers\Horas\HorasController;
 use App\Http\Controllers\Incidence\IncidenceController;
 use App\Http\Controllers\KitDigitalController;
+use App\Http\Controllers\Llamadas\LlamadaController;
 use App\Http\Controllers\Logs\LogActionsController;
 use App\Http\Controllers\Message\MessageController;
 use App\Http\Controllers\Nominas\NominasController;
@@ -54,8 +54,10 @@ use App\Http\Controllers\Tesoreria\CategoriaAsociadosController;
 use App\Http\Controllers\Tesoreria\CategoriaGastosController;
 use App\Http\Controllers\Tesoreria\CierreController;
 use App\Http\Controllers\Tesoreria\IvaController;
+use App\Http\Controllers\test;
 use App\Http\Controllers\Users\DepartamentController;
 use App\Http\Controllers\Users\PositionController;
+use App\Http\Controllers\Whatsapp\AccionesController;
 use App\Http\Controllers\Whatsapp\WhatsappController;
 
 /*
@@ -251,6 +253,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/kit-digital/store', [KitDigitalController::class, 'store'])->name('kitDigital.store');
         Route::post('/kit-digital/updatedata', [KitDigitalController::class, 'updateData'])->name('kitDigital.updateData');
         Route::get('/kit-digital/whatsapp/{id}', [KitDigitalController::class, 'whatsapp'])->name('kitDigital.whatsapp');
+        Route::post('/kit-digital/excel', [KitDigitalController::class, 'exportToExcel'])->name('kitDigital.Excel');
 
          // Gastos asociados (TESORERIA)
          Route::get('/gastos-asociados', [TesoreriaController::class, 'indexAssociatedExpenses'])->name('gasto-asociados.index');
@@ -271,6 +274,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/holidays/admin-edit/{id}', [AdminHolidaysController::class, 'edit'])->name('holiday.admin.edit');
         Route::post('/holidays/admin-update', [AdminHolidaysController::class, 'update'])->name('holiday.admin.update');
         Route::get('/holidays/petitions', [AdminHolidaysController::class, 'usersPetitions'])->name('holiday.admin.petitions');
+        Route::get('/holidays/petitions-user/{id}', [AdminHolidaysController::class, 'userPetitions'])->name('holiday.admin.petitions-user');
         Route::get('/holidays/record', [AdminHolidaysController::class, 'addedRecord'])->name('holiday.admin.record');
         Route::get('/holidays/history', [AdminHolidaysController::class, 'allHistory'])->name('holiday.admin.history');
         Route::get('/holidays/managePetition/{id}', [AdminHolidaysController::class, 'managePetition'])->name('holiday.admin.managePetition');
@@ -490,6 +494,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/dashboard/setStatusTask', [DashboardController::class, 'setStatusTask'])->name('dashboard.setStatusTask');
     Route::post('/dashboard/llamada', [DashboardController::class, 'llamada'])->name('llamada.store');
     Route::post('/dashboard/llamadafin', [DashboardController::class, 'finalizar'])->name('llamada.end');
+    Route::post('/dashboard/llamadaInforme', [DashboardController::class, 'informeLlamadas'])->name('llamada.informe');
     Route::post('/dashboard/timeworked', [DashboardController::class, 'timeworked'])->name('user.time');
     Route::post('/dashboard/updateStatusAlertAndAcceptHours', [DashboardController::class, 'updateStatusAlertAndAcceptHours'])->name('user.updateStatusAlertAndAcceptHours');
     Route::post('/dashboard/responseAlert', [DashboardController::class, 'responseAlert'])->name('user.responseAlert');
@@ -502,6 +507,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Jornadas
     Route::get('/jornadas', [HorasController::class, 'indexHoras'])->name('horas.index');
+    Route::get('/jornadas/calendar/{id}', [HorasController::class, 'calendar'])->name('horas.calendar');
     Route::get('/exportarjornadas', [HorasController::class, 'exportHoras'])->name('horas.export');
 
     //Events(Eventos del to-do)
@@ -596,6 +602,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/emails/unread', [EmailController::class, 'countUnread'])->name('admin.emails.unread');
     Route::post('/emails/delete', [EmailController::class, 'destroy'])->name('admin.emails.destroy');
     Route::post('/emails/destroy-multiple', [EmailController::class, 'destroyMultiple'])->name('admin.emails.destroyMultiple');
+    Route::post('/emails/change-status', [EmailController::class, 'setEmailStatus'])->name('admin.emails.changeStatus');
+    Route::get('/emails/get-correos', [EmailController::class, 'getCorreos'])->name('admin.emails.getCorreos');
 
     //firma
     Route::get('/firma/emails', [FirmaController::class, 'firma'])->name('admin.firma');
@@ -619,7 +627,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('/actualizar', [AccionesController::class, 'actualizar'])->name('acciones.actualizar');
 
-
+    //LLamadas
+    Route::get('/llamadas', [LlamadaController::class, 'index'])->name('llamadas.index');
 
 });
 // Portal Clientes
@@ -636,3 +645,8 @@ Route::get('/portal/factura/{id}', [PortalClientesController::class, 'showInvoic
 
 Route::get('/actualizar', [OrdenesController::class, 'actualizar'])->name('actualizar');
 
+//Publico
+Route::get('/kit-digital/create-comercial', [KitDigitalController::class, 'createComercial'])->name('kitDigital.createComercial');
+Route::post('/kit-digital/store-comercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');
+
+Route::get('/test', [test::class, 'test']);

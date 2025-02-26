@@ -61,7 +61,7 @@
                             <td>{{$order->quantity }}</td>
                             <td>{{$order->gestorNombre }}</td>
                             <td>{{$order->state }}</td>
-                            <td style="text-align: center;">@if($order->aceptado_gestor == 1) SI @else NO @endif</td>
+                            <td style="text-align: center;">{{($order->aceptado_gestor === 1) ? 'Si' : (($order->aceptado_gestor === 0) ? 'Rechazado' : 'NO')}}</td>
                             <td class="d-flex flex-row justify-evenly align-middle">
                                 <a class="m-2  btn btn-outline-secondary d-flex align-items-center" href="{{route('gasto-asociado.edit', $order->id)}}" target="_blank">
                                     <img src="{{asset('assets/icons/edit.svg')}}" alt="Editar Gasto" class="me-3 p-1"></a>

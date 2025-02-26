@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Incidence;
 
 use App\Http\Controllers\Controller;
+use App\Models\Alerts\Alert;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
 use App\Models\Incidence\Incidences;
@@ -54,6 +55,17 @@ class IncidenceController extends Controller
 
         $data = $request->all();
         $incidence = Incidences::create($data);
+
+        $alertdata= [
+            'reference_id' => $incidence->id,
+            'admin_user_id' => 1,
+            'stage_id' => 47,
+            'status_id' => 1,
+            'activation_datetime' => Carbon::now(),
+            'cont_postpone' => 0,
+            'description' => 'Incidencia con ' . $incidence->cliente->company ?? $incidence->cliente->name,
+        ];
+        Alert::create($alertdata);
 
         session()->flash('toast', [
             'icon' => 'success',

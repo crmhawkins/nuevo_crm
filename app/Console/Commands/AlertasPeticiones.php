@@ -44,6 +44,17 @@ class AlertasPeticiones extends Command
                     'cont_postpone' => $contPostpone,
                     'description' => 'Peticion de ' . $petition->cliente->company  ?? $petition->cliente->name,
                 ]);
+
+                $alert = Alert::create([
+                    'reference_id' => $petition->id,
+                    'admin_user_id' => 1,
+                    'stage_id' => 1,
+                    'status_id' => 1,
+                    'activation_datetime' => Carbon::now(),
+                    'cont_postpone' => $contPostpone,
+                    'description' => 'Peticion de ' . ($petition->cliente->company  ?? $petition->cliente->name).'lleva 24 horas sin ser atendida',
+                ]);
+
             }
         }
 

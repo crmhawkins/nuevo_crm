@@ -2,6 +2,8 @@
 
 namespace App\Models\Logs;
 
+use App\Models\Budgets\Budget;
+use App\Models\Invoices\Invoice;
 use App\Models\KitDigital;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -53,5 +55,27 @@ class LogActions extends Model
         return $this->belongsTo(KitDigital::class, 'reference_id');
     }
 
+    public function presupuesto(){
+        return $this->belongsTo(Budget::class, 'reference_id');
+    }
+
+    public function factura(){
+        return $this->belongsTo(Invoice::class, 'reference_id');
+    }
+
+
+    public function cliente(){
+        switch($this->tipo){
+            case 1:
+                return $this->ayudas->cliente;
+            case 2:
+                return $this->presupuesto->cliente->company ?? $this->presupuesto->cliente->name;
+            case 3:
+                return $this->factura->cliente->company ?? $this->factura->cliente->name;
+            default:
+                return null;
+
+        }
+    }
 
 }

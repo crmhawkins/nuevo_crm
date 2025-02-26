@@ -64,7 +64,10 @@
                             <td style="text-align: center;">@if($order->aceptado_gestor == 1) SI @else NO @endif</td>
                             <td class="d-flex flex-row justify-evenly align-middle">
                                 <a class="m-2 btn btn-outline-secondary d-flex align-items-center" wire:click.prevent='postStatusChange({{ $order->id }})'>
-                                    <img src="{{asset('assets/icons/check.svg')}}" alt="Editar dominio" class="me-2">
+                                    <img src="{{asset('assets/icons/check.svg')}}" alt="Aceptar" class="me-2">
+                                </a>
+                                <a class="m-2 btn btn-outline-secondary d-flex align-items-center" wire:click.prevent='postStatusChangeCancel({{ $order->id }})'>
+                                    <img src="{{asset('assets/icons/x-solid.svg')}}" alt="Rechazar" class="me-2">
                                 </a>
                                 <a class="m-2 btn btn-outline-secondary d-flex align-items-center" href="{{route('presupuesto.edit', $order->presupuesto)}}" target="_blank">
                                     <img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"  class="me-2">

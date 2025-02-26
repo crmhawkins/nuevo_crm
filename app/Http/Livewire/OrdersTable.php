@@ -100,4 +100,18 @@ class OrdersTable extends Component
         ]);
     }
 
+    public function postStatusChangeCancel($id){
+
+        $gasto = AssociatedExpenses::find($id);
+        $gasto->aceptado_gestor = false;
+        //$gasto->date_aceptado = Carbon::now()->format('Y-m-d H:i:s');
+
+        $gastoSaved = $gasto->save();
+
+        $this->emit('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Orden Rechazada'
+        ]);
+    }
+
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Clients\Client;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -51,7 +52,11 @@ class KitDigital extends Model
         'nuevo_comentario',
         'nota',
         'date',
-        'enviado'
+        'enviado',
+        'direccion',
+        'ciudad',
+        'certificado_hacienda',
+        'certificado_seguridad',
     ];
 
     /**
@@ -72,5 +77,10 @@ class KitDigital extends Model
     public function servicios() {
         return $this->belongsTo(KitDigitalServicios::class,'servicio_id');
     }
-
+    public function gestor() {
+        return $this->belongsTo(User::class,'gestor');
+    }
+    public function comercial() {
+        return $this->belongsTo(User::class,'comercial_id');
+    }
 }
