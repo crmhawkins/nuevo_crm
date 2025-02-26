@@ -1070,6 +1070,17 @@ class BudgetController extends Controller
             ]);
         }
 
+        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
+            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
+            $porcentaje = 1 - ($totalFacturado / $budget->total);
+            if($porcentaje == 0){
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
+                ]);
+            }
+        }else{ $porcentaje = 1;}
+
         // Validación campos array data
         if( $budget->discount_percentage){
             $discountPercentage =  $budget->discount_percentage;
@@ -1135,17 +1146,6 @@ class BudgetController extends Controller
 
         }
 
-
-        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
-            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
-            $porcentaje = 1 - ($totalFacturado / $budget->total);
-            if($porcentaje == 0){
-                return response()->json([
-                    'status' => false,
-                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
-                ]);
-            }
-        }else{ $porcentaje = 1;}
 
         $data = [
             'budget_id' => $budget->id,
@@ -1317,6 +1317,16 @@ class BudgetController extends Controller
                 'mensaje' => "Un presupuesto sin conceptos no puede generar factura."
             ]);
         }
+        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
+            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
+            $porcentaje = 1 - ($totalFacturado / $budget->total);
+            if($porcentaje == 0){
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
+                ]);
+            }
+        }else{ $porcentaje = 1;}
 
         // Validación campos array data
         if( $budget->discount_percentage){
@@ -1331,16 +1341,7 @@ class BudgetController extends Controller
             $referenceGenerationResult = $this->generateInvoiceReference($budget);
         }
 
-        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
-            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
-            $porcentaje = 1 - ($totalFacturado / $budget->total);
-            if($porcentaje == 0){
-                return response()->json([
-                    'status' => false,
-                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
-                ]);
-            }
-        }else{ $porcentaje = 1;}
+
         $data = [
             'budget_id' => $budget->id,
             'reference' => $referenceGenerationResult['reference'],
@@ -1489,6 +1490,7 @@ class BudgetController extends Controller
         }
         $budget = Budget::find($request->id);
         $porcentaje = $request['percentage'];
+
         if($porcentaje == 0){
             return response()->json([
                 'status' => false,
@@ -1522,6 +1524,7 @@ class BudgetController extends Controller
         $base = ($budget->base * $porcentaje) / 100;
         $iva = ($budget->iva * $porcentaje) / 100;
         $discount = ($budget->discount * $porcentaje) / 100;
+
 
         $budget->invoiced_advance = $porcentaje;
 
