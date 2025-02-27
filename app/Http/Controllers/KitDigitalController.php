@@ -354,10 +354,15 @@ class KitDigitalController extends Controller
      public function whatsapp($id)
      {
         $cliente = KitDigital::find($id)->cliente;
-
+        $remitente = '34'.$cliente->telefono;
         $primerMensaje = Mensaje::where('ayuda_id', $id)->first();
 
-        $mensajes = Mensaje::where('remitente', $primerMensaje->remitente)->get();
+        if($primerMensaje){
+
+            $mensajes = Mensaje::where('remitente', $primerMensaje->remitente)->get();
+        }else{
+            $mensajes = Mensaje::where('remitente', $remitente)->get();
+        }
 
 
         $resultado = [];

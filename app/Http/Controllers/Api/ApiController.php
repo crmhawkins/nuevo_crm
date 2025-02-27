@@ -71,6 +71,7 @@ class ApiController extends Controller
                 'status' => $request->status,
                 'status_mensaje' => $request->status_mensaje,
                 'is_automatic' => $request->is_automatic,
+                'ayuda_id'=>$request->ayuda_id,
                 'type' => 'text',
                 'date' => Carbon::now()
             ];
