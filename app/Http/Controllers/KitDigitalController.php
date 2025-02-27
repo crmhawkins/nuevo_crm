@@ -353,7 +353,7 @@ class KitDigitalController extends Controller
      // Vista de los mensajes
      public function whatsapp($id)
      {
-        $ayuda = KitDigital::find($id)->cliente;
+        $ayuda = KitDigital::find($id);
         $cliente = $ayuda->cliente;
         $remitente = '34'.$ayuda->telefono;
         $primerMensaje = Mensaje::where('ayuda_id', $id)->first();
