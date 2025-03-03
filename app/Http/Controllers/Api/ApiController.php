@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Storage;
 class ApiController extends Controller
 {
     public function getayudas(Request $request){
-
         $segmentos = ['A', 'B', 'C'];  // Define los segmentos que deseas incluir
 
         $kitDigitals = KitDigital::where('estado', 18)
@@ -23,11 +22,12 @@ class ApiController extends Controller
                                    ->orWhereNull('enviado');
                          })
                          ->whereNotNull('telefono')  // Asegurarse de que 'telefono' no sea nulo
+                         ->limit(10)  // Limitar la consulta a 10 registros
                          ->get();
-
 
         return $kitDigitals;
     }
+
 
     public function updateAyudas($id){
         $kitDigital = KitDigital::find($id);
