@@ -72,7 +72,8 @@
                                     @else
                                         {{ $usuario['nota'] }}
                                     @endif
-                                </td>                                <td>{{ $usuario['productividad'] }}%</td>
+                                </td>
+                                <td>{{ $usuario['productividad'] }}%</td>
                                 <td>{{ $usuario['tareasfinalizadas'] }}</td>
                                 <td>{{ $usuario['horasEstimadas'] }}</td>
                                 <td>{{ $usuario['horasReales'] }}</td>
