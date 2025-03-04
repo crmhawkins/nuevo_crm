@@ -94,7 +94,7 @@ class ProductividadController extends Controller
     }
 
     public function nota($userId,$fechaInicio){
-        $fechaInicio = Carbon::parse($fechaInicio)->subMonth()->startOfMonth()->startOfDay();
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfMonth()->startOfDay();
         $productividad = $this->productividadMesAnterior($userId , $fechaInicio);
         $horasMes = $this->tiempoProducidoMesanterior($userId ,$fechaInicio);
         $partes = explode(':', $horasMes);
