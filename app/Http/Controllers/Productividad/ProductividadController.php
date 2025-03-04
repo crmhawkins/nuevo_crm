@@ -124,11 +124,14 @@ class ProductividadController extends Controller
             $putuacionProductividad = 0;
         }
 
+        if($horasTotales > 0 || $totalHorasproducidas > 0){
         $putuacionHoras = (($totalHorasproducidas*100)/$horasTotales)/20;
-
-        //dd($productividad,$putuacionProductividad, $putuacionHoras);
-
         $putuacion = $putuacionProductividad + $putuacionHoras;
+
+        }else{
+            $putuacion = 'En curso';
+        }
+        //dd($productividad,$putuacionProductividad, $putuacionHoras);
 
         $data = [
             'puntuacion' => $putuacion,
