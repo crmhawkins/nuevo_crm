@@ -40,6 +40,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('Ordenes:Alerta')->dailyAt('07:00')->when(function () {
             return now()->isLastOfMonth();
         });
+        $schedule->command('vacacioner:discount')->weeklyOn(6, '08:00');
 
         // $schedule->call(function () {
         //     $users = User::where('inactive', 0)->where('id', '!=', 101)->get();
