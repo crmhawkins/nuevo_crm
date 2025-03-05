@@ -10,6 +10,7 @@ use App\Models\Alerts\AlertStatus;
 use App\Models\Bajas\Baja;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
+use App\Models\Holidays\Holidays;
 use App\Models\Holidays\HolidaysPetitions;
 use App\Models\HoursMonthly\HoursMonthly;
 use App\Models\Invoices\Invoice;
@@ -177,6 +178,8 @@ class DashboardController extends Controller
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
                 $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;
+                $horasSemanales = $this->horasSemanales();
+
                 return view('dashboards.dashboard_gestor', compact(
                     'user',
                     'tareas',
@@ -191,6 +194,7 @@ class DashboardController extends Controller
                     'pausaActiva',
                     'llamadaActiva',
                     'to_dos_finalizados',
+                    'horasSemanales'
                 ));
             case(5):
                 $tareas = $user->tareas->whereIn('task_status_id', [1, 2, 5]);
@@ -255,6 +259,7 @@ class DashboardController extends Controller
                 $data = $this->nota($user->id);
                 $nota = $data['puntuacion'];
                 $bajas = $data['bajas'];
+                $horasSemanales = $this->horasSemanales();
 
                 return view('dashboards.dashboard_personal', compact(
                     'user',
@@ -273,7 +278,8 @@ class DashboardController extends Controller
                     'horasMes',
                     'to_dos_finalizados',
                     'nota',
-                    'bajas'
+                    'bajas',
+                    'horasSemanales'
                 ));
             case(6):
                 $ayudas = KitDigital::where('comercial_id', $user->id)->get();
@@ -1582,6 +1588,75 @@ class DashboardController extends Controller
                 'message' => 'Error al obtener los datos: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function horasSemanales()
+    {
+        $user = User::find(Auth::user()->id);
+
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $endOfWeek = $startOfWeek->copy()->addDays(4);
+
+        if ($user->access_level_id == 5) {
+            $lastTask = LogTasks::where('admin_user_id', $user->id)->latest()->first();
+        }
+
+        if($lastTask){
+            $ultimatarea = Carbon::parse($lastTask->date_end);
+        }else{
+            $ultimatarea = Carbon::now();
+        }
+
+        $jornadas = $user->jornadas()
+            ->whereBetween('start_time', [$startOfWeek, $endOfWeek])
+            ->get();
+
+        // Calcular tiempo trabajado por día
+        $descontar = 0;
+
+        $jornadasPorDia = $jornadas->groupBy(function ($jornada) {
+            return Carbon::parse($jornada->start_time)->format('Y-m-d'); // Agrupar por día
+        });
+
+        foreach ($jornadasPorDia as $day => $dayJornadas) {
+
+
+            $totalWorkedSeconds = 0;
+            $isFriday = Carbon::parse($day)->isFriday();
+
+            foreach ($dayJornadas as $jornada) {
+                $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? $ultimatarea);
+                $totalPauseSeconds = $jornada->pauses->sum(function ($pause) {
+                    return Carbon::parse($pause->start_time)->diffInSeconds($pause->end_time ?? $pause->start_time);
+                });
+                $totalWorkedSeconds += $workedSeconds - $totalPauseSeconds;
+            }
+
+            // Calcular la diferencia: 7 horas si es viernes, 8 horas en el resto de días
+            $targetHours = $isFriday ? 7 : 8;
+            $targetseconds = $targetHours * 3600;
+            $difference = $targetseconds - $totalWorkedSeconds;
+
+
+            if ($difference > 0) {
+                // El usuario trabajó menos de las horas objetivo, debe compensar
+                $descontar += $difference;
+            } elseif ($difference < 0) {
+                $descontar += $difference;
+            }
+        }
+
+        $hours = floor($descontar / 3600);
+        $minutes = floor(($descontar % 3600) / 60);
+        $seconds = $descontar % 60;
+        if ($descontar > 0) {
+            $result = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+        }else{
+            $result = '00:00:00';
+        }
+
+
+        return $result;
     }
 
     public function informeLlamadas(Request $request){
