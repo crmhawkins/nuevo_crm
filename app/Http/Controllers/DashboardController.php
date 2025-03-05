@@ -1601,7 +1601,7 @@ class DashboardController extends Controller
             $lastTask = LogTasks::where('admin_user_id', $user->id)->latest()->first();
         }
 
-        if($lastTask){
+        if(isset($lastTask)){
             $ultimatarea = Carbon::parse($lastTask->date_end ?? Carbon::now());
         }else{
             $ultimatarea = Carbon::now();
