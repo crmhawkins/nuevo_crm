@@ -1602,7 +1602,7 @@ class DashboardController extends Controller
         }
 
         if($lastTask){
-            $ultimatarea = Carbon::parse($lastTask->date_end);
+            $ultimatarea = Carbon::parse($lastTask->date_end ?? Carbon::now());
         }else{
             $ultimatarea = Carbon::now();
         }
