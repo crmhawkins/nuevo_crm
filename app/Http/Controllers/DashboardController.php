@@ -137,6 +137,8 @@ class DashboardController extends Controller
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
+                $horasSemanales = $this->horasSemanales();
+
                 return view('dashboards.dashboard_gestor', compact(
                     'user',
                     'tareas',
@@ -150,13 +152,16 @@ class DashboardController extends Controller
                     'jornadaActiva',
                     'pausaActiva',
                     'llamadaActiva',
-                    'to_dos_finalizados'
+                    'to_dos_finalizados',
+                    'horasSemanales'
                 ));
             case(3):
                 $clientes = Client::where('is_client',true)->get();
                 $budgets = Budget::where('admin_user_id',$id)->get();
                 $projects = Project::where('admin_user_id',$id)->get();
                 $tareas = Task::where('gestor_id',$id)->get();
+                $horasSemanales = $this->horasSemanales();
+
                 return view('dashboards.dashboard_gestor', compact(
                     'user',
                     'tareas',
@@ -170,7 +175,8 @@ class DashboardController extends Controller
                     'jornadaActiva',
                     'pausaActiva',
                     'llamadaActiva',
-                    'to_dos_finalizados'
+                    'to_dos_finalizados',
+                    'horasSemanales'
                 ));
             case(4):
                 $clientes = Client::where('is_client',true)->get();
