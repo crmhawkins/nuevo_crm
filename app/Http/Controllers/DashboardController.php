@@ -1651,7 +1651,7 @@ class DashboardController extends Controller
                 $descontar += $difference;
             }
         }
-        dd($descontar);
+        //dd($descontar);
         $hours = floor($descontar / 3600);
         $minutes = floor(($descontar % 3600) / 60);
         $seconds = $descontar % 60;
