@@ -1601,7 +1601,7 @@ class DashboardController extends Controller
         $user = User::find(Auth::user()->id);
 
         $startOfWeek = Carbon::now()->startOfWeek();
-        $endOfWeek = $startOfWeek->copy()->addDays(4);
+        $endOfWeek = $startOfWeek->copy()->addDays(5);
 
         if ($user->access_level_id == 5) {
             $lastTask = LogTasks::where('admin_user_id', $user->id)->latest()->first();
@@ -1651,7 +1651,7 @@ class DashboardController extends Controller
                 $descontar += $difference;
             }
         }
-
+        dd($descontar);
         $hours = floor($descontar / 3600);
         $minutes = floor(($descontar % 3600) / 60);
         $seconds = $descontar % 60;

@@ -26,7 +26,7 @@ class DiscountVacaciones extends Command
             $holiday = Holidays::where('admin_user_id', $user->id)->first()->quantity;
 
             $startOfWeek = Carbon::now()->startOfWeek();
-            $endOfWeek = $startOfWeek->copy()->addDays(4);
+            $endOfWeek = $startOfWeek->copy()->addDays(5);
 
             $jornadas = $user->jornadas()
                 ->whereBetween('start_time', [$startOfWeek, $endOfWeek])
