@@ -209,7 +209,7 @@ class BudgetController extends Controller
         $presupuesto = Budget::find($id);
         $clientes = Client::where('is_client',true)->orderBy('id', 'asc')->get();
 
-        $gestores = User::all();
+        $gestores = User::whereIn('access_level_id',[2, 3, 4])->where('inactive', 0)->get();
         if (!$presupuesto) {
             return redirect()->route('presupuestos.index')->with('toast', [
                 'icon' => 'error',
@@ -1070,6 +1070,17 @@ class BudgetController extends Controller
             ]);
         }
 
+        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
+            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
+            $porcentaje = 1 - ($totalFacturado / $budget->total);
+            if($porcentaje == 0){
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
+                ]);
+            }
+        }else{ $porcentaje = 1;}
+
         // Validación campos array data
         if( $budget->discount_percentage){
             $discountPercentage =  $budget->discount_percentage;
@@ -1089,63 +1100,52 @@ class BudgetController extends Controller
         $ivaTotalfacturado=0;
         $totalfacturado=0;
 
-        if(count(BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get()) >= 1){
+        // if(count(BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get()) >= 1){
 
-            $budgetConcepts = BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get();
-
-
-            foreach ($budgetConcepts as $key => $concept) {
-                // Si el concepto es PROVEEDOR
-                if ($concept->concept_type_id === 1) {
-                    if ($concept->discount === null) {
-                        $grossConcept = $concept->sale_price;
-                        $baseConcept = $grossConcept;
-                        $grossfacturado += $grossConcept;
-                        $basefacturada += $baseConcept;
-                    }else {
-                        $grossConcept =  $concept->sale_price;
-                        $descuentoConcept = $concept->discount;
-                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
-                        $baseConcept = $grossConcept - $importeConceptDescuento;
-                        $descuento += $importeConceptDescuento;
-                        $grossfacturado += $grossConcept;
-                        $basefacturada += $baseConcept;
-                    }
-                }
-                elseif($concept->concept_type_id === 2){
-                    if ($concept->discount === null) {
-                        $grossConcept = $concept->units * $concept->sale_price;
-                        $baseConcept = $grossConcept;
-                        $grossfacturado += $grossConcept;
-                        $basefacturada += $baseConcept;
-                    }else {
-                        $grossConcept = $concept->units * $concept->sale_price;
-                        $descuentoConcept = $concept->discount;
-                        $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
-                        $baseConcept = $grossConcept - $importeConceptDescuento;
-                        $descuento += $importeConceptDescuento;
-                        $grossfacturado += $grossConcept;
-                        $basefacturada += $baseConcept;
-                    }
-                }
-            }
-            // Calculamos el Iva y el Total
-            $ivaTotalfacturado += ( $basefacturada * 21 ) /100;
-            $totalfacturado += $basefacturada + $ivaTotalfacturado;
-
-        }
+        //     $budgetConcepts = BudgetConcept::where('budget_id', $budget->id)->where('is_facturado', true)->get();
 
 
-        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
-            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
-            $porcentaje = 1 - ($totalFacturado / $budget->total);
-            if($porcentaje == 0){
-                return response()->json([
-                    'status' => false,
-                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
-                ]);
-            }
-        }else{ $porcentaje = 1;}
+        //     foreach ($budgetConcepts as $key => $concept) {
+        //         // Si el concepto es PROVEEDOR
+        //         if ($concept->concept_type_id === 1) {
+        //             if ($concept->discount === null) {
+        //                 $grossConcept = $concept->sale_price;
+        //                 $baseConcept = $grossConcept;
+        //                 $grossfacturado += $grossConcept;
+        //                 $basefacturada += $baseConcept;
+        //             }else {
+        //                 $grossConcept =  $concept->sale_price;
+        //                 $descuentoConcept = $concept->discount;
+        //                 $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+        //                 $baseConcept = $grossConcept - $importeConceptDescuento;
+        //                 $descuento += $importeConceptDescuento;
+        //                 $grossfacturado += $grossConcept;
+        //                 $basefacturada += $baseConcept;
+        //             }
+        //         }
+        //         elseif($concept->concept_type_id === 2){
+        //             if ($concept->discount === null) {
+        //                 $grossConcept = $concept->units * $concept->sale_price;
+        //                 $baseConcept = $grossConcept;
+        //                 $grossfacturado += $grossConcept;
+        //                 $basefacturada += $baseConcept;
+        //             }else {
+        //                 $grossConcept = $concept->units * $concept->sale_price;
+        //                 $descuentoConcept = $concept->discount;
+        //                 $importeConceptDescuento = ( $grossConcept * $descuentoConcept ) / 100;
+        //                 $baseConcept = $grossConcept - $importeConceptDescuento;
+        //                 $descuento += $importeConceptDescuento;
+        //                 $grossfacturado += $grossConcept;
+        //                 $basefacturada += $baseConcept;
+        //             }
+        //         }
+        //     }
+        //     // Calculamos el Iva y el Total
+        //     $ivaTotalfacturado += ( $basefacturada * 21 ) /100;
+        //     $totalfacturado += $basefacturada + $ivaTotalfacturado;
+
+        // }
+
 
         $data = [
             'budget_id' => $budget->id,
@@ -1190,7 +1190,6 @@ class BudgetController extends Controller
             if($budgetHasOwnTypeConcepts){
                 // Obtener los conceptos propios de presupuesto
                 $thisBudgetOwnTypeConcepts = BudgetConcept::where('budget_id', $budget->id)
-                    ->where('is_facturado', false)
                     ->where('concept_type_id',BudgetConceptType::TYPE_OWN )
                     ->get();
 
@@ -1214,7 +1213,6 @@ class BudgetController extends Controller
 
                     $conceptOwnCreate = InvoiceConcepts::create($conceptOwnData);
                     $conceptOwnSaved = $conceptOwnCreate->save();
-                    $thisBudgetOwnTypeConcept->update(['is_facturado' => true]);
 
                     if(!$conceptOwnSaved){
                             $generationSuccess = false;
@@ -1242,7 +1240,6 @@ class BudgetController extends Controller
                 // Obtener los conceptos de proveedor de presupuesto
                 $thisBudgetSupplierTypeConcepts = BudgetConcept::where('budget_id', $budget->id)
                 ->where('concept_type_id', BudgetConceptType::TYPE_SUPPLIER )
-                ->where('is_facturado', false)
                 ->get();
 
                 if($thisBudgetSupplierTypeConcepts){
@@ -1266,7 +1263,6 @@ class BudgetController extends Controller
 
                         $conceptSupplierCreate = InvoiceConcepts::create($conceptSupplierData);
                         $conceptSupplierSaved = $conceptSupplierCreate->save();
-                        $thisBudgetSupplierTypeConcept->update(['is_facturado' => true]);
 
                         if(!$conceptSupplierSaved){
                                 $generationSuccess = false;
@@ -1317,6 +1313,16 @@ class BudgetController extends Controller
                 'mensaje' => "Un presupuesto sin conceptos no puede generar factura."
             ]);
         }
+        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
+            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
+            $porcentaje = 1 - ($totalFacturado / $budget->total);
+            if($porcentaje == 0){
+                return response()->json([
+                    'status' => false,
+                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
+                ]);
+            }
+        }else{ $porcentaje = 1;}
 
         // Validación campos array data
         if( $budget->discount_percentage){
@@ -1331,16 +1337,7 @@ class BudgetController extends Controller
             $referenceGenerationResult = $this->generateInvoiceReference($budget);
         }
 
-        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
-            $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
-            $porcentaje = 1 - ($totalFacturado / $budget->total);
-            if($porcentaje == 0){
-                return response()->json([
-                    'status' => false,
-                    'mensaje' => "Ya se generaron facturas por el valor total del presupuesto"
-                ]);
-            }
-        }else{ $porcentaje = 1;}
+
         $data = [
             'budget_id' => $budget->id,
             'reference' => $referenceGenerationResult['reference'],
@@ -1489,6 +1486,7 @@ class BudgetController extends Controller
         }
         $budget = Budget::find($request->id);
         $porcentaje = $request['percentage'];
+
         if($porcentaje == 0){
             return response()->json([
                 'status' => false,
@@ -1522,6 +1520,7 @@ class BudgetController extends Controller
         $base = ($budget->base * $porcentaje) / 100;
         $iva = ($budget->iva * $porcentaje) / 100;
         $discount = ($budget->discount * $porcentaje) / 100;
+
 
         $budget->invoiced_advance = $porcentaje;
 

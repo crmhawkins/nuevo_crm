@@ -602,6 +602,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/emails/unread', [EmailController::class, 'countUnread'])->name('admin.emails.unread');
     Route::post('/emails/delete', [EmailController::class, 'destroy'])->name('admin.emails.destroy');
     Route::post('/emails/destroy-multiple', [EmailController::class, 'destroyMultiple'])->name('admin.emails.destroyMultiple');
+    Route::post('/emails/change-status', [EmailController::class, 'setEmailStatus'])->name('admin.emails.changeStatus');
+    Route::get('/emails/get-correos', [EmailController::class, 'getCorreos'])->name('admin.emails.getCorreos');
 
     //firma
     Route::get('/firma/emails', [FirmaController::class, 'firma'])->name('admin.firma');

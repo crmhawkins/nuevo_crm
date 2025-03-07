@@ -26,7 +26,7 @@ class Email extends Model
         'category_id',
         'view',
         'message_id',
-        'isFactura'
+        'isFactura',
     ];
 
 

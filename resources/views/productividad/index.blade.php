@@ -66,7 +66,13 @@
                             <tr class="usuario-row">
                                 <td>{{ $usuario['id'] }}</td>
                                 <td>{{ $usuario['nombre'] }}</td>
-                                <td>{{ number_format($usuario['nota'] , 2) }}</td>
+                                <td>
+                                    @if(is_numeric($usuario['nota']))
+                                        {{ number_format($usuario['nota'], 2) }}
+                                    @else
+                                        {{ $usuario['nota'] }}
+                                    @endif
+                                </td>
                                 <td>{{ $usuario['productividad'] }}%</td>
                                 <td>{{ $usuario['tareasfinalizadas'] }}</td>
                                 <td>{{ $usuario['horasEstimadas'] }}</td>

@@ -180,6 +180,7 @@ class HorasController extends Controller
                     'id' => $usuario->id,
                     'usuario' => $usuario->name . ' ' . $usuario->surname,
                     'departamento' => $usuario->departamento->name,
+                    'access_level_id' => $usuario->access_level_id,
                     'horas_trabajadas' => [],
                     'horas_producidas' => []
                 ];
