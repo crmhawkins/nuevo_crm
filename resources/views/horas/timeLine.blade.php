@@ -63,7 +63,7 @@
             slotLabelFormat: 'HH:mm', // Formato de hora 24h (puedes usar 'h:mm A' para AM/PM)
             minTime: "07:00:00", // Muestra desde las 6 AM
             maxTime: "23:00:00", // Muestra hasta las 10 PM
-            slotDuration: "00:15:00", // Intervalo de media hora entre slots
+            slotDuration: "00:10:00", // Intervalo de media hora entre slots
 
         });
     });
