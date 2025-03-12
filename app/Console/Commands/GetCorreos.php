@@ -97,7 +97,7 @@ class GetCorreos extends Command
 
                         $email->update(['body' => $body]);
                         $message->setFlag('Seen');
-                        if($correo->admin_user_id != 54 && $correo->admin_user_id != 129){
+                        if($correo->admin_user_id != 54){
                             $message->delete(); // Elimina el mensaje del servidor
                         }
 
