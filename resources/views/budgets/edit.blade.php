@@ -226,11 +226,11 @@
                                                 <tr class="budgetRow" data-child-value="{{$budgetConcept->concept}}">
                                                     <td class="details-control">
                                                         @if($budgetConcept->concept_type_id == 2)
-                                                            <a href="{{route('budgetConcepts.editTypeOwn', $budgetConcept->id)}}" class="btn btn-success {{ in_array($presupuesto->budget_status_id, [5, 6, 7, 8]) ? 'disabled' : '' }}">
+                                                            <a href="{{route('budgetConcepts.editTypeOwn', $budgetConcept->id)}}" class="btn btn-success ">
                                                                 <i class="fas fa-arrow-down" style="color:white;"></i>
                                                             </a>
                                                         @else
-                                                            <a href="{{route('budgetConcepts.editTypeSupplier', $budgetConcept->id)}}" class="btn btn-success {{ in_array($presupuesto->budget_status_id, [5, 6, 7, 8]) ? 'disabled' : '' }}" >
+                                                            <a href="{{route('budgetConcepts.editTypeSupplier', $budgetConcept->id)}}" class="btn btn-success" >
                                                                 <i class="fas fa-arrow-down" style="color:white;"></i>
                                                             </a>
                                                         @endif
