@@ -75,7 +75,7 @@
                         <form action="{{ route('estadistica.index') }}" method="GET">
                             <div class="row">
                                 <div class="col-xl-12">
-                                    <div class="form-group mx-3 mb-3" style="display: flex; flex-direction: row; align-items: baseline;">
+                                    <div class="form-group mx-3 mb-3" style="display: flex; flex-direction: row; align-items: flex-end;">
                                         <div class="form-group mx-2 col-5">
                                             <label class="form-label" for="mes"><strong>F.Inicio</strong></label>
                                             <input class="form-control" type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" style="margin-right: 1rem;" value="{{ request('fecha_inicio', $fecha_inicio ?? now()->format('Y-m-d')) }}">
@@ -84,7 +84,7 @@
                                             <label class="form-label" for="mes"><strong>F.Fin</strong></label>
                                             <input class="form-control" type="date" name="fecha_fin" id="fecha_fin" value="{{ request('fecha_fin', $fecha_fin ?? now()->format('Y-m-d')) }}">
                                         </div>
-                                        <div class="form-group mx-2 col-2 d-flex justify-end">
+                                        <div class="form-group mx-2 col-2">
                                             <button type="submit" class="btn btn-primary">Filtrar</button>
                                         </div>
                                     </div>
