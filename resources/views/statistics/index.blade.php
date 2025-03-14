@@ -84,7 +84,7 @@
                                             <label class="form-label" for="mes"><strong>F.Fin</strong></label>
                                             <input class="form-control" type="date" name="fecha_fin" id="fecha_fin" value="{{ request('fecha_fin', $fecha_fin ?? now()->format('Y-m-d')) }}">
                                         </div>
-                                        <div class="form-group mx-2 col-2">
+                                        <div class="form-group mx-2 col-2 d-flex justify-end">
                                             <button type="submit" class="btn btn-primary">Filtrar</button>
                                         </div>
                                     </div>
