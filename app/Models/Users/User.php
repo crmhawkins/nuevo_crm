@@ -21,12 +21,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
-
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, AuthenticationLoggable;
+    use HasApiTokens, HasFactory, Notifiable;
     use SoftDeletes;
 
     protected $table = 'admin_user';
