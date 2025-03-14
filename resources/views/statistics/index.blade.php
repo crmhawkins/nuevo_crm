@@ -74,12 +74,19 @@
                     <div class="row">
                         <form action="{{ route('estadistica.index') }}" method="GET">
                             <div class="row">
-                                <div class="col-xl-12">
-                                    <div class="form-group mx-3 mb-3" style="display: flex; flex-direction: row; align-items: baseline;">
-                                        <label for="mes" style="margin-right: 1rem"><strong>Mes</strong></label>
-                                        <input type="month" name="mes" id="mes" class="form-control" style="margin-right: 1rem;" value="{{ request('mes', now()->format('Y-m')) }}">
-
-                                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                                <div class="col-12">
+                                    <div class="form-row align-items-end">
+                                        <div class="form-group col-md-5">
+                                            <label for="fecha_inicio" class="font-weight-bold">F.Inicio</label>
+                                            <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ request('fecha_inicio', $fecha_inicio ?? now()->format('Y-m-d')) }}">
+                                        </div>
+                                        <div class="form-group col-md-5">
+                                            <label for="fecha_fin" class="font-weight-bold">F.Fin</label>
+                                            <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ request('fecha_fin', $fecha_fin ?? now()->format('Y-m-d')) }}">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="submit" class="btn btn-primary mb-2">Filtrar</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -23,15 +23,16 @@ use DataTables;
 class StatisticsController extends Controller
 {
 
-    public function mesFiltro($mes, $anio)
+    public function mesFiltro($fecha_inicio, $fecha_fin)
     {
         ini_set('memory_limit', '9024M');
 
+        $anio = $fecha_inicio->year;
         $dataBudgets = $this->proyectosActivos();
-        $dataIvaAll = $this->calcularIvaOptimizado($anio,$mes);
+        $dataIvaAll = $this->calcularIvaOptimizado($fecha_inicio, $fecha_fin, $anio);
         $dataIva = $dataIvaAll['ivaMensual'];
         $dataIvaAnual = $dataIvaAll['ivaAnual'];
-        $dataGastosComunesAll = $this->calcularGastosComunes($anio,$mes);
+        $dataGastosComunesAll = $this->calcularGastosComunes($fecha_inicio, $fecha_fin, $anio);
         $dataGastosComunesTotales = [
             'gastos' => $dataGastosComunesAll['gastosMensuales'],
             'total' => $dataGastosComunesAll['totalMensual'],
@@ -40,7 +41,7 @@ class StatisticsController extends Controller
             'gastos' => $dataGastosComunesAll['gastosAnuales'],
             'total' => $dataGastosComunesAll['totalAnual'],
         ];
-        $dataFacturacionAll = $this->calcularFacturas($anio, $mes);
+        $dataFacturacionAll = $this->calcularFacturas($fecha_inicio, $fecha_fin, $anio);
         $dataFacturacion = [
             'facturas' => $dataFacturacionAll['facturasMensuales'],
             'total' => $dataFacturacionAll['totalMensual'],
@@ -57,7 +58,7 @@ class StatisticsController extends Controller
             'ivas' => $dataFacturacionAll['ivasAnual'],
         ];
 
-        $dataAsociadosAll = $this->calcularGastosAsociados($anio , $mes);
+        $dataAsociadosAll = $this->calcularGastosAsociados($fecha_inicio, $fecha_fin, $anio);
         $dataAsociados = [
             'array' => $dataAsociadosAll['gastosMensuales'],
             'total' => $dataAsociadosAll['totalMensual'],
@@ -66,8 +67,8 @@ class StatisticsController extends Controller
             'array' => $dataAsociadosAll['gastosAnuales'],
             'total' => $dataAsociadosAll['totalAnual'],
         ];
-        $dataGastosComunes = $this->gastosComunesDeducibles($mes, $anio);
-        $cashflow = $this->cashFlow($mes, $anio);
+        $dataGastosComunes = $this->gastosComunesDeducibles($fecha_inicio, $fecha_fin);
+        $cashflow = $this->cashFlow($fecha_inicio, $fecha_fin);
 
         // $departamentos = $this->departamentosFacturacionMes($mes, $anio);
         // $departamentosBeneficios = $this->beneficioDepartamentos($mes, $anio);
@@ -153,16 +154,18 @@ class StatisticsController extends Controller
             'dataIva',
             'dataFacturacionAnnoBase',
             'dataGastosComunesTotales',
-            'cashflow'
+            'cashflow',
+            'fecha_inicio',
+            'fecha_fin'
         ));
     }
 
     public function index(Request $request)
     {
-        $date = Carbon::parse($request->mes) ?? Carbon::now();
-        $mes = $date->format('m');
-        $year = $date->year;
-        return $this->mesFiltro($mes, $year);
+        $fecha_inicio = Carbon::parse($request->fecha_inicio ?? Carbon::now()->startOfMonth());
+        $fecha_fin = Carbon::parse($request->fecha_fin ?? Carbon::now()->endOfMonth());
+
+        return $this->mesFiltro($fecha_inicio, $fecha_fin);
     }
 
     public function getBillingMonthly($anio)
@@ -224,10 +227,10 @@ class StatisticsController extends Controller
         ];
     }
 
-    public function calcularFacturas($year, $mes)
+    public function calcularFacturas($fecha_inicio, $fecha_fin, $anio)
     {
         // Consulta única para obtener las facturas del año completo
-        $facturas = Invoice::whereYear('created_at', $year)
+        $facturas = Invoice::whereYear('created_at', $anio)
             ->whereIn('invoice_status_id', [1, 3, 4])
             ->get();
 
@@ -237,9 +240,9 @@ class StatisticsController extends Controller
         // Filtrar los datos del mes si se proporciona
         $totalMensual = 0;
         $facturasMensuales = [];
-        if (!is_null($mes)) {
-            $facturasMensuales = $facturas->filter(function ($factura) use ($mes) {
-                return Carbon::parse($factura->created_at)->month == $mes;
+        if (!is_null($fecha_inicio) && !is_null($fecha_fin)) {
+            $facturasMensuales = $facturas->filter(function ($factura) use ($fecha_inicio, $fecha_fin) {
+                return Carbon::parse($factura->created_at)->between($fecha_inicio, $fecha_fin);
             });
             $totalMensual = $facturasMensuales->sum('total');
         }
@@ -254,16 +257,10 @@ class StatisticsController extends Controller
         ];
     }
 
-    public function cashFlow($mes, $year)
+    public function cashFlow($fecha_inicio, $fecha_fin)
     {
         // Obtener ingresos del mes y año especificado
-        $ingresos = Ingreso::whereMonth('date', $mes)
-            ->whereYear('date', $year)
-            // ->whereIn('invoice_id', function ($query) {
-            //     // $query->select('id')
-            //     //     ->from('invoices');
-            //         // ->whereIn('invoice_status_id', [1, 3, 4]);
-            // })
+        $ingresos = Ingreso::whereBetween('date', [$fecha_inicio, $fecha_fin])
             ->get();
 
         $gastosAsociados = 0;
@@ -290,8 +287,7 @@ class StatisticsController extends Controller
 
         // Obtener los gastos comunes del mes y año
         $gastosComunes = DB::table('gastos')
-            ->whereMonth('date', $mes)
-            ->whereYear('date', $year)
+            ->whereBetween('date', [$fecha_inicio, $fecha_fin])
             ->whereNull('deleted_at')
             // ->where(function($query) {
             //     $query->where('transfer_movement', 0)
@@ -309,11 +305,11 @@ class StatisticsController extends Controller
         ];
     }
 
-    public function calcularGastosComunes($year, $mes)
+    public function calcularGastosComunes($fecha_inicio, $fecha_fin, $anio)
     {
         // Consulta única para obtener los gastos comunes del año completo
         $gastosComunes = DB::table('gastos')
-            ->whereYear('received_date', $year)
+            ->whereYear('received_date', $anio)
             ->whereNull('deleted_at')
             ->where(function ($query) {
                 $query->where('transfer_movement', 0)
@@ -327,9 +323,9 @@ class StatisticsController extends Controller
         // Filtrar los datos del mes si se proporciona
         $totalMensual = 0;
         $gastosMensuales = [];
-        if (!is_null($mes)) {
-            $gastosMensuales = $gastosComunes->filter(function ($gasto) use ($mes) {
-                return Carbon::parse($gasto->received_date)->month == $mes;
+        if (!is_null($fecha_inicio) && !is_null($fecha_fin)) {
+            $gastosMensuales = $gastosComunes->filter(function ($gasto) use ($fecha_inicio, $fecha_fin) {
+                return Carbon::parse($gasto->received_date)->between($fecha_inicio, $fecha_fin);
             });
             $totalMensual = $gastosMensuales->sum('quantity');
         }
@@ -343,11 +339,10 @@ class StatisticsController extends Controller
         ];
     }
 
-    public function gastosComunesDeducibles($mes, $year)
+    public function gastosComunesDeducibles($fecha_inicio, $fecha_fin)
     {
         $gastosComunesMes = DB::table('gastos')
-            ->whereMonth('received_date', $mes)
-            ->whereYear('received_date', $year)
+            ->whereBetween('received_date', [$fecha_inicio, $fecha_fin])
             ->whereNull('deleted_at')
             ->where(function($query) {
                 $query->where('transfer_movement', 0)
@@ -363,11 +358,11 @@ class StatisticsController extends Controller
         ];
     }
 
-    public function calcularIvaOptimizado($year, $mes)
+    public function calcularIvaOptimizado($fecha_inicio, $fecha_fin,$anio)
     {
         // Consulta para obtener los datos de los gastos comunes y asociados del año completo
         $gastosComunes = DB::table('gastos')
-            ->whereYear('received_date', $year)
+            ->whereYear('received_date', $anio)
             ->whereNull('deleted_at')
             ->where(function($query) {
                 $query->where('transfer_movement', 0)
@@ -377,7 +372,7 @@ class StatisticsController extends Controller
             ->where('iva', '>', 0) // Solo registros donde IVA sea mayor que 0
             ->get();
 
-        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $year)
+        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $anio)
 
             ->whereNotNull('iva')
             ->where('iva', '>', 0)
@@ -398,15 +393,15 @@ class StatisticsController extends Controller
 
         // Calcular el IVA mensual si se proporciona el mes
         $ivaMensual = 0;
-        if (!is_null($mes)) {
-            $ivaGastosComunesMes = $gastosComunes->where('received_date', '>=', "$year-$mes-01")
-                ->where('received_date', '<', date('Y-m-d', strtotime("+1 month", strtotime("$year-$mes-01"))))
+        if (!is_null($fecha_inicio) && !is_null($fecha_fin)) {
+            $ivaGastosComunesMes = $gastosComunes->where('received_date', '>=', $fecha_inicio)
+                ->where('received_date', '<', $fecha_fin)
                 ->sum(function ($gasto) {
                     return $gasto->quantity * ($gasto->iva / 100);
                 });
 
-            $ivaGastosAsociadosMes = $gastosAsociados->where('received_date', '>=', "$year-$mes-01")
-                ->where('received_date', '<', date('Y-m-d', strtotime("+1 month", strtotime("$year-$mes-01"))))
+            $ivaGastosAsociadosMes = $gastosAsociados->where('received_date', '>=', $fecha_inicio)
+                ->where('received_date', '<', $fecha_fin)
                 ->sum(function ($gasto) {
                     return $gasto->quantity * ($gasto->iva / 100);
                 });
@@ -420,10 +415,10 @@ class StatisticsController extends Controller
         ];
     }
 
-    public function calcularGastosAsociados($year, $mes)
+    public function calcularGastosAsociados($fecha_inicio, $fecha_fin, $anio)
     {
         // Consulta única para obtener los gastos asociados del año completo
-        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $year)->get();
+        $gastosAsociados = AssociatedExpenses::whereYear('received_date', $anio)->get();
 
         // Calcular el total anual
         $totalAnual = $gastosAsociados->sum('quantity');
@@ -431,9 +426,9 @@ class StatisticsController extends Controller
         // Filtrar los datos mensuales si se proporciona un mes
         $totalMensual = 0;
         $gastosMensuales = [];
-        if (!is_null($mes)) {
-            $gastosMensuales = $gastosAsociados->filter(function ($gasto) use ($mes) {
-                return Carbon::parse($gasto->received_date)->month == $mes;
+        if (!is_null($fecha_inicio) && !is_null($fecha_fin)) {
+            $gastosMensuales = $gastosAsociados->filter(function ($gasto) use ($fecha_inicio, $fecha_fin) {
+                return Carbon::parse($gasto->received_date)->between($fecha_inicio, $fecha_fin);
             });
             $totalMensual = $gastosMensuales->sum('quantity');
         }
