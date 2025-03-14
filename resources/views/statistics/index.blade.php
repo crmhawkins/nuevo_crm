@@ -75,18 +75,10 @@
                         <form action="{{ route('estadistica.index') }}" method="GET">
                             <div class="row">
                                 <div class="col-xl-12">
-                                    <div class="form-group mx-3 mb-3" style="display: flex; flex-direction: row; align-items: flex-end;">
-                                        <div class="form-group mx-2 col-5">
-                                            <label class="form-label" for="mes"><strong>F.Inicio</strong></label>
-                                            <input class="form-control" type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" style="margin-right: 1rem;" value="{{ request('fecha_inicio', $fecha_inicio ?? now()->format('Y-m-d')) }}">
-                                        </div>
-                                        <div class="form-group mx-2 col-5">
-                                            <label class="form-label" for="mes"><strong>F.Fin</strong></label>
-                                            <input class="form-control" type="date" name="fecha_fin" id="fecha_fin" value="{{ request('fecha_fin', $fecha_fin ?? now()->format('Y-m-d')) }}">
-                                        </div>
-                                        <div class="form-group mx-2 col-2">
-                                            <button type="submit" class="btn btn-primary">Filtrar</button>
-                                        </div>
+                                    <div class="form-group mx-3 mb-3" style="display: flex; flex-direction: row; align-items: baseline;">
+                                        <label for="mes" style="margin-right: 1rem"><strong>Rango</strong></label>
+                                        <input type="text" class="form-control date-range p-1 rangofecha" id="dateRange" name="dateRange" value="{{ request('dateRange',$dateRange) }}">
+                                        <button type="submit" class="btn btn-primary">Filtrar</button>
                                     </div>
                                 </div>
                             </div>
@@ -959,6 +951,8 @@
     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
     <script>
         function getColorByIndex(index, opacity = 1) {
@@ -1086,6 +1080,15 @@
                     }
                 }
             }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("#dateRange", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                locale: "es",
+            });
         });
     </script>
 @endsection
