@@ -23,7 +23,7 @@ use DataTables;
 class StatisticsController extends Controller
 {
 
-    public function mesFiltro($fecha_inicio, $fecha_fin,$dateRange)
+    public function mesFiltro($fecha_inicio, $fecha_fin)
     {
         ini_set('memory_limit', '9024M');
 
@@ -155,18 +155,17 @@ class StatisticsController extends Controller
             'dataFacturacionAnnoBase',
             'dataGastosComunesTotales',
             'cashflow',
-            'dateRange'
+            'fecha_inicio',
+            'fecha_fin'
         ));
     }
 
     public function index(Request $request)
     {
-        $dateRange = $request->dateRange ?? Carbon::now()->startOfMonth()->format('Y-m-d') . ' a ' . Carbon::now()->endOfMonth()->format('Y-m-d');
-        $fechas = explode(' a ', $dateRange);
-        $fecha_inicio = Carbon::parse($fechas[0]);
-        $fecha_fin = Carbon::parse($fechas[1]);
+        $fecha_inicio = Carbon::parse($request->fecha_inicio ?? Carbon::now()->startOfMonth());
+        $fecha_fin = Carbon::parse($request->fecha_fin ?? Carbon::now()->endOfMonth());
 
-        return $this->mesFiltro($fecha_inicio, $fecha_fin,$dateRange);
+        return $this->mesFiltro($fecha_inicio, $fecha_fin);
     }
 
     public function getBillingMonthly($anio)
