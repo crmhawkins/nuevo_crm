@@ -21,6 +21,7 @@
         "livewire/livewire": "^2.12",
         "maatwebsite/excel": "^3.1",
         "pusher/pusher-php-server": "^7.2",
+        "rappasoft/laravel-authentication-log": "^4.0",
         "webklex/laravel-imap": "^5.3",
         "yajra/laravel-datatables-oracle": "^10.11"
     },
