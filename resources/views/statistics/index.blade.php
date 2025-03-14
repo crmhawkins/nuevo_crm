@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.dataTables.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <style>
         .modal-dialog.modal-lg-custom {
             max-width: 60%;
@@ -77,7 +79,7 @@
                                 <div class="col-xl-12">
                                     <div class="form-group mx-3 mb-3" style="display: flex; flex-direction: row; align-items: baseline;">
                                         <label for="mes" style="margin-right: 1rem"><strong>Rango</strong></label>
-                                        <input type="text" class="form-control date-range p-1 rangofecha" id="dateRange" name="dateRange" value="{{ request('dateRange',$dateRange) }}">
+                                        <input type="text" class="form-control date-range rangofecha" id="dateRange" name="dateRange" value="{{ request('dateRange',$dateRange) }}">
                                         <button type="submit" class="btn btn-primary">Filtrar</button>
                                     </div>
                                 </div>
