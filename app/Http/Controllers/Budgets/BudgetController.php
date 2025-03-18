@@ -238,8 +238,15 @@ class BudgetController extends Controller
     public function update(Request $request, string $id)
     {
         $budget = Budget::find($id);
-        // Validación
 
+        if(Auth::user()->access_level_id > 3  && $budget->budget_status_id == Budgetstatu::ESPERANDO_PAGO_PARCIAL){
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Presupuesto a la espera de pago inicial no puede ser editado.'
+            ]);
+        }
+
+        // Validación
         $request->validate([
             'client_id' => 'required',
             'project_id' => 'required',
@@ -1564,8 +1571,10 @@ class BudgetController extends Controller
             ]);
         }
         if($invoiceSaved){
-            $budget->budget_status_id = 7;
-            $budget->save();
+            if($budget->budget_status_id != BudgetStatu::ESPERANDO_PAGO_PARCIAL){
+                $budget->budget_status_id = 7;
+                $budget->save();
+            }
             //////////////////////////////////////////////////////////////////////////////////////////////
             ////////////////////////////////         CONCEPTOS PROPIOS         ///////////////////////////
             //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2046,6 +2055,33 @@ class BudgetController extends Controller
                 $alert->delete();
             }
         }
+    }
+
+    public function pagoInicial(Request $request)
+    {
+        $budget = Budget::find($request->id);
+        $porcentaje = $request->percentage;
+
+        if ($budget) {
+            $budget->budget_status_id = Budgetstatu::ESPERANDO_PAGO_PARCIAL;
+            $budget->save();
+        }
+        $users = User::where('inactive', 0)->where('access_level_id', 3)->get();
+        foreach ($users as $user) {
+            Alert::create( [
+                'admin_user_id' => $user->id,
+                'reference_id' => $budget->id,
+                'stage_id' => 51,
+                'status_id' => 1,
+                'activation_datetime' => Carbon::now(),
+                'description' => 'Presupuesto a la espera de pago inicial del '. $porcentaje.'%',
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'mensaje' => "Solicitud de pago enviada correctamente",
+        ]);
     }
 
 }

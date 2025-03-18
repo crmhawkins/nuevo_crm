@@ -46,4 +46,53 @@ class BudgetStatu extends Model
      * @var string
      */
     const PENDING_ACCEPT = 2;
+
+    /**
+     * ACEPTADO
+     *
+     * @var string
+     */
+    const ACCEPTED = 3;
+
+    /**
+     * CANCELADO
+     *
+     * @var string
+     */
+    const CANCELLED = 4;
+
+    /**
+     * FACTURADO
+     *
+     * @var string
+     */
+    const FACTURADO = 6;
+
+    /**
+     * FACTURADO PARCIALMENTE
+     *
+     * @var string
+     */
+    const FACTURADO_PARCIALMENTE = 7;
+
+    /**
+     * FINALIZADO
+     *
+     * @var string
+     */
+    const FINALIZADO = 5;
+
+    /**
+     * FINALIZADO PROPIO
+     *
+     * @var string
+     */
+    const FINALIZADO_PROPIO = 8;
+
+    /**
+     * ESPERANDO PAGO PARCIAL
+     *
+     * @var string
+     */
+    const ESPERANDO_PAGO_PARCIAL = 9;
 }

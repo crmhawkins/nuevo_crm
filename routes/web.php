@@ -146,6 +146,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/budget/cancel-budget/', [BudgetController::class, 'cancelarPresupuesto'])->name('presupuesto.cancelarPresupuesto');
         Route::post('/budget/generate-invoice', [BudgetController::class, 'generateInvoice'])->name('presupuesto.generarFactura');
         Route::post('/budget/generate-partia-invoice', [BudgetController::class, 'generateInvoicePartial'])->name('presupuesto.generarFacturaParcial');
+        Route::post('/budget/generate-pago-inicial', [BudgetController::class, 'pagoInicial'])->name('presupuesto.generarPagoInicial');
         Route::post('/budget/generate-task', [BudgetController::class, 'createTask'])->name('presupuesto.generarTarea');
         Route::post('/budgets-by-client', [BudgetController::class, 'getBudgetsByClientId']);
         Route::post('/budgets-by-project', [BudgetController::class, 'getBudgetsByprojectId']);
