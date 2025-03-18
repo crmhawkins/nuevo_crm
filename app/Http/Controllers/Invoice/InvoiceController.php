@@ -50,6 +50,10 @@ class InvoiceController extends Controller
         $invoice = Invoice::find($id);
 
         $invoice->invoice_status_id = 3;
+        if($invoice->budget->budget_status_id == BudgetStatu::ESPERANDO_PAGO_PARCIAL){
+            $invoice->budget->budget_status_id = BudgetStatu::ACCEPTED;
+            $this->createTask($invoice->budget->id);
+        }
         $invoice->save();
         return response(200);
         // session()->flash('toast', [
@@ -81,7 +85,7 @@ class InvoiceController extends Controller
 
         if($factura->budget->budget_status_id == BudgetStatu::ESPERANDO_PAGO_PARCIAL && $factura->invoice_status_id == 3){
             $factura->budget->budget_status_id = BudgetStatu::ACCEPTED;
-            $this->createTask($factura->budget);
+            $this->createTask($factura->budget->id);
         }
         if($facturaupdated){
             return redirect()->route('facturas.index')->with('toast', [
