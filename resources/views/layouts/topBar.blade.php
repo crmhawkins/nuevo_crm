@@ -313,7 +313,7 @@
             48: 'To-Do no Completado',
             49: 'Correos no leído',
             50: 'Vacaciones descontadas',
-            51: 'Solicitud de Pago Inicial'
+            51: 'Solicitud de Pago Inicial',
             52: 'Pago Inicial Realizado',
         };
 
