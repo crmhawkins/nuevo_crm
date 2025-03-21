@@ -1626,10 +1626,9 @@ class DashboardController extends Controller
 
         foreach ($jornadasPorDia as $day => $dayJornadas) {
 
-
             $totalWorkedSeconds = 0;
             $isFriday = Carbon::parse($day)->isFriday();
-
+            $isHalfDay = HolidaysPetitions::where('admin_user_id', $user->id)->where('holidays_status_id', 1)->where('from', '<=', $day)->where('to', '>=', $day)->first();
             foreach ($dayJornadas as $jornada) {
                 $workedSeconds = Carbon::parse($jornada->start_time)->diffInSeconds($jornada->end_time ?? $ultimatarea);
                 $totalPauseSeconds = $jornada->pauses->sum(function ($pause) {
@@ -1639,7 +1638,11 @@ class DashboardController extends Controller
             }
 
             // Calcular la diferencia: 7 horas si es viernes, 8 horas en el resto de días
-            $targetHours = $isFriday ? 7 : 8;
+            if($isHalfDay){
+                $targetHours = 5;
+            }else{
+                $targetHours = $isFriday ? 7 : 8;
+            }
             $targetseconds = $targetHours * 3600;
             $difference = $targetseconds - $totalWorkedSeconds;
 
