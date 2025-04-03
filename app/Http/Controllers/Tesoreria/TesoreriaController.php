@@ -334,7 +334,7 @@ class TesoreriaController extends Controller
         $purchaseOrder = PurcharseOrder::find($validated['purchase_order_id']);
         $precio = $purchaseOrder->concepto->purchase_price;
 
-        if(floatval($validated['quantity']) != floatval($precio)){
+        if(abs(floatval($validated['quantity']) - floatval($precio)) > 0.00001){
 
             //dd( floatval($validated['quantity']) , floatval($precio));
             return redirect()->back()->with('toast', [
