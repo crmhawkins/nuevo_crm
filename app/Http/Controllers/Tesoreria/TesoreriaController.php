@@ -336,7 +336,7 @@ class TesoreriaController extends Controller
 
         if(floatval($validated['quantity']) != floatval($precio)){
 
-            dd( floatval($validated['quantity']) , floatval($precio));
+            //dd( floatval($validated['quantity']) , floatval($precio));
             return redirect()->back()->with('toast', [
                 'icon' => 'error',
                 'mensaje' => 'La cantidad no coincide con la cantidad de la orden de compra '. $precio . ' es diferente a la cantidad ' . $validated['quantity']
