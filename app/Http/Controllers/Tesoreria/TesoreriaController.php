@@ -334,10 +334,10 @@ class TesoreriaController extends Controller
         $purchaseOrder = PurcharseOrder::find($validated['purchase_order_id']);
         $precio = $purchaseOrder->concepto->purchase_price;
 
-        if($validated['quantity'] != $precio){
+        if(floatval($validated['quantity']) !== floatval($precio)){
             return redirect()->back()->with('toast', [
                 'icon' => 'error',
-                'mensaje' => 'La cantidad no coincide con la cantidad de la orden de compra'. $precio . ' es diferente a la cantidad ' . $validated['quantity']
+                'mensaje' => 'La cantidad no coincide con la cantidad de la orden de compra '. $precio . ' es diferente a la cantidad ' . $validated['quantity']
             ]);
         }
         $validated['total'] = number_format(($validated['quantity']  * $validated['iva'] / 100) + $validated['quantity'], 2, '.', '');
