@@ -480,7 +480,7 @@ class HorasController extends Controller
                 ];
             } else {
                 $events[] = [
-                    'Jornada finalizada',
+                    'Jornada',
                     $log->start_time,
                     $log->end_time,
                     '#FD994E'
@@ -499,7 +499,7 @@ class HorasController extends Controller
                     ];
                 } else {
                     $events[] = [
-                        'Pausa finalizada',
+                        'Pausa',
                         $pausa->start_time,
                         $pausa->end_time,
                         '#FF0000'

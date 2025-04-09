@@ -226,15 +226,14 @@
                                                 <tr class="budgetRow" data-child-value="{{$budgetConcept->concept}}">
                                                     <td class="details-control">
                                                         @if($budgetConcept->concept_type_id == 2)
-                                                            <a href="{{route('budgetConcepts.editTypeOwn', $budgetConcept->id)}}" class="btn btn-success {{ in_array($presupuesto->budget_status_id, [5, 6, 7, 8]) ? 'disabled' : '' }}">
+                                                            <a href="{{route('budgetConcepts.editTypeOwn', $budgetConcept->id)}}" class="btn btn-success ">
                                                                 <i class="fas fa-arrow-down" style="color:white;"></i>
                                                             </a>
                                                         @else
-                                                            <a href="{{route('budgetConcepts.editTypeSupplier', $budgetConcept->id)}}" class="btn btn-success {{ in_array($presupuesto->budget_status_id, [5, 6, 7, 8]) ? 'disabled' : '' }}" >
+                                                            <a href="{{route('budgetConcepts.editTypeSupplier', $budgetConcept->id)}}" class="btn btn-success" >
                                                                 <i class="fas fa-arrow-down" style="color:white;"></i>
                                                             </a>
                                                         @endif
-
                                                     </td>
                                                     <td hidden >{{ $budgetConcept->id }}</td>
                                                     <td>{{ $budgetConcept->title }}</td>
@@ -364,6 +363,7 @@
                                 @csrf
                                 <button type="submit" class="btn btn-secondary btn-block mb-3">Duplicar</button>
                             </form>
+                            <a href="" id="generatePagoInicial" class="btn btn-dark btn-block mb-3">Pago Inicial</a>
                             <a href="" id="generatePdf" class="btn btn-dark btn-block mb-3">Generar PDF</a>
                             <a href="" id="enviarEmail" data-id="{{$presupuesto->id}}" class="btn btn-dark btn-block mb-3">Enviar por email</a>
                             @if (Auth::user()->access_level_id <= 3)
@@ -1016,6 +1016,85 @@
             });
         });
 
+        $('#generatePagoInicial').click(function(e) {
+            // Iniciar SweetAlert2 con opciones
+            e.preventDefault();
+            const porcentajeYaFacturado = @json($porcentaje); // Asegúrate de que esta variable tiene el porcentaje ya facturado.
+            const maximoPermitido = 100 - porcentajeYaFacturado;
+            Swal.fire({
+                title: 'Pago Inicial',
+                text: 'Selecciona el porcentaje que deseas facturar:',
+                icon: 'question',
+                input: 'range', // Establece el tipo de input como un rango
+                inputAttributes: {
+                    min: 0, // Valor mínimo
+                    max: maximoPermitido, // Valor máximo
+                    step: 5 // Incrementos
+                },
+                inputValue: 0, // Valor inicial
+                inputLabel: 'Porcentaje a facturar',
+                showCancelButton: true, // Muestra el botón cancelar
+                confirmButtonText: 'Confirmar',
+                cancelButtonText: 'Cancelar',
+                preConfirm: (percentage) => {
+                    return new Promise((resolve) => {
+                        // Enviar datos al servidor o hacer algo antes de cerrar el diálogo
+                        generatePagoInicial(percentage).done(function(response) {
+                            if (response.status) {
+                                Swal.fire({
+                                    title: '¡Solicitud de Pago Inicial generada!',
+                                    toast: true,
+                                    text: `Solicitud de pago inicial generada por el ${percentage}% del total.`,
+                                    icon: 'success',
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.onmouseenter = Swal.stopTimer;
+                                        toast.onmouseleave = Swal.resumeTimer;
+                                    },
+                                    didClose: () => {
+                                    }
+                                });
+                            } else {
+                            // Mostrar mensaje de error
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: response.mensaje,
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.onmouseenter = Swal.stopTimer;
+                                        toast.onmouseleave = Swal.resumeTimer;
+                                    }
+                                });
+                            }
+                        }).fail(function(error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error al generar la solicitud. Por favor, inténtalo de nuevo.',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.onmouseenter = Swal.stopTimer;
+                                    toast.onmouseleave = Swal.resumeTimer;
+                                }
+                            });
+                            console.error(xhr.responseText);
+                        });
+                    });
+                }
+            });
+        });
+
         $('#deletePresupuesto').on('click', function(e){
             e.preventDefault();
             let id = $(this).data('id'); // Usa $(this) para obtener el atributo data-id
@@ -1209,6 +1288,21 @@
         function generatePartialInvoice(percentage) {
             return $.ajax({
                 url: '{{ route("presupuesto.generarFacturaParcial") }}', // Asegúrate de que la URL es correcta
+                type: 'POST',
+                data: {
+                    id: @json($presupuesto->id), // ID del presupuesto
+                    percentage: percentage // Porcentaje para facturar
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // CSRF token
+                }
+            });
+        }
+
+        // Función para enviar datos al servidor y generar la factura parcial
+        function generatePagoInicial(percentage) {
+            return $.ajax({
+                url: '{{ route("presupuesto.generarPagoInicial") }}', // Asegúrate de que la URL es correcta
                 type: 'POST',
                 data: {
                     id: @json($presupuesto->id), // ID del presupuesto

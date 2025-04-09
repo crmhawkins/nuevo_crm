@@ -291,9 +291,8 @@ class TesoreriaController extends Controller
         // Validar los datos del formulario
         $validated = $this->validate($request, [
             'title' => 'required|string|max:255',
-            'quantity' => 'required',
-            'received_date' => 'nullable',
             'reference' => 'required|string|max:255',
+            'received_date' => 'nullable',
             'date' => 'nullable',
             'bank_id' => 'required|integer|exists:bank_accounts,id',
             'purchase_order_id' => 'required|integer|exists:purchase_order,id',
@@ -302,6 +301,7 @@ class TesoreriaController extends Controller
             'aceptado_gestor' => 'nullable|boolean',
             'documents' => 'nullable',
             'iva' => 'nullable',
+            'quantity' => 'required',
             'categoria_id' => 'nullable',
             'total' => 'nullable',
         ],[
@@ -334,10 +334,12 @@ class TesoreriaController extends Controller
         $purchaseOrder = PurcharseOrder::find($validated['purchase_order_id']);
         $precio = $purchaseOrder->concepto->purchase_price;
 
-        if($validated['quantity'] != $precio){
+        if(abs(floatval($validated['quantity']) - floatval($precio)) > 0.00001){
+
+            //dd( floatval($validated['quantity']) , floatval($precio));
             return redirect()->back()->with('toast', [
                 'icon' => 'error',
-                'mensaje' => 'La cantidad no coincide con la cantidad de la orden de compra'
+                'mensaje' => 'La cantidad no coincide con la cantidad de la orden de compra '. $precio . ' es diferente a la cantidad ' . $validated['quantity']
             ]);
         }
         $validated['total'] = number_format(($validated['quantity']  * $validated['iva'] / 100) + $validated['quantity'], 2, '.', '');

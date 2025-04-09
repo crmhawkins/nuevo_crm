@@ -42,7 +42,7 @@ class KitDigitalController extends Controller
 
         // Cargando datos estáticos
         $gestores = cache()->remember('gestores', 60, fn() => User::where('access_level_id', 4)->where('inactive', 0)->get());
-        $comerciales = cache()->remember('comerciales', 60, fn() => User::whereIn('access_level_id', [1, 6])->where('inactive', 0)->get());
+        $comerciales = cache()->remember('comerciales', 60, fn() => User::whereIn('access_level_id', [1, 6])->get());
         $servicios = cache()->remember('servicios', 60, fn() => KitDigitalServicios::all());
         $estados = cache()->remember('estados', 60, fn() => KitDigitalEstados::orderBy('orden', 'asc')->get());
         $clientes = cache()->remember('clientes', 60, fn() => Client::where('is_client', true)->get());

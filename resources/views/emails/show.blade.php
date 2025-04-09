@@ -106,10 +106,10 @@
     document.addEventListener('DOMContentLoaded', function () {
         var frame = document.getElementById('emailFrame');
         var frameDoc = frame.contentDocument || frame.contentWindow.document;
-
+        var emailBody = @json($email->body);
         // Inyectar HTML y luego ajustar la altura
         frameDoc.open();
-        frameDoc.write(`{!! addslashes($email->body) !!}`);
+        frameDoc.write(emailBody);
         frameDoc.close();
 
         // Esperar a que el contenido se cargue y luego ajustar la altura

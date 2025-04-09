@@ -166,6 +166,14 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="mx-4 d-flex my-2">
+                                        <div class="text-center mr-2">
+                                            <p style="color:#4D989E">Horas a descontar</p>
+                                            <p style="font-weight: bold;font-size: 1rem; color: {{ $horasSemanales != '00:00:00' ? 'red' : 'black' }};">
+                                                {{ $horasSemanales }}
+                                            </p>
+                                        </div>
+                                    </div>
                                     <div class="col-12 d-flex flex-wrap justify-content-center">
                                         <div class="my-2 text-center">
                                             <a class="btn btn-outline-secondary"

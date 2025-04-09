@@ -740,6 +740,12 @@
                                                 </div>
                                                 <div class="mx-4 d-flex my-2">
                                                     <div class="text-center mr-2">
+                                                        <p style="color:#4D989E">Horas a descontar</p>
+                                                        <p style="font-weight: bold;font-size: 1rem; color: {{ $horasSemanales != '00:00:00' ? 'red' : 'black' }};">
+                                                            {{ $horasSemanales }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="text-center mr-2">
                                                         <p style="color:#4D989E">H.Producidas Hoy</p>
                                                         <p style="font-weight: bold;font-size: 1rem;">{{ $tiempoProducidoHoy['horas'] }}</p>
                                                     </div>

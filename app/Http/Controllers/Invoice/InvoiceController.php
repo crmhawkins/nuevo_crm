@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers\Invoice;
 
+use App\Http\Controllers\Budgets\BudgetController;
 use App\Http\Controllers\Controller;
 use App\Mail\MailInvoice;
 use App\Models\Budgets\Budget;
+use App\Models\Budgets\BudgetConcept;
 use App\Models\Budgets\BudgetConceptType;
+use App\Models\Budgets\BudgetStatu;
 use App\Models\Budgets\InvoiceCustomPDF;
 use App\Models\Clients\Client;
 use App\Models\Company\CompanyDetails;
 use App\Models\Invoices\Invoice;
 use App\Models\Invoices\InvoiceConcepts;
 use App\Models\Invoices\InvoiceStatus;
+use App\Models\Tasks\Task;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -45,6 +50,10 @@ class InvoiceController extends Controller
         $invoice = Invoice::find($id);
 
         $invoice->invoice_status_id = 3;
+        if($invoice->budget->budget_status_id == BudgetStatu::ESPERANDO_PAGO_PARCIAL){
+            $invoice->budget->budget_status_id = BudgetStatu::ACCEPTED;
+            $this->createTask($invoice->budget->id);
+        }
         $invoice->save();
         return response(200);
         // session()->flash('toast', [
@@ -75,6 +84,10 @@ class InvoiceController extends Controller
 
         $facturaupdated=$factura->update($data);
 
+        if($factura->budget->budget_status_id == BudgetStatu::ESPERANDO_PAGO_PARCIAL && $factura->invoice_status_id == 3){
+            $factura->budget->budget_status_id = BudgetStatu::ACCEPTED;
+            $this->createTask($factura->budget->id);
+        }
         if($facturaupdated){
             return redirect()->route('facturas.index')->with('toast', [
                 'icon' => 'success',
@@ -86,6 +99,53 @@ class InvoiceController extends Controller
                 'mensaje' => 'Error al actualizar el presupuesto.'
             ]);
         }
+    }
+
+    public function createTask($id){
+        $taskSaved = false;
+        $budget = Budget::find($id);
+        //Crear Tarea
+        $budgetConcept = BudgetConcept::where('budget_id', $budget->id)->get();
+        $empresa = CompanyDetails::find(1);
+        foreach($budgetConcept as $con){
+            $time_hour = $this->calcNewHoursPrice($con->total, $empresa->price_hour);
+            if($con->concept_type_id == 2){
+                $budgetCon =  Task::where('budget_concept_id', $con->id)->count();
+                if($budgetCon == 0){
+                    $dataTask['admin_user_id'] = null;
+                    $dataTask['gestor_id'] = Auth::user()->id ?? 1;
+                    $dataTask['priority_id'] = null;
+                    $dataTask['project_id'] = $budget->project_id;
+                    $dataTask['budget_id'] = $budget->id;
+                    $dataTask['budget_concept_id'] = $con->id;
+                    $dataTask['task_status_id'] = 2;
+                    $dataTask['title'] = $con->title;
+                    $dataTask['description'] = $con->concept;
+                    $dataTask['total_time_budget'] = $time_hour;
+                    $dataTask['estimated_time'] = $time_hour;
+                    $dataTask['real_time'] = '00:00:00';
+                    $task = Task::create($dataTask);
+                    $taskSaved = $task->save();
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'mensaje' => "Tareas ya generadas anteriormente."
+                    ]);
+                }
+            }
+        }
+        if($taskSaved){
+            return response()->json([
+                'status' => true,
+                'mensaje' => "Tareas generadas con exito"
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'mensaje' => "Fallo al generar las tareas"
+            ]);
+        }
+
     }
 
     public function generatePDF(Request $request)

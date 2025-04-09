@@ -62,7 +62,7 @@
                     <select wire:model="selectedEmpleado" name="" id="" class="form-select ">
                         <option value="">Empleados</option>
                         @foreach ($empleados as $empleado)
-                            <option value="{{$empleado->id}}">{{$empleado->name}}</option>
+                            <option value="{{$empleado->id}}">{{$empleado->name.' '.$empleado->surname}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -71,7 +71,7 @@
                     <select wire:model="selectedGestor" name="" id="" class="form-select ">
                         <option value="">Gestores</option>
                         @foreach ($gestores as $gestor)
-                            <option value="{{$gestor->id}}">{{$gestor->name}}</option>
+                            <option value="{{$gestor->id}}">{{$gestor->name.' '. $gestor->surname}}</option>
                         @endforeach
                     </select>
                 </div>

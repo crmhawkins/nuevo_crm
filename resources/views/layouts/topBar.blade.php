@@ -312,6 +312,9 @@
             47: 'Incidencia Creada',
             48: 'To-Do no Completado',
             49: 'Correos no leído',
+            50: 'Vacaciones descontadas',
+            51: 'Solicitud de Pago Inicial',
+            52: 'Pago Inicial Realizado',
         };
 
         // Función para obtener las alertas usando fetch
@@ -601,7 +604,30 @@
                         mensajeDetalle =  alerta['description'];
                         botonposponer = false;
                         break;
-
+                    case 47:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
+                        break;
+                    case 48:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
+                        break;
+                    case 49:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
+                        break;
+                    case 50:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
+                        break;
+                    case 51:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
+                        break;
+                    case 52:
+                        mensajeDetalle =  alerta['description'];
+                        botonposponer = false;
+                        break;
                     default:
                     alertas.shift();
                     mostrarTiposDeAlertas();
@@ -1406,7 +1432,98 @@
                         });
                         break;
 
-
+                    case 47:
+                    var id = alertaSeleccionada['id'];
+                        var status = 2; //Resuelto
+                        $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                        break;
+                    case 48:
+                    var id = alertaSeleccionada['id'];
+                        var status = 2; //Resuelto
+                        $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                        break;
+                    case 49:
+                    var id = alertaSeleccionada['id'];
+                        var status = 2; //Resuelto
+                        $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                        break;
+                    case 50:
+                    var id = alertaSeleccionada['id'];
+                        var status = 2; //Resuelto
+                        $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                        break;
+                    case 51:
+                        var id = alertaSeleccionada['id'];
+                        var status = 2; //Resuelto
+                        $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                        break;
+                    case 52:
+                        var id = alertaSeleccionada['id'];
+                        var status = 2; //Resuelto
+                        $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                        break;
                 default:
                     mostrarTiposDeAlertas();
                     break;

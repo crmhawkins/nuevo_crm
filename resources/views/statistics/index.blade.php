@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="assets/vendors/simple-datatables/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.dataTables.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <style>
         .modal-dialog.modal-lg-custom {
             max-width: 60%;
@@ -76,9 +78,8 @@
                             <div class="row">
                                 <div class="col-xl-12">
                                     <div class="form-group mx-3 mb-3" style="display: flex; flex-direction: row; align-items: baseline;">
-                                        <label for="mes" style="margin-right: 1rem"><strong>Mes</strong></label>
-                                        <input type="month" name="mes" id="mes" class="form-control" style="margin-right: 1rem;" value="{{ request('mes', now()->format('Y-m')) }}">
-
+                                        <label for="mes" style="margin-right: 1rem"><strong>Rango</strong></label>
+                                        <input type="text" class="form-control date-range rangofecha" id="dateRange" name="dateRange" value="{{ request('dateRange',$dateRange) }}">
                                         <button type="submit" class="btn btn-primary">Filtrar</button>
                                     </div>
                                 </div>
@@ -952,6 +953,8 @@
     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
     <script>
         function getColorByIndex(index, opacity = 1) {
@@ -1079,6 +1082,15 @@
                     }
                 }
             }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("#dateRange", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                locale: "es",
+            });
         });
     </script>
 @endsection

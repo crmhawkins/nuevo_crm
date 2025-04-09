@@ -69,7 +69,7 @@
                                                         <select class="choices form-select" name="employeeId{{$item['num']}}" class="form-control">
                                                             <option value="">Empleado</option>
                                                             @foreach($employees as $empleado)
-                                                            <option value="{{$empleado->id}}" @if( $item['id'] == $empleado->id ) selected @endif>{{$empleado->name}}</option>
+                                                            <option value="{{$empleado->id}}" @if( $item['id'] == $empleado->id ) selected @endif>{{$empleado->name.' '.$empleado->surname}}</option>
                                                             @endforeach
                                                         </select>
                                                     </td>
@@ -206,7 +206,7 @@
                             <select class="choices form-select" name="employeeId${i}" class="form-control">
                                 <option value="">Empleado</option>
                                 @foreach($employees as $empleado)
-                                    <option value="{{$empleado->id}}">{{$empleado->name}}</option>
+                                    <option value="{{$empleado->id}}">{{$empleado->name." ".$empleado->surname}}</option>
                                 @endforeach
                             </select>
                         </td>
