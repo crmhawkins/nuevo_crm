@@ -73,7 +73,16 @@
                         <th>SERVICIO</th>
                         @foreach($columnasEstados as $estado)
                             @if(!in_array($estado, $columnasOcultas))
-                                <th>{{ $estado }}</th>
+                                <th style="cursor: pointer;" wire:click="ordenarPorEstado('{{ $estado }}')">
+                                    {{ $estado }}
+                                    @if($ordenEstado === $estado)
+                                        @if($ordenDireccion === 'asc')
+                                            ↑
+                                        @else
+                                            ↓
+                                        @endif
+                                    @endif
+                                </th>
                             @endif
                         @endforeach
                     </tr>

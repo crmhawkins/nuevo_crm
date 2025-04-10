@@ -23,6 +23,8 @@ class LogskitTable extends Component
     public $sortColumn = 'created_at';
     public $sortDirection = 'desc';
 
+    public $ordenEstado = null;
+    public $ordenDireccion = 'asc';
     private $logs;
     private $logsPivotados;
     public $columnasEstados = [];
@@ -108,6 +110,29 @@ class LogskitTable extends Component
             return $row;
         })->values();
 
+        // Filtrar por estado específico (si está activo)
+        if ($this->filtroEstado && in_array($this->filtroEstado, $this->columnasEstados)) {
+            $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
+                return !empty($row[$this->filtroEstado]);
+            });
+        }
+
+        // Filtrar filas sin datos en columnas visibles
+        $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
+            foreach ($this->columnasEstados as $estado) {
+                if (!in_array($estado, $this->columnasOcultas) && !empty($row[$estado])) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        // Ordenar por estado (si aplica)
+        if ($this->ordenEstado && in_array($this->ordenEstado, $this->columnasEstados)) {
+            $logsPivotadosCollection = $logsPivotadosCollection->sortBy(function ($row) {
+                return $row[$this->ordenEstado] ?? '9999-99-99 99:99:99';
+            }, SORT_REGULAR, $this->ordenDireccion === 'desc')->values();
+        }
         // Paginamos la colección final
         if ($this->perPage === 'all') {
             $this->logsPivotados = $logsPivotadosCollection;
@@ -137,6 +162,16 @@ class LogskitTable extends Component
         $this->resetPage();
     }
 
+    public function ordenarPorEstado($estado)
+    {
+        if ($this->ordenEstado === $estado) {
+            $this->ordenDireccion = $this->ordenDireccion === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->ordenEstado = $estado;
+            $this->ordenDireccion = 'asc';
+        }
+    }
+
     public function updating($propertyName)
     {
         if (in_array($propertyName, ['buscar', 'usuario', 'selectedYear', 'tipo'])) {
@@ -145,11 +180,17 @@ class LogskitTable extends Component
     }
 
     public function toggleColumna($columna)
-{
-    if (in_array($columna, $this->columnasOcultas)) {
-        $this->columnasOcultas = array_values(array_diff($this->columnasOcultas, [$columna]));
-    } else {
-        $this->columnasOcultas[] = $columna;
+    {
+        if (in_array($columna, $this->columnasOcultas)) {
+            $this->columnasOcultas = array_values(array_diff($this->columnasOcultas, [$columna]));
+        } else {
+            $this->columnasOcultas[] = $columna;
+        }
     }
-}
+
+    public function invertirColumnas()
+    {
+        $this->columnasOcultas = array_values(array_diff($this->columnasEstados, $this->columnasOcultas));
+    }
+
 }
