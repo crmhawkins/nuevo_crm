@@ -41,7 +41,7 @@
         </div>
     </div>
     @if ( $logsPivotados )
-    {{dd($logsPivotados,$columnasEstados)}}
+    {{dd($logs,$logsPivotados,$columnasEstados)}}
         <div class="table-responsive">
              <table class="table table-hover">
                 <thead class="header-table">

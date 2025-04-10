@@ -41,6 +41,7 @@ class LogskitTable extends Component
         return view('livewire.logskit-table', [
             'logsPivotados' => $this->logsPivotados,
             'columnasEstados' => $this->columnasEstados,
+            'logs' => $this->logs,
         ]);
     }
 
