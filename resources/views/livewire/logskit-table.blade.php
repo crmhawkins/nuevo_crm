@@ -74,6 +74,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>CLIENTE</th>
+                        <th>KD</th>
                         <th>SERVICIO</th>
                         @foreach($columnasEstados as $estado)
                             @if(!in_array($estado, $columnasOcultas))
@@ -95,6 +96,7 @@
                     @foreach($logsPivotados as $row)
                         <tr>
                             <td style="min-width: 200px;" >{{ $row['cliente'] }}</td>
+                            <td>{{ $row['KD'] }}</td>
                             <td>{{ $row['servicio'] }}</td>
                             @foreach($columnasEstados as $estado)
                                 @if(!in_array($estado, $columnasOcultas))

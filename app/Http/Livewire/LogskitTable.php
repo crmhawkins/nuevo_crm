@@ -33,7 +33,6 @@ class LogskitTable extends Component
     public function mount()
     {
         $this->usuarios = User::where('inactive', 0)->get();
-        $this->selectedYear = Carbon::now()->year;
 
     }
 
@@ -44,7 +43,6 @@ class LogskitTable extends Component
         return view('livewire.logskit-table', [
             'logsPivotados' => $this->logsPivotados,
             'columnasEstados' => $this->columnasEstados,
-            'logs' => $this->logs,
         ]);
     }
 
@@ -59,7 +57,8 @@ class LogskitTable extends Component
                         $subQuery->where('name', 'like', '%' . $this->buscar . '%');
                     })
                     ->orWhereHas('ayudas', function ($subQuery) {
-                        $subQuery->where('ayudas.cliente', 'like', '%' . $this->buscar . '%');
+                        $subQuery->where('ayudas.cliente', 'like', '%' . $this->buscar . '%')
+                                ->orWhere('ayudas.contratos', 'like', '%' . $this->buscar . '%');
                     })
                     ->orWhere('description', 'like', '%' . $this->buscar . '%')
                     ->orWhere('reference_id', 'like', '%' . $this->buscar . '%');
@@ -70,7 +69,7 @@ class LogskitTable extends Component
             ->join('admin_user', 'log_actions.admin_user_id', '=', 'admin_user.id')
             ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
             ->join('ayudas_servicios', 'ayudas_servicios.id', '=', 'ayudas.servicio_id')
-            ->select('log_actions.*', 'admin_user.name as usuario', 'ayudas.cliente as cliente', 'ayudas_servicios.name as servicio')
+            ->select('log_actions.*', 'admin_user.name as usuario', 'ayudas.cliente as cliente', 'ayudas_servicios.name as servicio', 'ayudas.contratos as KD')
             ->orderBy($this->sortColumn, $this->sortDirection);
 
         $this->logs = $query->get();
@@ -98,6 +97,7 @@ class LogskitTable extends Component
             $row = [
                 'cliente' => $items->first()->cliente,
                 'servicio' => $items->first()->servicio,
+                'KD' => $items->first()->KD,
             ];
 
             foreach ($items as $log) {
