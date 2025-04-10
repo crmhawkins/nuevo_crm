@@ -42,25 +42,23 @@
     </div>
 
     @if(count($columnasEstados))
-        <div class="d-flex flex-row justify-end">
-            <div class="dropdown mb-4">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownColumnas" data-bs-toggle="dropdown" aria-expanded="false">
-                    Columnas ({{ count($columnasEstados) - count($columnasOcultas) }})
-                </button>
-                <ul class="dropdown-menu p-3" aria-labelledby="dropdownColumnas" data-bs-auto-close="outside" style="max-height: 300px; overflow-y: auto;">
-                    <li class="fw-bold mb-2">Ocultar/Mostrar columnas</li>
-                    @foreach($columnasEstados as $estado)
-                        <li>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" wire:click="toggleColumna('{{ $estado }}')" id="col_{{ $loop->index }}" {{ in_array($estado, $columnasOcultas) ? '' : 'checked' }}>
-                                <label class="form-check-label" for="col_{{ $loop->index }}">
-                                    {{ $estado }}
-                                </label>
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
+        <div class="dropdown mb-4">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownColumnas" data-bs-toggle="dropdown" aria-expanded="false">
+                Columnas ({{ count($columnasEstados) - count($columnasOcultas) }})
+            </button>
+            <ul class="dropdown-menu p-3" aria-labelledby="dropdownColumnas" data-bs-auto-close="outside" style="max-height: 300px; overflow-y: auto;">
+                <li class="fw-bold mb-2">Ocultar/Mostrar columnas</li>
+                @foreach($columnasEstados as $estado)
+                    <li>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" wire:click="toggleColumna('{{ $estado }}')" id="col_{{ $loop->index }}" {{ in_array($estado, $columnasOcultas) ? '' : 'checked' }}>
+                            <label class="form-check-label" for="col_{{ $loop->index }}">
+                                {{ $estado }}
+                            </label>
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
         </div>
     @endif
     {{-- Filtro de columnas --}}
@@ -87,7 +85,7 @@
                             <td>{{ $row['servicio'] }}</td>
                             @foreach($columnasEstados as $estado)
                                 @if(!in_array($estado, $columnasOcultas))
-                                    <td style="min-height: 100px;">{{ $row[$estado] ?? '' }}</td>
+                                    <td style="max-width: 100px">{{ $row[$estado] ?? '' }}</td>
                                 @endif
                             @endforeach
                         </tr>
