@@ -33,7 +33,6 @@ class LogskitTable extends Component
     public function mount()
     {
         $this->usuarios = User::where('inactive', 0)->get();
-
     }
 
     public function render()
@@ -80,12 +79,12 @@ class LogskitTable extends Component
         $this->logs = $query->get();
 
         $collection = $this->logs;
+
         // Detectar todos los estados únicos
         $this->columnasEstados = collect($collection)
         ->map(function ($log) {
             $partes = explode('  a  "', $log->description);
             if (count($partes) === 2) {
-                // Quita el último cierre de comillas si está
                 $estadoFinal = trim($partes[1], '"');
                 return $estadoFinal;
             }
@@ -97,16 +96,15 @@ class LogskitTable extends Component
         ->values()
         ->toArray();
 
-        $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) {
+        // Crear una lista con las fechas más recientes para cada estado
+        $fechasPorEstado = [];
+        $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) use (&$fechasPorEstado) {
             $row = [
                 'cliente' => $items->first()->cliente,
                 'servicio' => $items->first()->servicio,
                 'KD' => $items->first()->KD,
                 'importe' => $items->first()->importe,
             ];
-
-            // Detectar la fecha más reciente de cada estado
-            $fechasPorEstado = [];
 
             foreach ($items as $log) {
                 $partes = explode('  a  "', $log->description);
@@ -123,16 +121,15 @@ class LogskitTable extends Component
                 }
             }
 
-            return ['row' => $row, 'fechasPorEstado' => $fechasPorEstado];  // Pasamos las fechas al retorno
+            return ['row' => $row];
         })->values();
 
-        // Filtrar filas que no tengan la fecha más reciente en el estado mostrado
+        // Filtrar las filas por el estado visible con la fecha más reciente
         if (count($this->columnasOcultas) == count($this->columnasEstados) - 1) {
             // Si solo hay una columna visible, filtramos solo las filas cuya fecha más reciente esté en ese estado
             $estadoVisible = $this->columnasEstados[0]; // La única columna visible
-            $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($data) use ($estadoVisible) {
+            $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($data) use ($estadoVisible, $fechasPorEstado) {
                 $row = $data['row'];
-                $fechasPorEstado = $data['fechasPorEstado'];
 
                 return isset($row[$estadoVisible]) && $row[$estadoVisible] === $fechasPorEstado[$estadoVisible]->format('Y-m-d');
             });
@@ -148,13 +145,13 @@ class LogskitTable extends Component
             return false;
         });
 
-
         // Ordenar por estado (si aplica)
         if ($this->ordenEstado && in_array($this->ordenEstado, $this->columnasEstados)) {
             $logsPivotadosCollection = $logsPivotadosCollection->sortBy(function ($row) {
                 return $row[$this->ordenEstado] ?? '9999-99-99 99:99:99';
             }, SORT_REGULAR, $this->ordenDireccion === 'desc')->values();
         }
+
         // Paginamos la colección final
         if ($this->perPage === 'all') {
             $this->logsPivotados = $logsPivotadosCollection;
@@ -214,5 +211,4 @@ class LogskitTable extends Component
     {
         $this->columnasOcultas = array_values(array_diff($this->columnasEstados, $this->columnasOcultas));
     }
-
 }
