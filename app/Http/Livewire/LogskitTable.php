@@ -129,7 +129,7 @@ class LogskitTable extends Component
         // Filtrar las filas basadas en la fecha más reciente
         if (count($this->columnasOcultas) == count($this->columnasEstados) - 1) {
             // Si solo hay una columna visible, filtrar por la fecha más reciente en ese estado
-            $estadoVisible = $this->columnasEstados[0]; // La única columna visible
+            $estadoVisible = array_diff($this->columnasEstados, $this->columnasOcultas)[0]; // La única columna visible
             $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($data) use ($estadoVisible) {
                 $row = $data['row'];
                 $fechasPorEstado = $data['fechasPorEstado'];
