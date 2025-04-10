@@ -22,7 +22,7 @@ class LogskitTable extends Component
     public $sortColumn = 'created_at';
     public $sortDirection = 'desc';
 
-    public $logs;
+    private $logs;
     public $logsPivotados;
     public $columnasEstados = [];
 
