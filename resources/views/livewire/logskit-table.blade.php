@@ -43,18 +43,23 @@
 
     {{-- Filtro de columnas --}}
     @if(count($columnasEstados))
-        <div class="mb-4">
-            <label class="form-label fw-bold">Ocultar/Mostrar columnas:</label>
-            <div class="d-flex flex-wrap gap-3">
+        <div class="dropdown mb-4">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownColumnas" data-bs-toggle="dropdown" aria-expanded="false">
+                Columnas
+            </button>
+            <ul class="dropdown-menu p-3" aria-labelledby="dropdownColumnas" style="max-height: 300px; overflow-y: auto;">
+                <li class="fw-bold mb-2">Ocultar/Mostrar columnas</li>
                 @foreach($columnasEstados as $estado)
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" wire:click="toggleColumna('{{ $estado }}')" id="col_{{ $loop->index }}" {{ in_array($estado, $columnasOcultas) ? '' : 'checked' }}>
-                        <label class="form-check-label" for="col_{{ $loop->index }}">
-                            {{ $estado }}
-                        </label>
-                    </div>
+                    <li>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" wire:click="toggleColumna('{{ $estado }}')" id="col_{{ $loop->index }}" {{ in_array($estado, $columnasOcultas) ? '' : 'checked' }}>
+                            <label class="form-check-label" for="col_{{ $loop->index }}">
+                                {{ $estado }}
+                            </label>
+                        </div>
+                    </li>
                 @endforeach
-            </div>
+            </ul>
         </div>
     @endif
 
