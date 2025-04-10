@@ -73,17 +73,17 @@ class LogskitTable extends Component
         $collection = $this->logs;
         // Detectar todos los estados únicos
         $this->columnasEstados = collect($collection)
-            ->map(function ($log) {
-                if (preg_match('/a "(.*?)"/', $log->description, $matches)) {
-                    return $matches[1];
-                }
-                return null;
-            })
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values()
-            ->toArray();
+        ->map(function ($log) {
+            if (preg_match('/De "(.*?)" a "(.*?)"/', $log->description, $matches)) {
+                return $matches[2]; // Estado final
+            }
+            return null;
+        })
+        ->filter()
+        ->unique()
+        ->sort()
+        ->values()
+        ->toArray();
 
         // Agrupar y pivotar
         $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) {
@@ -93,8 +93,8 @@ class LogskitTable extends Component
             ];
 
             foreach ($items as $log) {
-                if (preg_match('/a "(.*?)"/', $log->description, $matches)) {
-                    $estado = $matches[1];
+                if (preg_match('/De "(.*?)" a "(.*?)"/', $log->description, $matches)) {
+                    $estado = $matches[2]; // El estado al que se cambió
                     $row[$estado] = Carbon::parse($log->created_at)->format('Y-m-d H:i:s');
                 }
             }
