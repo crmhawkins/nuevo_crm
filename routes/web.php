@@ -462,6 +462,7 @@ Route::group(['middleware' => 'auth'], function () {
         //Logs
         Route::get('/logs',[LogActionsController::class, 'index'])->name('logs.index');
         Route::get('/logs/clasificado',[LogActionsController::class, 'Clasificacion'])->name('logs.clasificado');
+        Route::get('/logs/kitdigital',[LogActionsController::class, 'kitdigital'])->name('logs.kitdigital');
 
         //Productividad
         Route::get('/productividad', [ProductividadController::class, 'index'])->name('productividad.index');
