@@ -85,7 +85,9 @@
                             <td>{{ $row['servicio'] }}</td>
                             @foreach($columnasEstados as $estado)
                                 @if(!in_array($estado, $columnasOcultas))
-                                    <td style="width: 120px">{{ $row[$estado] ?? '' }}</td>
+                                    <td style="min-width: 140px; white-space: nowrap;">
+                                        {{ $row[$estado] ?? '' }}
+                                    </td>
                                 @endif
                             @endforeach
                         </tr>
