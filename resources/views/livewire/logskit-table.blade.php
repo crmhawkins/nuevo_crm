@@ -37,38 +37,31 @@
                         @endforeach
                     </select>
                 </div>
-                <div x-data="{ open: false, columnas: @entangle('columnasOcultas').defer }" class="dropdown mb-4 position-relative">
-                    <button @click="open = !open" type="button" class="btn btn-outline-secondary dropdown-toggle">
+                <div class="dropdown mb-4">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownColumnas" data-bs-toggle="dropdown" aria-expanded="false">
                         Columnas ({{ count($columnasEstados) - count($columnasOcultas) }})
                     </button>
+                    <div class="dropdown-menu p-3" aria-labelledby="dropdownColumnas" style="max-height: 300px; overflow-y: auto;" data-bs-auto-close="outside">
+                        <strong class="d-block mb-2">Ocultar/Mostrar columnas</strong>
+                        @foreach($columnasEstados as $estado)
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    wire:model.defer="estadoTemporalColumnas"
+                                    value="{{ $estado }}"
+                                    id="col_{{ $loop->index }}"
+                                >
+                                <label class="form-check-label" for="col_{{ $loop->index }}">
+                                    {{ $estado }}
+                                </label>
+                            </div>
+                        @endforeach
 
-                    <div
-                        x-show="open"
-                        @click.away="open = false"
-                        class="dropdown-menu show p-3 shadow position-absolute"
-                        style="display: block; max-height: 300px; overflow-y: auto; z-index: 999;"
-                    >
-                        <ul class="list-unstyled">
-                            <li class="fw-bold mb-2">Ocultar/Mostrar columnas</li>
-                            @foreach($columnasEstados as $estado)
-                                <li>
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            :checked="!columnas.includes('{{ $estado }}')"
-                                            @change="columnas.includes('{{ $estado }}') ? columnas.splice(columnas.indexOf('{{ $estado }}'), 1) : columnas.push('{{ $estado }}')"
-                                            id="col_{{ $loop->index }}"
-                                        >
-                                        <label class="form-check-label" for="col_{{ $loop->index }}">
-                                            {{ $estado }}
-                                        </label>
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
                         <div class="mt-3 text-end">
-                            <button class="btn btn-sm btn-primary" @click="$wire.aplicarColumnas(columnas); open = false">Aplicar</button>
+                            <button class="btn btn-sm btn-primary" wire:click="aplicarColumnas" data-bs-toggle="dropdown">
+                                Aplicar
+                            </button>
                         </div>
                     </div>
                 </div>

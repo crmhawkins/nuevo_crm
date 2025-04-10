@@ -27,14 +27,23 @@ class LogskitTable extends Component
     private $logsPivotados;
     public $columnasEstados = [];
     public $columnasOcultas = [];
+    public $estadoTemporalColumnas = [];
 
-    public function aplicarColumnas($nuevas)
+    public function updated($propertyName)
     {
-        $this->columnasOcultas = $nuevas;
+        if ($propertyName === 'columnasOcultas') {
+            $this->estadoTemporalColumnas = $this->columnasOcultas;
+        }
+    }
+
+    public function aplicarColumnas()
+    {
+        $this->columnasOcultas = $this->estadoTemporalColumnas;
     }
 
     public function mount()
     {
+        $this->estadoTemporalColumnas = $this->columnasOcultas;
         $this->usuarios = User::where('inactive', 0)->get();
         $this->selectedYear = Carbon::now()->year;
 
