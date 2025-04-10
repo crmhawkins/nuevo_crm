@@ -461,6 +461,7 @@ Route::group(['middleware' => 'auth'], function () {
         //Logs
         Route::get('/logs',[LogActionsController::class, 'index'])->name('logs.index');
         Route::get('/logs/clasificado',[LogActionsController::class, 'Clasificacion'])->name('logs.clasificado');
+        Route::get('/logs/kitdigital',[LogActionsController::class, 'kitdigital'])->name('logs.kitdigital');
 
         //Productividad
         Route::get('/productividad', [ProductividadController::class, 'index'])->name('productividad.index');
@@ -472,6 +473,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/cierre/edit/{id}', [CierreController::class, 'edit'])->name('cierre.edit');
         Route::post('/cierre/update/{id}', [CierreController::class, 'update'])->name('cierre.update');
         Route::post('/cierre/destroy', [CierreController::class, 'destroy'])->name('cierre.delete');
+
 
     });
 
