@@ -63,7 +63,8 @@ class LogskitTable extends Component
         ->when($this->usuario, fn($query) => $query->where('log_actions.admin_user_id', $this->usuario))
         ->join('admin_user', 'log_actions.admin_user_id', '=', 'admin_user.id')
         ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
-        ->select('log_actions.*', 'admin_user.name as usuario', 'ayudas.cliente as cliente', 'ayudas.servicio as servicio')
+        ->join('ayudas_servicios', 'ayudas_servicios.id', '=', 'ayudas.servicio_id')
+        ->select('log_actions.*', 'admin_user.name as usuario', 'ayudas.cliente as cliente', 'ayudas_servicios.name as servicio')
         ->orderBy($this->sortColumn, $this->sortDirection);
 
         $this->logs = $this->perPage === 'all'
