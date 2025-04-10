@@ -46,7 +46,7 @@
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownColumnas" data-bs-toggle="dropdown" aria-expanded="false">
                 Columnas ({{ count($columnasEstados) - count($columnasOcultas) }})
             </button>
-            <ul class="dropdown-menu p-3" aria-labelledby="dropdownColumnas" data-bs-auto-close="outside" style="max-height: 300px; overflow-y: auto;">
+            <ul class="dropdown-menu p-3" aria-labelledby="dropdownColumnas" data-bs-auto-close="false" style="max-height: 300px; overflow-y: auto;">
                 <li class="fw-bold mb-2">Ocultar/Mostrar columnas</li>
                 <li class="mb-2">
                     <button type="button" class="btn btn-sm btn-outline-secondary w-100" wire:click="invertirColumnas">
@@ -66,7 +66,6 @@
             </ul>
         </div>
     @endif
-    {{-- Filtro de columnas --}}
 
     {{-- Tabla --}}
     @if ($logsPivotados && count($logsPivotados))
