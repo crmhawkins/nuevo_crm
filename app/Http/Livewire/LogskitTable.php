@@ -75,6 +75,7 @@ class LogskitTable extends Component
         $this->columnasEstados = collect($collection)
         ->map(function ($log) {
             if (preg_match('/De "(.*?)" a "(.*?)"/', $log->description, $matches)) {
+                dd($matches[2]);
                 return $matches[2]; // Estado final
             }
             return null;
