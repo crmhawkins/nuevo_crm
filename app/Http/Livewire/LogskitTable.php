@@ -96,15 +96,17 @@ class LogskitTable extends Component
         ->values()
         ->toArray();
 
-        // Crear una lista con las fechas más recientes para cada estado
-        $fechasPorEstado = [];
-        $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) use (&$fechasPorEstado) {
+        // Agrupar y pivotar los datos por 'reference_id'
+        $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) {
             $row = [
                 'cliente' => $items->first()->cliente,
                 'servicio' => $items->first()->servicio,
                 'KD' => $items->first()->KD,
                 'importe' => $items->first()->importe,
             ];
+
+            // Guardar las fechas más recientes de cada estado
+            $fechasPorEstado = [];
 
             foreach ($items as $log) {
                 $partes = explode('  a  "', $log->description);
@@ -121,18 +123,18 @@ class LogskitTable extends Component
                 }
             }
 
-            return ['row' => $row, 'fechasPorEstado' => $fechasPorEstado];  // Guardamos las fechas por estado
+            return ['row' => $row, 'fechasPorEstado' => $fechasPorEstado];
         })->values();
 
-        // Filtrar filas por fecha más reciente en el estado visible si solo hay una columna visible
+        // Filtrar las filas basadas en la fecha más reciente
         if (count($this->columnasOcultas) == count($this->columnasEstados) - 1) {
-            // Si solo hay una columna visible, filtramos solo las filas cuya fecha más reciente esté en ese estado
+            // Si solo hay una columna visible, filtrar por la fecha más reciente en ese estado
             $estadoVisible = $this->columnasEstados[0]; // La única columna visible
-            $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($data) use ($estadoVisible, $fechasPorEstado) {
+            $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($data) use ($estadoVisible) {
                 $row = $data['row'];
                 $fechasPorEstado = $data['fechasPorEstado'];
 
-                // Comparamos la fecha más reciente para este estado con la fecha en la fila
+                // Compara si la fecha más reciente de todos los estados coincide con la fecha del estado visible
                 return isset($row[$estadoVisible]) && $row[$estadoVisible] === $fechasPorEstado[$estadoVisible]->format('Y-m-d');
             });
         }
@@ -214,5 +216,4 @@ class LogskitTable extends Component
     {
         $this->columnasOcultas = array_values(array_diff($this->columnasEstados, $this->columnasOcultas));
     }
-
 }
