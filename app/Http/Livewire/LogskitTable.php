@@ -49,7 +49,7 @@ class LogskitTable extends Component
     {
         $query = LogActions::when($this->buscar, function ($query) {
             $query->where('tipo', 1)
-                ->where('action','like', '%' . 'Actualizar estado en kit digital' . '%')
+                ->where('action', 'Actualizar estado en kit digital')
                 ->where(function ($query) {
                     $query->whereHas('usuario', function ($subQuery) {
                         $subQuery->where('name', 'like', '%' . $this->buscar . '%');
