@@ -18,7 +18,11 @@ class LogActionsController extends Controller
 
         return view('logs.index', compact('logActions'));
     }
+    public function kitdigital()
+    {
 
+        return view('logs.kitdigital');
+    }
     public function Clasificacion(Request $request)
     {
         $fechaInicio = $request->fecha_inicio ?? Carbon::today()->subDays(7);
