@@ -48,7 +48,7 @@ class LogskitTable extends Component
     {
         $query = LogActions::when($this->buscar, function ($query) {
             $query->where('tipo', 1)
-                ->where('action', 'Actualizar estado en kit digital')
+                ->where('action','like', '%' . 'Actualizar estado en kit digital' . '%')
                 ->where(function ($query) {
                     $query->whereHas('usuario', function ($subQuery) {
                         $subQuery->where('name', 'like', '%' . $this->buscar . '%');
@@ -74,9 +74,11 @@ class LogskitTable extends Component
         // Detectar todos los estados únicos
         $this->columnasEstados = collect($collection)
         ->map(function ($log) {
-            if (preg_match('/De "(.*?)" a "(.*?)"/', $log->description, $matches)) {
-                dd($matches[2]);
-                return $matches[2]; // Estado final
+            $partes = explode(' a "', $log->description);
+            if (count($partes) === 2) {
+                // Quita el último cierre de comillas si está
+                $estadoFinal = trim($partes[1], '"');
+                return $estadoFinal;
             }
             return null;
         })
@@ -94,8 +96,9 @@ class LogskitTable extends Component
             ];
 
             foreach ($items as $log) {
-                if (preg_match('/De "(.*?)" a "(.*?)"/', $log->description, $matches)) {
-                    $estado = $matches[2]; // El estado al que se cambió
+                $partes = explode(' a "', $log->description);
+                if (count($partes) === 2) {
+                    $estado = trim($partes[1], '"');
                     $row[$estado] = Carbon::parse($log->created_at)->format('Y-m-d H:i:s');
                 }
             }
