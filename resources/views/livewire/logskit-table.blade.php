@@ -69,7 +69,6 @@
 
     {{-- Tabla --}}
     @if ($logsPivotados && count($logsPivotados))
-    {{dd($logsPivotados)}}
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover align-middle text-center">
                 <thead class="table-dark">
@@ -96,13 +95,13 @@
                 <tbody>
                     @foreach($logsPivotados as $row)
                         <tr>
-                            <td style="min-width: 200px;" >{{ $row['cliente'] }}</td>
-                            <td>{{ $row['KD'] }}</td>
-                            <td>{{ $row['servicio'] }}</td>
+                            <td style="min-width: 200px;" >{{ $row['row']['cliente'] }}</td>
+                            <td>{{ $row['row']['KD'] }}</td>
+                            <td>{{ $row['row']['servicio'] }}</td>
                             @foreach($columnasEstados as $estado)
                                 @if(!in_array($estado, $columnasOcultas))
                                     <td style="min-width: 140px; white-space: nowrap;">
-                                        {{ $row[$estado] ?? '' }}
+                                        {{ $row['row'][$estado] ?? '' }}
                                     </td>
                                 @endif
                             @endforeach
