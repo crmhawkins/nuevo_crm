@@ -81,7 +81,7 @@
                 <tbody>
                     @foreach($logsPivotados as $row)
                         <tr>
-                            <td>{{ $row['cliente'] }}</td>
+                            <td style="min-width: 200px;" >{{ $row['cliente'] }}</td>
                             <td>{{ $row['servicio'] }}</td>
                             @foreach($columnasEstados as $estado)
                                 @if(!in_array($estado, $columnasOcultas))
