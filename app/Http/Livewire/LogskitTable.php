@@ -28,6 +28,11 @@ class LogskitTable extends Component
     public $columnasEstados = [];
     public $columnasOcultas = [];
 
+    public function aplicarColumnas($nuevas)
+    {
+        $this->columnasOcultas = $nuevas;
+    }
+
     public function mount()
     {
         $this->usuarios = User::where('inactive', 0)->get();
