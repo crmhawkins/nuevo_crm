@@ -42,30 +42,29 @@
     </div>
 
     @if(count($columnasEstados))
-    <div x-data="{ open: false }" class="dropdown mb-4">
-        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownColumnas" @click="open = !open" :aria-expanded="open.toString()">
-            Columnas ({{ count($columnasEstados) - count($columnasOcultas) }})
-        </button>
-
-        <ul x-show="open" x-transition @click.away="open = false" class="dropdown-menu p-3" style="max-height: 300px; overflow-y: auto;">
-            <li class="fw-bold mb-2">Ocultar/Mostrar columnas</li>
-            <li class="mb-2">
-                <button type="button" class="btn btn-sm btn-outline-secondary w-100" wire:click="invertirColumnas">
-                    Invertir selección
-                </button>
-            </li>
-            @foreach($columnasEstados as $estado)
-                <li>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" wire:click="toggleColumna('{{ $estado }}')" id="col_{{ $loop->index }}" {{ in_array($estado, $columnasOcultas) ? '' : 'checked' }}>
-                        <label class="form-check-label" for="col_{{ $loop->index }}">
-                            {{ $estado }}
-                        </label>
-                    </div>
+        <div class="dropdown mb-4">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownColumnas" data-bs-toggle="dropdown" aria-expanded="false">
+                Columnas ({{ count($columnasEstados) - count($columnasOcultas) }})
+            </button>
+            <ul class="dropdown-menu p-3" aria-labelledby="dropdownColumnas" data-bs-auto-close="false" style="max-height: 300px; overflow-y: auto;">
+                <li class="fw-bold mb-2">Ocultar/Mostrar columnas</li>
+                <li class="mb-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary w-100" wire:click="invertirColumnas">
+                        Invertir selección
+                    </button>
                 </li>
-            @endforeach
-        </ul>
-    </div>
+                @foreach($columnasEstados as $estado)
+                    <li>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" wire:click="toggleColumna('{{ $estado }}')" id="col_{{ $loop->index }}" {{ in_array($estado, $columnasOcultas) ? '' : 'checked' }}>
+                            <label class="form-check-label" for="col_{{ $loop->index }}">
+                                {{ $estado }}
+                            </label>
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
     @endif
 
     {{-- Tabla --}}
