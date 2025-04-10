@@ -11,6 +11,7 @@ use App\Models\Tasks\LogTasks;
 use App\Models\Tasks\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Purchase;
 
 class PortalClientesController extends Controller
 {
@@ -39,7 +40,9 @@ class PortalClientesController extends Controller
         if ($cliente) {
             session(['cliente' => $cliente]);
             return redirect()->route('portal.dashboard');
-        }else{
+        } else {
+
+
             return redirect()->back()->with('toast', [
                 'icon' => 'error',
                 'mensaje' => 'El pin no es correcto'
@@ -47,18 +50,18 @@ class PortalClientesController extends Controller
         }
     }
 
-    public function dashboard(Request $request){
+    public function dashboard(Request $request) {
         $cliente = session('cliente');
-
         if ($cliente) {
-            return view('portal.dashboard', compact('cliente'));
+                return view('portal.dashboard', compact('cliente'));
         }
         return view('portal.login');
-    }
+}
+
     public function presupuestos(Request $request){
         $cliente = session('cliente');
         if ($cliente) {
-            $presupuestos = Budget::where('client_id',$cliente->id)->WhereYear('created_at','2024')->WhereMonth('created_at','12')->get();
+            $presupuestos = Budget::where('client_id',$cliente->id)->WhereYear('created_at','2025')->get();
             return view('portal.presupuestos',compact('cliente','presupuestos'));
         }
         return view('portal.login');
@@ -66,7 +69,7 @@ class PortalClientesController extends Controller
     public function facturas(Request $request){
         $cliente = session('cliente');
         if ($cliente) {
-            $facturas = Invoice::where('client_id',$cliente->id)->WhereYear('created_at','2024')->WhereMonth('created_at','12')->get();
+            $facturas = Invoice::where('client_id',$cliente->id)->WhereYear('created_at','2025')->get();
 
             return view('portal.facturas',compact('cliente','facturas'));
         }
@@ -216,6 +219,7 @@ class PortalClientesController extends Controller
 
         return view('portal.presupuesto', compact('cliente', 'budget', 'concepts', 'empresa'));
     }
+    
     public function showInvoice(Request $request,$id)
     {
         // Verificar si el cliente ha iniciado sesión
@@ -264,6 +268,5 @@ class PortalClientesController extends Controller
         // Renderizar la vista con la factura y los conceptos
         return view('portal.factura', compact('cliente','invoice', 'invoiceConceptsFormated', 'data','empresa'));
     }
-
 
 }

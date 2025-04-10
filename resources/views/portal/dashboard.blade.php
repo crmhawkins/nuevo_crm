@@ -1,7 +1,30 @@
 @extends('layouts.appPortal')
 @section('content')
-
 <div class="content">
+  @if (session('success_message'))
+  <div class="alert alert-success">
+      {!! session('success_message') !!}  </div>
+  @endif
+
+  @if (session('error_message'))
+  <div class="alert alert-danger">
+      {!! session('error_message') !!}  </div>
+  @endif
+  
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <div class="row justify-content-center">
+        <div class="col-auto">
+          <a href="/portal/estructura/web" class="btn btn-light btn-lg">B2B Sitio web</a>
+        </div>
+        <div class="col-auto">
+          <a href="/portal/estructura/eccommerce" class="btn btn-light btn-lg">B2B Ecommerce</a>
+        </div>
+      </div>
+    </div>
+  </div>
+    
+  </div>
   <div class="row">
     <div class="col-md-4 col-sm-12">
       <div class="card">

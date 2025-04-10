@@ -57,7 +57,8 @@ class Client extends Model
         'last_survey',
         'last_newsletter',
         'pin',
-        'tipoCliente'
+        'tipoCliente',
+        'stripe_customer_id'
     ];
 
      /**

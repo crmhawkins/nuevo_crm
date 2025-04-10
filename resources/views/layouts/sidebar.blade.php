@@ -595,14 +595,6 @@
                                     <span>Registros kit digital</span>
                                 </a>
                                 <ul class="submenu" style="{{ request()->routeIs('logs.*') ? 'display:block;' : 'display:none;' }}">
-                                    <li class="submenu-item {{ request()->routeIs('logs.kitdigital') ? 'active' : '' }}">
-                                        <a href="{{route('logs.kitdigital')}}">
-                                            <i class="fa-solid fa-list fs-5"></i>
-                                            <span>
-                                                Kit digital estados
-                                            </span>
-                                        </a>
-                                    </li>
                                     <li class="submenu-item {{ request()->routeIs('logs.index') ? 'active' : '' }}">
                                         <a href="{{route('logs.index')}}">
                                             <i class="fa-solid fa-list fs-5"></i>

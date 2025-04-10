@@ -138,8 +138,11 @@ class Budget extends Model
 
         static::updated(function ($budget) {
             $changed = $budget->getDirty(); // Obtiene los campos que han cambiado
+            if (isset(Auth::user()->id)) {
             $userId =Auth::user()->id; // Obtiene el ID del usuario autenticado
-
+            } else {
+                $userId = 1;
+            }
             foreach ($changed as $field => $newValue) {
 
                 $oldValue = $budget->getOriginal($field);

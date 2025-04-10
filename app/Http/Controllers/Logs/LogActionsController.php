@@ -14,14 +14,9 @@ class LogActionsController extends Controller
 {
     public function index()
     {
+        $logActions = LogActions::all();
 
-        return view('logs.index');
-    }
-
-    public function kitdigital()
-    {
-
-        return view('logs.kitdigital');
+        return view('logs.index', compact('logActions'));
     }
 
     public function Clasificacion(Request $request)
