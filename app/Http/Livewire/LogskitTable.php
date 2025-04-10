@@ -47,27 +47,28 @@ class LogskitTable extends Component
 
     protected function actualizarLogs()
     {
-        $query = LogActions::when($this->buscar, function ($query) {
-            $query->where('tipo', 1)
-                ->where('action', 'Actualizar estado en kit digital')
-                ->where(function ($query) {
+        $query = LogActions::query()
+            ->where('tipo', 1)
+            ->where('action', 'Actualizar estado en kit digital')
+            ->when($this->buscar, function ($query) {
+                $query->where(function ($query) {
                     $query->whereHas('usuario', function ($subQuery) {
                         $subQuery->where('name', 'like', '%' . $this->buscar . '%');
                     })
-                    ->whereHas('ayudas', function ($subQuery) {
+                    ->orWhereHas('ayudas', function ($subQuery) {
                         $subQuery->where('ayudas.cliente', 'like', '%' . $this->buscar . '%');
                     })
                     ->orWhere('description', 'like', '%' . $this->buscar . '%')
                     ->orWhere('reference_id', 'like', '%' . $this->buscar . '%');
                 });
-        })
-        ->when($this->selectedYear, fn($query) => $query->whereYear('log_actions.created_at', $this->selectedYear))
-        ->when($this->usuario, fn($query) => $query->where('log_actions.admin_user_id', $this->usuario))
-        ->join('admin_user', 'log_actions.admin_user_id', '=', 'admin_user.id')
-        ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
-        ->join('ayudas_servicios', 'ayudas_servicios.id', '=', 'ayudas.servicio_id')
-        ->select('log_actions.*', 'admin_user.name as usuario', 'ayudas.cliente as cliente', 'ayudas_servicios.name as servicio')
-        ->orderBy($this->sortColumn, $this->sortDirection);
+            })
+            ->when($this->selectedYear, fn($query) => $query->whereYear('log_actions.created_at', $this->selectedYear))
+            ->when($this->usuario, fn($query) => $query->where('log_actions.admin_user_id', $this->usuario))
+            ->join('admin_user', 'log_actions.admin_user_id', '=', 'admin_user.id')
+            ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
+            ->join('ayudas_servicios', 'ayudas_servicios.id', '=', 'ayudas.servicio_id')
+            ->select('log_actions.*', 'admin_user.name as usuario', 'ayudas.cliente as cliente', 'ayudas_servicios.name as servicio')
+            ->orderBy($this->sortColumn, $this->sortDirection);
 
         $this->logs = $query->get();
 
@@ -75,7 +76,7 @@ class LogskitTable extends Component
         // Detectar todos los estados únicos
         $this->columnasEstados = collect($collection)
         ->map(function ($log) {
-            $partes = explode(' a "', $log->description);
+            $partes = explode('  a  "', $log->description);
             if (count($partes) === 2) {
                 // Quita el último cierre de comillas si está
                 $estadoFinal = trim($partes[1], '"');
@@ -97,7 +98,7 @@ class LogskitTable extends Component
             ];
 
             foreach ($items as $log) {
-                $partes = explode(' a "', $log->description);
+                $partes = explode('  a  "', $log->description);
                 if (count($partes) === 2) {
                     $estado = trim($partes[1], '"');
                     $row[$estado] = Carbon::parse($log->created_at)->format('Y-m-d H:i:s');
