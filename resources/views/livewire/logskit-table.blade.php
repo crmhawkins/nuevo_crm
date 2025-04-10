@@ -69,7 +69,7 @@
 
     {{-- Tabla --}}
     @if ($logsPivotados && count($logsPivotados))
-    dd($logsPivotados);
+    {{dd($logsPivotados)}}
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover align-middle text-center">
                 <thead class="table-dark">
