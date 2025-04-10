@@ -69,8 +69,8 @@
             <table class="table table-bordered table-striped table-hover align-middle text-center">
                 <thead class="table-dark">
                     <tr>
-                        <th>Cliente</th>
-                        <th>Servicio</th>
+                        <th>CLIENTE</th>
+                        <th>SERVICIO</th>
                         @foreach($columnasEstados as $estado)
                             @if(!in_array($estado, $columnasOcultas))
                                 <th>{{ $estado }}</th>
