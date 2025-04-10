@@ -26,6 +26,7 @@ class LogskitTable extends Component
     private $logs;
     private $logsPivotados;
     public $columnasEstados = [];
+    public $columnasOcultas = [];
 
     public function mount()
     {
@@ -101,10 +102,9 @@ class LogskitTable extends Component
                 $partes = explode('  a  "', $log->description);
                 if (count($partes) === 2) {
                     $estado = trim($partes[1], '"');
-                    $row[$estado] = Carbon::parse($log->created_at)->format('Y-m-d H:i:s');
+                    $row[$estado] = Carbon::parse($log->created_at)->format('Y-m-d');
                 }
             }
-
             return $row;
         })->values();
 
@@ -143,4 +143,13 @@ class LogskitTable extends Component
             $this->resetPage();
         }
     }
+
+    public function toggleColumna($columna)
+{
+    if (in_array($columna, $this->columnasOcultas)) {
+        $this->columnasOcultas = array_values(array_diff($this->columnasOcultas, [$columna]));
+    } else {
+        $this->columnasOcultas[] = $columna;
+    }
+}
 }

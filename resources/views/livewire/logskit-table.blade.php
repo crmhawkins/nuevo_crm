@@ -1,8 +1,8 @@
 <div>
     <div class="filtros row mb-4">
         <div class="col-md-3 col-sm-12">
-            <div class="flex flex-row justify-start">
-                <div class="mr-3">
+            <div class="d-flex flex-row justify-start gap-3">
+                <div>
                     <label for="">Nº</label>
                     <select wire:model="perPage" class="form-select">
                         <option value="10">10</option>
@@ -11,15 +11,15 @@
                         <option value="all">Todo</option>
                     </select>
                 </div>
-                <div class="w-50">
+                <div class="flex-fill">
                     <label for="">Buscar</label>
-                    <input wire:model.debounce.300ms="buscar" type="text" class="form-control w-100" placeholder="Escriba la palabra a buscar...">
+                    <input wire:model.debounce.300ms="buscar" type="text" class="form-control" placeholder="Escriba la palabra a buscar...">
                 </div>
             </div>
         </div>
         <div class="col-md-9 col-sm-12">
-            <div class="flex flex-row justify-end">
-                <div class="mr-3 w-50">
+            <div class="d-flex flex-row justify-end gap-3">
+                <div class="w-25">
                     <label for="">Año</label>
                     <select wire:model="selectedYear" class="form-select">
                         <option value=""> Año </option>
@@ -28,44 +28,70 @@
                         @endfor
                     </select>
                 </div>
-                <div class="mr-3">
+                <div class="w-50">
                     <label for="">Usuario</label>
-                    <select wire:model="usuario" name="" id="" class="form-select ">
-                        <option value="">-- Seleccione un Tipo --</option>
-                         @foreach ($usuarios as $user)
-                            <option value="{{$user->id}}">{{$user->name}}</option>
+                    <select wire:model="usuario" class="form-select">
+                        <option value="">-- Seleccione un Usuario --</option>
+                        @foreach ($usuarios as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
         </div>
     </div>
-    @if ( $logsPivotados )
+
+    {{-- Filtro de columnas --}}
+    @if(count($columnasEstados))
+        <div class="mb-4">
+            <label class="form-label fw-bold">Ocultar/Mostrar columnas:</label>
+            <div class="d-flex flex-wrap gap-3">
+                @foreach($columnasEstados as $estado)
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" wire:click="toggleColumna('{{ $estado }}')" id="col_{{ $loop->index }}" {{ in_array($estado, $columnasOcultas) ? '' : 'checked' }}>
+                        <label class="form-check-label" for="col_{{ $loop->index }}">
+                            {{ $estado }}
+                        </label>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    {{-- Tabla --}}
+    @if ($logsPivotados && count($logsPivotados))
         <div class="table-responsive">
-             <table class="table table-hover">
-                <thead class="header-table">
+            <table class="table table-bordered table-striped table-hover align-middle text-center">
+                <thead class="table-dark">
                     <tr>
-                        <th class="border px-4 py-2">Cliente</th>
-                        <th class="border px-4 py-2">Servicio</th>
+                        <th>Cliente</th>
+                        <th>Servicio</th>
                         @foreach($columnasEstados as $estado)
-                            <th class="border px-4 py-2">{{ $estado }}</th>
+                            @if(!in_array($estado, $columnasOcultas))
+                                <th>{{ $estado }}</th>
+                            @endif
                         @endforeach
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($logsPivotados as $row)
                         <tr>
-                            <td class="border px-4 py-2">{{ $row['cliente'] }}</td>
-                            <td class="border px-4 py-2">{{ $row['servicio'] }}</td>
+                            <td>{{ $row['cliente'] }}</td>
+                            <td>{{ $row['servicio'] }}</td>
                             @foreach($columnasEstados as $estado)
-                                <td class="border px-4 py-2">{{ $row[$estado] ?? '' }}</td>
+                                @if(!in_array($estado, $columnasOcultas))
+                                    <td>{{ $row[$estado] ?? '' }}</td>
+                                @endif
                             @endforeach
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+
             @if($perPage !== 'all')
-                {{ $logsPivotados->links() }}
+                <div class="mt-3">
+                    {{ $logsPivotados->links() }}
+                </div>
             @endif
         </div>
     @else
@@ -73,5 +99,4 @@
             <h3 class="text-center fs-3">No se encontraron registros de <strong>LOGS</strong></h3>
         </div>
     @endif
-    {{-- {{$users}} --}}
 </div>
