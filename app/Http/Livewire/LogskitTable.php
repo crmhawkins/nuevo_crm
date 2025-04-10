@@ -110,13 +110,6 @@ class LogskitTable extends Component
             return $row;
         })->values();
 
-        // Filtrar por estado específico (si está activo)
-        if ($this->filtroEstado && in_array($this->filtroEstado, $this->columnasEstados)) {
-            $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
-                return !empty($row[$this->filtroEstado]);
-            });
-        }
-
         // Filtrar filas sin datos en columnas visibles
         $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
             foreach ($this->columnasEstados as $estado) {

@@ -48,6 +48,11 @@
             </button>
             <ul class="dropdown-menu p-3" aria-labelledby="dropdownColumnas" data-bs-auto-close="outside" style="max-height: 300px; overflow-y: auto;">
                 <li class="fw-bold mb-2">Ocultar/Mostrar columnas</li>
+                <li class="mb-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary w-100" wire:click="invertirColumnas">
+                        Invertir selección
+                    </button>
+                </li>
                 @foreach($columnasEstados as $estado)
                     <li>
                         <div class="form-check">
