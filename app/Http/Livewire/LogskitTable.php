@@ -24,7 +24,7 @@ class LogskitTable extends Component
     public $sortDirection = 'desc';
 
     private $logs;
-    public $logsPivotados;
+    private $logsPivotados;
     public $columnasEstados = [];
 
     public function mount()
