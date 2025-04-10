@@ -40,7 +40,7 @@
             </div>
         </div>
     </div>
-    @if ( $logs )
+    @if ( $logsPivotados )
         <div class="table-responsive">
              <table class="table table-hover">
                 <thead class="header-table">
@@ -65,7 +65,7 @@
                 </tbody>
             </table>
             @if($perPage !== 'all')
-                {{ $logs->links() }}
+                {{ $logsPivotados->links() }}
             @endif
         </div>
     @else

@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Logs\LogActions;
 use App\Models\Users\User;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -67,14 +68,9 @@ class LogskitTable extends Component
         ->select('log_actions.*', 'admin_user.name as usuario', 'ayudas.cliente as cliente', 'ayudas_servicios.name as servicio')
         ->orderBy($this->sortColumn, $this->sortDirection);
 
-        $this->logs = $this->perPage === 'all'
-            ? $query->get()
-            : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+        $this->logs = $query->get();
 
-        $collection = $this->perPage === 'all'
-            ? $this->logs
-            : $this->logs->getCollection();
-
+        $collection = $this->logs;
         // Detectar todos los estados únicos
         $this->columnasEstados = collect($collection)
             ->map(function ($log) {
@@ -90,11 +86,10 @@ class LogskitTable extends Component
             ->toArray();
 
         // Agrupar y pivotar
-        $this->logsPivotados = $collection->groupBy('reference_id')->map(function ($items, $ref) {
+        $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) {
             $row = [
                 'cliente' => $items->first()->cliente,
                 'servicio' => $items->first()->servicio,
-
             ];
 
             foreach ($items as $log) {
@@ -106,6 +101,22 @@ class LogskitTable extends Component
 
             return $row;
         })->values();
+
+        // Paginamos la colección final
+        if ($this->perPage === 'all') {
+            $this->logsPivotados = $logsPivotadosCollection;
+        } else {
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $perPage = intval($this->perPage);
+            $currentItems = $logsPivotadosCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+            $this->logsPivotados = new LengthAwarePaginator(
+                $currentItems,
+                $logsPivotadosCollection->count(),
+                $perPage,
+                $currentPage,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
+        }
     }
 
     public function sortBy($column)
