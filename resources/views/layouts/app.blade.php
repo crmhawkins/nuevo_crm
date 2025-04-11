@@ -74,8 +74,11 @@
     {{-- <script src="https://unpkg.com/filepond/dist/filepond.js"></script> --}}
 
     <script src="{{ asset('assets/js/main.js') }}"></script>
-    @yield('scripts')
+    <!-- Bootstrap JS Bundle con Popper (¡NECESARIO para dropdowns!) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     @laravelViewsScripts
+    @yield('scripts')
     <script>
          document.addEventListener('DOMContentLoaded', function() {
             let accessLevel = {{ auth()->user()->access_level_id}};
