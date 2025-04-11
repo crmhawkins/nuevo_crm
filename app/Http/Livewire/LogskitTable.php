@@ -17,7 +17,6 @@ class LogskitTable extends Component
     public $buscar;
     public $selectedYear;
     public $selectedEstado;
-    public $estados;
     public $tipos;
     public $usuarios;
     public $usuario;
