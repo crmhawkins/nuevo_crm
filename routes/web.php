@@ -90,7 +90,7 @@ Route::post('/budget/generate-pdf', [BudgetController::class, 'generatePDF'])->n
 Route::group(['middleware' => 'auth'], function () {
 
     Route::middleware(['access.level:4'])->group(function () {
-
+        Route::get('/logs/kitdigital',[LogActionsController::class, 'kitdigital'])->name('logs.kitdigital');
         // Clients (CLIENTES)
         Route::get('/clients', [ClientController::class, 'index'])->name('clientes.index');
         Route::get('/client/create', [ClientController::class, 'create'])->name('clientes.create');
@@ -462,7 +462,7 @@ Route::group(['middleware' => 'auth'], function () {
         //Logs
         Route::get('/logs',[LogActionsController::class, 'index'])->name('logs.index');
         Route::get('/logs/clasificado',[LogActionsController::class, 'Clasificacion'])->name('logs.clasificado');
-        Route::get('/logs/kitdigital',[LogActionsController::class, 'kitdigital'])->name('logs.kitdigital');
+
 
         //Productividad
         Route::get('/productividad', [ProductividadController::class, 'index'])->name('productividad.index');
