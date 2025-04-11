@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\EnvioB2b;
 use App\Models\EnvioDani;
 use App\Models\KitDigital;
 use App\Models\Whatsapp\Mensaje;
@@ -13,16 +14,8 @@ use Illuminate\Support\Facades\Storage;
 class ApiController extends Controller
 {
     public function getayudas(Request $request){
-        $segmentos = ['A', 'B', 'C'];  // Define los segmentos que deseas incluir
 
-        $kitDigitals = KitDigital::where('estado', 18)
-                         ->whereIn('segmento', $segmentos)  // Usar whereIn para múltiples valores
-                         ->where(function($query) {
-                             $query->where('enviado', '!=', 1)
-                                   ->orWhereNull('enviado');
-                         })
-                         ->whereNotNull('telefono')  // Asegurarse de que 'telefono' no sea nulo
-                         ->limit(10)  // Limitar la consulta a 10 registros
+        $kitDigitals = EnvioB2b::where('enviado', 0)->limit(10)  // Limitar la consulta a 10 registros
                          ->get();
 
         return $kitDigitals;
@@ -30,7 +23,7 @@ class ApiController extends Controller
 
 
     public function updateAyudas($id){
-        $kitDigital = KitDigital::find($id);
+        $kitDigital = EnvioB2b::find($id);
         $kitDigital->enviado = 1;
         $kitDigital->save();
 
@@ -40,7 +33,7 @@ class ApiController extends Controller
     public function updateMensajes(Request $request)
     {
         if($request->ayuda_id != null){
-            $ayuda = KitDigital::find($request->ayuda_id);
+            $ayuda = EnvioB2b::find($request->ayuda_id);
             $ayuda->enviado = 1;
             if($request->mensaje != null){
                 $ayuda->mensaje = $request->mensaje;
