@@ -19,6 +19,15 @@
         </div>
         <div class="col-md-9 col-sm-12">
             <div class="d-flex flex-row justify-end gap-3">
+                <div class="mb-3 px-2 flex-fill" style="width: 140px">
+                    <label class="titulo_filtros" for="">Estados</label>
+                    <select wire:model="selectedEstado" name="selectedEstado" id="selectedEstado" class="form-select">
+                        <option value=""> Estado </option>
+                        @foreach ($estados as $estado)
+                            <option {{$selectedEstado == $estado->id ? 'selected' : ''}} value="{{$estado->id}}">{{$estado->nombre}}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="w-25">
                     <label for="">Año</label>
                     <select wire:model="selectedYear" class="form-select">

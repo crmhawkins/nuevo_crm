@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\KitDigitalEstados;
 use App\Models\Logs\LogActions;
 use App\Models\Users\User;
 use Carbon\Carbon;
@@ -15,7 +16,8 @@ class LogskitTable extends Component
 
     public $buscar;
     public $selectedYear;
-    public $tipo;
+    public $selectedEstado;
+    public $estados;
     public $tipos;
     public $usuarios;
     public $usuario;
@@ -33,6 +35,7 @@ class LogskitTable extends Component
     public function mount()
     {
         $this->usuarios = User::where('inactive', 0)->get();
+        $this->estados = KitDigitalEstados::all();
 
     }
 
@@ -62,6 +65,13 @@ class LogskitTable extends Component
                     })
                     ->orWhere('description', 'like', '%' . $this->buscar . '%')
                     ->orWhere('reference_id', 'like', '%' . $this->buscar . '%');
+                });
+            })
+            ->when($this->selectedEstado, function ($query) {
+                $query->where(function ($query) {
+                    $query->whereHas('ayudas', function ($subQuery) {
+                        $subQuery->where('ayudas.estado', $this->selectedEstado);
+                    });
                 });
             })
             ->when($this->selectedYear, fn($query) => $query->whereYear('log_actions.created_at', $this->selectedYear))
