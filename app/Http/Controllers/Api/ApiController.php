@@ -15,7 +15,7 @@ class ApiController extends Controller
 {
     public function getayudas(Request $request){
 
-        $kitDigitals = EnvioB2b::where('enviado', 0)->limit(60)  // Limitar la consulta a 10 registros
+        $kitDigitals = EnvioB2b::where('enviado', 0)->limit(50)  // Limitar la consulta a 10 registros
                          ->get();
 
         return $kitDigitals;
