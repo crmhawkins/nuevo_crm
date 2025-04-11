@@ -37,7 +37,7 @@ class KitDigitalWhatsappPorContestacionTable extends Component
     public $segmentos;
     public $Sumatorio;
     public $perPage = 10;
-    public $sortColumn = 'ayudas.created_at'; // Columna por defecto
+    public $sortColumn = 'created_at'; // Columna por defecto
     public $sortDirection = 'desc'; // Dirección por defecto
     protected $kitDigitals; // Propiedad protegida para los usuarios
 
