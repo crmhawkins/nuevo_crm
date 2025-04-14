@@ -99,8 +99,7 @@
                         <th style="width: 270px">CLIENTE</th>
                         <th style="width: 100px">KD</th>
                         <th style="width: 100px">SERVICIO</th>
-                        <th style="width: 100px">SASAK</th>
-                        <th style="width: 100px">SASAK 2</th>
+
                         <th style="cursor: pointer;width: 100px" wire:click="sortBy('importe')">
                             IMPORTE
                             @if($sortColumn === 'importe')
@@ -126,6 +125,8 @@
                                 </th>
                             @endif
                         @endforeach
+                        <th style="width: 100px">SASAK</th>
+                        <th style="width: 100px">SASAK 2</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -134,16 +135,7 @@
                             <td style="min-width: 200px;" >{{ $row['cliente'] }}</td>
                             <td>{{ $row['KD'] }}</td>
                             <td>{{ $row['servicio'] }}</td>
-                            <td>
-                                <input type="date"
-                                       wire:model.lazy="fechasSasak.{{ $row['id'] }}.sasak"
-                                       class="form-control">
-                            </td>
-                            <td>
-                                <input type="date"
-                                       wire:model.lazy="fechasSasak.{{ $row['id'] }}.sasak2"
-                                       class="form-control">
-                            </td>
+
                             <td>{{ number_format($row['importe'], 2, ',', '.') }} €</td>
                             @foreach($columnasEstados as $estado)
                                 @if(!in_array($estado, $columnasOcultas))
@@ -165,7 +157,7 @@
                                 @endphp
 
 
-                                <td style="min-width: 140px; white-space: nowrap; text-align: center;">
+                                <td style="width: 140px; white-space: nowrap; text-align: center;">
                                     @if ($fecha)
                                         <input type="date"
                                             class="form-control form-control-sm new-control"
@@ -176,6 +168,16 @@
 
                                 @endif
                             @endforeach
+                            <td>
+                                <input type="date"
+                                       wire:model.lazy="fechasSasak.{{ $row['id'] }}.sasak"
+                                       class="form-control">
+                            </td>
+                            <td>
+                                <input type="date"
+                                       wire:model.lazy="fechasSasak.{{ $row['id'] }}.sasak2"
+                                       class="form-control">
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
