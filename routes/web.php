@@ -666,11 +666,16 @@ Route::post('/portal/dominios/', [PortalCompraWebs::class, 'dominiosStore'])->na
 // Mostrar compras
 Route::get('/portal/compras', [PortalCompraWebs::class, 'showPurchases'])->name('portal.compras');
 
-// Redirigir
-Route::get('/portal/redirigir/{url}', [PortalCompraWebs::class, 'redirectUrl']);
+// Usuarios temporales
+Route::get('/portal/tempdashboard', [PortalClientesController::class, 'tempdashboard'])->name('portal.tempdashboard');
 
-// Eliminar template
-Route::get('/portal/redirigir/{url}', [PortalCompraWebs::class, 'redirectUrl']);
+// Cupones y usuarios temporales
+Route::get('/portal/login-admin', [PortalCompraWebs::class, 'loginAdminGet'])->name('portal.loginAdminGet');
+Route::post('/portal/login-admin', [PortalCompraWebs::class, 'loginAdmin'])->name('portal.loginAdmin');
+Route::get('/portal/generarUser', [PortalCompraWebs::class, 'generarUserView'])->name('portal.generarUserView');
+Route::post('/portal/generarUser', [PortalCompraWebs::class, 'generarUser'])->name('portal.generarUser');
+Route::get('/portal/generarCupon', [PortalCompraWebs::class, 'generarCuponView'])->name('portal.generarCuponView');
+Route::post('/portal/generarCupon', [PortalCompraWebs::class, 'generarCupon'])->name('portal.generarCupon');
 
 // Generar presupuesto portal
 Route::get('/portal/generateBudget', [PortalCompraWebs::class, 'generateBudget']);
