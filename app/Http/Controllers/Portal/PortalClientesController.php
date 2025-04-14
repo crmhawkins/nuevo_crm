@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
+use App\Models\TempUser;
 use App\Models\Company\CompanyDetails;
 use App\Models\Invoices\Invoice;
 use App\Models\Tasks\LogTasks;
@@ -35,14 +36,20 @@ class PortalClientesController extends Controller
                 'mensaje' => 'El usuario no existe'
             ]);
         }
+
         $cliente = Client::where('pin', $pin)->where('id',$part[1])->first();
 
         if ($cliente) {
             session(['cliente' => $cliente]);
             return redirect()->route('portal.dashboard');
         } else {
-
-
+            $temp_user = TempUser::where('password', $pin)->where('user',$part[1])->first();
+        if($temp_user) {
+            $cliente = Client::where('pin', '968074')->where('id', '320574')->first();
+            session(['cliente' => $cliente]);
+            session(['tempuser' => $temp_user]);
+            return redirect()->route('portal.dashboard');
+        }
             return redirect()->back()->with('toast', [
                 'icon' => 'error',
                 'mensaje' => 'El pin no es correcto'
@@ -53,7 +60,11 @@ class PortalClientesController extends Controller
     public function dashboard(Request $request) {
         $cliente = session('cliente');
         if ($cliente) {
+            if($cliente->id == 320574) {
+                return view('portal.temp.tempdashboard');
+            } else {
                 return view('portal.dashboard', compact('cliente'));
+            }
         }
         return view('portal.login');
 }
@@ -219,7 +230,7 @@ class PortalClientesController extends Controller
 
         return view('portal.presupuesto', compact('cliente', 'budget', 'concepts', 'empresa'));
     }
-    
+
     public function showInvoice(Request $request,$id)
     {
         // Verificar si el cliente ha iniciado sesión
@@ -267,6 +278,15 @@ class PortalClientesController extends Controller
 
         // Renderizar la vista con la factura y los conceptos
         return view('portal.factura', compact('cliente','invoice', 'invoiceConceptsFormated', 'data','empresa'));
+    }
+
+    public function tempdashboard() {
+        $cliente = session('cliente');
+        if ($cliente->id == 320574) {
+            return view('portal.tempdashboard');
+        } else {
+            return redirect()->route('portal.dashboard', compact('cliente'));
+        }
     }
 
 }

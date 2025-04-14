@@ -19,7 +19,7 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width: 90%; width: 90%;">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="b2bModalLabel">Bienvenido, {{ $cliente->name }}</h5>
+          <h5 class="modal-title" id="b2bModalLabel">Que quiere comprar </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-center">

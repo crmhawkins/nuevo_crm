@@ -47,9 +47,6 @@
             </div>
         </div> --}}
         {{-- <div class="css-96uzu9"></div> --}}
-
-        @include('layouts.sidebarPortal')
-
         <main id="mainPortal">
             {{-- @include('layouts.topBar') --}}
             <div class="contenedor p-4">
@@ -126,6 +123,5 @@
             console.log(isDark)
         });
     </script>
-    @include('layouts.footer')
 </body>
 </html>

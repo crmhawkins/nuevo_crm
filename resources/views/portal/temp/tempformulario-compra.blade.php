@@ -1,4 +1,4 @@
-@extends('layouts.appPortal')
+@extends('layouts.tempappPortal')
 @section('content')
 @include('layouts.header')
 

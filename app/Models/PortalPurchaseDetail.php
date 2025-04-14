@@ -22,10 +22,11 @@ class PortalPurchaseDetail extends Model
         'address',
         'phone',
         'politica',
-        'imagenes',
         'hosting',
         'dominio_externo',
-        'imagenes'
+        'imagenes',
+        'color_principal',
+        'color_secundario'
     ];
 
     public function purchase()

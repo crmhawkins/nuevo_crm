@@ -1,4 +1,4 @@
-@extends('layouts.appPortal')
+@extends('layouts.tempappPortal')
 
 @section('content')
 @include('layouts.header')
@@ -40,8 +40,8 @@
             <p>Descripción: {{ ucfirst($type) }} personalizada a tu medida.</p>
 
             <div class="mb-4">
-                <h4 class="text-primary">Total: {{ number_format($price, 2, ',', '.') }} €</h4>
-                <h5 class="small">{{ number_format($iva, 2, ',', '.') }} € + {{ number_format($price - $iva, 2, ',', '.') }} € (IVA)</h5>
+                <h4 class="text-primary">Precio: {{ number_format($price - ($price - $iva), 2, ',', '.') }} €</h4>
+                <h5 class="small">{{ number_format($iva, 2, ',', '.') }} € + {{ number_format($price - $iva, 2, ',', '.') }} (IVA) | {{ number_format($price, 2, ',', '.') }} € </h5>
             </div>
 
             <form action="{{ route('portal.processPayment') }}" method="POST" id="payment-form">
@@ -51,32 +51,29 @@
 
                 <div class="mb-3">
                     <label class="form-label text-dark">Nombre completo / Nombre de empresa</label>
-                    <input type="text" class="form-control" name="full_name" value="{{ old('full_name', $cliente->name . ' ' . $cliente->primerApellido . ' ' . $cliente->segundoApellido) }}" required>
+                    <input type="text" class="form-control" name="full_name" required>
                 </div>
-
                 <div class="mb-3">
                     <label class="form-label text-dark">Teléfono</label>
-                    <input type="text" class="form-control" name="phone" value="{{ old('phone', $cliente->phone) }}" required>
+                    <input type="text" class="form-control" name="phone" required>
                 </div>
-
                 <div class="mb-3">
                     <label class="form-label text-dark">Correo electrónico</label>
-                    <input type="email" class="form-control" name="email" value="{{ old('email', $cliente->email) }}" required>
+                    <input type="email" class="form-control" name="email" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label text-dark">Dirección fiscal</label>
-                    <input type="text" class="form-control mb-3" name="country" value="{{ old('country', $cliente->country) }}" placeholder="País " required>
-                    <input type="text" class="form-control mb-3" name="province" value="{{ old('province', $cliente->province) }}" placeholder="Provincia " required>
-                    <input type="text" class="form-control mb-3" name="city" value="{{ old('city', $cliente->city) }}" placeholder="Ciudad " required>
-                    <input type="text" class="form-control mb-3" name="address" value="{{ old('address', $cliente->address) }}" placeholder="Dirección " required>
-                    <input type="text" class="form-control mb-3" name="zipcode" value="{{ old('zipcode', $cliente->zipcode) }}" placeholder="Código postal " required>
+                    <input type="text" class="form-control mb-3" name="country" placeholder="País " required>
+                    <input type="text" class="form-control mb-3" name="province" placeholder="Provincia " required>
+                    <input type="text" class="form-control mb-3" name="city" placeholder="Ciudad " required>
+                    <input type="text" class="form-control mb-3" name="address" placeholder="Dirección " required>
+                    <input type="text" class="form-control mb-3" name="zipcode" placeholder="Código postal " required>
                 </div>
-
 
                 <div class="mb-3">
                     <label class="form-label text-dark">NIF/CIF</label>
-                    <input type="text" class="form-control" name="nif" value="{{ old('nif', $cliente->nif) }}" required>
+                    <input type="text" class="form-control" name="nif"  required>
                 </div>
 
                 <div class="mb-4">
@@ -87,7 +84,7 @@
 
                 <div class="mb-3">
                     <label class="form-label text-dark">Código de descuento</label>
-                    <input type="text" class="form-control" name="coupon" value="{{ old('coupon') }}" placeholder="Escribe tu cupón si tienes uno">
+                    <input type="text" class="form-control" name="coupon" placeholder="Escribe tu cupón de descuento si tienes uno">
                 </div>
 
                 <div class="d-grid">
@@ -97,110 +94,6 @@
         </div>
     </div>
 </div>
-
-<style>
-@media (max-width: 768px) {
-    html, body {
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100vw !important;
-        overflow-x: hidden !important;
-        background-color: #f5f7fb !important;
-    }
-
-    main,
-    .fondoPortal,
-    .contenedor,
-    .portal-sidebar,
-    .wrapper,
-    #appPortal,
-    .main-content {
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
-    }
-
-    .container,
-    .container-fluid {
-        padding: 0 !important;
-        margin: 0 auto !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
-    }
-
-    .card {
-        width: 100vw !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-        padding: 2rem 1rem !important;
-    }
-
-    .card-body {
-        padding: 0 !important;
-    }
-
-    .form-label {
-        font-size: 1rem;
-        margin-bottom: 0.3rem;
-    }
-
-    .form-control,
-    input.form-control,
-    select.form-control,
-    textarea.form-control,
-    #card-element {
-        width: 100% !important;
-        max-width: 100% !important;
-        font-size: 1rem;
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-    }
-
-    #card-element {
-        border: 1px solid #ced4da;
-        border-radius: 0.375rem;
-        height: 44px;
-        padding: 0.5rem;
-        background: #fff;
-    }
-
-    #card-errors {
-        margin-top: 0.5rem;
-        font-size: 0.95rem;
-    }
-
-    .btn-lg {
-        width: 100% !important;
-        font-size: 1.1rem;
-        padding: 0.75rem;
-    }
-
-    h2.display-5 {
-        font-size: 1.6rem;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-
-    h4, h5 {
-        text-align: left;
-        font-size: 1.1rem;
-    }
-
-    hr {
-        margin: 1.5rem 0;
-    }
-
-    .alert {
-        margin: 1rem;
-        font-size: 0.95rem;
-    }
-
-    .mb-3, .mb-4 {
-        margin-bottom: 1.5rem !important;
-    }
-}
-</style>
 
 @endsection
 
@@ -233,4 +126,6 @@
         }
     });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @endsection

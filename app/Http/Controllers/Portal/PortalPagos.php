@@ -4,17 +4,21 @@ namespace App\Http\Controllers\Portal;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\Charge;
+use Stripe\Coupon;
 use App\Http\Controllers\Controller;
 use App\Models\Budgets\Budget;
 use App\Models\Budgets\BudgetConcept;
 use App\Models\Budgets\BudgetConceptType;
 use App\Models\Budgets\BudgetReferenceAutoincrement;
+use App\Models\Clients\Client;
 use App\Models\Invoices\Invoice;
 use App\Models\Invoices\InvoiceConcepts;
 use App\Models\Invoices\InvoiceReferenceAutoincrement;
+use App\Models\PortalCoupon;
 use App\Models\PortalPurchaseDetail;
 use App\Models\Projects\Project;
 use App\Models\Purchase;
+use App\Models\TempUser;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Http;
@@ -29,19 +33,14 @@ class PortalPagos extends Controller
             return view('portal.login');
         }
 
+
         $price = 190;
         $iva = $price * 0.21;
-        $price = $price + $iva;        
-        switch ($type) {
-            case 'web':
-                return view('portal.checkout-estructura', compact('cliente', 'type'));
-
-            case 'eccommerce':
-                return view('portal.checkout-estructura', compact('cliente', 'type'));
-
-            default:
-                return redirect()->route('portal.dashboard')->with('error_message', 'Hubo un problema al procesar tu solicitud.');
+        $price = $price + $iva;
+        if ($cliente->id == 320574) {
+            return view('portal.temp.tempcheckout-estructura', compact('type'));
         }
+        return view('portal.checkout-estructura', compact('cliente', 'type'));
     }
 
     public function checkout() {
@@ -58,108 +57,186 @@ class PortalPagos extends Controller
         $purchase_id = $purchase->id;
 
         $iva = $price / 1.21;
-        return view('portal.checkout', compact('cliente', 'type', 'price', 'purchase_type', 'iva', 'purchase_id'));
+
+        if ($cliente->id == 320574) {
+            return view('portal.temp.tempcheckout', compact('cliente', 'type', 'price', 'purchase_type', 'iva', 'purchase_id'));
+        } else {
+            return view('portal.checkout', compact('cliente', 'type', 'price', 'purchase_type', 'iva', 'purchase_id'));
+        }
     }
 
     public function processPayment(Request $request)
     {
         $cliente = session('cliente');
-        if (!$cliente) {
-            return view('portal.login');
-        }
+        if (!$cliente) return redirect()->route('portal.login');
 
-        $rules = [
-            'full_name'   => 'required|string|max:255',
-            'email'       => 'required|email|max:255',
-            'address'     => 'required|string|max:255',
-            'stripeToken' => 'required|string',
-            'purchase_id' => 'required|exists:purchases,id', 
-            'purchase_type' => 'required|string',
-        ];
+        $isTempUser = $cliente->id == 320574;
+        $tempUser = session('tempuser');
+        $tempUserId = $tempUser->user;
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
 
-        // Ejecutar validador
-        $validator = Validator::make($request->all(), $rules);
 
+        $validator = $this->validarFormulario($request, $isTempUser);
         if ($validator->fails()) {
-            return redirect()->route('portal.dashboard', compact('cliente'))
+            return redirect()->back()
                 ->withErrors($validator)
-                ->with('error_message', 'Por favor, corrige los errores del formulario.');
+                ->with('error_message', 'Corrige los errores del formulario.')
+                ->with(compact('cliente'))
+                ->with(['purchase_id' => $request->input('purchase_id')]);
         }
-
-        Stripe::setApiKey(env('STRIPE_SECRET'));
-
+        $purchase_id = $request->input('purchase_id');
         try {
-            $purchaseId = $request->input('purchase_id'); 
-            $purchase = Purchase::find($purchaseId);
-
+            $purchase = Purchase::find($request->input('purchase_id'));
             if (!$purchase) {
-                return redirect()->route('portal.dashboard')->with('error_message', 'Compra no encontrada.');
+                return redirect()->back()->with('error_message', 'Compra no encontrada.');
             }
 
-            $purchaseType = $request->input('purchase_type');
-            $amount = 19000; 
-            $amountIva = $amount / 100 * 21;
-            $finalAmount = $amount + $amountIva;
+            $baseAmount = 19000;
+            [$amount, $discountAmount, $couponCode] = $this->aplicarCupon($request, $baseAmount, $cliente);
 
-            $customer = \Stripe\Customer::create([
-                'email' => $request->input('email'),
-                'name' => $request->input('full_name'),
-                'address' => [
-                    'line1' => $request->input('address'),
-                ],
-            ]);
-
-            $charge = \Stripe\Charge::create([
-                'amount'      => $finalAmount,
-                'currency'    => 'eur',
-                'description' => ucfirst($purchaseType) . ' personalizada',
-                'receipt_email' => $request->input('email'),
-                'source'      => $request->stripeToken, 
-                'metadata'    => [
-                    'customer_name'    => $request->input('full_name'),
-                    'customer_email'   => $request->input('email'),
-                    'customer_address' => $request->input('address'),
-                    'purchase_type'    => $purchaseType,
-                ],
-            ]);
-
-            // Comprobar si el pago fue exitoso
-            if ($charge->status === 'succeeded') {
-
+            $finalAmount = $amount + ($amount * 0.21);
+            if ($finalAmount < 1) {
                 $purchase->update([
-                    'payment_status'   => 'succeeded',
-                    'stripe_charge_id' => $charge->id,
-                    'status'           => 'pagado',
-                    'amount'           => $finalAmount / 100,
+                    'payment_status' => 'gratuito',
+                    'status' => 'pagado',
+                    'amount' => 0
+                ]);
+                if ($isTempUser) {
+                    $this->crearClienteDesdeTempUser($tempUser, $request, $purchase_id);
+                    $cliente = Client::where('id', $tempUserId)->first();
+                    session(['cliente' => $cliente]);
+                }
+                $this->createPresupuesto($cliente, $request->input('purchase_type'), 0);
+                return redirect()->route('portal.compras', compact('cliente'))
+                    ->with('success_message', 'Compra gratuita completada. ¡Gracias!');
+            }
+
+            if (!$cliente->stripe_customer_id) {
+                $stripeCustomer = \Stripe\Customer::create([
+                    'email' => $request->input('email'),
+                    'name' => $request->input('full_name'),
+                    'address' => [
+                        'line1' => implode(' ', [
+                            $request->input('country'),
+                            $request->input('province'),
+                            $request->input('city'),
+                            $request->input('address'),
+                            $request->input('zipcode'),
+                        ]),
+                    ],
                 ]);
 
-                // // Enviar post (pendiente)
-                // $purchase_detail = PortalPurchaseDetail::find($purchaseId);
-                // if ($purchase_detail->dominio) {
-                //     $dominio = $purchase_detail->dominio;
-                // } else {
-                //     $dominio = $purchase_detail->dominio_externo;
-                // }
-
-                // $estructura = $purchase->template;
-
-                // $postdata = [
-                //     "domain"=> $dominio,
-                //     "template"=> $estructura
-                // ];
-                // $response = Http::post('https://conversacioneshera.hawkins.es/api/subdomain_ionos.php', $postdata);
-
-                // Crear presupuesto y facutura
-                $this->createPresupuesto($cliente, $purchaseType, $amount/100);
-                
-
-                return redirect()->route('portal.compras', compact('cliente'))->with('success_message', 'Pago realizado correctamente!');
-            } else {
-                return redirect()->route('portal.dashboard')->with('error_message', 'La compra no se pudo completar.');
             }
+
+            $charge = \Stripe\Charge::create([
+                'amount' => $finalAmount,
+                'currency' => 'eur',
+                'description' => ucfirst($request->input('purchase_type')) . ' personalizada',
+                'receipt_email' => $request->input('email'),
+                'source' => $request->stripeToken,
+                'metadata' => [
+                    'customer_name' => $request->input('full_name'),
+                    'purchase_type' => $request->input('purchase_type'),
+                    'coupon_code' => $couponCode ?? 'Sin cupón',
+                    'descuento' => number_format($discountAmount / 100, 2) . ' €',
+                ]
+            ]);
+
+            if ($charge->status === 'succeeded') {
+                $purchase->update([
+                    'payment_status' => 'succeeded',
+                    'stripe_charge_id' => $charge->id,
+                    'status' => 'pagado',
+                    'amount' => $finalAmount / 100
+                ]);
+
+                if ($isTempUser) {
+                    $this->crearClienteDesdeTempUser($tempUser, $request, $purchase_id);
+                }
+                $cliente = Client::where('id', $tempUserId)->first();
+                session(['cliente' => $cliente]);
+                $this->createPresupuesto($cliente, $request->input('purchase_type'), $amount / 100);
+                return redirect()->route('portal.compras', compact('cliente'))
+                    ->with('success_message', 'Pago realizado correctamente.');
+            }
+
+            return redirect()->route('portal.dashboard')->with('error_message', 'No se pudo completar el pago.');
         } catch (\Exception $e) {
-            return redirect()->route('portal.dashboard')->with('error_message', 'Error al procesar el pago: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error_message', 'Error en el pago: ' . $e->getMessage());
         }
+    }
+
+    private function validarFormulario($request, $isTempUser)
+    {
+        $rules = [
+            'full_name'     => 'required|string|max:255',
+            'email'         => 'required|email|max:255',
+            'nif'           => 'required|string|max:20',
+            'country'       => 'required|string|max:30',
+            'province'      => 'required|string|max:30',
+            'city'          => 'required|string|max:30',
+            'zipcode'       => 'required|string|max:30',
+            'address'       => 'required|string|max:255',
+            'stripeToken'   => 'required|string',
+            'purchase_id'   => 'required|exists:purchases,id',
+            'purchase_type' => 'required|string',
+            'phone' => 'required|string|max:20'
+        ];
+
+
+        return Validator::make($request->all(), $rules);
+    }
+
+    private function aplicarCupon($request, $baseAmount, $cliente)
+    {
+        $discountAmount = 0;
+        $couponCode = $request->input('coupon');
+
+        if ($couponCode) {
+            $coupon = PortalCoupon::where('id', $couponCode)->where('used', 0)->first();
+            if ($coupon && $coupon->discount) {
+                $discountAmount = round($baseAmount * ($coupon->discount / 100));
+                $coupon->used = 1;
+                $coupon->update(['used' => 1]);
+            }
+        }
+
+        $amount = max($baseAmount - $discountAmount, 0);
+        return [$amount, $discountAmount, $couponCode];
+    }
+
+    private function crearClienteDesdeTempUser($tempUser, $request, $purchase_id)
+    {
+        $nuevo = new Client([
+            'id' => $tempUser->user,
+            'name' => $request->input('full_name'),
+            'company' => $request->input('full_name'),
+            'admin_user_id' => 103,
+            'email' => $request->input('email'),
+            'cif' => $request->input('nif'),
+            'country' => $request->input('country'),
+            'city' => $request->input('city'),
+            'address' => $request->input('address'),
+            'province' => $request->input('province'),
+            'zipcode' => $request->input('zipcode'),
+            'phone' => $request->input('phone'),
+            'is_client' => 1,
+            'privacy_policy_accepted' => 1,
+            'cookies_accepted' => 1,
+            'newsletters_sending_accepted' => 1,
+            'pin' => $tempUser->password,
+        ]);
+
+        $nuevo->save();
+
+        $purchase = Purchase::where('id', $purchase_id)->first();
+        if ($purchase) {
+            $purchase->client_id = $nuevo->id;
+            $purchase->save();
+        }
+
+        $tempUser->delete();
     }
 
 
@@ -230,7 +307,7 @@ class PortalPagos extends Controller
             'admin_user_id' => $cliente->admin_user_id
         ];
 
-        
+
         $proyectoCreado = Project::create($data);
         if ($proyectoCreado){
             return ['status'=> true, 'id' => $proyectoCreado->id];
@@ -238,7 +315,7 @@ class PortalPagos extends Controller
             return ['status'=> false, 'id' => null];
         }
     }
-    
+
     public function generateBudgetReference() {
         // Obtener la fecha actual del presupuesto
         $budgetCreationDate = now();
@@ -351,13 +428,12 @@ class PortalPagos extends Controller
                     $conceptOwnSaved = $conceptOwnCreate->save();
 
                     if ($conceptOwnSaved) {
-                        
+
                     }
                 }
             }
         }
         } catch (Throwable $e)  {
-            dd($e);
         }
     }
 

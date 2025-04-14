@@ -1,4 +1,5 @@
 @extends('layouts.appPortal')
+
 @section('content')
 
 @section('css')
@@ -7,74 +8,96 @@
 
   @if (session('success_message'))
   <div class="alert alert-success">
-      {!! session('success_message') !!}  </div>
+      {!! session('success_message') !!}  
+  </div>
   @endif
 
   @if (session('error_message'))
   <div class="alert alert-danger">
-      {!! session('error_message') !!}  </div>
+      {!! session('error_message') !!}  
+  </div>
   @endif
 
 <style>
-.input-control{
+.input-control {
   font-size: 16px;
   border: 1px solid #ececec;
   padding: 0.2rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
+
 .table-clientportal tbody tr>td {
-    background-color: rgba(237, 239, 243, .49);
-    font-size: 14px;
-    color: #424b5a;
-    padding-top: 16px;
-    padding-bottom: 16px;
+  background-color: rgba(237, 239, 243, .49);
+  font-size: 14px;
+  color: #424b5a;
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 
-.table-clientportal  {  border-collapse: separate; border-spacing: 0 10px; /* 0 horizontal spacing, 10px vertical spacing */}
+.table-clientportal {
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  overflow-x: auto;
+}
 
-.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
-    vertical-align: top;
+.table-responsive-mobile {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table-clientportal tbody tr td:first-of-type {
-    -webkit-border-radius: 12px 0 0 12px;
-    -moz-border-radius: 12px 0 0 12px;
-    border-radius: 12px 0 0 12px;
-}
-.table-clientportal thead tr>th:first-of-type, .table-clientportal tbody tr>td:first-of-type {
-    padding-left: 25px;
-}
-.table-clientportal thead tr>th:last-of-type, .table-clientportal tbody tr>td:last-of-type {
-    padding-right: 25px !important;
-}
-.table-clientportal tbody tr td:last-of-type {
-    -webkit-border-radius: 0 12px 12px 0;
-    -moz-border-radius: 0 12px 12px 0;
-    border-radius: 0 12px 12px 0;
+  -webkit-border-radius: 12px 0 0 12px;
+  -moz-border-radius: 12px 0 0 12px;
+  border-radius: 12px 0 0 12px;
 }
 
-table.dataTable thead .sorting, table.dataTable thead .sorting_asc, table.dataTable thead .sorting_desc, table.dataTable thead .sorting_asc_disabled, table.dataTable thead .sorting_desc_disabled {
-    cursor: pointer;
-    position: relative;
-}
 .table-clientportal thead tr>th {
-    color: #9fa5ae;
-    font-size: 12px;
-    padding-bottom: 0;
+  color: #9fa5ae;
+  font-size: 12px;
+  padding-bottom: 0;
 }
+
 .table-clientportal thead tr th, .table-clientportal tbody tr td {
-    font-weight: 400;
-    line-height: 24px;
-    border: none;
-    padding-left: 4px;
-    padding-right: 20px !important;
+  font-weight: 400;
+  line-height: 24px;
+  border: none;
+  padding-left: 4px;
+  padding-right: 20px !important;
 }
-.table-clientportal {
-  overflow-x: auto
+
+.table-clientportal td {
+  word-wrap: break-word;
 }
-body * {
-    scrollbar-color: #ccc transparent;
-    scrollbar-height: thin;
-    scrollbar-width: thin;
+
+.table-clientportal tbody tr td:last-of-type {
+  -webkit-border-radius: 0 12px 12px 0;
+  -moz-border-radius: 0 12px 12px 0;
+  border-radius: 0 12px 12px 0;
+}
+
+.table-responsive-mobile {
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .table-clientportal th, .table-clientportal td {
+    font-size: 12px;
+  }
+
+  .table-clientportal thead th {
+    padding: 8px;
+  }
+  
+  .table-clientportal tbody td {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  
+  .input-control {
+    margin-bottom: 1rem;
+    font-size: 14px;
+  }
 }
 </style>
 
@@ -91,7 +114,7 @@ body * {
               <input type="text" id="tableSearch" class="input-control" placeholder="Buscar">
             </div>
           </div>
-          <div class="pt-5 table-responsive">
+          <div class="pt-5 table-responsive-mobile">
             <table id="comprasTable" class="w-100 table-clientportal display">
               <thead>
                 <tr>
@@ -129,7 +152,6 @@ body * {
                     @endswitch
                   </td>
                   <td class="table__total text-right">{{$compra->amount}}&euro;</td>
-                  </td>
                 </tr>
                 @endforeach
               </tbody>
@@ -148,12 +170,11 @@ body * {
 <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.js"></script>
 <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.css" rel="stylesheet">
 <script>
-
   $(document).ready(function() {
     var table = $('#comprasTable').DataTable({
       paging: false,   // Desactiva la paginación
       info: false,     // Oculta el recuento de registros
-      dom: 't',          // Solo muestra la tabla, sin el buscador ni otros elementos
+      dom: 't',        // Solo muestra la tabla, sin el buscador ni otros elementos
 
       language: {
         zeroRecords: "No se encontraron resultados",

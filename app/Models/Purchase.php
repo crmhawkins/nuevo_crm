@@ -21,6 +21,9 @@ class Purchase extends Model
         'customer_email',
         'customer_address',
         'template'
+        // cupons boolean true ya usaste el cupon - false o null 
+
+        // Crea una modificacion en la tabla de usuarios temporal y añadere una columna donde se registre el cupon y luego cuando vamos a pagar aplico ese cupon lo establezco aqui como que ya esta usado en el pago y en vez de enviar los datos a stgripe simulo 
     ];
 
     // Relación con el modelo Client

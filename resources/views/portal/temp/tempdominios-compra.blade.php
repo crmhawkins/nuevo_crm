@@ -1,4 +1,4 @@
-@extends('layouts.appPortal')
+@extends('layouts.tempappPortal')
 @section('content')
 @include('layouts.header')
 <span style="margin-top: 1vw; margin-right: 1vw;" class="position-absolute top-0 end-0 text-dark fw-bold fs-3">3/4</span>
@@ -243,7 +243,7 @@
         text-decoration: underline;
         cursor: pointer;
     }
-    
+
     .tooltip-container {
         display: inline-block;
         cursor: pointer;
