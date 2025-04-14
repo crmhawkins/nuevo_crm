@@ -169,6 +169,8 @@
                                         'estado' => 'ESTADO',
                                         'created_at' => 'F.CREA.',
                                         'fecha_actualizacion' => 'F.ACT.',
+                                        'sasak' => 'SASAK',
+                                        'sasak2' => 'SASAK2',
                                         'importe' => 'IMPORTE',
                                         'banco' => 'EN BANCO',
                                         'fecha_acuerdo' => 'F. ACUERDO',
