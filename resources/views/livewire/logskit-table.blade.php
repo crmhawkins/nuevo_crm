@@ -136,7 +136,12 @@
                             <td>{{ $row['servicio'] }}</td>
                             <td>
                                 <input type="date"
-                                       wire:model.lazy="fechasSasak.{{ $log['id'] }}.sasak"
+                                       wire:model.lazy="fechasSasak.{{ $row['id'] }}.sasak"
+                                       class="form-control">
+                            </td>
+                            <td>
+                                <input type="date"
+                                       wire:model.lazy="fechasSasak.{{ $row['id'] }}.sasak2"
                                        class="form-control">
                             </td>
                             <td>{{ number_format($row['importe'], 2, ',', '.') }} €</td>

@@ -193,6 +193,7 @@ class LogskitTable extends Component
         $this->fechasEditables = [];
         $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) {
             $row = [
+                'id' => $items->first()->id, // ✅ AGREGAMOS EL ID DEL LOG
                 'cliente' => $items->first()->cliente,
                 'servicio' => $items->first()->servicio,
                 'KD' => $items->first()->KD,
