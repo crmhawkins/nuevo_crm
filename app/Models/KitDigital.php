@@ -57,6 +57,8 @@ class KitDigital extends Model
         'ciudad',
         'certificado_hacienda',
         'certificado_seguridad',
+        'sasak',
+        'sasak2',
     ];
 
     /**
