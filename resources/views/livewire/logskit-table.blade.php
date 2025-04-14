@@ -126,7 +126,6 @@
                             @endif
                         @endforeach
                         <th style="width: 100px">SASAK</th>
-                        <th style="width: 100px">SASAK 2</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -173,11 +172,7 @@
                                        wire:model.lazy="fechasSasak.{{ $row['id'] }}.sasak"
                                        class="form-control">
                             </td>
-                            <td>
-                                <input type="date"
-                                       wire:model.lazy="fechasSasak.{{ $row['id'] }}.sasak2"
-                                       class="form-control">
-                            </td>
+
                         </tr>
                     @endforeach
                 </tbody>
