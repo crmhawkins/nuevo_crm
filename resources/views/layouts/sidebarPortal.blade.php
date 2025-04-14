@@ -66,6 +66,15 @@
                 Projectos
               </span>
             </a>
+          </li><li class="">
+            <a href="/portal/compras" class="">
+              <span class="portal-sidebar__item-icon">
+                <i class="fa-solid fa-shopping-cart"></i>
+              </span>
+              <span class="portal-sidebar__item-label">
+                Compras
+              </span>
+            </a>
           </li>
         {{-- <li class="has-submenu">
           <a class="">

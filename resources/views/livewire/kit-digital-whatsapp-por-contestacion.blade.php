@@ -33,8 +33,8 @@
                                 <tbody>
                                     @foreach ($kitDigitals->where('mensaje_interpretado', $codigo) as $detail)
                                         <tr>
-                                            <td style="max-width: 200px !important"><input data-id="{{$detail->id}}" type="text" name="cliente" id="cliente" value="{{ $detail->cliente }}" style="max-width: 200px;height: fit-content;background-color: {{$detail->estados->color}}; color: {{$detail->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem"></td>
-                                            <td style="max-width: 100px"><input data-id="{{$detail->id}}" type="text" name="telefono" id="telefono" value="{{ $detail->telefono }}" style="max-width: 100px;height: fit-content;background-color: {{$detail->estados->color}}; color: {{$detail->estados->text_color}}; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
+                                            <td style="max-width: 200px !important"><input data-id="{{$detail->id}}" type="text" name="cliente" id="cliente" value="{{ $detail->cliente }}" style="max-width: 200px;height: fit-content; border:none;margin-bottom: 0 !important;font-size: 0.75rem"></td>
+                                            <td style="max-width: 100px"><input data-id="{{$detail->id}}" type="text" name="telefono" id="telefono" value="{{ $detail->telefono }}" style="max-width: 100px;height: fit-content; border:none;margin-bottom: 0 !important;font-size: 0.75rem;"></td>
                                             <td class="row" style="">
                                                 <textarea disabled cols="30" rows="1"  style="margin-bottom: 0; width:80%;">{{ $detail->mensaje }}</textarea>
                                                 <button type="button"  style="margin-bottom: 0; margin-left:5px; width:18%;" class="btn btn-sm btn-light" onclick="redirectToWhatsapp({{$detail->id}})">Ver</button>

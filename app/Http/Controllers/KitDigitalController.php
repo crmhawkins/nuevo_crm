@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\AyudasExport;
 use App\Models\Clients\Client;
+use App\Models\EnvioB2b;
 use Illuminate\Http\Request;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
@@ -353,8 +354,8 @@ class KitDigitalController extends Controller
      // Vista de los mensajes
      public function whatsapp($id)
      {
-        $ayuda = KitDigital::find($id);
-        $cliente = $ayuda->cliente;
+        $ayuda = EnvioB2b::find($id);
+        $cliente = $ayuda->nombre;
         $remitente = '34'.$ayuda->telefono;
         $primerMensaje = Mensaje::where('ayuda_id', $id)->first();
 

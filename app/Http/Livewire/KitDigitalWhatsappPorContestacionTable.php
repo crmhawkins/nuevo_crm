@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\Clients\Client;
+use App\Models\EnvioB2b;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
 use App\Models\KitDigitalServicios;
@@ -36,7 +37,7 @@ class KitDigitalWhatsappPorContestacionTable extends Component
     public $segmentos;
     public $Sumatorio;
     public $perPage = 10;
-    public $sortColumn = 'ayudas.created_at'; // Columna por defecto
+    public $sortColumn = 'created_at'; // Columna por defecto
     public $sortDirection = 'desc'; // Dirección por defecto
     protected $kitDigitals; // Propiedad protegida para los usuarios
 
@@ -58,9 +59,7 @@ class KitDigitalWhatsappPorContestacionTable extends Component
         $buscarLower = mb_strtolower(trim($this->buscar), 'UTF-8');  // Convertir la cadena a minúsculas y eliminar espacios al inicio y al final
         $searchTerms = explode(" ", $buscarLower);  // Dividir la entrada en términos individuales
 
-        $query = KitDigital::where('updated_at', '>=', '2025-02-26')
-        ->where('enviado', 1)
-        ->whereIn('segmento', ['A', 'B', 'C']);        // Aplica el orden
+        $query = EnvioB2b::where('enviado', 1);        // Aplica el orden
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
         // Verifica si se seleccionó 'all' para mostrar todos los registros

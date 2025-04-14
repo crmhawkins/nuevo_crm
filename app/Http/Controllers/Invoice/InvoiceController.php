@@ -135,6 +135,9 @@ class InvoiceController extends Controller
             }
         }
         if($taskSaved){
+            // Alert::create([
+
+            // ]);
             return response()->json([
                 'status' => true,
                 'mensaje' => "Tareas generadas con exito"
@@ -620,11 +623,13 @@ class InvoiceController extends Controller
             if($factura->is_ceuta){
                 $fac->addLegalLiteral("Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial.");
             }else{
-                $fac->addLegalLiteral("ISP resto de soluciones Operación con inversión del sujeto pasivo conforme al Art. 84 (Uno.2º) de la Ley 37/1992 del IVA");
+                $fac->addLegalLiteral("Inversión del sujeto pasivo conforme al art. 84.1.2º de la Ley 37/1992, del IVA.");
             }
         }
-        $fac->addLegalLiteral("Financiado por el Programa Kit Digital. Plan de Recuperación, Transformación y Resiliencia de EspañaNext Generation EU. IMPORTE SUBVENCIONADO: " . number_format($factura->base, 2) . "€");
 
+        if($kitdigital){
+            $fac->addLegalLiteral("Financiado por el Programa Kit Digital. Plan de Recuperación, Transformación y Resiliencia de EspañaNext Generation EU. IMPORTE SUBVENCIONADO: " . number_format($factura->base, 2) . "€");
+        }
 
         $certificado = $empresa->certificado;
         $contrasena = $empresa->contrasena;

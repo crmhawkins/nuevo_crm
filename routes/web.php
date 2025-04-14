@@ -59,7 +59,8 @@ use App\Http\Controllers\Users\DepartamentController;
 use App\Http\Controllers\Users\PositionController;
 use App\Http\Controllers\Whatsapp\AccionesController;
 use App\Http\Controllers\Whatsapp\WhatsappController;
-
+use App\Http\Controllers\Portal\PortalPagos;
+use App\Http\Controllers\Portal\PortalCompraWebs;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -89,7 +90,7 @@ Route::post('/budget/generate-pdf', [BudgetController::class, 'generatePDF'])->n
 Route::group(['middleware' => 'auth'], function () {
 
     Route::middleware(['access.level:4'])->group(function () {
-
+        Route::get('/logs/kitdigital',[LogActionsController::class, 'kitdigital'])->name('logs.kitdigital');
         // Clients (CLIENTES)
         Route::get('/clients', [ClientController::class, 'index'])->name('clientes.index');
         Route::get('/client/create', [ClientController::class, 'create'])->name('clientes.create');
@@ -462,6 +463,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/logs',[LogActionsController::class, 'index'])->name('logs.index');
         Route::get('/logs/clasificado',[LogActionsController::class, 'Clasificacion'])->name('logs.clasificado');
 
+
         //Productividad
         Route::get('/productividad', [ProductividadController::class, 'index'])->name('productividad.index');
 
@@ -644,9 +646,38 @@ Route::post('/portal/setPin', [PortalClientesController::class, 'setPin'])->name
 Route::get('/portal/presupuesto/{id}', [PortalClientesController::class, 'showBudget'])->name('portal.showBudget');
 Route::get('/portal/factura/{id}', [PortalClientesController::class, 'showInvoice'])->name('portal.showInvoice');
 
+// Formularios compra web
+Route::post('/portal/formulario/', [PortalCompraWebs::class, 'storeForm'])->name('portal.storeForm');
+Route::post('/portal/generateForm/', [PortalCompraWebs::class, 'generateForm'])->name('portal.generateForm');
+Route::get('/portal/generateForm/', [PortalCompraWebs::class, 'generateFormGet'])->name('portal.generateFormGet');
+
+// Pago portal clientes
+Route::get('/portal/estructura/{type}', [PortalPagos::class, 'selectStructure'])->name('portal.selectStructure');
+
+Route::get('/portal/checkout/', [PortalPagos::class, 'checkout'])->name('portal.checkout');
+Route::post('/portal/checkout/', [PortalPagos::class, 'processPayment'])->name('portal.processPayment');
+
+Route::post('/portal/checkout/select-template', [PortalPagos::class, 'selectTemplate'])->name('portal.selectTemplate');
+
+// Formulario dominios
+Route::get('/portal/dominios/', [PortalCompraWebs::class, 'dominiosCheckout'])->name('portal.dominiosCheckout');
+Route::post('/portal/dominios/', [PortalCompraWebs::class, 'dominiosStore'])->name('portal.dominiosStore');
+
+// Mostrar compras
+Route::get('/portal/compras', [PortalCompraWebs::class, 'showPurchases'])->name('portal.compras');
+
+// Redirigir
+Route::get('/portal/redirigir/{url}', [PortalCompraWebs::class, 'redirectUrl']);
+
+// Eliminar template
+Route::get('/portal/redirigir/{url}', [PortalCompraWebs::class, 'redirectUrl']);
+
+// Generar presupuesto portal
+Route::get('/portal/generateBudget', [PortalCompraWebs::class, 'generateBudget']);
+
 Route::get('/actualizar', [OrdenesController::class, 'actualizar'])->name('actualizar');
 
-//Publico
+// Publico
 Route::get('/kit-digital/create-comercial', [KitDigitalController::class, 'createComercial'])->name('kitDigital.createComercial');
 Route::post('/kit-digital/store-comercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');
 
