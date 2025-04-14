@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
 use App\Models\Logs\LogActions;
 use App\Models\Users\User;
@@ -150,7 +151,9 @@ class LogskitTable extends Component
                 'ayudas.cliente as cliente',
                 'ayudas_servicios.name as servicio',
                 'ayudas.contratos as KD',
-                'ayudas.importe as importe'
+                'ayudas.importe as importe',
+                'ayudas.id as kit_id',
+                'ayudas.sasak as sasak',
             )
             ->orderBy($this->sortColumn, $this->sortDirection);
 
@@ -160,8 +163,7 @@ class LogskitTable extends Component
         // Inicializar fechas sasak y sasak2
         $this->fechasSasak = [];
         foreach ($collection as $log) {
-            $this->fechasSasak[$log->id]['sasak'] = $log->sasak ? Carbon::parse($log->sasak)->format('Y-m-d') : null;
-            $this->fechasSasak[$log->id]['sasak2'] = $log->sasak2 ? Carbon::parse($log->sasak2)->format('Y-m-d') : null;
+            $this->fechasSasak[$log->kit_id]['sasak'] = $log->sasak ? Carbon::parse($log->sasak)->format('Y-m-d') : null;
         }
 
         // Extraer columnas de estados únicas
@@ -193,7 +195,7 @@ class LogskitTable extends Component
         $this->fechasEditables = [];
         $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) {
             $row = [
-                'id' => $items->first()->id, // ✅ AGREGAMOS EL ID DEL LOG
+                'id' => $items->first()->kit_id, // ✅ AGREGAMOS EL ID DEL LOG
                 'cliente' => $items->first()->cliente,
                 'servicio' => $items->first()->servicio,
                 'KD' => $items->first()->KD,
@@ -406,7 +408,7 @@ class LogskitTable extends Component
     {
         [$logId, $campo] = explode('.', $key);
 
-        $log = LogActions::find($logId);
+        $log = KitDigital::find($logId);
         if ($log && in_array($campo, ['sasak', 'sasak2'])) {
             $log->$campo = $value;
             $log->save();
