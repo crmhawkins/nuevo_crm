@@ -43,7 +43,8 @@ class LogskitTable extends Component
 {
     $this->usuarios = User::where('inactive', 0)->get();
     $this->logsPivotados = collect();
-    $this->estados = KitDigitalEstados::all();
+    $this->estados = KitDigitalEstados::orderBy('orden', 'asc')->get();
+
     $this->columnasOcultas = [];
 
     // Evita preseleccionar si ya hay columnas en la sesión (por navegación o actualización Livewire)
