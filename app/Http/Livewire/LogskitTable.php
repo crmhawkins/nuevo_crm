@@ -25,6 +25,8 @@ class LogskitTable extends Component
     public $sortDirection = 'desc';
     public $estados = [];
     public $invertir = false;
+    public $fechasSasak = [];
+
 
     public $ordenEstado = null;
     public $ordenDireccion = 'asc';
@@ -117,142 +119,148 @@ class LogskitTable extends Component
     }
 
     protected function actualizarLogs()
-{
-    $query = LogActions::query()
-        ->where('tipo', 1)
-        ->where('action', 'Actualizar estado en kit digital')
-        ->when($this->buscar, function ($query) {
-            $query->where(function ($query) {
-                $query->whereHas('usuario', function ($subQuery) {
-                    $subQuery->where('name', 'like', '%' . $this->buscar . '%');
-                })
-                ->orWhereHas('ayudas', function ($subQuery) {
-                    $subQuery->where('ayudas.cliente', 'like', '%' . $this->buscar . '%')
-                            ->orWhere('ayudas.contratos', 'like', '%' . $this->buscar . '%');
-                })
-                ->orWhere('description', 'like', '%' . $this->buscar . '%')
-                ->orWhere('reference_id', 'like', '%' . $this->buscar . '%');
-            });
-        })
-        ->when($this->estadoSeleccionado, fn($query) =>
-            $query->where('ayudas.estado', $this->estadoSeleccionado)
-        )
-        ->when($this->selectedYear, fn($query) => $query->whereYear('log_actions.created_at', $this->selectedYear))
-        ->when($this->usuario, fn($query) => $query->where('log_actions.admin_user_id', $this->usuario))
-        ->join('admin_user', 'log_actions.admin_user_id', '=', 'admin_user.id')
-        ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
-        ->join('ayudas_servicios', 'ayudas_servicios.id', '=', 'ayudas.servicio_id')
-        ->select(
-            'log_actions.*',
-            'admin_user.name as usuario',
-            'ayudas.cliente as cliente',
-            'ayudas_servicios.name as servicio',
-            'ayudas.contratos as KD',
-            'ayudas.importe as importe'
-        )
-        ->orderBy($this->sortColumn, $this->sortDirection);
+    {
+        $query = LogActions::query()
+            ->where('tipo', 1)
+            ->where('action', 'Actualizar estado en kit digital')
+            ->when($this->buscar, function ($query) {
+                $query->where(function ($query) {
+                    $query->whereHas('usuario', function ($subQuery) {
+                        $subQuery->where('name', 'like', '%' . $this->buscar . '%');
+                    })
+                    ->orWhereHas('ayudas', function ($subQuery) {
+                        $subQuery->where('ayudas.cliente', 'like', '%' . $this->buscar . '%')
+                                 ->orWhere('ayudas.contratos', 'like', '%' . $this->buscar . '%');
+                    })
+                    ->orWhere('description', 'like', '%' . $this->buscar . '%')
+                    ->orWhere('reference_id', 'like', '%' . $this->buscar . '%');
+                });
+            })
+            ->when($this->estadoSeleccionado, fn($query) =>
+                $query->where('ayudas.estado', $this->estadoSeleccionado)
+            )
+            ->when($this->selectedYear, fn($query) => $query->whereYear('log_actions.created_at', $this->selectedYear))
+            ->when($this->usuario, fn($query) => $query->where('log_actions.admin_user_id', $this->usuario))
+            ->join('admin_user', 'log_actions.admin_user_id', '=', 'admin_user.id')
+            ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
+            ->join('ayudas_servicios', 'ayudas_servicios.id', '=', 'ayudas.servicio_id')
+            ->select(
+                'log_actions.*',
+                'admin_user.name as usuario',
+                'ayudas.cliente as cliente',
+                'ayudas_servicios.name as servicio',
+                'ayudas.contratos as KD',
+                'ayudas.importe as importe'
+            )
+            ->orderBy($this->sortColumn, $this->sortDirection);
 
-    $this->logs = $query->get();
-    $collection = $this->logs;
+        $this->logs = $query->get();
+        $collection = $this->logs;
 
-    // Extraer columnas de estados únicas
-    $this->columnasEstados = collect($collection)
-        ->map(function ($log) {
-            $partes = explode('  a  "', $log->description);
-            return count($partes) === 2 ? trim($partes[1], '"') : null;
-        })
-        ->filter()
-        ->unique()
-        ->sort()
-        ->values()
-        ->toArray();
-
-    // 👇 Aplicar visibilidad de columnas si se ha seleccionado un estado
-    if ($this->estadoSeleccionado) {
-        $estadoSeleccionadoNombre = KitDigitalEstados::find($this->estadoSeleccionado)?->nombre;
-
-        if ($estadoSeleccionadoNombre && in_array($estadoSeleccionadoNombre, $this->columnasEstados)) {
-            $this->columnasOcultas = array_values(array_diff($this->columnasEstados, [$estadoSeleccionadoNombre]));
-
-            // Solo lo actualizamos si el usuario no ha tocado nada manual
-            if (empty($this->columnasSeleccionadasTemp)) {
-                $this->columnasSeleccionadasTemp = [$estadoSeleccionadoNombre];
-            }
+        // Inicializar fechas sasak y sasak2
+        $this->fechasSasak = [];
+        foreach ($collection as $log) {
+            $this->fechasSasak[$log->id]['sasak'] = $log->sasak ? Carbon::parse($log->sasak)->format('Y-m-d') : null;
+            $this->fechasSasak[$log->id]['sasak2'] = $log->sasak2 ? Carbon::parse($log->sasak2)->format('Y-m-d') : null;
         }
-    }
 
-    // Recolección de datos pivotados
-    $this->fechasEditables = [];
-    $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) {
-        $row = [
-            'cliente' => $items->first()->cliente,
-            'servicio' => $items->first()->servicio,
-            'KD' => $items->first()->KD,
-            'importe' => $this->normalizarImporte($items->first()->importe),
-        ];
+        // Extraer columnas de estados únicas
+        $this->columnasEstados = collect($collection)
+            ->map(function ($log) {
+                $partes = explode('  a  "', $log->description);
+                return count($partes) === 2 ? trim($partes[1], '"') : null;
+            })
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
 
-        foreach ($items as $log) {
-            $partes = explode('  a  "', $log->description);
-            if (count($partes) === 2) {
-                $estado = trim($partes[1], '"');
-                $fecha = Carbon::parse($log->created_at)->format('Y-m-d');
+        // Aplicar visibilidad de columnas si se ha seleccionado un estado
+        if ($this->estadoSeleccionado) {
+            $estadoSeleccionadoNombre = KitDigitalEstados::find($this->estadoSeleccionado)?->nombre;
 
-                $row[$estado] = $fecha;
-                $this->fechasEditables[$ref][$estado] = $fecha;
+            if ($estadoSeleccionadoNombre && in_array($estadoSeleccionadoNombre, $this->columnasEstados)) {
+                $this->columnasOcultas = array_values(array_diff($this->columnasEstados, [$estadoSeleccionadoNombre]));
+
+                if (empty($this->columnasSeleccionadasTemp)) {
+                    $this->columnasSeleccionadasTemp = [$estadoSeleccionadoNombre];
+                }
             }
         }
 
-        return $row;
-    })->values();
+        // Recolección de datos pivotados
+        $this->fechasEditables = [];
+        $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) {
+            $row = [
+                'cliente' => $items->first()->cliente,
+                'servicio' => $items->first()->servicio,
+                'KD' => $items->first()->KD,
+                'importe' => $this->normalizarImporte($items->first()->importe),
+            ];
 
-    // Filtrar por columnas visibles
-    $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
-        foreach ($this->columnasEstados as $estado) {
-            if (!in_array($estado, $this->columnasOcultas) && empty($row[$estado])) {
-                return false;
+            foreach ($items as $log) {
+                $partes = explode('  a  "', $log->description);
+                if (count($partes) === 2) {
+                    $estado = trim($partes[1], '"');
+                    $fecha = Carbon::parse($log->created_at)->format('Y-m-d');
+
+                    $row[$estado] = $fecha;
+                    $this->fechasEditables[$ref][$estado] = $fecha;
+                }
             }
-        }
-        return true;
-    });
 
-    // Ordenamiento por estado si está activo
-    if ($this->ordenEstado && $this->ordenEstado !== 'importe' && in_array($this->ordenEstado, $this->columnasEstados)) {
+            return $row;
+        })->values();
+
+        // Filtrar por columnas visibles
         $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
-            return !empty($row[$this->ordenEstado]);
+            foreach ($this->columnasEstados as $estado) {
+                if (!in_array($estado, $this->columnasOcultas) && empty($row[$estado])) {
+                    return false;
+                }
+            }
+            return true;
         });
+
+        // Ordenamiento por estado si está activo
+        if ($this->ordenEstado && $this->ordenEstado !== 'importe' && in_array($this->ordenEstado, $this->columnasEstados)) {
+            $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
+                return !empty($row[$this->ordenEstado]);
+            });
+        }
+
+        if ($this->sortColumn === 'importe') {
+            $logsPivotadosCollection = $logsPivotadosCollection->sortBy(function ($row) {
+                return $row['importe'];
+            }, SORT_REGULAR, $this->sortDirection === 'desc')->values();
+        }
+
+        if ($this->ordenEstado && in_array($this->ordenEstado, $this->columnasEstados)) {
+            $logsPivotadosCollection = $logsPivotadosCollection->sortBy(function ($row) {
+                return $row[$this->ordenEstado] ?? '9999-99-99 99:99:99';
+            }, SORT_REGULAR, $this->ordenDireccion === 'desc')->values();
+        }
+
+        $this->importeTotal = $logsPivotadosCollection->sum('importe');
+
+        // Paginación final
+        if ($this->perPage === 'all') {
+            $this->logsPivotados = $logsPivotadosCollection;
+        } else {
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $perPage = intval($this->perPage);
+            $currentItems = $logsPivotadosCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+            $this->logsPivotados = new LengthAwarePaginator(
+                $currentItems,
+                $logsPivotadosCollection->count(),
+                $perPage,
+                $currentPage,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
+        }
     }
-
-    if ($this->sortColumn === 'importe') {
-        $logsPivotadosCollection = $logsPivotadosCollection->sortBy(function ($row) {
-            return $row['importe'];
-        }, SORT_REGULAR, $this->sortDirection === 'desc')->values();
-    }
-
-    if ($this->ordenEstado && in_array($this->ordenEstado, $this->columnasEstados)) {
-        $logsPivotadosCollection = $logsPivotadosCollection->sortBy(function ($row) {
-            return $row[$this->ordenEstado] ?? '9999-99-99 99:99:99';
-        }, SORT_REGULAR, $this->ordenDireccion === 'desc')->values();
-    }
-
-    $this->importeTotal = $logsPivotadosCollection->sum('importe');
-
-    // Paginación final
-    if ($this->perPage === 'all') {
-        $this->logsPivotados = $logsPivotadosCollection;
-    } else {
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = intval($this->perPage);
-        $currentItems = $logsPivotadosCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-        $this->logsPivotados = new LengthAwarePaginator(
-            $currentItems,
-            $logsPivotadosCollection->count(),
-            $perPage,
-            $currentPage,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-    }
-}
 
     private function normalizarImporte($importe)
 {
@@ -329,6 +337,8 @@ class LogskitTable extends Component
 }
 
 
+
+
     public function aplicarColumnasSeleccionadas()
     {
         $this->columnasOcultas = array_values(array_diff($this->columnasEstados, $this->columnasSeleccionadasTemp));
@@ -391,7 +401,21 @@ class LogskitTable extends Component
         $this->invertir = true;
     }
 
+    public function updatedFechasSasak($value, $key)
+    {
+        [$logId, $campo] = explode('.', $key);
 
+        $log = LogActions::find($logId);
+        if ($log && in_array($campo, ['sasak', 'sasak2'])) {
+            $log->$campo = $value;
+            $log->save();
+
+            $this->dispatchBrowserEvent('notificacion', [
+                'tipo' => 'success',
+                'mensaje' => "Fecha {$campo} actualizada.",
+            ]);
+        }
+    }
 
 
 }
