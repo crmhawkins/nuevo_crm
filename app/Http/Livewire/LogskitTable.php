@@ -196,6 +196,7 @@ class LogskitTable extends Component
         $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) {
             $row = [
                 'id' => $items->first()->kit_id, // ✅ AGREGAMOS EL ID DEL LOG
+                'ref_id' => $items->first()->id, // ✅ AGREGAMOS EL ID DEL LOG
                 'cliente' => $items->first()->cliente,
                 'servicio' => $items->first()->servicio,
                 'KD' => $items->first()->KD,
@@ -299,7 +300,7 @@ class LogskitTable extends Component
     try {
         $fechaFormateada = Carbon::parse($nuevaFecha)->format('Y-m-d');
 
-        $log = LogActions::where('reference_id', $referenceId)
+        $log = LogActions::where('id', $referenceId)
             ->where('tipo', 1)
             ->where('action', 'Actualizar estado en kit digital')
             ->get()

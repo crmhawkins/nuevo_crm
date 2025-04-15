@@ -161,7 +161,7 @@
                                         <input type="date"
                                             class="form-control form-control-sm new-control"
                                             value="{{ \Carbon\Carbon::parse($row[$estado])->format('Y-m-d') }}"
-                                            wire:change="$emit('cambiarFecha', '{{ $refId }}', '{{ $estado }}', $event.target.value)">
+                                            wire:change="$emit('cambiarFecha', '{{ $row["ref_id"] }}', '{{ $estado }}', $event.target.value)">
                                     @endif
                                 </td>
 
