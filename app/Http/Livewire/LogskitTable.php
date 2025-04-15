@@ -410,7 +410,7 @@ class LogskitTable extends Component
 
         $log = KitDigital::find($logId);
         if ($log && in_array($campo, ['sasak', 'sasak2'])) {
-            $log->$campo = $value;
+            $log->$campo = $value ?: null; // Asignar null si $value está vacío
             $log->save();
 
             $this->dispatchBrowserEvent('notificacion', [
