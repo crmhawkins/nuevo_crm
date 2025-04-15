@@ -195,8 +195,8 @@ class LogskitTable extends Component
         $this->fechasEditables = [];
         $logsPivotadosCollection = $collection->groupBy('reference_id')->map(function ($items, $ref) {
             $row = [
-                'id' => $items->first()->kit_id, // ✅ AGREGAMOS EL ID DEL LOG
-                'ref_id' => $items->first()->id, // ✅ AGREGAMOS EL ID DEL LOG
+                'id' => $items->first()->kit_id,
+                'ref_id' => $items->first()->id,
                 'cliente' => $items->first()->cliente,
                 'servicio' => $items->first()->servicio,
                 'KD' => $items->first()->KD,
@@ -210,7 +210,7 @@ class LogskitTable extends Component
                     $fecha = Carbon::parse($log->created_at)->format('Y-m-d');
 
                     $row[$estado] = $fecha;
-                    $this->fechasEditables[$ref][$estado] = $fecha;
+                    $this->fechasEditables[$log->id][$estado] = $fecha;
                 }
             }
 
