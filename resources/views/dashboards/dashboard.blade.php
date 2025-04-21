@@ -221,6 +221,7 @@
                             <a href="{{ route('kitDigital.index') }}" class="btn btn-outline-secondary"> Kit Digital</a>
                             <a href="{{ route('logs.kitdigital') }}" class="btn btn-outline-secondary"> Kit Digital Por Estado</a>
                             <a href="{{ route('kitDigital.indexWhatsapp') }}" class="btn btn-outline-secondary"> Whatsapp Enviados</a>
+                            <a href="{{ route('dominios_iban') }}" class="btn btn-outline-secondary"> Dominios</a>
                         </div>
                     </div>
 

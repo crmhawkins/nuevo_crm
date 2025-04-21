@@ -61,6 +61,8 @@ use App\Http\Controllers\Whatsapp\AccionesController;
 use App\Http\Controllers\Whatsapp\WhatsappController;
 use App\Http\Controllers\Portal\PortalPagos;
 use App\Http\Controllers\Portal\PortalCompraWebs;
+use App\Http\Controllers\Portal\PortalProductos;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -475,6 +477,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/cierre/update/{id}', [CierreController::class, 'update'])->name('cierre.update');
         Route::post('/cierre/destroy', [CierreController::class, 'destroy'])->name('cierre.delete');
 
+        Route::get('/dominios_iban', function () {
+            include base_path('app/Legacy/index.php');
+            exit;
+        })->name('dominios_iban');
+
+        // Route::post('/actualizar-iban', function () {
+        //     include base_path('app/Legacy/actualizar_iban.php');
+        //     exit;
+        // })->name('actualizar_iban');
+
     });
 
     Route::post('/get-produccion', [DashboardController::class, 'getProduccion'])->name('productividad.get');
@@ -685,5 +697,7 @@ Route::get('/actualizar', [OrdenesController::class, 'actualizar'])->name('actua
 // Publico
 Route::get('/kit-digital/create-comercial', [KitDigitalController::class, 'createComercial'])->name('kitDigital.createComercial');
 Route::post('/kit-digital/store-comercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');
+
+Route::get('/portal/productos', [PortalProductos::class, 'productos'])->name('portal.productos');
 
 Route::get('/test', [test::class, 'test']);
