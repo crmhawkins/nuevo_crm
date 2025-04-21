@@ -482,10 +482,10 @@ Route::group(['middleware' => 'auth'], function () {
             exit;
         })->name('dominios_iban');
 
-        // Route::post('/actualizar-iban', function () {
-        //     include base_path('app/Legacy/actualizar_iban.php');
-        //     exit;
-        // })->name('actualizar_iban');
+        Route::post('/actualizar-iban', function () {
+            include base_path('app/Legacy/actualizar_iban.php');
+            exit;
+        })->name('actualizar_iban');
 
     });
 

@@ -28,6 +28,8 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?php echo csrf_token(); ?>">
+
     <title>Gestión de Dominios</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -93,10 +95,14 @@ $conn->close();
     <script>
         function actualizarIBAN(nombre, index) {
             const nuevoIBAN = document.getElementById(`iban-${index}`).value;
-            fetch("actualizar_iban.php", {
+
+            fetch("/actualizar-iban", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `nombre=${nombre}&IBAN=${nuevoIBAN}`
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: `nombre=${encodeURIComponent(nombre)}&IBAN=${encodeURIComponent(nuevoIBAN)}`
             })
             .then(response => response.text())
             .then(data => alert(data));
@@ -106,15 +112,15 @@ $conn->close();
             let tabla = document.getElementById("tabla-dominios");
             let filas = Array.from(tabla.rows).slice(1);
             let ordenAsc = tabla.dataset.orden === "asc";
-            
+
             filas.sort((a, b) => {
                 let valorA = a.cells[n].textContent.trim();
                 let valorB = b.cells[n].textContent.trim();
-                
+
                 if (!isNaN(valorA) && !isNaN(valorB)) {
                     return ordenAsc ? valorA - valorB : valorB - valorA;
                 }
-                
+
                 return ordenAsc ? valorA.localeCompare(valorB) : valorB.localeCompare(valorA);
             });
 
@@ -134,7 +140,7 @@ $conn->close();
                 let fechaExpiracion = celdas[2].textContent.trim();
                 let precioCompra = celdas[3].textContent.replace("€", "").trim();
                 let precioVenta = celdas[4].textContent.replace("€", "").trim();
-                
+
                 let cumpleBusqueda = nombre.includes(buscar) || fechaExpiracion.includes(buscar) || precioCompra.includes(buscar) || precioVenta.includes(buscar);
                 let cumpleFecha = true;
 
