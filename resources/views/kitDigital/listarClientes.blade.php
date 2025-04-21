@@ -122,28 +122,31 @@
                                         <span class="fs-3" >Sumatorio: <b>{{ number_format($Sumatorio, 2, ',', '.') .' €'}}</b></span>
                                     </div>
                                     <div class="col-md-4 text-end mb-3">
-                                        <form id="exportToExcelForm" action="{{ route('kitDigital.Excel') }}" method="POST">
-                                            <!-- Filtros ocultos para exportar -->
-                                            @csrf
-                                            <input type="hidden" name="selectedCliente" value="{{ $selectedCliente }}">
-                                            <input type="hidden" name="selectedEstado" value="{{ $selectedEstado }}">
-                                            <input type="hidden" name="selectedGestor" value="{{ $selectedGestor }}">
-                                            <input type="hidden" name="selectedServicio" value="{{ $selectedServicio }}">
-                                            <input type="hidden" name="selectedEstadoFactura" value="{{ $selectedEstadoFactura }}">
-                                            <input type="hidden" name="selectedComerciales" value="{{ $selectedComerciales }}">
-                                            <input type="hidden" name="selectedSegmento" value="{{ $selectedSegmento }}">
-                                            <input type="hidden" name="selectedDateField" value="{{ $selectedDateField }}">
-                                            <input type="hidden" name="date_from" value="{{ $dateFrom }}">
-                                            <input type="hidden" name="date_to" value="{{ $dateTo }}">
-                                            <input type="hidden" name="buscar" value="{{ $buscar }}">
-                                            <input type="hidden" name="sortColumn" value="{{ $sortColumn }}">
-                                            <input type="hidden" name="sortDirection" value="{{ $sortDirection }}">
+                                        <div class="d-flex align-items-center justify-content-end">
+                                            <form id="exportToExcelForm" action="{{ route('kitDigital.Excel') }}" method="POST">
+                                                <!-- Filtros ocultos para exportar -->
+                                                @csrf
+                                                <input type="hidden" name="selectedCliente" value="{{ $selectedCliente }}">
+                                                <input type="hidden" name="selectedEstado" value="{{ $selectedEstado }}">
+                                                <input type="hidden" name="selectedGestor" value="{{ $selectedGestor }}">
+                                                <input type="hidden" name="selectedServicio" value="{{ $selectedServicio }}">
+                                                <input type="hidden" name="selectedEstadoFactura" value="{{ $selectedEstadoFactura }}">
+                                                <input type="hidden" name="selectedComerciales" value="{{ $selectedComerciales }}">
+                                                <input type="hidden" name="selectedSegmento" value="{{ $selectedSegmento }}">
+                                                <input type="hidden" name="selectedDateField" value="{{ $selectedDateField }}">
+                                                <input type="hidden" name="date_from" value="{{ $dateFrom }}">
+                                                <input type="hidden" name="date_to" value="{{ $dateTo }}">
+                                                <input type="hidden" name="buscar" value="{{ $buscar }}">
+                                                <input type="hidden" name="sortColumn" value="{{ $sortColumn }}">
+                                                <input type="hidden" name="sortDirection" value="{{ $sortDirection }}">
 
-                                            <!-- Botón de exportar -->
-                                            <button type="submit" class="btn btn-success">
-                                                <i class="fa fa-file-excel"></i> Exportar a Excel
-                                            </button>
-                                        </form>
+                                                <!-- Botón de exportar -->
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="fa fa-file-excel"></i> Exportar a Excel
+                                                </button>
+                                            </form>
+                                            <a href="{{ route('logs.kitdigital') }}" class="btn btn-secondary ml-2"> Ver Por Estados </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
