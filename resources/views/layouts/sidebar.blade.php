@@ -207,6 +207,14 @@
                             </a>
                             <ul class="submenu" style="{{ $dominiosActive ? 'display:block;' : 'display:none;' }}">
                                 <li class="submenu-item {{ request()->routeIs('dominios.index') ? 'active' : '' }}">
+                                    <a target="_blank" href="{{route('dominios_iban')}}">
+                                        <i class="fa-solid fa-list fs-5"></i>
+                                        <span>
+                                            Dominios Con Iban
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="submenu-item {{ request()->routeIs('dominios.index') ? 'active' : '' }}">
                                     <a href="{{route('dominios.index')}}">
                                         <i class="fa-solid fa-list fs-5"></i>
                                         <span>
