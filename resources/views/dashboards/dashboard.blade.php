@@ -216,6 +216,13 @@
                             </div>
                         </div>
                     </div>
+                    <div class="card2">
+                        <div class="card-body p-2 col">
+                            <a href="{{ route('logs.kitdigital') }}" class="btn btn-secondary mb-2"> Kit Digital Por Estado</a>
+                            <a href="{{ route('kitDigital.indexWhatsapp') }}" class="btn btn-secondary mb-2"> Whatsapp Enviados</a>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="col-md-6">
                     <div class="side-column">
