@@ -871,7 +871,7 @@ class DashboardController extends Controller
     public function getTasks($id)
     {
         $tasks = array();
-        $tasksPause = Task::where("admin_user_id", $id)->where("task_status_id", 2)->get();
+        $tasksPause = Task::where("admin_user_id", $id)->where("task_status_id", 2)->orderBy('priority_id', 'desc')->get();
         $tasks["tasksPause"] = $tasksPause;
         $tasksRevision = Task::where("admin_user_id", $id)->where("task_status_id", 5)->get();
         $tasks["tasksRevision"] = $tasksRevision;
