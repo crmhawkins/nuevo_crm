@@ -88,7 +88,8 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\Users\UserAccessLevel::class,'access_level_id');
     }
     public function tareas(){
-        return $this->hasMany(\App\Models\Tasks\Task::class,  'admin_user_id');
+        return $this->hasMany(\App\Models\Tasks\Task::class,  'admin_user_id')
+        ->orderBy('priority_id', 'desc'); // o 'asc' si quieres de menor a mayor
     }
     public function nominas(){
         return $this->hasMany(Nomina::class, 'admin_user_id');
