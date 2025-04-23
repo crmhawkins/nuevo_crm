@@ -8,7 +8,7 @@
     </div>
 
     <div class="filtros row mb-4">
-        <div class="col-md-5 col-sm-12">
+        <div class="col-md-8 col-sm-12">
             <div class="d-flex flex-row justify-start gap-3">
                 <div>
                     <label for="">Nº</label>
@@ -26,7 +26,7 @@
                 <div class="">
                     <label for="">Estados</label>
                     <select wire:model="estadoSeleccionado" class="form-select">
-                        <option value=""> Estados </option>
+                        <option value="">Todo los estados</option> {{-- <-- Esta línea ya sirve como "Todos" --}}
                         @foreach ($estados as $estado)
                             <option value="{{ $estado->id }}">{{ $estado->nombre }}</option>
                         @endforeach

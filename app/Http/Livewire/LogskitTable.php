@@ -179,6 +179,19 @@ class LogskitTable extends Component
             ->toArray();
 
         // Aplicar visibilidad de columnas si se ha seleccionado un estado
+        // if ($this->estadoSeleccionado) {
+        //     $estadoSeleccionadoNombre = KitDigitalEstados::find($this->estadoSeleccionado)?->nombre;
+
+        //     if ($estadoSeleccionadoNombre && in_array($estadoSeleccionadoNombre, $this->columnasEstados)) {
+        //         $this->columnasOcultas = array_values(array_diff($this->columnasEstados, [$estadoSeleccionadoNombre]));
+
+        //         if (empty($this->columnasSeleccionadasTemp)) {
+        //             $this->columnasSeleccionadasTemp = [$estadoSeleccionadoNombre];
+        //         }
+        //     }
+        // }
+
+
         if ($this->estadoSeleccionado) {
             $estadoSeleccionadoNombre = KitDigitalEstados::find($this->estadoSeleccionado)?->nombre;
 
@@ -189,7 +202,12 @@ class LogskitTable extends Component
                     $this->columnasSeleccionadasTemp = [$estadoSeleccionadoNombre];
                 }
             }
+        } else {
+            // Mostrar todas las columnas
+            $this->columnasOcultas = [];
+            $this->columnasSeleccionadasTemp = $this->columnasEstados;
         }
+
 
         // Recolección de datos pivotados
         $this->fechasEditables = [];
@@ -218,14 +236,27 @@ class LogskitTable extends Component
         })->values();
 
         // Filtrar por columnas visibles
+        // $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
+        //     foreach ($this->columnasEstados as $estado) {
+        //         if (!in_array($estado, $this->columnasOcultas) && empty($row[$estado])) {
+        //             return false;
+        //         }
+        //     }
+        //     return true;
+        // });
+
         $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
-            foreach ($this->columnasEstados as $estado) {
-                if (!in_array($estado, $this->columnasOcultas) && empty($row[$estado])) {
-                    return false;
+            // Solo filtra si hay un estado específico seleccionado
+            if ($this->estadoSeleccionado) {
+                foreach ($this->columnasEstados as $estado) {
+                    if (!in_array($estado, $this->columnasOcultas) && empty($row[$estado])) {
+                        return false;
+                    }
                 }
             }
             return true;
         });
+
 
         // Ordenamiento por estado si está activo
         if ($this->ordenEstado && $this->ordenEstado !== 'importe' && in_array($this->ordenEstado, $this->columnasEstados)) {
@@ -384,6 +415,8 @@ class LogskitTable extends Component
             $this->resetPage();
 
             if ($propertyName === 'estadoSeleccionado' && empty($this->estadoSeleccionado)) {
+                $this->ordenEstado = null;
+                $this->ordenDireccion = 'asc';
                 // No tocar columnas si el usuario las está seleccionando manualmente
             }
 
