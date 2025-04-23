@@ -239,12 +239,7 @@ class BudgetController extends Controller
     {
         $budget = Budget::find($id);
 
-        if(Auth::user()->access_level_id > 3  && $budget->budget_status_id == Budgetstatu::ESPERANDO_PAGO_PARCIAL){
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'Presupuesto a la espera de pago inicial no puede ser editado.'
-            ]);
-        }
+
 
         // Validación
         $request->validate([
@@ -1048,12 +1043,7 @@ class BudgetController extends Controller
     }
     public function generateInvoice(Request $request){
 
-        if(Auth::user()->access_level_id < 3){
-            return response()->json([
-                'status' => false,
-                'mensaje' => "No tienes permisos para generar facturas"
-            ]);
-        }
+
         $budget = Budget::find($request->id);
 
 
@@ -1485,12 +1475,7 @@ class BudgetController extends Controller
     }
 
     public function generateInvoicePartial(Request $request){
-        if(Auth::user()->access_level_id < 3){
-            return response()->json([
-                'status' => false,
-                'mensaje' => "No tienes permisos para generar facturas"
-            ]);
-        }
+
         $budget = Budget::find($request->id);
         $porcentaje = $request['percentage'];
 
