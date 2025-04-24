@@ -8,6 +8,7 @@ use App\Models\KitDigital;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class LogActions extends Model
 {
@@ -27,7 +28,6 @@ class LogActions extends Model
         'action',
         'description',
         'reference_id',
-
 
     ];
 
@@ -79,4 +79,48 @@ class LogActions extends Model
         }
     }
 
+    public static function automatizacionEmailsLogs($query, $fechaLimite)
+    {
+        // Subconsulta: obtener última acción relevante por reference_id
+        $subquery = DB::table('log_actions')
+            ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
+            ->where('action', 'Actualizar estado en kit digital')
+            ->where(function ($query) {
+                $query->where('enviado', 0)
+                      ->orWhereNull('enviado');
+            })
+            ->groupBy('reference_id');
+    
+        // Juntamos con log_actions para recuperar datos completos
+        return $query->joinSub($subquery, 'ultimos_logs', function ($join) {
+                $join->on('log_actions.reference_id', '=', 'ultimos_logs.reference_id')
+                     ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
+            })
+            ->where('log_actions.created_at', '<', $fechaLimite) // FILTRO se hace DESPUÉS de obtener el último log
+            ->where('log_actions.action', 'Actualizar estado en kit digital')
+            ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
+            ->select(
+                'log_actions.reference_id',
+                'log_actions.created_at as ultima_fecha',
+                'ayudas.contratos',
+                'ayudas.estado'
+            );
+    }
+    
+    
+
+    public static function registroCorreosEnviados($data)
+    {
+        DB::table('log_actions')
+        ->where('reference_id', $data->reference_id) // Si el reference_id coincide con el de la tabla log_actions
+        ->update(['enviado' => 0]); // Cambiamos enviado a True
+
+        // Agregamos el registro del correo enviado
+        DB::table('correos_enviados')->insert([
+            'ref_id' => $data->reference_id,
+            'contrato' => $data->contratos,
+            'respondido' => 0, // Respondido lo ponemos en False, se acaba de enviar el correo
+            'date' => now() // Fecha de hoy
+        ]);
+    } 
 }

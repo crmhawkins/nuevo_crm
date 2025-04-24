@@ -62,6 +62,7 @@ use App\Http\Controllers\Whatsapp\WhatsappController;
 use App\Http\Controllers\Portal\PortalPagos;
 use App\Http\Controllers\Portal\PortalCompraWebs;
 use App\Http\Controllers\Portal\PortalProductos;
+use App\Http\Controllers\AutomatizacionKit\AutomatizacionKitController;
 
 /*
 |--------------------------------------------------------------------------
@@ -258,6 +259,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/kit-digital/updatedata', [KitDigitalController::class, 'updateData'])->name('kitDigital.updateData');
         Route::get('/kit-digital/whatsapp/{id}', [KitDigitalController::class, 'whatsapp'])->name('kitDigital.whatsapp');
         Route::post('/kit-digital/excel', [KitDigitalController::class, 'exportToExcel'])->name('kitDigital.Excel');
+
+        // Kit digital - estados sin actualizar
+        Route::get('/kit-digital/15dias', [AutomatizacionKitController::class, 'view_15'])->name('kitDigital.estado15dias');
+        Route::get('/kit-digital/30dias', [AutomatizacionKitController::class, 'view_30'])->name('kitDigital.estado30dias');
+        Route::get('/kit-digital/45dias', [AutomatizacionKitController::class, 'view_45'])->name('kitDigital.estado45dias');
+        Route::get('/kit-digital/60dias', [AutomatizacionKitController::class, 'view_60'])->name('kitDigital.estado60dias');
 
          // Gastos asociados (TESORERIA)
          Route::get('/gastos-asociados', [TesoreriaController::class, 'indexAssociatedExpenses'])->name('gasto-asociados.index');
