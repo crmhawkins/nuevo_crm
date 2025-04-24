@@ -66,6 +66,8 @@ class LogskitTable extends Component
                 $this->columnasSeleccionadasTemp
             ));
             $this->invertir = false;
+            $this->seleccionInicialHecha = true; // 🔥 esto evita que se reescriba en actualizarLogs()
+
         }
 
         // Luego ya puedes construir los logs
@@ -121,11 +123,19 @@ class LogskitTable extends Component
 
     protected function actualizarLogs()
     {
+        $idsKits = null;
+
+        if ($this->buscar) {
+            $idsKits = \App\Models\KitDigital::where('contratos', 'like', '%' . $this->buscar . '%')
+                ->pluck('id')
+                ->toArray();
+        }
+
         $query = LogActions::query()
             ->where('tipo', 1)
             ->where('action', 'Actualizar estado en kit digital')
-            ->when($this->buscar, function ($query) {
-                $query->where(function ($query) {
+            ->when($this->buscar, function ($query) use ($idsKits)  {
+                $query->where(function ($query) use ($idsKits) {
                     $query->whereHas('usuario', function ($subQuery) {
                         $subQuery->where('name', 'like', '%' . $this->buscar . '%');
                     })
@@ -135,7 +145,12 @@ class LogskitTable extends Component
                     })
                     ->orWhere('description', 'like', '%' . $this->buscar . '%')
                     ->orWhere('reference_id', 'like', '%' . $this->buscar . '%');
+                    // 👇 Aquí añadimos los kits por coincidencia en contratos
+                    if (!empty($idsKits)) {
+                        $query->orWhereIn('reference_id', $idsKits);
+                    }
                 });
+
             })
             ->when($this->estadoSeleccionado, fn($query) =>
                 $query->where('ayudas.estado', $this->estadoSeleccionado)
@@ -191,22 +206,24 @@ class LogskitTable extends Component
         //     }
         // }
 
-
         if ($this->estadoSeleccionado) {
             $estadoSeleccionadoNombre = KitDigitalEstados::find($this->estadoSeleccionado)?->nombre;
 
             if ($estadoSeleccionadoNombre && in_array($estadoSeleccionadoNombre, $this->columnasEstados)) {
-                $this->columnasOcultas = array_values(array_diff($this->columnasEstados, [$estadoSeleccionadoNombre]));
-
-                if (empty($this->columnasSeleccionadasTemp)) {
+                // Solo actualizar columnas si el usuario aún no ha hecho una selección manual
+                if (!$this->seleccionInicialHecha) {
+                    $this->columnasOcultas = array_values(array_diff($this->columnasEstados, [$estadoSeleccionadoNombre]));
                     $this->columnasSeleccionadasTemp = [$estadoSeleccionadoNombre];
                 }
             }
         } else {
-            // Mostrar todas las columnas
-            $this->columnasOcultas = [];
-            $this->columnasSeleccionadasTemp = $this->columnasEstados;
+            // Si no hay filtro, mostrar todas solo si no ha habido selección
+            if (!$this->seleccionInicialHecha) {
+                $this->columnasOcultas = [];
+                $this->columnasSeleccionadasTemp = $this->columnasEstados;
+            }
         }
+
 
 
         // Recolección de datos pivotados
@@ -376,8 +393,10 @@ class LogskitTable extends Component
 
     public function aplicarColumnasSeleccionadas()
     {
+        $this->seleccionInicialHecha = true;
         $this->columnasOcultas = array_values(array_diff($this->columnasEstados, $this->columnasSeleccionadasTemp));
     }
+
 
 
     public function sortBy($column)
