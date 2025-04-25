@@ -260,13 +260,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/kit-digital/whatsapp/{id}', [KitDigitalController::class, 'whatsapp'])->name('kitDigital.whatsapp');
         Route::post('/kit-digital/excel', [KitDigitalController::class, 'exportToExcel'])->name('kitDigital.Excel');
 
-        // Kit digital - estados sin actualizar
-        Route::get('/kit-digital/estado15dias', [AutomatizacionKitController::class, 'view_15'])->name('kitDigital.estado15dias');
-        Route::get('/kit-digital/estado30dias', [AutomatizacionKitController::class, 'view_30'])->name('kitDigital.estado30dias');
-        Route::get('/kit-digital/estado45dias', [AutomatizacionKitController::class, 'view_45'])->name('kitDigital.estado45dias');
-        Route::get('/kit-digital/estado60dias', [AutomatizacionKitController::class, 'view_60'])->name('kitDigital.estado60dias');
+        // Estados sin actualizar Kit Digital
+        Route::get('/kit-digital/sin_actualizar', [AutomatizacionKitController::class, 'viewEstados'])->name('kitDigital.sin_actualizar');
 
-         // Gastos asociados (TESORERIA)
+        // Gastos asociados (TESORERIA)
          Route::get('/gastos-asociados', [TesoreriaController::class, 'indexAssociatedExpenses'])->name('gasto-asociados.index');
          Route::get('/gasto-asociado/create', [TesoreriaController::class, 'createAssociatedExpenses'])->name('gasto-asociado.create');
          Route::get('/gasto-asociado/edit/{id}', [TesoreriaController::class, 'editAssociatedExpenses'])->name('gasto-asociado.edit');

@@ -140,10 +140,10 @@
 
           {{-- Botones de filtros --}}
           <div class="menu_estado_dias">
-            <a href="{{ route('kitDigital.estado15dias') }}" class="btn btn-outline-primary">+15 días</a>
-            <a href="{{ route('kitDigital.estado30dias') }}" class="btn btn-outline-primary">+30 días</a>
-            <a href="{{ route('kitDigital.estado30dias') }}" class="btn btn-outline-primary">+45 días</a>
-            <a href="{{ route('kitDigital.estado30dias') }}" class="btn btn-outline-primary">+60 días</a>
+            <a href="{{ route('kitDigital.sin_actualizar', ['dias' => 15, 'dias_laborales' => 21]) }}" class="btn btn-outline-primary">+15 días</a>
+            <a href="{{ route('kitDigital.sin_actualizar', ['dias' => 30, 'dias_laborales' => 42]) }}" class="btn btn-outline-primary">+30 días</a>
+            <a href="{{ route('kitDigital.sin_actualizar', ['dias' => 45, 'dias_laborales' => 63]) }}" class="btn btn-outline-primary">+45 días</a>
+            <a href="{{ route('kitDigital.sin_actualizar', ['dias' => 60, 'dias_laborales' => 82]) }}" class="btn btn-outline-primary">+60 días</a>
           </div>
 
           {{-- Mensaje si no hay registros --}}
@@ -205,7 +205,7 @@
                       @endswitch
                     </td>
                     <td>
-                      <p class="docdesc">{{$resultado->fecha}}</p>
+                      <span class="sorting_1">{{$resultado->fecha}}</span>
                     </td>
                   </tr>
                   @endforeach
@@ -244,5 +244,14 @@
 
     $('#comprasTable_filter').hide();
   });
+
+  $('#filtros_dias').on('click', function() {
+    var dias = $(this).data('dias');
+    var diaslaborales = $(this).data('diaslaborales');
+    var url = "{{ route('kitDigital.sin_actualizar', ['dias' => ':dias', 'diaslaborales' => ':diaslaborales']) }}";
+    url = url.replace(':dias', dias).replace(':diaslaborales', diaslaborales);
+    window.location.href = url;
+  });
+  
 </script>
 @endsection

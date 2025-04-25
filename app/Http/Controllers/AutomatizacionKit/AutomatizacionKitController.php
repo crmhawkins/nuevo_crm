@@ -7,6 +7,7 @@ use App\Models\Logs\LogActions;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
 
 class AutomatizacionKitController extends Controller
 {
@@ -19,8 +20,6 @@ class AutomatizacionKitController extends Controller
             14 => 'Subsanado 1',
             15 => 'Subsanado 2',
             29 => 'Subsanado 3',
-            // 30 => 'Sasak Enviado',
-            // 31 => 'Respuesta Sasak',
             32 => '2º Subsanado 1',
             33 => '2º Subsanado 2',
             34 => '2º Subsanado 3',
@@ -62,27 +61,15 @@ class AutomatizacionKitController extends Controller
         return $resultados;
     }
 
-    public function view_15() {
-        $dias = 15;
-        $resultados = $this->get_contratos(21);
-        return view('kitDigital.estadosKit', compact('resultados', 'dias'));
-    }
-
-    public function view_30() {
-        $dias = 30;
-        $resultados = $this->get_contratos(42);
-        return view('kitDigital.estadosKit', compact('resultados', 'dias'));
-    }
-
-    public function view_45() {
-        $dias = 45;
-        $resultados = $this->get_contratos(63);
-        return view('kitDigital.estadosKit', compact('resultados', 'dias'));
-    }
-
-    public function view_60() {
-        $dias = 60;
-        $resultados = $this->get_contratos(84);
+    public function viewEstados(Request $request)
+    {
+        // Asignamos valores por defecto si no se reciben
+        $dias_laborales = $request->input('dias_laborales', 21);
+        $dias = $request->input('dias', 15);
+    
+        // Obtenemos los resultados de los contratos
+        $resultados = $this->get_contratos($dias_laborales);
+    
         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
     }
 
