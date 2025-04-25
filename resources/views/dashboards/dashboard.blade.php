@@ -221,6 +221,7 @@
                             <a target="_blank" href="{{ route('kitDigital.index') }}" class="btn btn-outline-secondary"> Kit Digital</a>
                             <a target="_blank" href="{{ route('logs.kitdigital') }}" class="btn btn-outline-secondary"> Kit Digital Por Estado</a>
                             <a target="_blank" href="{{ route('kitDigital.sin_actualizar') }}" class="btn btn-outline-secondary"> Kit Digitales Sin Actualizar</a>
+                            <a target="_blank" href="{{ route('kitDigital.pagados') }}" class="btn btn-outline-secondary"> Kit Digitales Pagados</a>
                             <a target="_blank" href="{{ route('kitDigital.indexWhatsapp') }}" class="btn btn-outline-secondary"> Whatsapp Enviados</a>
                             <a target="_blank" href="{{ route('dominios_iban') }}" class="btn btn-outline-secondary"> Dominios</a>
                         </div>

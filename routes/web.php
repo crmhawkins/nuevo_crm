@@ -63,6 +63,7 @@ use App\Http\Controllers\Portal\PortalPagos;
 use App\Http\Controllers\Portal\PortalCompraWebs;
 use App\Http\Controllers\Portal\PortalProductos;
 use App\Http\Controllers\AutomatizacionKit\AutomatizacionKitController;
+use App\Http\Controllers\AutomatizacionKit\KitPagadosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -262,7 +263,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         // Estados sin actualizar Kit Digital
         Route::get('/kit-digital/sin_actualizar', [AutomatizacionKitController::class, 'viewEstados'])->name('kitDigital.sin_actualizar');
-
+        Route::get('/kit-digital/pagados', [KitPagadosController::class, 'viewPagados'])->name('kitDigital.pagados');
+        
         // Gastos asociados (TESORERIA)
          Route::get('/gastos-asociados', [TesoreriaController::class, 'indexAssociatedExpenses'])->name('gasto-asociados.index');
          Route::get('/gasto-asociado/create', [TesoreriaController::class, 'createAssociatedExpenses'])->name('gasto-asociado.create');

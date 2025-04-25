@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 class AutomatizacionKitController extends Controller
 {
-    public function get_contratos($dias)
+    public function getContratos($dias)
     {
         $estados = [
             8 => 'Justificado',
@@ -53,7 +53,7 @@ class AutomatizacionKitController extends Controller
         $dias_laborales = $request->input('dias_laborales', 21);
         $dias = $request->input('dias', 15);
     
-        $resultados = $this->get_contratos($dias_laborales);
+        $resultados = $this->getContratos($dias_laborales);
 
         if ($resultados->isEmpty()) {
             return redirect()->back()
@@ -64,9 +64,9 @@ class AutomatizacionKitController extends Controller
         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
     }
 
-    public function send_email() 
+    public function sendEmail() 
     {
-        $resultados = $this->get_contratos(30);
+        $resultados = $this->getContratos(63);
 
          try {
             // Generar contenido del correo

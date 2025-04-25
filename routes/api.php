@@ -6,6 +6,8 @@ use App\Http\Controllers\Tesoreria\TesoreriaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\AutomatizacionKit\KitPagadosController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
