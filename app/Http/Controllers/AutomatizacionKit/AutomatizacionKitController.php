@@ -33,11 +33,14 @@ class AutomatizacionKitController extends Controller
         return $registros->filter(function ($registro) use ($estados) {
             return array_key_exists($registro->estado, $estados);
         })->map(function ($registro) use ($fecha) {
+            $carbon_fecha_estado = Carbon::parse($registro->ultima_fecha);
+            $fecha_estado = $carbon_fecha_estado->format('Y-m-d');
+            
             return (object) [
                 'reference_id'  => $registro->reference_id,
                 'contratos'     => $registro->contratos,
                 'estado'        => $registro->estado,
-                'fecha_estado'  => $fecha,
+                'fecha_estado'  => $fecha_estado,
                 'fecha_sasak'   => $registro->sasak ?? 'No enviado',
             ];
         })->values();
@@ -57,7 +60,7 @@ class AutomatizacionKitController extends Controller
             ->with('success_message', "Actualmente no existen kits con más de {$dias} días sin actualizar su estado ni con el SASAK enviado.")
             ->with('success_dias', $dias);
         }
-        
+
         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
     }
 
