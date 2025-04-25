@@ -237,6 +237,30 @@ class AdminHolidaysController extends Controller
         $data['holidays_status_id'] = 1;
 
         try {
+            if($holidayPetition->holidays_status_id ==2){
+                $user = User::find($holidayPetition->admin_user_id);
+                $userHolidaysQuantity = Holidays::where('admin_user_id', $user->id )->get()->first();
+                $petitionQuantityDaysNegative = -1 * abs($holidayPetition->total_days);
+                $updatedHolidaysQuantity =  $userHolidaysQuantity->quantity - $holidayPetition->total_days;
+
+                if($updatedHolidaysQuantity >= 0){
+                    Holidays::where('admin_user_id', Auth::user()->id )->update(array('quantity' => $updatedHolidaysQuantity ));
+                }else{
+                    return response()->json(['error' => 'Sobrepasa el límite de vacaciones']);
+                }
+
+                DB::table('holidays_additions')->insert([
+                    [
+                        'admin_user_id' => Auth::user()->id,
+                        'quantity_before' => $userHolidaysQuantity->quantity,
+                        'quantity_to_add' => $petitionQuantityDaysNegative,
+                        'quantity_now' => $updatedHolidaysQuantity,
+                        'manual' => 0,
+                        'holiday_petition' => 1,
+                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    ],
+                ]);
+            }
             $holidayPetition->fill($data);
             $holidaySaved = $holidayPetition->save();
 
