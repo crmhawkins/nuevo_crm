@@ -244,7 +244,7 @@ class AdminHolidaysController extends Controller
                 $updatedHolidaysQuantity =  $userHolidaysQuantity->quantity - $holidayPetition->total_days;
 
                 if($updatedHolidaysQuantity >= 0){
-                    Holidays::where('admin_user_id', Auth::user()->id )->update(array('quantity' => $updatedHolidaysQuantity ));
+                    Holidays::where('admin_user_id', $user->id )->update(array('quantity' => $updatedHolidaysQuantity ));
                 }else{
                     return response()->json(['error' => 'Sobrepasa el límite de vacaciones']);
                 }
