@@ -28,12 +28,18 @@ class AutomatizacionKitController extends Controller
 
         // Definir la fecha de corte: x dias atras
         $fechaLimite = Carbon::now()->subDays($dias);
+        $carbonFecha = \Carbon\Carbon::parse($fechaLimite);
+        $fecha = $carbonFecha->format('Y-m-d');
 
         // return response()->json($fechaLimite);
 
         // Usar el scope para obtener los registros recientes
-        $registros = LogActions::automatizacionEmailsLogs(LogActions::query(), $fechaLimite)->get();
+        $registros = LogActions::automatizacionEmailsLogs(LogActions::query(), $fechaLimite, $fecha)->get();
 
+        if ($registros->isEmpty()) {
+            return redirect()->back()->with('success_message', 'No hay kits');
+        }
+        
         // Transformar los registros con los nombres de estado
         $resultado = [];
 
@@ -42,9 +48,6 @@ class AutomatizacionKitController extends Controller
 
             // Solo mostrar los registros con estados definidos en el array
             if (array_key_exists($estadoNumero, $estados)) {
-                $carbonFecha = \Carbon\Carbon::parse($registro->ultima_fecha);
-                $fecha = $carbonFecha->format('d/m/Y');
-
                 $resultados[] = [
                     'reference_id' => $registro->reference_id,
                     'fecha' => $fecha,
@@ -61,25 +64,25 @@ class AutomatizacionKitController extends Controller
 
     public function view_15() {
         $dias = 15;
-        $resultados = $this->get_contratos($dias);
+        $resultados = $this->get_contratos(21);
         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
     }
 
     public function view_30() {
         $dias = 30;
-        $resultados = $this->get_contratos($dias);
+        $resultados = $this->get_contratos(42);
         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
     }
 
     public function view_45() {
         $dias = 45;
-        $resultados = $this->get_contratos($dias);
+        $resultados = $this->get_contratos(63);
         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
     }
 
     public function view_60() {
         $dias = 60;
-        $resultados = $this->get_contratos($dias);
+        $resultados = $this->get_contratos(84);
         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
     }
 

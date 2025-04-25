@@ -79,7 +79,7 @@ class LogActions extends Model
         }
     }
 
-    public static function automatizacionEmailsLogs($query, $fechaLimite)
+    public static function automatizacionEmailsLogs($query, $fechaLimite, $fecha)
     {
         // Subconsulta: obtener última acción relevante por reference_id
         $subquery = DB::table('log_actions')
@@ -98,6 +98,7 @@ class LogActions extends Model
             })
             ->where('log_actions.created_at', '<', $fechaLimite) // FILTRO se hace DESPUÉS de obtener el último log
             ->where('log_actions.action', 'Actualizar estado en kit digital')
+            ->where('ayudas.sasak', '<', $fecha)
             ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
             ->select(
                 'log_actions.reference_id',
@@ -107,8 +108,6 @@ class LogActions extends Model
             );
     }
     
-    
-
     public static function registroCorreosEnviados($data)
     {
         DB::table('log_actions')

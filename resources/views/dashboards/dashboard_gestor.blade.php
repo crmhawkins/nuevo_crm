@@ -124,10 +124,8 @@
                                         <a href="{{route('proveedores.index')}}" class="btn btn-outline-secondary mb-2">Ver Proveedores</a>
                                         <a href="{{route('kitDigital.create')}}"  class="btn btn-outline-secondary mb-2">Tramitar Subvención</a>
                                         <a target="_blank" href="{{route('kitDigital.index')}}" class="btn btn-outline-secondary mb-2">Kit Digital</a>
-                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#kdModal">
-                                            Kit Digitales Sin Actualizar
-                                        </button>
                                         <a target="_blank" href="{{route('kitDigital.indexWhatsapp')}}" class="btn btn-outline-secondary mb-2">Kit Digital Whatsapp</a>
+                                        <a target="_blank" href="{{ route('kitDigital.estado15dias') }}" class="btn btn-outline-secondary mb-2"> Kit Digitales Sin Actualizar</a>
                                     </div>
                                 </div>
                             </div>
@@ -135,25 +133,6 @@
                     </div>
                 </div>
 
-                <!-- Modal de Kit digitales sin actualizar-->
-                <div class="modal fade" id="kdModal" tabindex="-1" aria-labelledby="kdModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content text-center">
-                            <div class="modal-header justify-content-center border-0">
-                                <h5 class="modal-title fw-bold text-primary" id="kdModalLabel">Selecciona un estado</h5>
-                                <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                            </div>
-                            <div class="modal-body px-4 pb-4">
-                                <div class="d-grid gap-2">
-                                    <a href="{{ route('kitDigital.estado15dias') }}" target="_blank" class="btn btn-outline-primary" onclick="closeModal()">+15 días sin actualizar</a>
-                                    <a href="{{ route('kitDigital.estado30dias') }}" target="_blank" class="btn btn-outline-primary" onclick="closeModal()">+30 días sin actualizar</a>
-                                    <a href="{{ route('kitDigital.estado45dias') }}" target="_blank" class="btn btn-outline-primary" onclick="closeModal()">+45 días sin actualizar</a>
-                                    <a href="{{ route('kitDigital.estado60dias') }}" target="_blank" class="btn btn-outline-primary" onclick="closeModal()">+60 días sin actualizar</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 
                 <div class="col-md-6">
                     <div class="side-column">

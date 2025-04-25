@@ -5,18 +5,6 @@
 @section('css')
 @endsection
 
-@if (session('success_message'))
-  <div class="alert alert-success">
-      {!! session('success_message') !!}
-  </div>
-@endif
-
-@if (session('error_message'))
-  <div class="alert alert-danger">
-      {!! session('error_message') !!}
-  </div>
-@endif
-
 <style>
 .input-control {
   font-size: 16px;
@@ -46,8 +34,6 @@
 }
 
 .table-clientportal tbody tr td:first-of-type {
-  -webkit-border-radius: 12px 0 0 12px;
-  -moz-border-radius: 12px 0 0 12px;
   border-radius: 12px 0 0 12px;
 }
 
@@ -70,13 +56,15 @@
 }
 
 .table-clientportal tbody tr td:last-of-type {
-  -webkit-border-radius: 0 12px 12px 0;
-  -moz-border-radius: 0 12px 12px 0;
   border-radius: 0 12px 12px 0;
 }
 
-.table-responsive-mobile {
-  overflow-x: auto;
+.menu_estado_dias {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+  gap: 10px;
 }
 
 @media (max-width: 768px) {
@@ -117,29 +105,30 @@
 }
 
 .dataTables_wrapper .dataTables_length {
-  display: none; /* Ocultar la opción de "entries per page" */
+  display: none;
 }
 
 .dataTables_wrapper .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0 auto;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
 
 .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 </style>
 
-<div class="content">
+<div class="content justify-center mt-3 mb-6">
   <div class="row">
     <div class="col-sm-12">
       <div class="card">
         <div class="card-body">
+          {{-- Encabezado y buscador --}}
           <div class="row">
             <div class="col-6">
               <h3><strong>Estado de las subvenciones sin actualizar + {{$dias}} días</strong></h3>
@@ -148,65 +137,83 @@
               <input type="text" id="tableSearch" class="input-control" placeholder="Buscar">
             </div>
           </div>
-          <div class="pt-5 table-responsive-mobile">
-            <table id="comprasTable" class="w-100 table-clientportal display">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Contrato</th>
-                  <th>Estado</th>
-                  <th>Fecha</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach ($resultados as $resultado)
-                <tr>
-                  <td class="sorting_1">{{$resultado->reference_id}}</td>
-                  <td class="table__invoice-num"><strong>{{$resultado->contratos}}</strong></td>
-                  <td width="20">
-                    @switch($resultado->estado)
-                        @case('8')
-                            <span class="label label-warning"><span class="text-uppercase badge bg-warning p-2" style="font-size: 12px">Justificado</span></span>
-                            @break
-                        @case('9')
-                            <span class="label label-dark"><span class="text-uppercase badge bg-warning text-dark p-2" style="font-size: 12px">Justificado Parcial</span></span>
-                            @break
-                        @case('14')
-                            <span class="label label-success"><span class="text-uppercase badge bg-info p-2" style="font-size: 12px">Subsanado 1</span></span>
-                            @break
-                        @case('15')
-                            <span class="label label-success"><span class="text-uppercase badge bg-info text-white p-2" style="font-size: 12px">Subsanado 2</span></span>
-                            @break
-                        @case('29')
-                            <span class="label label-success"><span class="text-uppercase badge bg-info text-white p-2" style="font-size: 12px">Subsanado 3</span></span>
-                            @break
-                        @case('30')
-                            <span class="label label-success"><span class="text-uppercase badge bg-success text-white p-2" style="font-size: 12px">Sasak enviado</span></span>
-                            @break
-                        @case('31')
-                            <span class="label label-success"><span class="text-uppercase badge bg-primary text-white p-2" style="font-size: 12px">Respuesta sasak</span></span>
-                            @break
-                        @case('32')
-                            <span class="label label-success"><span class="text-uppercase badge bg-warning text-white p-2" style="font-size: 12px">2º Subsanado 1</span></span>
-                            @break
-                        @case('33')
-                            <span class="label label-success"><span class="text-uppercase badge bg-warning text-white p-2" style="font-size: 12px">2º Subsanado 2</span></span>
-                            @break
-                        @case('34')
-                            <span class="label label-success"><span class="text-uppercase badge bg-warning text-white p-2" style="font-size: 12px">2º Subsanado 3</span></span>
-                            @break
-                        @default
-                            <span class="label label-danger"><span class="text-uppercase badge bg-danger p-2" style="font-size: 12px">Anulado</span></span>
-                    @endswitch
-                  </td>
-                  <td>
-                    <p class="docdesc">{{$resultado->fecha}}</p>
-                  </td>
-                </tr>
-                @endforeach
-              </tbody>
-            </table>
+
+          {{-- Botones de filtros --}}
+          <div class="menu_estado_dias">
+            <a href="{{ route('kitDigital.estado15dias') }}" class="btn btn-outline-primary">+15 días</a>
+            <a href="{{ route('kitDigital.estado30dias') }}" class="btn btn-outline-primary">+30 días</a>
+            <a href="{{ route('kitDigital.estado30dias') }}" class="btn btn-outline-primary">+45 días</a>
+            <a href="{{ route('kitDigital.estado30dias') }}" class="btn btn-outline-primary">+60 días</a>
           </div>
+
+          {{-- Mensaje si no hay registros --}}
+          @if (session('success_message'))
+            <div class="mt-5 bg-green-100 border border-green-400 text-green-700 px-4 py-5 rounded text-center text-xl font-semibold shadow">
+              Actualmente no existen kits con más de {{ $dias }} días sin actualizar su estado y sin haber enviado el SASAK
+            </div>
+          @else
+            {{-- Tabla --}}
+            <div class="pt-5 table-responsive-mobile">
+              <table id="comprasTable" class="w-100 table-clientportal display">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Contrato</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach ($resultados as $resultado)
+                  <tr>
+                    <td class="sorting_1">{{$resultado->reference_id}}</td>
+                    <td><strong>{{$resultado->contratos}}</strong></td>
+                    <td width="20">
+                      @switch($resultado->estado)
+                        @case('8')
+                          <span class="badge bg-warning p-2 text-uppercase" style="font-size: 12px">Justificado</span>
+                          @break
+                        @case('9')
+                          <span class="badge bg-warning text-dark p-2 text-uppercase" style="font-size: 12px">Justificado Parcial</span>
+                          @break
+                        @case('14')
+                          <span class="badge bg-info p-2 text-uppercase" style="font-size: 12px">Subsanado 1</span>
+                          @break
+                        @case('15')
+                          <span class="badge bg-info text-white p-2 text-uppercase" style="font-size: 12px">Subsanado 2</span>
+                          @break
+                        @case('29')
+                          <span class="badge bg-info text-white p-2 text-uppercase" style="font-size: 12px">Subsanado 3</span>
+                          @break
+                        @case('30')
+                          <span class="badge bg-success text-white p-2 text-uppercase" style="font-size: 12px">Sasak enviado</span>
+                          @break
+                        @case('31')
+                          <span class="badge bg-primary text-white p-2 text-uppercase" style="font-size: 12px">Respuesta sasak</span>
+                          @break
+                        @case('32')
+                          <span class="badge bg-warning text-white p-2 text-uppercase" style="font-size: 12px">2º Subsanado 1</span>
+                          @break
+                        @case('33')
+                          <span class="badge bg-warning text-white p-2 text-uppercase" style="font-size: 12px">2º Subsanado 2</span>
+                          @break
+                        @case('34')
+                          <span class="badge bg-warning text-white p-2 text-uppercase" style="font-size: 12px">2º Subsanado 3</span>
+                          @break
+                        @default
+                          <span class="badge bg-danger p-2 text-uppercase" style="font-size: 12px">Anulado</span>
+                      @endswitch
+                    </td>
+                    <td>
+                      <p class="docdesc">{{$resultado->fecha}}</p>
+                    </td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+          @endif
+
         </div>
       </div>
     </div>
@@ -216,28 +223,25 @@
 @endsection
 
 @section('scripts')
-@include('partials.toast')
 <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.js"></script>
 <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.css" rel="stylesheet">
 <script>
   $(document).ready(function() {
     var table = $('#comprasTable').DataTable({
-      paging: true,   // Activa la paginación
-      info: false,    // Oculta el recuento de registros
-      dom: 'lrtip',   // 't' es para la tabla, 'r' es para el procesamiento, 'i' es para la información, 'p' es para la paginación
+      paging: true,
+      info: false,
+      dom: 'lrtip',
       language: {
         zeroRecords: "No se encontraron resultados",
         emptyTable: "No hay datos disponibles en la tabla",
       },
-      lengthChange: false,  // Desactiva el control de entradas por páginas
+      lengthChange: false,
     });
 
-    // Sincroniza el buscador personalizado con el de DataTables
     $('#tableSearch').on('keyup', function() {
       table.search(this.value).draw();
     });
 
-    // Oculta el buscador original de DataTables
     $('#comprasTable_filter').hide();
   });
 </script>
