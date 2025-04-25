@@ -251,7 +251,7 @@ class AdminHolidaysController extends Controller
 
                 DB::table('holidays_additions')->insert([
                     [
-                        'admin_user_id' => Auth::user()->id,
+                        'admin_user_id' => $user->id,
                         'quantity_before' => $userHolidaysQuantity->quantity,
                         'quantity_to_add' => $petitionQuantityDaysNegative,
                         'quantity_now' => $updatedHolidaysQuantity,
