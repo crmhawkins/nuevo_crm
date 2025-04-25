@@ -243,15 +243,6 @@
     });
 
     $('#comprasTable_filter').hide();
-  });
-
-  $('#filtros_dias').on('click', function() {
-    var dias = $(this).data('dias');
-    var diaslaborales = $(this).data('diaslaborales');
-    var url = "{{ route('kitDigital.sin_actualizar', ['dias' => ':dias', 'diaslaborales' => ':diaslaborales']) }}";
-    url = url.replace(':dias', dias).replace(':diaslaborales', diaslaborales);
-    window.location.href = url;
-  });
-  
+  });  
 </script>
 @endsection
