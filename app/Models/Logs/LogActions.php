@@ -92,22 +92,27 @@ class LogActions extends Model
             ->groupBy('reference_id');
     
         // Juntamos con log_actions para recuperar datos completos
-        return $query->joinSub($subquery, 'ultimos_logs', function ($join) {
+        return $query
+            ->joinSub($subquery, 'ultimos_logs', function ($join) {
                 $join->on('log_actions.reference_id', '=', 'ultimos_logs.reference_id')
                      ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
             })
-            ->where('log_actions.created_at', '<=', $fechaLimite) // FILTRO se hace DESPUÉS de obtener el último log
-            ->where('log_actions.action', 'Actualizar estado en kit digital')
-            ->where('ayudas.sasak', '<=', $fecha)
             ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
+            ->where('log_actions.created_at', '<=', $fechaLimite)
+            ->where('log_actions.action', 'Actualizar estado en kit digital')
+            ->where(function ($q) use ($fecha) {
+                $q->where('ayudas.sasak', '<=', $fecha)
+                  ->orWhereNull('ayudas.sasak');
+            })
             ->select(
                 'log_actions.reference_id',
                 'log_actions.created_at as ultima_fecha',
                 'ayudas.contratos',
-                'ayudas.estado'
+                'ayudas.estado',
+                'ayudas.sasak',
             );
     }
-    
+        
     public static function registroCorreosEnviados($data)
     {
         DB::table('log_actions')

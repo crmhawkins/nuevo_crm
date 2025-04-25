@@ -13,7 +13,6 @@ class AutomatizacionKitController extends Controller
 {
     public function get_contratos($dias)
     {
-        // Definir los estados que quieres mostrar
         $estados = [
             8 => 'Justificado',
             9 => 'Justificado parcial',
@@ -25,41 +24,25 @@ class AutomatizacionKitController extends Controller
             34 => '2º Subsanado 3',
         ];
 
-        // Definir la fecha de corte: x dias atras
         $fechaLimite = Carbon::now()->subDays($dias);
-        $carbonFecha = \Carbon\Carbon::parse($fechaLimite);
+        $carbonFecha = Carbon::parse($fechaLimite);
         $fecha = $carbonFecha->format('Y-m-d');
 
-        // return response()->json($fechaLimite);
-
-        // Usar el scope para obtener los registros recientes
         $registros = LogActions::automatizacionEmailsLogs(LogActions::query(), $fechaLimite, $fecha)->get();
 
-        if ($registros->isEmpty()) {
-            return redirect()->back()->with('success_message', 'No hay kits');
-        }
-        
-        // Transformar los registros con los nombres de estado
-        $resultado = [];
-
-        foreach ($registros as $registro) {
-            $estadoNumero = $registro->estado;
-
-            // Solo mostrar los registros con estados definidos en el array
-            if (array_key_exists($estadoNumero, $estados)) {
-                $resultados[] = [
-                    'reference_id' => $registro->reference_id,
-                    'fecha' => $fecha,
-                    'contratos' => $registro->contratos,
-                    'estado' => $estadoNumero // Se traduce el número
-                ];
-            }
-        }
-
-        $resultados = json_decode(json_encode($resultados));
-
-        return $resultados;
+        return $registros->filter(function ($registro) use ($estados) {
+            return array_key_exists($registro->estado, $estados);
+        })->map(function ($registro) use ($fecha) {
+            return (object) [
+                'reference_id'  => $registro->reference_id,
+                'contratos'     => $registro->contratos,
+                'estado'        => $registro->estado,
+                'fecha_estado'  => $fecha,
+                'fecha_sasak'   => $registro->sasak ?? 'No enviado',
+            ];
+        })->values();
     }
+
 
     public function viewEstados(Request $request)
     {
@@ -67,13 +50,19 @@ class AutomatizacionKitController extends Controller
         $dias_laborales = $request->input('dias_laborales', 21);
         $dias = $request->input('dias', 15);
     
-        // Obtenemos los resultados de los contratos
         $resultados = $this->get_contratos($dias_laborales);
-    
+
+        if ($resultados->isEmpty()) {
+            return redirect()->back()
+            ->with('success_message', "Actualmente no existen kits con más de {$dias} días sin actualizar su estado ni con el SASAK enviado.")
+            ->with('success_dias', $dias);
+        }
+        
         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
     }
 
-    public function send_email() {
+    public function send_email() 
+    {
         $resultados = $this->get_contratos(30);
 
          try {

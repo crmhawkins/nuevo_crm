@@ -131,7 +131,11 @@
           {{-- Encabezado y buscador --}}
           <div class="row">
             <div class="col-6">
-              <h3><strong>Estado de las subvenciones sin actualizar + {{$dias}} días</strong></h3>
+            <h3 class="mb-0">
+              <strong>Estado de las subvenciones sin actualizar + 
+                {{ session('success_dias') ?? $dias }} días
+              </strong>
+            </h3>
             </div>
             <div class="col-6 text-end">
               <input type="text" id="tableSearch" class="input-control" placeholder="Buscar">
@@ -149,7 +153,7 @@
           {{-- Mensaje si no hay registros --}}
           @if (session('success_message'))
             <div class="mt-5 bg-green-100 border border-green-400 text-green-700 px-4 py-5 rounded text-center text-xl font-semibold shadow">
-              Actualmente no existen kits con más de {{ $dias }} días sin actualizar su estado y sin haber enviado el SASAK
+              {{session('success_message') }}
             </div>
           @else
             {{-- Tabla --}}
@@ -160,7 +164,8 @@
                     <th>ID</th>
                     <th>Contrato</th>
                     <th>Estado</th>
-                    <th>Fecha</th>
+                    <th>Estado actualizado</th>
+                    <th>Sasak Enviado</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -205,7 +210,10 @@
                       @endswitch
                     </td>
                     <td>
-                      <span class="sorting_1">{{$resultado->fecha}}</span>
+                      <span class="sorting_1">{{$resultado->fecha_estado}}</span>
+                    </td>
+                    <td>
+                      <span class="sorting_1">{{$resultado->fecha_sasak}}</span>
                     </td>
                   </tr>
                   @endforeach
