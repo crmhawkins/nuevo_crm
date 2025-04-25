@@ -124,7 +124,7 @@
                                         <a href="{{route('proveedores.index')}}" class="btn btn-outline-secondary mb-2">Ver Proveedores</a>
                                         <a href="{{route('kitDigital.create')}}"  class="btn btn-outline-secondary mb-2">Tramitar Subvención</a>
                                         <a target="_blank" href="{{route('kitDigital.index')}}" class="btn btn-outline-secondary mb-2">Kit Digital</a>
-                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#kdModal">
+                                        <button type="button" class="btn btn-outline-secondary mb-2" data-bs-toggle="modal" data-bs-target="#kdModal">
                                             Kit Digitales Sin Actualizar
                                         </button>
                                         <a target="_blank" href="{{route('kitDigital.indexWhatsapp')}}" class="btn btn-outline-secondary mb-2">Kit Digital Whatsapp</a>
@@ -154,7 +154,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-6">
                     <div class="side-column">
                         <div class="card mb-3">
