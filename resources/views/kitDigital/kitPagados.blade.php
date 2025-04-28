@@ -132,7 +132,7 @@
           <div class="row">
             <div class="col-6">
             <h3 class="mb-0">
-              <strong>Kits Digitales pagados desde hace 11 meses</strong>
+              <strong>Kits Digitales pagados desde hace mas de 11 meses</strong>
             </h3>
             </div>
             <div class="col-6 text-end">
@@ -141,11 +141,7 @@
           </div>
 
           {{-- Mensaje si no hay registros --}}
-          @if (session('success_message'))
-            <div class="mt-5 bg-green-100 border border-green-400 text-green-700 px-4 py-5 rounded text-center text-xl font-semibold shadow">
-              {{session('success_message') }}
-            </div>
-          @else
+          <div class="container mt-5">
             {{-- Tabla --}}
             <div class="pt-5 table-responsive-mobile">
               <table id="comprasTable" class="w-100 table-clientportal display">
@@ -173,8 +169,6 @@
                 </tbody>
               </table>
             </div>
-          @endif
-
         </div>
       </div>
     </div>
@@ -194,7 +188,7 @@
       dom: 'lrtip',
       language: {
         zeroRecords: "No se encontraron resultados",
-        emptyTable: "No hay datos disponibles en la tabla",
+        emptyTable: "Actualmente no existen contratos que lleven pagados mas de 11 meses",
       },
       lengthChange: false,
     });

@@ -28,11 +28,6 @@ class KitPagadosController extends Controller
     {
         $resultados = $this->getContratos();
 
-        if ($resultados->isEmpty()) {
-            return redirect()->back()
-                ->with('success_message', "Actualmente no existen contratos que lleven pagados mas de 11 meses");
-        }
-
         return view('kitDigital.kitPagados', compact('resultados'));
     }
 }
