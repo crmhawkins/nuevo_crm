@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\AutomatizacionKit;
 
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\KitDigital;
@@ -18,7 +19,7 @@ class KitPagadosController extends Controller
                 'id',
                 'contratos',
                 'estado',
-                'fecha_actualizacion',
+                'fecha_actualizacion'
             ])->get();
         
         return $data;
