@@ -83,7 +83,7 @@ class LogActions extends Model
     // Subconsulta: obtener último log por reference_id donde tipoc = 1 y no enviado
     $subquery = DB::table('log_actions')
         ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
-        ->where('tipoc', 1)
+        ->where('tipo', 1)
         ->where(function ($q) {
             $q->where('enviado', 0)
               ->orWhereNull('enviado');
