@@ -189,7 +189,7 @@
                           <span class="badge bg-info text-white p-2 text-uppercase" style="font-size: 12px">Subsanado 2</span>
                           @break
                         @case('21')
-                          <span class="badge bg-info text-white p-2 text-uppercase" style="font-size: 12px">2º Justificacion Realizada</span>
+                          <span class="badge bg-warning p-2 text-uppercase" style="font-size: 12px">2º Justificacion Realizada</span>
                           @break
                         @case('29')
                           <span class="badge bg-info text-white p-2 text-uppercase" style="font-size: 12px">Subsanado 3</span>
