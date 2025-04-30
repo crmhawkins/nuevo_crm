@@ -80,44 +80,47 @@ class LogActions extends Model
     }
 
     public static function automatizacionEmailsLogs($query, $fechaLimite, $fecha)
-{
-    // Subconsulta con ROW_NUMBER para obtener el último log válido por reference_id
-    $subquery = DB::table(DB::raw('(
-        SELECT *,
-               ROW_NUMBER() OVER (PARTITION BY reference_id ORDER BY created_at DESC) as rownum
-        FROM log_actions
-        WHERE tipo = 1
-          AND (enviado = 0 OR enviado IS NULL)
-    ) as log_filtrado'))
-    ->where('rownum', 1);
+    {
+        // Subconsulta con ROW_NUMBER para obtener el último log válido por reference_id
+        $subquery = DB::table(DB::raw('(
+            SELECT * ,
+                   ROW_NUMBER() OVER (PARTITION BY reference_id ORDER BY created_at DESC) as rownum
+            FROM log_actions
+            WHERE tipo = 1
+              AND (enviado = 0 OR enviado IS NULL)
+        ) as log_filtrado'))
+        ->where('rownum', 1);
 
-    return $query
-        ->joinSub($subquery, 'log_filtrado_final', function ($join) {
-            $join->on('ayudas.id', '=', 'log_filtrado_final.reference_id');
-        })
-        ->join('ayudas', 'ayudas.id', '=', 'log_filtrado_final.reference_id')
-        ->where(function ($q) use ($fechaLimite, $fecha) {
-            $q->where(function ($q1) use ($fechaLimite) {
-                $q1->where('log_filtrado_final.action', '!=', 'Actualizar sasak en kit digital')
-                   ->where('log_filtrado_final.created_at', '<=', $fechaLimite);
+        return $query
+            // JOIN principal: nos quedamos con los últimos logs válidos
+            ->joinSub($subquery, 'log_filtrado_final', function ($join) {
+                $join->on('log_filtrado_final.reference_id', '=', 'log_filtrado_final.reference_id');
             })
-            ->orWhere(function ($q2) use ($fecha) {
-                $q2->where('log_filtrado_final.action', 'Actualizar sasak en kit digital')
-                   ->where(function ($subq) use ($fecha) {
-                       $subq->where('ayudas.sasak', '<=', $fecha)
-                            ->orWhereNull('ayudas.sasak');
-                   });
-            });
-        })
-        ->select(
-            'log_filtrado_final.reference_id',
-            'log_filtrado_final.action',
-            'log_filtrado_final.created_at as ultima_fecha',
-            'ayudas.contratos',
-            'ayudas.estado',
-            'ayudas.sasak'
-        );
-}
+            // JOIN con ayudas después
+            ->join('ayudas', 'ayudas.id', '=', 'log_filtrado_final.reference_id')
+            ->where(function ($q) use ($fechaLimite, $fecha) {
+                $q->where(function ($q1) use ($fechaLimite) {
+                    $q1->where('log_filtrado_final.action', '!=', 'Actualizar sasak en kit digital')
+                       ->where('log_filtrado_final.created_at', '<=', $fechaLimite);
+                })
+                ->orWhere(function ($q2) use ($fecha) {
+                    $q2->where('log_filtrado_final.action', 'Actualizar sasak en kit digital')
+                       ->where(function ($subq) use ($fecha) {
+                           $subq->where('ayudas.sasak', '<=', $fecha)
+                                ->orWhereNull('ayudas.sasak');
+                       });
+                });
+            })
+            ->select(
+                'log_filtrado_final.reference_id',
+                'log_filtrado_final.action',
+                'log_filtrado_final.created_at as ultima_fecha',
+                'ayudas.contratos',
+                'ayudas.estado',
+                'ayudas.sasak'
+            );
+    }
+
 
 
 
