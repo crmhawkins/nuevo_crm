@@ -104,10 +104,9 @@ class LogActions extends Model
     // Unión de ambas
     $union = $subA->unionAll($subB);
 
-    // Usamos la unión como subconsulta
+    // Subconsulta ya sin agrupación extra
     $subquery = DB::table(DB::raw("({$union->toSql()}) as ultimos_logs"))
-        ->mergeBindings($subA) // Importante para evitar errores de bindings
-        ->groupBy('reference_id');
+        ->mergeBindings($subA); // 💡 importante
 
     return $query
         ->joinSub($subquery, 'ultimos_logs', function ($join) {
@@ -137,6 +136,7 @@ class LogActions extends Model
             'ayudas.sasak'
         );
 }
+
 
 
 
