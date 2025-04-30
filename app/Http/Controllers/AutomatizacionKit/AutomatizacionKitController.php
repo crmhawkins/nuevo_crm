@@ -36,8 +36,7 @@ class AutomatizacionKitController extends Controller
         return $registros->filter(function ($registro) use ($estados) {
             return array_key_exists($registro->estado, $estados);
         })->map(function ($registro) use ($fecha) {
-            $fecha_referencia = $registro->sasak ?? $registro->ultima_fecha;
-            $carbon_fecha_estado = Carbon::parse($fecha_referencia);
+            $carbon_fecha_estado = Carbon::parse($registro->ultima_fecha);
             $fecha_estado = $carbon_fecha_estado->format('Y-m-d');
 
             return (object) [
