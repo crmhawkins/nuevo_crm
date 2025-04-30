@@ -166,7 +166,6 @@
                     <th>Estado</th>
                     <th>Estado actualizado</th>
                     <th>Sasak Enviado</th>
-                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -219,11 +218,7 @@
                     <td>
                       <span class="sorting_1">{{$resultado->fecha_sasak}}</span>
                     </td>
-                    <td>
-                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#crearAlertaModal" data-reference-id="{{ $resultado->reference_id }}">
-                            Crear alerta
-                        </button>
-                    </td>
+
                   </tr>
                   @endforeach
                 </tbody>
@@ -235,37 +230,7 @@
       </div>
     </div>
   </div>
-  <div class="modal fade" id="crearAlertaModal" tabindex="-1" aria-labelledby="crearAlertaModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <form method="POST" action="{{ route('alerts.create') }}">
-        @csrf
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="crearAlertaModalLabel">Crear alerta</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" name="reference_id" id="referenceIdInput">
 
-            <div class="mb-3">
-              <label for="activation_date" class="form-label">Fecha de activación</label>
-              <input type="date" name="activation_date" class="form-control" required>
-              <small class="form-text text-muted">Se activará a las 00:00 del día elegido.</small>
-            </div>
-
-            <div class="mb-3">
-              <label for="description" class="form-label">Descripción</label>
-              <textarea name="description" class="form-control" rows="3" required></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Crear alerta</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
 
 @endsection
@@ -273,15 +238,7 @@
 @section('scripts')
 <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.js"></script>
 <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.css" rel="stylesheet">
-<script>
-    const crearAlertaModal = document.getElementById('crearAlertaModal');
-    crearAlertaModal.addEventListener('show.bs.modal', function (event) {
-      const button = event.relatedTarget;
-      const referenceId = button.getAttribute('data-reference-id');
-      const inputReference = crearAlertaModal.querySelector('#referenceIdInput');
-      inputReference.value = referenceId;
-    });
-  </script>
+
 <script>
   $(document).ready(function() {
     var table = $('#comprasTable').DataTable({

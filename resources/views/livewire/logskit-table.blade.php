@@ -96,6 +96,7 @@
             <table class="table table-bordered table-striped table-hover align-middle text-center">
                 <thead class="table-dark">
                     <tr>
+                        <th style="width: 270px">ACCIÓN</th>
                         <th style="width: 270px">CLIENTE</th>
                         <th style="width: 100px">KD</th>
                         <th style="width: 100px">SERVICIO</th>
@@ -131,6 +132,11 @@
                 <tbody>
                     @foreach($logsPivotados as $row)
                         <tr>
+                            <td>
+                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#crearAlertaModal" data-reference-id="{{ $row['id'] }}">
+                                    Crear alerta
+                                </button>
+                            </td>
                             <td style="min-width: 200px;" >{{ $row['cliente'] }}</td>
                             <td>{{ $row['KD'] }}</td>
                             <td>{{ $row['servicio'] }}</td>
@@ -189,6 +195,37 @@
             <h3 class="text-center fs-3">No se encontraron registros de <strong>LOGS</strong></h3>
         </div>
     @endif
+    <div class="modal fade" id="crearAlertaModal" tabindex="-1" aria-labelledby="crearAlertaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <form method="POST" action="{{ route('alerts.create') }}">
+            @csrf
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="crearAlertaModalLabel">Crear alerta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" name="reference_id" id="referenceIdInput">
+
+                <div class="mb-3">
+                  <label for="activation_date" class="form-label">Fecha de activación</label>
+                  <input type="date" name="activation_date" class="form-control" required>
+                  <small class="form-text text-muted">Se activará a las 00:00 del día elegido.</small>
+                </div>
+
+                <div class="mb-3">
+                  <label for="description" class="form-label">Descripción</label>
+                  <textarea name="description" class="form-control" rows="3" required></textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Crear alerta</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+    </div>
 </div>
 <style>
     .table-responsive>.table>:not(caption)>*>* {
@@ -211,7 +248,15 @@
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<script>
+    const crearAlertaModal = document.getElementById('crearAlertaModal');
+    crearAlertaModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      const referenceId = button.getAttribute('data-reference-id');
+      const inputReference = crearAlertaModal.querySelector('#referenceIdInput');
+      inputReference.value = referenceId;
+    });
+  </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         Livewire.on('cambiarFecha', (referenceId, estado, nuevaFecha) => {
