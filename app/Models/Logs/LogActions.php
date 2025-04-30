@@ -122,8 +122,8 @@ class LogActions extends Model
             ->orWhere(function ($q2) use ($fecha) {
                 $q2->where('log_actions.action', 'Actualizar sasak en kit digital')
                    ->where(function ($subq) use ($fecha) {
-                       $subq->where('ayudas.sasak', '<=', $fecha)
-                            ->orWhereNull('ayudas.sasak');
+                       $subq->where('ayudas.sasak', '<=', $fecha);
+                            // ->orWhereNull('ayudas.sasak');
                    });
             });
         })
