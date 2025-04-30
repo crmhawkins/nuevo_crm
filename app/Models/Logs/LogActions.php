@@ -81,30 +81,26 @@ class LogActions extends Model
 
     public static function automatizacionEmailsLogs($query, $fechaLimite, $fecha)
     {
-        // Subconsulta con ROW_NUMBER para obtener el último log válido por reference_id
+        // Subconsulta para obtener el último log (por created_at) de tipo válido y no enviado
         $subquery = DB::table(DB::raw('(
-            SELECT * ,
-                   ROW_NUMBER() OVER (PARTITION BY reference_id ORDER BY created_at DESC) as rownum
+            SELECT *,
+                   ROW_NUMBER() OVER (PARTITION BY reference_id ORDER BY created_at DESC) AS rownum
             FROM log_actions
             WHERE tipo = 1
               AND (enviado = 0 OR enviado IS NULL)
-        ) as log_filtrado'))
+        ) AS filtered_logs'))
         ->where('rownum', 1);
 
-        return $query
-            // JOIN principal: nos quedamos con los últimos logs válidos
-            ->joinSub($subquery, 'log_filtrado_final', function ($join) {
-                $join->on('log_filtrado_final.reference_id', '=', 'log_filtrado_final.reference_id');
-            })
-            // JOIN con ayudas después
-            ->join('ayudas', 'ayudas.id', '=', 'log_filtrado_final.reference_id')
+        return DB::table(DB::raw('(' . $subquery->toSql() . ') AS log_final'))
+            ->mergeBindings($subquery) // importante para que Laravel combine los parámetros correctamente
+            ->join('ayudas', 'ayudas.id', '=', 'log_final.reference_id')
             ->where(function ($q) use ($fechaLimite, $fecha) {
                 $q->where(function ($q1) use ($fechaLimite) {
-                    $q1->where('log_filtrado_final.action', '!=', 'Actualizar sasak en kit digital')
-                       ->where('log_filtrado_final.created_at', '<=', $fechaLimite);
+                    $q1->where('log_final.action', '!=', 'Actualizar sasak en kit digital')
+                       ->where('log_final.created_at', '<=', $fechaLimite);
                 })
                 ->orWhere(function ($q2) use ($fecha) {
-                    $q2->where('log_filtrado_final.action', 'Actualizar sasak en kit digital')
+                    $q2->where('log_final.action', 'Actualizar sasak en kit digital')
                        ->where(function ($subq) use ($fecha) {
                            $subq->where('ayudas.sasak', '<=', $fecha)
                                 ->orWhereNull('ayudas.sasak');
@@ -112,14 +108,15 @@ class LogActions extends Model
                 });
             })
             ->select(
-                'log_filtrado_final.reference_id',
-                'log_filtrado_final.action',
-                'log_filtrado_final.created_at as ultima_fecha',
+                'log_final.reference_id',
+                'log_final.action',
+                'log_final.created_at as ultima_fecha',
                 'ayudas.contratos',
                 'ayudas.estado',
                 'ayudas.sasak'
             );
     }
+
 
 
 
