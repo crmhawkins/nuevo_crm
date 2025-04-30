@@ -80,42 +80,64 @@ class LogActions extends Model
     }
 
     public static function automatizacionEmailsLogs($query, $fechaLimite, $fecha)
-    {
-        // Subconsulta para obtener el último log (por created_at) de tipo válido y no enviado
-        $subquery = DB::table(DB::raw('(
-            SELECT *,
-                   ROW_NUMBER() OVER (PARTITION BY reference_id ORDER BY created_at DESC) AS rownum
-            FROM log_actions
-            WHERE tipo = 1
-              AND (enviado = 0 OR enviado IS NULL)
-        ) AS filtered_logs'))
-        ->where('rownum', 1);
+{
+    // Subconsulta A: "Actualizar estado en kit digital"
+    $subA = DB::table('log_actions')
+        ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
+        ->where('action', 'Actualizar estado en kit digital')
+        ->where(function ($q) {
+            $q->where('enviado', 0)
+              ->orWhereNull('enviado');
+        })
+        ->groupBy('reference_id');
 
-        return DB::table(DB::raw('(' . $subquery->toSql() . ') AS log_final'))
-            ->mergeBindings($subquery) // importante para que Laravel combine los parámetros correctamente
-            ->join('ayudas', 'ayudas.id', '=', 'log_final.reference_id')
-            ->where(function ($q) use ($fechaLimite, $fecha) {
-                $q->where(function ($q1) use ($fechaLimite) {
-                    $q1->where('log_final.action', '!=', 'Actualizar sasak en kit digital')
-                       ->where('log_final.created_at', '<=', $fechaLimite);
-                })
-                ->orWhere(function ($q2) use ($fecha) {
-                    $q2->where('log_final.action', 'Actualizar sasak en kit digital')
-                       ->where(function ($subq) use ($fecha) {
-                           $subq->where('ayudas.sasak', '<=', $fecha)
-                                ->orWhereNull('ayudas.sasak');
-                       });
-                });
+    // Subconsulta B: "Actualizar sasak en kit digital"
+    $subB = DB::table('log_actions')
+        ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
+        ->where('action', 'Actualizar sasak en kit digital')
+        ->where(function ($q) {
+            $q->where('enviado', 0)
+              ->orWhereNull('enviado');
+        })
+        ->groupBy('reference_id');
+
+    // Unión de ambas
+    $union = $subA->unionAll($subB);
+
+    // Usamos la unión como subconsulta
+    $subquery = DB::table(DB::raw("({$union->toSql()}) as ultimos_logs"))
+        ->mergeBindings($subA) // Importante para evitar errores de bindings
+        ->groupBy('reference_id');
+
+    return $query
+        ->joinSub($subquery, 'ultimos_logs', function ($join) {
+            $join->on('log_actions.reference_id', '=', 'ultimos_logs.reference_id')
+                 ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
+        })
+        ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
+        ->where(function ($q) use ($fechaLimite, $fecha) {
+            $q->where(function ($q1) use ($fechaLimite) {
+                $q1->where('log_actions.action', 'Actualizar estado en kit digital')
+                   ->where('log_actions.created_at', '<=', $fechaLimite);
             })
-            ->select(
-                'log_final.reference_id',
-                'log_final.action',
-                'log_final.created_at as ultima_fecha',
-                'ayudas.contratos',
-                'ayudas.estado',
-                'ayudas.sasak'
-            );
-    }
+            ->orWhere(function ($q2) use ($fecha) {
+                $q2->where('log_actions.action', 'Actualizar sasak en kit digital')
+                   ->where(function ($subq) use ($fecha) {
+                       $subq->where('ayudas.sasak', '<=', $fecha)
+                            ->orWhereNull('ayudas.sasak');
+                   });
+            });
+        })
+        ->select(
+            'log_actions.reference_id',
+            'log_actions.action',
+            'log_actions.created_at as ultima_fecha',
+            'ayudas.contratos',
+            'ayudas.estado',
+            'ayudas.sasak'
+        );
+}
+
 
 
 
