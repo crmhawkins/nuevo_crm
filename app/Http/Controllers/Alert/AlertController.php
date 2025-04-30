@@ -12,6 +12,7 @@ use App\Models\Dominios\Dominio;
 use App\Models\Holidays\HolidaysPetitions;
 use App\Models\HoursMonthly\HoursMonthly;
 use App\Models\Invoices\Invoice;
+use App\Models\KitDigital;
 use App\Models\Petitions\Petition;
 use App\Models\Tasks\Task;
 use App\Models\Users\User;
@@ -288,11 +289,7 @@ public function getAlerts($alertas)
                             }
                             break;
                         case 20:
-                            $alertPost = Alert::find($alerta->reference_id);
-                            $text =  $this->filterStage($alertPost);
-                            $user = User::find($alertPost->admin_user_id);
-                            $alertasActivadas[$contador]["nota"] = $text;
-                            $alertasActivadas[$contador]["remitente"] = $user->name . " ha pospuesto 3 veces";
+                            $alertasActivadas[$contador]["description"] = $alerta->description;
                             break;
                         case 21:
                             $budgetAlert = Budget::find($alerta->reference_id);
@@ -363,6 +360,11 @@ public function getAlerts($alertas)
                             $part = explode('-', $alerta->reference_id);
                             $alertasActivadas[$contador]["stage"] =  $part[0];
                             $alertasActivadas[$contador]["referencia"] =  $part[1];
+                           break;
+                        case 53:
+                            $ayuda = KitDigital::where('id', $alerta->reference_id)->first();
+                            $alertasActivadas[$contador]["kd"] =  $ayuda->contratos;
+                            $alertasActivadas[$contador]["descripcion"] =  $alerta->description;
                            break;
                     }
                 }

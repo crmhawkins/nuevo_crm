@@ -94,6 +94,8 @@ Route::post('/budget/generate-pdf', [BudgetController::class, 'generatePDF'])->n
 Route::group(['middleware' => 'auth'], function () {
 
     Route::middleware(['access.level:4'])->group(function () {
+        Route::post('/alerts/create', [AutomatizacionKitController::class, 'createAlert'])->name('alerts.create');
+
         Route::get('/logs/kitdigital',[LogActionsController::class, 'kitdigital'])->name('logs.kitdigital');
         // Clients (CLIENTES)
         Route::get('/clients', [ClientController::class, 'index'])->name('clientes.index');
@@ -264,7 +266,7 @@ Route::group(['middleware' => 'auth'], function () {
         // Estados sin actualizar Kit Digital
         Route::get('/kit-digital/sin_actualizar', [AutomatizacionKitController::class, 'viewEstados'])->name('kitDigital.sin_actualizar');
         Route::get('/kit-digital/pagados', [KitPagadosController::class, 'viewPagados'])->name('kitDigital.pagados');
-        
+
         // Gastos asociados (TESORERIA)
          Route::get('/gastos-asociados', [TesoreriaController::class, 'indexAssociatedExpenses'])->name('gasto-asociados.index');
          Route::get('/gasto-asociado/create', [TesoreriaController::class, 'createAssociatedExpenses'])->name('gasto-asociado.create');

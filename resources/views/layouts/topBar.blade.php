@@ -315,6 +315,7 @@
             50: 'Vacaciones descontadas',
             51: 'Solicitud de Pago Inicial',
             52: 'Pago Inicial Realizado',
+            53: 'Alerta Recordatorio Kit',
         };
 
         // Función para obtener las alertas usando fetch
@@ -628,6 +629,11 @@
                         mensajeDetalle =  alerta['description'];
                         botonposponer = false;
                         break;
+                    case 53:
+                        mensajeDetalle = alerta['description'];
+                        botonposponer = false;
+                        break;
+
                     default:
                     alertas.shift();
                     mostrarTiposDeAlertas();
@@ -1514,6 +1520,22 @@
                         $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
                             if (jqXHR.responseText != 503) {
                             window.open( "/budget/edit/" + alertaSeleccionada['reference_id'] , '_blank');
+                            eliminarAlertaDOM(stage_id, index);
+                            } else {
+                            swal(
+                                'Error',
+                                'Error al realizar la peticion',
+                                'error'
+                            );
+                            }
+                        });
+                        break;
+                    case 53:
+                        var id = alertaSeleccionada['id'];
+                        var status = 2; //Resuelto
+                        $.when(updateStatusAlert(id, status)).then(function(data, textStatus, jqXHR) {
+                            if (jqXHR.responseText != 503) {
+                            window.open( "/kit-digital?buscar=" + alertaSeleccionada['kd'] , '_blank');
                             eliminarAlertaDOM(stage_id, index);
                             } else {
                             swal(

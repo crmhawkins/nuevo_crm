@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\AutomatizacionKit;
 
 use App\Http\Controllers\Controller;
+use App\Models\Alerts\Alert;
 use App\Models\Logs\LogActions;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AutomatizacionKitController extends Controller
 {
@@ -35,7 +37,7 @@ class AutomatizacionKitController extends Controller
         })->map(function ($registro) use ($fecha) {
             $carbon_fecha_estado = Carbon::parse($registro->ultima_fecha);
             $fecha_estado = $carbon_fecha_estado->format('Y-m-d');
-            
+
             return (object) [
                 'reference_id'  => $registro->reference_id,
                 'contratos'     => $registro->contratos,
@@ -52,7 +54,7 @@ class AutomatizacionKitController extends Controller
         // Asignamos valores por defecto si no se reciben
         $dias_laborales = $request->input('dias_laborales', 21);
         $dias = $request->input('dias', 15);
-    
+
         $resultados = $this->getContratos($dias_laborales);
 
         if ($resultados->isEmpty()) {
@@ -64,7 +66,7 @@ class AutomatizacionKitController extends Controller
         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
     }
 
-    public function sendEmail() 
+    public function sendEmail()
     {
         $resultados = $this->getContratos(63);
 
@@ -77,11 +79,40 @@ class AutomatizacionKitController extends Controller
                 $message->to('infodigitalizador@acelerapyme.gob.es')
                         ->subject('Sasak ' . $resultados->contratos);
             });
-            
+
             // Registrar el envío del correo
             LogActions::registroCorreosEnviados($resultados);
         } catch(Exception $e) {
             echo 'Error al enviar el correo: ' . $e->getMessage();
         }
+    }
+
+    public function createAlert(Request $request)
+    {
+
+         $request->validate([
+        'reference_id' => 'required|integer',
+        'description' => 'required|string',
+        'activation_date' => 'required|date',
+        ]);
+
+        $activationDateTime = Carbon::parse($request->activation_date)->startOfDay(); // lo deja a las 00:00
+
+        $dataAlert = [
+            'admin_user_id' => Auth::id(),
+            'stage_id' => 53, // o dinámico si lo necesitas
+            'activation_datetime' => $activationDateTime,
+            'status_id' => 1,
+            'reference_id' => $request->reference_id,
+            'description' => $request->description,
+        ];
+
+        Alert::create($dataAlert);
+
+        return redirect()->back()->with('toast', [
+            'icon' => 'success',
+            'mensaje' => 'Alerta creada correctamente'
+        ]);
+
     }
 }
