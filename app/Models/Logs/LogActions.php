@@ -87,7 +87,7 @@ class LogActions extends Model
             ->where('action', 'Actualizar estado en kit digital')
             ->where(function ($query) {
                 $query->where('enviado', 0)
-                      ->orWhereNull('enviado');
+                    ->orWhereNull('enviado');
             })
             ->groupBy('reference_id');
 
@@ -95,23 +95,20 @@ class LogActions extends Model
         return $query
             ->joinSub($subquery, 'ultimos_logs', function ($join) {
                 $join->on('log_actions.reference_id', '=', 'ultimos_logs.reference_id')
-                     ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
+                    ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
             })
             ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
-            ->whereRaw("COALESCE(ayudas.sasak, log_actions.created_at) <= ?", [$fechaLimite])
+            ->whereRaw("COALESCE(ayudas.sasak, log_actions.created_at) <= ?", [$fecha])
             ->where('log_actions.action', 'Actualizar estado en kit digital')
-            ->where(function ($q) use ($fecha) {
-                $q->where('ayudas.sasak', '<=', $fecha)
-                  ->orWhereNull('ayudas.sasak');
-            })
             ->select(
                 'log_actions.reference_id',
-                'log_actions.created_at as ultima_fecha',
+                DB::raw('COALESCE(ayudas.sasak, log_actions.created_at) as fecha_efectiva'),
                 'ayudas.contratos',
                 'ayudas.estado',
-                'ayudas.sasak',
+                'ayudas.sasak'
             );
     }
+
 
     public static function registroCorreosEnviados($data)
     {
