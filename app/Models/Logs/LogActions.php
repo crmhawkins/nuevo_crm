@@ -78,19 +78,21 @@ class LogActions extends Model
 
         }
     }
-
     public static function automatizacionEmailsLogs($query, $fechaLimite, $fecha)
     {
-        // Subconsulta: obtener última acción relevante por reference_id
+        // Subconsulta: obtener última acción relevante por reference_id (de tipo A o B) y no enviada
         $subquery = DB::table('log_actions')
             ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
-            ->where('action', 'Actualizar estado en kit digital')
-            ->where(function ($query) {
-                $query->where('enviado', 0)
-                      ->orWhereNull('enviado');
+            ->where(function ($q) {
+                $q->where('action', 'Actualizar estado en kit digital')
+                  ->orWhere('action', 'Actualizar sasak en kit digital');
+            })
+            ->where(function ($q) {
+                $q->where('enviado', 0)
+                  ->orWhereNull('enviado');
             })
             ->groupBy('reference_id');
-    
+
         // Juntamos con log_actions para recuperar datos completos
         return $query
             ->joinSub($subquery, 'ultimos_logs', function ($join) {
@@ -98,21 +100,30 @@ class LogActions extends Model
                      ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
             })
             ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
-            ->where('log_actions.created_at', '<=', $fechaLimite)
-            ->where('log_actions.action', 'Actualizar estado en kit digital')
-            ->where(function ($q) use ($fecha) {
-                $q->where('ayudas.sasak', '<=', $fecha)
-                  ->orWhereNull('ayudas.sasak');
+            ->where(function ($q) use ($fechaLimite, $fecha) {
+                $q->where(function ($q1) use ($fechaLimite) {
+                    $q1->where('log_actions.action', 'Actualizar estado en kit digital')
+                       ->where('log_actions.created_at', '<=', $fechaLimite);
+                })
+                ->orWhere(function ($q2) use ($fecha) {
+                    $q2->where('log_actions.action', 'Actualizar sasak en kit digital')
+                       ->where(function ($subq) use ($fecha) {
+                           $subq->where('ayudas.sasak', '<=', $fecha)
+                                ->orWhereNull('ayudas.sasak');
+                       });
+                });
             })
             ->select(
                 'log_actions.reference_id',
+                'log_actions.action',
                 'log_actions.created_at as ultima_fecha',
                 'ayudas.contratos',
                 'ayudas.estado',
                 'ayudas.sasak',
             );
     }
-        
+
+
     public static function registroCorreosEnviados($data)
     {
         DB::table('log_actions')
@@ -126,5 +137,5 @@ class LogActions extends Model
             'respondido' => 0, // Respondido lo ponemos en False, se acaba de enviar el correo
             'date' => now() // Fecha de hoy
         ]);
-    } 
+    }
 }
