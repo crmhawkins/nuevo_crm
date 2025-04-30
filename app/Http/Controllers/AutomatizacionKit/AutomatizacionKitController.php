@@ -20,6 +20,7 @@ class AutomatizacionKitController extends Controller
             9 => 'Justificado parcial',
             14 => 'Subsanado 1',
             15 => 'Subsanado 2',
+            21 => '2º Justificacion Realizada',
             29 => 'Subsanado 3',
             32 => '2º Subsanado 1',
             33 => '2º Subsanado 2',
