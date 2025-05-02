@@ -587,7 +587,7 @@ class InvoiceController extends Controller
                         "quantity" => $concepto->units,
                         "taxes" => [Facturae::TAX_IVA => $factura->iva_percentage],
                         "specialTaxableEventCode" => $factura->iva_percentage == 0 ? FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT : null,
-                        "specialTaxableEventReason" => $factura->iva_percentage == 0 ? "Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial." : null,
+                        "specialTaxableEventReason" => $factura->iva_percentage == 0 ? "Operación con inversión del sujeto pasivo conforme al Art 84 (UNO.2º) de la Ley del IVA 37/1992" : null,
                     ]);
                 }else{
                     $item = new FacturaeItem([
@@ -611,7 +611,7 @@ class InvoiceController extends Controller
                             ],
                             "taxes" => [Facturae::TAX_IVA => $factura->iva_percentage],
                             "specialTaxableEventCode" => $factura->iva_percentage == 0 ? FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT : null,
-                            "specialTaxableEventReason" => $factura->iva_percentage == 0 ? "Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial." : null,
+                            "specialTaxableEventReason" => $factura->iva_percentage == 0 ? "Operación con inversión del sujeto pasivo conforme al Art 84 (UNO.2º) de la Ley del IVA 37/1992" : null,
                         ]);
                     }else {
                         $item = new FacturaeItem([
@@ -620,7 +620,7 @@ class InvoiceController extends Controller
                             "quantity" => $concepto->units,
                             "taxes" => [Facturae::TAX_IVA => $factura->iva_percentage],
                             "specialTaxableEventCode" => $factura->iva_percentage == 0 ? FacturaeItem::SPECIAL_TAXABLE_EVENT_EXEMPT : null,
-                            "specialTaxableEventReason" => $factura->iva_percentage == 0 ? "Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial." : null,
+                            "specialTaxableEventReason" => $factura->iva_percentage == 0 ? "Operación con inversión del sujeto pasivo conforme al Art 84 (UNO.2º) de la Ley del IVA 37/1992" : null,
                         ]);
                     }
                 }else{
@@ -654,7 +654,7 @@ class InvoiceController extends Controller
 
         if ($factura->iva_percentage == 0) {
             if($factura->is_ceuta){
-                $fac->addLegalLiteral("Operación no sujeta a IVA conforme al artículo 70.1.o 7 de la Ley 37/1992 del Impuesto sobre el Valor Añadido, por realizarse en Ceuta, ciudad con régimen fiscal especial.");
+                $fac->addLegalLiteral("Operación con inversión del sujeto pasivo conforme al Art 84 (UNO.2º) de la Ley del IVA 37/1992");
             }else{
                 $fac->addLegalLiteral("Inversión del sujeto pasivo conforme al art. 84.1.2º de la Ley 37/1992, del IVA.");
             }
