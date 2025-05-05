@@ -98,7 +98,7 @@
                                     {{-- Gestor model:User --}}
                                     <div class="form-group mb-3">
                                         <label class="mb-2 text-left">Gestor</label>
-                                        <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor" @if(Auth::user()->access_level_id != '1'){{'readonly'}}@endif>
+                                        <select class="choices form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor" @if(Auth::user()->access_level_id != '1'){{'disabled'}}@endif>
                                             @if ($gestores->count() > 0)
                                                 <option value="">Seleccione gestor</option>
                                                 @foreach ( $gestores as $gestor )
@@ -108,6 +108,9 @@
                                                 <option value="{{null}}">No existen gestores todavia</option>
                                             @endif
                                         </select>
+                                        @if(Auth::user()->access_level_id != '1')
+                                            <input type="hidden" name="admin_user_id" value="{{ Auth::user()->id }}">
+                                        @endif
                                         @error('admin_user_id')
                                             <p class="invalid-feedback d-block" role="alert">
                                                 <strong>{{ $message }}</strong>
