@@ -124,7 +124,7 @@
                                         </div>
                                         <div class="form-group mb-3">
                                             <label class="mb-2 text-left">Gestor</label>
-                                            <select class=" form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor">
+                                            <select class=" form-select w-100 @error('admin_user_id') is-invalid @enderror" name="admin_user_id" id="gestor" @if(Auth::user()->access_level_id != '1'){{'readonly'}}@endif>
                                                 @if ($gestores->count() > 0)
                                                     @foreach ( $gestores as $gestor )
                                                         <option  {{ old('admin_user_id',$presupuesto->admin_user_id)  == $gestor->id ? 'selected' : '' }}  value="{{$gestor->id}}">{{$gestor->name}}</option>
