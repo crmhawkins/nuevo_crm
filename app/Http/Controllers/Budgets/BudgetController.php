@@ -250,7 +250,7 @@ class BudgetController extends Controller
         $request->validate([
             'client_id' => 'required',
             'project_id' => 'required',
-            'admin_user_id' => 'required',
+            'admin_user_id' => 'nullable',
             'payment_method_id' => 'required'
         ]);
 
@@ -267,7 +267,6 @@ class BudgetController extends Controller
         // Comprobar existencia a la hora de guardar por si se eliminó un registro durante la creación
         $clientID = $data['client_id'];
         $projectID = $data['project_id'];
-        $adminUserID = $data['admin_user_id'];
 
         $projectExists = Project::where('id', $projectID)->get()->first();
 
@@ -287,14 +286,14 @@ class BudgetController extends Controller
             ]);
         }
 
-        $adminUserExists = User::where('id', $adminUserID)->get()->first();
+        // $adminUserExists = User::where('id', $adminUserID)->get()->first();
 
-        if( !$adminUserExists){
-            return redirect()->back()->with('toast', [
-                'icon' => 'error',
-                'mensaje' => 'El gestor seleccinado no existe. Es posible que se borrase durante el proceso de creación. Por favor, recargue la página.'
-            ]);
-        }
+        // if( !$adminUserExists){
+        //     return redirect()->back()->with('toast', [
+        //         'icon' => 'error',
+        //         'mensaje' => 'El gestor seleccinado no existe. Es posible que se borrase durante el proceso de creación. Por favor, recargue la página.'
+        //     ]);
+        // }
 
         // Dates
         if(isset($data['creation_date'])){
