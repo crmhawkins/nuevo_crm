@@ -474,6 +474,8 @@ class InvoiceController extends Controller
 
         if($kit == 'KD'){
             $kitdigital = true;
+        }else if($kit == 'KC'){
+            $kitconsulting = true;
         }
 
         $fac = new Facturae();
@@ -671,6 +673,13 @@ class InvoiceController extends Controller
 
         if($kitdigital){
             $fac->addLegalLiteral("Financiado por el Programa Kit Digital. Plan de Recuperación, Transformación y Resiliencia de EspañaNext Generation EU. IMPORTE SUBVENCIONADO: " . number_format($factura->base, 2) . "€");
+        }
+
+        if($kitconsulting){
+            $fac->addLegalLiteral('Financiado por el Programa Kit Consulting. Plan de
+            Recuperación, Transformación y Resiliencia de
+            España "Next Generation EU" IMPORTE
+            SUBVENCIONADO 6000€');
         }
 
         $certificado = $empresa->certificado;
