@@ -268,13 +268,33 @@
                             <a href="" id="facturaCobrada" class="btn btn-primary btn-block mb-2">Cobrada</a>
                             <a href="" id="generatePdf" class="btn btn-dark btn-block mb-2">Generar PDF</a>
                             <a href="" id="SendPDF" data-id="{{$factura->id}}" class="btn btn-dark btn-block mb-2">Enviar PDF</a>
-                            <a href="" id="electronica" data-id="{{$factura->id}}" class="btn btn-info btn-block mb-2">Electronica</a>
+                            <a href="#" id="electronica" class="btn btn-info btn-block mb-2" data-bs-toggle="modal" data-bs-target="#billingPeriodModal">Electronica</a>
                             <a href="" id="rectificar" class="btn btn-danger btn-block mb-2">Abonado (N)</a>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+        <!-- Modal para introducir el periodo de facturación -->
+        <div class="modal fade" id="billingPeriodModal" tabindex="-1" aria-labelledby="billingPeriodModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="billingPeriodModalLabel">Periodo de facturación</h5>
+                    </div>
+                    <div class="modal-body">
+                        <label for="billing_start" class="form-label">Inicio del periodo</label>
+                        <input type="date" id="billing_start" class="form-control mb-3">
+
+                        <label for="billing_end" class="form-label">Fin del periodo</label>
+                        <input type="date" id="billing_end" class="form-control">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="confirmBillingPeriod" class="btn btn-info">Generar electrónica</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -411,48 +431,37 @@
             });
         });
 
-        $('#electronica').click(function (e) {
-            e.preventDefault();
-
+        $('#confirmBillingPeriod').click(function () {
             const idFactura = @json($factura->id);
+            const inicio = $('#billing_start').val();
+            const fin = $('#billing_end').val();
+
             $.ajax({
                 url: '{{ route("factura.electronica") }}',
                 type: 'POST',
-                data: { id: idFactura },
+                data: {
+                    id: idFactura,
+                    periodo_inicio: inicio,
+                    periodo_fin: fin
+                },
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Obtén el token CSRF
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function (response, status, xhr) {
+                    $('#billingPeriodModal').modal('hide');
+
                     const contentType = xhr.getResponseHeader('Content-Type');
-                    console.log(response);
                     if (contentType && contentType.includes('application/json')) {
-                        // Si es JSON, es un error
-                        try {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.error || 'Ocurrió un error inesperado.',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        } catch (e) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'No se pudo procesar la respuesta del servidor.',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                            console.error('Error al analizar la respuesta:', e);
-                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'Ocurrió un error inesperado.',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
                     } else {
-                        // Si no es JSON, asumimos que es un archivo descargable
                         const blob = new Blob([response], { type: 'application/octet-stream' });
                         const link = document.createElement('a');
                         link.href = window.URL.createObjectURL(blob);
@@ -467,38 +476,22 @@
                             toast: true,
                             position: 'top-end',
                             showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
+                            timer: 3000
                         });
                     }
                 },
                 error: function (xhr) {
-                    // Manejo de errores
-                    try {
-                        const errorResponse = JSON.parse(xhr.responseText);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: errorResponse.error || 'Ocurrió un error inesperado.',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-                    } catch (e) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'No se pudo procesar la respuesta del servidor.',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-                        console.error('Error al analizar la respuesta:', e);
-                    }
+                    $('#billingPeriodModal').modal('hide');
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al generar la factura electrónica.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 }
             });
         });

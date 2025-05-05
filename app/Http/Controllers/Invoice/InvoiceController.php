@@ -486,9 +486,18 @@ class InvoiceController extends Controller
 
         // Asignamos la fecha
         $fecha = Carbon::parse($factura->created_at)->format('Y-m-d');
-        $fechafinal = Carbon::parse($factura->created_at)->addyears(1)->format('Y-m-d');
         $fac->setIssueDate($fecha);
-        $fac->setBillingPeriod($fecha, $fechafinal);
+
+        $inicio = $request->input('periodo_inicio');
+        $fin    = $request->input('periodo_fin');
+
+        // Si no se proporcionan fechas, se usa la lógica actual
+        if (!$inicio || !$fin) {
+            $inicio = $fecha;
+            $fin = Carbon::parse($factura->created_at)->addyears(1)->format('Y-m-d');
+        }
+
+        $fac->setBillingPeriod($inicio, $fin);
 
         $isceuta = $factura->is_ceuta == 1 ? true : false;
 
