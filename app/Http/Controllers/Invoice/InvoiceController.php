@@ -468,6 +468,7 @@ class InvoiceController extends Controller
         $cliente = Client::where('id', $factura->client_id)->first();
         $conceptos = InvoiceConcepts::where('invoice_id', $factura->id)->get();
         $kitdigital  = false;
+        $kitconsulting  = false;
 
         $facturaconcepts = explode('/', $factura->concept);
         $kit = $facturaconcepts[0];
