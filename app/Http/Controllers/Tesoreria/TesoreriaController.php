@@ -331,6 +331,13 @@ class TesoreriaController extends Controller
             'aceptado_gestor.boolean' => 'El campo aceptado gestor debe ser verdadero o falso.',
         ]);
 
+        $existe = AssociatedExpenses::where('purchase_order_id', $validated['purchase_order_id'])->exists();
+        if ($existe) {
+            return redirect()->back()->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'La orden de compra ya está asociada a un gasto.'
+            ]);
+        }
         $purchaseOrder = PurcharseOrder::find($validated['purchase_order_id']);
         $precio = $purchaseOrder->concepto->purchase_price;
 
