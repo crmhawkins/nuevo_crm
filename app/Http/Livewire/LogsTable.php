@@ -45,18 +45,16 @@ class LogsTable extends Component
     protected function actualizarLogs()
     {
         $query = LogActions::when($this->buscar, function ($query) {
-            $query->where(function ($query) {
-                // Agrupa los 'where' y 'orWhere' para que se combinen correctamente
-                $query->whereHas('usuario', function ($subQuery) {
-                    $subQuery->where('name', 'like', '%' . $this->buscar . '%');
+            $query->where(function ($subQuery) {
+                $subQuery->whereHas('usuario', function ($q) {
+                    $q->where('name', 'like', '%' . $this->buscar . '%');
                 })
-                ->whereHas('ayudas', function ($subQuery) {
-                    $subQuery->where('ayudas.cliente', 'like', '%' . $this->buscar . '%');
+                ->orWhereHas('ayudas', function ($q) {
+                    $q->where('cliente', 'like', '%' . $this->buscar . '%');
                 })
                 ->orWhere('action', 'like', '%' . $this->buscar . '%')
                 ->orWhere('description', 'like', '%' . $this->buscar . '%')
-                ->orWhere('reference_id', 'like', '%' . $this->buscar . '%')
-                ;
+                ->orWhere('reference_id', 'like', '%' . $this->buscar . '%');
             });
         })
         ->when($this->selectedYear, function ($query) {
