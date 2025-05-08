@@ -1678,6 +1678,12 @@ class BudgetController extends Controller
     public function createTask(Request $request){
         $taskSaved = false;
         $budget = Budget::find($request->id);
+        if ($budget->budget_status_id == 1 || $budget->budget_status_id == 2 || $budget->budget_status_id == 9) {
+            return response()->json([
+                'status' => false,
+                'mensaje' => "No se puede crear tarea en estado " . $budget->budget_status->name,
+            ]);
+        }
         //Crear Tarea
         $budgetConcept = BudgetConcept::where('budget_id', $budget->id)->get();
         $empresa = CompanyDetails::find(1);
