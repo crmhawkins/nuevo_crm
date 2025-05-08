@@ -908,7 +908,17 @@ class BudgetConceptsController extends Controller
 
     public function generatePurchaseOrder( $id){
 
+
         $budgetConcept = BudgetConcept::find($id);
+
+        $budget = Budget::find($budgetConcept->budget_id);
+        if ($budget->budget_status_id == 1 || $budget->budget_status_id == 2) {
+            return response()->json([
+                'status' => false,
+                'mensaje' => "No se puede crear orden de compra en estado " . $budget->budget_status->name,
+            ]);
+        }
+
         if ($budgetConcept->id){
 
             $searchOrder = PurcharseOrder::where("budget_concept_id", $budgetConcept->id)->first();
@@ -970,6 +980,14 @@ class BudgetConceptsController extends Controller
 
         $budgetConcept = BudgetConcept::where("id",$request->id)->first();
 
+
+        $budget = Budget::find($budgetConcept->budget_id);
+        if ($budget->budget_status_id == 1 || $budget->budget_status_id == 2) {
+            return response()->json([
+                'status' => false,
+                'mensaje' => "No se puede crear orden de compra en estado " . $budget->budget_status->name,
+            ]);
+        }
         if ($budgetConcept->id){
 
             $searchOrder = PurcharseOrder::where("budget_concept_id", $budgetConcept->id)->first();

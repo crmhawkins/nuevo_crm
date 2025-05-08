@@ -1678,6 +1678,7 @@ class BudgetController extends Controller
     public function createTask(Request $request){
         $taskSaved = false;
         $budget = Budget::find($request->id);
+
         if ($budget->budget_status_id == 1 || $budget->budget_status_id == 2 || $budget->budget_status_id == 9) {
             return response()->json([
                 'status' => false,
