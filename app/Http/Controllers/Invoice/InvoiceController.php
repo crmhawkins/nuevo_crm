@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Invoice;
 use App\Http\Controllers\Budgets\BudgetController;
 use App\Http\Controllers\Controller;
 use App\Mail\MailInvoice;
+use App\Models\Alerts\Alert;
 use App\Models\Budgets\Budget;
 use App\Models\Budgets\BudgetConcept;
 use App\Models\Budgets\BudgetConceptType;
@@ -133,8 +134,20 @@ class InvoiceController extends Controller
                 }
             }
         }
+
+
+
+        // $alertNew['admin_user_id'] = $budget->admin_user_id;
+        // $alertNew['stage_id'] = 52;  //etapa Pendiente de confirmar
+        // $alertNew['activation_datetime'] = $fechaNow->addDays(2)->format('Y-m-d H:i:s');
+        // $alertNew['status_id'] = 1; // Estado pendiente
+        // $alertNew['reference_id'] = $budget->id;    //Referencia del presupuesto
+
+        //$alert = Alert::create($alertNew);
+       // $alertSaved = $alert->save();
         if($taskSaved){
             // Alert::create([
+
 
             // ]);
             return response()->json([
@@ -591,7 +604,7 @@ class InvoiceController extends Controller
 
 
         foreach ($conceptos as $key => $concepto) {
-            if($kitdigital){
+            if($kitdigital || $kitconsulting){
                 if($factura->is_ceuta){
                     $item = new FacturaeItem([
                         "name" => $factura->concept.' '.$factura->project->name ,
