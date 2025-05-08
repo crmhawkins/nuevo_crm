@@ -181,14 +181,29 @@
                         @case('9')
                           <span class="badge bg-warning text-dark p-2 text-uppercase" style="font-size: 12px">Justificado Parcial</span>
                           @break
+                        @case('10')
+                          <span class="badge bg-info text-dark p-2 text-uppercase" style="font-size: 12px">Validada</span>
+                          @break
+                        @case('12')
+                          <span class="badge bg-warning text-dark p-2 text-uppercase" style="font-size: 12px">Pendiente subsanar 1</span>
+                          @break
+                        @case('13')
+                          <span class="badge bg-warning text-dark p-2 text-uppercase" style="font-size: 12px">Pendiente subsanar 2</span>
+                          @break
                         @case('14')
                           <span class="badge bg-info p-2 text-uppercase" style="font-size: 12px">Subsanado 1</span>
                           @break
                         @case('15')
                           <span class="badge bg-info text-white p-2 text-uppercase" style="font-size: 12px">Subsanado 2</span>
                           @break
+                        @case('20')
+                          <span class="badge bg-warning p-2 text-uppercase" style="font-size: 12px">Pendiente 2ª Justificacion</span>
+                          @break
                         @case('21')
                           <span class="badge bg-warning p-2 text-uppercase" style="font-size: 12px">2º Justificacion Realizada</span>
+                          @break
+                        @case('25')
+                          <span class="badge bg-info p-2 text-uppercase" style="font-size: 12px">Validada 2ª justificacion</span>
                           @break
                         @case('29')
                           <span class="badge bg-info text-white p-2 text-uppercase" style="font-size: 12px">Subsanado 3</span>
@@ -207,6 +222,15 @@
                           @break
                         @case('34')
                           <span class="badge bg-warning text-white p-2 text-uppercase" style="font-size: 12px">2º Subsanado 3</span>
+                          @break
+                        @case('35')
+                          <span class="badge bg-warning text-white p-2 text-uppercase" style="font-size: 12px">Subsanacion incorrecta</span>
+                          @break
+                        @case('36')
+                          <span class="badge bg-warning text-white p-2 text-uppercase" style="font-size: 12px">Finalizado plazo de subsanacion</span>
+                          @break
+                        @case('37')
+                          <span class="badge bg-warning text-white p-2 text-uppercase" style="font-size: 12px">C.aleatoria</span>
                           @break
                         @default
                           <span class="badge bg-danger p-2 text-uppercase" style="font-size: 12px">Anulado</span>

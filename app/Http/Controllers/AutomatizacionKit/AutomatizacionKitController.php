@@ -18,13 +18,23 @@ class AutomatizacionKitController extends Controller
         $estados = [
             8 => 'Justificado',
             9 => 'Justificado parcial',
+            10 => 'Validada',
+            12 => 'Pendiente subsanar 1',
+            13 => 'Pendiente subsanar 2',
             14 => 'Subsanado 1',
             15 => 'Subsanado 2',
+            20 => 'Pendiente 2ª Justificacion',
             21 => '2º Justificacion Realizada',
+            25 => 'Validada 2ª justificacion',
             29 => 'Subsanado 3',
+            30 => 'SASAK',
+            31 => 'R SASAK',
             32 => '2º Subsanado 1',
             33 => '2º Subsanado 2',
             34 => '2º Subsanado 3',
+            35 => 'Subsanacion incorrecta',
+            36 => 'Finalizado plazo de subsanacion',
+            37 => 'C.aleatoria',
         ];
 
         $fechaLimite = Carbon::now()->subDays($dias);
