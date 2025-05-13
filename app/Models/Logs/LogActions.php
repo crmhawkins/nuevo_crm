@@ -28,7 +28,8 @@ class LogActions extends Model
         'action',
         'description',
         'reference_id',
-
+        'created_at',
+        'updated_at',
     ];
 
 

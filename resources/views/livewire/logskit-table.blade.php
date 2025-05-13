@@ -159,7 +159,7 @@
                                     // Asumiendo que cada fila tiene su 'reference_id' original
                                     $refId = array_search($row, $logsPivotados->all()); // no es seguro
                                     $fecha = null;
-
+                                    $id = $row['id'];
                                     foreach ($fechasEditables as $ref => $fechasPorEstado) {
                                         if (
                                             ($fechasPorEstado[$estado] ?? null) === ($row[$estado] ?? null)
@@ -177,7 +177,7 @@
                                         <input type="date"
                                             class="form-control form-control-sm new-control"
                                             value="{{ $fecha ? \Carbon\Carbon::parse($row[$estado])->format('Y-m-d') : '' }}"
-                                            wire:change="$emit('cambiarFecha', '{{ $refId }}', '{{ $estado }}', $event.target.value)">
+                                            wire:change="$emit('cambiarFecha', '{{ $refId }}', '{{ $estado }}', $event.target.value,'{{ $id }}')">
                                 </td>
 
                                 @endif

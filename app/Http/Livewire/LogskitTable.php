@@ -345,8 +345,8 @@ class LogskitTable extends Component
 }
 
 
-    public function actualizarFecha($referenceId, $estado, $nuevaFecha)
-{
+    public function actualizarFecha($referenceId, $estado, $nuevaFecha, $id)
+    {
     try {
         $fechaFormateada = Carbon::parse($nuevaFecha)->format('Y-m-d');
 
@@ -377,7 +377,7 @@ class LogskitTable extends Component
             $nuevolog = LogActions::Create([
                 'tipo' => 1,
                 'action' => 'Actualizar estado en kit digital',
-                'reference_id' => $referenceId,
+                'reference_id' => $id,
                 'description' => 'De  ""  a  "' . $estado . '"',
                 'created_at' => $nuevaFecha,
                 'updated_at' => $nuevaFecha,
