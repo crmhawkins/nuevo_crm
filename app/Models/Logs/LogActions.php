@@ -149,7 +149,10 @@ class LogActions extends Model
         $subquery = DB::table('log_actions')
             ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
             ->where('action', 'Actualizar estado en kit digital')
-            ->whereIn('description', ['"JUSTIFICADO"', '"SEGUNDA JUSTIFICACIÓN (REALIZADA)"'])
+            ->where(function ($q) {
+                        $q->where('description', 'like', '%"JUSTIFICADO"%')
+                        ->orWhere('description', 'like', '%"SEGUNDA JUSTIFICACIÓN (REALIZADA)"%');
+                    })
             ->groupBy('reference_id');
 
         return self::joinSub($subquery, 'ultimos_logs', function ($join) {
