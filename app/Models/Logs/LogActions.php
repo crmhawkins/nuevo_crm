@@ -150,9 +150,9 @@ class LogActions extends Model
             ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
             ->where('action', 'Actualizar estado en kit digital')
             ->where(function ($q) {
-                        $q->where('description', 'like', '%"JUSTIFICADO"%')
-                        ->orWhere('description', 'like', '%"SEGUNDA JUSTIFICACIÓN (REALIZADA)"%');
-                    })
+                $q->where('description', 'like', '%"JUSTIFICADO"%')
+                ->orWhere('description', 'like', '%"SEGUNDA JUSTIFICACIÓN (REALIZADA)"%');
+            })
             ->groupBy('reference_id');
 
         return self::joinSub($subquery, 'ultimos_logs', function ($join) {
@@ -160,12 +160,11 @@ class LogActions extends Model
                     ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
             })
             ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
-           // ->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16])
+            ->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16])
             ->where('log_actions.created_at', '<=', $seisMesesAtras)
-            ->whereIn('log_actions.action', ['JUSTIFICADO', 'SEGUNDA JUSTIFICACIÓN (REALIZADA)'])
             ->select(
                 'log_actions.reference_id',
-                'log_actions.action',
+                'log_actions.description',
                 'log_actions.created_at as ultima_fecha',
                 'ayudas.estado',
                 'ayudas.contratos'
