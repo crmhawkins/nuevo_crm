@@ -65,9 +65,12 @@ class AutomatizacionKitController extends Controller
         // Asignamos valores por defecto si no se reciben
         $dias_laborales = $request->input('dias_laborales', 21);
         $dias = $request->input('dias', 15);
-
-        $resultados = $this->getContratos($dias_laborales);
-
+        $mas6Meses = $request->input('mas6Meses', false);
+        if ($mas6Meses) {
+            $resultados = LogActions::mas6Meses();
+        } else {
+            $resultados = $this->getContratos($dias_laborales);
+        }
         if ($resultados->isEmpty()) {
             return redirect()->back()
             ->with('success_message', "Actualmente no existen kits con más de {$dias} días sin actualizar su estado ni con el SASAK enviado.")

@@ -141,7 +141,32 @@ class LogActions extends Model
 
 
 
+    public static function mas6Meses()
+    {
+        $seisMesesAtras = now()->subMonths(6);
 
+        // Subconsulta: obtener la última fecha de JUSTIFICADO o SEGUNDA JUSTIFICACIÓN (REALIZADA) por reference_id
+        $subquery = DB::table('log_actions')
+            ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
+            ->whereIn('action', ['JUSTIFICADO', 'SEGUNDA JUSTIFICACIÓN (REALIZADA)'])
+            ->groupBy('reference_id');
+
+        return self::joinSub($subquery, 'ultimos_logs', function ($join) {
+                $join->on('log_actions.reference_id', '=', 'ultimos_logs.reference_id')
+                    ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
+            })
+            ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
+            ->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16])
+            ->where('log_actions.created_at', '<=', $seisMesesAtras)
+            ->whereIn('log_actions.action', ['JUSTIFICADO', 'SEGUNDA JUSTIFICACIÓN (REALIZADA)'])
+            ->select(
+                'log_actions.reference_id',
+                'log_actions.action',
+                'log_actions.created_at as ultima_fecha',
+                'ayudas.estado',
+                'ayudas.contratos'
+            );
+    }
 
 
     public static function automatizacionEmailsLogs_old($query, $fechaLimite, $fecha)

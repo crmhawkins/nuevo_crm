@@ -148,6 +148,7 @@
             <a href="{{ route('kitDigital.sin_actualizar', ['dias' => 30, 'dias_laborales' => 42]) }}" class="btn btn-outline-primary">+30 días</a>
             <a href="{{ route('kitDigital.sin_actualizar', ['dias' => 45, 'dias_laborales' => 63]) }}" class="btn btn-outline-primary">+45 días</a>
             <a href="{{ route('kitDigital.sin_actualizar', ['dias' => 60, 'dias_laborales' => 82]) }}" class="btn btn-outline-primary">+60 días</a>
+            <a href="{{ route('kitDigital.sin_actualizar', ['mas6Meses' => true]) }}" class="btn btn-outline-primary">+6 Meses</a>
           </div>
 
           {{-- Mensaje si no hay registros --}}
