@@ -148,7 +148,8 @@ class LogActions extends Model
         // Subconsulta: obtener la última fecha de JUSTIFICADO o SEGUNDA JUSTIFICACIÓN (REALIZADA) por reference_id
         $subquery = DB::table('log_actions')
             ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
-            ->whereIn('action', ['JUSTIFICADO', 'SEGUNDA JUSTIFICACIÓN (REALIZADA)'])
+            ->where('action', 'Actualizar estado en kit digital')
+            ->whereIn('description', ['"JUSTIFICADO"', '"SEGUNDA JUSTIFICACIÓN (REALIZADA)"'])
             ->groupBy('reference_id');
 
         return self::joinSub($subquery, 'ultimos_logs', function ($join) {
@@ -156,7 +157,7 @@ class LogActions extends Model
                     ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
             })
             ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
-            //->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16])
+            ->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16])
             ->where('log_actions.created_at', '<=', $seisMesesAtras)
             ->whereIn('log_actions.action', ['JUSTIFICADO', 'SEGUNDA JUSTIFICACIÓN (REALIZADA)'])
             ->select(
