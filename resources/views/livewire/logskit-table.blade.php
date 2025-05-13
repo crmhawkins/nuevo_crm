@@ -268,8 +268,8 @@
   </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        Livewire.on('cambiarFecha', (referenceId, estado, nuevaFecha) => {
-            Livewire.emit('llamarActualizarFecha', referenceId, estado, nuevaFecha);
+        Livewire.on('cambiarFecha', (referenceId, estado, nuevaFecha, id) => {
+            Livewire.emit('llamarActualizarFecha', referenceId, estado, nuevaFecha , id);
         });
 
         window.addEventListener('notificacion', event => {
