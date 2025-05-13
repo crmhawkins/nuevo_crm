@@ -78,6 +78,17 @@
                     Aplicar columnas
                 </button>
             </div>
+            <div class="form-check mb-2">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    wire:model="mostrarSoloConValor"
+                    id="mostrarSoloConValor"
+                >
+                <label class="form-check-label" for="mostrarSoloConValor">
+                    Mostrar solo si tiene valor
+                </label>
+            </div>
         </div>
     @endif
 

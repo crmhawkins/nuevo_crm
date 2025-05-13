@@ -35,6 +35,8 @@ class LogskitTable extends Component
     private $logsPivotados;
     public $columnasEstados = [];
     public $columnasOcultas = [];
+    public $mostrarSoloConValor = false;
+
     public $estadoSeleccionado;
     public $importeTotal = 0;
     public $columnasSeleccionadasTemp = [];
@@ -263,8 +265,7 @@ class LogskitTable extends Component
         // });
 
         $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
-            // Solo filtra si hay un estado específico seleccionado
-            if ($this->estadoSeleccionado) {
+            if ($this->mostrarSoloConValor) {
                 foreach ($this->columnasEstados as $estado) {
                     if (!in_array($estado, $this->columnasOcultas) && empty($row[$estado])) {
                         return false;
