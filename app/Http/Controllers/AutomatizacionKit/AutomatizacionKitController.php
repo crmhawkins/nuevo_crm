@@ -67,8 +67,9 @@ class AutomatizacionKitController extends Controller
         $dias = $request->input('dias', 15);
         $mas6Meses = $request->input('mas6Meses', false);
         if ($mas6Meses) {
+            $dias = 30*6;
             $resultados = LogActions::mas6Meses()->get();
-            dd($resultados);
+            //dd($resultados);
         } else {
             $resultados = $this->getContratos($dias_laborales);
         }
