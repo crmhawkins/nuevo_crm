@@ -8,6 +8,7 @@ use App\Models\Logs\LogActions;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -373,10 +374,23 @@ class LogskitTable extends Component
             // Esperamos un pequeño retraso para que se procese todo correctamente antes del render
             $this->resetPage(); // resetea la paginación por si cambia algo
         } else {
-            $this->dispatchBrowserEvent('notificacion', [
-                'tipo' => 'error',
-                'mensaje' => 'No se encontró el registro de LOG.',
+            $nuevolog = LogActions::Create([
+                'tipo' => 1,
+                'action' => 'Actualizar estado en kit digital',
+                'reference_id' => $referenceId,
+                'description' => 'De  ""  a  "' . $estado . '"',
+                'created_at' => $nuevaFecha,
+                'updated_at' => $nuevaFecha,
+                'admin_user_id' => Auth::user()->id,
             ]);
+
+            if ($nuevolog)
+            {
+                $this->dispatchBrowserEvent('notificacion', [
+                    'tipo' => 'success',
+                    'mensaje' => 'Fecha actualizada correctamente.',
+                ]);
+            }
         }
 
         $this->actualizarLogs();

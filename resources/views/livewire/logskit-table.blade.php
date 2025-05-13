@@ -174,12 +174,10 @@
 
 
                                 <td style="width: 140px; white-space: nowrap; text-align: center;">
-                                    @if ($fecha)
                                         <input type="date"
                                             class="form-control form-control-sm new-control"
-                                            value="{{ \Carbon\Carbon::parse($row[$estado])->format('Y-m-d') }}"
+                                            value="{{ $fecha ? \Carbon\Carbon::parse($row[$estado])->format('Y-m-d') : '' }}"
                                             wire:change="$emit('cambiarFecha', '{{ $refId }}', '{{ $estado }}', $event.target.value)">
-                                    @endif
                                 </td>
 
                                 @endif
