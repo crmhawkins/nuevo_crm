@@ -150,8 +150,8 @@ class LogActions extends Model
             ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
             ->where('action', 'Actualizar estado en kit digital')
             ->where(function ($q) {
-                $q->where('description', 'like', '%"JUSTIFICADO"%')
-                ->orWhere('description', 'like', '%"SEGUNDA JUSTIFICACIÓN (REALIZADA)"%');
+                $q->where('description', 'like', '%a  "JUSTIFICADO"%')
+                ->orWhere('description', 'like', '%a  "SEGUNDA JUSTIFICACIÓN (REALIZADA)"%');
             })
             ->groupBy('reference_id');
 
