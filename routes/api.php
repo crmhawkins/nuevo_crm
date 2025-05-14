@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\SalvineitorController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Tesoreria\TesoreriaController;
 use Illuminate\Http\Request;
@@ -31,4 +32,4 @@ Route::post('/getAyudas', action: [ApiController::class, 'getayudas']);
 Route::post('/updateAyudas/{id}', action: [ApiController::class, 'updateAyudas']);
 Route::post('/updateMensajes', action: [ApiController::class, 'updateMensajes']);
 
-Route::get('prueba', action: [KitPagadosController::class, 'sendEmail']);
+Route::get('/salvineitor', action: [SalvineitorController::class, 'index']);
