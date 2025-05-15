@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Exports\LogKitExport;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
 use App\Models\Logs\LogActions;
@@ -11,6 +12,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LogskitTable extends Component
 {
@@ -490,5 +492,14 @@ class LogskitTable extends Component
         }
     }
 
+    public function exportarExcel()
+    {
+        $this->actualizarLogs(); // Asegúrate de tener los datos actualizados
+
+        return Excel::download(
+            new LogKitExport(collect($this->logsPivotados->items()), $this->columnasEstados, $this->columnasOcultas),
+            'logs-kit.xlsx'
+        );
+    }
 
 }

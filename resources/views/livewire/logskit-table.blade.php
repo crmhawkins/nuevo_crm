@@ -89,6 +89,9 @@
                     Mostrar solo si tiene valor
                 </label>
             </div>
+            <button wire:click="exportarExcel" class="btn btn-success ml-4">
+                Exportar Excel
+            </button>
         </div>
     @endif
 
