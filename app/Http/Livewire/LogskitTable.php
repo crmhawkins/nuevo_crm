@@ -492,12 +492,22 @@ class LogskitTable extends Component
         }
     }
 
-    public function exportarExcel()
+   public function exportarExcel()
     {
-        $this->actualizarLogs(); // Asegúrate de tener los datos actualizados
+        $oldPage =$this->perPage; // 🔥 Fuerza sin paginación
+        $this->perPage = 'all'; // 🔥 Fuerza sin paginación
+
+        $this->actualizarLogs(); // Asegúrate de tener todos los datos
+
+        $datos = $this->logsPivotados instanceof \Illuminate\Pagination\LengthAwarePaginator
+            ? $this->logsPivotados->getCollection()
+            : $this->logsPivotados;
+
+        $this->perPage = $oldPage;
+        $this->actualizarLogs(); // Asegúrate de tener todos los datos
 
         return Excel::download(
-            new LogKitExport(collect($this->logsPivotados->items()), $this->columnasEstados, $this->columnasOcultas),
+            new LogKitExport($datos, $this->columnasEstados, $this->columnasOcultas),
             'logs-kit.xlsx'
         );
     }
