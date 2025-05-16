@@ -112,6 +112,7 @@
 <script>
     $('#actualizar').click(function(e){
         e.preventDefault(); // Esto previene que el enlace navegue a otra página.
+            $(this).prop('disabled', true);
         $('form').submit(); // Esto envía el formulario.
     });
 </script>
