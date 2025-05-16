@@ -16,7 +16,7 @@ class SalvineitorController extends Controller
         $diaSemana = $now->dayOfWeek; // 0 (domingo) a 6 (sábado)
         $hora = $now->hour;
 
-        if ($diaSemana >= 1 && $diaSemana <= 5 && $hora >= 7 && $hora <= 19) {
+        if ($diaSemana >= 1 && $diaSemana <= 5 && $hora >= 5 && $hora <= 17) {
             return response()->json([
                 'success' => 'OK'
             ], 200);
