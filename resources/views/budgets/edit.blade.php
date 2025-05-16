@@ -570,10 +570,8 @@
         });
 
         //Boton de generar factura
-        $('#generateInvoice').click(function(e){
-            e.preventDefault();
-    $(this).prop('disabled', true);
- // Esto previene que el enlace navegue a otra página.
+        $('#generateInvoice').one('click',function(e){
+            e.preventDefault(); // Esto previene que el enlace navegue a otra página.
 
             const idPresupuesto = @json($presupuesto->id);
 
@@ -645,10 +643,8 @@
         });
 
         //Boton de generar tareas
-        $('#generateTask').click(function(e){
-            e.preventDefault();
-    $(this).prop('disabled', true);
- // Esto previene que el enlace navegue a otra página.
+        $('#generateTask').one('click',function(e){
+            e.preventDefault();  // Esto previene que el enlace navegue a otra página.
 
             const idPresupuesto = @json($presupuesto->id);
 
@@ -942,7 +938,6 @@
         $('#generateInvoicePartial').click(function(e) {
             // Iniciar SweetAlert2 con opciones
             e.preventDefault();
-        $(this).prop('disabled', true);
 
             const porcentajeYaFacturado = @json($porcentaje); // Asegúrate de que esta variable tiene el porcentaje ya facturado.
             const maximoPermitido = 100 - porcentajeYaFacturado;
