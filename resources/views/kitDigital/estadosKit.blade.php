@@ -233,6 +233,9 @@
                         @case('37')
                           <span class="badge bg-warning text-white p-2 text-uppercase" style="font-size: 12px">C.aleatoria</span>
                           @break
+                        @case('39')
+                          <span class="badge bg-warning text-white p-2 text-uppercase" style="font-size: 12px">AUDITORIA</span>
+                          @break
                         @default
                           <span class="badge bg-danger p-2 text-uppercase" style="font-size: 12px">Anulado</span>
                       @endswitch
