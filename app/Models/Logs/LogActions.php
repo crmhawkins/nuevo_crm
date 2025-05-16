@@ -146,29 +146,35 @@ class LogActions extends Model
         $seisMesesAtras = now()->subMonths(6);
 
         // Subconsulta: obtener la última fecha de JUSTIFICADO o SEGUNDA JUSTIFICACIÓN (REALIZADA) por reference_id
-        $subquery = DB::table('log_actions')
-            ->select('reference_id', DB::raw('MAX(created_at) as ultima_fecha'))
-            ->where('action', 'Actualizar estado en kit digital')
+        $subquery = DB::table('log_actions as l1')
+            ->select('l1.id')
+            ->where('l1.action', 'Actualizar estado en kit digital')
             ->where(function ($q) {
-                $q->where('description', 'like', '%a  "JUSTIFICADO"%')
-                ->orWhere('description', 'like', '%a  "SEGUNDA JUSTIFICACIÓN (REALIZADA)"%');
+                $q->where('l1.description', 'like', '%a  "JUSTIFICADO"%')
+                ->orWhere('l1.description', 'like', '%a  "SEGUNDA JUSTIFICACIÓN (REALIZADA)"%');
             })
-            ->groupBy('reference_id');
+            ->whereRaw('l1.created_at = (
+                SELECT MAX(l2.created_at)
+                FROM log_actions l2
+                WHERE l2.reference_id = l1.reference_id
+                AND l2.action = l1.action
+                AND (
+                    l2.description LIKE "%a  \\"JUSTIFICADO\\"%" OR
+                    l2.description LIKE "%a  \\"SEGUNDA JUSTIFICACIÓN (REALIZADA)\\"%"
+                )
+            )');
 
-        return self::joinSub($subquery, 'ultimos_logs', function ($join) {
-                $join->on('log_actions.reference_id', '=', 'ultimos_logs.reference_id')
-                    ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
-            })
+        return self::whereIn('log_actions.id', $subquery)
             ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
-            ->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16,20])
-            ->where('log_actions.created_at', '<=', $seisMesesAtras)
+            ->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16, 20])
+            ->where('log_actions.created_at', '<=', now()->subMonths(6))
             ->select(
                 'log_actions.reference_id',
                 'log_actions.description',
                 'log_actions.created_at as ultima_fecha',
                 'ayudas.estado',
                 'ayudas.contratos'
-            )->distinct();
+            );
     }
 
 
