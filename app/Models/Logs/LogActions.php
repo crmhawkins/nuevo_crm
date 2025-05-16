@@ -160,7 +160,7 @@ class LogActions extends Model
                     ->on('log_actions.created_at', '=', 'ultimos_logs.ultima_fecha');
             })
             ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
-            ->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16])
+            ->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16,20])
             ->where('log_actions.created_at', '<=', $seisMesesAtras)
             ->select(
                 'log_actions.reference_id',
@@ -168,7 +168,7 @@ class LogActions extends Model
                 'log_actions.created_at as ultima_fecha',
                 'ayudas.estado',
                 'ayudas.contratos'
-            );
+            )->distinct();
     }
 
 
