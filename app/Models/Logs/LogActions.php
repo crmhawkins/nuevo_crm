@@ -173,7 +173,8 @@ class LogActions extends Model
                 'log_actions.description',
                 'log_actions.created_at as ultima_fecha',
                 'ayudas.estado',
-                'ayudas.contratos'
+                'ayudas.contratos',
+                'ayudas.empresa as empresa'
             );
     }
 

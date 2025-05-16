@@ -157,6 +157,11 @@
               {{session('success_message') }}
             </div>
           @else
+          @php
+              $hayEmpresa = collect($resultados)->contains(function ($item) {
+                    return !empty($item->empresa);
+                });
+          @endphp
             {{-- Tabla --}}
             <div class="pt-5 table-responsive-mobile">
               <table id="comprasTable" class="w-100 table-clientportal display">
@@ -167,6 +172,10 @@
                     <th>Estado</th>
                     <th>Estado actualizado</th>
                     <th>Sasak Enviado</th>
+                    @if($hayEmpresa)
+                    <th>Empresa</th>
+                    @endif
+
                   </tr>
                 </thead>
                 <tbody>
@@ -246,7 +255,11 @@
                     <td>
                       <span class="sorting_1">{{$resultado->fecha_sasak}}</span>
                     </td>
-
+                    @if(isset($resultado->empresa))
+                    <td>
+                      <span class="sorting_1">{{isset($resultado->empresa) ? $resultado->empresa : ''}}</span>
+                    </td>
+                    @endif
                   </tr>
                   @endforeach
                 </tbody>
