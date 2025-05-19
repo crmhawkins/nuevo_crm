@@ -66,6 +66,7 @@ class DashboardController extends Controller
         if ($jornadaActiva) {
             $pausaActiva = $jornadaActiva->pausasActiva();
         }
+        $unclassifiedIncomes = 0;
 
         switch ($acceso) {
             case 1:
@@ -121,7 +122,6 @@ class DashboardController extends Controller
                 $projects = Project::where('admin_user_id', $id)->get();
                 $tareas = Task::where('gestor_id', $id)->get();
                 $horasSemanales = $this->horasSemanales();
-
                 return view('dashboards.dashboard_gestor', compact('user', 'tareas', 'to_dos', 'budgets', 'projects', 'clientes', 'users', 'events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'llamadaActiva', 'to_dos_finalizados', 'horasSemanales'));
             case 3:
                 $clientes = Client::where('is_client', true)->get();
