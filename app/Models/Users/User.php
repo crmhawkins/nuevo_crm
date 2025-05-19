@@ -166,4 +166,9 @@ class User extends Authenticatable
         ->get();  // Asegúrate de seleccionar los campos de las órdenes de compra
     }
 
+    public function archivedClients()
+    {
+        return $this->belongsToMany(Client::class, 'archived_client_user')->withTimestamps();
+    }
+
 }

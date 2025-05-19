@@ -61,9 +61,11 @@ use App\Http\Controllers\Whatsapp\AccionesController;
 use App\Http\Controllers\Whatsapp\WhatsappController;
 use App\Http\Controllers\Portal\PortalPagos;
 use App\Http\Controllers\Portal\PortalCompraWebs;
+// use App\Http\Controllers\Clients\ClientController;
 use App\Http\Controllers\Portal\PortalProductos;
 use App\Http\Controllers\AutomatizacionKit\AutomatizacionKitController;
 use App\Http\Controllers\AutomatizacionKit\KitPagadosController;
+use App\Http\Controllers\PresupuestoComentarioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -159,7 +161,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/budgets-by-project', [BudgetController::class, 'getBudgetsByprojectId']);
         Route::post('/budget-by-id', [BudgetController::class, 'getBudgetById']);
         Route::get('/status-projects', [BudgetController::class, 'statusProjects'])->name('presupuestos.status');
+        Route::post('/budget/descripcion/{id}', [BudgetController::class, 'actualizarDescripcion'])->name('presupuesto.descripcion');
         Route::post('/budget/send/{budget}', [BudgetController::class, 'sendEmail'])->name('presupuestos.sendEmail');
+        Route::post('/presupuesto/comentario', [PresupuestoComentarioController::class, 'store'])->name('presupuesto.comentario.store');
+        Route::delete('/presupuesto/comentario/{id}', [PresupuestoComentarioController::class, 'destroy'])->name('presupuesto.comentario.destroy');
+        Route::patch('/budget/{id}/archivar', [BudgetController::class, 'archivar'])->name('presupuesto.archivar');
+        Route::patch('/budget/{id}/desarchivar', [BudgetController::class, 'desarchivar'])->name('presupuesto.desarchivar');
+
+
+        Route::patch('/clientes/{cliente}/archivar', [ClientController::class, 'archivar'])->name('cliente.archivar');
+        Route::patch('/clientes/{cliente}/desarchivar', [ClientController::class, 'desarchivar'])->name('cliente.desarchivar');
 
         // Budgets Concepts (CONCEPTOS DE PRESUPUESTOS)
         Route::get('/budget-concepts/{budget}/create-type-own', [BudgetConceptsController::class, 'createTypeOwn'])->name('budgetConcepts.createTypeOwn');
@@ -244,6 +255,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/task/show/{id}', [TasksController::class, 'show'])->name('tarea.show');
         Route::post('/task/destroy', [TasksController::class, 'destroy'])->name('tarea.delete');
         Route::get('/task/calendar/{id}', [TasksController::class, 'calendar'])->name('tarea.calendar');
+        Route::put('/task/update-status/{id}', [TasksController::class, 'updateStatus'])->name('tarea.updateStatus');
 
 
         // Dominios
