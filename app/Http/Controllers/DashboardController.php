@@ -122,7 +122,8 @@ class DashboardController extends Controller
                 $projects = Project::where('admin_user_id', $id)->get();
                 $tareas = Task::where('gestor_id', $id)->get();
                 $horasSemanales = $this->horasSemanales();
-                return view('dashboards.dashboard_gestor', compact('user', 'tareas', 'to_dos', 'budgets', 'projects', 'clientes', 'users', 'events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'llamadaActiva', 'to_dos_finalizados', 'horasSemanales'));
+                $unclassifiedIncomes =[];
+                return view('dashboards.dashboard_gestor', compact('user', 'tareas', 'to_dos', 'budgets', 'projects', 'clientes', 'users', 'events', 'timeWorkedToday', 'jornadaActiva','unclassifiedIncomes', 'pausaActiva', 'llamadaActiva', 'to_dos_finalizados', 'horasSemanales'));
             case 3:
                 $clientes = Client::where('is_client', true)->get();
                 $budgets = Budget::where('admin_user_id', $id)->get();
