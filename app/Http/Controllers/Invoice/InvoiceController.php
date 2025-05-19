@@ -86,6 +86,7 @@ class InvoiceController extends Controller
 
         if($factura->budget->budget_status_id == BudgetStatu::ESPERANDO_PAGO_PARCIAL && $factura->invoice_status_id == 3){
             $factura->budget->budget_status_id = BudgetStatu::ACCEPTED;
+            $this->createAlert($factura->budget->id);
             $this->createTask($factura->budget->id);
         }
         if($facturaupdated){
@@ -107,6 +108,12 @@ class InvoiceController extends Controller
         //Crear Tarea
         $budgetConcept = BudgetConcept::where('budget_id', $budget->id)->get();
         $empresa = CompanyDetails::find(1);
+        if($budgetConcept->isEmpty()){
+            return response()->json([
+                'status' => false,
+                'mensaje' => "No hay conceptos para crear tarea"
+            ]);
+        }
         foreach($budgetConcept as $con){
             $time_hour = $this->calcNewHoursPrice($con->total, $empresa->price_hour);
             if($con->concept_type_id == 2){
@@ -134,22 +141,8 @@ class InvoiceController extends Controller
                 }
             }
         }
-
-
-
-        // $alertNew['admin_user_id'] = $budget->admin_user_id;
-        // $alertNew['stage_id'] = 52;  //etapa Pendiente de confirmar
-        // $alertNew['activation_datetime'] = $fechaNow->addDays(2)->format('Y-m-d H:i:s');
-        // $alertNew['status_id'] = 1; // Estado pendiente
-        // $alertNew['reference_id'] = $budget->id;    //Referencia del presupuesto
-
-        //$alert = Alert::create($alertNew);
-       // $alertSaved = $alert->save();
         if($taskSaved){
-            // Alert::create([
 
-
-            // ]);
             return response()->json([
                 'status' => true,
                 'mensaje' => "Tareas generadas con exito"
@@ -161,6 +154,22 @@ class InvoiceController extends Controller
             ]);
         }
 
+    }
+
+    public function createAlert($id){
+
+        $fechaNow = Carbon::now();
+
+        $budget = Budget::find($id);
+        $alertNew['admin_user_id'] = $budget->admin_user_id;
+        $alertNew['stage_id'] = 52;  //etapa Pendiente de confirmar
+        $alertNew['activation_datetime'] = $fechaNow->format('Y-m-d H:i:s');
+        $alertNew['status_id'] = 1; // Estado pendiente
+        $alertNew['reference_id'] = $budget->id;    //Referencia del presupuesto
+
+        $alert = Alert::create($alertNew);
+       $alertSaved = $alert->save();
+        return $alertSaved;
     }
 
     public function generatePDF(Request $request)
