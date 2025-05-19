@@ -24,6 +24,7 @@ use App\Models\Logs\LogsEmail;
 use App\Models\PaymentMethods\PaymentMethod;
 use App\Models\Petitions\Petition;
 use App\Models\Projects\Project;
+use App\Models\Tasks\TaskStatus;
 use App\Models\Users\ClientUserOrder;
 use App\Models\Users\User;
 use Carbon\Carbon;
@@ -50,25 +51,103 @@ class BudgetController extends Controller
         return view('budgets.indexUser', compact('budgets'));
     }
 
+    public function archivar($id)
+    {
+        $presupuesto = Budget::findOrFail($id);
+        $presupuesto->archivado = true;
+        $presupuesto->save();
+
+        return back()->with('success', 'Presupuesto archivado con éxito.');
+    }
+
+    public function desarchivar($id)
+    {
+        $presupuesto = Budget::findOrFail($id);
+        $presupuesto->archivado = false;
+        $presupuesto->save();
+
+        return back()->with('success', 'Presupuesto desarchivado.');
+    }
+
     public function statusProjects()
     {
         $userId = Auth::user()->id;
         $usuario = User::find($userId);
 
-        // Obtener los clientes ordenados por el usuario
-        // $clientes = $usuario->orderedClients()
-        //                     ->orderBy('order')
-        //                     ->with('client')
-        //                     ->get()
-        //                     ->pluck('client');
+        // Obtener filtros desde la URL
+        $añoSeleccionado = request()->get('year', date('Y'));
+        $estadosSeleccionados = request()->get('status', []);
+        $filtrarSinTareas = request()->get('sin_tareas', false);
 
-        // // Si no hay un orden guardado, mostrar los clientes por defecto
-        // if ($clientes->isEmpty()) {}
-            $clientes = $usuario->clientes()->orderBy('name')->get();
+        // Estados excluidos
+        $estadosExcluidos = [
+            BudgetStatu::CANCELLED,
+            BudgetStatu::FINALIZADO,
+            BudgetStatu::FINALIZADO_PROPIO
+        ];
 
+        $mostrarArchivados = request()->get('archivados', false);
+        $archivadosClienteIds = Auth::user()->archivedClients()->pluck('clients.id')->toArray();
+        $mostrarClientesArchivados = request()->get('clientes_archivados', false);
 
-        return view('budgets.status', compact('clientes'));
+        // En el filtro de presupuestos:
+        $presupuestosQuery = function ($query) use ($estadosExcluidos, $añoSeleccionado, $estadosSeleccionados, $mostrarArchivados) {
+            $query->whereNotIn('budget_status_id', $estadosExcluidos)
+                ->whereYear('created_at', $añoSeleccionado)
+                ->when($mostrarArchivados, fn($q) => $q->where('archivado', true))
+                ->when(!$mostrarArchivados, fn($q) => $q->where('archivado', false));
+
+            if (!empty($estadosSeleccionados)) {
+                $query->whereIn('budget_status_id', $estadosSeleccionados);
+            }
+        };
+
+        $clientes = $usuario->clientes()
+            ->when(!$mostrarClientesArchivados, function ($query) use ($archivadosClienteIds) {
+                $query->whereNotIn('clients.id', $archivadosClienteIds);
+            })
+            ->with(['presupuestos' => function ($query) use ($presupuestosQuery) {
+                $query->where(function ($q) use ($presupuestosQuery) {
+                    $presupuestosQuery($q);
+                })->with('tasks');
+            }])
+            ->orderBy('name')
+            ->get()
+            ->filter(function ($cliente) use ($filtrarSinTareas) {
+                $presupuestosFiltrados = $cliente->presupuestos->filter(function ($presupuesto) use ($filtrarSinTareas) {
+                    return $filtrarSinTareas ? $presupuesto->tasks->isEmpty() : true;
+                });
+
+                $cliente->setRelation('presupuestos', $presupuestosFiltrados);
+                return $presupuestosFiltrados->isNotEmpty();
+        });
+
+        // Estados disponibles
+        $todosLosEstados = BudgetStatu::whereNotIn('id', $estadosExcluidos)->get();
+        $taskStatusList = TaskStatus::all();
+
+        return view('budgets.status', compact(
+            'clientes',
+            'añoSeleccionado',
+            'estadosSeleccionados',
+            'todosLosEstados',
+            'taskStatusList'
+        ));
     }
+
+    public function actualizarDescripcion(Request $request, $id)
+    {
+        $request->validate([
+            'project_description' => 'nullable|string'
+        ]);
+
+        $presupuesto = Budget::findOrFail($id);
+        $presupuesto->project_description = $request->project_description;
+        $presupuesto->save();
+
+        return redirect()->back()->with('success', 'Descripción actualizada correctamente.');
+    }
+
 
     public function saveOrder(Request $request)
     {

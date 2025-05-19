@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Exports\LogKitExport;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
 use App\Models\Logs\LogActions;
@@ -11,6 +12,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LogskitTable extends Component
 {
@@ -185,16 +187,18 @@ class LogskitTable extends Component
         }
 
         // Extraer columnas de estados únicas
-        $this->columnasEstados = collect($collection)
-            ->map(function ($log) {
-                $partes = explode('  a  "', $log->description);
-                return count($partes) === 2 ? trim($partes[1], '"') : null;
-            })
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values()
-            ->toArray();
+        // $this->columnasEstados = collect($collection)
+        //     ->map(function ($log) {
+        //         $partes = explode('  a  "', $log->description);
+        //         return count($partes) === 2 ? trim($partes[1], '"') : null;
+        //     })
+        //     ->filter()
+        //     ->unique()
+        //     ->sort()
+        //     ->values()
+        //     ->toArray();
+        $this->columnasEstados = KitDigitalEstados::orderBy('orden', 'asc')->pluck('nombre')->toArray();
+
 
         // Aplicar visibilidad de columnas si se ha seleccionado un estado
         // if ($this->estadoSeleccionado) {
@@ -347,61 +351,61 @@ class LogskitTable extends Component
 
     public function actualizarFecha($referenceId, $estado, $nuevaFecha, $id)
     {
-    try {
-        $fechaFormateada = Carbon::parse($nuevaFecha)->format('Y-m-d');
+        try {
+            $fechaFormateada = Carbon::parse($nuevaFecha)->format('Y-m-d');
 
-        $log = LogActions::where('id', $referenceId)
-            ->where('tipo', 1)
-            ->where('action', 'Actualizar estado en kit digital')
-            ->get()
-            ->filter(function ($item) use ($estado) {
-                $partes = explode('  a  "', $item->description);
-                return count($partes) === 2 && trim($partes[1], '"') === $estado;
-            })->first();
+            $log = LogActions::where('id', $referenceId)
+                ->where('tipo', 1)
+                ->where('action', 'Actualizar estado en kit digital')
+                ->get()
+                ->filter(function ($item) use ($estado) {
+                    $partes = explode('  a  "', $item->description);
+                    return count($partes) === 2 && trim($partes[1], '"') === $estado;
+                })->first();
 
-        if ($log) {
-            $log->created_at = $fechaFormateada;
-            $log->save();
+            if ($log) {
+                $log->created_at = $fechaFormateada;
+                $log->save();
 
-            // 💡 Forzamos actualización REAL desde la base de datos
-            $log->refresh();
+                // 💡 Forzamos actualización REAL desde la base de datos
+                $log->refresh();
 
-            $this->dispatchBrowserEvent('notificacion', [
-                'tipo' => 'success',
-                'mensaje' => 'Fecha actualizada correctamente.',
-            ]);
-
-            // Esperamos un pequeño retraso para que se procese todo correctamente antes del render
-            $this->resetPage(); // resetea la paginación por si cambia algo
-        } else {
-            $nuevolog = LogActions::Create([
-                'tipo' => 1,
-                'action' => 'Actualizar estado en kit digital',
-                'reference_id' => $id,
-                'description' => 'De  ""  a  "' . $estado . '"',
-                'created_at' => $nuevaFecha,
-                'updated_at' => $nuevaFecha,
-                'admin_user_id' => Auth::user()->id,
-            ]);
-
-            if ($nuevolog)
-            {
                 $this->dispatchBrowserEvent('notificacion', [
                     'tipo' => 'success',
                     'mensaje' => 'Fecha actualizada correctamente.',
                 ]);
+
+                // Esperamos un pequeño retraso para que se procese todo correctamente antes del render
+                $this->resetPage(); // resetea la paginación por si cambia algo
+            } else {
+                $nuevolog = LogActions::Create([
+                    'tipo' => 1,
+                    'action' => 'Actualizar estado en kit digital',
+                    'reference_id' => $id,
+                    'description' => 'De  ""  a  "' . $estado . '"',
+                    'created_at' => $nuevaFecha,
+                    'updated_at' => $nuevaFecha,
+                    'admin_user_id' => Auth::user()->id,
+                ]);
+
+                if ($nuevolog)
+                {
+                    $this->dispatchBrowserEvent('notificacion', [
+                        'tipo' => 'success',
+                        'mensaje' => 'Fecha actualizada correctamente.',
+                    ]);
+                }
             }
+
+            $this->actualizarLogs();
+
+        } catch (\Exception $e) {
+            $this->dispatchBrowserEvent('notificacion', [
+                'tipo' => 'error',
+                'mensaje' => 'Error al actualizar: ' . $e->getMessage(),
+            ]);
         }
-
-        $this->actualizarLogs();
-
-    } catch (\Exception $e) {
-        $this->dispatchBrowserEvent('notificacion', [
-            'tipo' => 'error',
-            'mensaje' => 'Error al actualizar: ' . $e->getMessage(),
-        ]);
     }
-}
 
 
 
@@ -488,5 +492,24 @@ class LogskitTable extends Component
         }
     }
 
+   public function exportarExcel()
+    {
+        $oldPage =$this->perPage; // 🔥 Fuerza sin paginación
+        $this->perPage = 'all'; // 🔥 Fuerza sin paginación
+
+        $this->actualizarLogs(); // Asegúrate de tener todos los datos
+
+        $datos = $this->logsPivotados instanceof \Illuminate\Pagination\LengthAwarePaginator
+            ? $this->logsPivotados->getCollection()
+            : $this->logsPivotados;
+
+        $this->perPage = $oldPage;
+        $this->actualizarLogs(); // Asegúrate de tener todos los datos
+
+        return Excel::download(
+            new LogKitExport($datos, $this->columnasEstados, $this->columnasOcultas),
+            'logs-kit.xlsx'
+        );
+    }
 
 }

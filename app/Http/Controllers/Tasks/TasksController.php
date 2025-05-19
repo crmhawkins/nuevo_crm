@@ -165,6 +165,19 @@ class TasksController extends Controller
         ]);
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'task_status_id' => 'required|exists:task_status,id',
+        ]);
+
+        $task = Task::findOrFail($id);
+        $task->task_status_id = $request->task_status_id;
+        $task->save();
+
+        return back()->with('success', 'Estado de la tarea actualizado correctamente.');
+    }
+
     public function calendar($id)
     {
         $user = User::where('id', $id)->first();

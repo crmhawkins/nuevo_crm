@@ -546,4 +546,17 @@ class ClientController extends Controller
         return response()->json($clienteExistente);
     }
 
+
+    public function archivar(Client $cliente)
+    {
+        Auth::user()->archivedClients()->syncWithoutDetaching([$cliente->id]);
+        return back()->with('success', 'Cliente archivado correctamente.');
+    }
+
+    public function desarchivar(Client $cliente)
+    {
+        Auth::user()->archivedClients()->detach($cliente->id);
+        return back()->with('success', 'Cliente desarchivado correctamente.');
+    }
+
 }

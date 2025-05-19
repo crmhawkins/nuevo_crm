@@ -5,6 +5,7 @@ namespace App\Models\Budgets;
 use App\Models\Alerts\Alert;
 use App\Models\Invoices\Invoice;
 use App\Models\Logs\LogActions;
+use App\Models\PresupuestoComentario;
 use App\Models\Tasks\Task;
 use App\Models\Users\User;
 use Carbon\Carbon;
@@ -51,6 +52,7 @@ class Budget extends Model
         'cuotas_mensuales',
         'order_column',
         'is_ceuta',
+        'project_description'
     ];
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
@@ -157,4 +159,10 @@ class Budget extends Model
             }
         });
     }
+
+    public function comentariosExtra()
+    {
+        return $this->hasMany(PresupuestoComentario::class, 'presupuesto_id');
+    }
+
 }

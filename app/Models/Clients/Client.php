@@ -2,6 +2,7 @@
 
 namespace App\Models\Clients;
 
+use App\Models\AdminUser;
 use App\Models\Invoices\Invoice;
 use App\Models\Projects\Project;
 use App\Models\Users\ClientUserOrder;
@@ -165,5 +166,11 @@ class Client extends Model
 
         return $months;
     }
+
+    public function usersWhoArchived()
+    {
+        return $this->belongsToMany(AdminUser::class, 'archived_client_user')->withTimestamps();
+    }
+
 
 }
