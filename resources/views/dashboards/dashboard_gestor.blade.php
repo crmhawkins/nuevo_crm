@@ -998,7 +998,7 @@
                     </div>
                     @endif
 
-                    @if (count($unclassifiedExpenses) > 0)
+                    @if (!empty($unclassifiedExpenses) && count($unclassifiedExpenses) > 0)
                         <strong>Gastos No Clasificados</strong>
                         <div class="table-responsive">
                             <table class="table table-striped">
