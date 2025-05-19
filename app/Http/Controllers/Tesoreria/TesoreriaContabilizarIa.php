@@ -556,7 +556,6 @@ class TesoreriaContabilizarIa extends Controller
             'success' => true,
             ]);
         }
-    }
 
     public function storeGasto(Request $request)
     {
