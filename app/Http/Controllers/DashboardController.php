@@ -66,7 +66,7 @@ class DashboardController extends Controller
         if ($jornadaActiva) {
             $pausaActiva = $jornadaActiva->pausasActiva();
         }
-        $unclassifiedIncomes = 0;
+        $unclassifiedIncomes =[];
 
         switch ($acceso) {
             case 1:
