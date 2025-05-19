@@ -790,7 +790,7 @@
                         <h5 class="modal-title" id="unclassifiedModalLabel">Ingresos y Gastos No Clasificados</h5>
                     </div>
                     <div class="modal-body">
-                        @if (count($unclassifiedIncomes) > 0)
+                        @if (!empty($unclassifiedIncomes) && count($unclassifiedIncomes) > 0)
                             <strong>Ingresos No Clasificados</strong>
                             <div class="table-responsive">
                                 <table class="table table-striped">
