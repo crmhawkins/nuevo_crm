@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Accounting\AssociatedExpenses;
 use App\Models\Accounting\Gasto;
 use App\Models\Accounting\Ingreso;
+use App\Models\Accounting\UnclassifiedExpenses;
+use App\Models\Accounting\UnclassifiedIncome;
 use App\Models\Alerts\Alert;
 use App\Models\Alerts\AlertStatus;
 use App\Models\Bajas\Baja;
@@ -19,6 +21,7 @@ use App\Models\Jornada\Pause;
 use App\Models\KitDigital;
 use App\Models\KitDigitalEstados;
 use App\Models\Llamadas\Llamada;
+use App\Models\Other\BankAccounts;
 use App\Models\Petitions\Petition;
 use App\Models\Logs\LogActions;
 use App\Models\Notes\Note;
@@ -35,23 +38,24 @@ use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
+use Stripe\BankAccount;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-
         $id = Auth::user()->id;
         $acceso = Auth::user()->access_level_id;
         $user = User::find($id);
-        $users = User::where('inactive',0)->get();
-        $to_dos = $user->todos()
+        $users = User::where('inactive', 0)->get();
+        $to_dos = $user
+            ->todos()
             ->where('finalizada', false)
             ->whereDoesntHave('todoUsers', function ($query) use ($user) {
-                $query->where('admin_user_id', $user->id)
-                    ->where('completada', true);
-            })->get();
-        $to_dos_finalizados = $user->todos->where('finalizada',true);
+                $query->where('admin_user_id', $user->id)->where('completada', true);
+            })
+            ->get();
+        $to_dos_finalizados = $user->todos->where('finalizada', true);
         $timeWorkedToday = $this->calculateTimeWorkedToday($user);
         $jornadaActiva = $user->activeJornada();
         $llamadaActiva = $user->activeLlamada();
@@ -63,9 +67,9 @@ class DashboardController extends Controller
             $pausaActiva = $jornadaActiva->pausasActiva();
         }
 
-        switch($acceso){
-            case(1):
-                 // Obtener las fechas de la solicitud, o asignar fechas predeterminadas si no están presentes
+        switch ($acceso) {
+            case 1:
+                // Obtener las fechas de la solicitud, o asignar fechas predeterminadas si no están presentes
                 $fechaInicio = $request->input('fecha_inicio') ?? date('Y-m-01'); // Primer día del mes actual
                 $fechaFin = $request->input('fecha_fin') ?? date('Y-m-d'); // Día actual
                 $produccion = $this->produccion($fechaInicio, $fechaFin);
@@ -77,12 +81,15 @@ class DashboardController extends Controller
                     return redirect()->back()->with('error', 'Por favor selecciona un rango de fechas válido.');
                 }
                 // Buscar los ingresos en el rango de fechas
-                $ingresos = Invoice::whereBetween('created_at', [$fechaInicio, $fechaFin])->whereIn('invoice_status_id', [1,3, 4])->get();
+                $ingresos = Invoice::whereBetween('created_at', [$fechaInicio, $fechaFin])
+                    ->whereIn('invoice_status_id', [1, 3, 4])
+                    ->get();
                 // Buscar los gastos en el rango de fechas
-                $gastos = Gasto::whereBetween('received_date', [$fechaInicio, $fechaFin])->where(function($query) {
-                    $query->where('transfer_movement', 0)
-                        ->orWhereNull('transfer_movement');
-                })->get();
+                $gastos = Gasto::whereBetween('received_date', [$fechaInicio, $fechaFin])
+                    ->where(function ($query) {
+                        $query->where('transfer_movement', 0)->orWhereNull('transfer_movement');
+                    })
+                    ->get();
 
                 // Buscar los gastos asociados en el rango de fechas
                 $gastosAsociados = AssociatedExpenses::whereBetween('received_date', [$fechaInicio, $fechaFin])->get();
@@ -99,110 +106,137 @@ class DashboardController extends Controller
                 $totalGastos = $totalGastosComunes + $totalGastosSociados;
                 $beneficios = $totalIngresos - $totalGastos;
 
-
-                $clientes = Client::where('is_client',true)->get();
-                $budgets = Budget::where('admin_user_id',$id)->get();
-                $projects = Project::where('admin_user_id',$id)->get();
-                $tareas = Task::where('gestor_id',$id)->get();
+                $clientes = Client::where('is_client', true)->get();
+                $budgets = Budget::where('admin_user_id', $id)->get();
+                $projects = Project::where('admin_user_id', $id)->get();
+                $tareas = Task::where('gestor_id', $id)->get();
                 $ingresos = 0;
                 $gastos = 0;
                 $gastosAsociados = 0;
 
-
-                return view('dashboards.dashboard', compact(
-                    'user',
-                    'tareas',
-                    'to_dos',
-                    'budgets',
-                    'projects',
-                    'clientes',
-                    'users',
-                    'events',
-                    'timeWorkedToday',
-                    'jornadaActiva',
-                    'pausaActiva',
-                    'llamadaActiva',
-                    'totalIngresos',
-                    'totalGastosComunes',
-                    'totalGastosSociados',
-                    'beneficios',
-                    'to_dos_finalizados',
-                    'produccion',
-                    'gestion',
-                    'contabilidad',
-                    'comercial'
-                ));
-            case(2):
-                $clientes = Client::where('is_client',true)->get();
-                $budgets = Budget::where('admin_user_id',$id)->get();
-                $projects = Project::where('admin_user_id',$id)->get();
-                $tareas = Task::where('gestor_id',$id)->get();
+                return view('dashboards.dashboard', compact('user', 'tareas', 'to_dos', 'budgets', 'projects', 'clientes', 'users', 'events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'llamadaActiva', 'totalIngresos', 'totalGastosComunes', 'totalGastosSociados', 'beneficios', 'to_dos_finalizados', 'produccion', 'gestion', 'contabilidad', 'comercial'));
+            case 2:
+                $clientes = Client::where('is_client', true)->get();
+                $budgets = Budget::where('admin_user_id', $id)->get();
+                $projects = Project::where('admin_user_id', $id)->get();
+                $tareas = Task::where('gestor_id', $id)->get();
                 $horasSemanales = $this->horasSemanales();
 
-                return view('dashboards.dashboard_gestor', compact(
-                    'user',
-                    'tareas',
-                    'to_dos',
-                    'budgets',
-                    'projects',
-                    'clientes',
-                    'users',
-                    'events',
-                    'timeWorkedToday',
-                    'jornadaActiva',
-                    'pausaActiva',
-                    'llamadaActiva',
-                    'to_dos_finalizados',
-                    'horasSemanales'
-                ));
-            case(3):
-                $clientes = Client::where('is_client',true)->get();
-                $budgets = Budget::where('admin_user_id',$id)->get();
-                $projects = Project::where('admin_user_id',$id)->get();
-                $tareas = Task::where('gestor_id',$id)->get();
+                return view('dashboards.dashboard_gestor', compact('user', 'tareas', 'to_dos', 'budgets', 'projects', 'clientes', 'users', 'events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'llamadaActiva', 'to_dos_finalizados', 'horasSemanales'));
+            case 3:
+                $clientes = Client::where('is_client', true)->get();
+                $budgets = Budget::where('admin_user_id', $id)->get();
+                $projects = Project::where('admin_user_id', $id)->get();
+                $tareas = Task::where('gestor_id', $id)->get();
                 $horasSemanales = $this->horasSemanales();
 
-                return view('dashboards.dashboard_gestor', compact(
-                    'user',
-                    'tareas',
-                    'to_dos',
-                    'budgets',
-                    'projects',
-                    'clientes',
-                    'users',
-                    'events',
-                    'timeWorkedToday',
-                    'jornadaActiva',
-                    'pausaActiva',
-                    'llamadaActiva',
-                    'to_dos_finalizados',
-                    'horasSemanales'
-                ));
-            case(4):
-                $clientes = Client::where('is_client',true)->get();
-                $budgets = Budget::where('admin_user_id',$id)->get();
-                $projects = Project::where('admin_user_id',$id)->get();
-                $tareas = Task::where('gestor_id',$id)->get();
-                $v1 = count(Budget::where('admin_user_id',2)->whereYear('created_at',2202)->get())/12;
+                $unclassifiedIncomes = UnclassifiedIncome::where('status', 0)->get();
+                $unclassifiedExpenses = UnclassifiedExpenses::where('status', 0)->get();
+
+                // Ingresos
+                foreach ($unclassifiedIncomes as $income) {
+                    $relacionesMapeadas = [];
+
+                    if ($income->relacion && $income->relacion != '[]') {
+                        $relacionesCrudas = is_string($income->relacion) ? json_decode($income->relacion, true) : $income->relacion;
+
+                        foreach ($relacionesCrudas as $rel) {
+                            switch ($rel['tabla']) {
+                                case 1:
+                                    $relacion = Invoice::find($rel['id']);
+                                    $tabla = 'Factura';
+                                    break;
+                                case 2:
+                                    $relacion = Ingreso::find($rel['id']);
+                                    $tabla = 'Ingreso';
+                                    break;
+                                case 3:
+                                    $relacion = Gasto::find($rel['id']);
+                                    $tabla = 'Gasto';
+                                    break;
+                                case 4:
+                                    $relacion = AssociatedExpenses::find($rel['id']);
+                                    $tabla = 'Gasto asociado';
+                                    break;
+                                case 5:
+                                    $relacion = Budget::find($rel['id']);
+                                    $tabla = 'Presupuesto';
+                                    break;
+                                default:
+                                    $relacion = null;
+                                    $tabla = null;
+                            }
+
+                            if ($relacion) {
+                                $relacionesMapeadas[] = [
+                                    'modelo' => $relacion,
+                                    'tabla' => $tabla,
+                                    'id' => $income->id,
+                                ];
+                            }
+                        }
+                    }
+
+                    $income->relaciones = $relacionesMapeadas;
+                }
+
+                // Gastos
+                foreach ($unclassifiedExpenses as $expense) {
+                    $relacionesMapeadas = [];
+
+                    if ($expense->relacion && $expense->relacion != '[]') {
+                        $relacionesCrudas = is_string($expense->relacion) ? json_decode($expense->relacion, true) : $expense->relacion;
+
+                        foreach ($relacionesCrudas as $rel) {
+                            switch ($rel['tabla']) {
+                                case 1:
+                                    $relacion = Invoice::find($rel['id']);
+                                    $tabla = 'Factura';
+                                    break;
+                                case 2:
+                                    $relacion = Ingreso::find($rel['id']);
+                                    $tabla = 'Ingreso';
+                                    break;
+                                case 3:
+                                    $relacion = Gasto::find($rel['id']);
+                                    $tabla = 'Gasto';
+                                    break;
+                                case 4:
+                                    $relacion = AssociatedExpenses::find($rel['id']);
+                                    $tabla = 'Gasto asociado';
+                                    break;
+                                default:
+                                    $relacion = null;
+                                    $tabla = null;
+                            }
+
+                            if ($relacion) {
+                                $relacionesMapeadas[] = [
+                                    'modelo' => $relacion,
+                                    'tabla' => $tabla,
+                                    'id' => $expense->id,
+                                ];
+                            }
+                        }
+                    }
+
+                    $expense->relaciones = $relacionesMapeadas;
+                }
+                $banks = BankAccounts::all();
+                $allBudgets = Budget::whereIn('budget_status_id', [3, 6, 7, 9])->get();
+
+                return view('dashboards.dashboard_gestor', compact('user', 'tareas', 'to_dos', 'budgets', 'projects', 'clientes', 'users', 'events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'llamadaActiva', 'to_dos_finalizados', 'horasSemanales', 'unclassifiedIncomes', 'unclassifiedExpenses', 'banks', 'allBudgets'));
+
+            case 4:
+                $clientes = Client::where('is_client', true)->get();
+                $budgets = Budget::where('admin_user_id', $id)->get();
+                $projects = Project::where('admin_user_id', $id)->get();
+                $tareas = Task::where('gestor_id', $id)->get();
+                $v1 = count(Budget::where('admin_user_id', 2)->whereYear('created_at', 2202)->get()) / 12;
                 $horasSemanales = $this->horasSemanales();
 
-                return view('dashboards.dashboard_gestor', compact(
-                    'user',
-                    'tareas',
-                    'to_dos',
-                    'budgets',
-                    'projects',
-                    'clientes',
-                    'users',
-                    'events',
-                    'timeWorkedToday',
-                    'jornadaActiva',
-                    'pausaActiva',
-                    'llamadaActiva',
-                    'to_dos_finalizados',
-                    'horasSemanales'
-                ));
-            case(5):
+                return view('dashboards.dashboard_gestor', compact('user', 'tareas', 'to_dos', 'budgets', 'projects', 'clientes', 'users', 'events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'llamadaActiva', 'to_dos_finalizados', 'horasSemanales'));
+            case 5:
                 $tareas = $user->tareas->whereIn('task_status_id', [1, 2, 5]);
                 $tiempoProducidoHoy = $this->tiempoProducidoHoy();
                 $tasks = $this->getTasks($user->id);
@@ -211,14 +245,13 @@ class DashboardController extends Controller
                     ->where('task_status_id', 3)
                     ->whereMonth('updated_at', Carbon::now()->month)
                     ->whereYear('updated_at', Carbon::now()->year)
-                    ->whereRaw("TIME_TO_SEC(real_time) > 1740") // 29 minutos en segundos
+                    ->whereRaw('TIME_TO_SEC(real_time) > 1740') // 29 minutos en segundos
                     ->get();
 
                 $totalProductividad = 0;
                 $totalTareas = $tareasFinalizadas->count();
                 $totalEstimatedTime = 0;
                 $totalRealTime = 0;
-
 
                 foreach ($tareasFinalizadas as $tarea) {
                     // Parse estimated and real times into total minutes
@@ -240,10 +273,7 @@ class DashboardController extends Controller
                 $currentMonth = Carbon::now()->month;
                 $currentYear = Carbon::now()->year;
 
-                $productividadMensual = ProductividadMensual::where('admin_user_id', $user->id)
-                    ->where('mes', $currentMonth)
-                    ->where('año', $currentYear)
-                    ->first();
+                $productividadMensual = ProductividadMensual::where('admin_user_id', $user->id)->where('mes', $currentMonth)->where('año', $currentYear)->first();
 
                 if (!$productividadMensual) {
                     ProductividadMensual::create([
@@ -252,8 +282,8 @@ class DashboardController extends Controller
                         'año' => $currentYear,
                         'productividad' => $totalProductividad,
                     ]);
-                }else {
-                        // Actualizar el registro existente
+                } else {
+                    // Actualizar el registro existente
                     $productividadMensual->update([
                         'productividad' => $totalProductividad,
                     ]);
@@ -267,27 +297,8 @@ class DashboardController extends Controller
                 $bajas = $data['bajas'];
                 $horasSemanales = $this->horasSemanales();
 
-                return view('dashboards.dashboard_personal', compact(
-                    'user',
-                    'tiempoProducidoHoy',
-                    'tasks',
-                    'tareas',
-                    'to_dos',
-                    'users',
-                    'events',
-                    'timeWorkedToday',
-                    'jornadaActiva',
-                    'pausaActiva',
-                    'productividadIndividual',
-                    'totalEstimatedTime',
-                    'totalRealTime',
-                    'horasMes',
-                    'to_dos_finalizados',
-                    'nota',
-                    'bajas',
-                    'horasSemanales'
-                ));
-            case(6):
+                return view('dashboards.dashboard_personal', compact('user', 'tiempoProducidoHoy', 'tasks', 'tareas', 'to_dos', 'users', 'events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'productividadIndividual', 'totalEstimatedTime', 'totalRealTime', 'horasMes', 'to_dos_finalizados', 'nota', 'bajas', 'horasSemanales'));
+            case 6:
                 $ayudas = KitDigital::where('comercial_id', $user->id)->get();
                 $fechaEmision = Carbon::now();
                 $fechaExpiracion = new Carbon('last day of this month');
@@ -301,29 +312,30 @@ class DashboardController extends Controller
 
                 foreach ($ayudas as $key => $ayuda) {
                     if ($ayuda->estado == 18 || $ayuda->estado == 17 || $ayuda->estado == 24) {
-                        $pedienteCierre += ($this->convertToNumber($ayuda->importe)* 0.05);
-                    } else if($ayuda->estado == 10){
-                        $comisionCurso += ($this->convertToNumber($ayuda->importe)* 0.05);
-                    } else if($ayuda->estado == 4 || $ayuda->estado == 7 || $ayuda->estado == 5 || $ayuda->estado == 8 || $ayuda->estado == 9){
-                        $comisionPendiente += ($this->convertToNumber($ayuda->importe)* 0.05);
-                    } else if($ayuda->estado == 2){
-                        $comisionTramitadas += ($this->convertToNumber($ayuda->importe)* 0.05);
-                    } else if($ayuda->estado == 25){
-                        $comisionRestante += ($this->convertToNumber($ayuda->importe)* 0.05);
+                        $pedienteCierre += $this->convertToNumber($ayuda->importe) * 0.05;
+                    } elseif ($ayuda->estado == 10) {
+                        $comisionCurso += $this->convertToNumber($ayuda->importe) * 0.05;
+                    } elseif ($ayuda->estado == 4 || $ayuda->estado == 7 || $ayuda->estado == 5 || $ayuda->estado == 8 || $ayuda->estado == 9) {
+                        $comisionPendiente += $this->convertToNumber($ayuda->importe) * 0.05;
+                    } elseif ($ayuda->estado == 2) {
+                        $comisionTramitadas += $this->convertToNumber($ayuda->importe) * 0.05;
+                    } elseif ($ayuda->estado == 25) {
+                        $comisionRestante += $this->convertToNumber($ayuda->importe) * 0.05;
                     }
                 }
-                return view('dashboards.dashboard_comercial', compact('user','diasDiferencia','estadosKit','comisionRestante','ayudas','comisionTramitadas','comisionPendiente', 'comisionCurso', 'pedienteCierre','timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+                return view('dashboards.dashboard_comercial', compact('user', 'diasDiferencia', 'estadosKit', 'comisionRestante', 'ayudas', 'comisionTramitadas', 'comisionPendiente', 'comisionCurso', 'pedienteCierre', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
         }
     }
 
-    public function nota($userId ){
+    public function nota($userId)
+    {
         $productividad = $this->productividadMesAnterior($userId);
         $horasMes = $this->tiempoProducidoMesanterior($userId);
         $partes = explode(':', $horasMes);
         $horas = $partes[0];
         $minutos = $partes[1];
         $segundos = $partes[2];
-        $totalHorasproducidas = $horas + $minutos/60 + $segundos/3600;
+        $totalHorasproducidas = $horas + $minutos / 60 + $segundos / 3600;
 
         $startOfMonth = Carbon::now()->subMonth()->startOfMonth();
         $endOfMonth = Carbon::now()->subMonth()->endOfMonth();
@@ -334,17 +346,17 @@ class DashboardController extends Controller
 
         $diasReales = $diasLaborables->count();
         $vacaciones = $this->vacaciones($startOfMonth, $endOfMonth, $userId);
-        $bajas = $this->bajas($userId,$startOfMonth, $endOfMonth);
-        $festivos = $this->festivos($startOfMonth, $endOfMonth,$diasLaborables );
+        $bajas = $this->bajas($userId, $startOfMonth, $endOfMonth);
+        $festivos = $this->festivos($startOfMonth, $endOfMonth, $diasLaborables);
 
         $diasTotales = $diasReales - $vacaciones - $bajas - $festivos;
         $horasTotales = $diasTotales * 7;
-        if($totalHorasproducidas >= ($horasTotales*0.5)){
-            $putuacionProductividad = $productividad/20;
-        }else{
+        if ($totalHorasproducidas >= $horasTotales * 0.5) {
+            $putuacionProductividad = $productividad / 20;
+        } else {
             $putuacionProductividad = 0;
         }
-        $putuacionHoras = (($totalHorasproducidas*100)/$horasTotales)/20;
+        $putuacionHoras = ($totalHorasproducidas * 100) / $horasTotales / 20;
 
         //dd($productividad,$putuacionProductividad, $putuacionHoras);
 
@@ -357,22 +369,22 @@ class DashboardController extends Controller
         return $data;
     }
 
-    public function productividadMesAnterior($id){
+    public function productividadMesAnterior($id)
+    {
         $month = Carbon::now()->subMonth();
         $year = $month->year;
 
         $tareasFinalizadas = Task::where('admin_user_id', $id)
-        ->where('task_status_id', 3)
-        ->whereMonth('updated_at', $month)
-        ->whereYear('updated_at', $year)
-        ->whereRaw("TIME_TO_SEC(real_time) > 1740") // 29 minutos en segundos
-        ->get();
+            ->where('task_status_id', 3)
+            ->whereMonth('updated_at', $month)
+            ->whereYear('updated_at', $year)
+            ->whereRaw('TIME_TO_SEC(real_time) > 1740') // 29 minutos en segundos
+            ->get();
 
         $totalProductividad = 0;
         $totalTareas = $tareasFinalizadas->count();
         $totalEstimatedTime = 0;
         $totalRealTime = 0;
-
 
         foreach ($tareasFinalizadas as $tarea) {
             // Parse estimated and real times into total minutes
@@ -410,12 +422,9 @@ class DashboardController extends Controller
         return $diasSinJornada->count();
     }
 
-    public function vacaciones($ini, $fin, $id){
-        $vacaciones = HolidaysPetitions::where('admin_user_id', $id)
-        ->whereDate('from','>=', $ini)
-        ->whereDate('to','<=', $fin)
-        ->where('holidays_status_id', 1)
-        ->get();
+    public function vacaciones($ini, $fin, $id)
+    {
+        $vacaciones = HolidaysPetitions::where('admin_user_id', $id)->whereDate('from', '>=', $ini)->whereDate('to', '<=', $fin)->where('holidays_status_id', 1)->get();
 
         $dias = $vacaciones->sum('total_days');
 
@@ -429,13 +438,14 @@ class DashboardController extends Controller
         // Obtener las bajas del usuario dentro del rango especificado
         $bajas = Baja::where('admin_user_id', $id)
             ->where(function ($query) use ($ini, $fin) {
-                $query->whereBetween('inicio', [$ini, $fin])
+                $query
+                    ->whereBetween('inicio', [$ini, $fin])
                     ->orWhereBetween('fin', [$ini, $fin])
                     ->orWhere(function ($query) use ($ini, $fin) {
-                        $query->where('inicio', '<=', $ini)
-                                ->where('fin', '>=', $fin);
+                        $query->where('inicio', '<=', $ini)->where('fin', '>=', $fin);
                     });
-            })->get();
+            })
+            ->get();
 
         foreach ($bajas as $baja) {
             $inicioBaja = Carbon::parse($baja->inicio);
@@ -449,9 +459,11 @@ class DashboardController extends Controller
             $period = CarbonPeriod::create($fechaInicio, $fechaFin);
 
             // Contar solo los días laborables en el período
-            $diasLaborables = $period->filter(function (Carbon $date) {
-                return !$date->isWeekend(); // Excluir sábados y domingos
-            })->count();
+            $diasLaborables = $period
+                ->filter(function (Carbon $date) {
+                    return !$date->isWeekend(); // Excluir sábados y domingos
+                })
+                ->count();
 
             $diasTotales += $diasLaborables;
         }
@@ -459,7 +471,8 @@ class DashboardController extends Controller
         return $diasTotales;
     }
 
-    function getWorkingDaysInMonthUntilToday($year, $month) {
+    function getWorkingDaysInMonthUntilToday($year, $month)
+    {
         // Obtener el día actual
         $currentDay = date('j');
         $totalDays = 0;
@@ -477,9 +490,10 @@ class DashboardController extends Controller
 
         return $totalDays;
     }
-    public function parseFlexibleTime($time) {
-        list($hours, $minutes, $seconds) = explode(':', $time);
-        return ($hours * 60) + $minutes + ($seconds / 60); // Convert to total minutes
+    public function parseFlexibleTime($time)
+    {
+        [$hours, $minutes, $seconds] = explode(':', $time);
+        return $hours * 60 + $minutes + $seconds / 60; // Convert to total minutes
     }
 
     public function tiempoProducidoMes($id)
@@ -488,12 +502,9 @@ class DashboardController extends Controller
         $tiempoTotalMes = 0;
 
         // Obtener todas las tareas del usuario en el mes actual
-        $tareasMes = LogTasks::where('admin_user_id', $id)
-            ->whereYear('date_start', $mes->year)
-            ->whereMonth('date_start', $mes->month)
-            ->get();
+        $tareasMes = LogTasks::where('admin_user_id', $id)->whereYear('date_start', $mes->year)->whereMonth('date_start', $mes->month)->get();
 
-        foreach($tareasMes as $tarea) {
+        foreach ($tareasMes as $tarea) {
             if ($tarea->status == 'Pausada') {
                 $tiempoInicio = Carbon::parse($tarea->date_start);
                 $tiempoFinal = Carbon::parse($tarea->date_end);
@@ -510,12 +521,12 @@ class DashboardController extends Controller
 
         // Calcular el porcentaje del tiempo trabajado en relación al total
         $totalHorasMensuales = 7 * 20; // Ejemplo de 20 días laborales y 7 horas diarias
-        $horas_mes_porcentaje = $hours + ($minutes / 60);
+        $horas_mes_porcentaje = $hours + $minutes / 60;
         $porcentaje = ($horas_mes_porcentaje / $totalHorasMensuales) * 100;
 
         $data = [
             'horas' => $result,
-            'porcentaje' => $porcentaje
+            'porcentaje' => $porcentaje,
         ];
 
         return $result;
@@ -527,12 +538,9 @@ class DashboardController extends Controller
         $tiempoTotalMes = 0;
 
         // Obtener todas las tareas del usuario en el mes actual
-        $tareasMes = LogTasks::where('admin_user_id', $id)
-            ->whereYear('date_start', $mes->year)
-            ->whereMonth('date_start', $mes->month)
-            ->get();
+        $tareasMes = LogTasks::where('admin_user_id', $id)->whereYear('date_start', $mes->year)->whereMonth('date_start', $mes->month)->get();
 
-        foreach($tareasMes as $tarea) {
+        foreach ($tareasMes as $tarea) {
             if ($tarea->status == 'Pausada') {
                 $tiempoInicio = Carbon::parse($tarea->date_start);
                 $tiempoFinal = Carbon::parse($tarea->date_end);
@@ -549,12 +557,12 @@ class DashboardController extends Controller
 
         // Calcular el porcentaje del tiempo trabajado en relación al total
         $totalHorasMensuales = 7 * 20; // Ejemplo de 20 días laborales y 7 horas diarias
-        $horas_mes_porcentaje = $hours + ($minutes / 60);
+        $horas_mes_porcentaje = $hours + $minutes / 60;
         $porcentaje = ($horas_mes_porcentaje / $totalHorasMensuales) * 100;
 
         $data = [
             'horas' => $result,
-            'porcentaje' => $porcentaje
+            'porcentaje' => $porcentaje,
         ];
 
         return $result;
@@ -562,15 +570,12 @@ class DashboardController extends Controller
 
     public function tiempoProducidoHoy()
     {
-
         $hoy = Carbon::today();
         $tiempoTarea = 0;
 
         if (Auth::check()) {
             $userId = Auth::id();
-            $tareasHoy = LogTasks::where('admin_user_id', $userId)
-                ->whereDate('date_start', '=', $hoy)
-                ->get();
+            $tareasHoy = LogTasks::where('admin_user_id', $userId)->whereDate('date_start', '=', $hoy)->get();
 
             foreach ($tareasHoy as $tarea) {
                 if ($tarea->status == 'Pausada') {
@@ -591,35 +596,40 @@ class DashboardController extends Controller
         $result = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 
         // Calcular el porcentaje de tiempo trabajado en relación con el total
-        $horas_dia_porcentaje = $hours + ($minutes / 60);
+        $horas_dia_porcentaje = $hours + $minutes / 60;
         $totalHoras = 7;
         $porcentaje = ($horas_dia_porcentaje / $totalHoras) * 100;
 
         $data = [
             'horas' => $result,
-            'porcentaje' => $porcentaje
+            'porcentaje' => $porcentaje,
         ];
 
         return $data;
     }
 
-    public function timeworked(){
+    public function timeworked()
+    {
         $user = Auth::user();
         $timeWorkedToday = $this->calculateTimeWorkedToday($user);
-        return response()->json(['success' => true ,'time' => $timeWorkedToday]);
+        return response()->json(['success' => true, 'time' => $timeWorkedToday]);
     }
 
-    public function llamada(Request $request){
+    public function llamada(Request $request)
+    {
         $user = Auth::user();
-        $data = $request->validate([
-            'client_id' => 'nullable',
-            'phone' => 'nullable',
-            'comentario'=> 'nullable',
-            'kit_id' => 'nullable'
-        ], [
-            'client_id.required_without' => 'El campo cliente es obligatorio si el teléfono no está presente.',
-            'phone.required_without' => 'El campo teléfono es obligatorio si el cliente no está presente.',
-        ]);
+        $data = $request->validate(
+            [
+                'client_id' => 'nullable',
+                'phone' => 'nullable',
+                'comentario' => 'nullable',
+                'kit_id' => 'nullable',
+            ],
+            [
+                'client_id.required_without' => 'El campo cliente es obligatorio si el teléfono no está presente.',
+                'phone.required_without' => 'El campo teléfono es obligatorio si el cliente no está presente.',
+            ],
+        );
         $llamadaactiva = Llamada::where('admin_user_id', $user->id)->where('is_active', true)->first();
 
         if ($llamadaactiva) {
@@ -629,17 +639,15 @@ class DashboardController extends Controller
             ]);
         }
 
-        $llamada =  Llamada::create([
+        $llamada = Llamada::create([
             'admin_user_id' => $user->id,
             'start_time' => Carbon::now(),
             'is_active' => true,
             'client_id' => $data['client_id'] ?? null,
             'kit_id' => $data['kit_id'] ?? null,
-            'phone'=> $data['phone'] ?? null,
+            'phone' => $data['phone'] ?? null,
         ]);
-        return response()->json(['success' => true ,'mensaje' => 'Llamada iniciada']);
-
-
+        return response()->json(['success' => true, 'mensaje' => 'Llamada iniciada']);
     }
 
     public function finalizar(Request $request)
@@ -647,29 +655,29 @@ class DashboardController extends Controller
         $user = Auth::user();
         $data = $request->validate([
             'comentario' => 'nullable',
-
         ]);
         $llamada = Llamada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($llamada) {
             $finllamada = $llamada->update([
                 'end_time' => Carbon::now(),
                 'is_active' => false,
-                'comentario' => $data['comentario'] ?? null
+                'comentario' => $data['comentario'] ?? null,
             ]);
 
-            if(isset($data['comentario']) && $llamada->kit_id != null){
+            if (isset($data['comentario']) && $llamada->kit_id != null) {
                 $kit = KitDigital::find($llamada->kit_id);
                 $kit->comentario = $data['comentario'];
                 $kit->fecha_actualizacion = Carbon::now();
                 $kit->save();
             }
 
-            return redirect()->back()->with('toast', [
-                'icon' => 'success',
-                'mensaje' => 'Llamada Finalizada'
-             ]);
+            return redirect()
+                ->back()
+                ->with('toast', [
+                    'icon' => 'success',
+                    'mensaje' => 'Llamada Finalizada',
+                ]);
         }
-
     }
 
     public function startJornada()
@@ -682,56 +690,48 @@ class DashboardController extends Controller
             // Si ya hay una jornada activa, retornar un mensaje indicando que no se puede iniciar otra
             return response()->json([
                 'success' => false,
-                'message' => 'Ya existe una jornada activa.'
+                'message' => 'Ya existe una jornada activa.',
             ]);
         }
 
-        $jornada =  Jornada::create([
+        $jornada = Jornada::create([
             'admin_user_id' => $user->id,
             'start_time' => Carbon::now(),
             'is_active' => true,
         ]);
 
-        $todayJornada = Jornada::where('admin_user_id', $user->id)
-        ->whereDate('start_time', Carbon::today())
-        ->get();
+        $todayJornada = Jornada::where('admin_user_id', $user->id)->whereDate('start_time', Carbon::today())->get();
 
         //Alertas de puntualidad
-        if(count($todayJornada) == 1 ){
-
+        if (count($todayJornada) == 1) {
             $horaLimiteEntrada = Carbon::createFromTime(9, 30, 0, 'Europe/Madrid');
             $horaLimiteEntradaUTC = $horaLimiteEntrada->setTimezone('UTC');
             $mesActual = Carbon::now()->month;
             $añoActual = Carbon::now()->year;
             $fechaActual = Carbon::now();
 
-            $tardehoy = Jornada::where('admin_user_id', $user->id)
-            ->whereDate('start_time', $fechaActual->toDateString())
-            ->whereTime('start_time', '>', $horaLimiteEntradaUTC->format('H:i:s'))
-            ->get();
-
+            $tardehoy = Jornada::where('admin_user_id', $user->id)->whereDate('start_time', $fechaActual->toDateString())->whereTime('start_time', '>', $horaLimiteEntradaUTC->format('H:i:s'))->get();
 
             $hourlyAverage = Jornada::where('admin_user_id', $user->id)
                 ->whereMonth('start_time', $mesActual)
                 ->whereYear('start_time', $añoActual)
-                ->whereRaw("TIME(start_time) > ?", [$horaLimiteEntradaUTC->format('H:i:s')])
+                ->whereRaw('TIME(start_time) > ?', [$horaLimiteEntradaUTC->format('H:i:s')])
                 ->get();
 
             $fechaNow = Carbon::now();
 
-            if(count($tardehoy) > 0){
-
+            if (count($tardehoy) > 0) {
                 //Si hay mas de 3 veces
                 if (count($hourlyAverage) > 2) {
-                    $alertados = [1,8];
-                    foreach($alertados as $alertar){
+                    $alertados = [1, 8];
+                    foreach ($alertados as $alertar) {
                         $data = [
-                            "admin_user_id" =>  $alertar,
-                            "stage_id" => 23,
-                            "description" => $user->name . " ha llegado tarde 3 veces o mas este mes",
-                            "status_id" => 1,
-                            "reference_id" => $user->id,
-                            "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
+                            'admin_user_id' => $alertar,
+                            'stage_id' => 23,
+                            'description' => $user->name . ' ha llegado tarde 3 veces o mas este mes',
+                            'status_id' => 1,
+                            'reference_id' => $user->id,
+                            'activation_datetime' => Carbon::now()->format('Y-m-d H:i:s'),
                         ];
 
                         $alert = Alert::create($data);
@@ -755,12 +755,12 @@ class DashboardController extends Controller
                 }
 
                 $data = [
-                    "admin_user_id" =>  $user->id,
-                    "stage_id" => 23,
-                    "description" => $text,
-                    "status_id" => 1,
-                    "reference_id" => $user->id,
-                    "activation_datetime" => $fechaNow->format('Y-m-d H:i:s')
+                    'admin_user_id' => $user->id,
+                    'stage_id' => 23,
+                    'description' => $text,
+                    'status_id' => 1,
+                    'reference_id' => $user->id,
+                    'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
                 ];
 
                 $alert = Alert::create($data);
@@ -768,11 +768,10 @@ class DashboardController extends Controller
             }
         }
 
-
-        if($jornada){
+        if ($jornada) {
             return response()->json(['success' => true]);
-        }else{
-            return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+        } else {
+            return response()->json(['success' => false, 'mensaje' => 'Error al iniciar jornada']);
         }
     }
 
@@ -786,41 +785,39 @@ class DashboardController extends Controller
                 'is_active' => false,
             ]);
             $pause = Pause::where('jornada_id', $jornada->id)->whereNull('end_time')->first();
-            if ($pause){
+            if ($pause) {
                 $finPause = $pause->update([
                     'end_time' => Carbon::now(),
                     'is_active' => false,
                 ]);
             }
-            if($finJornada){
+            if ($finJornada) {
                 return response()->json(['success' => true]);
-            }else{
-                return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+            } else {
+                return response()->json(['success' => false, 'mensaje' => 'Error al iniciar jornada']);
             }
-        }else{
-            return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+        } else {
+            return response()->json(['success' => false, 'mensaje' => 'Error al iniciar jornada']);
         }
-
     }
 
     public function startPause()
     {
-
         $user = Auth::user();
         $jornada = Jornada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($jornada) {
-            $pause =  Pause::create([
-                'jornada_id' =>$jornada->id,
+            $pause = Pause::create([
+                'jornada_id' => $jornada->id,
                 'start_time' => Carbon::now(),
             ]);
 
-            if($pause){
+            if ($pause) {
                 return response()->json(['success' => true]);
-            }else{
-                return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+            } else {
+                return response()->json(['success' => false, 'mensaje' => 'Error al iniciar jornada']);
             }
-        }else{
-            return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+        } else {
+            return response()->json(['success' => false, 'mensaje' => 'Error al iniciar jornada']);
         }
     }
 
@@ -830,29 +827,27 @@ class DashboardController extends Controller
         $jornada = Jornada::where('admin_user_id', $user->id)->where('is_active', true)->first();
         if ($jornada) {
             $pause = Pause::where('jornada_id', $jornada->id)->whereNull('end_time')->first();
-            if ($pause){
+            if ($pause) {
                 $finPause = $pause->update([
                     'end_time' => Carbon::now(),
                     'is_active' => false,
                 ]);
 
-                if($finPause){
+                if ($finPause) {
                     return response()->json(['success' => true]);
-                }else{
-                    return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+                } else {
+                    return response()->json(['success' => false, 'mensaje' => 'Error al iniciar jornada']);
                 }
-            }else{
-                return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+            } else {
+                return response()->json(['success' => false, 'mensaje' => 'Error al iniciar jornada']);
             }
-        }else{
-            return response()->json(['success' => false,'mensaje' => 'Error al iniciar jornada']);
+        } else {
+            return response()->json(['success' => false, 'mensaje' => 'Error al iniciar jornada']);
         }
     }
 
     private function calculateTimeWorkedToday($user)
     {
-
-
         $todayJornadas = $user->jornadas()->whereDate('start_time', Carbon::today())->get();
 
         $totalWorkedSeconds = 0;
@@ -870,49 +865,46 @@ class DashboardController extends Controller
 
     public function getTasks($id)
     {
-        $tasks = array();
-        $tasksPause = Task::where("admin_user_id", $id)->where("task_status_id", 2)->orderBy('priority_id', 'desc')->get();
-        $tasks["tasksPause"] = $tasksPause;
-        $tasksRevision = Task::where("admin_user_id", $id)->where("task_status_id", 5)->get();
-        $tasks["tasksRevision"] = $tasksRevision;
-        $taskPlay = Task::where("admin_user_id", $id)->where("task_status_id", 1)->get()->first();
-        $tasks["taskPlay"] = $taskPlay;
+        $tasks = [];
+        $tasksPause = Task::where('admin_user_id', $id)->where('task_status_id', 2)->orderBy('priority_id', 'desc')->get();
+        $tasks['tasksPause'] = $tasksPause;
+        $tasksRevision = Task::where('admin_user_id', $id)->where('task_status_id', 5)->get();
+        $tasks['tasksRevision'] = $tasksRevision;
+        $taskPlay = Task::where('admin_user_id', $id)->where('task_status_id', 1)->get()->first();
+        $tasks['taskPlay'] = $taskPlay;
 
         return $tasks;
     }
 
     public function getDataTask(Request $request)
     {
-
         $tarea = Task::find($request->id);
         //$metas = DB::table('meta')->where("tasks_id", $request->id)->get();
         $autor = $tarea->usuario;
         if ($tarea) {
-            $data = array();
-            $data["id"] = $tarea->id;
-            $data["user"] = $tarea->admin_user_id;
-            $data["titulo"] = $tarea->title;
-            $data["cliente"] = Optional(Optional($tarea->presupuesto)->cliente)->name ?? 'Cliente no encontrado';
-            $data["descripcion"] = $tarea->description;
-            $data["estimado"] = $tarea->estimated_time;
-            $data["real"] = $tarea->real_time;
-            $data["proyecto"] = Optional($tarea->proyecto)->name ?? 'Proyecto no encontrado';
-            $data["prioridad"] = Optional($tarea->prioridad)->name ?? 'Prioridad no encontrada';
-            $data["gestor"] = $tarea->gestor->name;
-            $data["gestorid"] = Optional($tarea->gestor)->id ?? 'Gestor no encontrado';
-            $data["estado"] = $tarea->estado->name;
-            $data["metas"] = '';
-            $data["userName"] = $autor;
-
-
+            $data = [];
+            $data['id'] = $tarea->id;
+            $data['user'] = $tarea->admin_user_id;
+            $data['titulo'] = $tarea->title;
+            $data['cliente'] = Optional(Optional($tarea->presupuesto)->cliente)->name ?? 'Cliente no encontrado';
+            $data['descripcion'] = $tarea->description;
+            $data['estimado'] = $tarea->estimated_time;
+            $data['real'] = $tarea->real_time;
+            $data['proyecto'] = Optional($tarea->proyecto)->name ?? 'Proyecto no encontrado';
+            $data['prioridad'] = Optional($tarea->prioridad)->name ?? 'Prioridad no encontrada';
+            $data['gestor'] = $tarea->gestor->name;
+            $data['gestorid'] = Optional($tarea->gestor)->id ?? 'Gestor no encontrado';
+            $data['estado'] = $tarea->estado->name;
+            $data['metas'] = '';
+            $data['userName'] = $autor;
 
             $response = json_encode($data);
 
             return $response;
         } else {
-            $response = json_encode(array(
-                "estado" => "ERROR"
-            ));
+            $response = json_encode([
+                'estado' => 'ERROR',
+            ]);
 
             return $response;
         }
@@ -931,9 +923,6 @@ class DashboardController extends Controller
 
     public function setStatusTask(Request $request)
     {
-
-
-
         $tarea = Task::find($request->id);
         $date = Carbon::now();
         $userId = Auth::id();
@@ -942,18 +931,16 @@ class DashboardController extends Controller
         $formatEstimated = strtotime($tarea->estimated_time);
         $formatReal = strtotime($tarea->real_time);
 
-
         $clientIP = request()->ip();
 
         $error = false;
-
 
         //if($clientIP == "81.45.82.225" || $usuario->access_level_id == 4 || $usuario->access_level_id == 3){
 
         if ($tarea) {
             switch ($request->estado) {
-                case "Reanudar":
-                    $tareaActiva = Task::where("admin_user_id", $usuario->id)->where("task_status_id", 1)->get()->first();
+                case 'Reanudar':
+                    $tareaActiva = Task::where('admin_user_id', $usuario->id)->where('task_status_id', 1)->get()->first();
 
                     if (!$tareaActiva) {
                         $tarea->task_status_id = 1;
@@ -963,69 +950,64 @@ class DashboardController extends Controller
                     if (count($logTaskC) == 1) {
                         $error = true;
                     } else {
-
-
                         $createLog = LogTasks::create([
                             'admin_user_id' => $usuario->id,
                             'task_id' => $tarea->id,
                             'date_start' => $date,
                             'date_end' => null,
-                            'status' => 'Reanudada'
+                            'status' => 'Reanudada',
                         ]);
 
                         if ($tarea->real_time > $tarea->estimated_time) {
                             // Calcular el porcentaje de exceso
 
-                            list($realHours, $realMinutes, $realSeconds) = explode(':', $tarea->real_time);
-                            $realTimeInSeconds = ($realHours * 3600) + ($realMinutes * 60) + $realSeconds;
+                            [$realHours, $realMinutes, $realSeconds] = explode(':', $tarea->real_time);
+                            $realTimeInSeconds = $realHours * 3600 + $realMinutes * 60 + $realSeconds;
 
-                            list($estimatedHours, $estimatedMinutes, $estimatedSeconds) = explode(':', $tarea->estimated_time);
-                            $estimatedTimeInSeconds = ($estimatedHours * 3600) + ($estimatedMinutes * 60) + $estimatedSeconds;
+                            [$estimatedHours, $estimatedMinutes, $estimatedSeconds] = explode(':', $tarea->estimated_time);
+                            $estimatedTimeInSeconds = $estimatedHours * 3600 + $estimatedMinutes * 60 + $estimatedSeconds;
 
                             // Calcular el porcentaje de exceso basado en segundos
                             $exceedPercentage = ($realTimeInSeconds / $estimatedTimeInSeconds) * 100;
 
-
                             // Inicializar datos comunes de la alerta
                             $data = [
-                                "admin_user_id" => $tarea->gestor_id,
-                                "status_id" => 1,
-                                "reference_id" => $tarea->id,
-                                "activation_datetime" => Carbon::now()
+                                'admin_user_id' => $tarea->gestor_id,
+                                'status_id' => 1,
+                                'reference_id' => $tarea->id,
+                                'activation_datetime' => Carbon::now(),
                             ];
 
                             // Definir el mensaje y el stage_id según el porcentaje de exceso
                             if ($exceedPercentage >= 100) {
-                                $data["stage_id"] = 40; // Stage para el 100% de sobrepaso
-                                $data["description"] = 'Tarea ' . $tarea->id.' '.$tarea->title .' ha sobrepasado las horas estimadas en un 100% o más (pérdidas)';
+                                $data['stage_id'] = 40; // Stage para el 100% de sobrepaso
+                                $data['description'] = 'Tarea ' . $tarea->id . ' ' . $tarea->title . ' ha sobrepasado las horas estimadas en un 100% o más (pérdidas)';
                             } elseif ($exceedPercentage >= 50) {
-                                $data["stage_id"] = 40; // Stage para el 50% de sobrepaso
-                                $data["description"] = 'Tarea ' . $tarea->id.' '.$tarea->title .' está sobrepasando las horas estimadas en un 50%';
+                                $data['stage_id'] = 40; // Stage para el 50% de sobrepaso
+                                $data['description'] = 'Tarea ' . $tarea->id . ' ' . $tarea->title . ' está sobrepasando las horas estimadas en un 50%';
                             } else {
-                                $data["stage_id"] = 40; // Stage para sobrepaso menor al 50%
-                                $data["description"] = 'Aviso de Tarea - Se está sobrepasando las horas estimadas en la tarea ' . $tarea->title;
+                                $data['stage_id'] = 40; // Stage para sobrepaso menor al 50%
+                                $data['description'] = 'Aviso de Tarea - Se está sobrepasando las horas estimadas en la tarea ' . $tarea->title;
                             }
 
-                            $existe = Alert::where('status_id',1)->where('stage_id', $data["stage_id"]) ->where('reference_id', $tarea->id)->where('description', $data["description"])->exists();
+                            $existe = Alert::where('status_id', 1)->where('stage_id', $data['stage_id'])->where('reference_id', $tarea->id)->where('description', $data['description'])->exists();
                             // Crear y guardar la alerta
                             if (!$existe) {
                                 $alert = Alert::create($data);
                                 $alertSaved = $alert->save();
 
-                                $data["admin_user_id"] = 1;
+                                $data['admin_user_id'] = 1;
                                 $alertAdmin = Alert::create($data);
                                 $alertSaved = $alertAdmin->save();
                             }
                         }
 
-
                         $logTask = DB::select("SELECT id FROM `log_tasks` WHERE date_start BETWEEN DATE_SUB(now(), interval 6 hour) AND DATE_ADD(NOW(), INTERVAL 7 hour) AND `admin_user_id` = $usuario->id");
                         if (count(value: $logTask) == 1) {
-
                             $activeJornada = $usuario->activeJornada();
 
                             if (!$activeJornada) {
-                                $jornada =  Jornada::create([
+                                $jornada = Jornada::create([
                                     'admin_user_id' => $usuario->id,
                                     'start_time' => Carbon::now(),
                                     'is_active' => true,
@@ -1038,35 +1020,27 @@ class DashboardController extends Controller
                             $añoActual = Carbon::now()->year;
                             $fechaActual = Carbon::now();
 
-                            $todayJornada = Jornada::where('admin_user_id', $usuario->id)
-                            ->whereDate('start_time', $fechaActual->toDateString())
-                            ->whereTime('start_time', '>', $horaLimiteEntradaUTC->format('H:i:s'))
-                            ->get();
-
+                            $todayJornada = Jornada::where('admin_user_id', $usuario->id)->whereDate('start_time', $fechaActual->toDateString())->whereTime('start_time', '>', $horaLimiteEntradaUTC->format('H:i:s'))->get();
 
                             $hourlyAverage = Jornada::where('admin_user_id', $usuario->id)
                                 ->whereMonth('start_time', $mesActual)
                                 ->whereYear('start_time', $añoActual)
-                                ->whereRaw("TIME(start_time) > ?", [$horaLimiteEntradaUTC->format('H:i:s')])
+                                ->whereRaw('TIME(start_time) > ?', [$horaLimiteEntradaUTC->format('H:i:s')])
                                 ->get();
-
-
-
 
                             $fechaNow = Carbon::now();
 
-                            if(count($todayJornada) > 0){
-
+                            if (count($todayJornada) > 0) {
                                 if (count($hourlyAverage) > 2) {
-                                    $alertados = [1,8];
-                                    foreach($alertados as $alertar){
+                                    $alertados = [1, 8];
+                                    foreach ($alertados as $alertar) {
                                         $data = [
-                                            "admin_user_id" =>  $alertar,
-                                            "stage_id" => 23,
-                                            "description" => $usuario->name . " ha llegado tarde 3 veces o mas este mes",
-                                            "status_id" => 1,
-                                            "reference_id" => $usuario->id,
-                                            "activation_datetime" => Carbon::now()->format('Y-m-d H:i:s')
+                                            'admin_user_id' => $alertar,
+                                            'stage_id' => 23,
+                                            'description' => $usuario->name . ' ha llegado tarde 3 veces o mas este mes',
+                                            'status_id' => 1,
+                                            'reference_id' => $usuario->id,
+                                            'activation_datetime' => Carbon::now()->format('Y-m-d H:i:s'),
                                         ];
 
                                         $alert = Alert::create($data);
@@ -1090,62 +1064,50 @@ class DashboardController extends Controller
                                 }
 
                                 $data = [
-                                    "admin_user_id" =>  $usuario->id,
-                                    "stage_id" => 23,
-                                    "description" => $text,
-                                    "status_id" => 1,
-                                    "reference_id" => $usuario->id,
-                                    "activation_datetime" => $fechaNow->format('Y-m-d H:i:s')
+                                    'admin_user_id' => $usuario->id,
+                                    'stage_id' => 23,
+                                    'description' => $text,
+                                    'status_id' => 1,
+                                    'reference_id' => $usuario->id,
+                                    'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
                                 ];
 
                                 $alert = Alert::create($data);
                                 $alertSaved = $alert->save();
                             }
-
                         }
                     }
                     break;
-                case "Pausada":
+                case 'Pausada':
                     if ($tarea->task_status_id == 1) {
-                        if ($tarea->real_time == "00:00:00") {
+                        if ($tarea->real_time == '00:00:00') {
                             $start = $tarea->updated_at;
-                            $end   = new \DateTime("NOW");
+                            $end = new \DateTime('NOW');
                             $interval = $end->diff($start);
 
-                            $time = sprintf(
-                                '%02d:%02d:%02d',
-                                ($interval->d * 24) + $interval->h,
-                                $interval->i,
-                                $interval->s
-                            );
+                            $time = sprintf('%02d:%02d:%02d', $interval->d * 24 + $interval->h, $interval->i, $interval->s);
                         } else {
                             $start = $tarea->updated_at;
-                            $end   = new \DateTime("NOW");
+                            $end = new \DateTime('NOW');
                             $interval = $end->diff($start);
 
-                            $time = sprintf(
-                                '%02d:%02d:%02d',
-                                ($interval->d * 24) + $interval->h,
-                                $interval->i,
-                                $interval->s
-                            );
+                            $time = sprintf('%02d:%02d:%02d', $interval->d * 24 + $interval->h, $interval->i, $interval->s);
 
                             $time = $this->sum_the_time($tarea->real_time, $time);
                         }
                         $tarea->real_time = $time;
                     }
 
-                    $last = LogTasks::where("admin_user_id", $usuario->id)->get()->last();
+                    $last = LogTasks::where('admin_user_id', $usuario->id)->get()->last();
                     if ($last) {
                         $last->date_end = $date;
-                        $last->status = "Pausada";
+                        $last->status = 'Pausada';
                         $last->save();
                     }
 
                     $tarea->task_status_id = 2;
                     break;
-                case "Revision":
-
+                case 'Revision':
                     //Crear Alerta tarea terminada antes de tiempo
                     // if ($formatEstimated > $formatReal) {
                     //     $dataAlert = [
@@ -1171,7 +1133,6 @@ class DashboardController extends Controller
                     $alert = Alert::create($dataAlert);
                     $alertSaved = $alert->save();
 
-
                     $tarea->task_status_id = 5;
                     break;
             }
@@ -1179,18 +1140,18 @@ class DashboardController extends Controller
             $taskSaved = $tarea->save();
 
             if (($taskSaved || $tareaActiva == null) && !$error) {
-                $response = json_encode(array(
-                    "estado" => "OK"
-                ));
+                $response = json_encode([
+                    'estado' => 'OK',
+                ]);
             } else {
-                $response = json_encode(array(
-                    "estado" => "ERROR; TIENES OTRA TAREA ACTIVA. HABLA CON EL CREADOR .`,"
-                ));
+                $response = json_encode([
+                    'estado' => 'ERROR; TIENES OTRA TAREA ACTIVA. HABLA CON EL CREADOR .`,',
+                ]);
             }
         } else {
-            $response = json_encode(array(
-                "estado" => "ERROR"
-            ));
+            $response = json_encode([
+                'estado' => 'ERROR',
+            ]);
         }
         //}
 
@@ -1199,44 +1160,45 @@ class DashboardController extends Controller
 
     function sum_the_time($time1, $time2)
     {
-        $times = array($time1, $time2);
+        $times = [$time1, $time2];
         $seconds = 0;
         foreach ($times as $time) {
-            list($hour, $minute, $second) = explode(':', $time);
+            [$hour, $minute, $second] = explode(':', $time);
             $seconds += $hour * 3600;
             $seconds += $minute * 60;
             $seconds += $second;
         }
         $hours = floor($seconds / 3600);
         $seconds -= $hours * 3600;
-        $minutes  = floor($seconds / 60);
+        $minutes = floor($seconds / 60);
         $seconds -= $minutes * 60;
         // return "{$hours}:{$minutes}:{$seconds}";
         return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
     }
 
-    function convertToNumber($importe) {
+    function convertToNumber($importe)
+    {
         // Elimina los puntos de separación de miles
         $importe = str_replace('.', '', $importe);
         // Reemplaza la coma decimal por un punto decimal
         $importe = str_replace(',', '.', $importe);
         // Convierte a número flotante
-        return (float)$importe;
+        return (float) $importe;
     }
 
     public function updateStatusAlertAndAcceptHours(Request $request)
     {
         $alert = Alert::find($request->id);
         $hoursMonthly = HoursMonthly::find($alert->reference_id);
-        $hoursMonthly->acceptance_hours    = "CONFORME";
+        $hoursMonthly->acceptance_hours = 'CONFORME';
         $hoursMonthly->save();
         $alert->status_id = $request->status;
         $alertSaved = $alert->save();
 
         if ($alertSaved) {
-            $response = json_encode(array(
-                "estado" => "200"
-            ));
+            $response = json_encode([
+                'estado' => '200',
+            ]);
         } else {
             $response = 503;
         }
@@ -1258,15 +1220,15 @@ class DashboardController extends Controller
             $user = 1;
         }
         $text = $request->texto;
-        Carbon::setLocale("es");
+        Carbon::setLocale('es');
         $fechaNow = Carbon::now();
         $data = [
-            "admin_user_id" =>  $user,
-            "stage_id" => 19,
-            "description" => $text,
-            "status_id" => AlertStatus::ALERT_STATUS_PENDING,
-            "reference_id" => Auth::user()->id,
-            "activation_datetime" => $fechaNow->format('Y-m-d H:i:s')
+            'admin_user_id' => $user,
+            'stage_id' => 19,
+            'description' => $text,
+            'status_id' => AlertStatus::ALERT_STATUS_PENDING,
+            'reference_id' => Auth::user()->id,
+            'activation_datetime' => $fechaNow->format('Y-m-d H:i:s'),
         ];
 
         $alertCreate = Alert::create($data);
@@ -1283,27 +1245,23 @@ class DashboardController extends Controller
         }
     }
 
-    public function puntualidad($ini, $fin, $id){
-        $puntualidad = Alert::where('admin_user_id', $id)
-        ->whereDate('created_at','>=', $ini)
-        ->whereDate('created_at','<=', $fin)
-        ->where('stage_id', 23)
-        ->whereRaw('admin_user_id = reference_id')
-        ->get();
+    public function puntualidad($ini, $fin, $id)
+    {
+        $puntualidad = Alert::where('admin_user_id', $id)->whereDate('created_at', '>=', $ini)->whereDate('created_at', '<=', $fin)->where('stage_id', 23)->whereRaw('admin_user_id = reference_id')->get();
 
         $dias = $puntualidad->count();
 
         return $dias;
     }
 
-    public function productividad($ini, $fin, $id){
-
+    public function productividad($ini, $fin, $id)
+    {
         $tareasFinalizadas = Task::where('admin_user_id', $id)
-        ->where('task_status_id', 3)
-        ->whereDate('updated_at','>=', $ini)
-        ->whereDate('updated_at','<=', $fin)
-        ->whereRaw("TIME_TO_SEC(real_time) > 1740") // 29 minutos en segundos
-        ->get();
+            ->where('task_status_id', 3)
+            ->whereDate('updated_at', '>=', $ini)
+            ->whereDate('updated_at', '<=', $fin)
+            ->whereRaw('TIME_TO_SEC(real_time) > 1740') // 29 minutos en segundos
+            ->get();
 
         $totalProductividad = 0;
         $totalEstimatedTime = 0;
@@ -1321,16 +1279,14 @@ class DashboardController extends Controller
         } else {
             $totalProductividad = 0; // Set to 0 if no real time to avoid division by zero
         }
-        return number_format(($totalProductividad), 2, ',', '.');
+        return number_format($totalProductividad, 2, ',', '.');
     }
 
-    public function horasTrabajadasEnRango($fechaInicio, $fechaFin, $id) {
+    public function horasTrabajadasEnRango($fechaInicio, $fechaFin, $id)
+    {
         $totalWorkedSeconds = 0;
 
-        $jornadas = Jornada::where('admin_user_id', $id)
-                            ->whereDate('start_time', '>=', $fechaInicio)
-                            ->whereDate('start_time', '<=', $fechaFin)
-                            ->get();
+        $jornadas = Jornada::where('admin_user_id', $id)->whereDate('start_time', '>=', $fechaInicio)->whereDate('start_time', '<=', $fechaFin)->get();
 
         foreach ($jornadas as $jornada) {
             if ($jornada->end_time) {
@@ -1355,13 +1311,11 @@ class DashboardController extends Controller
         return $tiempoFormateado;
     }
 
-    public function tiempoProducidoEnRango($fechaInicio, $fechaFin, $id){
+    public function tiempoProducidoEnRango($fechaInicio, $fechaFin, $id)
+    {
         $tiempoTarea = 0;
         // Filtrar las tareas que estén dentro del rango de fechas
-        $tareas = LogTasks::where('admin_user_id', $id)
-                          ->whereDate('date_start', '>=', $fechaInicio)
-                          ->whereDate('date_start', '<=', $fechaFin)
-                          ->get();
+        $tareas = LogTasks::where('admin_user_id', $id)->whereDate('date_start', '>=', $fechaInicio)->whereDate('date_start', '<=', $fechaFin)->get();
         // Recorrer todas las tareas dentro del rango de fechas
         foreach ($tareas as $tarea) {
             if ($tarea->status == 'Pausada' && $tarea->date_end) {
@@ -1379,73 +1333,57 @@ class DashboardController extends Controller
         return $tiempoFormateado;
     }
 
-    public function presupuestosCreados($fechaInicio , $fechaFin , $id){
-
-        $presupuestos = Budget::where('admin_user_id',$id)
-            ->whereDate('created_at', '>=', $fechaInicio)
-            ->whereDate('created_at', '<=', $fechaFin)
-            ->get();
+    public function presupuestosCreados($fechaInicio, $fechaFin, $id)
+    {
+        $presupuestos = Budget::where('admin_user_id', $id)->whereDate('created_at', '>=', $fechaInicio)->whereDate('created_at', '<=', $fechaFin)->get();
 
         return $presupuestos->count();
     }
 
-    public function facturasCreados($fechaInicio , $fechaFin , $id){
-
-        $facturas = Invoice::where('admin_user_id',$id)
-            ->whereDate('created_at', '>=', $fechaInicio)
-            ->whereDate('created_at', '<=', $fechaFin)
-            ->get();
+    public function facturasCreados($fechaInicio, $fechaFin, $id)
+    {
+        $facturas = Invoice::where('admin_user_id', $id)->whereDate('created_at', '>=', $fechaInicio)->whereDate('created_at', '<=', $fechaFin)->get();
 
         return $facturas->count();
     }
 
-    public function llamadas($fechaInicio , $fechaFin , $id){
-
-        $llamadas = Llamada::where('admin_user_id',$id)
-            ->whereDate('created_at', '>=', $fechaInicio)
-            ->whereDate('created_at', '<=', $fechaFin)
-            ->get();
+    public function llamadas($fechaInicio, $fechaFin, $id)
+    {
+        $llamadas = Llamada::where('admin_user_id', $id)->whereDate('created_at', '>=', $fechaInicio)->whereDate('created_at', '<=', $fechaFin)->get();
 
         return $llamadas->count();
     }
 
-    public function peticiones($fechaInicio , $fechaFin , $id){
-
-        $peticiones = Petition::where('admin_user_id',$id)
-            ->whereDate('created_at', '>=', $fechaInicio)
-            ->whereDate('created_at', '<=', $fechaFin)
-            ->where('finished',1)
-            ->get();
+    public function peticiones($fechaInicio, $fechaFin, $id)
+    {
+        $peticiones = Petition::where('admin_user_id', $id)->whereDate('created_at', '>=', $fechaInicio)->whereDate('created_at', '<=', $fechaFin)->where('finished', 1)->get();
 
         return $peticiones->count();
     }
 
-    public function peticionesCreadas($fechaInicio , $fechaFin , $id){
-
-        $peticiones = Petition::where('admin_user_id',$id)
-            ->whereDate('created_at', '>=', $fechaInicio)
-            ->whereDate('created_at', '<=', $fechaFin)
-            ->get();
+    public function peticionesCreadas($fechaInicio, $fechaFin, $id)
+    {
+        $peticiones = Petition::where('admin_user_id', $id)->whereDate('created_at', '>=', $fechaInicio)->whereDate('created_at', '<=', $fechaFin)->get();
 
         return $peticiones->count();
     }
 
-
-    public function gestionkit($fechaInicio , $fechaFin , $id){
-
+    public function gestionkit($fechaInicio, $fechaFin, $id)
+    {
         $logActions = LogActions::where('tipo', 1)
-        ->whereBetween('created_at', [$fechaInicio, $fechaFin])
-        ->where('admin_user_id', $id)
-        ->get();
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->where('admin_user_id', $id)
+            ->get();
 
-        $referenceIdsUniquePerDay = $logActions->groupBy(function ($action) {
-            // Agrupar por la fecha
-            return Carbon::parse($action->created_at)->format('Y-m-d');
-        })->map(function ($group) {
-            // Para cada grupo, pluck y unique los referenceIds
-            return $group->pluck('reference_id')->unique();
-        });
-
+        $referenceIdsUniquePerDay = $logActions
+            ->groupBy(function ($action) {
+                // Agrupar por la fecha
+                return Carbon::parse($action->created_at)->format('Y-m-d');
+            })
+            ->map(function ($group) {
+                // Para cada grupo, pluck y unique los referenceIds
+                return $group->pluck('reference_id')->unique();
+            });
 
         $totalCounts = $referenceIdsUniquePerDay->map(function ($ids) {
             // Contar el número de reference_ids únicos en cada subcolección
@@ -1458,22 +1396,22 @@ class DashboardController extends Controller
         return $globalTotal;
     }
 
-    public function kitsCreados($fechaInicio , $fechaFin , $id){
-
+    public function kitsCreados($fechaInicio, $fechaFin, $id)
+    {
         $logActions = LogActions::where('tipo', 1)
-        ->whereBetween('created_at', [$fechaInicio, $fechaFin])
-        ->where('admin_user_id', $id)
-        ->where('action', 'like', '%Crear kit digital%')
-        ->get();
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->where('admin_user_id', $id)
+            ->where('action', 'like', '%Crear kit digital%')
+            ->get();
 
         return $logActions->count();
     }
 
-    public function produccion($fechaInicio , $fechaFin)
+    public function produccion($fechaInicio, $fechaFin)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
-        $user = User::where('inactive',0)->where('access_level_id',5)->get();
+        $user = User::where('inactive', 0)->where('access_level_id', 5)->get();
         $data = [];
         foreach ($user as $usuario) {
             $data[] = [
@@ -1481,17 +1419,17 @@ class DashboardController extends Controller
                 'inpuntualidad' => $this->puntualidad($fechaInicio, $fechaFin, $usuario->id),
                 'horas_oficinas' => $this->horasTrabajadasEnRango($fechaInicio, $fechaFin, $usuario->id),
                 'horas_producidas' => $this->tiempoProducidoEnRango($fechaInicio, $fechaFin, $usuario->id),
-                'productividad' => $this->productividad($fechaInicio, $fechaFin, $usuario->id)
+                'productividad' => $this->productividad($fechaInicio, $fechaFin, $usuario->id),
             ];
         }
         return $data;
     }
 
-    public function gestion($fechaInicio , $fechaFin)
+    public function gestion($fechaInicio, $fechaFin)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
-        $user = User::where('inactive',0)->where('access_level_id',4)->get();
+        $user = User::where('inactive', 0)->where('access_level_id', 4)->get();
         $data = [];
         foreach ($user as $usuario) {
             $data[] = [
@@ -1503,17 +1441,16 @@ class DashboardController extends Controller
                 'kits' => $this->gestionkit($fechaInicio, $fechaFin, $usuario->id),
                 'kitsCreados' => $this->kitsCreados($fechaInicio, $fechaFin, $usuario->id),
                 'peticiones' => $this->peticiones($fechaInicio, $fechaFin, $usuario->id),
-
             ];
         }
         return $data;
     }
 
-    public function contabilidad($fechaInicio , $fechaFin)
+    public function contabilidad($fechaInicio, $fechaFin)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
-        $user = User::where('inactive',0)->where('access_level_id',3)->get();
+        $user = User::where('inactive', 0)->where('access_level_id', 3)->get();
         $data = [];
         foreach ($user as $usuario) {
             $data[] = [
@@ -1527,11 +1464,11 @@ class DashboardController extends Controller
         return $data;
     }
 
-    public function comercial($fechaInicio , $fechaFin)
+    public function comercial($fechaInicio, $fechaFin)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
-        $user = User::where('inactive',0)->where('access_level_id',6)->get();
+        $user = User::where('inactive', 0)->where('access_level_id', 6)->get();
         $data = [];
         foreach ($user as $usuario) {
             $data[] = [
@@ -1546,7 +1483,7 @@ class DashboardController extends Controller
 
     public function getProduccion(Request $request)
     {
-        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')) );
+        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')));
         $fechaInicio = Carbon::parse($fechas[0]);
         $fechaFin = Carbon::parse($fechas[1]);
         $produccion = $this->produccion($fechaInicio, $fechaFin);
@@ -1555,7 +1492,7 @@ class DashboardController extends Controller
 
     public function getGestion(Request $request)
     {
-        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')) );
+        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')));
         $fechaInicio = Carbon::parse($fechas[0]);
         $fechaFin = Carbon::parse($fechas[1]);
         $gestion = $this->gestion($fechaInicio, $fechaFin);
@@ -1563,7 +1500,7 @@ class DashboardController extends Controller
     }
     public function getComercial(Request $request)
     {
-        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')) );
+        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')));
         $fechaInicio = Carbon::parse($fechas[0]);
         $fechaFin = Carbon::parse($fechas[1]);
         $comercial = $this->comercial($fechaInicio, $fechaFin);
@@ -1571,7 +1508,7 @@ class DashboardController extends Controller
     }
     public function getContabilidad(Request $request)
     {
-        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')) );
+        $fechas = explode(' a ', $request->input('dateRange', now()->startOfMonth()->format('Y-m-d')));
         $fechaInicio = Carbon::parse($fechas[0]);
         $fechaFin = Carbon::parse($fechas[1]);
         $contabilidad = $this->contabilidad($fechaInicio, $fechaFin);
@@ -1582,17 +1519,20 @@ class DashboardController extends Controller
     {
         try {
             $kits = kitDigital::with('servicios') // Asegúrate de especificar los campos que necesitas de la relación
-                            ->get(['id', 'cliente', 'servicio_id']); // Asegúrate de que los campos aquí sean correctos
+                ->get(['id', 'cliente', 'servicio_id']); // Asegúrate de que los campos aquí sean correctos
 
             return response()->json([
                 'success' => true,
-                'kits' => $kits
+                'kits' => $kits,
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al obtener los datos: ' . $e->getMessage()
-            ], 500);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Error al obtener los datos: ' . $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
 
@@ -1607,13 +1547,14 @@ class DashboardController extends Controller
             $lastTask = LogTasks::where('admin_user_id', $user->id)->latest()->first();
         }
 
-        if(isset($lastTask)){
+        if (isset($lastTask)) {
             $ultimatarea = Carbon::parse($lastTask->date_end ?? Carbon::now());
-        }else{
+        } else {
             $ultimatarea = Carbon::now();
         }
 
-        $jornadas = $user->jornadas()
+        $jornadas = $user
+            ->jornadas()
             ->whereBetween('start_time', [$startOfWeek, $endOfWeek])
             ->get();
 
@@ -1625,7 +1566,6 @@ class DashboardController extends Controller
         });
 
         foreach ($jornadasPorDia as $day => $dayJornadas) {
-
             $totalWorkedSeconds = 0;
             $isFriday = Carbon::parse($day)->isFriday();
             $isHalfDay = HolidaysPetitions::where('admin_user_id', $user->id)->where('holidays_status_id', 1)->where('from', '<=', $day)->where('to', '>=', $day)->first();
@@ -1638,14 +1578,13 @@ class DashboardController extends Controller
             }
 
             // Calcular la diferencia: 7 horas si es viernes, 8 horas en el resto de días
-            if($isHalfDay){
+            if ($isHalfDay) {
                 $targetHours = 5;
-            }else{
+            } else {
                 $targetHours = $isFriday ? 7 : 8;
             }
             $targetseconds = $targetHours * 3600;
             $difference = $targetseconds - $totalWorkedSeconds;
-
 
             if ($difference > 0) {
                 // El usuario trabajó menos de las horas objetivo, debe compensar
@@ -1660,27 +1599,30 @@ class DashboardController extends Controller
         $seconds = $descontar % 60;
         if ($descontar > 0) {
             $result = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
-        }else{
+        } else {
             $result = '00:00:00';
         }
-
 
         return $result;
     }
 
-    public function informeLlamadas(Request $request){
+    public function informeLlamadas(Request $request)
+    {
         $user = auth()->user();
-        $data = $request->validate([
-            'fecha_inicio' => 'required',
-            'fecha_fin' => 'required',
-            'admin_user_ids' => 'nullable|array',
-            'admin_user_ids.*' => 'exists:admin_user,id',
-        ], [
-            'fecha_inicio.required' => 'El campo Fecha Inicio es obligatorio.',
-            'fecha_fin.required' => 'El campo Fecha Fin es obligatorio.',
-        ]);
+        $data = $request->validate(
+            [
+                'fecha_inicio' => 'required',
+                'fecha_fin' => 'required',
+                'admin_user_ids' => 'nullable|array',
+                'admin_user_ids.*' => 'exists:admin_user,id',
+            ],
+            [
+                'fecha_inicio.required' => 'El campo Fecha Inicio es obligatorio.',
+                'fecha_fin.required' => 'El campo Fecha Fin es obligatorio.',
+            ],
+        );
 
-        $url = url('/llamadas?selectedGestor='.$user->id.'&fecha_inicio='.$data['fecha_inicio'].'&fecha_fin='.$data['fecha_fin']);
+        $url = url('/llamadas?selectedGestor=' . $user->id . '&fecha_inicio=' . $data['fecha_inicio'] . '&fecha_fin=' . $data['fecha_fin']);
 
         $validatedData['titulo'] = 'Informe de llamadas';
         $validatedData['url'] = $url;
@@ -1693,23 +1635,23 @@ class DashboardController extends Controller
         TodoUsers::create([
             'todo_id' => $todo->id,
             'admin_user_id' => $validatedData['admin_user_id'],
-            'completada' => false  // Asumimos que la tarea no está completada por los usuarios al inicio
+            'completada' => false, // Asumimos que la tarea no está completada por los usuarios al inicio
         ]);
         // Asociar múltiples usuarios a la tarea
-        if(isset($validatedData['admin_user_ids'])){
+        if (isset($validatedData['admin_user_ids'])) {
             foreach ($validatedData['admin_user_ids'] as $userId) {
                 TodoUsers::create([
                     'todo_id' => $todo->id,
                     'admin_user_id' => $userId,
-                    'completada' => false  // Asumimos que la tarea no está completada por los usuarios al inicio
+                    'completada' => false, // Asumimos que la tarea no está completada por los usuarios al inicio
                 ]);
             }
         }
         $users = $todo->TodoUsers
-        ->pluck('admin_user_id') // Obtén todos los admin_user_id
-        ->reject(function ($adminUserId) use ($todo) {
-            return $adminUserId == $todo->admin_user_id; // Excluye el admin_user_id del remitente
-        });
+            ->pluck('admin_user_id') // Obtén todos los admin_user_id
+            ->reject(function ($adminUserId) use ($todo) {
+                return $adminUserId == $todo->admin_user_id; // Excluye el admin_user_id del remitente
+            });
 
         foreach ($users as $user) {
             $data = [
@@ -1718,11 +1660,9 @@ class DashboardController extends Controller
                 'activation_datetime' => Carbon::now(),
                 'status_id' => 1,
                 'reference_id' => $todo->id,
-                'description' => 'Nuevo To-Do con titulo : '.$todo->titulo,
-
+                'description' => 'Nuevo To-Do con titulo : ' . $todo->titulo,
             ];
             $alert = Alert::create($data);
         }
     }
-
 }

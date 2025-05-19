@@ -6,6 +6,7 @@ use App\Http\Controllers\Bajas\BajaController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Suppliers\SuppliersController;
 use App\Http\Controllers\Tesoreria\CuadroController;
+use App\Http\Controllers\Tesoreria\TesoreriaContabilizarIa;
 use App\Http\Controllers\To_do\To_doController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -64,7 +65,7 @@ use App\Http\Controllers\Portal\PortalCompraWebs;
 use App\Http\Controllers\Portal\PortalProductos;
 use App\Http\Controllers\AutomatizacionKit\AutomatizacionKitController;
 use App\Http\Controllers\AutomatizacionKit\KitPagadosController;
-
+use App\Http\Controllers\Plataforma\PlataformaWhatsappController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -357,10 +358,12 @@ Route::group(['middleware' => 'auth'], function () {
 
 
         // Gastos sin clasificar (TESORERIA)
-        Route::get('/gastos-sin-clasificar', [TesoreriaController::class, 'indexUnclassifiedExpensese'])->name('gasto-sin-clasificar.index');
-        Route::get('/gastos-sin-clasificar/edit/{id}', [TesoreriaController::class, 'editUnclassifiedExpensese'])->name('gasto-sin-clasificar.edit');
-        Route::post('/gastos-sin-clasificar/update/{id}', [TesoreriaController::class, 'updateUnclassifiedExpensese'])->name('gasto-sin-clasificar.update');
-        Route::post('/gastos-sin-clasificar/destroy', [TesoreriaController::class, 'destroyUnclassifiedExpensese'])->name('gastos-sin-clasificar.delete');
+        Route::prefix('tesoreria')->group(function () {
+            Route::get('/gastos-sin-clasificar', [TesoreriaController::class, 'indexUnclassifiedExpensese'])->name('gasto-sin-clasificar.index');
+            Route::get('/gastos-sin-clasificar/edit/{id}', [TesoreriaController::class, 'editUnclassifiedExpensese'])->name('gasto-sin-clasificar.edit');
+            Route::post('/gastos-sin-clasificar/update/{id}', [TesoreriaController::class, 'updateUnclassifiedExpensese'])->name('gasto-sin-clasificar.update');
+            Route::post('/gastos-sin-clasificar/destroy', [TesoreriaController::class, 'destroyUnclassifiedExpensese'])->name('gastos-sin-clasificar.delete');
+        });
 
         //Categorias de gastos asociados
         Route::get('/categorias-gastos-asociados', [CategoriaAsociadosController::class, 'index'])->name('categorias-gastos-asociados.index');
@@ -709,3 +712,33 @@ Route::post('/kit-digital/store-comercial', [KitDigitalController::class, 'store
 Route::get('/portal/productos', [PortalProductos::class, 'productos'])->name('portal.productos');
 
 Route::get('/test', [test::class, 'test']);
+
+
+// Plataforma whatsapp
+Route::prefix('plataforma')->group(function () {
+    Route::get('/', [PlataformaWhatsappController::class, 'index'])->name('plataforma.dashboard');
+    Route::get('/clientes', [PlataformaWhatsappController::class, 'clientes'])->name('plataforma.clientes');
+    Route::get('/campanias', [PlataformaWhatsappController::class, 'campanias'])->name('plataforma.campanias');
+    Route::post('/create-template', [PlataformaWhatsappController::class, 'createTemplate'])->name('plataforma.createTemplate');
+    Route::get('/templates', [PlataformaWhatsappController::class, 'templates'])->name('plataforma.templates');
+    Route::get('/alertas', [PlataformaWhatsappController::class, 'alertas'])->name('plataforma.alertas');
+    Route::post('/create-campania', [PlataformaWhatsappController::class, 'createCampania'])->name('plataforma.createCampania');
+    Route::post('/send-campania', [PlataformaWhatsappController::class, 'sendCampania'])->name('plataforma.sendCampania');
+    Route::get('/get-clients', [PlataformaWhatsappController::class, 'getClients'])->name('plataforma.getClients');
+    Route::get('/logs', [PlataformaWhatsappController::class, 'logs'])->name('plataforma.logs');
+    Route::post('/logs/client', [PlataformaWhatsappController::class, 'logsClient'])->name('plataforma.logsClient');
+    Route::get('/configuracion', [PlataformaWhatsappController::class, 'configuracion'])->name('plataforma.configuracion');
+    Route::post('/programar-campania', [PlataformaWhatsappController::class, 'programarCampania'])->name('plataforma.programarCampania');
+    Route::post('/store-log', [PlataformaWhatsappController::class, 'storeLog'])->name('plataforma.storelog');
+});
+
+Route::prefix('tesoreria')->group(function () {
+    Route::get('/contabilizar-ia', [TesoreriaContabilizarIa::class, 'index'])->name('tesoreria.contabilizar-ia');
+    Route::post('/contabilizar-ia/upload', [TesoreriaContabilizarIa::class, 'upload'])->name('tesoreria.contabilizar-ia.upload');
+    Route::get('/show-generico', [TesoreriaContabilizarIa::class, 'showGenerico'])->name('tesoreria.contabilizar-ia.showGenerico');
+    Route::post('/accept-coincidencias', [TesoreriaContabilizarIa::class, 'acceptCoincidencias'])->name('tesoreria.acceptCoincidencias');
+    Route::post('/reject-coincidencias', [TesoreriaContabilizarIa::class, 'rejectCoincidencias'])->name('tesoreria.rejectCoincidencias');
+    Route::post('/gasto-store-api', [TesoreriaController::class, 'storeGastosApi'])->name('tesoreria.gasto-store-api');
+    Route::post('/ingreso-store-api', [TesoreriaController::class, 'storeIngresosApi'])->name('tesoreria.ingreso-store-api');
+    Route::post('/transferencia-store-api', [TesoreriaController::class, 'storeTransferenciasApi'])->name('tesoreria.transferencia-store-api');
+});

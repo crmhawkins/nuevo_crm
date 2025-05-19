@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tesoreria;
 
 use App\Http\Controllers\Controller;
+use App\Models\Accounting\UnclassifiedIncome;
+use Auth;
 use Illuminate\Http\Request;
 use App\Models\Accounting\CategoriaGastosAsociados;
 use App\Models\Accounting\CategoriaGastos;
@@ -262,6 +264,7 @@ class TesoreriaController extends Controller
         ]);
         $validated['date'] = Carbon::parse($validated['date'])->format('Y-m-d');
 
+
         // Crear el gasto asociado
         $gasto = new Gasto( $validated);
 
@@ -276,7 +279,7 @@ class TesoreriaController extends Controller
         $gasto->save();
 
         if(isset($unclassifiedExpenses)){
-            $unclassifiedExpenses->accepted = true;
+            $unclassifiedExpenses->status = 1;
             $unclassifiedExpenses->save();
         }
         // Redireccionar con mensaje de éxito
@@ -435,6 +438,7 @@ class TesoreriaController extends Controller
            ], 201);
        }
     }
+
     //update
     public function updateTraspasos(Request $request, string $id){
         $traspaso = Traspaso::find($id);
@@ -738,4 +742,138 @@ class TesoreriaController extends Controller
     public function showIngresos(){
         return view('tesoreria.ingresos.index');
     }
+
+    public function storeGastosApi(Request $request){
+
+        $unclassifiedExpenses = UnclassifiedExpenses::find($request->id);
+        // Validar los datos del formulario
+        $validated = $this->validate($request, [
+            'title' => 'required|string|max:255',
+            'reference' => 'required|string|max:255',
+            'quantity' => 'required',
+            'bank_id' => 'nullable',
+            'date' => 'nullable',
+            'received_date' => 'nullable',
+            'payment_method_id' => 'nullable',
+            'transfer_movement' => 'nullable',
+            'state' => 'nullable',
+            'documents' => 'nullable',
+            'iva' => 'nullable',
+            'categoria_id' => 'nullable',
+            'bank' => 'nullable'
+        ]);
+
+        if($unclassifiedExpenses->parcial){
+            $validated['state'] = 'Parcial';
+        }
+        $validated['date'] = Carbon::parse($validated['date'])->format('Y-m-d');
+
+        switch ($validated['bank']) {
+            case 'BBVA':
+                $validated['bank_id'] = 4;
+                break;
+            case 'SABADELL':
+                $validated['bank_id'] = 2;
+                break;
+            case 'BANKINTER':
+                $validated['bank_id'] = 3;
+                break;
+            default:
+                $validated['bank_id'] = null;
+                break;
+        }
+
+        // Crear el gasto asociado
+        $gasto = new Gasto( $validated);
+
+        // Asignar valores adicionales si es necesario
+        if ($request->hasFile('documents') && $request->file('documents')->isValid()) {
+            $path = $request->file('documents')->store('documents', 'public');
+            $gasto->documents = $path;
+        }
+        // Asignar el valor de transfer_movement de forma correcta
+        $gasto->transfer_movement = $request->has('transfer_movement') ? 1 : 0;
+        // Guardar el nuevo gasto
+        $gasto->save();
+
+        if ($unclassifiedExpenses) {
+            $unclassifiedExpenses->status = 1;
+            $unclassifiedExpenses->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Gasto creado correctamente',
+            'gasto' => $gasto
+        ]);
+    }
+
+    public function storeIngresosApi(Request $request)
+    {
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
+
+        $client = Auth::user();
+        $bank = strtoupper($request->input('bank'));
+        switch ($bank) {
+            case 'BBVA':
+                $bank = 4;
+                break;
+            case 'SABADELL':
+                $bank = 2;
+                break;
+            case 'BANKINTER':
+                $bank = 3;
+                break;
+            default:
+                $bank = null;
+                break;
+        }
+        $unclassifiedIncome = UnclassifiedIncome::find($request->input('id'));
+
+        
+        $ingreso = new Ingreso();
+        $ingreso->quantity = $request->input('quantity');
+        $ingreso->date = $request->input('date');
+        $ingreso->title = $request->input('title');
+        $ingreso->bank_id = $bank;
+        $ingreso->save();
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ingreso creado correctamente',
+            'ingreso_id' => $ingreso->id
+        ], 200);
+    }
+
+    public function storeTransferenciasApi(Request $request)
+    {
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
+
+        $client = Auth::user();
+
+        $transferencia = new Traspaso();
+        $transferencia->amount = $request->input('amount');
+        $transferencia->fecha = Carbon::parse($request->input('date'))->format('Y-m-d');
+        $transferencia->from_bank_id = $request->input('origen_id');
+        $transferencia->to_bank_id = $request->input('destino_id');
+        $transferencia->save();
+
+        $unclassifiedIncome = UnclassifiedIncome::find($request->input('id'));
+        if ($unclassifiedIncome) {
+            $unclassifiedIncome->status = 1;
+            $unclassifiedIncome->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Transferencia creada correctamente',
+            'transferencia_id' => $transferencia->id
+        ], 200);
+    }
+
 }

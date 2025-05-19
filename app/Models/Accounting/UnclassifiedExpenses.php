@@ -26,8 +26,16 @@ class UnclassifiedExpenses extends Model
         'order_number',
         'accepted',
         'message',
-        'documents'
+        'documents',
+        'status',
+        'relacion',
+        'parcial'
     ];
+
+    protected $casts = [
+        'relacion' => 'array',
+    ];
+
 
     protected $dates = [
         'created_at', 'updated_at', 'deleted_at',
