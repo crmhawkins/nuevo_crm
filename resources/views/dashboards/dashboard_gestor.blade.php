@@ -1171,7 +1171,10 @@
     <script>
         // Mostrar modal de ingresos/gastos no clasificados si existen
         document.addEventListener('DOMContentLoaded', function() {
-            @if (count($unclassifiedIncomes) > 0 || count($unclassifiedExpenses) > 0)
+            @if (
+                (is_countable($unclassifiedIncomes ?? []) && count($unclassifiedIncomes ?? []) > 0) ||
+                (is_countable($unclassifiedExpenses ?? []) && count($unclassifiedExpenses ?? []) > 0)
+            )
                 var unclassifiedModal = new bootstrap.Modal(document.getElementById('unclassifiedModal'), {
                     backdrop: 'static',
                     keyboard: false
@@ -1179,6 +1182,7 @@
                 unclassifiedModal.show();
             @endif
         });
+
     </script>
 
     <script>
