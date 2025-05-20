@@ -42,10 +42,6 @@ class TesoreriaContabilizarIa extends Controller
     public function upload(Request $request)
     {
         try {
-            if (!Auth::check()) {
-                return redirect('/login');
-            }
-
             if (!$request->hasFile('excel_file')) {
                 throw new \Exception('No se ha proporcionado ningún archivo');
             }
