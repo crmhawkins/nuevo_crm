@@ -55,12 +55,14 @@ class AutomatizacionKitController extends Controller
                 'estado'        => $registro->estado,
                 'fecha_estado'  => $fecha_estado,
                 'fecha_sasak'   => $registro->sasak ?? 'No enviado',
+                'empresa'       => $registro->empresa ?? null, // ← NUEVO
             ];
+            
         })->values();
     }
 
 
-    public function viewEstados(Request $request)
+    public function viewEstados2(Request $request)
     {
         // Asignamos valores por defecto si no se reciben
         $dias_laborales = $request->input('dias_laborales', 21);
@@ -81,6 +83,36 @@ class AutomatizacionKitController extends Controller
 
         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
     }
+
+    public function viewEstados(Request $request)
+{
+    $dias_laborales = $request->input('dias_laborales', 21);
+    $dias = $request->input('dias', 15);
+    $empresa = $request->input('empresa'); // ← NUEVO
+
+    if ($request->input('mas6Meses', false)) {
+        $dias = 30 * 6;
+        $resultados = LogActions::mas6Meses()->get();
+    } else {
+        $resultados = $this->getContratos($dias);
+    }
+
+    // Filtrado por empresa si se selecciona una
+    if ($empresa) {
+        $resultados = $resultados->filter(function ($item) use ($empresa) {
+            return isset($item->empresa) && $item->empresa === $empresa;
+        })->values();
+    }
+
+    if ($resultados->isEmpty()) {
+        return redirect()->back()
+            ->with('success_message', "Actualmente no existen kits con más de {$dias} días sin actualizar su estado ni con el SASAK enviado.")
+            ->with('success_dias', $dias);
+    }
+
+    return view('kitDigital.estadosKit', compact('resultados', 'dias', 'empresa'));
+}
+
 
     public function sendEmail()
     {

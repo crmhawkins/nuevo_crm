@@ -73,40 +73,39 @@
 
         /*Scroll */
         .scroll-header-bar {
-    overflow-x: auto;
-    overflow-y: hidden;
-    width: 100%;
-    height: 16px;
-    position: relative;
-    z-index: 10;
-}
+            overflow-x: auto;
+            overflow-y: hidden;
+            width: 100%;
+            height: 16px;
+            position: relative;
+            z-index: 10;
+        }
 
-.scroll-fake-track {
-    height: 1px;
-}
+        .scroll-fake-track {
+            height: 1px;
+        }
 
-.scroll-real-wrapper {
-    overflow-x: auto;
-    overflow-y: hidden;
-    width: 100%;
-}
+        .scroll-real-wrapper {
+            overflow-x: auto;
+            overflow-y: hidden;
+            width: 100%;
+        }
 
-.drag-container {
-    display: flex;
-    gap: 20px;
-    padding: 20px;
-    align-items: flex-start;
-    width: max-content;
-}
+        .drag-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            align-items: flex-start;
+            width: max-content;
+        }
 
-.modal-header .btn-close {
-    color: white !important;
-    filter: invert(1);
-}
-
-
+        .modal-header .btn-close {
+            color: white !important;
+            filter: invert(1);
+        }
 
 </style>
+
 @endsection
 
 @section('content')
@@ -115,6 +114,7 @@
         {{ session('success') }}
     </div>
 @endif
+
 <div class="page-heading card" style="box-shadow: none !important">
     <div class="page-title card-body">
         <div class="row justify-content-between">

@@ -15,6 +15,7 @@ class LogActions extends Model
     use HasFactory;
     use SoftDeletes;
 
+
     protected $table = 'log_actions';
 
     /**
@@ -129,13 +130,30 @@ class LogActions extends Model
             });
         })
         ->select(
+            DB::raw('MAX(log_actions.created_at) as ultima_fecha'),
             'log_actions.reference_id',
-            'log_actions.action',
-            'log_actions.created_at as ultima_fecha',
             'ayudas.contratos',
             'ayudas.estado',
-            'ayudas.sasak'
+            'ayudas.sasak',
+            'ayudas.empresa' // ← AÑADE ESTA LÍNEA
+        )
+        ->groupBy(
+            'log_actions.reference_id',
+            'ayudas.contratos',
+            'ayudas.estado',
+            'ayudas.sasak',
+            'ayudas.empresa' // ← Y ESTA TAMBIÉN
         );
+        
+        
+        // ->select(
+        //     'log_actions.reference_id',
+        //     'log_actions.action',
+        //     'log_actions.created_at as ultima_fecha',
+        //     'ayudas.contratos',
+        //     'ayudas.estado',
+        //     'ayudas.sasak'
+        // );
 }
 
 
