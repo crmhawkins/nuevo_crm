@@ -145,15 +145,42 @@
           
           {{-- Botones de filtros --}}
           <div class="menu_estado_dias d-flex flex-row justify-content-between align-items-center mt-4">
-            <form method="GET" action="{{ route('kitDigital.sin_actualizar') }}" class="d-flex align-items-center justify-content-center mb-3" id="empresaFilterForm">
-                <input type="hidden" name="dias" value="{{ request('dias', 15) }}">
-                <input type="hidden" name="dias_laborales" value="{{ request('dias_laborales', 21) }}">
-                <select name="empresa" class="form-select w-auto" onchange="document.getElementById('empresaFilterForm').submit();">
-                  <option value="">Todas las empresas</option>
-                  <option value="IPOINT COMUCACIÓN MASIVA SL" {{ request('empresa') == 'IPOINT COMUCACIÓN MASIVA SL' ? 'selected' : '' }}>IPOINT COMUCACIÓN MASIVA SL</option>
-                  <option value="TH WORK" {{ request('empresa') == 'TH WORK' ? 'selected' : '' }}>TH WORK</option>
-                </select>
-              </form>
+            
+              <div class="d-flex flex-row justify-content-start align-items-center">
+                <form method="GET" action="{{ route('kitDigital.sin_actualizar') }}" class="d-flex align-items-center justify-content-center me-2" id="empresaFilterForm">
+                    <input type="hidden" name="dias" value="{{ request('dias', 15) }}">
+                    <input type="hidden" name="dias_laborales" value="{{ request('dias_laborales', 21) }}">
+                    <select name="empresa" class="form-select w-auto" onchange="document.getElementById('empresaFilterForm').submit();">
+                      <option value="">Todas las empresas</option>
+                      <option value="IPOINT COMUCACIÓN MASIVA SL" {{ request('empresa') == 'IPOINT COMUCACIÓN MASIVA SL' ? 'selected' : '' }}>IPOINT COMUCACIÓN MASIVA SL</option>
+                      <option value="TH WORK" {{ request('empresa') == 'TH WORK' ? 'selected' : '' }}>TH WORK</option>
+                    </select>
+                  </form>
+                <form class="me-2">
+                    <select id="perPageSelect" class="form-select" style="width: auto;">
+                        <option value="10">10 por página</option>
+                        <option value="25">25 por página</option>
+                        <option value="50">50 por página</option>
+                        <option value="100">100 por página</option>
+                        <option value="-1">Todos</option>
+                    </select>
+                </form>
+
+                <form method="GET" action="{{ route('kitDigital.exportar_estados') }}" class="me-2">
+                    <input type="hidden" name="dias" value="{{ request('dias', 15) }}">
+                    <input type="hidden" name="dias_laborales" value="{{ request('dias_laborales', 21) }}">
+                    <input type="hidden" name="empresa" value="{{ request('empresa') }}">
+                    @if(request('mas6Meses'))
+                        <input type="hidden" name="mas6Meses" value="true">
+                    @endif
+                    <button type="submit" class="btn btn-success">
+                        Exportar Excel
+                    </button>
+                </form>
+                
+              </div>
+              
+
               <div>
                   <a href="{{ route('kitDigital.sin_actualizar', ['dias' => 15, 'dias_laborales' => 21, 'empresa' => request('empresa')]) }}" class="btn btn-outline-primary">+15 días</a>
                   <a href="{{ route('kitDigital.sin_actualizar', ['dias' => 30, 'dias_laborales' => 42, 'empresa' => request('empresa')]) }}" class="btn btn-outline-primary">+30 días</a>
@@ -176,6 +203,8 @@
           @endphp
             {{-- Tabla --}}
             <div class="pt-5 table-responsive-mobile">
+                <div class="mb-3 text-end pe-2" id="tablaContadorRegistros" style="font-size: 14px; color: #555;"></div>
+
               <table id="comprasTable" class="w-100 table-clientportal display">
                 <thead>
                   <tr>
@@ -300,23 +329,64 @@
 <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.css" rel="stylesheet">
 
 <script>
-  $(document).ready(function() {
-    var table = $('#comprasTable').DataTable({
-      paging: true,
-      info: false,
-      dom: 'lrtip',
-      language: {
+//   $(document).ready(function() {
+//     var table = $('#comprasTable').DataTable({
+//       paging: true,
+//       info: false,
+//       dom: 'lrtip',
+//       language: {
+//         zeroRecords: "No se encontraron resultados",
+//         emptyTable: "No hay datos disponibles en la tabla",
+//       },
+//       lengthChange: false,
+//     });
+
+//     $('#tableSearch').on('keyup', function() {
+//       table.search(this.value).draw();
+//     });
+
+//     $('#comprasTable_filter').hide();
+//   });
+
+$(document).ready(function() {
+  var table = $('#comprasTable').DataTable({
+    paging: true,
+    info: true,
+    dom: 'lrtip',
+    language: {
         zeroRecords: "No se encontraron resultados",
         emptyTable: "No hay datos disponibles en la tabla",
-      },
-      lengthChange: false,
-    });
-
-    $('#tableSearch').on('keyup', function() {
-      table.search(this.value).draw();
-    });
-
-    $('#comprasTable_filter').hide();
+        paginate: {
+            previous: "Anterior",
+            next: "Siguiente"
+        },
+        info: "", // lo dejamos vacío para que usemos nuestro contador personalizado
+    },
+    lengthChange: false,
+    pageLength: 10, // valor inicial
   });
+
+  $('#tableSearch').on('keyup', function() {
+    table.search(this.value).draw();
+  });
+
+  $('#comprasTable_filter').hide();
+
+  // Contador dinámico de registros
+  function actualizarContador() {
+    var pageInfo = table.page.info();
+    $('#tablaContadorRegistros').text(`Mostrando ${pageInfo.end} de ${pageInfo.recordsTotal} registros`);
+  }
+
+  table.on('draw', actualizarContador);
+  actualizarContador();
+
+  // Select de número de registros por página
+  $('#perPageSelect').on('change', function () {
+    var val = parseInt($(this).val(), 10);
+    table.page.len(val === -1 ? table.data().length : val).draw();
+  });
+});
+
 </script>
 @endsection

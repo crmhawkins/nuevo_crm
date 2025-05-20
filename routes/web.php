@@ -68,6 +68,8 @@ use App\Http\Controllers\AutomatizacionKit\AutomatizacionKitController;
 use App\Http\Controllers\AutomatizacionKit\KitPagadosController;
 use App\Http\Controllers\PresupuestoComentarioController;
 use App\Http\Controllers\Plataforma\PlataformaWhatsappController;
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -168,7 +170,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/presupuesto/comentario/{id}', [PresupuestoComentarioController::class, 'destroy'])->name('presupuesto.comentario.destroy');
         Route::patch('/budget/{id}/archivar', [BudgetController::class, 'archivar'])->name('presupuesto.archivar');
         Route::patch('/budget/{id}/desarchivar', [BudgetController::class, 'desarchivar'])->name('presupuesto.desarchivar');
-
+        Route::get('/kit-digital/exportar-estados', [AutomatizacionKitController::class, 'exportarExcelEstados'])
+        ->name('kitDigital.exportar_estados');
 
         Route::patch('/clientes/{cliente}/archivar', [ClientController::class, 'archivar'])->name('cliente.archivar');
         Route::patch('/clientes/{cliente}/desarchivar', [ClientController::class, 'desarchivar'])->name('cliente.desarchivar');

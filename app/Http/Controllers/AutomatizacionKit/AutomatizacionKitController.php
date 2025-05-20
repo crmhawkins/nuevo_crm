@@ -10,7 +10,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Exports\EstadosKitExport;
+use Maatwebsite\Excel\Facades\Excel;
 class AutomatizacionKitController extends Controller
 {
     public function getContratos($dias)
@@ -78,57 +79,34 @@ class AutomatizacionKitController extends Controller
         
     }
 
-
-    public function viewEstados2(Request $request)
+    public function viewEstados(Request $request)
     {
-        // Asignamos valores por defecto si no se reciben
         $dias_laborales = $request->input('dias_laborales', 21);
         $dias = $request->input('dias', 15);
-        $mas6Meses = $request->input('mas6Meses', false);
-        if ($mas6Meses) {
-            $dias = 30*6;
-            $resultados = LogActions::mas6Meses()->get();
-            //dd($resultados);
+        $empresa = $request->input('empresa'); // ← NUEVO
+
+        if ($request->input('mas6Meses', false)) {
+            $dias = 30 * 6;
+            $resultados = LogActions::mas6Meses(); // ✅ ya es una colección
         } else {
-            $resultados = $this->getContratos($dias_laborales);
+            $resultados = $this->getContratos($dias);
         }
+
+        // Filtrado por empresa si se selecciona una
+        if ($empresa) {
+            $resultados = $resultados->filter(function ($item) use ($empresa) {
+                return isset($item->empresa) && $item->empresa === $empresa;
+            })->values();
+        }
+
         if ($resultados->isEmpty()) {
             return redirect()->back()
-            ->with('success_message', "Actualmente no existen kits con más de {$dias} días sin actualizar su estado ni con el SASAK enviado.")
-            ->with('success_dias', $dias);
+                ->with('success_message', "Actualmente no existen kits con más de {$dias} días sin actualizar su estado ni con el SASAK enviado.")
+                ->with('success_dias', $dias);
         }
 
-        return view('kitDigital.estadosKit', compact('resultados', 'dias'));
+        return view('kitDigital.estadosKit', compact('resultados', 'dias', 'empresa'));
     }
-
-    public function viewEstados(Request $request)
-{
-    $dias_laborales = $request->input('dias_laborales', 21);
-    $dias = $request->input('dias', 15);
-    $empresa = $request->input('empresa'); // ← NUEVO
-
-    if ($request->input('mas6Meses', false)) {
-        $dias = 30 * 6;
-        $resultados = LogActions::mas6Meses(); // ✅ ya es una colección
-    } else {
-        $resultados = $this->getContratos($dias);
-    }
-
-    // Filtrado por empresa si se selecciona una
-    if ($empresa) {
-        $resultados = $resultados->filter(function ($item) use ($empresa) {
-            return isset($item->empresa) && $item->empresa === $empresa;
-        })->values();
-    }
-
-    if ($resultados->isEmpty()) {
-        return redirect()->back()
-            ->with('success_message', "Actualmente no existen kits con más de {$dias} días sin actualizar su estado ni con el SASAK enviado.")
-            ->with('success_dias', $dias);
-    }
-
-    return view('kitDigital.estadosKit', compact('resultados', 'dias', 'empresa'));
-}
 
 
     public function sendEmail()
@@ -180,4 +158,32 @@ class AutomatizacionKitController extends Controller
         ]);
 
     }
+
+    public function exportarExcelEstados(Request $request)
+    {
+        $dias = $request->input('dias', 15);
+        $empresa = $request->input('empresa');
+        $mas6Meses = $request->input('mas6Meses', false);
+    
+        // Simula la misma lógica de viewEstados
+        if ($mas6Meses) {
+            $dias = 30 * 6;
+            $resultados = \App\Models\Logs\LogActions::mas6Meses();
+        } else {
+            // ✅ Aquí puedes usar directamente el resultado de la misma lógica
+            $resultados = $this->getContratos($dias);
+        }
+    
+        if ($empresa) {
+            $resultados = $resultados->filter(fn($item) => $item->empresa === $empresa)->values();
+        }
+    
+        $mostrarEmpresa = $resultados->contains(fn($item) => !empty($item->empresa));
+    
+        return Excel::download(
+            new \App\Exports\EstadosKitExport($resultados, $mostrarEmpresa),
+            'estados-kit.xlsx'
+        );
+    }
+    
 }
