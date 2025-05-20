@@ -90,21 +90,44 @@ class BudgetController extends Controller
 
         $archivadosClienteIds = $usuario->archivedClients()->pluck('clients.id')->toArray();
 
-        $presupuestosQuery = function ($query) use ($estadosExcluidos, $añoSeleccionado, $estadosSeleccionados, $mostrarArchivados) {
+        // $presupuestosQuery = function ($query) use ($estadosExcluidos, $añoSeleccionado, $estadosSeleccionados, $mostrarArchivados) {
+        //     $query->whereNotIn('budget_status_id', $estadosExcluidos)
+        //         ->whereYear('created_at', $añoSeleccionado)
+        //         ->when($mostrarArchivados, fn($q) => $q->where('archivado', true))
+        //         ->when(!$mostrarArchivados, fn($q) => $q->where('archivado', false));
+
+        //     if (!empty($estadosSeleccionados)) {
+        //         $query->whereIn('budget_status_id', $estadosSeleccionados);
+        //     }
+        // };
+
+        $presupuestosQuery = function ($query) use ($estadosExcluidos, $añoSeleccionado, $estadosSeleccionados, $mostrarArchivados, $usuario) {
             $query->whereNotIn('budget_status_id', $estadosExcluidos)
                 ->whereYear('created_at', $añoSeleccionado)
                 ->when($mostrarArchivados, fn($q) => $q->where('archivado', true))
                 ->when(!$mostrarArchivados, fn($q) => $q->where('archivado', false));
-
+        
             if (!empty($estadosSeleccionados)) {
                 $query->whereIn('budget_status_id', $estadosSeleccionados);
             }
+        
+            // ✅ AÑADIR filtro por admin_user_id si no es CEO
+            if ($usuario->access_level_id !== 1) {
+                $query->where('admin_user_id', $usuario->id);
+            }
         };
+        
 
         // Relación base de clientes (si es CEO accede a todos)
-        $clientesQuery = $usuario->access_level_id == 1 
-            ? Client::query() 
-            : $usuario->clientes();
+        if ($usuario->access_level_id == 1) {
+            $clientesQuery = Client::query();
+        } else {
+            // Cliente desde presupuestos gestionados
+            $clientesQuery = Client::whereHas('presupuestos', function ($query) use ($usuario) {
+                $query->where('admin_user_id', $usuario->id);
+            });
+        }
+        
 
         $clientes = $clientesQuery
             ->when(!$mostrarClientesArchivados, function ($query) use ($archivadosClienteIds) {
