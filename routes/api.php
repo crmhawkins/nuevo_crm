@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\SalvineitorController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
+use App\Http\Controllers\Tesoreria\TesoreriaContabilizarIa;
 use App\Http\Controllers\Tesoreria\TesoreriaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,3 +34,5 @@ Route::post('/updateAyudas/{id}', action: [ApiController::class, 'updateAyudas']
 Route::post('/updateMensajes', action: [ApiController::class, 'updateMensajes']);
 
 Route::get('/salvineitor', action: [SalvineitorController::class, 'index']);
+
+Route::post('/tesoreria/contabilizar-ia/upload', [TesoreriaContabilizarIa::class, 'upload']);
