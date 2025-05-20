@@ -196,16 +196,31 @@ class TesoreriaContabilizarIa extends Controller
                     throw new \Exception('La respuesta de la API no tiene el formato esperado. Contenido: ' . $jsonRaw);
                 }
 
+                // Convertir fechas Excel a string
                 foreach ($movimientos['movimientos'] as &$movimiento) {
                     if (is_numeric($movimiento['received_date'])) {
                         $movimiento['received_date'] = $this->excelDateToDate($movimiento['received_date']);
                     }
                 }
-                unset($movimiento); // romper referencia
+                unset($movimiento); // Romper la referencia del foreach
 
+                // Normalizar las fechas usando Carbon
                 foreach ($movimientos['movimientos'] as &$movimiento) {
-                    $fechaLimpia = trim(substr($movimiento['received_date'], 0, 10));
-                    $movimiento['received_date'] = Carbon::createFromFormat('Y/m/d', $fechaLimpia);
+                    try {
+                        $fechaLimpia = trim($movimiento['received_date']);
+
+                        if (strpos($fechaLimpia, '/') !== false) {
+                            // Ejemplo: 31/12/2023
+                            $movimiento['received_date'] = Carbon::createFromFormat('d/m/Y', $fechaLimpia);
+                        } elseif (strpos($fechaLimpia, '-') !== false) {
+                            // Ejemplo: 2023-12-31
+                            $movimiento['received_date'] = Carbon::createFromFormat('Y-m-d', $fechaLimpia);
+                        } else {
+                            throw new \Exception("Formato de fecha no reconocido: '$fechaLimpia'");
+                        }
+                    } catch (\Exception $e) {
+                        throw new \Exception("Error al procesar la fecha '{$movimiento['received_date']}': " . $e->getMessage());
+                    }
 
                     $relaciones = [];
 
@@ -223,7 +238,8 @@ class TesoreriaContabilizarIa extends Controller
 
                             $query->whereNotIn('invoice_status_id', [3, 4, 5])
                                 ->where(function ($q) use ($movimiento) {
-                                    $q->where('total', $movimiento['amount'])->orWhere('total', $movimiento['amount'] * 0.5);
+                                    $q->where('total', $movimiento['amount'])
+                                      ->orWhere('total', $movimiento['amount'] * 0.5);
                                 });
                         })->get();
 
@@ -279,7 +295,6 @@ class TesoreriaContabilizarIa extends Controller
                             ];
                         }
 
-                    } else {
                         // Buscar en associated_expenses
                         $associatedMatches = AssociatedExpenses::where(function ($query) use ($movimiento) {
                             if (!empty($movimiento['company_name'])) {
@@ -366,7 +381,6 @@ class TesoreriaContabilizarIa extends Controller
                         $unclassifiedExpenses->save();
                     }
                 }
-
 
                 return response()->json([
                     'success' => true,
