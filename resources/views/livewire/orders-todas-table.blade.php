@@ -60,7 +60,7 @@
                             <td>{{$order->proveedorNombre}}</td>
                             <td>{{$order->title }}</td>
                             <td>{{$order->clienteNombre ?? 'Cliente no definido' }}</td>
-                            <td>{{Carbon\Carbon::parse($order->created_at)->format('d/m/Y')}}</td>
+                            <td>{{isset($order->created_at) ? Carbon\Carbon::parse($order->created_at)->format('d/m/Y') : 'Gasto no generado'}}</td>
                             <td>{{$order->quantity }}</td>
                             <td>{{$order->gestorNombre }}</td>
                             <td>{{$order->state ?? 'No Contabilizado'}}</td>
