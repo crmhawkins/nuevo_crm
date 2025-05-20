@@ -45,20 +45,37 @@ class AutomatizacionKitController extends Controller
 
         return $registros->filter(function ($registro) use ($estados) {
             return array_key_exists($registro->estado, $estados);
-        })->map(function ($registro) use ($fecha) {
+        })->map(function ($registro) {
             $carbon_fecha_estado = Carbon::parse($registro->ultima_fecha);
             $fecha_estado = $carbon_fecha_estado->format('Y-m-d');
-
+            $dias_diff = $carbon_fecha_estado->diffInDays(now());
+        
+            // Clasificar en categoría
+            if ($dias_diff >= 180) {
+                $categoria = '+6 Meses';
+            } elseif ($dias_diff >= 60) {
+                $categoria = '+60 días';
+            } elseif ($dias_diff >= 45) {
+                $categoria = '+45 días';
+            } elseif ($dias_diff >= 30) {
+                $categoria = '+30 días';
+            } elseif ($dias_diff >= 15) {
+                $categoria = '+15 días';
+            } else {
+                $categoria = '<15 días'; // por si acaso
+            }
+        
             return (object) [
-                'reference_id'  => $registro->reference_id,
-                'contratos'     => $registro->contratos,
-                'estado'        => $registro->estado,
-                'fecha_estado'  => $fecha_estado,
-                'fecha_sasak'   => $registro->sasak ?? 'No enviado',
-                'empresa'       => $registro->empresa ?? null, // ← NUEVO
+                'reference_id'    => $registro->reference_id,
+                'contratos'       => $registro->contratos,
+                'estado'          => $registro->estado,
+                'fecha_estado'    => $fecha_estado,
+                'fecha_sasak'     => $registro->sasak ?? 'No enviado',
+                'empresa'         => $registro->empresa ?? null,
+                'categoria_dias'  => $categoria, // ← NUEVO
             ];
-            
         })->values();
+        
     }
 
 
@@ -92,7 +109,7 @@ class AutomatizacionKitController extends Controller
 
     if ($request->input('mas6Meses', false)) {
         $dias = 30 * 6;
-        $resultados = LogActions::mas6Meses()->get();
+        $resultados = LogActions::mas6Meses(); // ✅ ya es una colección
     } else {
         $resultados = $this->getContratos($dias);
     }

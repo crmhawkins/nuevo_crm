@@ -181,6 +181,7 @@
                   <tr>
                     <th>ID</th>
                     <th>Contrato</th>
+                    <th>Categoría</th>
                     <th>Estado</th>
                     <th>Estado actualizado</th>
                     <th>Sasak Enviado</th>
@@ -195,6 +196,12 @@
                   <tr>
                     <td class="sorting_1">{{$resultado->reference_id}}</td>
                     <td><strong>{{$resultado->contratos}}</strong></td>
+                    <td>
+                        <span class="badge bg-secondary p-2" style="font-size: 12px;">
+                          {{ $resultado->categoria_dias }}
+                        </span>
+                      </td>
+                      
                     <td width="20">
                       @switch($resultado->estado)
                         @case('8')

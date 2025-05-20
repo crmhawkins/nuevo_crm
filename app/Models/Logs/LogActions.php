@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-
+use Carbon\Carbon;
 class LogActions extends Model
 {
     use HasFactory;
@@ -159,42 +159,56 @@ class LogActions extends Model
 
 
 
-    public static function mas6Meses()
-    {
-        $seisMesesAtras = now()->subMonths(6);
+public static function mas6Meses()
+{
+    $seisMesesAtras = now()->subMonths(6);
 
-        // Subconsulta: obtener la última fecha de JUSTIFICADO o SEGUNDA JUSTIFICACIÓN (REALIZADA) por reference_id
-        $subquery = DB::table('log_actions as l1')
-            ->select('l1.id')
-            ->where('l1.action', 'Actualizar estado en kit digital')
-            ->where(function ($q) {
-                $q->where('l1.description', 'like', '%a  "JUSTIFICADO"%')
-                ->orWhere('l1.description', 'like', '%a  "SEGUNDA JUSTIFICACIÓN (REALIZADA)"%');
-            })
-            ->whereRaw('l1.created_at = (
-                SELECT MAX(l2.created_at)
-                FROM log_actions l2
-                WHERE l2.reference_id = l1.reference_id
-                AND l2.action = l1.action
-                AND (
-                    l2.description LIKE "%a  \\"JUSTIFICADO\\"%" OR
-                    l2.description LIKE "%a  \\"SEGUNDA JUSTIFICACIÓN (REALIZADA)\\"%"
-                )
-            )');
+    $subquery = DB::table('log_actions as l1')
+        ->select('l1.id')
+        ->where('l1.action', 'Actualizar estado en kit digital')
+        ->where(function ($q) {
+            $q->where('l1.description', 'like', '%a  "JUSTIFICADO"%')
+              ->orWhere('l1.description', 'like', '%a  "SEGUNDA JUSTIFICACIÓN (REALIZADA)"%');
+        })
+        ->whereRaw('l1.created_at = (
+            SELECT MAX(l2.created_at)
+            FROM log_actions l2
+            WHERE l2.reference_id = l1.reference_id
+              AND l2.action = l1.action
+              AND (
+                  l2.description LIKE "%a  \\"JUSTIFICADO\\"%" OR
+                  l2.description LIKE "%a  \\"SEGUNDA JUSTIFICACIÓN (REALIZADA)\\"%"
+              )
+        )');
 
-        return self::whereIn('log_actions.id', $subquery)
-            ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
-            ->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16, 20])
-            ->where('log_actions.created_at', '<=', now()->subMonths(6))
-            ->select(
-                'log_actions.reference_id',
-                'log_actions.description',
-                'log_actions.created_at as ultima_fecha',
-                'ayudas.estado',
-                'ayudas.contratos',
-                'ayudas.empresa as empresa'
-            );
-    }
+    // Traemos los registros como colección
+    $registros = self::whereIn('log_actions.id', $subquery)
+        ->join('ayudas', 'ayudas.id', '=', 'log_actions.reference_id')
+        ->whereNotIn('ayudas.estado', [1, 6, 11, 27, 22, 19, 18, 16, 20])
+        ->where('log_actions.created_at', '<=', now()->subMonths(6))
+        ->select(
+            'log_actions.reference_id',
+            'log_actions.description',
+            'log_actions.created_at as ultima_fecha',
+            'ayudas.estado',
+            'ayudas.contratos',
+            'ayudas.empresa as empresa'
+        )
+        ->get();
+
+    // Mapeamos para añadir categoria_dias
+    return $registros->map(function ($registro) {
+        return (object) [
+            'reference_id'    => $registro->reference_id,
+            'contratos'       => $registro->contratos,
+            'estado'          => $registro->estado,
+            'fecha_estado'    => Carbon::parse($registro->ultima_fecha)->format('Y-m-d'),
+            'fecha_sasak'     => 'No enviado',
+            'empresa'         => $registro->empresa,
+            'categoria_dias'  => '+6 Meses', // ← FIJO
+        ];
+    });
+}
 
 
     public static function automatizacionEmailsLogs_old($query, $fechaLimite, $fecha)
