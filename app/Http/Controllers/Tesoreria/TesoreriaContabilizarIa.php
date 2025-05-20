@@ -36,7 +36,6 @@ class TesoreriaContabilizarIa extends Controller
     private function excelDateToDate($excelSerial)
     {
         $unixTimestamp = ($excelSerial - 25569) * 86400; // 25569 = días entre 1/1/1900 y Unix Epoch
-        dd(gmdate('Y-m-d', $unixTimestamp));
         return gmdate('Y-m-d', $unixTimestamp);
     }
 
