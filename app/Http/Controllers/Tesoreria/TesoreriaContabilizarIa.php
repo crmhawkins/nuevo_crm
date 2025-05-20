@@ -205,7 +205,7 @@ class TesoreriaContabilizarIa extends Controller
 
                 foreach ($movimientos['movimientos'] as &$movimiento) {
                     $fechaLimpia = trim(substr($movimiento['received_date'], 0, 10));
-                    $movimiento['received_date'] = Carbon::createFromFormat('d/m/Y', $fechaLimpia);
+                    $movimiento['received_date'] = Carbon::createFromFormat('Y/m/d', $fechaLimpia);
 
                     $relaciones = [];
 
