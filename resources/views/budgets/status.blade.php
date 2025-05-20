@@ -228,7 +228,10 @@
                     </div>
                     <div class="drag-column-content">
                         @foreach ($cliente->presupuestos as $presupuesto)
-                            <div class="drag-item" data-toggle="modal" data-target="#modalPresupuesto-{{ $presupuesto->id }}">
+                        @php
+                            $fondo = $presupuesto->esPropio() ? 'background-color: #ffffff;' : 'background-color: #ffe5e5;';
+                        @endphp
+                        <div class="drag-item" style="{{ $fondo }}" data-toggle="modal" data-target="#modalPresupuesto-{{ $presupuesto->id }}">
                                 <p>{{ $presupuesto->reference }}</p>
                                 <p>
                                     <span class="status-indicator" style="background-color: {{ $presupuesto->getStatusColor() }}"></span>
@@ -282,6 +285,39 @@
                                                 <h6><i class="bi bi-info-circle"></i> Descripción</h6>
                                                 <p class="text-muted">{{ $presupuesto->description ?? 'Sin descripción' }}</p>
                                             </div>
+                                            @if (!$presupuesto->esPropio())
+                                                <div class="mb-4">
+                                                    <h6><i class="bi bi-people"></i> Conceptos y proveedores</h6>
+                                                    @foreach ($presupuesto->budgetConcepts as $concepto)
+                                                        @if ($concepto->concept_type_id == \App\Models\Budgets\BudgetConceptType::TYPE_SUPPLIER)
+                                                            <div class="border rounded p-2 mb-2 bg-white">
+                                                                <strong>{{ $concepto->title }}</strong><br>
+                                                                <small class="text-muted">{{ $concepto->concept }}</small><br>
+                                                                <small>Total: <strong>{{ $concepto->total }} €</strong></small>
+
+                                                                @if ($concepto->proveedor->isNotEmpty())
+                                                                    <ul class="mt-2 mb-0 ps-3">
+                                                                        @foreach ($concepto->proveedor as $solicitud)
+                                                                            <li>
+                                                                                {{ $solicitud->supplier->name ?? 'Proveedor sin nombre' }}
+                                                                                @if ($solicitud->selected == 1 ?? false)
+                                                                                    <span class="badge bg-success">Aceptado</span>
+                                                                                @else
+                                                                                    <span class="badge bg-secondary">Pendiente</span>
+                                                                                @endif
+                                                                            </li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                @else
+                                                                    <p class="text-muted">No hay proveedores asignados.</p>
+                                                                @endif
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            @endif
+
+
                                             @php
                                                 $puedeAceptar = $presupuesto->budget_status_id == 2;
                                                 $tieneTareaMaestra = $presupuesto->tasks->whereNull('split_master_task_id')->isNotEmpty();

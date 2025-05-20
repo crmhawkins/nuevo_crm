@@ -57,6 +57,15 @@ class Budget extends Model
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
 
+
+    public function esPropio()
+{
+    return $this->budgetConcepts->every(function ($concepto) {
+        return $concepto->concept_type_id == \App\Models\Budgets\BudgetConceptType::TYPE_OWN;
+    });
+}
+
+
     public function usuario()
     {
         return $this->belongsTo(User::class, 'admin_user_id');

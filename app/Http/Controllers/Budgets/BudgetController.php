@@ -149,8 +149,10 @@ class BudgetController extends Controller
             ->with(['presupuestos' => function ($query) use ($presupuestosQuery) {
                 $query->where(function ($q) use ($presupuestosQuery) {
                     $presupuestosQuery($q);
-                })->with('tasks');
+                })->with(['tasks', 'budgetConcepts.proveedor.supplier']);
             }])
+            
+            
             ->orderBy('name')
             ->get()
             ->filter(function ($cliente) use ($filtrarSinTareas) {
