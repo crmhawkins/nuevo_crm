@@ -144,7 +144,7 @@
                             @endfor
                         </select>
                     </div>
-                    <div class="col-md-7">
+                    <div class="col-md-5">
                         <label class="form-label fw-bold mb-1">Estados</label>
                         <div class="d-flex flex-wrap gap-3 align-items-center border rounded px-3 py-2" style="background-color: #fff;">
                             @foreach ($todosLosEstados as $estado)
@@ -182,11 +182,12 @@
                             </label>
                         </div>
                         
-
                     </div>
-
-
-
+                    <div class="col-md-2">
+                        <label for="q" class="form-label fw-bold">Buscar</label>
+                        <input type="text" class="form-control" name="buscar" placeholder="Cliente, referencia o concepto" value="{{ request('buscar') }}">
+                    </div>
+                    
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary w-100">Filtrar</button>
                     </div>

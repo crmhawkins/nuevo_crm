@@ -164,5 +164,8 @@ class Budget extends Model
     {
         return $this->hasMany(PresupuestoComentario::class, 'presupuesto_id');
     }
-
+    public function conceptos() {
+        return $this->hasMany(BudgetConcept::class, 'budget_id');
+    }
+    
 }
