@@ -832,10 +832,10 @@ class TesoreriaController extends Controller
         }
         $unclassifiedIncome = UnclassifiedIncome::find($request->input('id'));
 
-        
+
         $ingreso = new Ingreso();
         $ingreso->quantity = $request->input('quantity');
-        $ingreso->date = $request->input('date');
+        $ingreso->date = Carbon::parse($request->input('date'))->format('Y-m-d');
         $ingreso->title = $request->input('title');
         $ingreso->bank_id = $bank;
         $ingreso->save();
