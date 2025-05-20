@@ -36,6 +36,7 @@ class TesoreriaContabilizarIa extends Controller
     private function excelDateToDate($excelSerial)
     {
         $unixTimestamp = ($excelSerial - 25569) * 86400; // 25569 = días entre 1/1/1900 y Unix Epoch
+        dd(gmdate('Y-m-d', $unixTimestamp));
         return gmdate('Y-m-d', $unixTimestamp);
     }
 
@@ -103,7 +104,7 @@ class TesoreriaContabilizarIa extends Controller
             \"movimientos\": [
                 {
                 \"tipo\": \"ingreso\",
-                \"received_date\": \"1900-01-01\",
+                \"received_date\": \"31-12-1900\",
                 \"message\": \"\",
                 \"amount\": 0,
                 \"iban\": \"\",
@@ -113,7 +114,7 @@ class TesoreriaContabilizarIa extends Controller
                 },
                 {
                 \"tipo\": \"gasto\",
-                \"received_date\": \"1900-01-01\",
+                \"received_date\": \"31-12-1900\",
                 \"message\": \"\",
                 \"amount\": 0,
                 \"iban\": \"\",
@@ -204,9 +205,8 @@ class TesoreriaContabilizarIa extends Controller
                 unset($movimiento); // romper referencia
 
                 foreach ($movimientos['movimientos'] as &$movimiento) {
-                    if (is_numeric($movimiento['received_date'])) {
-                        $movimiento['received_date'] = $this->excelDateToDate($movimiento['received_date']);
-                    }
+                    $fechaLimpia = trim(substr($movimiento['received_date'], 0, 10));
+                    $movimiento['received_date'] = Carbon::createFromFormat('d/m/Y', $fechaLimpia);
 
                     $relaciones = [];
 
