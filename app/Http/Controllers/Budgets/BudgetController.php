@@ -68,88 +68,88 @@ class BudgetController extends Controller
 
         return back()->with('success', 'Presupuesto desarchivado.');
     }
+
+
     public function statusProjects()
-{
-    $usuario = Auth::user();
+    {
+        $usuario = Auth::user();
 
-    // Filtros
-    $añoSeleccionado = request()->get('year', date('Y'));
-    $estadosSeleccionados = request()->get('status', []);
-    $filtrarSinTareas = request()->get('sin_tareas', false);
-    $mostrarArchivados = request()->get('archivados', false);
-    $mostrarClientesArchivados = request()->get('clientes_archivados', false);
-    $busqueda = request()->get('buscar');
+        // Filtros
+        $añoSeleccionado = request()->get('year', date('Y'));
+        $estadosSeleccionados = request()->get('status', []);
+        $filtrarSinTareas = request()->get('sin_tareas', false);
+        $mostrarArchivados = request()->get('archivados', false);
+        $mostrarClientesArchivados = request()->get('clientes_archivados', false);
+        $busqueda = request()->get('buscar');
 
-    $estadosExcluidos = [
-        BudgetStatu::CANCELLED,
-        BudgetStatu::FINALIZADO,
-        BudgetStatu::FINALIZADO_PROPIO
-    ];
+        $estadosExcluidos = [
+            BudgetStatu::CANCELLED,
+            BudgetStatu::FINALIZADO,
+            BudgetStatu::FINALIZADO_PROPIO
+        ];
 
-    $archivadosClienteIds = $usuario->archivedClients()->pluck('clients.id')->toArray();
+        $archivadosClienteIds = $usuario->archivedClients()->pluck('clients.id')->toArray();
 
-    $presupuestosQuery = function ($query) use ($estadosExcluidos, $añoSeleccionado, $estadosSeleccionados, $mostrarArchivados) {
-        $query->whereNotIn('budget_status_id', $estadosExcluidos)
-              ->whereYear('created_at', $añoSeleccionado)
-              ->when($mostrarArchivados, fn($q) => $q->where('archivado', true))
-              ->when(!$mostrarArchivados, fn($q) => $q->where('archivado', false));
+        $presupuestosQuery = function ($query) use ($estadosExcluidos, $añoSeleccionado, $estadosSeleccionados, $mostrarArchivados) {
+            $query->whereNotIn('budget_status_id', $estadosExcluidos)
+                ->whereYear('created_at', $añoSeleccionado)
+                ->when($mostrarArchivados, fn($q) => $q->where('archivado', true))
+                ->when(!$mostrarArchivados, fn($q) => $q->where('archivado', false));
 
-        if (!empty($estadosSeleccionados)) {
-            $query->whereIn('budget_status_id', $estadosSeleccionados);
-        }
-    };
+            if (!empty($estadosSeleccionados)) {
+                $query->whereIn('budget_status_id', $estadosSeleccionados);
+            }
+        };
 
-    // Relación base de clientes (si es CEO accede a todos)
-    $clientesQuery = $usuario->access_level_id == 1 
-        ? Client::query() 
-        : $usuario->clientes();
+        // Relación base de clientes (si es CEO accede a todos)
+        $clientesQuery = $usuario->access_level_id == 1 
+            ? Client::query() 
+            : $usuario->clientes();
 
-    $clientes = $clientesQuery
-        ->when(!$mostrarClientesArchivados, function ($query) use ($archivadosClienteIds) {
-            $query->whereNotIn('clients.id', $archivadosClienteIds);
-        })
-        ->when($busqueda, function ($query) use ($busqueda) {
-            $query->where(function ($q) use ($busqueda) {
-                $q->where('name', 'like', "%{$busqueda}%")
-                  ->orWhere('company', 'like', "%{$busqueda}%")
-                  ->orWhereHas('presupuestos', function ($subQ) use ($busqueda) {
-                      $subQ->where('reference', 'like', "%{$busqueda}%")
-                           ->orWhere('description', 'like', "%{$busqueda}%")
-                           ->orWhereHas('conceptos', function ($subSubQ) use ($busqueda) {
-                               $subSubQ->where('concept', 'like', "%{$busqueda}%");
-                           });
-                  });
+        $clientes = $clientesQuery
+            ->when(!$mostrarClientesArchivados, function ($query) use ($archivadosClienteIds) {
+                $query->whereNotIn('clients.id', $archivadosClienteIds);
+            })
+            ->when($busqueda, function ($query) use ($busqueda) {
+                $query->where(function ($q) use ($busqueda) {
+                    $q->where('name', 'like', "%{$busqueda}%")
+                    ->orWhere('company', 'like', "%{$busqueda}%")
+                    ->orWhereHas('presupuestos', function ($subQ) use ($busqueda) {
+                        $subQ->where('reference', 'like', "%{$busqueda}%")
+                            ->orWhere('description', 'like', "%{$busqueda}%")
+                            ->orWhereHas('conceptos', function ($subSubQ) use ($busqueda) {
+                                $subSubQ->where('concept', 'like', "%{$busqueda}%");
+                            });
+                    });
+                });
+            })
+            ->with(['presupuestos' => function ($query) use ($presupuestosQuery) {
+                $query->where(function ($q) use ($presupuestosQuery) {
+                    $presupuestosQuery($q);
+                })->with('tasks');
+            }])
+            ->orderBy('name')
+            ->get()
+            ->filter(function ($cliente) use ($filtrarSinTareas) {
+                $presupuestosFiltrados = $cliente->presupuestos->filter(function ($presupuesto) use ($filtrarSinTareas) {
+                    return $filtrarSinTareas ? $presupuesto->tasks->isEmpty() : true;
+                });
+
+                $cliente->setRelation('presupuestos', $presupuestosFiltrados);
+                return $presupuestosFiltrados->isNotEmpty();
             });
-        })
-        ->with(['presupuestos' => function ($query) use ($presupuestosQuery) {
-            $query->where(function ($q) use ($presupuestosQuery) {
-                $presupuestosQuery($q);
-            })->with('tasks');
-        }])
-        ->orderBy('name')
-        ->get()
-        ->filter(function ($cliente) use ($filtrarSinTareas) {
-            $presupuestosFiltrados = $cliente->presupuestos->filter(function ($presupuesto) use ($filtrarSinTareas) {
-                return $filtrarSinTareas ? $presupuesto->tasks->isEmpty() : true;
-            });
 
-            $cliente->setRelation('presupuestos', $presupuestosFiltrados);
-            return $presupuestosFiltrados->isNotEmpty();
-        });
+        $todosLosEstados = BudgetStatu::whereNotIn('id', $estadosExcluidos)->get();
+        $taskStatusList = TaskStatus::all();
 
-    $todosLosEstados = BudgetStatu::whereNotIn('id', $estadosExcluidos)->get();
-    $taskStatusList = TaskStatus::all();
-
-    return view('budgets.status', compact(
-        'clientes',
-        'añoSeleccionado',
-        'estadosSeleccionados',
-        'todosLosEstados',
-        'taskStatusList'
-    ));
-}
-
-    
+        return view('budgets.status', compact(
+            'clientes',
+            'añoSeleccionado',
+            'estadosSeleccionados',
+            'todosLosEstados',
+            'taskStatusList'
+        ));
+    }
 
 
     public function statusProjects3()
