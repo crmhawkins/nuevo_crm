@@ -55,7 +55,7 @@ class TesoreriaContabilizarIa extends Controller
             - Si el importe es negativo, se catalogara como gasto pero debes devolver SIEMPRE un importe positivo.
             ES MUY IMPORTANTE QUE COMPRUEBES BIEN SI ES UN GASTO O INGRESO, Y NO FALLAR
             2. Ignorar cabeceras, nulos o filas irrelevantes.
-            3. Para cada movimiento válido, devolver un objeto con los siguientes campos:
+            3. Para cada movimiento válido, hay movimientos pendientes o retenido no los cuentes ignoralos, devuelve un objeto con los siguientes campos:
             - tipo: \"ingreso\" o \"gasto\"
             - received_date: el valor de la columna 'fecha valor' o 'fecha contable'
             - message: descripción / concepto
@@ -123,7 +123,8 @@ class TesoreriaContabilizarIa extends Controller
                 }
             ]
             }
-
+            4. En ningun momento modifiques en nada el concepto del movimiento.
+            5. IMPORTANTE: Devuelve tu respuesta en formato JSON como te pedi.
             Una vez
             Aquí están los datos a analizar:";
 
