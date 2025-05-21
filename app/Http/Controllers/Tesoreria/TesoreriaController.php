@@ -856,10 +856,19 @@ class TesoreriaController extends Controller
         $transferencia->to_bank_id = $request->input('destino_id');
         $transferencia->save();
 
-        $unclassifiedIncome = UnclassifiedIncome::find($request->input('id'));
-        if ($unclassifiedIncome) {
-            $unclassifiedIncome->status = 1;
-            $unclassifiedIncome->save();
+        if ($request->input('tabla') == 'ingreso') {
+            $unclassifiedIncome = UnclassifiedIncome::find($request->input('id'));
+            if ($unclassifiedIncome) {
+                $unclassifiedIncome->status = 1;
+                $unclassifiedIncome->save();
+            }
+        }
+        if ($request->input('tabla') == 'gasto') {
+            $unclassifiedExpenses = UnclassifiedExpenses::find($request->input('id'));
+            if ($unclassifiedExpenses) {
+                $unclassifiedExpenses->status = 1;
+                $unclassifiedExpenses->save();
+            }
         }
 
         return response()->json([
