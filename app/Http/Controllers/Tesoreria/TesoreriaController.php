@@ -841,6 +841,10 @@ class TesoreriaController extends Controller
         $ingreso->bank_id = $bank;
         $ingreso->save();
 
+        if ($unclassifiedIncome) {
+            $unclassifiedIncome->status = 1;
+            $unclassifiedIncome->save();
+        }
 
         return response()->json([
             'success' => true,
