@@ -760,6 +760,7 @@ class TesoreriaController extends Controller
             $validated['state'] = 'Parcial';
         }
         $validated['date'] = Carbon::parse($validated['date'])->format('Y-m-d');
+        $validated['bank'] = strtoupper($validated['bank']);
 
         switch ($validated['bank']) {
             case 'BBVA':
