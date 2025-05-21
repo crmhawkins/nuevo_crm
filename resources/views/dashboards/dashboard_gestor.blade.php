@@ -988,7 +988,8 @@
                                                         data-amount="{{ $income->amount }}"
                                                         data-date="{{ $income->received_date }}"
                                                         data-message="{{ $income->message }}"
-                                                        data-unclassified-id="{{ $income->id }}">
+                                                        data-unclassified-id="{{ $income->id }}"
+                                                        data-tabla="ingreso">
                                                         <i class="fas fa-exchange-alt me-2"></i>Crear Transferencia
                                                     </button>
                                         @endif
@@ -1148,6 +1149,53 @@
                                                                 <i class="fas fa-plus-circle me-2"></i>Crear Gasto
                                                             </button>
                                                         </div>
+
+                                                        <div class="card mb-4">
+                                                            <div class="card-body">
+                                                                <h6 class="card-title mb-3">Configuración de Transferencia</h6>
+                                                                <div class="row g-3">
+                                                                    <div class="col-md-6">
+                                                                        <label for="origen-{{ $expense->id }}"
+                                                                            class="form-label">Banco Origen</label>
+                                                                        <select class="form-select"
+                                                                            id="origen-{{ $expense->id }}" name="origen">
+                                                                            <option value="">Seleccione banco origen
+                                                                            </option>
+                                                                            @foreach ($banks as $bank)
+                                                                                <option value="{{ $bank->id }}">
+                                                                                    {{ $bank->name }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <label for="destino-{{ $expense->id }}"
+                                                                            class="form-label">Banco Destino</label>
+                                                                        <select class="form-select"
+                                                                            id="destino-{{ $expense->id }}" name="destino">
+                                                                            <option value="">Seleccione banco destino
+                                                                            </option>
+                                                                            @foreach ($banks as $bank)
+                                                                                <option value="{{ $bank->id }}">
+                                                                                    {{ $bank->name }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <button type="button" class="btn btn-success"
+                                                            onclick="crearTransferencia(this)"
+                                                            data-company="{{ $expense->company_name }}"
+                                                            data-bank="{{ $expense->bank }}"
+                                                            data-iban="{{ $expense->iban }}"
+                                                            data-amount="{{ $expense->amount }}"
+                                                            data-date="{{ $expense->received_date }}"
+                                                            data-message="{{ $expense->message }}"
+                                                            data-unclassified-id="{{ $expense->id }}"
+                                                            data-tabla="gasto">
+                                                            <i class="fas fa-exchange-alt me-2"></i>Crear Transferencia
+                                                        </button>
                                     @endif
                         </div>
                         </td>
@@ -2329,7 +2377,8 @@
                     unclassified_id: unclassifiedId,
                     origen_id: origenId,
                     destino_id: destinoId,
-                    id: unclassifiedId
+                    id: unclassifiedId,
+                    tabla: button.dataset.tabla
                 },
                 success: function(response) {
                     if (response.success) {
