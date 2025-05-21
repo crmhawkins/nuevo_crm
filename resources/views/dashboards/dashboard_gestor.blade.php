@@ -148,8 +148,8 @@
                                                 class="btn btn-outline-secondary mb-2">Tramitar Subvención</a>
                                             <a target="_blank" href="{{ route('kitDigital.index') }}"
                                                 class="btn btn-outline-secondary mb-2">Kit Digital</a>
-                                            <a target="_blank" href="{{route('logs.kitdigital')}}"
-                                            class="btn btn-outline-secondary mb-2">Kit Digital Estados</a>
+                                            <a target="_blank" href="{{ route('logs.kitdigital') }}"
+                                                class="btn btn-outline-secondary mb-2">Kit Digital Estados</a>
                                             <a target="_blank" href="{{ route('kitDigital.sin_actualizar') }}"
                                                 class="btn btn-outline-secondary mb-2"> Kit Digitales Sin Actualizar</a>
                                             <a target="_blank" href="{{ route('kitDigital.pagados') }}"
@@ -924,6 +924,131 @@
                                                                 </button>
                                                             </div>
                                                         </div>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-warning dropdown-toggle d-flex align-items-center gap-2" type="button"
+                                                                id="dropdownMenuButton-{{ $income->id }}"
+                                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <i class="fas fa-file-invoice"></i>
+                                                                Rechazar y Asociar Facturas
+                                                            </button>
+                                                            <div class="dropdown-menu p-4 shadow-lg"
+                                                            aria-labelledby="dropdownMenuButton-{{ $income->id }}"
+                                                            style="width: 800px; max-width: 100vw; border-radius: 8px;">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-hover table-sm w-100">
+                                                                    <thead class="table-light">
+                                                                        <tr>
+                                                                            <td colspan="6" class="text-end border-0">
+                                                                                <div class="d-flex justify-content-end align-items-center gap-3">
+                                                                                    <strong id="total-{{ $income->id }}"
+                                                                                        class="fs-5 mb-0"
+                                                                                        style="color: red;">
+                                                                                        Total: 0.00€
+                                                                                    </strong>
+                                                                                    <button type="button"
+                                                                                    class="btn btn-primary position-sticky top-0 end-0 m-4 shadow-lg"
+                                                                                    style="z-index: 10;"    id="relate-button-{{ $income->id }}"
+                                                                                    onclick="relacionarFacturasYCrearIngreso(this)"
+                                                                                    data-company="{{ $income->company_name }}"
+                                                                                    data-bank="{{ $income->bank }}"
+                                                                                    data-iban="{{ $income->iban }}"
+                                                                                    data-amount="{{ $income->amount }}"
+                                                                                    data-date="{{ $income->received_date }}"
+                                                                                    data-message="{{ $income->message }}"
+                                                                                    data-unclassified-id="{{ $income->id }}"
+                                                                                    data-invoice-id="{{ $income->invoice_id }}"
+                                                                                    data-tipo="ingreso"
+                                                                                    data-tabla="ingreso"
+                                                                                    style="z-index: 1050;"
+                                                                                    disabled>
+                                                                                    <i class="fas fa-link me-2"></i>
+                                                                                    Relacionar Facturas y Crear Ingreso
+                                                                                </button>
+
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th class="text-center" style="width: 50px;">✓</th>
+                                                                            <th>Referencia</th>
+                                                                            <th>Concepto</th>
+                                                                            <th>Fecha</th>
+                                                                            <th class="text-end">Importe</th>
+                                                                            <th>Pendiente de pago</th>
+                                                                            <th class="text-end" style="width: 150px;">Importe Asignado</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($invoices as $invoice)
+                                                                            <tr>
+                                                                                <td class="text-center">
+                                                                                    <div class="form-check">
+                                                                                        <input type="checkbox"
+                                                                                            class="form-check-input invoice-checkbox"
+                                                                                            data-amount="{{ $invoice->amount }}"
+                                                                                            data-income-id="{{ $income->id }}"
+                                                                                            onchange="toggleAmountInput(this)"
+                                                                                            data-invoice-id="{{ $invoice->id }}">
+                                                                                    </div>
+                                                                                </td>
+                                                                                <td>{{ $invoice->reference }}</td>
+                                                                                <td>{{ $invoice->concept }}</td>
+                                                                                <td>{{ $invoice->created_at ? \Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y') : 'N/A' }}</td>
+                                                                                <td class="text-end">{{ number_format($invoice->total, 2) }}€</td>
+                                                                                <td>
+
+                                                                                    @if(count($invoice['ingresos']) > 0)
+                                                                                        @php
+                                                                                            $totalIngresos = 0;
+                                                                                        @endphp
+                                                                                        @foreach($invoice['ingresos'] as $ingreso)
+                                                                                            @php
+                                                                                                $totalIngresos += $ingreso->quantity;
+                                                                                            @endphp
+                                                                                        @endforeach
+                                                                                        <span style="color: red; font-size: 14px;">{{ $invoice->total - $totalIngresos }}</span>
+                                                                                        @php
+                                                                                            $totalIngresos = 0;
+                                                                                        @endphp
+                                                                                    @else
+                                                                                        <span><i class="fas fa-dollar-sign text-danger"></i></span>
+                                                                                    @endif
+
+                                                                                </td>
+                                                                                <td style="width: 200px;">
+                                                                                    <input type="number"
+                                                                                        class="form-control form-control-lg amount-input"
+                                                                                        id="amount-input-{{ $income->id }}-{{ $invoice->id }}"
+                                                                                        style="display: none; width: 100%; height: 50px; font-size: 18px; padding: 10px;"
+                                                                                        min="0"
+                                                                                        max="{{ $invoice->total }}"
+                                                                                        step="0.01"
+                                                                                        data-original-amount="{{ $income->amount }}"
+                                                                                        oninput="updateTotal({{ $income->id }}, {{ $income->amount }})">
+                                                                                </td>
+                                                                            </tr>
+                                                                            @if(count($invoice['ingresos']) > 0)
+
+                                                                                @foreach($invoice['ingresos'] as $ingreso)
+                                                                                    <tr>
+                                                                                        <td style="color: green; font-size: 12px;" colspan="3" class="text-end border-0">
+                                                                                            {{ $ingreso->title }}
+                                                                                        </td>
+                                                                                        <td style="color: green; font-size: 12px;" class="text-end border-0">
+                                                                                            {{ $ingreso->date }}
+                                                                                        </td>
+                                                                                        <td style="color: green; font-size: 12px;" class="text-end border-0">
+                                                                                            {{ $ingreso->quantity }}
+                                                                                        </td>
+                                                                                    </tr>
+
+                                                                                @endforeach
+                                                                            @endif
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 @else
                                                     <div class="alert alert-info mb-3">
@@ -988,10 +1113,135 @@
                                                         data-amount="{{ $income->amount }}"
                                                         data-date="{{ $income->received_date }}"
                                                         data-message="{{ $income->message }}"
-                                                        data-unclassified-id="{{ $income->id }}"
-                                                        data-tabla="ingreso">
+                                                        data-unclassified-id="{{ $income->id }}" data-tabla="ingreso">
                                                         <i class="fas fa-exchange-alt me-2"></i>Crear Transferencia
                                                     </button>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-warning dropdown-toggle d-flex align-items-center gap-2" type="button"
+                                                            id="dropdownMenuButton-{{ $income->id }}"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fas fa-file-invoice"></i>
+                                                            Rechazar y Asociar Facturas
+                                                        </button>
+                                                        <div class="dropdown-menu p-4 shadow-lg"
+                                                            aria-labelledby="dropdownMenuButton-{{ $income->id }}"
+                                                            style="width: 800px; max-width: 100vw; border-radius: 8px;">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-hover table-sm w-100">
+                                                                    <thead class="table-light">
+                                                                        <tr>
+                                                                            <td colspan="6" class="text-end border-0">
+                                                                                <div class="d-flex justify-content-end align-items-center gap-3">
+                                                                                    <strong id="total-{{ $income->id }}"
+                                                                                        class="fs-5 mb-0"
+                                                                                        style="color: red;">
+                                                                                        Total: 0.00€
+                                                                                    </strong>
+                                                                                    <button type="button"
+                                                                                    class="btn btn-primary position-fixed top-0 end-0 m-4 shadow-lg"
+                                                                                    id="relate-button-{{ $income->id }}"
+                                                                                    onclick="relacionarFacturasYCrearIngreso(this)"
+                                                                                    data-company="{{ $income->company_name }}"
+                                                                                    data-bank="{{ $income->bank }}"
+                                                                                    data-iban="{{ $income->iban }}"
+                                                                                    data-amount="{{ $income->amount }}"
+                                                                                    data-date="{{ $income->received_date }}"
+                                                                                    data-message="{{ $income->message }}"
+                                                                                    data-unclassified-id="{{ $income->id }}"
+                                                                                    data-invoice-id="{{ $income->invoice_id }}"
+                                                                                    data-tipo="ingreso"
+                                                                                    data-tabla="ingreso"
+                                                                                    style="z-index: 1050;"
+                                                                                    disabled>
+                                                                                        <i class="fas fa-link me-2"></i>
+                                                                                        Relacionar Facturas y Crear Ingreso
+                                                                                    </button>
+
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th class="text-center" style="width: 50px;">✓</th>
+                                                                            <th>Referencia</th>
+                                                                            <th>Concepto</th>
+                                                                            <th>Fecha</th>
+                                                                            <th class="text-end">Importe</th>
+                                                                            <th>Pendiente de pago</th>
+                                                                            <th class="text-end" style="width: 150px;">Importe Asignado</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($invoices as $invoice)
+                                                                            <tr>
+                                                                                <td class="text-center">
+                                                                                    <div class="form-check">
+                                                                                        <input type="checkbox"
+                                                                                            class="form-check-input invoice-checkbox"
+                                                                                            data-amount="{{ $invoice->amount }}"
+                                                                                            data-income-id="{{ $income->id }}"
+                                                                                            onchange="toggleAmountInput(this)"
+                                                                                            data-invoice-id="{{ $invoice->id }}">
+                                                                                    </div>
+                                                                                </td>
+                                                                                <td>{{ $invoice->reference }}</td>
+                                                                                <td>{{ $invoice->concept }}</td>
+                                                                                <td>{{ $invoice->created_at ? \Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y') : 'N/A' }}</td>
+                                                                                <td class="text-end">{{ number_format($invoice->total, 2) }}€</td>
+                                                                                <td>
+
+                                                                                    @if(count($invoice['ingresos']) > 0)
+                                                                                        @php
+                                                                                            $totalIngresos = 0;
+                                                                                        @endphp
+                                                                                        @foreach($invoice['ingresos'] as $ingreso)
+                                                                                            @php
+                                                                                                $totalIngresos += $ingreso->quantity;
+                                                                                            @endphp
+                                                                                        @endforeach
+                                                                                        <span style="color: red; font-size: 14px;">{{ $invoice->total - $totalIngresos }}</span>
+                                                                                        @php
+                                                                                            $totalIngresos = 0;
+                                                                                        @endphp
+                                                                                    @else
+                                                                                        <span><i class="fas fa-dollar-sign text-danger"></i></span>
+                                                                                    @endif
+
+                                                                                </td>
+                                                                                <td style="width: 200px;">
+                                                                                    <input type="number"
+                                                                                        class="form-control form-control-lg amount-input"
+                                                                                        id="amount-input-{{ $income->id }}-{{ $invoice->id }}"
+                                                                                        style="display: none; width: 100%; height: 50px; font-size: 18px; padding: 10px;"
+                                                                                        min="0"
+                                                                                        max="{{ $invoice->total }}"
+                                                                                        step="0.01"
+                                                                                        data-original-amount="{{ $income->amount }}"
+                                                                                        oninput="updateTotal({{ $income->id }}, {{ $income->amount }})">
+                                                                                </td>
+                                                                            </tr>
+                                                                            @if(count($invoice['ingresos']) > 0)
+
+                                                                                @foreach($invoice['ingresos'] as $ingreso)
+                                                                                    <tr>
+                                                                                        <td style="color: green; font-size: 12px;" colspan="3" class="text-end border-0">
+                                                                                            {{ $ingreso->title }}
+                                                                                        </td>
+                                                                                        <td style="color: green; font-size: 12px;" class="text-end border-0">
+                                                                                            {{ $ingreso->date }}
+                                                                                        </td>
+                                                                                        <td style="color: green; font-size: 12px;" class="text-end border-0">
+                                                                                            {{ $ingreso->quantity }}
+                                                                                        </td>
+                                                                                    </tr>
+
+                                                                                @endforeach
+                                                                            @endif
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                         @endif
                                         </td>
                                         </tr>
@@ -1128,86 +1378,96 @@
                                                                             <i class="fas fa-plus-circle me-2"></i>Rechazar
                                                                             relaciones y crear gasto
                                                                         </button>
-                                                                </div>
-                                                        </div>
-                                                    @else
-                                                        <div class="alert alert-info mb-3">
-                                                            <strong>No se ha encontrado una coincidencia.</strong>
-                                                            <p class="mb-0 mt-2">Crea un movimiento para asociar la transacción:</p>
-                                                        </div>
-
-                                                        <div class="d-flex gap-3 mb-4">
-                                                            <button type="button" class="btn btn-primary h-100"
-                                                                onclick="crearMovimiento(this)"
-                                                                data-company="{{ $expense->company_name }}"
-                                                                data-bank="{{ $expense->bank }}"
-                                                                data-iban="{{ $expense->iban }}"
-                                                                data-amount="{{ $expense->amount }}"
-                                                                data-date="{{ $expense->received_date }}"
-                                                                data-message="{{ $expense->message }}"
-                                                                data-unclassified-id="{{ $expense->id }}">
-                                                                <i class="fas fa-plus-circle me-2"></i>Crear Gasto
-                                                            </button>
-                                                        </div>
-
-                                                        <div class="card mb-4">
-                                                            <div class="card-body">
-                                                                <h6 class="card-title mb-3">Configuración de Transferencia</h6>
-                                                                <div class="row g-3">
-                                                                    <div class="col-md-6">
-                                                                        <label for="origen-{{ $expense->id }}"
-                                                                            class="form-label">Banco Origen</label>
-                                                                        <select class="form-select"
-                                                                            id="origen-{{ $expense->id }}" name="origen">
-                                                                            <option value="">Seleccione banco origen
-                                                                            </option>
-                                                                            @foreach ($banks as $bank)
-                                                                                <option value="{{ $bank->id }}">
-                                                                                    {{ $bank->name }}</option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    </div>
-                                                                    <div class="col-md-6">
-                                                                        <label for="destino-{{ $expense->id }}"
-                                                                            class="form-label">Banco Destino</label>
-                                                                        <select class="form-select"
-                                                                            id="destino-{{ $expense->id }}" name="destino">
-                                                                            <option value="">Seleccione banco destino
-                                                                            </option>
-                                                                            @foreach ($banks as $bank)
-                                                                                <option value="{{ $bank->id }}">
-                                                                                    {{ $bank->name }}</option>
-                                                                            @endforeach
-                                                                        </select>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        </div>
+                                                            @else
+                                                                <div class="alert alert-info mb-3">
+                                                                    <strong>No se ha encontrado una coincidencia.</strong>
+                                                                    <p class="mb-0 mt-2">Crea un movimiento para asociar la
+                                                                        transacción:</p>
+                                                                </div>
 
-                                                        <button type="button" class="btn btn-success"
-                                                            onclick="crearTransferencia(this)"
-                                                            data-company="{{ $expense->company_name }}"
-                                                            data-bank="{{ $expense->bank }}"
-                                                            data-iban="{{ $expense->iban }}"
-                                                            data-amount="{{ $expense->amount }}"
-                                                            data-date="{{ $expense->received_date }}"
-                                                            data-message="{{ $expense->message }}"
-                                                            data-unclassified-id="{{ $expense->id }}"
-                                                            data-tabla="gasto">
-                                                            <i class="fas fa-exchange-alt me-2"></i>Crear Transferencia
-                                                        </button>
-                                    @endif
+                                                                <div class="d-flex gap-3 mb-4">
+                                                                    <button type="button" class="btn btn-primary h-100"
+                                                                        onclick="crearMovimiento(this)"
+                                                                        data-company="{{ $expense->company_name }}"
+                                                                        data-bank="{{ $expense->bank }}"
+                                                                        data-iban="{{ $expense->iban }}"
+                                                                        data-amount="{{ $expense->amount }}"
+                                                                        data-date="{{ $expense->received_date }}"
+                                                                        data-message="{{ $expense->message }}"
+                                                                        data-unclassified-id="{{ $expense->id }}">
+                                                                        <i class="fas fa-plus-circle me-2"></i>Crear Gasto
+                                                                    </button>
+                                                                </div>
+
+                                                                <div class="card mb-4">
+                                                                    <div class="card-body">
+                                                                        <h6 class="card-title mb-3">Configuración de
+                                                                            Transferencia</h6>
+                                                                        <div class="row g-3">
+                                                                            <div class="col-md-6">
+                                                                                <label for="origen-{{ $expense->id }}"
+                                                                                    class="form-label">Banco Origen</label>
+                                                                                <select class="form-select"
+                                                                                    id="origen-{{ $expense->id }}"
+                                                                                    name="origen">
+                                                                                    <option value="">Seleccione banco
+                                                                                        origen
+                                                                                    </option>
+                                                                                    @foreach ($banks as $bank)
+                                                                                        <option
+                                                                                            value="{{ $bank->id }}">
+                                                                                            {{ $bank->name }}</option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                <label for="destino-{{ $expense->id }}"
+                                                                                    class="form-label">Banco
+                                                                                    Destino</label>
+                                                                                <select class="form-select"
+                                                                                    id="destino-{{ $expense->id }}"
+                                                                                    name="destino">
+                                                                                    <option value="">Seleccione banco
+                                                                                        destino
+                                                                                    </option>
+                                                                                    @foreach ($banks as $bank)
+                                                                                        <option
+                                                                                            value="{{ $bank->id }}">
+                                                                                            {{ $bank->name }}</option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <button type="button" class="btn btn-success"
+                                                                    onclick="crearTransferencia(this)"
+                                                                    data-company="{{ $expense->company_name }}"
+                                                                    data-bank="{{ $expense->bank }}"
+                                                                    data-iban="{{ $expense->iban }}"
+                                                                    data-amount="{{ $expense->amount }}"
+                                                                    data-date="{{ $expense->received_date }}"
+                                                                    data-message="{{ $expense->message }}"
+                                                                    data-unclassified-id="{{ $expense->id }}"
+                                                                    data-tabla="gasto">
+                                                                    <i class="fas fa-exchange-alt me-2"></i>Crear
+                                                                    Transferencia
+                                                                </button>
+                                                            @endif
+                                                        </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                        </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                    </table>
+                    @endif
                 </div>
-                @endif
             </div>
         </div>
-    </div>
     </div>
     </div>
 @endsection
@@ -1223,8 +1483,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             @if (
                 (is_countable($unclassifiedIncomes ?? []) && count($unclassifiedIncomes ?? []) > 0) ||
-                (is_countable($unclassifiedExpenses ?? []) && count($unclassifiedExpenses ?? []) > 0)
-            )
+                    (is_countable($unclassifiedExpenses ?? []) && count($unclassifiedExpenses ?? []) > 0))
                 var unclassifiedModal = new bootstrap.Modal(document.getElementById('unclassifiedModal'), {
                     backdrop: 'static',
                     keyboard: false
@@ -1232,6 +1491,7 @@
                 unclassifiedModal.show();
             @endif
         });
+
 
     </script>
 
@@ -2408,39 +2668,277 @@
             });
         }
 
-    // Debounce para evitar ralentizar con muchas teclas
-    function debounce(func, delay) {
-        let timer;
-        return function(...args) {
-            clearTimeout(timer);
-            timer = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
+        // Debounce para evitar ralentizar con muchas teclas
+        function debounce(func, delay) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
 
-    // Abrir dropdown manualmente (porque no se abre solo al escribir)
-    function openBudgetDropdown(input) {
-        const dropdown = input.nextElementSibling;
-        dropdown.classList.add('show');
-    }
+        // Abrir dropdown manualmente (porque no se abre solo al escribir)
+        function openBudgetDropdown(input) {
+            const dropdown = input.nextElementSibling;
+            dropdown.classList.add('show');
+        }
 
-    // Filtrar presupuestos con debounce
-    const filterBudgets = debounce(function(input) {
-        const filter = input.value.toLowerCase();
-        const dropdown = input.nextElementSibling;
-        const items = dropdown.querySelectorAll('.budget-item');
+        // Filtrar presupuestos con debounce
+        const filterBudgets = debounce(function(input) {
+            const filter = input.value.toLowerCase();
+            const dropdown = input.nextElementSibling;
+            const items = dropdown.querySelectorAll('.budget-item');
 
-        let anyVisible = false;
+            let anyVisible = false;
 
-        items.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            const match = text.includes(filter);
-            item.style.display = match ? '' : 'none';
-            if (match) anyVisible = true;
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                const match = text.includes(filter);
+                item.style.display = match ? '' : 'none';
+                if (match) anyVisible = true;
+            });
+
+            dropdown.classList.toggle('show', anyVisible);
+        }, 200);
+
+        function updateTotal(incomeId, invoiceAmount) {
+            // Obtener todos los inputs que pertenecen a este income
+            const inputs = document.querySelectorAll(`[id^="amount-input-${incomeId}-"]`);
+            const checkboxes = document.querySelectorAll(`.invoice-checkbox[data-income-id="${incomeId}"]:checked`);
+            let total = 0;
+            let hasCheckedBoxes = checkboxes.length > 0;
+            let hasValidInputs = true;
+
+            inputs.forEach(input => {
+                if (input.style.display !== 'none') { // Solo sumar inputs visibles
+                    // Obtener el valor máximo permitido
+                    const maxValue = parseFloat(input.getAttribute('max')) || 0;
+                    let value = parseFloat(input.value) || 0;
+
+                    // Si el valor excede el máximo, establecer el valor máximo
+                    if (value > maxValue) {
+                        value = maxValue;
+                        input.value = maxValue.toFixed(2);
+                    }
+
+                    total += value;
+                    // Verificar si el input tiene un valor válido (mayor que 0)
+                    if (value <= 0) {
+                        hasValidInputs = false;
+                    }
+                }
+            });
+
+            // Actualizar el total y el botón
+            const totalElement = document.querySelector(`#total-${incomeId}`);
+            const relateButton = document.querySelector(`#relate-button-${incomeId}`);
+            const originalAmount = parseFloat(invoiceAmount || 0);
+
+            if (totalElement && relateButton) {
+                // Actualizar el texto del total
+                totalElement.textContent = `Total: ${total.toFixed(2)}€`;
+
+                // Verificar condiciones
+                const isAmountEqual = Math.abs(total - originalAmount) < 0.01;
+                const isValid = hasCheckedBoxes && isAmountEqual && hasValidInputs;
+
+                // Actualizar estilos y estado del botón
+                if (isValid) {
+                    totalElement.style.color = 'green';
+                    relateButton.disabled = false;
+                    relateButton.classList.remove('btn-danger');
+                    relateButton.classList.add('btn-primary');
+                } else {
+                    totalElement.style.color = 'red';
+                    relateButton.disabled = true;
+                    relateButton.classList.remove('btn-primary');
+                    relateButton.classList.add('btn-danger');
+                }
+
+                // Añadir tooltip con la razón de la desactivación
+                let tooltipText = '';
+                if (!hasCheckedBoxes) {
+                    tooltipText = 'Debe seleccionar al menos una factura';
+                } else if (!hasValidInputs) {
+                    tooltipText = 'Los importes asignados deben ser mayores que 0';
+                } else if (!isAmountEqual) {
+                    tooltipText = 'El total debe coincidir con el importe original';
+                }
+
+                // Actualizar o crear tooltip
+                if (tooltipText) {
+                    relateButton.setAttribute('title', tooltipText);
+                    relateButton.setAttribute('data-bs-toggle', 'tooltip');
+                    relateButton.setAttribute('data-bs-placement', 'top');
+
+                    // Inicializar tooltip si no existe
+                    if (!relateButton._tooltip) {
+                        relateButton._tooltip = new bootstrap.Tooltip(relateButton);
+                    } else {
+                        relateButton._tooltip.dispose();
+                        relateButton._tooltip = new bootstrap.Tooltip(relateButton);
+                    }
+                } else {
+                    // Eliminar tooltip si existe
+                    if (relateButton._tooltip) {
+                        relateButton._tooltip.dispose();
+                        relateButton._tooltip = null;
+                    }
+                    relateButton.removeAttribute('title');
+                    relateButton.removeAttribute('data-bs-toggle');
+                    relateButton.removeAttribute('data-bs-placement');
+                }
+            }
+        }
+
+        // Añadir evento input para validar el máximo en tiempo real
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.amount-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const maxValue = parseFloat(this.getAttribute('max')) || 0;
+                    let value = parseFloat(this.value) || 0;
+
+                    if (value > maxValue) {
+                        this.value = maxValue.toFixed(2);
+                        // Disparar el evento updateTotal
+                        const incomeId = this.id.split('-')[2];
+                        const originalAmount = parseFloat(this.dataset.originalAmount || 0);
+                        updateTotal(incomeId, originalAmount);
+                    }
+                });
+            });
         });
 
-        dropdown.classList.toggle('show', anyVisible);
-    }, 200);
-</script>
+        function toggleAmountInput(checkbox) {
+
+            const row = checkbox.closest('tr');
+            const amountInput = row.querySelector('.amount-input');
+            const incomeId = checkbox.dataset.incomeId;
+
+            // Mostrar/ocultar input
+            amountInput.style.display = checkbox.checked ? 'block' : 'none';
+
+            // Resetear valor si se desmarca
+            if (!checkbox.checked) {
+                amountInput.value = 0;
+            }
+
+            // Actualizar total
+            const originalAmount = parseFloat(checkbox.dataset.amount || 0);
+            updateTotal(incomeId, originalAmount);
+        }
+
+        // Inicializar tooltips cuando el documento esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar todos los tooltips existentes
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+
+        function rechazarYAsociarFacturas(button) {
+            const unclassifiedId = button.getAttribute('data-unclassified-id');
+            const tipo = button.getAttribute('data-tipo');
+            const tabla = button.getAttribute('data-tabla');
+
+            rechazarRelacion(unclassifiedId, tipo, tabla);
+            asociarFacturas(button);
+        }
+
+            function relacionarFacturasYCrearIngreso(button) {
+                const incomeId = button.getAttribute('data-unclassified-id');
+                const checkboxes = document.querySelectorAll(`.invoice-checkbox[data-income-id='${incomeId}']:checked`);
+                const bank = button.getAttribute('data-bank');
+                const date = button.getAttribute('data-date');
+                const title = button.getAttribute('data-message');
+                let facturasSeleccionadas = [];
+
+                checkboxes.forEach(checkbox => {
+                    const invoiceId = checkbox.getAttribute('data-invoice-id');
+                    const input = document.querySelector(`#amount-input-${incomeId}-${invoiceId}`);
+                    const amountAsignado = input ? parseFloat(input.value || 0) : 0;
+
+                    facturasSeleccionadas.push({
+                        id: invoiceId,
+                        importe: amountAsignado
+                    });
+                });
+
+                $.ajax({
+                    url: '{{ route('tesoreria.multi-ingreso') }}',
+                    method: 'POST',
+                    data: {
+                        facturas: facturasSeleccionadas,
+                        income_id: incomeId,
+                        date: date,
+                        bank: bank,
+                        title: title,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Encontrar el contenedor de detalles
+                            const detailsContainer = document.querySelector(`#details-${incomeId}`);
+                            if (detailsContainer) {
+                                // Encontrar la fila principal (la que contiene el botón "Ver Detalles")
+                                const mainRow = detailsContainer.closest('tr');
+                                if (mainRow) {
+                                    // Eliminar tanto la fila principal como la fila de detalles
+                                    mainRow.remove();
+                                    detailsContainer.remove();
+                                }
+                            }
+
+                            // Verificar si hay más filas en la tabla
+                            const tableBody = document.querySelector('.table-responsive table tbody');
+                            if (tableBody && tableBody.children.length === 0) {
+                                // Si no hay más filas, cerrar el modal
+                                const modal = document.getElementById('unclassifiedModal');
+                                if (modal) {
+                                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                                    if (modalInstance) {
+                                        modalInstance.hide();
+                                    }
+                                }
+                            }
+
+                            // Mostrar mensaje de éxito
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Operación exitosa',
+                                text: 'Las facturas han sido relacionadas correctamente',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message || 'Error al procesar la solicitud',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error al procesar la solicitud',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                });
+            }
+    </script>
 
 @endsection
-

@@ -883,4 +883,93 @@ class TesoreriaController extends Controller
         ], 200);
     }
 
+    public function multiIngreso(Request $request){
+        //dd($request->all());
+
+        $validate = $this->validate($request, [
+            'facturas' => 'required',
+            'income_id' => 'required',
+            // 'invoice_id' => 'required'
+        ]);
+
+        $bank = strtoupper($request->input('bank'));
+        switch ($bank) {
+            case 'BBVA':
+                $bank = 4;
+                break;
+            case 'SABADELL':
+                $bank = 2;
+                break;
+            case 'BANKINTER':
+                $bank = 3;
+                break;
+            case 'CAIXA':
+                $bank = 1;
+                break;
+            case 'PAGARÉS':
+                $bank = 5;
+                break;
+            default:
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Banco no válido'
+                ], 400);
+        }
+
+        foreach($request->facturas as $factura){
+            $ingreso = new Ingreso();
+            $ingreso->quantity = $factura['importe'];
+            $ingreso->bank_id = $bank;
+            $ingreso->date = Carbon::parse($request->input('date'))->format('Y-m-d');
+            $ingreso->title = $request->input('title');
+            $ingreso->invoice_id = $factura['id'];
+            $ingreso->save();
+            $total = 0;
+            // Comprobar si la factura esta pagada por completo
+            $invoice = Invoice::find($factura['id']);
+            if($invoice){
+                $ingresos =Ingreso::where('invoice_id', $invoice['id'])->get();
+                if($ingresos->count() > 0){
+                    $total += $ingresos->sum('quantity');
+                }
+            }
+
+            if($invoice->invoice_status_id == 1){
+                if($total == $invoice->total){
+                    $invoice->invoice_status_id = 3;
+                    $invoice->save();
+                }
+            }
+
+            $unclassifiedIncome = UnclassifiedIncome::find($request->input('income_id'));
+            if($unclassifiedIncome){
+                $unclassifiedIncome->status = 1;
+                $unclassifiedIncome->save();
+            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Ingreso creado correctamente',
+                'ingreso_id' => $invoice,
+                'ingresos' => $ingresos,
+                'total' => $total
+            ], 200);
+        }
+
+
+    }
+
+    public function getInvoiceData(){
+        $invoices = Invoice::whereIn('invoice_status_id', [1, 2, 4])->get();
+        if($invoices->count() > 0){
+            foreach($invoices as $invoice){
+                $ingresos = Ingreso::where('invoice_id', $invoice['id'])->get();
+                $invoice['ingresos'] = $ingresos;
+            }
+        }
+        return response()->json([
+            'success' => true,
+            'invoices' => $invoices
+        ], 200);
+    }
+
 }
