@@ -246,7 +246,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/invoice/rectify', [InvoiceController::class, 'rectificateInvoice'])->name('factura.rectificada');
         Route::get('/invoice/generateMultiplePDFs', [InvoiceController::class, 'generateMultiplePDFs'])->name('factura.generateMultiplePDFs');
         Route::post('/invoice/sendInvoicePDF', [InvoiceController::class, 'sendInvoicePDF'])->name('factura.sendInvoicePDF');
-
+        Route::post("/get-invoice-data", [TesoreriaController::class, 'getInvoiceData'])->name('tesoreria.getInvoiceData');
         // Task (TAREAS)
         Route::get('/tasks', [TasksController::class, 'index'])->name('tareas.index');
         Route::get('/tasks/cola-trabajo', [TasksController::class, 'cola'])->name('tareas.cola');
@@ -756,4 +756,5 @@ Route::prefix('tesoreria')->group(function () {
     Route::post('/gasto-store-api', [TesoreriaController::class, 'storeGastosApi'])->name('tesoreria.gasto-store-api');
     Route::post('/ingreso-store-api', [TesoreriaController::class, 'storeIngresosApi'])->name('tesoreria.ingreso-store-api');
     Route::post('/transferencia-store-api', [TesoreriaController::class, 'storeTransferenciasApi'])->name('tesoreria.transferencia-store-api');
+    Route::post('/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');
 });
