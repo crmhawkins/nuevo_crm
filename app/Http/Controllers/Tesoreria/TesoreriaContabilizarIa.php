@@ -36,6 +36,7 @@ class TesoreriaContabilizarIa extends Controller
     private function excelDateToDate($excelSerial)
     {
         $unixTimestamp = ($excelSerial - 25569) * 86400; // 25569 = días entre 1/1/1900 y Unix Epoch
+        dd(gmdate('Y-m-d', $unixTimestamp));
         return gmdate('Y-m-d', $unixTimestamp);
     }
 
@@ -55,7 +56,7 @@ class TesoreriaContabilizarIa extends Controller
             - Si el importe es negativo, se catalogara como gasto pero debes devolver SIEMPRE un importe positivo.
             ES MUY IMPORTANTE QUE COMPRUEBES BIEN SI ES UN GASTO O INGRESO, Y NO FALLAR
             2. Ignorar cabeceras, nulos o filas irrelevantes.
-            3. Para cada movimiento válido, devolver un objeto con los siguientes campos:
+            3. Para cada movimiento válido, hay movimientos pendientes o retenido no los cuentes ignoralos, devuelve un objeto con los siguientes campos:
             - tipo: \"ingreso\" o \"gasto\"
             - received_date: el valor de la columna 'fecha valor' o 'fecha contable'
             - message: descripción / concepto
@@ -123,7 +124,8 @@ class TesoreriaContabilizarIa extends Controller
                 }
             ]
             }
-
+            4. En ningun momento modifiques en nada el concepto del movimiento.
+            5. IMPORTANTE: Devuelve tu respuesta en formato JSON como te pedi.
             Una vez
             Aquí están los datos a analizar:";
 
@@ -196,31 +198,16 @@ class TesoreriaContabilizarIa extends Controller
                     throw new \Exception('La respuesta de la API no tiene el formato esperado. Contenido: ' . $jsonRaw);
                 }
 
-                // Convertir fechas Excel a string
                 foreach ($movimientos['movimientos'] as &$movimiento) {
                     if (is_numeric($movimiento['received_date'])) {
                         $movimiento['received_date'] = $this->excelDateToDate($movimiento['received_date']);
                     }
                 }
-                unset($movimiento); // Romper la referencia del foreach
+                unset($movimiento); // romper referencia
 
-                // Normalizar las fechas usando Carbon
                 foreach ($movimientos['movimientos'] as &$movimiento) {
-                    try {
-                        $fechaLimpia = trim($movimiento['received_date']);
-
-                        if (strpos($fechaLimpia, '/') !== false) {
-                            // Ejemplo: 31/12/2023
-                            $movimiento['received_date'] = Carbon::createFromFormat('d/m/Y', $fechaLimpia);
-                        } elseif (strpos($fechaLimpia, '-') !== false) {
-                            // Ejemplo: 2023-12-31
-                            $movimiento['received_date'] = Carbon::createFromFormat('Y-m-d', $fechaLimpia);
-                        } else {
-                            throw new \Exception("Formato de fecha no reconocido: '$fechaLimpia'");
-                        }
-                    } catch (\Exception $e) {
-                        throw new \Exception("Error al procesar la fecha '{$movimiento['received_date']}': " . $e->getMessage());
-                    }
+                    $fechaLimpia = trim(substr($movimiento['received_date'], 0, 10));
+                    $movimiento['received_date'] = Carbon::createFromFormat('d/m/Y', $fechaLimpia);
 
                     $relaciones = [];
 
@@ -238,8 +225,7 @@ class TesoreriaContabilizarIa extends Controller
 
                             $query->whereNotIn('invoice_status_id', [3, 4, 5])
                                 ->where(function ($q) use ($movimiento) {
-                                    $q->where('total', $movimiento['amount'])
-                                      ->orWhere('total', $movimiento['amount'] * 0.5);
+                                    $q->where('total', $movimiento['amount'])->orWhere('total', $movimiento['amount'] * 0.5);
                                 });
                         })->get();
 
@@ -295,6 +281,7 @@ class TesoreriaContabilizarIa extends Controller
                             ];
                         }
 
+                    } else {
                         // Buscar en associated_expenses
                         $associatedMatches = AssociatedExpenses::where(function ($query) use ($movimiento) {
                             if (!empty($movimiento['company_name'])) {
@@ -381,6 +368,7 @@ class TesoreriaContabilizarIa extends Controller
                         $unclassifiedExpenses->save();
                     }
                 }
+
 
                 return response()->json([
                     'success' => true,
