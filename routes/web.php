@@ -68,7 +68,7 @@ use App\Http\Controllers\AutomatizacionKit\AutomatizacionKitController;
 use App\Http\Controllers\AutomatizacionKit\KitPagadosController;
 use App\Http\Controllers\PresupuestoComentarioController;
 use App\Http\Controllers\Plataforma\PlataformaWhatsappController;
-
+use App\Http\Controllers\Suite\SuiteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,8 +93,6 @@ Auth::routes();
 //pdf
 Route::post('/invoice/generate-pdf', [InvoiceController::class, 'generatePDF'])->name('factura.generarPDF');
 Route::post('/budget/generate-pdf', [BudgetController::class, 'generatePDF'])->name('presupuesto.generarPDF');
-
-
 
 Route::group(['middleware' => 'auth'], function () {
 
@@ -515,12 +513,22 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 
+    Route::middleware(['access.level:1'])->group(function () {
+        Route::get('/suite', [SuiteController::class, 'index'])->name('suite');
+        Route::get('/suite/create', [SuiteController::class, 'create'])->name('suite.create');
+        Route::get('/suite/edit', [SuiteController::class, 'edit'])->name('suite.edit');
+
+        Route::post('/suite/create', [SuiteController::class, 'store'])->name('suite.store');
+        Route::post('/suite/update/{id}', [SuiteController::class, 'update'])->name('suite.update');
+        Route::delete('/suite/delete/{id}', [SuiteController::class, 'destroy'])->name('suite.destroy');
+    });
+
     Route::post('/get-produccion', [DashboardController::class, 'getProduccion'])->name('productividad.get');
     Route::post('/get-gestion', [DashboardController::class, 'getGestion'])->name('gestion.get');
     Route::post('/get-comercial', [DashboardController::class, 'getComercial'])->name('comercial.get');
     Route::post('/get-contabilidad', [DashboardController::class, 'getContabilidad'])->name('contabilidad.get');
 
-    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     //Alertas
     Route::post('/user/alerts', [AlertController::class, 'getUserAlerts'])->name('user.alerts');
