@@ -386,6 +386,11 @@
         }
         // Función para mostrar los tipos de alertas agrupadas
         function mostrarTiposDeAlertas() {
+            // Check if unclassified modal is open
+            const unclassifiedModal = document.getElementById('unclassifiedModal');
+            if (unclassifiedModal && unclassifiedModal.classList.contains('show')) {
+                return; // Don't show alerts if unclassified modal is open
+            }
             let htmlContent = "<ul>";
 
             for (const stage_id in mapeoMensajes) {
