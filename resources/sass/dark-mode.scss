@@ -1,0 +1,87 @@
+@import './base/color_variables';
+
+
+body.dark-mode  {
+    background-color: $bg-dark;
+    font-family: "Lato",sans-serif;
+}
+body.dark-mode .card-body {
+    background-color: $bg-card-dark;
+}
+.page-title h3 {
+    color: $title-dark;
+    font-size: 22px;
+}
+.top-burguer a i {
+    font-size: 2rem;
+    padding-left: 1rem;
+    color: $title-dark;
+}
+.form-primary label {
+    color: $title-dark;
+}
+.card {
+    background-color: $gris-oscuro;
+}
+
+.card-body input, .card-body select, .card-body textarea {
+    background-color: $bg-card-dark;
+    border-color: $border;
+}
+.form-control:focus {
+    color: #607080;
+    background-color: $bg-card-dark;
+    border-color: $border;
+    outline: 0;
+    box-shadow: none;
+}
+.navbar {
+    height: auto;
+    padding: 0.5rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    background-color: $bg-top-dark;
+    box-shadow: 0 1px 3px rgba(27, 23, 30, 0.1);
+    display: flex;
+    border-radius: 7px;
+    margin: 1.5rem 1.5rem 0 1.5rem;
+}
+
+.topbar-menu i{
+    color: $title-dark;
+}
+.topbar-menu i:hover{
+    color: $title-dark-hover;
+}
+
+.header-table {
+    background-color: $bg-top-dark !important;
+    color: $title-dark;
+}
+
+a:hover {
+    color: $primary;
+}
+
+.sidebar-wrapper {
+    background-color: $sidebar-dark;
+}
+
+.sidebar-wrapper .menu .submenu {
+    background-color: $white;
+}
+
+
+tbody, td, tfoot, th, thead, tr {
+    border-color: $border;
+}
+.dataTable-table:not(.table-borderless) thead th, .table:not(.table-borderless) thead th {
+    border-bottom: 1px solid $border;
+}
+.table>:not(:last-child)>:last-child>* {
+    border-bottom-color: $border;
+}
+
+.page-heading h3 {
+    color: $title-dark;
+   }

@@ -1,0 +1,163 @@
+.bloque-formulario {
+    // border: 1px solid #80808073;
+    // border-radius: 15px;
+    padding: 20px;
+}
+
+.titulo-form {
+    display: inline-block;
+    color: $secondary;
+    padding: 5px 10px;
+    margin-bottom: 10px;
+}
+
+.card {
+    // margin-bottom: 2.2rem;
+    // border: none;
+    background: transparent;
+    box-shadow: 0px 0 7px #80808057;
+}
+
+.card-body {
+    background-color: white;
+    // border-radius: 28px;
+    // box-shadow: 0px 0 7px #80808057;
+    padding: 1.4rem;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1.3;
+    color: #777777;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid $gris-claro;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    box-shadow: 0 0 3px $gris-claro;
+}
+.form-select  {
+    display: block;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1.3;
+    color: #777777;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid $gris-claro;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    box-shadow: 0 0 3px $gris-claro;
+}
+
+
+.choices__inner {
+    display: inline-block !important;
+    vertical-align: top !important;
+    width: 100% !important;
+    background-color: white !important;
+    padding: 7.5px 7.5px 3.75px !important;
+    border: 1px solid $gris-claro !important;
+    border-radius: 2.5px !important;
+    font-size: 1.1rem !important;
+    min-height: 44px !important;
+    overflow: hidden !important;
+    box-shadow: 0 0 3px $gris-claro !important;
+}
+
+.form-select::placeholder {
+    font-size: 0.95rem;
+    color: $gris-claro;
+}
+.form-control::placeholder {
+    font-size: 0.95rem;
+    color: $gris-claro;
+}
+.form-group label {
+    color: $gris-oscuro;
+    font-weight: 500;
+}
+
+.boton-picker button {
+    background-color: #805dca;
+    padding: 0.2rem 0.7rem;
+    color: white;
+    margin-top: 12px;
+    width: 100%;
+    display: none;
+}
+
+.ui-widget-header {
+    border: 1px solid #805dca !important;
+    background: #805dca 50% 50% repeat-x !important;
+    color: white;
+    font-weight: bold;
+}
+.ui-datepicker .ui-datepicker-title select {
+    margin: 3px 3px;
+    border-radius: 5px;
+}
+
+
+
+
+select {
+    width: 200px;
+    padding: 10px;
+    font-size: 16px;
+    color: white;
+    background-color: #ffffff; /* Fondo del select */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-appearance: none; /* Eliminar la apariencia predeterminada */
+    -moz-appearance: none; /* Eliminar la apariencia predeterminada */
+    appearance: none; /* Eliminar la apariencia predeterminada */
+    cursor: pointer;
+  }
+
+  /* Agrega un ícono personalizado al select */
+  select::-ms-expand {
+    display: none; /* Ocultar el ícono de despliegue en IE */
+    border-radius: none;
+  }
+
+  /* Contenedor del select con un pseudo-elemento para el ícono */
+  .select-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .select-wrapper::after {
+    content: '▼'; /* Ícono de flecha */
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: white;
+  }
+
+//   /* Estiliza las opciones del select */
+//   select option {
+//     background-color: red; /* Fondo de las opciones */
+//     color: black; /* Color del texto de las opciones */
+//   }
+
+  /* Estiliza el select al estar enfocado */
+  select:focus {
+    outline: none;
+    border-color: #66afe9;
+    box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+  }

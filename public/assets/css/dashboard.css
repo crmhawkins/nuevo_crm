@@ -1,0 +1,271 @@
+.input-group-text {
+    position: relative;
+}
+.file-icon {
+    text-align: center; /* Centra el ícono del archivo */
+    margin-bottom: 5px; /* Espacio entre el ícono y el texto del mensaje */
+}
+.file-icon i {
+    font-size: 50px; /* Ajusta el tamaño del ícono */
+}
+#file-icon {
+    position: absolute;
+    right: 10px; /* Ajusta según necesites */
+    top: 50%;
+    transform: translateY(-50%);
+}
+.chat-container {
+    max-height: 400px;
+    min-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 5px;
+}
+.message {
+    margin-bottom: 5px;
+    border-radius: 5px;
+    display: inline-block; /* Esto hace que el div se ajuste al contenido */
+    max-width: 80%;
+}
+.mine {
+    background-color: #dcf8c6;
+    text-align: left;
+    float: right; /* Alinea los mensajes del usuario a la derecha */
+    clear: both; /* Asegura que los mensajes no se superpongan */
+}
+.theirs {
+    background-color: #f1f0f0;
+    text-align: left;
+    float: left; /* Alinea los mensajes de otros usuarios a la izquierda */
+    clear: both; /* Asegura que los mensajes no se superpongan */
+}
+.input-group-text {
+    background: white;
+    cursor: pointer;
+    width: 40px;
+    border: 1px solid rgb(175, 175, 175);
+    box-shadow: 0 0 3px rgb(175, 175, 175);
+}
+.input-group-text i {
+    color: #6c757d; /* Color gris para el ícono, ajustable según necesidades */
+}
+@keyframes pulse-animation {
+    0% {
+        text-shadow: 0 0 0px #ffffff;
+        box-shadow: 0 0 0 0px #ff000077;
+    }
+    100% {
+        text-shadow: 0 0 20px #ffffff;
+        box-shadow: 0 0 0 20px #ff000000;
+    }
+}
+
+.pulse {
+    color: rgb(255, 255, 255);
+    font-size: 12px;
+    animation: pulse-animation 2s infinite;
+    text-shadow: 0px 0px 10px  #ffffff;
+    background-color: #ff0000c9;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    box-shadow: 0px 0px 1px 1px #ff0000;
+    display: flex;
+}
+@keyframes pulseCard-animation {
+    0% {
+        text-shadow: 0 0 0px #ffffff;
+        box-shadow: 0 0 0 0px #ff000077;
+    }
+    100% {
+        text-shadow: 0 0 20px #ffffff;
+        box-shadow: 0 0 0 20px #ff000000;
+    }
+}
+
+.pulseCard {
+    animation: pulseCard-animation 2s infinite;
+    background-color: #ff0000c9;
+    border-radius: 50%;
+    box-shadow: 0px 0px 1px 1px #ff0000;
+}
+#to-do {
+    max-height: 550px;
+    overflow-y: auto;
+    border-radius: 10px;
+    padding: 15px;
+}
+#to-do-container {
+    max-height: 600px;
+    min-height: 600px;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    border-color:black;
+    border-width: thin;
+    border-radius: 20px;
+    align-content: flex-start;
+}
+
+.info {
+    display: none;
+    padding: 10px;
+    background-color: #fcfcfc; /* Fondo para los detalles */
+    margin-top: 5px;
+}
+.tooltip.custom-tooltip .tooltip-inner {
+    background-color: #343a40; /* Color de fondo del tooltip */
+    color: #fff; /* Color del texto */
+    font-size: 1.2rem; /* Tamaño de la fuente */
+    padding: 15px; /* Espaciado interno */
+    border-radius: 5px; /* Bordes redondeados */
+    max-width: 500px; /* Ancho máximo */
+}
+
+.tooltip.custom-tooltip .tooltip-arrow {
+    border-top-color: #343a40; /* Color de la flecha del tooltip */
+}
+.card-header {
+    background-color: #f8f9fa;
+    color: #333;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.side-column {
+    margin-bottom: 20px;
+}
+
+.jornada {
+    padding: 10px 0;
+    font-size: 1.2rem;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+}
+
+.view-selector {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.todo-item {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 10px;
+}
+
+#to-do::-webkit-scrollbar,.chat-container::-webkit-scrollbar {
+    width: 8px; /* Ancho del scrollbar */
+
+}
+
+#to-do::-webkit-scrollbar-track,.chat-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1); /* Fondo semi-translúcido */
+    border-radius: 10px; /* Bordes redondeados */
+}
+
+#to-do::-webkit-scrollbar-thumb,.chat-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.5); /* Pulgar negro semi-translúcido */
+    border-radius: 10px; /* Bordes redondeados */
+}
+
+#to-do::-webkit-scrollbar-thumb:hover,.chat-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.7); /* Pulgar más oscuro cuando se desplaza */
+}
+
+/* Estilos para la responsividad del calendario */
+.calendar-view {
+    display: grid;
+    gap: 10px;
+    padding: 10px;
+}
+
+.calendar-week-view {
+    grid-template-rows: repeat(7, 1fr);
+}
+
+.calendar-month-view {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Hace que las columnas sean más flexibles */
+}
+
+.calendar-day {
+    background-color: #f8f9fa;
+    border: 1px solid #e3e6f0;
+    padding: 10px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-item {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    margin: 5px 0;
+    padding: 10px;
+}
+.clickable {
+    cursor: pointer;
+}
+
+.info {
+    display: none;
+    padding: 15px;
+}
+.progress-circle {
+width: 120px;
+height: 120px;
+border-radius: 50%;
+background: conic-gradient(
+    var(--progress-color) calc(var(--percentage, 0) * 1%),
+    #e0e0e0 calc(var(--percentage, 0) * 1%)
+);
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+}
+
+.progress-number {
+font-size: 1.5rem;
+font-weight: bold;
+color: var(--progress-color);
+position: absolute;
+}
+
+.progress-circle::before {
+content: '';
+width: 100px;
+height: 100px;
+background-color: #fff;
+border-radius: 50%;
+position: absolute;
+z-index: 1;
+}
+
+.progress-circle::after {
+content: attr(data-percentage) '%';
+font-size: 1.5rem;
+font-weight: bold;
+color: var(--progress-color);
+position: absolute;
+z-index: 2;
+}
+
+@media (max-width: 768px) {
+    .calendar-month-view {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Ajusta las columnas para pantallas pequeñas */
+    }
+
+    .view-selector button,
+    .jornada {
+        font-size: 0.9rem; /* Reduce el tamaño de la fuente para ajustarse a pantallas más pequeñas */
+    }
+
+    .side-column,
+    .card-body {
+        padding: 5px; /* Reduce el padding para más espacio */
+    }
+}
