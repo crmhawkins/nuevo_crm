@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AutomatizacionKit\KitPagadosController;
+use App\Http\Controllers\Suite\SuiteController;
 
 
 /*
@@ -34,6 +35,7 @@ Route::post('/updateAyudas/{id}', action: [ApiController::class, 'updateAyudas']
 Route::post('/updateMensajes', action: [ApiController::class, 'updateMensajes']);
 
 Route::get('/salvineitor', action: [SalvineitorController::class, 'index']);
+Route::get('/suite/get-users', [SuiteController::class, 'getUsers'])->name('suite.getUsers');
 
 Route::post('/tesoreria/contabilizar-ia/upload', [TesoreriaContabilizarIa::class, 'upload']);
 Route::post('/tesoreria/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');
