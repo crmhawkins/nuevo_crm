@@ -740,3 +740,6 @@ Route::prefix('tesoreria')->group(function () {
     Route::post('/transferencia-store-api', [TesoreriaController::class, 'storeTransferenciasApi'])->name('tesoreria.transferencia-store-api');
     Route::post('/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');
 });
+
+
+Route::get('/kit_sin_actualizar', [TesoreriaController::class, 'kit_sin_actualizar'])->name('kitDigital.sin_actualizar');
