@@ -131,7 +131,7 @@ class DashboardController extends Controller
 
                 $unclassifiedIncomes = UnclassifiedIncome::where('status', 0)->get();
                 $unclassifiedExpenses = UnclassifiedExpenses::where('status', 0)->get();
-                dd($unclassifiedIncomes);
+
                 // Ingresos
                 foreach ($unclassifiedIncomes as $income) {
                     $relacionesMapeadas = [];
