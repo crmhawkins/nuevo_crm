@@ -114,10 +114,28 @@ class SuiteController extends Controller
         ], 200);
     }
 
-    public function getUsers()
+    public function login(Request $request)
     {
-        $users = Suite::all();
-        return response()->json($users);
+        $suites = Suite::all();
+
+        $data = [
+            'user' => $request->user,
+            'password' => $request->password
+        ];
+
+        foreach ($suites as $suite) {
+            if ($suite->user === $data['user'] && Hash::check($data['password'], $suite->password)) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login exitoso'
+                ], 200);
+            }
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Usuario o contraseña incorrectos'
+        ], 404);
     }
 }
 
