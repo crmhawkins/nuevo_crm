@@ -32,3 +32,4 @@ Route::post('/updateMensajes', action: [ApiController::class, 'updateMensajes'])
 Route::get('/salvineitor', action: [SalvineitorController::class, 'index']);
 
 Route::post('/tesoreria/contabilizar-ia/upload', [TesoreriaContabilizarIa::class, 'upload']);
+Route::post('/tesoreria/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');
