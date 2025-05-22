@@ -433,11 +433,6 @@
         }
         // Función para mostrar alertas específicas de un stage
         function mostrarAlertaEspecifica(stage_id) {
-            // Check if unclassified modal is open
-            const unclassifiedModal = document.getElementById('unclassifiedModal');
-            if (unclassifiedModal && unclassifiedModal.classList.contains('show')) {
-                return; // Don't show alerts if unclassified modal is open
-            }
             let alertasEspecificas = alertasAgrupadasPorStageId[stage_id];
             let htmlContent = "<ul>";
 
