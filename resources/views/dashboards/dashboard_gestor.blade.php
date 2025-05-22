@@ -612,6 +612,604 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para mostrar ingresos y gastos no clasificados -->
+<div class="modal fade" id="unclassifiedModal" data-bs-backdrop="static" data-bs-keyboard="false"
+tabindex="-1" aria-labelledby="unclassifiedModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-xl">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="unclassifiedModalLabel">Ingresos y Gastos No Clasificados</h5>
+        </div>
+        <div class="modal-body">
+            @if (!empty($unclassifiedIncomes) && count($unclassifiedIncomes) > 0)
+                <strong>Ingresos No Clasificados</strong>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Empresa</th>
+                                <th>Banco</th>
+                                <th>IBAN</th>
+                                <th>Cantidad</th>
+                                <th>Fecha</th>
+                                <th>Mensaje</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($unclassifiedIncomes as $income)
+                                <tr id="ingreso-{{ $income->id }}">
+                                    <td>{{ $income->company_name }}</td>
+                                    <td>{{ $income->bank }}</td>
+                                    <td>{{ $income->iban }}</td>
+                                    <td>{{ number_format($income->amount, 2) }}€</td>
+                                    <td>{{ $income->received_date ? \Carbon\Carbon::parse($income->received_date)->format('d/m/Y') : 'N/A' }}
+                                    </td>
+                                    <td>{{ $income->message }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-info btn-sm toggle-details"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#details-{{ $income->id }}"
+                                            aria-expanded="false"
+                                            aria-controls="details-{{ $income->id }}">
+                                            <span class="toggle-text">Ver Detalles</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7">
+                                        <div id="details-{{ $income->id }}"
+                                            class="collapse details-content p-3 border rounded bg-light">
+                                            <div class="row g-3">
+                                                {{-- Información del Movimiento --}}
+                                                <div class="col-md-4">
+                                                    <h6 class="mb-3 fw-bold">Información del Movimiento</h6>
+                                                    <div class="p-3 bg-white border rounded shadow-sm">
+                                                        <p><strong>Empresa:</strong>
+                                                            {{ $income->company_name }}</p>
+                                                        <p><strong>Banco:</strong> {{ $income->bank }}</p>
+                                                        <p><strong>IBAN:</strong> {{ $income->iban }}</p>
+                                                        <p><strong>Cantidad:</strong>
+                                                            {{ number_format($income->amount, 2) }}€</p>
+                                                        <p><strong>Fecha:</strong>
+                                                            {{ $income->received_date ? \Carbon\Carbon::parse($income->received_date)->format('d/m/Y') : 'N/A' }}
+                                                        </p>
+                                                        <p><strong>Mensaje:</strong> {{ $income->message }}
+                                                        </p>
+                                                    </div>
+
+                                                    {{-- BOTÓN RECHAZAR Y ASOCIAR FACTURAS MOVIDO AQUÍ --}}
+                                                    <div class="mt-4">
+                                                        <div class="dropdown">
+                                                            <button
+                                                                class="btn btn-warning dropdown-toggle d-flex align-items-center gap-2"
+                                                                type="button"
+                                                                id="dropdownMenuButton-{{ $income->id }}"
+                                                                data-bs-toggle="dropdown"
+                                                                aria-expanded="false">
+                                                                <i class="fas fa-file-invoice"></i>
+                                                                Rechazar y Asociar Facturas
+                                                            </button>
+                                                            <div class="dropdown-menu p-4 shadow-lg"
+                                                                aria-labelledby="dropdownMenuButton-{{ $income->id }}"
+                                                                style="width: 800px; max-width: 100vw; border-radius: 8px;"
+                                                                data-bs-auto-close="false">
+                                                                <div class="table-responsive">
+                                                                    <table
+                                                                        class="table table-hover table-sm w-100">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <td colspan="6"
+                                                                                    class="text-end border-0">
+                                                                                    <div
+                                                                                        class="d-flex justify-content-end align-items-center gap-3">
+                                                                                        <strong
+                                                                                            id="total-{{ $income->id }}"
+                                                                                            class="fs-5 mb-0"
+                                                                                            style="color: red;">
+                                                                                            Total: 0.00€
+                                                                                        </strong>
+                                                                                        <button type="button"
+                                                                                            class="btn btn-primary"
+                                                                                            id="relate-button-{{ $income->id }}"
+                                                                                            onclick="relacionarFacturasYCrearIngreso(this)"
+                                                                                            data-company="{{ $income->company_name }}"
+                                                                                            data-bank="{{ $income->bank }}"
+                                                                                            data-iban="{{ $income->iban }}"
+                                                                                            data-amount="{{ $income->amount }}"
+                                                                                            data-date="{{ $income->received_date }}"
+                                                                                            data-message="{{ $income->message }}"
+                                                                                            data-unclassified-id="{{ $income->id }}"
+                                                                                            data-invoice-id="{{ $income->invoice_id }}"
+                                                                                            data-tipo="ingreso"
+                                                                                            data-tabla="ingreso"
+                                                                                            disabled>
+                                                                                            <i
+                                                                                                class="fas fa-link me-2"></i>
+                                                                                            Relacionar Facturas
+                                                                                            y Crear Ingreso
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <th class="text-center"
+                                                                                    style="width: 50px;">✓</th>
+                                                                                <th>Referencia</th>
+                                                                                <th>Concepto</th>
+                                                                                <th>Fecha</th>
+                                                                                <th class="text-end">Importe
+                                                                                </th>
+                                                                                <th>Pendiente de pago</th>
+                                                                                <th class="text-end"
+                                                                                    style="width: 250px !important;">
+                                                                                    Importe Asignado</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td colspan="7">
+                                                                                    <div class="input-group mb-3">
+                                                                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                                                                        <input type="text" class="form-control" id="search-invoice-{{ $income->id }}" placeholder="Buscar factura..." onkeyup="filterInvoices({{ $income->id }})">
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            @foreach ($invoices as $invoice)
+                                                                                <tr>
+                                                                                    <td class="text-center">
+                                                                                        <div
+                                                                                            class="form-check">
+                                                                                            <input
+                                                                                                type="checkbox"
+                                                                                                class="form-check-input invoice-checkbox"
+                                                                                                data-amount="{{ $invoice->amount }}"
+                                                                                                data-income-id="{{ $income->id }}"
+                                                                                                onchange="toggleAmountInput(this)"
+                                                                                                data-invoice-id="{{ $invoice->id }}">
+                                                                                        </div>
+                                                                                    </td>
+                                                                                    <td>{{ $invoice->reference }}
+                                                                                    </td>
+                                                                                    <td>{{ $invoice->concept }}
+                                                                                    </td>
+                                                                                    <td>{{ $invoice->created_at ? \Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y') : 'N/A' }}
+                                                                                    </td>
+                                                                                    <td class="text-end">
+                                                                                        {{ number_format($invoice->total, 2) }}€
+                                                                                    </td>
+                                                                                    @php $totalIngresos = []; @endphp
+                                                                                    <td>
+                                                                                        @if (count($invoice['ingresos']) > 0)
+                                                                                            @foreach ($invoice['ingresos'] as $ingreso)
+                                                                                                @php
+                                                                                                    if (!isset($totalIngresos[$invoice->id])) {
+                                                                                                        $totalIngresos[$invoice->id] = 0;
+                                                                                                    }
+                                                                                                    $totalIngresos[$invoice->id] += $ingreso->quantity;
+                                                                                                @endphp
+                                                                                            @endforeach
+                                                                                            <span
+                                                                                                style="color: red; font-size: 14px;">{{ $invoice->total - $totalIngresos[$invoice->id] }}</span>
+                                                                                        @else
+                                                                                            <span><i
+                                                                                                    class="fas fa-dollar-sign text-danger"></i></span>
+                                                                                        @endif
+                                                                                    </td>
+                                                                                    <td style="width: 200px;">
+                                                                                        <input type="number"
+                                                                                            class="form-control form-control-lg amount-input"
+                                                                                            id="amount-input-{{ $income->id }}-{{ $invoice->id }}"
+                                                                                            style="display: none; width: 100%; height: 50px; font-size: 18px; padding: 10px;"
+                                                                                            min="0"
+                                                                                            max="@if (isset($totalIngresos[$invoice->id]) && $totalIngresos[$invoice->id] > 0) {{ $invoice->total - $totalIngresos[$invoice->id] }} @else {{ $invoice->total }} @endif"
+                                                                                            step="0.01"
+                                                                                            data-original-amount="@if (isset($totalIngresos[$invoice->id]) && $totalIngresos[$invoice->id] > 0) {{ $invoice->total - $totalIngresos[$invoice->id] }} @else {{ $invoice->total }} @endif"
+                                                                                            oninput="updateTotal({{ $income->id }}, {{ $income->amount }})"
+                                                                                            >
+                                                                                    </td>
+                                                                                </tr>
+                                                                                @if (count($invoice['ingresos']) > 0)
+                                                                                    @foreach ($invoice['ingresos'] as $ingreso)
+                                                                                        <tr>
+                                                                                            <td colspan="3"
+                                                                                                class="text-end border-0"
+                                                                                                style="color: green; font-size: 12px;">
+                                                                                                {{ $ingreso->title }}
+                                                                                            </td>
+                                                                                            <td class="text-end border-0"
+                                                                                                style="color: green; font-size: 12px;">
+                                                                                                {{ $ingreso->date }}
+                                                                                            </td>
+                                                                                            <td class="text-end border-0"
+                                                                                                style="color: green; font-size: 12px;">
+                                                                                                {{ $ingreso->quantity }}
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    @endforeach
+                                                                                @endif
+                                                                            @endforeach
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {{-- Coincidencias --}}
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-3 fw-bold">Elige una coincidencia:</h6>
+                                                    @if ($income->relaciones && count($income->relaciones) > 0)
+                                                        <div class="table-responsive"
+                                                            style="max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.5rem; box-shadow: 0 0 5px rgba(0,0,0,0.05);">
+                                                            <table id="table-ingresos"
+                                                                class="table table-sm table-hover mb-0 w-100">
+                                                                <thead class="table-light sticky-top"
+                                                                    style="top: 0; z-index: 1;">
+                                                                    <tr>
+                                                                        <th>Aceptar</th>
+                                                                        <th>ID</th>
+                                                                        <th>Tipo</th>
+                                                                        <th>Referencia</th>
+                                                                        <th>Importe</th>
+                                                                        <th>Fecha</th>
+                                                                        <th>Ver</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach ($income->relaciones as $relacion)
+                                                                        <tr>
+                                                                            <td>
+                                                                                <input type="radio"
+                                                                                    name="aceptar_{{ $income->id }}"
+                                                                                    value="{{ $relacion['modelo']->id }}"
+                                                                                    data-tabla="{{ $relacion['tabla'] }}"
+                                                                                    onchange="toggleAceptarButton({{ $income->id }})">
+                                                                            </td>
+                                                                            <td>{{ $relacion['modelo']->id }}
+                                                                            </td>
+                                                                            <td>{{ $relacion['tabla'] }}</td>
+                                                                            <td>{{ $relacion['modelo']->reference ?? ($relacion['modelo']->invoice_number ?? 'N/A') }}
+                                                                            </td>
+                                                                            <td>{{ $relacion['modelo']->amount ?? ($relacion['modelo']->quantity ?? ($relacion['modelo']->total ?? 'N/A')) }}
+                                                                            </td>
+                                                                            <td>{{ $relacion['modelo']->date ? \Carbon\Carbon::parse($relacion['modelo']->date)->format('d/m/Y') : ($relacion['modelo']->paid_date ? \Carbon\Carbon::parse($relacion['modelo']->paid_date)->format('d/m/Y') : ($relacion['modelo']->creation_date ? \Carbon\Carbon::parse($relacion['modelo']->creation_date)->format('d/m/Y') : 'N/A')) }}
+                                                                            </td>
+                                                                            <td>
+                                                                                <a href="{{ route('tesoreria.contabilizar-ia.showGenerico', [
+                                                                                    'tabla' => $relacion['tabla'],
+                                                                                    'id' => $relacion['modelo']->id,
+                                                                                ]) }}"
+                                                                                    class="btn btn-primary btn-sm">Ver</a>
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-3">
+                                                <div class="col-12 text-end">
+                                                    <button type="button" class="btn btn-success me-2"
+                                                        id="btn-aceptar-{{ $income->id }}"
+                                                        onclick="aceptarRelacion({{ $income->id }}, 'ingreso', this)"
+                                                        disabled>Aceptar
+                                                        coincidencia</button>
+                                                    <button type="button" class="btn btn-primary"
+                                                        onclick="crearIngreso(this)"
+                                                        data-company="{{ $income->company_name }}"
+                                                        data-bank="{{ $income->bank }}"
+                                                        data-iban="{{ $income->iban }}"
+                                                        data-amount="{{ $income->amount }}"
+                                                        data-date="{{ $income->received_date }}"
+                                                        data-message="{{ $income->message }}"
+                                                        data-unclassified-id="{{ $income->id }}">
+                                                        <i class="fas fa-plus-circle me-2"></i>Rechazar
+                                                        relaciones y crear ingreso.
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    @else
+                                        <div class="alert alert-info mb-3">
+                                            <strong>No se ha encontrado una coincidencia.</strong>
+                                            <p class="mb-0 mt-2">Crea un movimiento para asociar la
+                                                transacción:</p>
+                                        </div>
+
+                                        <div class="d-flex gap-3 mb-4">
+                                            <button type="button" class="btn btn-primary"
+                                                onclick="crearIngreso(this)"
+                                                data-company="{{ $income->company_name }}"
+                                                data-bank="{{ $income->bank }}"
+                                                data-iban="{{ $income->iban }}"
+                                                data-amount="{{ $income->amount }}"
+                                                data-date="{{ $income->received_date }}"
+                                                data-message="{{ $income->message }}"
+                                                data-unclassified-id="{{ $income->id }}">
+                                                <i class="fas fa-plus-circle me-2"></i>Crear Ingreso
+                                            </button>
+                                        </div>
+
+                                        <div class="card mb-4">
+                                            <div class="card-body">
+                                                <h6 class="card-title mb-3">Configuración de Transferencia</h6>
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label for="origen-{{ $income->id }}"
+                                                            class="form-label">Banco Origen</label>
+                                                        <select class="form-select"
+                                                            id="origen-{{ $income->id }}" name="origen">
+                                                            <option value="">Seleccione banco origen
+                                                            </option>
+                                                            @foreach ($banks as $bank)
+                                                                <option value="{{ $bank->id }}">
+                                                                    {{ $bank->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="destino-{{ $income->id }}"
+                                                            class="form-label">Banco Destino</label>
+                                                        <select class="form-select"
+                                                            id="destino-{{ $income->id }}" name="destino">
+                                                            <option value="">Seleccione banco destino
+                                                            </option>
+                                                            @foreach ($banks as $bank)
+                                                                <option value="{{ $bank->id }}">
+                                                                    {{ $bank->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex gap-3">
+                                            <button type="button" class="btn btn-success"
+                                                onclick="crearTransferencia(this)"
+                                                data-company="{{ $income->company_name }}"
+                                                data-bank="{{ $income->bank }}"
+                                                data-iban="{{ $income->iban }}"
+                                                data-amount="{{ $income->amount }}"
+                                                data-date="{{ $income->received_date }}"
+                                                data-message="{{ $income->message }}"
+                                                data-unclassified-id="{{ $income->id }}"
+                                                data-tabla="ingreso">
+                                                <i class="fas fa-exchange-alt me-2"></i>Crear Transferencia
+                                            </button>
+                                        </div>
+                            @endif
+                            </td>
+                            </tr>
+            @endforeach
+            </tbody>
+            </table>
+        </div>
+        @endif
+
+        @if (!empty($unclassifiedExpenses) && count($unclassifiedExpenses) > 0)
+            <strong>Gastos No Clasificados</strong>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Empresa</th>
+                            <th>Banco</th>
+                            <th>IBAN</th>
+                            <th>Cantidad</th>
+                            <th>Fecha</th>
+                            <th>Mensaje</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($unclassifiedExpenses as $expense)
+                            <tr id="gasto-{{ $expense->id }}">
+                                <td>{{ $expense->company_name }}</td>
+                                <td>{{ $expense->bank }}</td>
+                                <td>{{ $expense->iban }}</td>
+                                <td>{{ number_format($expense->amount, 2) }}€</td>
+                                <td>{{ $expense->received_date ? \Carbon\Carbon::parse($expense->received_date)->format('d/m/Y') : 'N/A' }}
+                                </td>
+                                <td>{{ $expense->message }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-info btn-sm toggle-details"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#details-{{ $expense->id }}" aria-expanded="false"
+                                        aria-controls="details-{{ $expense->id }}">
+                                        <span class="toggle-text">Ver Detalles</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="7">
+                                    <div id="details-{{ $expense->id }}"
+                                        class="collapse details-content p-3 border rounded bg-light">
+                                        <div class="row g-3">
+                                            {{-- Información del Movimiento --}}
+                                            <div class="col-md-4">
+                                                <h6 class="mb-3 fw-bold">Información del Movimiento</h6>
+                                                <div class="p-3 bg-white border rounded shadow-sm">
+                                                    <p><strong>Empresa:</strong> {{ $expense->company_name }}
+                                                    </p>
+                                                    <p><strong>Banco:</strong> {{ $expense->bank }}</p>
+                                                    <p><strong>IBAN:</strong> {{ $expense->iban }}</p>
+                                                    <p><strong>Cantidad:</strong>
+                                                        {{ number_format($expense->amount, 2) }}€</p>
+                                                    <p><strong>Fecha:</strong>
+                                                        {{ $expense->received_date ? \Carbon\Carbon::parse($expense->received_date)->format('d/m/Y') : 'N/A' }}
+                                                    </p>
+                                                    <p><strong>Mensaje:</strong> {{ $expense->message }}</p>
+                                                </div>
+                                            </div>
+
+                                            {{-- Coincidencias --}}
+                                            <div class="col-md-8">
+                                                <h6 class="mb-3 fw-bold">Elige una coincidencia:</h6>
+                                                @if ($expense->relaciones && count($expense->relaciones) > 0)
+                                                    <div class="table-responsive"
+                                                        style="max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.5rem; box-shadow: 0 0 5px rgba(0,0,0,0.05);">
+                                                        <table id="table-gastos"
+                                                            class="table table-sm table-hover mb-0">
+                                                            <thead class="table-light sticky-top"
+                                                                style="top: 0; z-index: 1;">
+                                                                <tr>
+                                                                    <th>Aceptar</th>
+                                                                    <th>ID</th>
+                                                                    <th>Tipo</th>
+                                                                    <th>Referencia</th>
+                                                                    <th>Importe</th>
+                                                                    <th>Fecha</th>
+                                                                    <th>Ver</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ($expense->relaciones as $relacion)
+                                                                    <tr>
+                                                                        <td>
+                                                                            <input type="radio"
+                                                                                name="aceptar_{{ $expense->id }}"
+                                                                                value="{{ $relacion['modelo']->id }}"
+                                                                                data-tabla="{{ $relacion['tabla'] }}">
+                                                                        </td>
+                                                                        <td>{{ $relacion['modelo']->id }}</td>
+                                                                        <td>{{ $relacion['tabla'] }}</td>
+                                                                        <td>{{ $relacion['modelo']->reference ?? ($relacion['modelo']->invoice_number ?? 'N/A') }}
+                                                                        </td>
+                                                                        <td>{{ $relacion['modelo']->amount ?? ($relacion['modelo']->quantity ?? ($relacion['modelo']->total ?? 'N/A')) }}
+                                                                        </td>
+                                                                        <td>{{ $relacion['modelo']->date ? \Carbon\Carbon::parse($relacion['modelo']->date)->format('d/m/Y') : ($relacion['modelo']->paid_date ? \Carbon\Carbon::parse($relacion['modelo']->paid_date)->format('d/m/Y') : ($relacion['modelo']->creation_date ? \Carbon\Carbon::parse($relacion['modelo']->creation_date)->format('d/m/Y') : 'N/A')) }}
+                                                                        </td>
+                                                                        <td>
+                                                                            <a href="{{ route('tesoreria.contabilizar-ia.showGenerico', [
+                                                                                'tabla' => $relacion['tabla'],
+                                                                                'id' => $relacion['modelo']->id,
+                                                                            ]) }}"
+                                                                                class="btn btn-primary btn-sm">Ver</a>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                    <div class="row mt-3">
+                                                        <div class="col-12 text-end">
+                                                            <button type="button"
+                                                                class="btn btn-success me-2"
+                                                                onclick="aceptarRelacion({{ $expense->id }}, 'gasto', this)">
+                                                                <i class="fas fa-check-circle me-2"></i>Aceptar
+                                                                coincidencia
+                                                            </button>
+                                                            <button type="button"
+                                                                class="btn btn-primary me-2"
+                                                                onclick="crearMovimiento(this)"
+                                                                data-company="{{ $expense->company_name }}"
+                                                                data-bank="{{ $expense->bank }}"
+                                                                data-iban="{{ $expense->iban }}"
+                                                                data-amount="{{ $expense->amount }}"
+                                                                data-date="{{ $expense->received_date }}"
+                                                                data-message="{{ $expense->message }}"
+                                                                data-unclassified-id="{{ $expense->id }}">
+                                                                <i class="fas fa-plus-circle me-2"></i>Rechazar
+                                                                relaciones y crear gasto
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="alert alert-info mb-3">
+                                                        <strong>No se ha encontrado una coincidencia.</strong>
+                                                        <p class="mb-0 mt-2">Crea un movimiento para asociar la
+                                                            transacción:</p>
+                                                    </div>
+
+                                                    <div class="d-flex gap-3 mb-4">
+                                                        <button type="button" class="btn btn-primary h-100"
+                                                            onclick="crearMovimiento(this)"
+                                                            data-company="{{ $expense->company_name }}"
+                                                            data-bank="{{ $expense->bank }}"
+                                                            data-iban="{{ $expense->iban }}"
+                                                            data-amount="{{ $expense->amount }}"
+                                                            data-date="{{ $expense->received_date }}"
+                                                            data-message="{{ $expense->message }}"
+                                                            data-unclassified-id="{{ $expense->id }}">
+                                                            <i class="fas fa-plus-circle me-2"></i>Crear Gasto
+                                                        </button>
+                                                    </div>
+
+                                                    <div class="card mb-4">
+                                                        <div class="card-body">
+                                                            <h6 class="card-title mb-3">Configuración de
+                                                                Transferencia</h6>
+                                                            <div class="row g-3">
+                                                                <div class="col-md-6">
+                                                                    <label for="origen-{{ $expense->id }}"
+                                                                        class="form-label">Banco Origen</label>
+                                                                    <select class="form-select"
+                                                                        id="origen-{{ $expense->id }}"
+                                                                        name="origen">
+                                                                        <option value="">Seleccione banco
+                                                                            origen
+                                                                        </option>
+                                                                        @foreach ($banks as $bank)
+                                                                            <option
+                                                                                value="{{ $bank->id }}">
+                                                                                {{ $bank->name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <label for="destino-{{ $expense->id }}"
+                                                                        class="form-label">Banco
+                                                                        Destino</label>
+                                                                    <select class="form-select"
+                                                                        id="destino-{{ $expense->id }}"
+                                                                        name="destino">
+                                                                        <option value="">Seleccione banco
+                                                                            destino
+                                                                        </option>
+                                                                        @foreach ($banks as $bank)
+                                                                            <option
+                                                                                value="{{ $bank->id }}">
+                                                                                {{ $bank->name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <button type="button" class="btn btn-success"
+                                                        onclick="crearTransferencia(this)"
+                                                        data-company="{{ $expense->company_name }}"
+                                                        data-bank="{{ $expense->bank }}"
+                                                        data-iban="{{ $expense->iban }}"
+                                                        data-amount="{{ $expense->amount }}"
+                                                        data-date="{{ $expense->received_date }}"
+                                                        data-message="{{ $expense->message }}"
+                                                        data-unclassified-id="{{ $expense->id }}"
+                                                        data-tabla="gasto">
+                                                        <i class="fas fa-exchange-alt me-2"></i>Crear
+                                                        Transferencia
+                                                    </button>
+                                                @endif
+                                            </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+</div>
+</div>
+</div>
+</div>
 @endsection
 
 @section('scripts')
@@ -1388,5 +1986,645 @@
     });
 </script>
 
-@endsection
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.toggle-details').forEach(button => {
+            const targetId = button.getAttribute('data-bs-target');
+            const target = document.querySelector(targetId);
 
+            const collapse = new bootstrap.Collapse(target, {
+                toggle: false
+            });
+
+            button.addEventListener('click', function() {
+                const isShown = target.classList.contains('show');
+
+                // Si estamos ocultando, ocultar todos los detalles
+                if (isShown) {
+                    document.querySelectorAll('.details-content').forEach(detail => {
+                        const detailCollapse = bootstrap.Collapse.getInstance(detail);
+                        if (detailCollapse) {
+                            detailCollapse.hide();
+                        }
+                    });
+                    // Actualizar todos los botones a "Ver Detalles"
+                    document.querySelectorAll('.toggle-text').forEach(span => {
+                        span.textContent = 'Ver Detalles';
+                    });
+                } else {
+                    // Si estamos mostrando, primero ocultar todos los demás
+                    document.querySelectorAll('.details-content').forEach(detail => {
+                        if (detail !== target) {
+                            const detailCollapse = bootstrap.Collapse.getInstance(
+                                detail);
+                            if (detailCollapse) {
+                                detailCollapse.hide();
+                            }
+                        }
+                    });
+                    // Actualizar todos los botones a "Ver Detalles" excepto el actual
+                    document.querySelectorAll('.toggle-text').forEach(span => {
+                        if (span !== button.querySelector('.toggle-text')) {
+                            span.textContent = 'Ver Detalles';
+                        }
+                    });
+                    collapse.show();
+                }
+                if (isShown) {
+                    target.classList.remove('show');
+                }
+                const span = button.querySelector('.toggle-text');
+            });
+        });
+    });
+</script>
+<script>
+    function rechazarRelacion(id, tipo) {
+        if (confirm('¿Estás seguro de que deseas rechazar esta relación?')) {
+            fetch(`/tesoreria/rechazar-relacion/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        tipo: tipo
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Recargar la página para mostrar los cambios
+                        window.location.reload();
+                    } else {
+                        alert('Error al rechazar la relación: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al procesar la solicitud');
+                });
+        }
+    }
+</script>
+<script>
+    function toggleAceptarButton(id) {
+        const selectedRadio = document.querySelector(`input[name="aceptar_${id}"]:checked`);
+        const aceptarButton = document.getElementById(`btn-aceptar-${id}`);
+
+        if (selectedRadio) {
+            aceptarButton.disabled = false;
+        } else {
+            aceptarButton.disabled = true;
+        }
+    }
+</script>
+
+<script>
+    function aceptarRelacion(unclassifiedId, tipo, button) {
+        // Obtener el contenedor específico del botón que se hizo clic
+        const container = document.querySelector(`#details-${unclassifiedId}`);
+        // Obtener el radio button seleccionado dentro de este contenedor específico
+        const selectedRadio = container.querySelector(`input[name="aceptar_${unclassifiedId}"]:checked`);
+
+        if (!selectedRadio) {
+            alert("Debes seleccionar una coincidencia para aceptar.");
+            return;
+        }
+
+        const selectedId = selectedRadio.value;
+        const selectedTabla = selectedRadio.dataset.tabla;
+
+        $.ajax({
+            url: "{{ route('tesoreria.acceptCoincidencias') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                unclassified_id: unclassifiedId,
+                tipo: tipo,
+                coincidencia_id: selectedId,
+                tabla: selectedTabla
+            },
+            success: function(response) {
+                const detailsRow = $(button).closest('tr'); // fila de detalles
+                const mainRow = detailsRow.prev('tr'); // fila principal justo encima
+
+                detailsRow.remove();
+                mainRow.remove();
+
+                // Verificar si hay más filas en las tablas
+                const remainingRows = $('.table-responsive table tbody tr').length;
+
+                if (remainingRows === 0) {
+                    // Si no hay más filas, cerrar el modal
+                    $('#unclassifiedModal').modal('hide');
+                }
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+                alert("Ocurrió un error al aceptar la coincidencia.");
+            }
+
+        });
+    }
+
+    // Cuando se cierre el modal unclassified mostar alertas con funcion mostrarTiposDeAlertas
+    document.addEventListener('DOMContentLoaded', function() {
+        const unclassifiedModal = document.getElementById('unclassifiedModal');
+        if (unclassifiedModal) {
+            unclassifiedModal.addEventListener('hidden.bs.modal', function() {
+                mostrarTiposDeAlertas();
+            });
+        }
+    });
+
+    function rechazarRelacionYCrearGasto(button) {
+        const unclassifiedId = button.getAttribute('data-unclassified-id');
+        const tipo = button.getAttribute('data-tipo');
+        const tabla = button.getAttribute('data-tabla');
+
+        rechazarRelacion(unclassifiedId, tipo, tabla);
+        crearMovimiento(button);
+    }
+
+    function rechazarRelacionYCrearIngreso(button) {
+        const unclassifiedId = button.getAttribute('data-unclassified-id');
+        const tipo = button.getAttribute('data-tipo');
+        const tabla = button.getAttribute('data-tabla');
+
+        rechazarRelacion(unclassifiedId, tipo, tabla);
+        crearIngreso(button);
+    }
+
+
+    function crearMovimiento(button) {
+        const company = button.getAttribute('data-company');
+        const bank = button.getAttribute('data-bank');
+        const iban = button.getAttribute('data-iban');
+        const amount = button.getAttribute('data-amount');
+        const date = button.getAttribute('data-date');
+        const message = button.getAttribute('data-message');
+        const unclassifiedId = button.getAttribute('data-unclassified-id');
+
+        $.ajax({
+            url: "{{ route('tesoreria.gasto-store-api') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                company_name: company,
+                bank: bank,
+                iban: iban,
+                quantity: amount,
+                date: date,
+                title: message,
+                reference: message,
+                id: unclassifiedId
+            },
+            success: function(response) {
+                if (response.success) {
+                    const detailsRow = $(button).closest('tr'); // fila de detalles
+                    const mainRow = detailsRow.prev('tr'); // fila principal justo encima
+
+                    detailsRow.remove();
+                    mainRow.remove();
+
+                    // Verificar si hay más filas en las tablas
+                    const remainingRows = $('.table-responsive table tbody tr').length;
+
+                    if (remainingRows === 0) {
+                        // Si no hay más filas, cerrar el modal
+                        $('#unclassifiedModal').modal('hide');
+                    }
+                } else {
+                    toastr.error('Error al crear el gasto');
+                }
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+                toastr.error('Ocurrió un error al crear el gasto');
+            }
+        });
+    }
+
+    function crearMovimientoAsociado(button) {
+        const company = button.getAttribute('data-company');
+        const bank = button.getAttribute('data-bank');
+        const iban = button.getAttribute('data-iban');
+        const amount = button.getAttribute('data-amount');
+        const date = button.getAttribute('data-date');
+        const message = button.getAttribute('data-message');
+        const unclassifiedId = button.getAttribute('data-unclassified-id');
+
+        $.ajax({
+            url: "{{ route('tesoreria.gasto-store-api') }}", // Using the same endpoint as crearMovimiento
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                company_name: company,
+                bank: bank,
+                iban: iban,
+                quantity: amount, // Changed from amount to quantity to match the API
+                date: date,
+                title: message,
+                reference: message, // Added reference field
+                id: unclassifiedId
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Remove the expense rows
+                    const detailsRow = $(button).closest('tr'); // fila de detalles
+                    const mainRow = detailsRow.prev('tr'); // fila principal justo encima
+
+                    detailsRow.remove();
+                    mainRow.remove();
+
+                    // Verificar si hay más filas en las tablas
+                    const remainingRows = $('.table-responsive table tbody tr').length;
+
+                    if (remainingRows === 0) {
+                        // Si no hay más filas, cerrar el modal
+                        $('#unclassifiedModal').modal('hide');
+                    }
+                } else {
+                    toastr.error('Error al crear el gasto asociado');
+                }
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+                toastr.error('Ocurrió un error al crear el gasto asociado');
+            }
+        });
+    }
+
+    function crearIngreso(button) {
+        const company = button.getAttribute('data-company');
+        const bank = button.getAttribute('data-bank');
+        const iban = button.getAttribute('data-iban');
+        const amount = button.getAttribute('data-amount');
+        const date = button.getAttribute('data-date');
+        const message = button.getAttribute('data-message');
+        const unclassifiedId = button.getAttribute('data-unclassified-id');
+
+        $.ajax({
+            url: "{{ route('tesoreria.ingreso-store-api') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                company_name: company,
+                bank: bank,
+                iban: iban,
+                quantity: amount,
+                date: date,
+                title: message,
+                reference: message,
+                id: unclassifiedId
+            },
+            success: function(response) {
+                if (response.success) {
+                    const detailsRow = $(button).closest('tr'); // fila de detalles
+                    const mainRow = detailsRow.prev('tr'); // fila principal justo encima
+
+                    detailsRow.remove();
+                    mainRow.remove();
+
+                    // Verificar si hay más filas en las tablas
+                    const remainingRows = $('.table-responsive table tbody tr').length;
+
+                    if (remainingRows === 0) {
+                        // Si no hay más filas, cerrar el modal
+                        $('#unclassifiedModal').modal('hide');
+                    }
+                } else {
+                    toastr.error('Error al crear el gasto');
+                }
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+                toastr.error('Ocurrió un error al crear el gasto');
+            }
+        });
+    }
+
+    function crearTransferencia(button) {
+        const unclassifiedId = button.dataset.unclassifiedId;
+        const origenId = document.getElementById(`origen-${unclassifiedId}`).value;
+        const destinoId = document.getElementById(`destino-${unclassifiedId}`).value;
+
+        if (!origenId || !destinoId) {
+            alert('Por favor seleccione tanto el banco origen como el destino');
+            return;
+        }
+
+        $.ajax({
+            url: "{{ route('tesoreria.transferencia-store-api') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                company_name: button.dataset.company,
+                bank: button.dataset.bank,
+                iban: button.dataset.iban,
+                amount: button.dataset.amount,
+                date: button.dataset.date,
+                message: button.dataset.message,
+                unclassified_id: unclassifiedId,
+                origen_id: origenId,
+                destino_id: destinoId,
+                id: unclassifiedId,
+                tabla: button.dataset.tabla
+            },
+            success: function(response) {
+                if (response.success) {
+                    const detailsRow = $(button).closest('tr'); // fila de detalles
+                    const mainRow = detailsRow.prev('tr'); // fila principal justo encima
+
+                    detailsRow.remove();
+                    mainRow.remove();
+
+                    // Verificar si hay más filas en las tablas
+                    const remainingRows = $('.table-responsive table tbody tr').length;
+
+                    if (remainingRows === 0) {
+                        // Si no hay más filas, cerrar el modal
+                        $('#unclassifiedModal').modal('hide');
+                    }
+
+                    toastr.success('Transferencia creada correctamente');
+                } else {
+                    toastr.error(response.message || 'Error al crear la transferencia');
+                }
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+                toastr.error('Error al crear la transferencia');
+            }
+        });
+    }
+
+    // Debounce para evitar ralentizar con muchas teclas
+    function debounce(func, delay) {
+        let timer;
+        return function(...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Abrir dropdown manualmente (porque no se abre solo al escribir)
+    function openBudgetDropdown(input) {
+        const dropdown = input.nextElementSibling;
+        dropdown.classList.add('show');
+    }
+
+    // Filtrar presupuestos con debounce
+    const filterBudgets = debounce(function(input) {
+        const filter = input.value.toLowerCase();
+        const dropdown = input.nextElementSibling;
+        const items = dropdown.querySelectorAll('.budget-item');
+
+        let anyVisible = false;
+
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            const match = text.includes(filter);
+            item.style.display = match ? '' : 'none';
+            if (match) anyVisible = true;
+        });
+
+        dropdown.classList.toggle('show', anyVisible);
+    }, 200);
+
+    function updateTotal(incomeId, invoiceAmount) {
+        // Obtener todos los inputs que pertenecen a este income
+        const inputs = document.querySelectorAll(`[id^="amount-input-${incomeId}-"]`);
+        const checkboxes = document.querySelectorAll(`.invoice-checkbox[data-income-id="${incomeId}"]:checked`);
+        let total = 0;
+        let hasCheckedBoxes = checkboxes.length > 0;
+        let hasValidInputs = true;
+
+        inputs.forEach(input => {
+            if (input.style.display !== 'none') { // Solo sumar inputs visibles
+                // Obtener el valor máximo permitido
+                const maxValue = parseFloat(input.getAttribute('max')) || 0;
+                let value = parseFloat(input.value) || 0;
+
+                // Si el valor excede el máximo, establecer el valor máximo
+                if (value > maxValue) {
+                    value = maxValue;
+                    input.value = maxValue.toFixed(2);
+                }
+
+                total += value;
+                // Verificar si el input tiene un valor válido (mayor que 0)
+                if (value <= 0) {
+                    hasValidInputs = false;
+                }
+            }
+        });
+
+        // Actualizar el total y el botón
+        const totalElement = document.querySelector(`#total-${incomeId}`);
+        const relateButton = document.querySelector(`#relate-button-${incomeId}`);
+        const originalAmount = parseFloat(invoiceAmount || 0);
+
+        if (totalElement && relateButton) {
+            // Actualizar el texto del total
+            totalElement.textContent = `Total: ${total.toFixed(2)}€`;
+
+            // Verificar condiciones
+            const isAmountEqual = Math.abs(total - originalAmount) < 0.01;
+            const isValid = hasCheckedBoxes && isAmountEqual && hasValidInputs;
+
+            // Actualizar estilos y estado del botón
+            if (isValid) {
+                totalElement.style.color = 'green';
+                relateButton.disabled = false;
+                relateButton.classList.remove('btn-danger');
+                relateButton.classList.add('btn-primary');
+            } else {
+                totalElement.style.color = 'red';
+                relateButton.disabled = true;
+                relateButton.classList.remove('btn-primary');
+                relateButton.classList.add('btn-danger');
+            }
+
+            // Añadir tooltip con la razón de la desactivación
+            let tooltipText = '';
+            if (!hasCheckedBoxes) {
+                tooltipText = 'Debe seleccionar al menos una factura';
+            } else if (!hasValidInputs) {
+                tooltipText = 'Los importes asignados deben ser mayores que 0';
+            } else if (!isAmountEqual) {
+                tooltipText = 'El total debe coincidir con el importe original';
+            }
+
+            // Actualizar o crear tooltip
+            if (tooltipText) {
+                relateButton.setAttribute('title', tooltipText);
+                relateButton.setAttribute('data-bs-toggle', 'tooltip');
+                relateButton.setAttribute('data-bs-placement', 'top');
+
+                // Inicializar tooltip si no existe
+                if (!relateButton._tooltip) {
+                    relateButton._tooltip = new bootstrap.Tooltip(relateButton);
+                } else {
+                    relateButton._tooltip.dispose();
+                    relateButton._tooltip = new bootstrap.Tooltip(relateButton);
+                }
+            } else {
+                // Eliminar tooltip si existe
+                if (relateButton._tooltip) {
+                    relateButton._tooltip.dispose();
+                    relateButton._tooltip = null;
+                }
+                relateButton.removeAttribute('title');
+                relateButton.removeAttribute('data-bs-toggle');
+                relateButton.removeAttribute('data-bs-placement');
+            }
+        }
+    }
+
+    // Añadir evento input para validar el máximo en tiempo real
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.amount-input').forEach(input => {
+            input.addEventListener('input', function() {
+                const maxValue = parseFloat(this.getAttribute('max')) || 0;
+                let value = parseFloat(this.value) || 0;
+
+                if (value > maxValue) {
+                    this.value = maxValue.toFixed(2);
+                    // Disparar el evento updateTotal
+                    const incomeId = this.id.split('-')[2];
+                    const originalAmount = parseFloat(this.dataset.originalAmount || 0);
+                    updateTotal(incomeId, originalAmount);
+                }
+            });
+        });
+    });
+
+    function toggleAmountInput(checkbox) {
+
+        const row = checkbox.closest('tr');
+        const amountInput = row.querySelector('.amount-input');
+        const incomeId = checkbox.dataset.incomeId;
+
+        // Mostrar/ocultar input
+        amountInput.style.display = checkbox.checked ? 'block' : 'none';
+
+
+        // Actualizar total
+        const originalAmount = parseFloat(checkbox.dataset.amount || 0);
+        updateTotal(incomeId, originalAmount);
+    }
+
+    // Inicializar tooltips cuando el documento esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar todos los tooltips existentes
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
+    function rechazarYAsociarFacturas(button) {
+        const unclassifiedId = button.getAttribute('data-unclassified-id');
+        const tipo = button.getAttribute('data-tipo');
+        const tabla = button.getAttribute('data-tabla');
+
+        rechazarRelacion(unclassifiedId, tipo, tabla);
+        asociarFacturas(button);
+    }
+
+    function relacionarFacturasYCrearIngreso(button) {
+        const incomeId = button.getAttribute('data-unclassified-id');
+        const checkboxes = document.querySelectorAll(`.invoice-checkbox[data-income-id='${incomeId}']:checked`);
+        const bank = button.getAttribute('data-bank');
+        const date = button.getAttribute('data-date');
+        const title = button.getAttribute('data-message');
+        let facturasSeleccionadas = [];
+
+        checkboxes.forEach(checkbox => {
+            const invoiceId = checkbox.getAttribute('data-invoice-id');
+            const input = document.querySelector(`#amount-input-${incomeId}-${invoiceId}`);
+            const amountAsignado = input ? parseFloat(input.value || 0) : 0;
+
+            facturasSeleccionadas.push({
+                id: invoiceId,
+                importe: amountAsignado
+            });
+        });
+
+        $.ajax({
+            url: '{{ route('tesoreria.multi-ingreso') }}',
+            method: 'POST',
+            data: {
+                facturas: facturasSeleccionadas,
+                income_id: incomeId,
+                date: date,
+                bank: bank,
+                title: title,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Buscar el contenedor de detalles
+                    const detailsContainer = document.querySelector(`#ingreso-${incomeId}`);
+                    if (detailsContainer) {
+                        // Eliminar la fila que contiene los detalles
+                            detailsContainer.remove();
+                    }
+
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Operación exitosa',
+                        text: 'Las facturas han sido relacionadas correctamente',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Error al procesar la solicitud',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al procesar la solicitud',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        });
+    }
+
+
+function filterInvoices(incomeId) {
+    const searchTerm = document.getElementById(`search-invoice-${incomeId}`).value.toLowerCase();
+    const table = document.querySelector(`#details-${incomeId} table tbody`);
+    const rows = table.querySelectorAll('tr:not(:first-child)'); // Excluir la fila del buscador
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+
+@endsection

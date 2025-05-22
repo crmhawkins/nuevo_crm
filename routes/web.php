@@ -6,6 +6,7 @@ use App\Http\Controllers\Bajas\BajaController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Suppliers\SuppliersController;
 use App\Http\Controllers\Tesoreria\CuadroController;
+use App\Http\Controllers\Tesoreria\TesoreriaContabilizarIa;
 use App\Http\Controllers\To_do\To_doController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -682,3 +683,16 @@ Route::get('/kit-digital/create-comercial', [KitDigitalController::class, 'creat
 Route::post('/kit-digital/store-comercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');
 
 Route::get('/test', [test::class, 'test']);
+
+
+Route::prefix('tesoreria')->group(function () {
+    Route::get('/contabilizar-ia', [TesoreriaContabilizarIa::class, 'index'])->name('tesoreria.contabilizar-ia');
+    Route::post('/contabilizar-ia/upload', [TesoreriaContabilizarIa::class, 'upload'])->name('tesoreria.contabilizar-ia.upload');
+    Route::get('/show-generico', [TesoreriaContabilizarIa::class, 'showGenerico'])->name('tesoreria.contabilizar-ia.showGenerico');
+    Route::post('/accept-coincidencias', [TesoreriaContabilizarIa::class, 'acceptCoincidencias'])->name('tesoreria.acceptCoincidencias');
+    Route::post('/reject-coincidencias', [TesoreriaContabilizarIa::class, 'rejectCoincidencias'])->name('tesoreria.rejectCoincidencias');
+    Route::post('/gasto-store-api', [TesoreriaController::class, 'storeGastosApi'])->name('tesoreria.gasto-store-api');
+    Route::post('/ingreso-store-api', [TesoreriaController::class, 'storeIngresosApi'])->name('tesoreria.ingreso-store-api');
+    Route::post('/transferencia-store-api', [TesoreriaController::class, 'storeTransferenciasApi'])->name('tesoreria.transferencia-store-api');
+    Route::post('/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');
+});
