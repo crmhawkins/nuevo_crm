@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Plataforma;
 
 use App\Http\Controllers\Controller;
 use App\Models\Clients\Client;
+use App\Models\Plataforma\PlataformaTemplates;
 use App\Models\Plataforma\WhatsappAlerts;
 use App\Models\Plataforma\WhatsappConfig;
 use App\Models\Plataforma\WhatsappLog;
@@ -113,17 +114,14 @@ class PlataformaWhatsappController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'mensaje' => 'required|string',
+            'contenido' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,png,jpg,jpeg,gif,svg,webp,mp 4,avi,mov',
+            'botones' => 'nullable|string',
         ]);
-
         // Convertir el HTML a formato compatible con WhatsApp
         $mensaje = $this->convertHtmlToWhatsappFormat($validated['mensaje']);
-
+        $validated['mensaje'] = $mensaje;
         // Crear la campaña
-        $campania = CampaniasWhatsapp::create([
-            'nombre' => $validated['nombre'],
-            'mensaje' => $mensaje,
-            'estado' => 0,
-        ]);
+        $campania = PlataformaTemplates::create($validated);
 
         return response()->json([
             'success' => true,

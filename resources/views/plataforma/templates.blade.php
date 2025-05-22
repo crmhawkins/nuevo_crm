@@ -138,7 +138,7 @@
                                 </label>
                             </div>
                             <div id="contenidoContainer" style="display: none;">
-                                <label for="tipoContenido" class="form-label">Tipo de contenido</label>
+                                <label for="tipoContenidoLabel" class="form-label">Tipo de contenido</label>
                                 <select class="form-select mb-2" id="tipoContenido">
                                     <option value="imagen">Imagen</option>
                                     <option value="video">Video</option>
@@ -339,23 +339,50 @@
             $('#saveTemplate').click(function() {
                 var nombre = $('#nombre').val();
                 var mensaje = $('#mensaje').summernote('code');
+                var tipoContenido = $('#tipoContenido').val();
+                var contenido = $('#archivoContenido')[0].files[0];
+                var botones = [];
+
+                // Recopilar datos de los botones
+                $('#botonesList .input-group').each(function() {
+                    var boton = {
+                        texto: $(this).find('.boton-input').val(),
+                        url: $(this).find('.boton-input').val(),
+                        tipo: $(this).find('.boton-tipo').val()
+                    };
+                    if (boton.texto && boton.tipo) {
+                        botones.push(boton);
+                    }
+                });
+
+                // Crear FormData para enviar archivos
+                var formData = new FormData();
+                formData.append('nombre', nombre);
+                formData.append('mensaje', mensaje);
+                formData.append('tipoContenido', tipoContenido);
+                formData.append('botones', JSON.stringify(botones));
+                formData.append('_token', '{{ csrf_token() }}');
+
+                if (contenido) {
+                    formData.append('contenido', contenido);
+                }
 
                 $.ajax({
                     url: '{{ route('plataforma.createTemplate') }}',
                     type: 'POST',
-                    data: {
-                        nombre: nombre,
-                        mensaje: mensaje,
-                        _token: '{{ csrf_token() }}'
-                    },
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function(response) {
                         if (response.success) {
-                            $('#newTemplateModal').modal('hide');
-                            location.reload();
+                            toastr.success('Plantilla guardada exitosamente');
+                        } else {
+                            toastr.error('Error al guardar la plantilla: ' + response.message);
                         }
                     },
                     error: function(xhr) {
                         console.error('Error:', xhr);
+                        alert('Error al guardar la plantilla');
                     }
                 });
             });
