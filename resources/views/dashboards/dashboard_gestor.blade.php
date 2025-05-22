@@ -918,6 +918,14 @@
                                                                                         </tr>
                                                                                     </thead>
                                                                                     <tbody>
+                                                                                        <tr>
+                                                                                            <td colspan="7">
+                                                                                                <div class="input-group mb-3">
+                                                                                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                                                                                    <input type="text" class="form-control" id="search-invoice-{{ $income->id }}" placeholder="Buscar factura..." onkeyup="filterInvoices({{ $income->id }})">
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        </tr>
                                                                                         @foreach ($invoices as $invoice)
                                                                                             <tr>
                                                                                                 <td class="text-center">
@@ -941,14 +949,19 @@
                                                                                                 <td class="text-end">
                                                                                                     {{ number_format($invoice->total, 2) }}€
                                                                                                 </td>
+                                                                                                @php $totalIngresos = []; @endphp
                                                                                                 <td>
                                                                                                     @if (count($invoice['ingresos']) > 0)
-                                                                                                        @php $totalIngresos = 0; @endphp
                                                                                                         @foreach ($invoice['ingresos'] as $ingreso)
-                                                                                                            @php $totalIngresos += $ingreso->quantity; @endphp
+                                                                                                            @php
+                                                                                                                if (!isset($totalIngresos[$invoice->id])) {
+                                                                                                                    $totalIngresos[$invoice->id] = 0;
+                                                                                                                }
+                                                                                                                $totalIngresos[$invoice->id] += $ingreso->quantity;
+                                                                                                            @endphp
                                                                                                         @endforeach
                                                                                                         <span
-                                                                                                            style="color: red; font-size: 14px;">{{ $invoice->total - $totalIngresos }}</span>
+                                                                                                            style="color: red; font-size: 14px;">{{ $invoice->total - $totalIngresos[$invoice->id] }}</span>
                                                                                                     @else
                                                                                                         <span><i
                                                                                                                 class="fas fa-dollar-sign text-danger"></i></span>
@@ -960,10 +973,11 @@
                                                                                                         id="amount-input-{{ $income->id }}-{{ $invoice->id }}"
                                                                                                         style="display: none; width: 100%; height: 50px; font-size: 18px; padding: 10px;"
                                                                                                         min="0"
-                                                                                                        max="{{ $invoice->total }}"
+                                                                                                        max="@if (isset($totalIngresos[$invoice->id]) && $totalIngresos[$invoice->id] > 0) {{ $invoice->total - $totalIngresos[$invoice->id] }} @else {{ $invoice->total }} @endif"
                                                                                                         step="0.01"
-                                                                                                        data-original-amount="{{ $income->amount }}"
-                                                                                                        oninput="updateTotal({{ $income->id }}, {{ $income->amount }})">
+                                                                                                        data-original-amount="@if (isset($totalIngresos[$invoice->id]) && $totalIngresos[$invoice->id] > 0) {{ $invoice->total - $totalIngresos[$invoice->id] }} @else {{ $invoice->total }} @endif"
+                                                                                                        oninput="updateTotal({{ $income->id }}, {{ $income->amount }})"
+                                                                                                        >
                                                                                                 </td>
                                                                                             </tr>
                                                                                             @if (count($invoice['ingresos']) > 0)
@@ -1164,7 +1178,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($unclassifiedExpenses as $expense)
-                                        <tr>
+                                        <tr id="gasto-{{ $expense->id }}">
                                             <td>{{ $expense->company_name }}</td>
                                             <td>{{ $expense->bank }}</td>
                                             <td>{{ $expense->iban }}</td>
@@ -2712,10 +2726,6 @@
             // Mostrar/ocultar input
             amountInput.style.display = checkbox.checked ? 'block' : 'none';
 
-            // Resetear valor si se desmarca
-            if (!checkbox.checked) {
-                amountInput.value = 0;
-            }
 
             // Actualizar total
             const originalAmount = parseFloat(checkbox.dataset.amount || 0);
@@ -2815,6 +2825,22 @@
                 }
             });
         }
+
+
+    function filterInvoices(incomeId) {
+        const searchTerm = document.getElementById(`search-invoice-${incomeId}`).value.toLowerCase();
+        const table = document.querySelector(`#details-${incomeId} table tbody`);
+        const rows = table.querySelectorAll('tr:not(:first-child)'); // Excluir la fila del buscador
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
     </script>
 
 @endsection
