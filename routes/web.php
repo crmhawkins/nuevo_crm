@@ -704,9 +704,18 @@ Route::get('/portal/generateBudget', [PortalCompraWebs::class, 'generateBudget']
 
 Route::get('/actualizar', [OrdenesController::class, 'actualizar'])->name('actualizar');
 
-// Publico
-Route::get('/kit-digital/create-comercial', [KitDigitalController::class, 'createComercial'])->name('kitDigital.createComercial');
-Route::post('/kit-digital/store-comercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');
+// Kit Digital
+Route::get('/kit-digital-whatsapp', [KitDigitalController::class, 'index'])->name('kitDigital.indexWhatsapp');
+Route::get('/kit-digital', [KitDigitalController::class, 'listarClientes'])->name('kitDigital.index');
+Route::get('/kit-digital/create', [KitDigitalController::class, 'create'])->name('kitDigital.create');
+Route::post('/kit-digital/store', [KitDigitalController::class, 'store'])->name('kitDigital.store');
+Route::post('/kit-digital/updatedata', [KitDigitalController::class, 'updateData'])->name('kitDigital.updateData');
+Route::get('/kit-digital/whatsapp/{id}', [KitDigitalController::class, 'whatsapp'])->name('kitDigital.whatsapp');
+Route::post('/kit-digital/excel', [KitDigitalController::class, 'exportToExcel'])->name('kitDigital.Excel');
+
+// Estados sin actualizar Kit Digital
+Route::get('/kit-digital/sin_actualizar', [AutomatizacionKitController::class, 'viewEstados'])->name('kitDigital.sin_actualizar');
+Route::get('/kit-digital/pagados', [KitPagadosController::class, 'viewPagados'])->name('kitDigital.pagados');
 
 Route::get('/test', [test::class, 'test']);
 
