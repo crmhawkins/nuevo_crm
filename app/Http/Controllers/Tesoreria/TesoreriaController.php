@@ -746,22 +746,19 @@ class TesoreriaController extends Controller
     public function storeGastosApi(Request $request){
 
         $unclassifiedExpenses = UnclassifiedExpenses::find($request->id);
+
         // Validar los datos del formulario
-        $validated = $this->validate($request, [
-            'title' => 'required|string|max:255',
-            'reference' => 'required|string|max:255',
-            'quantity' => 'required',
-            'bank_id' => 'nullable',
-            'date' => 'nullable',
-            'received_date' => 'nullable',
-            'payment_method_id' => 'nullable',
-            'transfer_movement' => 'nullable',
-            'state' => 'nullable',
-            'documents' => 'nullable',
-            'iva' => 'nullable',
-            'categoria_id' => 'nullable',
-            'bank' => 'nullable'
-        ]);
+        $validated = [
+            'title' => $unclassifiedExpenses->message,
+            'quantity' => $unclassifiedExpenses->amount,
+            'date' => $unclassifiedExpenses->date,
+            'received_date' => $unclassifiedExpenses->received_date,
+            'payment_method_id' => 1,
+            'transfer_movement' => null,
+            'state' => 'PAGADO',
+            'bank' => $unclassifiedExpenses->bank,
+        ];
+
 
         if($unclassifiedExpenses->parcial){
             $validated['state'] = 'Parcial';
@@ -924,16 +921,17 @@ class TesoreriaController extends Controller
         }
 
         foreach($request->facturas as $factura){
+            $invoice = Invoice::find($factura['id']);
+            $title = $invoice->reference . ' - ' . $invoice->concept;
             $ingreso = new Ingreso();
             $ingreso->quantity = $factura['importe'];
             $ingreso->bank_id = $bank;
             $ingreso->date = Carbon::parse($request->input('date'))->format('Y-m-d');
-            $ingreso->title = $request->input('title');
+            $ingreso->title = $title;
             $ingreso->invoice_id = $factura['id'];
             $ingreso->save();
             $total = 0;
             // Comprobar si la factura esta pagada por completo
-            $invoice = Invoice::find($factura['id']);
             if($invoice){
                 $ingresos =Ingreso::where('invoice_id', $invoice['id'])->get();
                 if($ingresos->count() > 0){
@@ -953,16 +951,14 @@ class TesoreriaController extends Controller
                 $unclassifiedIncome->status = 1;
                 $unclassifiedIncome->save();
             }
-            return response()->json([
-                'success' => true,
-                'message' => 'Ingreso creado correctamente',
-                'ingreso_id' => $invoice,
-                'ingresos' => $ingresos,
-                'total' => $total
-            ], 200);
         }
-
-
+        return response()->json([
+            'success' => true,
+            'message' => 'Ingreso creado correctamente',
+            'ingreso_id' => $invoice,
+            'ingresos' => $ingresos,
+            'total' => $total
+        ], 200);
     }
 
     public function getInvoiceData(){
