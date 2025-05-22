@@ -225,7 +225,10 @@ class DashboardController extends Controller
                 }
 
                 //$invoices = Invoice::whereIn('invoice_status_id', [1, 2, 4])->get();
-                $invoices = Invoice::whereIn('invoice_status_id', [1, 2, 4])->get();
+                $invoices = Invoice::whereIn('invoice_status_id', [1, 2, 4])
+                    ->where('rectification', '!=', 1)
+                    ->where('total', '>', 0)
+                    ->get();
                 if($invoices->count() > 0){
                     foreach($invoices as $invoice){
                         $ingresos = Ingreso::where('invoice_id', $invoice['id'])->get();
