@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Suite\Suite;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use \Carbon\Carbon;
 
 class SuiteController extends Controller
 {
@@ -125,6 +126,9 @@ class SuiteController extends Controller
 
         foreach ($suites as $suite) {
             if ($suite->user === $data['user'] && Hash::check($data['password'], $suite->password)) {
+                $suite->logged_at = Carbon::now()->addHours(2);
+                $suite->save();
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Login exitoso'
