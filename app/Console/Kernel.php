@@ -226,12 +226,19 @@ class Kernel extends ConsoleKernel
 
                             if (strpos($fechaLimpia, '/') !== false) {
                                 // Ejemplo: 31/12/2023
-                                $movimiento['received_date'] = Carbon::createFromFormat('d/m/Y', $fechaLimpia);
+                                $fecha = Carbon::createFromFormat('d/m/Y', $fechaLimpia);
                             } elseif (strpos($fechaLimpia, '-') !== false) {
                                 // Ejemplo: 2023-12-31
-                                $movimiento['received_date'] = Carbon::createFromFormat('Y-m-d', $fechaLimpia);
+                                $fecha = Carbon::createFromFormat('Y-m-d', $fechaLimpia);
                             } else {
                                 throw new \Exception("Formato de fecha no reconocido: '$fechaLimpia'");
+                            }
+
+                            // Solo guardar si la fecha es hoy
+                            if ($fecha->isToday()) {
+                                $movimiento['received_date'] = $fecha;
+                            } else {
+                                continue; // Saltar este movimiento si no es de hoy
                             }
                         } catch (\Exception $e) {
                             throw new \Exception("Error al procesar la fecha '{$movimiento['received_date']}': " . $e->getMessage());
