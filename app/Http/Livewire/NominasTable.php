@@ -38,7 +38,9 @@ class NominasTable extends Component
     {
         // Comprueba si se ha seleccionado "Todos" para la paginación
         $query = Nomina::when($this->buscar, function ($query) {
-            $query->where('name', 'like', '%' . $this->buscar . '%');
+            $query->whereHas('usuario', function ($query) {
+                $query->where('name', 'like', '%' . $this->buscar . '%');
+            });
         })
         ->when($this->selectedUser, function ($query) {
             $query->where('admin_user_id', $this->selectedUser);
