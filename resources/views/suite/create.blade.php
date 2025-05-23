@@ -81,8 +81,8 @@
                     password: password,
                     _token: '{{ csrf_token() }}'
                 },
-                success: function(xhr) {
-                    if(xhr.status === 200) {
+                success: function(data, textStatus, jqXHR) {
+                    if(jqXHR.status === 200) {
                         Swal.fire({
                             toast: true,
                             position: 'top-end',
@@ -91,9 +91,9 @@
                             showConfirmButton: false,
                             timer: 3000,
                             timerProgressBar: true
-                        })
+                        });
 
-                        // Clear inputs
+                        // Limpiar inputs
                         $('#user').val('');
                         $('#password').val('');
                     }
