@@ -745,7 +745,6 @@ Route::get('/portal/productos', [PortalProductos::class, 'productos'])->name('po
 Route::get('/test', [test::class, 'test']);
 
 
-// Plataforma whatsapp
 Route::prefix('plataforma')->group(function () {
     Route::get('/', [PlataformaWhatsappController::class, 'index'])->name('plataforma.dashboard');
     Route::get('/clientes', [PlataformaWhatsappController::class, 'clientes'])->name('plataforma.clientes');
@@ -759,8 +758,10 @@ Route::prefix('plataforma')->group(function () {
     Route::get('/logs', [PlataformaWhatsappController::class, 'logs'])->name('plataforma.logs');
     Route::post('/logs/client', [PlataformaWhatsappController::class, 'logsClient'])->name('plataforma.logsClient');
     Route::get('/configuracion', [PlataformaWhatsappController::class, 'configuracion'])->name('plataforma.configuracion');
+    Route::post('/configuracion-store', [PlataformaWhatsappController::class, 'configuracionStore'])->name('plataforma.configuracionStore');
     Route::post('/programar-campania', [PlataformaWhatsappController::class, 'programarCampania'])->name('plataforma.programarCampania');
     Route::post('/store-log', [PlataformaWhatsappController::class, 'storeLog'])->name('plataforma.storelog');
+    Route::post('/delete-alert', [PlataformaWhatsappController::class, 'deleteAlert'])->name('plataforma.deleteAlert');
 });
 
 Route::prefix('tesoreria')->group(function () {
