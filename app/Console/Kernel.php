@@ -51,7 +51,7 @@ class Kernel extends ConsoleKernel
         });
         $schedule->command('vacacioner:discount')->weeklyOn(6, '08:00');
         $schedule->command('kitdigital:avisar-contratos-antiguos')->dailyAt('08:00');
-        
+
         $schedule->call(function () {
 
             $files = Storage::files('public/excel');
