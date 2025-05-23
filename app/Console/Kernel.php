@@ -51,7 +51,7 @@ class Kernel extends ConsoleKernel
         });
         $schedule->command('vacacioner:discount')->weeklyOn(6, '08:00');
         $schedule->command('kitdigital:avisar-contratos-antiguos')->dailyAt('08:00');
-        
+
         $schedule->call(function () {
 
             $files = Storage::files('public/excel');
@@ -223,19 +223,29 @@ class Kernel extends ConsoleKernel
                     foreach ($movimientos['movimientos'] as &$movimiento) {
                         try {
                             $fechaLimpia = trim($movimiento['received_date']);
+                            $fechaCarbon = null;
 
                             if (strpos($fechaLimpia, '/') !== false) {
                                 // Ejemplo: 31/12/2023
-                                $movimiento['received_date'] = Carbon::createFromFormat('d/m/Y', $fechaLimpia);
+                                $fechaCarbon = Carbon::createFromFormat('d/m/Y', $fechaLimpia);
                             } elseif (strpos($fechaLimpia, '-') !== false) {
                                 // Ejemplo: 2023-12-31
-                                $movimiento['received_date'] = Carbon::createFromFormat('Y-m-d', $fechaLimpia);
+                                $fechaCarbon = Carbon::createFromFormat('Y-m-d', $fechaLimpia);
                             } else {
                                 throw new \Exception("Formato de fecha no reconocido: '$fechaLimpia'");
+                            }
+
+                            // Solo almacenar si la fecha es hoy
+                            if ($fechaCarbon->isToday()) {
+                                $movimiento['received_date'] = $fechaCarbon;
+                            } else {
+                                unset($movimiento);
+                                continue;
                             }
                         } catch (\Exception $e) {
                             throw new \Exception("Error al procesar la fecha '{$movimiento['received_date']}': " . $e->getMessage());
                         }
+                    }
 
                         $relaciones = [];
 
@@ -402,11 +412,7 @@ class Kernel extends ConsoleKernel
                 } catch (\GuzzleHttp\Exception\GuzzleException $e) {
                     throw new \Exception('Error al comunicarse con la API de OpenAI: ' . $e->getMessage());
                 }
-
-            } catch (\Exception $e) {
-                Log::error('Error al procesar el archivo: ' . $e->getMessage());
             }
-        }
         })->everyMinute();
 
         // $schedule->call(function () {
