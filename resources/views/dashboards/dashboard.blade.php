@@ -225,6 +225,7 @@
                             <a target="_blank" href="{{ route('kitDigital.pagados') }}" class="btn btn-outline-secondary"> Kit Digitales Pagados</a>
                             <a target="_blank" href="{{ route('kitDigital.indexWhatsapp') }}" class="btn btn-outline-secondary"> Whatsapp Enviados</a>
                             <a target="_blank" href="{{ route('dominios_iban') }}" class="btn btn-outline-secondary"> Dominios</a>
+                            <a target="_blank" href="{{ route('suite') }}" class="btn btn-outline-secondary"> Suite IA</a>
                         </div>
                     </div>
                 </div>
@@ -733,7 +734,7 @@
                 }
             });
         });
-        
+
         // Cerrar el modal
         function closeModal() {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('kdModal'));

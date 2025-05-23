@@ -69,6 +69,7 @@ use App\Http\Controllers\AutomatizacionKit\KitPagadosController;
 use App\Http\Controllers\PresupuestoComentarioController;
 use App\Http\Controllers\Plataforma\PlataformaWhatsappController;
 use App\Http\Controllers\Suite\SuiteController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
