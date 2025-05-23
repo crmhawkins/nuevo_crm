@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class PlataformaTemplates extends Model
 {
     use HasFactory;
+
+    protected $table = 'plataforma_templates';
+
     protected $fillable = [
         'nombre',
         'mensaje',
@@ -20,5 +23,10 @@ class PlataformaTemplates extends Model
         'category',
         'language',
         'namespace',
+    ];
+
+    protected $casts = [
+        'botones' => 'array',
+        'status' => 'integer',
     ];
 }

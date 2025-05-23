@@ -90,21 +90,45 @@
                     <tr>
                         <th class="sortable" data-column="id">ID <span class="sort-icon">↕</span></th>
                         <th class="sortable" data-column="name">Nombre<span class="sort-icon">↕</span></th>
+                        <th class="sortable" data-column="mensaje">Mensaje<span class="sort-icon">↕</span></th>
+                        <th>Botones</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($templates as $template)
-                        <tr>
+                        <tr id="template-{{ $template->id }}">
                             <td>{{ $template->id }}</td>
                             <td>{{ $template->name }}</td>
-                            <td>{{ $template->status }}</td>
+                            <td>{{ $template->mensaje }}</td>
                             <td>
-                                <button class="btn btn-sm btn-primary edit-template" data-id="{{ $template->id }}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger delete-template" data-id="{{ $template->id }}">
+                                @if($template->botones)
+                                    <button class="btn btn-sm btn-info view-buttons" data-bs-toggle="modal" data-bs-target="#buttonsModal" data-buttons='@json($template->botones)'>
+                                        <i class="fas fa-list"></i> Ver botones
+                                    </button>
+                                @else
+                                    <span class="text-muted">Sin botones</span>
+                                @endif
+                            </td>
+                            @php
+                                switch ($template->status) {
+                                    case 0:
+                                        $estado = '<span class="badge bg-danger">Pendiente</span>';
+                                        break;
+                                    case 1:
+                                        $estado = '<span class="badge bg-success">Aceptado</span>';
+                                        break;
+                                    case 2:
+                                        $estado = '<span class="badge bg-warning">Rechazado</span>';
+                                        break;
+                                    case 3:
+                                        $estado = '<span class="badge bg-info">Desconocido</span>';
+                                }
+                            @endphp
+                            <td>{!! $estado !!}</td>
+                            <td>
+                                <button onclick="deleteTemplate({{ $template->id }})" class="btn btn-sm btn-danger delete-template" data-id="{{ $template->id }}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -112,6 +136,43 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Modal para mostrar botones -->
+    <div class="modal fade" id="buttonsModal" tabindex="-1" aria-labelledby="buttonsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="buttonsModalLabel">Botones de la plantilla</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="buttonsList" class="list-group">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Texto</th>
+                                <th>URL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="buttonsTableBody">
+                            @foreach ($template->botones as $boton)
+                                <tr>
+                                    <td>{{ $boton['tipo'] }}</td>
+                                    <td>{{ $boton['texto'] }}</td>
+                                    <td>{{ $boton['url'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -550,5 +611,43 @@
                 reader.readAsArrayBuffer(file); // no se necesita preview, solo señal
             }
         });
+
+        function deleteTemplate(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta plantilla?')) {
+                $.ajax({
+                    url: '{{ route('plataforma.deleteTemplate') }}',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#template-' + id).remove();
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: 'Plantilla eliminada exitosamente',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Error al eliminar la plantilla',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                            location.reload();
+                        }
+                    }
+                });
+            }
+        }
     </script>
 @endsection

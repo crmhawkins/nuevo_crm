@@ -754,6 +754,7 @@ Route::prefix('plataforma')->group(function () {
     Route::post('/programar-campania', [PlataformaWhatsappController::class, 'programarCampania'])->name('plataforma.programarCampania');
     Route::post('/store-log', [PlataformaWhatsappController::class, 'storeLog'])->name('plataforma.storelog');
     Route::post('/delete-alert', [PlataformaWhatsappController::class, 'deleteAlert'])->name('plataforma.deleteAlert');
+    Route::post('/delete-template', [PlataformaWhatsappController::class, 'deleteTemplate'])->name('plataforma.deleteTemplate');
 });
 
 Route::prefix('tesoreria')->group(function () {

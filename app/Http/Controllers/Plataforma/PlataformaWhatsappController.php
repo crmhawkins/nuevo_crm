@@ -32,6 +32,7 @@ class PlataformaWhatsappController extends Controller
         $respuestas = [];
         $campanias = [['nombre' => 'Campaña 1', 'estado' => 'Aceptada'], ['nombre' => 'Campaña 2', 'estado' => 'Rechazada'], ['nombre' => 'Campaña 3', 'estado' => 'Enviada']];
 
+        $templates = PlataformaTemplates::all();
         return view('plataforma.dashboard', compact('client', 'alerts', 'respuestas', 'campanias'));
     }
 
@@ -159,6 +160,8 @@ class PlataformaWhatsappController extends Controller
         return view('plataforma.clientes', compact('user', 'clients'));
     }
 
+    // Templates
+
     public function templates()
     {
         if (!Auth::check()) {
@@ -183,7 +186,17 @@ class PlataformaWhatsappController extends Controller
             $templates = [];
         }
 
+        // Get templates from db
+        $templates = PlataformaTemplates::whereNot('status', 3)->get();
+
         return view('plataforma.templates', compact('user', 'templates'));
+    }
+
+    public function deleteTemplate(Request $request) {
+        $template = PlataformaTemplates::find($request->id);
+        $template->status = 3;
+        $template->save();
+        return response()->json(['success' => true], 200);
     }
 
     public function sendCampania(Request $request)
