@@ -38,7 +38,9 @@ class ContratosTable extends Component
     protected function actualizarNominas()
     {
         $query = Contrato::when($this->buscar, function ($query) {
-            $query->where('name', 'like', '%' . $this->buscar . '%');
+            $query->whereHas('usuario', function ($query) {
+                $query->where('name', 'like', '%' . $this->buscar . '%');
+            });
         })
         ->when($this->selectedUser, function ($query) {
             $query->where('admin_user_id', $this->selectedUser);
