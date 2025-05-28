@@ -33,23 +33,23 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('vacacioner:add')->monthlyOn(1, '08:00');
-        // $schedule->command('correos:categorizacion')->everyFiveMinutes();
-        // $schedule->command('correos:get')->everyMinute();
-        // $schedule->command('correos:getFacturas')->everyMinute();
-        // $schedule->command('Jornada:finalizar')->dailyAt('03:00');
-        // $schedule->command('Alertas:facturaFuera')->dailyAt('03:00');
-        // $schedule->command('Alertas:peticiones')->dailyAt('03:00');
-        // $schedule->command('Alertas:presupuestoAceptadoTareas')->dailyAt('03:00');
-        // $schedule->command('Alertas:presupuestoAceptadoTareasFinalizar')->dailyAt('03:00');
-        // $schedule->command('Alertas:presupuestoAceptar')->dailyAt('03:00');
-        // $schedule->command('Alertas:presupuestoConfirmar')->dailyAt('03:00');
-        // $schedule->command('Alertas:presupuestoFinalizado')->dailyAt('03:00');
-        // $schedule->command('Alertas:HorasTrabajadas')->weeklyOn(4, '07:30');
-        // $schedule->command('Ordenes:Alerta')->dailyAt('07:00')->when(function () {
-        //     return now()->isLastOfMonth();
-        // });
-        // $schedule->command('vacacioner:discount')->weeklyOn(6, '08:00');
+        $schedule->command('vacacioner:add')->monthlyOn(1, '08:00');
+        $schedule->command('correos:categorizacion')->everyFiveMinutes();
+        $schedule->command('correos:get')->everyMinute();
+        $schedule->command('correos:getFacturas')->everyMinute();
+        $schedule->command('Jornada:finalizar')->dailyAt('03:00');
+        $schedule->command('Alertas:facturaFuera')->dailyAt('03:00');
+        $schedule->command('Alertas:peticiones')->dailyAt('03:00');
+        $schedule->command('Alertas:presupuestoAceptadoTareas')->dailyAt('03:00');
+        $schedule->command('Alertas:presupuestoAceptadoTareasFinalizar')->dailyAt('03:00');
+        $schedule->command('Alertas:presupuestoAceptar')->dailyAt('03:00');
+        $schedule->command('Alertas:presupuestoConfirmar')->dailyAt('03:00');
+        $schedule->command('Alertas:presupuestoFinalizado')->dailyAt('03:00');
+        $schedule->command('Alertas:HorasTrabajadas')->weeklyOn(4, '07:30');
+        $schedule->command('Ordenes:Alerta')->dailyAt('07:00')->when(function () {
+             return now()->isLastOfMonth();
+        });
+        $schedule->command('vacacioner:discount')->weeklyOn(6, '08:00');
         // $schedule->command('kitdigital:avisar-contratos-antiguos')->dailyAt('08:00');
 
         $schedule->command('Tesoreria:ProcesarExcel')->everyMinute();
