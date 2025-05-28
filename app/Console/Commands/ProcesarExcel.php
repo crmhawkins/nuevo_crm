@@ -28,7 +28,7 @@ class ProcesarExcel extends Command
     }
     public function handle()
     {
-            $files = Storage::files('public/storage/excel');
+            $files = Storage::files('public/excel');
             $cod1Files = array_filter($files, function($file) {
                 return str_starts_with(basename($file), 'COD1_');
             });
@@ -400,7 +400,7 @@ class ProcesarExcel extends Command
         $this->info('¡Comando ejecutado exitosamente!');
     }
 
-    private function excelDateToDate($excelSerial): string
+    private function excelDateToDate($excelSerial)
     {
         $unixTimestamp = ($excelSerial - 25569) * 86400; // 25569 = días entre 1/1/1900 y Unix Epoch
         return gmdate('Y-m-d', $unixTimestamp);
