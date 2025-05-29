@@ -507,6 +507,16 @@ Route::group(['middleware' => 'auth'], function () {
             exit;
         })->name('dominios_iban');
 
+        Route::get('/subdominios_ionos', function () {
+            include base_path('app/Legacy/index_subdominios.php');
+            exit;
+        })->name('subdominios_ionos');
+
+        Route::post('/actualizar-renovacion', function () {
+            include base_path('app/Legacy/guardar-renovacion.php');
+            exit;
+        })->name('actualizar_renovacion');
+
         Route::post('/actualizar-iban', function () {
             include base_path('app/Legacy/actualizar_iban.php');
             exit;
