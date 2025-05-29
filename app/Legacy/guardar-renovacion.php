@@ -10,7 +10,7 @@ if ($conn->connect_error) {
 }
 
 $id = $_POST['id'] ?? '';
-$fecha = $_POST['fecha'] ?? null;
+$fecha = $_POST['fecha_renovacion'] ?? null;
 dd($id, $fecha);
 if ($id && $fecha) {
     $stmt = $conn->prepare("UPDATE subdominios SET fecha_renovacion = ? WHERE id = ?");
