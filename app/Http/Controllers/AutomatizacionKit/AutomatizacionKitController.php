@@ -24,7 +24,6 @@ class AutomatizacionKitController extends Controller
             13 => 'Pendiente subsanar 2',
             14 => 'Subsanado 1',
             15 => 'Subsanado 2',
-            20 => 'Pendiente 2ª Justificacion',
             21 => '2º Justificacion Realizada',
             25 => 'Validada 2ª justificacion',
             29 => 'Subsanado 3',
@@ -50,7 +49,7 @@ class AutomatizacionKitController extends Controller
             $carbon_fecha_estado = Carbon::parse($registro->ultima_fecha);
             $fecha_estado = $carbon_fecha_estado->format('Y-m-d');
             $dias_diff = $carbon_fecha_estado->diffInDays(now());
-        
+
             // Clasificar en categoría
             if ($dias_diff >= 180) {
                 $categoria = '+6 Meses';
@@ -65,7 +64,7 @@ class AutomatizacionKitController extends Controller
             } else {
                 $categoria = '<15 días'; // por si acaso
             }
-        
+
             return (object) [
                 'reference_id'    => $registro->reference_id,
                 'contratos'       => $registro->contratos,
@@ -76,7 +75,7 @@ class AutomatizacionKitController extends Controller
                 'categoria_dias'  => $categoria, // ← NUEVO
             ];
         })->values();
-        
+
     }
 
     public function viewEstados(Request $request)
@@ -164,7 +163,7 @@ class AutomatizacionKitController extends Controller
         $dias = $request->input('dias', 15);
         $empresa = $request->input('empresa');
         $mas6Meses = $request->input('mas6Meses', false);
-    
+
         // Simula la misma lógica de viewEstados
         if ($mas6Meses) {
             $dias = 30 * 6;
@@ -173,17 +172,17 @@ class AutomatizacionKitController extends Controller
             // ✅ Aquí puedes usar directamente el resultado de la misma lógica
             $resultados = $this->getContratos($dias);
         }
-    
+
         if ($empresa) {
             $resultados = $resultados->filter(fn($item) => $item->empresa === $empresa)->values();
         }
-    
+
         $mostrarEmpresa = $resultados->contains(fn($item) => !empty($item->empresa));
-    
+
         return Excel::download(
             new \App\Exports\EstadosKitExport($resultados, $mostrarEmpresa),
             'estados-kit.xlsx'
         );
     }
-    
+
 }
