@@ -68,10 +68,12 @@ $conn->close();
         <tbody id="tabla-datos">
             <?php foreach ($subdominios as $i => $sub) : ?>
                 <tr>
-                    <td><?php echo $i + 1; ?></td>
+                    <td data-orden="<?php echo $i + 1; ?>"><?php echo $i + 1; ?></td>
                     <td><?php echo htmlspecialchars($sub['dominio']); ?></td>
                     <td><?php echo htmlspecialchars($sub['subdominio']); ?></td>
-                    <td><?php echo $sub['fecha_cambio'] ? date("d/m/Y", strtotime($sub['fecha_cambio'])) : ''; ?></td>
+                    <td data-orden="<?php echo $sub['fecha_cambio']; ?>">
+                        <?php echo $sub['fecha_cambio'] ? date("d/m/Y", strtotime($sub['fecha_cambio'])) : ''; ?>
+                    </td>
                     <td>
                         <input type="date" value="<?php echo $sub['fecha_renovacion'] ?? ''; ?>" id="renovacion-<?php echo $i; ?>">
                     </td>
@@ -103,23 +105,31 @@ $conn->close();
 
         function ordenarTabla(n) {
             const tabla = document.getElementById("tabla-subdominios");
-            const filas = Array.from(tabla.rows).slice(1);
+            const filas = Array.from(tabla.querySelectorAll("tbody tr"));
             const ordenAsc = tabla.dataset.orden === "asc";
 
             filas.sort((a, b) => {
-                let valA = a.cells[n].textContent.trim();
-                let valB = b.cells[n].textContent.trim();
+                const aVal = a.cells[n].dataset.orden || a.cells[n].textContent.trim();
+                const bVal = b.cells[n].dataset.orden || b.cells[n].textContent.trim();
 
-                // Si son fechas
-                if (/\d{4}-\d{2}-\d{2}/.test(valA) && /\d{4}-\d{2}-\d{2}/.test(valB)) {
-                    valA = new Date(valA);
-                    valB = new Date(valB);
+                // Si son números
+                if (!isNaN(aVal) && !isNaN(bVal)) {
+                    return ordenAsc ? aVal - bVal : bVal - aVal;
                 }
 
-                return ordenAsc ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
+                // Si son fechas (YYYY-MM-DD)
+                const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+                if (dateRegex.test(aVal) && dateRegex.test(bVal)) {
+                    return ordenAsc ? new Date(aVal) - new Date(bVal) : new Date(bVal) - new Date(aVal);
+                }
+
+                // Texto
+                return ordenAsc
+                    ? aVal.localeCompare(bVal, 'es', { numeric: true })
+                    : bVal.localeCompare(aVal, 'es', { numeric: true });
             });
 
-            filas.forEach(fila => tabla.appendChild(fila));
+            filas.forEach(fila => tabla.querySelector("tbody").appendChild(fila));
             tabla.dataset.orden = ordenAsc ? "desc" : "asc";
         }
 
