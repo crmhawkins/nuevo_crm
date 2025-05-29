@@ -203,13 +203,32 @@ class ProcesarExcel extends Command
                         try {
                             $fechaLimpia = trim($movimiento['received_date']);
 
-                            if (strpos($fechaLimpia, '/') !== false) {
-                                // Ejemplo: 31/12/2023
-                                $fecha = Carbon::createFromFormat('d/m/Y', $fechaLimpia);
-                            } elseif (strpos($fechaLimpia, '-') !== false) {
-                                // Ejemplo: 2023-12-31
-                                $fecha = Carbon::createFromFormat('Y-m-d', $fechaLimpia);
-                            } else {
+                            // Formatos aceptados
+                            $formatos_posibles = [
+                                'd/m/Y',
+                                'Y-m-d',
+                                'm/d/Y',
+                                'd-m-Y',
+                                'Y/m/d',
+                                'd.m.Y',
+                                'Y.m.d',
+                            ];
+
+                            $fecha = null;
+
+                            foreach ($formatos_posibles as $formato) {
+                                try {
+                                    $fechaTemporal = Carbon::createFromFormat($formato, $fechaLimpia);
+                                    if ($fechaTemporal && $fechaTemporal->format($formato) === $fechaLimpia) {
+                                        $fecha = $fechaTemporal;
+                                        break;
+                                    }
+                                } catch (\Exception $e) {
+                                    continue;
+                                }
+                            }
+
+                            if (!$fecha) {
                                 $this->error("Formato de fecha no reconocido: '$fechaLimpia'");
                                 throw new \Exception("Formato de fecha no reconocido: '$fechaLimpia'");
                             }
@@ -220,6 +239,13 @@ class ProcesarExcel extends Command
                             } else {
                                 continue; // Saltar este movimiento si no es de hoy
                             }
+
+                        } catch (\Exception $e) {
+                            Log::error('Error al procesar fecha en movimiento:', [
+                                'fecha_original' => $movimiento['received_date'],
+                                'error' => $e->getMessage()
+                            ]);
+                            continue; // saltar este movimiento
                         } catch (\Exception $e) {
                             $this->error("Error al procesar la fecha '{$movimiento['received_date']}': " . $e->getMessage());
                             throw new \Exception("Error al procesar la fecha '{$movimiento['received_date']}': " . $e->getMessage());
