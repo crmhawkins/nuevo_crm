@@ -15,13 +15,14 @@ $fecha = $_POST['fecha_renovacion'] ?? null;
 if ($id && $fecha) {
     $stmt = $conn->prepare("UPDATE subdominios SET fecha_renovacion = ? WHERE id = ?");
     $stmt->bind_param("ss", $fecha, $id);
-    if ($stmt->execute()) {
-        echo "✅ Fecha de renovación actualizada.";
+     if ($stmt->execute()) {
+        echo json_encode(["message" => "✅ Fecha de renovación actualizada."]);
     } else {
-        echo "❌ Error al guardar.";
+        echo json_encode(["message" => "❌ Error al guardar."]);
     }
     $stmt->close();
+
 } else {
-    echo "❌ Datos inválidos.";
+    echo json_encode(["message" => "❌ Datos inválidos."]);
 }
 $conn->close();
