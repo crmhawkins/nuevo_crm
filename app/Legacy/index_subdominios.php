@@ -90,14 +90,11 @@ $conn->close();
             fetch("/actualizar-renovacion", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/x-www-form-urlencoded",
                     "Accept": "application/json",
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify({
-                    id: id,
-                    fecha_renovacion: fecha
-                })
+                body: `id=${encodeURIComponent(id)}&fecha_renovacion=${encodeURIComponent(fecha)}`
             })
             .then(res => res.json())
             .then(data => alert(data.message || "✅ Actualizado"))
