@@ -40,6 +40,8 @@ Route::get('/salvineitor', action: [SalvineitorController::class, 'index']);
 
 Route::post('/suite/get-users', [SuiteController::class, 'login'])->name('suite.software_login');
 Route::post('/suite/upload', [SuiteUploadController::class, 'upload'])->name('suite.upload');
+Route::get('/suite/archivos/{type}', [SuiteUploadController::class, 'listarArchivos'])->name('suite.archivos');
+Route::get('/suite/descargar', [SuiteUploadController::class, 'descargarArchivo'])->name('suite.descargar');
 
 Route::post('/tesoreria/contabilizar-ia/upload', [TesoreriaContabilizarIa::class, 'upload']);
 Route::post('/tesoreria/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');

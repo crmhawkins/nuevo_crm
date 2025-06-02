@@ -28,4 +28,29 @@ class SuiteUploadController extends Controller
 
         return response()->json(['path' => $path]);
     }
+    
+    public function listarArchivos($type)
+    {
+        $archivos = Storage::files("justificaciones/{$type}");
+
+        $datos = collect($archivos)->map(function ($archivo) {
+            return [
+                'nombre' => basename($archivo),
+                'url' => route('suite.descargar', ['path' => encrypt($archivo)]),
+            ];
+        });
+
+        return response()->json($datos);
+    }
+
+    public function descargarArchivo(Request $request)
+    {
+        $path = decrypt($request->get('path'));
+
+        if (!Storage::exists($path)) {
+            abort(404);
+        }
+
+        return Storage::download($path);
+    }
 }

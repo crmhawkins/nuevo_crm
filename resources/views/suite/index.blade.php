@@ -52,8 +52,85 @@
                         </table>
                     </div>
                 </div>
+
+                <hr class="my-5">
+
+                <div class="card bg-white shadow">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Justificaciones</span>
+                            <select id="tipoSelect" class="form-control w-auto">
+                                <option value="">Seleccione tipo</option>
+                                <option value="crm">CRM</option>
+                                <option value="erp">ERP</option>
+                                <option value="facturas">Facturas</option>
+                                <option value="fichaje">Fichaje</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <input type="text" id="buscador" class="form-control mb-3" placeholder="Filtrar por nombre...">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Nombre de archivo</th>
+                                        <th>Descargar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaArchivos">
+                                    <!-- Dinámico -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 @endsection
+
+@section('js')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const select = document.getElementById('tipoSelect');
+    const buscador = document.getElementById('buscador');
+    const tabla = document.getElementById('tablaArchivos');
+
+    if (!select || !buscador || !tabla) {
+        console.error('Elementos del DOM no encontrados');
+        return;
+    }
+
+    select.addEventListener('change', function () {
+        const tipo = this.value;
+        if (!tipo) return;
+
+        fetch(`/suite/archivos/${tipo}`)
+            .then(res => res.json())
+            .then(data => {
+                tabla.innerHTML = '';
+
+                data.forEach(file => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${file.nombre}</td>
+                        <td><a href="${file.url}" class="btn btn-sm btn-primary" download>Descargar</a></td>
+                    `;
+                    tabla.appendChild(tr);
+                });
+
+                buscador.value = '';
+                buscador.addEventListener('input', () => {
+                    const valor = buscador.value.toLowerCase();
+                    Array.from(tabla.children).forEach(tr => {
+                        tr.style.display = tr.children[0].textContent.toLowerCase().includes(valor) ? '' : 'none';
+                    });
+                });
+            });
+    });
+});
+</script>
+@endsection
+
