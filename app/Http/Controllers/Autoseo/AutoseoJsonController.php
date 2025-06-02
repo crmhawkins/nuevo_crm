@@ -12,14 +12,13 @@ class AutoseoJsonController extends Controller
 {
     public function download($field, $id)
     {
-        dd($field);
         $autoseo = Autoseo::findOrFail($id);
 
         // Verifica si el campo existe en el modelo
-        if (!in_array($field, ['json_home', 'json_nosotros', 'json_mes_anterior', 'json_mes_actual'])) {
+        if (!in_array($field, ['home', 'nosotros', 'mesanterior', 'mesactual'])) {
             abort(400, "Campo no permitido");
         }
-
+        $field = 'json_' . $field;
         $filename = $autoseo->{$field};
 
         if (!$filename) {
