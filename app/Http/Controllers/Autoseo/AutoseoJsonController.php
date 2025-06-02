@@ -7,9 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Autoseo\Autoseo;
+use Illuminate\Support\Str;
 
 class AutoseoJsonController extends Controller
 {
+
+
     public function download($field, $id)
     {
         $autoseo = Autoseo::findOrFail($id);
@@ -30,10 +33,14 @@ class AutoseoJsonController extends Controller
             abort(404, "Archivo no encontrado");
         }
 
-        return Response::download($path, $filename, [
+        // Sanitizar el nombre para la cabecera (remplaza / y \ por _)
+        $safeFilename = preg_replace('/[\/\\\\]/', '_', $filename);
+
+        return Response::download($path, $safeFilename, [
             'Content-Type' => 'application/json',
         ]);
     }
+
 
     public function upload($field, $id, Request $request)
     {
