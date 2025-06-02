@@ -766,6 +766,10 @@
                                                 href="{{route('holiday.index')}}">Vacaciones</a>
                                                 <a class="btn btn-outline-secondary"
                                                 href="{{route('passwords.index')}}">Contraseñas</a>
+                                                @if($user->id == 157)
+                                                    <a class="btn btn-outline-secondary"
+                                                    href="{{route('suite.index.justificaciones')}}">Suite Justificaciones</a>
+                                                @endif
                                             </div>
                                             <div class="my-2 ml-4 text-center col-auto" role="tablist">
                                                 <a class=" btn btn-outline-secondary active"

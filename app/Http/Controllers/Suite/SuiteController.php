@@ -17,6 +17,11 @@ class SuiteController extends Controller
         return view('suite.index', compact('suites'));
     }
 
+    public function indexJustificaciones()
+    {
+        return view('suite.index_gestor');
+    }
+
     public function create()
     {
         return view('suite.create');

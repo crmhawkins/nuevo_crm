@@ -691,6 +691,8 @@ Route::group(['middleware' => 'auth'], function () {
     //LLamadas
     Route::get('/llamadas', [LlamadaController::class, 'index'])->name('llamadas.index');
 
+    // Suite IA gestor
+    Route::get('/suite/justificaciones', [SuiteController::class, 'indexJustificaciones'])->name('suite.index.justificaciones');
 });
 // Portal Clientes
 Route::get('/portal', [PortalClientesController::class, 'login'])->name('portal.login');

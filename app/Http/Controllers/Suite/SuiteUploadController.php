@@ -18,17 +18,16 @@ class SuiteUploadController extends Controller
 
         $file = $request->file('file');
 
-        $filename = time() . '_' . $file->getClientOriginalName();
 
         $path = Storage::putFileAs(
             "justificaciones/{$request->type}",  // carpeta
             $file,                               // archivo
-            $filename                            // nombre del archivo
+            $file->getClientOriginalName()       // nombre del archivo
         );
 
         return response()->json(['path' => $path]);
     }
-    
+
     public function listarArchivos($type)
     {
         $archivos = Storage::files("justificaciones/{$type}");
