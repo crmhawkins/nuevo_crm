@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\SalvineitorController;
+use App\Http\Controllers\Autoseo\AutoseoJsonController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Tesoreria\TesoreriaContabilizarIa;
 use App\Http\Controllers\Tesoreria\TesoreriaController;
@@ -49,3 +50,6 @@ Route::post('/tesoreria/multi-ingreso', [TesoreriaController::class, 'multiIngre
 Route::get('/autoseo/api', function () {
     return \App\Models\Autoseo\Autoseo::all()->toJson();
 });
+
+Route::get('/autoseo/json/{field}/{id}', [AutoseoJsonController::class, 'download']);
+Route::post('/autoseo/json/upload/{field}/{id}', [AutoseoJsonController::class, 'upload']);
