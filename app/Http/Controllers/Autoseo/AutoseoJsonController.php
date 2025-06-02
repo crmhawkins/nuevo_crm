@@ -24,8 +24,8 @@ class AutoseoJsonController extends Controller
             abort(404, "Archivo no especificado para este cliente");
         }
 
-        $path = storage_path("/public/storage/autoseo/json/{$filename}");
-        dd($path);
+        $path = Storage::disk('public')->path("autoseo/json/{$filename}");
+
         if (!file_exists($path)) {
             abort(404, "Archivo no encontrado");
         }
