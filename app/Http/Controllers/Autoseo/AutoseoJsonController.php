@@ -12,6 +12,7 @@ class AutoseoJsonController extends Controller
 {
     public function download($field, $id)
     {
+        dd($field);
         $autoseo = Autoseo::findOrFail($id);
 
         // Verifica si el campo existe en el modelo
