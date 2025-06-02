@@ -103,15 +103,39 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
+    // Búsqueda por nombre (una sola vez)
+    buscador.addEventListener('input', () => {
+        const valor = buscador.value.toLowerCase();
+        Array.from(tabla.children).forEach(tr => {
+            tr.style.display = tr.children[0].textContent.toLowerCase().includes(valor) ? '' : 'none';
+        });
+    });
+
+    // Carga archivos al cambiar el tipo
     select.addEventListener('change', function () {
         const tipo = this.value;
-        if (!tipo) return;
+        if (!tipo) {
+            tabla.innerHTML = '<tr><td colspan="2" class="text-center">Seleccione un tipo de archivo</td></tr>';
+            return;
+        }
+
+        // Mostrar loading
+        tabla.innerHTML = '<tr><td colspan="2" class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></td></tr>';
 
         fetch(`/suite/archivos/${tipo}`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Error al cargar los archivos');
+                }
+                return res.json();
+            })
             .then(data => {
-                tabla.innerHTML = '';
+                if (data.length === 0) {
+                    tabla.innerHTML = '<tr><td colspan="2" class="text-center">No hay archivos disponibles</td></tr>';
+                    return;
+                }
 
+                tabla.innerHTML = '';
                 data.forEach(file => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
@@ -120,14 +144,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     `;
                     tabla.appendChild(tr);
                 });
-
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                tabla.innerHTML = '<tr><td colspan="2" class="text-center text-danger">Error al cargar los archivos</td></tr>';
+            })
+            .finally(() => {
                 buscador.value = '';
-                buscador.addEventListener('input', () => {
-                    const valor = buscador.value.toLowerCase();
-                    Array.from(tabla.children).forEach(tr => {
-                        tr.style.display = tr.children[0].textContent.toLowerCase().includes(valor) ? '' : 'none';
-                    });
-                });
             });
     });
 });
