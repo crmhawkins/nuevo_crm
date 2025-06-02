@@ -91,7 +91,7 @@
 </div>
 @endsection
 
-@section('js')
+@section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const select = document.getElementById('tipoSelect');
@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
     select.addEventListener('change', function () {
         const tipo = this.value;
         if (!tipo) {
+
             tabla.innerHTML = '<tr><td colspan="2" class="text-center">Seleccione un tipo de archivo</td></tr>';
             return;
         }
