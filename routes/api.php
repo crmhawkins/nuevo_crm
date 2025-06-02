@@ -46,3 +46,6 @@ Route::get('/suite/descargar', [SuiteUploadController::class, 'descargarArchivo'
 Route::post('/tesoreria/contabilizar-ia/upload', [TesoreriaContabilizarIa::class, 'upload']);
 Route::post('/tesoreria/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');
 
+Route::get('/autoseo/api', function () {
+    return \App\Models\Autoseo\Autoseo::all(['id', 'client', 'url', 'json_home', 'json_nosotros'])->toJson();
+});
