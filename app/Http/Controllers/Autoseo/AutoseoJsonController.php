@@ -21,11 +21,10 @@ class AutoseoJsonController extends Controller
         $field = 'json_' . $field;
         $filename = $autoseo->{$field};
         if (!$filename) {
-            dd($filename);
             abort(404, "Archivo no especificado para este cliente");
         }
 
-        $path = storage_path("app/public/autoseo/{$filename}");
+        $path = storage_path("app/public/autoseo/json/{$filename}");
 
         if (!file_exists($path)) {
             abort(404, "Archivo no encontrado");
