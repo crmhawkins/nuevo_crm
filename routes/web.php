@@ -780,7 +780,7 @@ Route::prefix('tesoreria')->group(function () {
     Route::post('/transferencia-store-api', [TesoreriaController::class, 'storeTransferenciasApi'])->name('tesoreria.transferencia-store-api');
     Route::post('/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');
 });
-Route::middleware(['access.level:1'])->group(function () {
+Route::middleware(['access.level:6'])->group(function () {
     Route::prefix('autoseo')->group(function () {
         Route::get('/', [AutoseoController::class, 'index'])->name('autoseo.index');
         Route::put('/update', [AutoseoController::class, 'update'])->name('autoseo.update');
