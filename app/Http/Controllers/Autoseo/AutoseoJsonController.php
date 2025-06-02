@@ -19,9 +19,8 @@ class AutoseoJsonController extends Controller
             abort(400, "Campo no permitido");
         }
         $field = 'json_' . $field;
-        dd($field);
         $filename = $autoseo->{$field};
-
+        dd($filename);
         if (!$filename) {
             abort(404, "Archivo no especificado para este cliente");
         }
