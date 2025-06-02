@@ -19,6 +19,7 @@ class AutoseoJsonController extends Controller
             abort(400, "Campo no permitido");
         }
         $field = 'json_' . $field;
+        dd($field);
         $filename = $autoseo->{$field};
 
         if (!$filename) {
@@ -50,7 +51,7 @@ class AutoseoJsonController extends Controller
                 Storage::disk('public')->delete($autoseo->json_nosotros);
             }
             $autoseo->json_nosotros = $request->file('file')->store('autoseo', 'public');
-        } else if ($field == 'json_mes_anterior') {
+        } else if ($field == 'json_mesanterior') {
             if ($autoseo->json_mes_anterior) {
                 Storage::disk('public')->delete($autoseo->json_mes_anterior);
             }
