@@ -20,8 +20,8 @@ class AutoseoJsonController extends Controller
         }
         $field = 'json_' . $field;
         $filename = $autoseo->{$field};
-        dd($filename);
         if (!$filename) {
+            dd($filename);
             abort(404, "Archivo no especificado para este cliente");
         }
 
