@@ -8,6 +8,7 @@ use App\Http\Controllers\Suppliers\SuppliersController;
 use App\Http\Controllers\Tesoreria\CuadroController;
 use App\Http\Controllers\Tesoreria\TesoreriaContabilizarIa;
 use App\Http\Controllers\To_do\To_doController;
+use App\Http\Controllers\Autoseo\AutoseoController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Users\UserController;
@@ -778,4 +779,12 @@ Route::prefix('tesoreria')->group(function () {
     Route::post('/ingreso-store-api', [TesoreriaController::class, 'storeIngresosApi'])->name('tesoreria.ingreso-store-api');
     Route::post('/transferencia-store-api', [TesoreriaController::class, 'storeTransferenciasApi'])->name('tesoreria.transferencia-store-api');
     Route::post('/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');
+});
+Route::middleware(['access.level:1'])->group(function () {
+    Route::prefix('autoseo')->group(function () {
+        Route::get('/', [AutoseoController::class, 'index'])->name('autoseo.index');
+        Route::put('/update', [AutoseoController::class, 'update'])->name('autoseo.update');
+        Route::post('/create', [AutoseoController::class, 'store'])->name('autoseo.store');
+        Route::post('/delete', [AutoseoController::class, 'delete'])->name('autoseo.delete');
+        });
 });
