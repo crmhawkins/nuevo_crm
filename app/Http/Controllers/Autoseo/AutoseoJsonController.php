@@ -24,7 +24,7 @@ class AutoseoJsonController extends Controller
             abort(404, "Archivo no especificado para este cliente");
         }
 
-        $path = public_path("storage/autoseo/json/{$filename}");
+        $path = public_path("storage/{$filename}");
         dd($path);
         if (!file_exists($path)) {
             abort(404, "Archivo no encontrado");
