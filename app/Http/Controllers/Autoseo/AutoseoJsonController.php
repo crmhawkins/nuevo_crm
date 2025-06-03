@@ -17,7 +17,7 @@ class AutoseoJsonController extends Controller
     {
         $autoseo = Autoseo::find($id);
         if (!$autoseo) {
-            abort(602, "Cliente no encontrado");
+            abort(501, "Cliente no encontrado");
         }
         // Verifica si el campo existe en el modelo
         if (!in_array($field, ['home', 'nosotros', 'mesanterior', 'mesactual'])) {
@@ -26,13 +26,13 @@ class AutoseoJsonController extends Controller
         $field = 'json_' . $field;
         $filename = $autoseo->{$field};
         if (!$filename) {
-            abort(601, "Archivo no especificado para este cliente");
+            abort(502, "Archivo no especificado para este cliente");
         }
 
         $path = public_path("storage/{$filename}");
 
         if (!file_exists($path)) {
-            abort(600, "Archivo no encontrado");
+            abort(503, "Archivo no encontrado");
         }
 
         // Sanitizar el nombre para la cabecera (remplaza / y \ por _)
