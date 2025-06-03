@@ -96,6 +96,22 @@
                                                         </p>
                                                         <hr>
                                                         <h6>Reportes</h6>
+                                                        <div class="mb-3">
+                                                            <form action="{{ route('autoseo.json.upload', ['field' => 'reporte', 'id' => $client->id]) }}"
+                                                                  method="POST"
+                                                                  enctype="multipart/form-data"
+                                                                  class="d-flex gap-2">
+                                                                @csrf
+                                                                <input type="file"
+                                                                       class="form-control form-control-sm"
+                                                                       name="file"
+                                                                       accept=".pdf,.doc,.docx"
+                                                                       required>
+                                                                <button type="submit" class="btn btn-primary btn-sm">
+                                                                    <i class="fas fa-upload"></i> Subir Reporte
+                                                                </button>
+                                                            </form>
+                                                        </div>
                                                         @if($client->reports && count($client->reports) > 0)
                                                             <div class="list-group">
                                                                 @foreach($client->reports as $index => $report)
