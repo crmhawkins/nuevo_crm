@@ -94,6 +94,29 @@
                                                                 <span class="text-danger"><i class="fas fa-times-circle"></i> No subido</span>
                                                             @endif
                                                         </p>
+                                                        <hr>
+                                                        <h6>Reportes</h6>
+                                                        @if($client->reports && count($client->reports) > 0)
+                                                            <div class="list-group">
+                                                                @foreach($client->reports as $index => $report)
+                                                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        <div>
+                                                                            <i class="fas fa-file-pdf me-2"></i>
+                                                                            Reporte #{{ $index + 1 }}
+                                                                            <small class="text-muted ms-2">
+                                                                                {{ \Carbon\Carbon::parse($report['creation_date'])->format('d/m/Y H:i') }}
+                                                                            </small>
+                                                                        </div>
+                                                                        <a href="{{ route('autoseo.json.download', ['field' => 'reporte', 'id' => $client->id, 'index' => $index]) }}"
+                                                                           class="btn btn-sm btn-primary">
+                                                                            <i class="fas fa-download"></i> Descargar
+                                                                        </a>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        @else
+                                                            <p class="text-muted">No hay reportes disponibles</p>
+                                                        @endif
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

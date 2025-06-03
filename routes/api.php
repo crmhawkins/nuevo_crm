@@ -51,5 +51,5 @@ Route::get('/autoseo/api', function () {
     return \App\Models\Autoseo\Autoseo::all()->toJson();
 });
 
-Route::get('/autoseo/json/{field}/{id}', [AutoseoJsonController::class, 'download']);
-Route::post('/autoseo/json/upload/{field}/{id}', [AutoseoJsonController::class, 'upload']);
+Route::get('/autoseo/json/{field}/{id}', [AutoseoJsonController::class, 'download'])->name('autoseo.json.download');
+Route::post('/autoseo/json/upload/{field}/{id}', [AutoseoJsonController::class, 'upload'])->name('autoseo.json.upload');

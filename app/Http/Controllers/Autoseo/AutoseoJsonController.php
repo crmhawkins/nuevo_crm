@@ -19,6 +19,24 @@ class AutoseoJsonController extends Controller
         if (!$autoseo) {
             abort(501, "Cliente no encontrado");
         }
+
+        if ($field === 'reporte') {
+            $index = request('index', 0);
+            if (!$autoseo->reports || !isset($autoseo->reports[$index])) {
+                abort(502, "Reporte no encontrado");
+            }
+
+            $report = $autoseo->reports[$index];
+            $filename = $report['path'];
+            $path = public_path("storage/{$filename}");
+
+            if (!file_exists($path)) {
+                abort(503, "Archivo no encontrado");
+            }
+
+            return Response::download($path, basename($filename));
+        }
+
         // Verifica si el campo existe en el modelo
         if (!in_array($field, ['home', 'nosotros', 'mesanterior', 'mesactual'])) {
             abort(400, "Campo no permitido");
@@ -77,8 +95,17 @@ class AutoseoJsonController extends Controller
                 Storage::disk('public')->delete($autoseo->json_mes_anterior);
             }
             $autoseo->json_mes_anterior = $request->file('file')->store('autoseo', 'public');
-        } else {
-            abort(504, "Campo no permitido");
+        } else if ($field == 'reporte') {
+            if (!$autoseo->reports) {
+                $autoseo->reports = [];
+            }
+            $newReportPath = $request->file('file')->store('autoseo/reports', 'public');
+            $reports = $autoseo->reports;
+            $reports[] = [
+                'path' => $newReportPath,
+                'creation_date' => now()->toDateTimeString()
+            ];
+            $autoseo->reports = $reports;
         }
 
         $autoseo->save();
