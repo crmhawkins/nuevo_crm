@@ -367,6 +367,9 @@ class ProcesarExcel extends Command
                         $message = $movimiento['message'] ?? '';
                         $amount = $movimiento['amount'] ?? 0;
                         $received_date = $movimiento['received_date'] ? Carbon::parse($movimiento['received_date'])->format('Y-m-d') : '';
+                        if ($received_date < '2025-06-03') {
+                            continue;
+                        }
                         $saldo = $movimiento['saldo'] ?? 0;
 
                         $hashBase = $message . '|' . $amount . '|' . $received_date . '|' . $saldo;
