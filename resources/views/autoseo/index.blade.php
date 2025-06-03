@@ -132,6 +132,14 @@
                                                                 <input type="url" class="form-control" id="edit_url{{ $client->id }}" name="url" value="{{ $client->url }}" required>
                                                             </div>
                                                             <div class="col-md-6">
+                                                                <label for="edit_username{{ $client->id }}" class="form-label">Usuario</label>
+                                                                <input type="text" class="form-control" id="edit_username{{ $client->id }}" name="username" value="{{ $client->username }}" required autocomplete="off">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label for="edit_password{{ $client->id }}" class="form-label">Contraseña</label>
+                                                                <input type="text" class="form-control" id="edit_password{{ $client->id }}" name="password" value="{{ $client->password }}" required autocomplete="off">
+                                                            </div>
+                                                            <div class="col-md-6">
                                                                 <label for="edit_json_home{{ $client->id }}" class="form-label">JSON Home</label>
                                                                 <input type="file" class="form-control" id="edit_json_home{{ $client->id }}" name="json_home" accept=".json">
                                                                 <small class="text-muted">Dejar vacío para mantener el archivo actual</small>
@@ -162,7 +170,6 @@
                                                 <i class="fas fa-trash"></i> Eliminar
                                             </button>
                                         </form>
-                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -196,6 +203,14 @@
                     <div class="col-md-12">
                         <label for="url" class="form-label">URL del Sitio</label>
                         <input type="url" class="form-control" id="url" name="url" required placeholder="https://ejemplo.com">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="username" class="form-label">Usuario</label>
+                        <input type="text" class="form-control" id="username" name="username" required autocomplete="off">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="text" class="form-control" id="password" name="password" required autocomplete="off">
                     </div>
                     <div class="col-md-6">
                         <label for="json_home" class="form-label">JSON Home</label>

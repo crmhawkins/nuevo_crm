@@ -38,6 +38,8 @@ class AutoseoController extends Controller
         $client->json_home_update = now();
         $client->json_nosotros_update = now();
         $client->url = $request->url;
+        $client->username = $request->username;
+        $client->password = $request->password;
 
         // Save the client
         $client->save();
@@ -52,6 +54,8 @@ class AutoseoController extends Controller
         $client->client_email = $request->client_email;
         $client->url = $request->url;
         $client->next_seo = $request->next_seo;
+        $client->username = $request->username;
+        $client->password = $request->password;
         if ($request->hasFile('json_home')) {
             Storage::disk('public')->delete($client->json_home);
             $jsonHomePath = $request->file('json_home')->store('autoseo/json', 'public');

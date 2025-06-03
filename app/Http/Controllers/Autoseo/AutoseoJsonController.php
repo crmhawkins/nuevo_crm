@@ -36,8 +36,22 @@ class AutoseoJsonController extends Controller
         // Sanitizar el nombre para la cabecera (remplaza / y \ por _)
         $safeFilename = preg_replace('/[\/\\\\]/', '_', $filename);
 
-        return Response::download($path, $safeFilename, [
+        // Leer el contenido del archivo JSON
+        $jsonContent = file_get_contents($path);
+        $jsonData = json_decode($jsonContent, true);
+
+        // Añadir las credenciales al JSON
+        $jsonData['credentials'] = [
+            'username' => $autoseo->username,
+            'password' => $autoseo->password
+        ];
+
+        // Convertir de nuevo a JSON
+        $modifiedJsonContent = json_encode($jsonData, JSON_PRETTY_PRINT);
+
+        return Response::make($modifiedJsonContent, 200, [
             'Content-Type' => 'application/json',
+            'Content-Disposition' => 'attachment; filename="' . $safeFilename . '"'
         ]);
     }
 
@@ -46,17 +60,17 @@ class AutoseoJsonController extends Controller
     {
         $autoseo = Autoseo::findOrFail($id);
 
-        if ($field == 'json_home') {
+        if ($field == 'home') {
             if ($autoseo->json_home) {
                 Storage::disk('public')->delete($autoseo->json_home);
             }
             $autoseo->json_home = $request->file('file')->store('autoseo', 'public');
-        } else if ($field == 'json_nosotros') {
+        } else if ($field == 'nosotros') {
             if ($autoseo->json_nosotros) {
                 Storage::disk('public')->delete($autoseo->json_nosotros);
             }
             $autoseo->json_nosotros = $request->file('file')->store('autoseo', 'public');
-        } else if ($field == 'json_mesanterior') {
+        } else if ($field == 'mesanterior') {
             if ($autoseo->json_mes_anterior) {
                 Storage::disk('public')->delete($autoseo->json_mes_anterior);
             }
