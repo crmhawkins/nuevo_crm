@@ -15,8 +15,10 @@ class AutoseoJsonController extends Controller
 
     public function download($field, $id)
     {
-        $autoseo = Autoseo::findOrFail($id);
-
+        $autoseo = Autoseo::find($id);
+        if (!$autoseo) {
+            abort(602, "Cliente no encontrado");
+        }
         // Verifica si el campo existe en el modelo
         if (!in_array($field, ['home', 'nosotros', 'mesanterior', 'mesactual'])) {
             abort(400, "Campo no permitido");
@@ -24,13 +26,13 @@ class AutoseoJsonController extends Controller
         $field = 'json_' . $field;
         $filename = $autoseo->{$field};
         if (!$filename) {
-            abort(404, "Archivo no especificado para este cliente");
+            abort(601, "Archivo no especificado para este cliente");
         }
 
         $path = public_path("storage/{$filename}");
 
         if (!file_exists($path)) {
-            abort(404, "Archivo no encontrado");
+            abort(600, "Archivo no encontrado");
         }
 
         // Sanitizar el nombre para la cabecera (remplaza / y \ por _)
