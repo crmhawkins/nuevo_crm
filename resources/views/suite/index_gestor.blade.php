@@ -21,6 +21,7 @@
                                 <option value="">Seleccione tipo</option>
                                 <option value="crm">CRM</option>
                                 <option value="erp">ERP</option>
+                                <option value="logs">Logs</option>
                                 <option value="facturas">Facturas</option>
                                 <option value="fichaje">Fichaje</option>
                             </select>
