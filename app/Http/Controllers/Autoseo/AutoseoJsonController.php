@@ -77,6 +77,8 @@ class AutoseoJsonController extends Controller
                 Storage::disk('public')->delete($autoseo->json_mes_anterior);
             }
             $autoseo->json_mes_anterior = $request->file('file')->store('autoseo', 'public');
+        } else {
+            abort(504, "Campo no permitido");
         }
 
         $autoseo->save();
