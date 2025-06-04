@@ -85,11 +85,13 @@ class AutoseoJsonController extends Controller
                 Storage::disk('public')->delete($autoseo->json_home);
             }
             $autoseo->json_home = $request->file('file')->store('autoseo', 'public');
+            $autoseo->json_home_update = now();
         } else if ($field == 'nosotros') {
             if ($autoseo->json_nosotros) {
                 Storage::disk('public')->delete($autoseo->json_nosotros);
             }
             $autoseo->json_nosotros = $request->file('file')->store('autoseo', 'public');
+            $autoseo->json_nosotros_update = now();
         } else if ($field == 'mesanterior') {
             if ($autoseo->json_mes_anterior) {
                 Storage::disk('public')->delete($autoseo->json_mes_anterior);
