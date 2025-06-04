@@ -28,6 +28,7 @@ class ProcesarExcel extends Command
     }
     public function handle()
     {
+        Log::info('Iniciando procesamiento de archivos Excel');
         $this->info('Procesando excel...');
         $files = Storage::files('public/excel');
             $cod1Files = array_filter($files, function($file) {
