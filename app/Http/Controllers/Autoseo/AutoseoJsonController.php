@@ -21,20 +21,26 @@ class AutoseoJsonController extends Controller
         }
 
         if ($field === 'reporte') {
-            $index = request('index', 0);
-            if (!$autoseo->reports || !isset($autoseo->reports[$index])) {
-                abort(502, "Reporte no encontrado");
+            if (!$autoseo->reports || empty($autoseo->reports)) {
+                abort(502, "No hay reportes disponibles");
             }
 
-            $report = $autoseo->reports[$index];
             $filename = $report['path'];
+            // Ordenar reportes por fecha de creación (más reciente primero)
+            $reports = collect($autoseo->reports)->sortByDesc(function($report) {
+                return strtotime($report['creation_date']);
+            })->values()->all();
+
+            // Obtener el reporte más reciente
+            $latestReport = $reports[0];
+            $filename = $latestReport['path'];
             $path = public_path("storage/{$filename}");
 
             if (!file_exists($path)) {
                 abort(503, "Archivo no encontrado");
             }
 
-            return Response::download($path, basename($filename));
+            return Response::download($path, $latestReport['original_name']);
         }
 
         // Verifica si el campo existe en el modelo
