@@ -25,7 +25,6 @@ class AutoseoJsonController extends Controller
                 abort(502, "No hay reportes disponibles");
             }
 
-            $filename = $report['path'];
             // Ordenar reportes por fecha de creación (más reciente primero)
             $reports = collect($autoseo->reports)->sortByDesc(function($report) {
                 return strtotime($report['creation_date']);
