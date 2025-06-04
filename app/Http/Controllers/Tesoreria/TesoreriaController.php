@@ -769,6 +769,9 @@ class TesoreriaController extends Controller
             case 'BANKINTER':
                 $validated['bank_id'] = 3;
                 break;
+            case 'SANTANDER':
+                $validated['bank_id'] = 5;
+                break;
             default:
                 $validated['bank_id'] = null;
                 break;
@@ -816,6 +819,9 @@ class TesoreriaController extends Controller
                 break;
             case 'BANKINTER':
                 $bank = 3;
+                break;
+            case 'SANTANDER':
+                $bank = 5;
                 break;
             default:
                 $bank = null;
@@ -899,6 +905,9 @@ class TesoreriaController extends Controller
                 break;
             case 'BANKINTER':
                 $bank = 3;
+                break;
+            case 'SANTANDER':
+                $bank = 5;
                 break;
             case 'CAIXA':
                 $bank = 1;
