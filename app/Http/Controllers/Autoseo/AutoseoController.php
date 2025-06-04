@@ -56,6 +56,9 @@ class AutoseoController extends Controller
         $client->next_seo = $request->next_seo;
         $client->username = $request->username;
         $client->password = $request->password;
+        $client->user_app = $request->user_app;
+        $client->password_app = $request->password_app;
+        
         if ($request->hasFile('json_home')) {
             Storage::disk('public')->delete($client->json_home);
             $jsonHomePath = $request->file('json_home')->store('autoseo/json', 'public');
