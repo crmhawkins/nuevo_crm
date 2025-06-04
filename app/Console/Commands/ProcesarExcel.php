@@ -28,11 +28,12 @@ class ProcesarExcel extends Command
     }
     public function handle()
     {
-            $files = Storage::files('public/excel');
+        $this->info('Procesando excel...');
+        $files = Storage::files('public/excel');
             $cod1Files = array_filter($files, function($file) {
                 return str_starts_with(basename($file), 'COD1_');
             });
-
+            $this->info('Ficheros encontrados: ' . count($cod1Files));
             foreach ($cod1Files as $file) {
                 $import = new ExcelSimpleImport();
                 Excel::import($import, $file);
@@ -426,6 +427,7 @@ class ProcesarExcel extends Command
                 Log::error('Error al procesar el archivo: ' . $e->getMessage());
             }
         }
+        Log::info('Comando ProcesarExcel ejecutado exitosamente');
         $this->info('¡Comando ejecutado exitosamente!');
     }
 
