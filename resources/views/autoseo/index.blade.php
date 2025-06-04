@@ -75,6 +75,8 @@
                                                     <div class="modal-body">
                                                         <p><strong>Email:</strong> {{ $client->client_email }}</p>
                                                         <p><strong>URL:</strong> {{ $client->url }}</p>
+                                                        <p><strong>Usuario Aplicación:</strong> {{ $client->user_app }}</p>
+                                                        <p><strong>Contraseña Aplicación:</strong> {{ $client->password_app }}</p>
                                                         <p><strong>Creado:</strong> {{ $client->created_at->format('d/m/Y') }}</p>
                                                         <hr>
                                                         <h6>Archivos JSON</h6>
@@ -179,6 +181,14 @@
                                                                 <input type="text" class="form-control" id="edit_password{{ $client->id }}" name="password" value="{{ $client->password }}" required autocomplete="off">
                                                             </div>
                                                             <div class="col-md-6">
+                                                                <label for="edit_user_app{{ $client->id }}" class="form-label">Usuario Aplicación</label>
+                                                                <input type="text" class="form-control" id="edit_user_app{{ $client->id }}" name="user_app" value="{{ $client->user_app }}" required autocomplete="off">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label for="edit_password_app{{ $client->id }}" class="form-label">Contraseña Aplicación</label>
+                                                                <input type="text" class="form-control" id="edit_password_app{{ $client->id }}" name="password_app" value="{{ $client->password_app }}" required autocomplete="off">
+                                                            </div>
+                                                            <div class="col-md-6">
                                                                 <label for="edit_json_home{{ $client->id }}" class="form-label">JSON Home</label>
                                                                 <input type="file" class="form-control" id="edit_json_home{{ $client->id }}" name="json_home" accept=".json">
                                                                 <small class="text-muted">Dejar vacío para mantener el archivo actual</small>
@@ -250,6 +260,14 @@
                     <div class="col-md-6">
                         <label for="password" class="form-label">Contraseña</label>
                         <input type="text" class="form-control" id="password" name="password" required autocomplete="off">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="user_app" class="form-label">Usuario Aplicación</label>
+                        <input type="text" class="form-control" id="user_app" name="user_app" required autocomplete="off">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="password_app" class="form-label">Contraseña Aplicación</label>
+                        <input type="text" class="form-control" id="password_app" name="password_app" required autocomplete="off">
                     </div>
                     <div class="col-md-6">
                         <label for="json_home" class="form-label">JSON Home</label>

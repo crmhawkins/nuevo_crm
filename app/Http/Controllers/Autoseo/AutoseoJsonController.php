@@ -66,6 +66,11 @@ class AutoseoJsonController extends Controller
             'password' => $autoseo->password
         ];
 
+        $jsonData['wp_login'] = [
+            'username' => $autoseo->user_app,
+            'password' => $autoseo->password_app
+        ];
+
         // Convertir de nuevo a JSON
         $modifiedJsonContent = json_encode($jsonData, JSON_PRETTY_PRINT);
 
