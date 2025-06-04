@@ -82,41 +82,72 @@ class AutoseoJsonController extends Controller
 
 
     public function upload($field, $id, Request $request)
-    {
-        $autoseo = Autoseo::findOrFail($id);
+{
+    $autoseo = Autoseo::find($id);
+    if (!$autoseo) {
+        return response()->json(['error' => 'Cliente no encontrado'], 404);
+    }
 
-        if ($field == 'home') {
-            if ($autoseo->json_home) {
-                Storage::disk('public')->delete($autoseo->json_home);
+    // Validar que se subió un archivo válido
+    if (!$request->hasFile('file') || !$request->file('file')->isValid()) {
+        return response()->json(['error' => 'Archivo no válido o no enviado'], 400);
+    }
+
+    $file = $request->file('file');
+
+    if ($field == 'home') {
+        if ($autoseo->json_home) {
+            Storage::disk('public')->delete($autoseo->json_home);
+        }
+        $autoseo->json_home = $file->store('autoseo', 'public');
+        $autoseo->json_home_update = now();
+
+    } elseif ($field == 'nosotros') {
+        if ($autoseo->json_nosotros) {
+            Storage::disk('public')->delete($autoseo->json_nosotros);
+        }
+        $autoseo->json_nosotros = $file->store('autoseo', 'public');
+        $autoseo->json_nosotros_update = now();
+
+    } elseif ($field == 'mesanterior') {
+        if ($autoseo->json_mes_anterior) {
+            Storage::disk('public')->delete($autoseo->json_mes_anterior);
+        }
+        $autoseo->json_mes_anterior = $file->store('autoseo', 'public');
+        $autoseo->json_mes_anterior_update = now();
+
+    } elseif ($field == 'reporte') {
+        try {
+            // Asegurar el directorio de reportes
+            Storage::disk('public')->makeDirectory('autoseo/reports');
+
+            $newReportPath = $file->store('autoseo/reports', 'public');
+            if (!$newReportPath) {
+                throw new \Exception('Error al guardar el archivo');
             }
-            $autoseo->json_home = $request->file('file')->store('autoseo', 'public');
-            $autoseo->json_home_update = now();
-        } else if ($field == 'nosotros') {
-            if ($autoseo->json_nosotros) {
-                Storage::disk('public')->delete($autoseo->json_nosotros);
-            }
-            $autoseo->json_nosotros = $request->file('file')->store('autoseo', 'public');
-            $autoseo->json_nosotros_update = now();
-        } else if ($field == 'mesanterior') {
-            if ($autoseo->json_mes_anterior) {
-                Storage::disk('public')->delete($autoseo->json_mes_anterior);
-            }
-            $autoseo->json_mes_anterior = $request->file('file')->store('autoseo', 'public');
-        } else if ($field == 'reporte') {
-            if (!$autoseo->reports) {
-                $autoseo->reports = [];
-            }
-            $newReportPath = $request->file('file')->store('autoseo/reports', 'public');
-            $reports = $autoseo->reports;
+
+            $reports = $autoseo->reports ?? [];
             $reports[] = [
                 'path' => $newReportPath,
-                'creation_date' => now()->toDateTimeString()
+                'creation_date' => now()->toDateTimeString(),
+                'original_name' => $file->getClientOriginalName()
             ];
             $autoseo->reports = $reports;
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al subir el reporte: ' . $e->getMessage()], 500);
         }
 
-        $autoseo->save();
-
-        return response()->json(['message' => 'Archivo subido correctamente']);
+    } else {
+        return response()->json(['error' => 'Campo no permitido'], 400);
     }
+
+    // Guardar cambios
+    if (!$autoseo->save()) {
+        return response()->json(['error' => 'Error al guardar en la base de datos'], 500);
+    }
+
+    return response()->json(['message' => 'Archivo subido correctamente']);
+}
+
 }
