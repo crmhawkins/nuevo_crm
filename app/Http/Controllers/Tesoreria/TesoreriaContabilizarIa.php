@@ -130,6 +130,9 @@ class TesoreriaContabilizarIa extends Controller
                 case 'SANTANDER':
                     $bank = 5;
                     break;
+                case 'BANCO SANTANDER':
+                    $bank = 5;
+                    break;
                 default:
                     $bank = null;
                     break;
@@ -216,6 +219,9 @@ class TesoreriaContabilizarIa extends Controller
                 case 'SANTANDER':
                     $bank = 5;
                     break;
+                case 'BANCO SANTANDER':
+                    $bank = 5;
+                    break;
                 default:
                     $bank = null;
                     break;
@@ -272,6 +278,9 @@ class TesoreriaContabilizarIa extends Controller
                     $bank = 3;
                     break;
                 case 'SANTANDER':
+                    $bank = 5;
+                    break;
+                case 'BANCO SANTANDER':
                     $bank = 5;
                     break;
                 default:
