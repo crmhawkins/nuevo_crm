@@ -117,7 +117,9 @@ class ProcesarExcel extends Command
                 ]
                 }
                 4. En ningun momento modifiques en nada el concepto del movimiento.
-                5. IMPORTANTE: Devuelve tu respuesta en formato JSON como te pedi.
+                5. Todo el texto que devuelvas debe estar en mayusculas, TODO. Es muy importante.
+                6. Los nombres de las variables de JSON no deben estar en mayusculas, siempre minusculas.
+                7. IMPORTANTE: Devuelve tu respuesta en formato JSON como te pedi.
                 Una vez
                 Aquí están los datos a analizar:";
 
