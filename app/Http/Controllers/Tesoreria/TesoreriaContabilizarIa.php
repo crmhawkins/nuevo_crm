@@ -263,10 +263,10 @@ class TesoreriaContabilizarIa extends Controller
         $bank = strtoupper($request->input('bank'));
             switch ($bank) {
                 case 'BBVA':
-                    $bank = 4;
+                    $bank = 2;
                     break;
                 case 'SABADELL':
-                    $bank = 2;
+                    $bank = 4;
                     break;
                 case 'BANKINTER':
                     $bank = 3;
