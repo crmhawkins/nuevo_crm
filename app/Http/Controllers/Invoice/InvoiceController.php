@@ -156,6 +156,14 @@ class InvoiceController extends Controller
 
     }
 
+      public function calcNewHoursPrice($total, $precio_hora){
+        $toMin = $total / $precio_hora;
+        $Mins = $toMin * 60;
+        $result = (int)($Mins);
+		$hours = floor($result / 60).':'.($result -   floor($result / 60) * 60);
+        return $hours;
+    }
+
     public function createAlert($id){
 
         $fechaNow = Carbon::now();
