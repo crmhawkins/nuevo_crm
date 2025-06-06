@@ -639,7 +639,9 @@ class BudgetController extends Controller
             $budget->reference = $referencia['reference'];
             $budget->reference_autoincrement_id = $referencia['id'];
         }
-        $budget->budget_status_id = 3;
+        if($budget->budget_status_id != BudgetStatu::ESPERANDO_PAGO_PARCIAL){
+            $budget->budget_status_id = 3;
+        }
         $budget->save();
         if(!$budget->cliente->is_client){
             $budget->cliente->is_client = true;
@@ -1373,8 +1375,10 @@ class BudgetController extends Controller
         }
 
         if(isset($invoice)){
-            $budget->budget_status_id = 6;
-            $budget->save();
+            if($budget->budget_status_id != BudgetStatu::ESPERANDO_PAGO_PARCIAL){
+                $budget->budget_status_id = 6;
+                $budget->save();
+            }
             //////////////////////////////////////////////////////////////////////////////////////////////
             ////////////////////////////////         CONCEPTOS PROPIOS         ///////////////////////////
             //////////////////////////////////////////////////////////////////////////////////////////////
