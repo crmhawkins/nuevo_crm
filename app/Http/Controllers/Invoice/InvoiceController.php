@@ -51,11 +51,22 @@ class InvoiceController extends Controller
         $invoice = Invoice::find($id);
 
         $invoice->invoice_status_id = 3;
-        if($invoice->budget->budget_status_id == BudgetStatu::ESPERANDO_PAGO_PARCIAL){
-            $invoice->budget->budget_status_id = BudgetStatu::ACCEPTED;
-            $this->createTask($invoice->budget->id);
-        }
         $invoice->save();
+
+        if($invoice->budget->budget_status_id == BudgetStatu::ESPERANDO_PAGO_PARCIAL){
+
+            $budget = Budget::find( $invoice->budget->id);
+            if($budget->total == $invoice->total)
+            {
+                $budget->budget_status_id = BudgetStatu::FACTURADO;
+            }else{
+                $budget->budget_status_id = BudgetStatu::FACTURADO_PARCIALMENTE;
+            }
+            $budget->save();
+            $this->createTask($invoice->budget->id);
+            $this->createAlert($invoice->budget->id);
+
+        }
         return response(200);
         // session()->flash('toast', [
         //     'icon' => 'success',
@@ -85,7 +96,14 @@ class InvoiceController extends Controller
         $facturaupdated=$factura->update($data);
 
         if($factura->budget->budget_status_id == BudgetStatu::ESPERANDO_PAGO_PARCIAL && $factura->invoice_status_id == 3){
-            $factura->budget->budget_status_id = BudgetStatu::ACCEPTED;
+            $budget = Budget::find( $factura->budget->id);
+            if($budget->total == $factura->total)
+            {
+                $budget->budget_status_id = BudgetStatu::FACTURADO;
+            }else{
+                $budget->budget_status_id = BudgetStatu::FACTURADO_PARCIALMENTE;
+            }
+            $budget->save();
             $this->createAlert($factura->budget->id);
             $this->createTask($factura->budget->id);
         }
@@ -156,6 +174,14 @@ class InvoiceController extends Controller
 
     }
 
+      public function calcNewHoursPrice($total, $precio_hora){
+        $toMin = $total / $precio_hora;
+        $Mins = $toMin * 60;
+        $result = (int)($Mins);
+		$hours = floor($result / 60).':'.($result -   floor($result / 60) * 60);
+        return $hours;
+    }
+
     public function createAlert($id){
 
         $fechaNow = Carbon::now();
@@ -166,6 +192,7 @@ class InvoiceController extends Controller
         $alertNew['activation_datetime'] = $fechaNow->format('Y-m-d H:i:s');
         $alertNew['status_id'] = 1; // Estado pendiente
         $alertNew['reference_id'] = $budget->id;    //Referencia del presupuesto
+        $alertNew['description'] = "Pago Realizado para presupuesto: ". $budget->reference;
 
         $alert = Alert::create($alertNew);
        $alertSaved = $alert->save();
