@@ -19,28 +19,15 @@ class AutoseoController extends Controller
     public function store(Request $request)
     {
         $client = new Autoseo();
-        // Handle file uploads
-        if ($request->hasFile('json_home')) {
-            $jsonHomePath = $request->file('json_home')->store('autoseo/json', 'public');
-            $client->json_home = $jsonHomePath;
-        } else {
-            dd('no hay archivo');
-        }
-
-        if ($request->hasFile('json_nosotros')) {
-            $jsonNosotrosPath = $request->file('json_nosotros')->store('autoseo/json', 'public');
-            $client->json_nosotros = $jsonNosotrosPath;
-        }
 
         $client->client_name = $request->client_name;
         $client->client_email = $request->client_email;
         $client->next_seo = $request->next_seo;
-        $client->json_home_update = now();
-        $client->json_nosotros_update = now();
         $client->url = $request->url;
         $client->username = $request->username;
         $client->password = $request->password;
-
+        $client->user_app = $request->user_app;
+        $client->password_app = $request->password_app;
         // Save the client
         $client->save();
 
@@ -59,18 +46,6 @@ class AutoseoController extends Controller
         $client->user_app = $request->user_app;
         $client->password_app = $request->password_app;
         
-        if ($request->hasFile('json_home')) {
-            Storage::disk('public')->delete($client->json_home);
-            $jsonHomePath = $request->file('json_home')->store('autoseo/json', 'public');
-            $client->json_home = $jsonHomePath;
-            $client->json_home_update = now();
-        }
-        if ($request->hasFile('json_nosotros')) {
-            Storage::disk('public')->delete($client->json_nosotros);
-            $jsonNosotrosPath = $request->file('json_nosotros')->store('autoseo/json', 'public');
-            $client->json_nosotros = $jsonNosotrosPath;
-            $client->json_nosotros_update = now();
-        }
         $client->save();
 
         return redirect()->route('autoseo.index')->with('success', 'Cliente actualizado correctamente');

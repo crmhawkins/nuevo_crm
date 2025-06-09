@@ -79,24 +79,6 @@
                                                         <p><strong>Contraseña Aplicación:</strong> {{ $client->password_app }}</p>
                                                         <p><strong>Creado:</strong> {{ $client->created_at->format('d/m/Y') }}</p>
                                                         <hr>
-                                                        <h6>Archivos JSON</h6>
-                                                        <p>
-                                                            <strong>Home:</strong>
-                                                            @if($client->json_home_update)
-                                                                <span class="text-success"><i class="fas fa-check-circle"></i> {{ \Carbon\Carbon::parse($client->json_home_update)->format('d/m/Y') }}</span>
-                                                            @else
-                                                                <span class="text-danger"><i class="fas fa-times-circle"></i> No subido</span>
-                                                            @endif
-                                                        </p>
-                                                        <p>
-                                                            <strong>Nosotros:</strong>
-                                                            @if($client->json_nosotros_update)
-                                                                <span class="text-success"><i class="fas fa-check-circle"></i> {{ \Carbon\Carbon::parse($client->json_nosotros_update)->format('d/m/Y') }}</span>
-                                                            @else
-                                                                <span class="text-danger"><i class="fas fa-times-circle"></i> No subido</span>
-                                                            @endif
-                                                        </p>
-                                                        <hr>
                                                         <h6>Reportes</h6>
                                                         <div class="mb-3">
                                                             <form action="{{ route('autoseo.json.upload', ['field' => 'reporte', 'id' => $client->id]) }}"
@@ -189,16 +171,6 @@
                                                                 <input type="text" class="form-control" id="edit_password_app{{ $client->id }}" name="password_app" value="{{ $client->password_app }}" required autocomplete="off">
                                                             </div>
                                                             <div class="col-md-6">
-                                                                <label for="edit_json_home{{ $client->id }}" class="form-label">JSON Home</label>
-                                                                <input type="file" class="form-control" id="edit_json_home{{ $client->id }}" name="json_home" accept=".json">
-                                                                <small class="text-muted">Dejar vacío para mantener el archivo actual</small>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <label for="edit_json_nosotros{{ $client->id }}" class="form-label">JSON Nosotros</label>
-                                                                <input type="file" class="form-control" id="edit_json_nosotros{{ $client->id }}" name="json_nosotros" accept=".json">
-                                                                <small class="text-muted">Dejar vacío para mantener el archivo actual</small>
-                                                            </div>
-                                                            <div class="col-md-6">
                                                                 <label for="edit_next_seo{{ $client->id }}" class="form-label">Próximo SEO</label>
                                                                 <input type="date" class="form-control" id="edit_next_seo{{ $client->id }}" name="next_seo" value="{{ $client->next_seo }}" required>
                                                             </div>
@@ -268,14 +240,6 @@
                     <div class="col-md-6">
                         <label for="password_app" class="form-label">Contraseña Aplicación</label>
                         <input type="text" class="form-control" id="password_app" name="password_app" required autocomplete="off">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="json_home" class="form-label">JSON Home</label>
-                        <input type="file" class="form-control" id="json_home" name="json_home" accept=".json" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="json_nosotros" class="form-label">JSON Nosotros</label>
-                        <input type="file" class="form-control" id="json_nosotros" name="json_nosotros" accept=".json" required>
                     </div>
                     <div class="col-md-6">
                         <label for="next_seo" class="form-label">Próximo SEO</label>
