@@ -32,6 +32,8 @@ class DonDominioController extends Controller
             $available = $domainData['available'];
             $price = $domainData['price'];
 
+            $price = $price * 1.21;
+
             if ($available == 'true')
             {
                 return response()->json([
@@ -150,14 +152,7 @@ class DonDominioController extends Controller
         $domain = $request->domain;
 
         $ownerContact = [
-            "firstName" => "Elena",
-            "lastName" => "Perez",
-            "email" => "administracion@hawkins.es",
-            "phone" => "+34.622440984",
-            "address" => "C/General primo de rivera S/N",
-            "postalCode" => "11201",
-            "city" => "Algeciras",
-            "country" => "ES"
+
         ];
 
         $ownerContact = json_encode($ownerContact);
@@ -165,7 +160,17 @@ class DonDominioController extends Controller
         $response = $this->dondominio->call('domain/create', [
             'domain' => $domain,
             'period' => 1,
-            'ownerContact' => $ownerContact
+            "ownerContactType" => "individual",
+            "ownerContactFirstName" => "Elena",
+            "ownerContactLastName" => "Perez",
+            "ownerContactIdentNumber" => "75900659S",
+            "ownerContactEmail" => "administracion@hawkins.es",
+            "ownerContactPhone" => "+34.622440984",
+            "ownerContactAddress" => "C/General primo de rivera S/N",
+            "ownerContactPostalCode" => "11201",
+            "ownerContactCity" => "Algeciras",
+            "ownerContactState" => "Andalucia",
+            "ownerContactCountry" => "ES"
         ]);
 
         if (is_string($response)) {
