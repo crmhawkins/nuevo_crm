@@ -34,6 +34,10 @@ return [
     'key' => env('STRIPE_KEY'),
     'secret' => env('STRIPE_SECRET'),
     ],
+    'dondominio' => [
+        'api_key' => env('DONDOMINIO_API_KEY'),
+        'api_secret' => env('DONDOMINIO_API_SECRET'),
+    ],
 
 
 

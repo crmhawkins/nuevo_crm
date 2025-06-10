@@ -9,6 +9,7 @@
         "barryvdh/laravel-dompdf": "^2.2",
         "beyondcode/laravel-websockets": "^1.14",
         "cloudconvert/cloudconvert-php": "^3.4",
+        "dondominio/api-sdk-php": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^3.9",
         "jenssegers/agent": "^2.6",

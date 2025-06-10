@@ -12,8 +12,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutomatizacionKit\KitPagadosController;
 use App\Http\Controllers\Suite\SuiteController;
 use App\Http\Controllers\Suite\SuiteUploadController;
-
-
+use App\Http\Controllers\DonDominio\DonDominioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,3 +52,10 @@ Route::get('/autoseo/api', function () {
 
 Route::get('/autoseo/json/{field}/{id}', [AutoseoJsonController::class, 'download'])->name('autoseo.json.download');
 Route::post('/autoseo/json/upload/{field}/{id}', [AutoseoJsonController::class, 'upload'])->name('autoseo.json.upload');
+
+Route::get('/check/domain/{domain}', [DonDominioController::class, 'checkDomain'])->name('checkDomain');
+Route::get('/check/balance', [DonDominioController::class, 'getBalance'])->name('checkBalance');
+
+Route::post('/change/dns', [DonDominioController::class, 'changeDnsRecords'])->name('changeDnsRecords');
+Route::post('/create/subdomain', [DonDominioController::class, 'createSubdomain'])->name('createSubdomain');
+Route::post('/register/domain', [DonDominioController::class, 'registerDomain'])->name('registerDomain');
