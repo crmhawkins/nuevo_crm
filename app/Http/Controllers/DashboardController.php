@@ -221,12 +221,7 @@ class DashboardController extends Controller
                         }
                     }
 
-                    $expenses = collect();
-                    $expenses=Gasto::
-                        where('state', 'PENDIENTE')
-                        ->get();
                     $expense->relaciones = $relacionesMapeadas;
-                    dd($expenses);
                 }
 
                 //$invoices = Invoice::whereIn('invoice_status_id', [1, 2, 4])->get();
@@ -243,7 +238,7 @@ class DashboardController extends Controller
                 $banks = BankAccounts::all();
                 $allBudgets = Budget::whereIn('budget_status_id', [3, 6, 7, 9])->get();
 
-                return view('dashboards.dashboard_gestor', compact('user', 'tareas', 'to_dos', 'budgets', 'projects', 'clientes', 'users', 'events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'llamadaActiva', 'to_dos_finalizados', 'horasSemanales', 'unclassifiedIncomes', 'unclassifiedExpenses', 'banks', 'allBudgets', 'invoices', 'expenses'));
+                return view('dashboards.dashboard_gestor', compact('user', 'tareas', 'to_dos', 'budgets', 'projects', 'clientes', 'users', 'events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'llamadaActiva', 'to_dos_finalizados', 'horasSemanales', 'unclassifiedIncomes', 'unclassifiedExpenses', 'banks', 'allBudgets', 'invoices'));
 
             case 4:
                 $clientes = Client::where('is_client', true)->get();
