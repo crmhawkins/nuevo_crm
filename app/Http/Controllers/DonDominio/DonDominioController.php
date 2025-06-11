@@ -103,7 +103,6 @@ class DonDominioController extends Controller
     public function changeDnsRecords(Request $request)
     {
         $domain = $request->domain;
-        $subdomain = $request->subdomain;
         $full_domain = $request->full_domain;
         $record = $request->record;
         $ip = $request->ip;
