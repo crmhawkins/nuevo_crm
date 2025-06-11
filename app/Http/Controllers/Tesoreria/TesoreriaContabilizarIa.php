@@ -220,6 +220,7 @@ class TesoreriaContabilizarIa extends Controller
                 $gasto->state = 'PAGADO';
                 $gasto->save();
             }
+            Gasto::where('id', $coincidenciaId)->update(['state' => 'PAGADO']);
         }
 
         if (!$unclassified) {

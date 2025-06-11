@@ -1220,7 +1220,7 @@
                                                         {{-- Coincidencias --}}
                                                         <div class="col-md-8">
                                                             <h6 class="mb-3 fw-bold">Elige una coincidencia:</h6>
-                                                            @if ($expense->relaciones && count($expense->relaciones) > 0)
+                                                            @if ($expense->gastoCoincidente && count($expense->gastoCoincidente) > 0)
                                                                 <div class="table-responsive"
                                                                     style="max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.5rem; box-shadow: 0 0 5px rgba(0,0,0,0.05);">
                                                                     <table id="table-gastos"
@@ -1238,27 +1238,29 @@
                                                                             </tr>
                                                                         </thead>
                                                                         <tbody>
-                                                                            @foreach ($expense->relaciones as $relacion)
+                                                                            @foreach ($expense->gastoCoincidente as $gasto)
                                                                                 <tr>
                                                                                     <td>
                                                                                         <input type="radio"
                                                                                             name="aceptar_{{ $expense->id }}"
-                                                                                            value="{{ $relacion['modelo']->id }}"
-                                                                                            data-tabla="{{ $relacion['tabla'] }}">
+                                                                                            value="{{ $gasto->id }}"
+                                                                                            data-tabla="Gasto">
                                                                                     </td>
-                                                                                    <td>{{ $relacion['modelo']->id }}</td>
-                                                                                    <td>{{ $relacion['tabla'] }}</td>
-                                                                                    <td>{{ $relacion['modelo']->reference ?? ($relacion['modelo']->invoice_number ?? 'N/A') }}
-                                                                                    </td>
-                                                                                    <td>{{ $relacion['modelo']->amount ?? ($relacion['modelo']->quantity ?? ($relacion['modelo']->total ?? 'N/A')) }}
-                                                                                    </td>
-                                                                                    <td>{{ $relacion['modelo']->date ? \Carbon\Carbon::parse($relacion['modelo']->date)->format('d/m/Y') : ($relacion['modelo']->paid_date ? \Carbon\Carbon::parse($relacion['modelo']->paid_date)->format('d/m/Y') : ($relacion['modelo']->creation_date ? \Carbon\Carbon::parse($relacion['modelo']->creation_date)->format('d/m/Y') : 'N/A')) }}
+                                                                                    <td>{{ $gasto->id }}</td>
+                                                                                    <td>Gasto</td>
+                                                                                    <td>{{ $gasto->title ?? $gasto->invoice_number ?? 'N/A' }}</td>
+                                                                                    <td>{{ $gasto->amount ?? $gasto->quantity ?? $gasto->total ?? 'N/A' }}</td>
+                                                                                    <td>
+                                                                                        {{ $gasto->date
+                                                                                            ? \Carbon\Carbon::parse($gasto->date)->format('d/m/Y')
+                                                                                            : ($gasto->paid_date
+                                                                                                ? \Carbon\Carbon::parse($gasto->paid_date)->format('d/m/Y')
+                                                                                                : ($gasto->creation_date
+                                                                                                    ? \Carbon\Carbon::parse($gasto->creation_date)->format('d/m/Y')
+                                                                                                    : 'N/A')) }}
                                                                                     </td>
                                                                                     <td>
-                                                                                        <a href="{{ route('tesoreria.contabilizar-ia.showGenerico', [
-                                                                                            'tabla' => $relacion['tabla'],
-                                                                                            'id' => $relacion['modelo']->id,
-                                                                                        ]) }}"
+                                                                                        <a href="{{ route('tesoreria.contabilizar-ia.showGenerico', ['tabla' => 'Gasto', 'id' => $gasto->id]) }}"
                                                                                             class="btn btn-primary btn-sm">Ver</a>
                                                                                     </td>
                                                                                 </tr>
@@ -1266,6 +1268,30 @@
                                                                         </tbody>
                                                                     </table>
                                                                 </div>
+
+                                                                {{-- Dropdown de Gastos Encontrados --}}
+                                                                @if(isset($expense->expenses))
+                                                                <div class="mt-4">
+                                                                    <h6 class="mb-3 fw-bold">Gastos Encontrados:</h6>
+                                                                    <select class="form-select" id="expense-select-{{ $expense->id }}">
+                                                                        <option value="">Selecciona un gasto...</option>
+                                                                        @foreach($expense->expenses as $foundExpense)
+                                                                            <option value="{{ $foundExpense->id }}"
+                                                                                data-reference="{{ $foundExpense->reference ?? 'N/A' }}"
+                                                                                data-amount="{{ number_format($foundExpense->amount, 2) }}€"
+                                                                                data-date="{{ $foundExpense->date ? \Carbon\Carbon::parse($foundExpense->date)->format('d/m/Y') : 'N/A' }}"
+                                                                                data-state="{{ $foundExpense->state ?? 'N/A' }}">
+                                                                                {{ $foundExpense->reference ?? 'N/A' }} - {{ number_format($foundExpense->amount, 2) }}€
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                    <div class="mt-2">
+                                                                        <a href="#" class="btn btn-primary btn-sm" id="view-expense-{{ $expense->id }}" style="display: none;">
+                                                                            Ver Detalles
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                                @endif
 
                                                                 <div class="row mt-3">
                                                                     <div class="col-12 text-end">

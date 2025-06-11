@@ -130,7 +130,7 @@ class DashboardController extends Controller
                 $projects = Project::where('admin_user_id', $id)->get();
                 $tareas = Task::where('gestor_id', $id)->get();
                 $horasSemanales = $this->horasSemanales();
-
+                $coincidencias = [];
                 $unclassifiedIncomes = UnclassifiedIncome::where('status', 0)->get();
                 $unclassifiedExpenses = UnclassifiedExpenses::where('status', 0)->get();
 
@@ -222,7 +222,19 @@ class DashboardController extends Controller
                     }
 
                     $expense->relaciones = $relacionesMapeadas;
+
+                    // Comparación segura para valores double
+                    $cantidad = (float) $expense->amount;
+
+                    $gastoCoincidente = Gasto::where('state', 'PENDIENTE')
+                        ->where('quantity', [$cantidad]) // margen de error
+                        ->get();
+                    if ($gastoCoincidente) {
+                        $coincidencias[] = $gastoCoincidente;
+                    }
+                    $expense->gastoCoincidente = $gastoCoincidente;
                 }
+
 
                 //$invoices = Invoice::whereIn('invoice_status_id', [1, 2, 4])->get();
                 $invoices = Invoice::whereIn('invoice_status_id', [1, 2, 4])
@@ -237,7 +249,6 @@ class DashboardController extends Controller
                 }
                 $banks = BankAccounts::all();
                 $allBudgets = Budget::whereIn('budget_status_id', [3, 6, 7, 9])->get();
-
                 return view('dashboards.dashboard_gestor', compact('user', 'tareas', 'to_dos', 'budgets', 'projects', 'clientes', 'users', 'events', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'llamadaActiva', 'to_dos_finalizados', 'horasSemanales', 'unclassifiedIncomes', 'unclassifiedExpenses', 'banks', 'allBudgets', 'invoices'));
 
             case 4:

@@ -975,4 +975,23 @@ class TesoreriaController extends Controller
         ], 200);
     }
 
+    public function asociarGasto(Request $request){
+        $amount = $request->input('amount');
+
+        $gastos = Gasto::where('quantity', $amount)->where('state', 'PENDIENTE')->get();
+
+        return $gastos;
+    }
+
+    public function asociarGastoStore(Request $request){
+        $gasto = Gasto::find($request->input('gasto_id'));
+        if($gasto){
+            $gasto->state = 'PAGADO';
+            $gasto->save();
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Gasto asociado correctamente'
+        ], 200);
+    }
 }
