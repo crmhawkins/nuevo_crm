@@ -45,7 +45,7 @@ class AutoseoController extends Controller
         $client->password = $request->password;
         $client->user_app = $request->user_app;
         $client->password_app = $request->password_app;
-        
+
         $client->save();
 
         return redirect()->route('autoseo.index')->with('success', 'Cliente actualizado correctamente');
@@ -57,4 +57,5 @@ class AutoseoController extends Controller
         $client->delete();
         return redirect()->route('autoseo.index')->with('success', 'Cliente eliminado correctamente');
     }
+
 }
