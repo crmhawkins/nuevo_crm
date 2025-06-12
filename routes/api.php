@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\SalvineitorController;
 use App\Http\Controllers\Autoseo\AutoseoJsonController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
+use App\Http\Controllers\Plataforma\PlataformaWhatsappController;
 use App\Http\Controllers\Tesoreria\TesoreriaContabilizarIa;
 use App\Http\Controllers\Tesoreria\TesoreriaController;
 use Illuminate\Http\Request;
@@ -50,6 +51,10 @@ Route::get('/autoseo/api', function () {
     return \App\Models\Autoseo\Autoseo::all()->toJson();
 });
 
+Route::get('/autoseo/json/last', [AutoseoJsonController::class, 'getLastJson'])->name('autoseo.json.last');
+Route::get('/autoseo/json/storage', [AutoseoJsonController::class, 'getJsonStorage'])->name('autoseo.json.storage');
+Route::post('/autoseo/json/upload', [AutoseoJsonController::class, 'uploadJson'])->name('autoseo.json.upload');
+
 Route::get('/autoseo/json/{field}/{id}', [AutoseoJsonController::class, 'download'])->name('autoseo.json.download');
 Route::post('/autoseo/json/upload/{field}/{id}', [AutoseoJsonController::class, 'upload'])->name('autoseo.json.upload');
 
@@ -60,3 +65,5 @@ Route::post('/update/dns', [DonDominioController::class, 'updateDnsRecords'])->n
 Route::post('/change/dns', [DonDominioController::class, 'changeDnsRecords'])->name('changeDnsRecords');
 Route::post('/create/subdomain', [DonDominioController::class, 'createSubdomain'])->name('createSubdomain');
 Route::post('/register/domain', [DonDominioController::class, 'registerDomain'])->name('registerDomain');
+
+Route::post('/plataforma/store-log', [PlataformaWhatsappController::class, 'storeLog'])->name('storeLog');

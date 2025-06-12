@@ -781,7 +781,9 @@ Route::prefix('tesoreria')->group(function () {
     Route::post('/ingreso-store-api', [TesoreriaController::class, 'storeIngresosApi'])->name('tesoreria.ingreso-store-api');
     Route::post('/transferencia-store-api', [TesoreriaController::class, 'storeTransferenciasApi'])->name('tesoreria.transferencia-store-api');
     Route::post('/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');
+    Route::get('/asociar-gasto', [TesoreriaController::class, 'asociarGasto'])->name('tesoreria.asociar-gasto');
 });
+
 Route::middleware(['access.level:6'])->group(function () {
     Route::prefix('autoseo')->group(function () {
         Route::get('/', [AutoseoController::class, 'index'])->name('autoseo.index');
