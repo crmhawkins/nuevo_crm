@@ -56,6 +56,7 @@ Route::post('/autoseo/json/upload/{field}/{id}', [AutoseoJsonController::class, 
 Route::get('/check/domain/{domain}', [DonDominioController::class, 'checkDomain'])->name('checkDomain');
 Route::get('/check/balance', [DonDominioController::class, 'getBalance'])->name('checkBalance');
 
+Route::post('/update/dns', [DonDominioController::class, 'updateDnsRecords'])->name('updateDnsRecords');
 Route::post('/change/dns', [DonDominioController::class, 'changeDnsRecords'])->name('changeDnsRecords');
 Route::post('/create/subdomain', [DonDominioController::class, 'createSubdomain'])->name('createSubdomain');
 Route::post('/register/domain', [DonDominioController::class, 'registerDomain'])->name('registerDomain');
