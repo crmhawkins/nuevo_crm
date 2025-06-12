@@ -100,7 +100,7 @@ class DonDominioController extends Controller
         }
     }
 
-    public function changeDnsRecords(Request $request)
+    public function updateDnsRecords(Request $request)
     {
         $domain = $request->domain;
         $full_domain = $request->full_domain;
@@ -141,6 +141,52 @@ class DonDominioController extends Controller
         } else {
             return response()->json([
                 "message" => "Error al cambiar el registro ".$record." para el dominio ".$domain,
+                "response" => $response,
+            ], 400);
+        }
+    }
+
+    public function changeDnsRecords(Request $request)
+    {
+        $subdomain = $request->subdomain;
+        $record = $request->record;
+        $ip = $request->ip;
+
+        $full_domain = $subdomain.".herasoft.es";
+
+        $response = $this->dondominio->call('service/dnscreate', [
+            'serviceName' => "herasoft.es",
+            "name" => $full_domain,
+            "type" => $record,
+            "ttl" => 600,
+            "value" => $ip
+        ]);
+
+
+        $response_www = $this->dondominio->call('service/dnscreate', [
+            'serviceName' => "herasoft.es",
+            "name" => "www.".$full_domain,
+            "type" => $record,
+            "ttl" => 600,
+            "value" => $ip
+        ]);
+
+
+        if (is_string($response) && is_string($response_www)) {
+            $response = json_decode($response, true);
+            $response_www = json_decode($response_www, true);
+        }
+
+        $success = $response['success'];
+        $success_www = $response_www['success'];
+
+        if ($success == "true" && $success_www == "true") {
+            return response()->json([
+                "message" => "Registro ".$record." para el dominio ".$full_domain." cambiado con éxito"
+            ], 200);
+        } else {
+            return response()->json([
+                "message" => "Error al cambiar el registro ".$record." para el dominio ".$full_domain,
                 "response" => $response,
             ], 400);
         }
