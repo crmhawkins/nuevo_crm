@@ -193,18 +193,30 @@ class AutoseoJsonController extends Controller
     public function getLastJson(Request $request)
     {
         $autoseo = Autoseo::find($request->id);
+
         if (!$autoseo) {
             return response()->json(['error' => 'Cliente no encontrado'], 404);
         }
 
-        $json = $autoseo->json_mesanterior;
+        $path = storage_path('app/public/' . $autoseo->json_mesanterior);
 
-        if (!$json) {
-            return response()->json(['error' => 'No hay JSON disponible'], 404);
+        if (!file_exists($path)) {
+            return response()->json(['error' => 'Archivo no encontrado'], 404);
         }
 
-        return response()->download(storage_path('app/public/' . $json), 'autoseo_' . $autoseo->id . '_' . date('Y-m-d') . '.json', ['Content-Type' => 'application/json']);
+        $data = json_decode(file_get_contents($path), true);
+
+        if (!isset($data['2'])) {
+            return response()->json(['error' => 'No se encontró la clave "2" en el JSON'], 400);
+        }
+
+        $filename = 'resultado_seo.json';
+
+        return response()->streamDownload(function () use ($data) {
+            echo json_encode($data['2'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        }, $filename, ['Content-Type' => 'application/json']);
     }
+
 
     public function getJsonStorage(Request $request)
     {
