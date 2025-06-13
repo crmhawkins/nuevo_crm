@@ -59,6 +59,30 @@ class DonDominioController extends Controller
         }
     }
 
+    public function getInfoDomain($domain)
+    {
+        $response = $this->dondominio->call('domain/getinfo', ['domain' => $domain]);
+
+        if (is_string($response)) {
+            $response = json_decode($response, true);
+        }
+
+
+        $success = $response['success'];
+
+        if ($success == 'true')
+        {
+            return response()->json([
+                'message' => "Información del dominio ".$domain." obtenida correctamente",
+                'response' => $response
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => "Dominio no disponible",
+            ], 409);
+        }
+    }
+
     public function getBalance()
     {
         $response = $this->dondominio->call('account/info/', []);

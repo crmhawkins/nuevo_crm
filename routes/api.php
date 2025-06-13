@@ -58,6 +58,7 @@ Route::post('/autoseo/json/upload', [AutoseoJsonController::class, 'uploadJson']
 Route::get('/autoseo/json/{field}/{id}', [AutoseoJsonController::class, 'download'])->name('autoseo.json.download');
 Route::post('/autoseo/json/upload/{field}/{id}', [AutoseoJsonController::class, 'upload'])->name('autoseo.json.upload');
 
+Route::get('/get/info/{domain}', [DonDominioController::class, 'getInfoDomain'])->name('getInfoDomain');
 Route::get('/check/domain/{domain}', [DonDominioController::class, 'checkDomain'])->name('checkDomain');
 Route::get('/check/balance', [DonDominioController::class, 'getBalance'])->name('checkBalance');
 
