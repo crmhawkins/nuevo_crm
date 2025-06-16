@@ -53,7 +53,8 @@ Route::get('/autoseo/api', function () {
 
 Route::get('/autoseo/json/last', [AutoseoJsonController::class, 'getLastJson'])->name('autoseo.json.last');
 Route::get('/autoseo/json/storage', [AutoseoJsonController::class, 'getJsonStorage'])->name('autoseo.json.storage');
-Route::post('/autoseo/json/upload', [AutoseoJsonController::class, 'uploadJson'])->name('autoseo.json.upload');
+Route::post('/autoseo/json/upload/seo', [AutoseoJsonController::class, 'uploadJson'])->name('autoseo.json.upload');
+Route::post('/autoseo/json/upload/competencia', [AutoseoJsonController::class, 'uploadJsonCompetencia'])->name('autoseo.json.upload.competencia');
 
 Route::get('/autoseo/json/{field}/{id}', [AutoseoJsonController::class, 'download'])->name('autoseo.json.download');
 Route::post('/autoseo/json/upload/{field}/{id}', [AutoseoJsonController::class, 'upload'])->name('autoseo.json.upload');
@@ -68,3 +69,4 @@ Route::post('/create/subdomain', [DonDominioController::class, 'createSubdomain'
 Route::post('/register/domain', [DonDominioController::class, 'registerDomain'])->name('registerDomain');
 
 Route::post('/plataforma/store-log', [PlataformaWhatsappController::class, 'storeLog'])->name('storeLog');
+Route::post('/plataforma/store-msg', [PlataformaWhatsappController::class, 'storeMsg'])->name('storeMsg');

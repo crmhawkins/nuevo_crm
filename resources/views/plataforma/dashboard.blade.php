@@ -3,8 +3,6 @@
 @section('titulo', 'Dashboard')
 
 @section('content')
-
-
 <!-- Modal para mostrar alertas -->
 <div class="modal fade" id="alertsModal" tabindex="-1" aria-labelledby="alertsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -59,255 +57,123 @@
 </div>
 
 <script>
-    // Función para mostrar el modal de alertas
     function showAlertsModal() {
         var alertsModal = new bootstrap.Modal(document.getElementById('alertsModal'));
         alertsModal.show();
     }
 </script>
 
-
 <div class="page-heading card" style="box-shadow: none !important">
-        <div class="bg-image overflow-hidden mb-10">
-            <div class="content content-narrow content-full">
-                <div class="text-center mt-5 mb-2">
-                    <h2 class="h2 text-white mb-0">Bienvenido {{ $client->name }}</h2>
-                    @if (count($respuestas) == 1)
-                        <h1 class="h1 text-white mb-0">Tiene {{ count($respuestas) }} respuesta nueva</h1>
-                    @elseif (count($respuestas) > 1)
-                        <h1 class="h1 text-white mb-0">Tiene {{ count($respuestas) }} respuestas nuevas</h1>
-                    @endif
-                    <br>
-                    @if (count($alerts) > 0)
-                        <h2 id="alerts-count" class="h3 text-white mb-0 rounded">
-                            <span class="bg-danger px-2 rounded">
-                                Tienes {{ count($alerts) }} {{ count($alerts) == 1 ? 'alerta' : 'alertas' }}.
-                                Haz click <a class="cursor-pointer text-primary" onclick="showAlertsModal()">aquí</a>
-                                para {{ count($alerts) == 1 ? 'verla' : 'verlas' }}
-                            </span>
-                        </h2>
-                    @endif
-                    <div class="mt-4 row d-flex justify-content-center ">
-                        <div class="col-6 mb-3">
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        </div>
+    <div class="bg-image overflow-hidden mb-10">
+        <div class="content content-narrow content-full">
+            <div class="text-center mt-5 mb-2">
+                <h2 class="h2 text-white mb-0">Bienvenido {{ $client->name }}</h2>
+                @if (count($respuestas) == 1)
+                    <h1 class="h1 text-white mb-0">Tiene {{ count($respuestas) }} respuesta nueva</h1>
+                @elseif (count($respuestas) > 1)
+                    <h1 class="h1 text-white mb-0">Tiene {{ count($respuestas) }} respuestas nuevas</h1>
+                @endif
+                <br>
+                @if (count($alerts) > 0)
+                    <h2 id="alerts-count" class="h3 text-white mb-0 rounded">
+                        <span class="bg-danger px-2 rounded">
+                            Tienes {{ count($alerts) }} {{ count($alerts) == 1 ? 'alerta' : 'alertas' }}.
+                            Haz click <a class="cursor-pointer text-primary" onclick="showAlertsModal()">aquí</a>
+                            para {{ count($alerts) == 1 ? 'verla' : 'verlas' }}
+                        </span>
+                    </h2>
+                @endif
+                <div class="mt-4 row d-flex justify-content-center">
+                    <div class="col-6 mb-3">
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="content content-narrow">
-            <div class="row d-flex justify-content-center ">
-                <div class="col-6 col-md-4 col-lg-2 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <h6 class="text-muted text-uppercase">Campañas aceptadas</h6>
-                            <h2 class="font-weight-bold">{{ collect($campanias)->where('estado', 'Aceptada')->count() }}
-                            </h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-2 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <h6 class="text-muted text-uppercase">Campañas rechazadas</h6>
-                            <h2 class="font-weight-bold">{{ collect($campanias)->where('estado', 'Rechazada')->count() }}
-                            </h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-2 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <h6 class="text-muted text-uppercase">Campañas enviadas</h6>
-                            <h2 class="font-weight-bold">{{ collect($campanias)->where('estado', 'Enviada')->count() }}</h2>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-
-            <!-- Charts Section -->
-            <div class="row justify-content-center my-4">
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h3 class="card-title">Estadísticas de Mensajes</h3>
-                        </div>
-                        <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 400px;">
-                            <canvas id="messageStatsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                    <div class="card-header">
-                            <h3 class="card-title">Rendimiento de Campañas</h3>
-                        </div>
-                        <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 400px;">
-                            <canvas id="campaignStatsChart"></canvas>
-                        </div>
-                    </div>
+<!-- Estadísticas de Mensajes (centrado) -->
+<div class="container my-4">
+    <div class="d-flex justify-content-center">
+        <div class="card shadow w-100" style="max-width: 500px;">
+            <div class="card-header bg-white text-center">
+                <h5 class="mb-0">Estadísticas de Mensajes</h5>
+            </div>
+            <div class="card-body">
+                <div style="position: relative; height: 300px;">
+                    <canvas id="messageStatsChart"></canvas>
                 </div>
             </div>
         </div>
+    </div>
 </div>
 @endsection
+
 @section('scripts')
-
-    <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.css"
-        rel="stylesheet">
-
-    <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.1.6/b-3.1.2/b-colvis-3.1.2/r-3.0.3/datatables.min.js">
-    </script>
-
-    <!-- Add Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-
-        // Botón de logout
-        $('#sendLogout').on('click', function(e) {
-            e.preventDefault();
-                $.post('/admin/logout', {
-                    _token: '{{ csrf_token() }}'
-                }, function(data) {
-                window.location.href = '/admin';
-            });
+    // Botón de logout
+    $('#sendLogout').on('click', function(e) {
+        e.preventDefault();
+        $.post('/admin/logout', {
+            _token: '{{ csrf_token() }}'
+        }, function(data) {
+            window.location.href = '/admin';
         });
+    });
 
-            // Common chart options for maintaining aspect ratio
-            const commonOptions = {
+    // Gráfico de estadísticas
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('messageStatsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Enviados', 'Leídos', 'Recibidos', 'Pendientes'],
+                datasets: [{
+                    data: [
+                        {{ $stats['enviados'] }},
+                        {{ $stats['leidos'] }},
+                        {{ $stats['recibidos'] }},
+                        {{ $stats['pendientes'] }}
+                    ],
+                    backgroundColor: ['#28a745', '#17a2b8', '#007bff', '#ffc107'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
                 responsive: true,
-                maintainAspectRatio: false
-            };
-
-            // Initialize Pie Chart
-            const ctx = document.getElementById('messageStatsChart').getContext('2d');
-            const messageStatsChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Enviados', 'Recibidos', 'Leídos'],
-                    datasets: [{
-                        data: [150, 120, 90], // Example data - replace with actual data
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.8)',
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(153, 102, 255, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    ...commonOptions,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                padding: 20,
-                                font: {
-                                    size: 14
-                                }
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Estadísticas de Mensajes',
-                            font: {
-                                size: 16
-                            },
-                            padding: {
-                                top: 10,
-                                bottom: 20
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Initialize Bar Chart
-            const ctx2 = document.getElementById('campaignStatsChart').getContext('2d');
-            const campaignStatsChart = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: ['Campaña 1', 'Campaña 2', 'Campaña 3'],
-                    datasets: [{
-                        label: 'Tasa de Respuesta',
-                        data: [75, 45, 60],
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.8)',
-                            'rgba(255, 159, 64, 0.8)',
-                            'rgba(255, 205, 86, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(255, 159, 64, 1)',
-                            'rgba(255, 205, 86, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    ...commonOptions,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Rendimiento de Campañas',
-                            font: {
-                                size: 16
-                            },
-                            padding: {
-                                top: 10,
-                                bottom: 20
-                            }
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 10
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            title: {
-                                display: true,
-                                text: 'Porcentaje (%)'
+                    title: {
+                        display: true,
+                        text: 'Distribución de Mensajes (Total: {{ $stats["total"] }})',
+                        font: { size: 16 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
                             }
                         }
                     }
                 }
-            });
-
-            // Example function to update pie chart data
-            function updateChartData(sent, received, read) {
-                messageStatsChart.data.datasets[0].data = [sent, received, read];
-                messageStatsChart.update();
             }
-
-            // Example function to update bar chart data
-            function updateCampaignData(campaign1, campaign2, campaign3) {
-                campaignStatsChart.data.datasets[0].data = [campaign1, campaign2, campaign3];
-                campaignStatsChart.update();
-            }
+        });
+    });
 
     function deleteAlert(id) {
         $.ajax({
@@ -318,16 +184,17 @@
                 id: id
             },
             success: function(response) {
-            if (response.success) {
-                $(`#alert-${id}`).fadeOut(300, function() {
-                    $(this).remove();
-                    updateAlertsCount();
-                });
-            }
+                if (response.success) {
+                    $(`#alert-${id}`).fadeOut(300, function() {
+                        $(this).remove();
+                        updateAlertsCount();
+                    });
+                }
             }
         });
+    }
 
-        function updateAlertsCount() {
+    function updateAlertsCount() {
         const alertsCount = $('.list-group-item').length;
         if (alertsCount === 0) {
             $('#alerts-count').fadeOut(300, function() {
@@ -339,7 +206,6 @@
                     <p class="text-muted mb-0">No hay alertas pendientes</p>
                 </div>
             `);
-        }
         }
     }
 </script>

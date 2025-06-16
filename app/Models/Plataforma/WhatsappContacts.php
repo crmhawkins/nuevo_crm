@@ -11,8 +11,8 @@ class WhatsappContacts extends Model
     protected $fillable = [
         'client_id',
         'campania_id',
-        'status',
-        'sent',
+        'last_message',
+        'chat_id'
     ];
 
     public function cliente()

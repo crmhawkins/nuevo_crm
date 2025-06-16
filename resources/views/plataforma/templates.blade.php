@@ -48,12 +48,24 @@
         display: inline-block;
     }
 
-    .chat-bubble img {
-        display: block;
-        margin-top: 10px;
-        max-width: 100%;
+    .chat-bubble .imagen-preview {
+        margin: -10px -14px 10px -14px;
+        width: calc(100% + 28px);
+        border-radius: 7.5px 7.5px 0 0;
+        overflow: hidden;
+        background-color: #dcf8c6;
+        padding: 0;
+    }
+
+    .chat-bubble .imagen-preview img {
+        width: 100%;
         height: auto;
-        border-radius: 10px;
+        display: block;
+        border-radius: 7.5px 7.5px 0 0;
+    }
+
+    .chat-bubble .mensaje-texto {
+        margin-top: 10px;
     }
 
     .whatsapp-button {
@@ -91,7 +103,6 @@
                         <th class="sortable" data-column="id">ID <span class="sort-icon">↕</span></th>
                         <th class="sortable" data-column="name">Nombre<span class="sort-icon">↕</span></th>
                         <th class="sortable" data-column="mensaje">Mensaje<span class="sort-icon">↕</span></th>
-                        <th>Botones</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -100,27 +111,19 @@
                     @foreach ($templates as $template)
                         <tr id="template-{{ $template->id }}">
                             <td>{{ $template->id }}</td>
-                            <td>{{ $template->name }}</td>
+                            <td>{{ $template->nombre }}</td>
                             <td>{{ $template->mensaje }}</td>
-                            <td>
-                                @if($template->botones)
-                                    <button class="btn btn-sm btn-info view-buttons" data-bs-toggle="modal" data-bs-target="#buttonsModal" data-buttons='@json($template->botones)'>
-                                        <i class="fas fa-list"></i> Ver botones
-                                    </button>
-                                @else
-                                    <span class="text-muted">Sin botones</span>
-                                @endif
-                            </td>
+                            
                             @php
                                 switch ($template->status) {
                                     case 0:
-                                        $estado = '<span class="badge bg-danger">Pendiente</span>';
+                                        $estado = '<span class="badge bg-warning">Pendiente</span>';
                                         break;
                                     case 1:
                                         $estado = '<span class="badge bg-success">Aceptado</span>';
                                         break;
                                     case 2:
-                                        $estado = '<span class="badge bg-warning">Rechazado</span>';
+                                        $estado = '<span class="badge bg-danger">Rechazado</span>';
                                         break;
                                     case 3:
                                         $estado = '<span class="badge bg-info">Desconocido</span>';
@@ -157,14 +160,7 @@
                                 <th>URL</th>
                             </tr>
                         </thead>
-                        <tbody id="buttonsTableBody">
-                            @foreach ($template->botones as $boton)
-                                <tr>
-                                    <td>{{ $boton['tipo'] }}</td>
-                                    <td>{{ $boton['texto'] }}</td>
-                                    <td>{{ $boton['url'] }}</td>
-                                </tr>
-                            @endforeach
+
                         </tbody>
                     </table>
                     </div>
@@ -202,43 +198,15 @@
                                 <label for="tipoContenidoLabel" class="form-label">Tipo de contenido</label>
                                 <select class="form-select mb-2" id="tipoContenido">
                                     <option value="imagen">Imagen</option>
-                                    <option value="video">Video</option>
                                     <option value="documento">Documento</option>
                                     <option value="ubicacion">Ubicación</option>
                                 </select>
 
                                 <input type="file" class="form-control" id="archivoContenido" style="display: none;"
                                     accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx">
-                                <div id="previewContenido" class="mt-2" style="display: none;">
-                                    <img id="previewImg" src="" class="img-fluid rounded" style="max-height: 200px;"
-                                        alt="Preview">
-                                    <video id="previewVideo" class="w-100 rounded" controls
-                                        style="max-height: 200px; display: none;"></video>
-                                    <div id="previewDoc" class="alert alert-info py-2 px-3 d-none">Documento listo para
-                                        enviar</div>
-                                </div>
                             </div>
                         </div>
 
-
-                        <div class="mb-3">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="incluirBotones">
-                                <label class="form-check-label" for="incluirBotones">
-                                    Incluir botones
-                                </label>
-                            </div>
-                            <div id="botonesContainer" style="display: none;">
-                                <div class="mb-2">
-                                    <button type="button" class="btn btn-sm btn-primary" id="addButton">
-                                        <i class="fas fa-plus"></i> Añadir botón
-                                    </button>
-                                </div>
-                                <div id="botonesList">
-                                    <!-- Aquí se añadirán los inputs de botones dinámicamente -->
-                                </div>
-                            </div>
-                        </div>
 
                         <div class="mb-3">
                             <label class="form-label">Mensaje</label>
@@ -247,19 +215,18 @@
                                 <div class="col-md-6">
                                     <textarea class="form-control" id="mensaje" name="mensaje" rows="8" placeholder="Escribe el mensaje..."
                                         required></textarea>
-                                </div>
+                                    <br>
+                                    <button type="button" class="btn btn-sm btn-primary" id="addVariableBtn">Añadir variable</button>
+                                    </div>
 
                                 <!-- Previsualización tipo WhatsApp -->
                                 <div class="col-md-6">
                                     <div class="whatsapp-preview">
                                         <div class="chat-bubble" id="mensajePreview">
-                                            <div id="imagenPreview" class="imagen-preview mb-2" style="display: none;">
+                                            <div id="imagenPreview" class="imagen-preview" style="display: none;">
                                                 <img id="previewImg" src="" alt="Preview">
                                             </div>
-                                            <div id="mensajeContenido">Tu mensaje aparecerá aquí...</div>
-                                            <div id="botonesPreview" class="mt-2" style="display: none;">
-                                                <!-- Aquí se mostrarán los botones en la previsualización -->
-                                            </div>
+                                            <div id="mensajeContenido" class="mensaje-texto">Tu mensaje aparecerá aquí...</div>
                                         </div>
                                     </div>
                                 </div>
@@ -288,43 +255,16 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
 
     <script>
-        function actualizarPreviewBotones() {
-            let botonesHTML = '';
-            $('#botonesList .input-group').each(function() {
-                const texto = $(this).find('.boton-input').val().trim();
-                const tipo = $(this).find('.boton-tipo').val();
+        let variableCounter = 0;
 
-                if (texto !== '') {
-                    let icono = '';
-                    switch (tipo) {
-                        case 'link':
-                            icono = '<i class="fas fa-link me-2 text-primary"></i>';
-                            break;
-                        case 'call':
-                            icono = '<i class="fas fa-phone-alt me-2 text-success"></i>';
-                            break;
-                        default:
-                            icono = '<i class="fas fa-ellipsis-h me-2 text-secondary"></i>';
-                            break;
-                    }
-
-                    botonesHTML += `
-                <div class="whatsapp-button d-flex align-items-center py-2 px-2">
-                    ${icono}
-                    <span class="fw-semibold text-primary">${texto}</span>
-                </div>
-            `;
-                }
-            });
-
-            if (botonesHTML !== '') {
-                $('#botonesPreview').html(botonesHTML).show();
-            } else {
-                $('#botonesPreview').empty().hide();
-            }
-        }
 
         $(document).ready(function() {
+            // Handle add variable button click
+            $('#addVariableBtn').on('click', function() {
+                variableCounter += 1;
+                $('#mensaje').summernote('insertText', '${' + variableCounter + '}');
+            });
+
             $('#mensajeContenido').html('Tu mensaje aparecerá aquí...');
             // Inicializar DataTables
             $('#templatesTable').DataTable({
@@ -360,25 +300,16 @@
                     }
                 });
             });
-
-            $('#incluirImagen').on('change', function() {
-                if ($(this).is(':checked')) {
-                    $('#imagenContainer').slideDown();
-                } else {
-                    $('#imagenContainer').slideUp();
-                    $('#imagenPreview').hide();
-                    $('#previewImg').attr('src', '');
-                    $('#imagen').val('');
-                }
-            });
-
+            // Get the uploaded image source
             $('#imagen').on('change', function(e) {
                 const file = e.target.files[0];
                 if (file && file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        $('#previewImg').attr('src', e.target.result);
+                        const imgSrc = e.target.result;
+                        $('#previewImg').attr('src', imgSrc);
                         $('#imagenPreview').show();
+                        console.log('Image source:', imgSrc); // For debugging
                     };
                     reader.readAsDataURL(file);
                 } else {
@@ -386,8 +317,6 @@
                     $('#previewImg').attr('src', '');
                 }
             });
-
-
 
 
             // Limpiar el editor cuando el modal se cierra
@@ -515,7 +444,6 @@
             } else {
                 $('#imagenContainer').slideUp();
                 $('#imagenPreview').hide();
-                $('#previewImg').attr('src', '');
                 $('#imagen').val(''); // Limpia el input
             }
         });
@@ -547,8 +475,8 @@
             } else {
                 $('#contenidoContainer').slideUp();
                 $('#archivoContenido').val('');
-                $('#previewContenido').hide();
-                $('#previewImg').hide().attr('src', '');
+                $('#imagenPreview').hide();
+                $('#previewImg').attr('src', '');
                 $('#previewVideo').hide().attr('src', '');
                 $('#previewDoc').addClass('d-none');
                 $('#mensajeContenido').find('#ubicacionTexto').remove();
@@ -558,9 +486,9 @@
         // Cambiar tipo de input file según el tipo de contenido
         $('#tipoContenido').on('change', function() {
             const tipo = $(this).val();
-            $('#archivoContenido').hide().val('');
-            $('#previewContenido').hide();
-            $('#previewImg').hide().attr('src', '');
+            $('#archivoContenido').val('');
+            $('#imagenPreview').hide();
+            $('#previewImg').attr('src', '');
             $('#previewVideo').hide().attr('src', '');
             $('#previewDoc').addClass('d-none');
             $('#mensajeContenido').find('#ubicacionTexto').remove();
@@ -573,7 +501,6 @@
                 }
             } else {
                 $('#archivoContenido').show();
-
                 let accept = '';
                 if (tipo === 'imagen') accept = 'image/*';
                 if (tipo === 'video') accept = 'video/*';
@@ -588,29 +515,36 @@
             const tipo = $('#tipoContenido').val();
             const reader = new FileReader();
 
-            $('#previewContenido').show();
-            $('#previewImg').hide();
-            $('#previewVideo').hide();
-            $('#previewDoc').addClass('d-none');
-
             if (!file) return;
 
             reader.onload = function(e) {
+                const src = e.target.result;
+
+                // Limpiar previews anteriores
+                $('#imagenPreview').hide();
+                $('#previewImg').attr('src', '');
+                $('#previewVideo').hide().attr('src', '');
+                $('#previewDoc').addClass('d-none');
+
                 if (tipo === 'imagen') {
-                    $('#previewImg').attr('src', e.target.result).show();
+                    $('#previewImg').attr('src', src);
+                    $('#imagenPreview').show();
                 } else if (tipo === 'video') {
-                    $('#previewVideo').attr('src', e.target.result).show();
+                    $('#previewVideo').attr('src', src).show();
                 } else if (tipo === 'documento') {
                     $('#previewDoc').removeClass('d-none');
+                } else if (tipo === 'ubicacion') {
+                    // Ya gestionado en otro bloque
                 }
             };
 
             if (tipo === 'imagen' || tipo === 'video') {
                 reader.readAsDataURL(file);
             } else if (tipo === 'documento') {
-                reader.readAsArrayBuffer(file); // no se necesita preview, solo señal
+                reader.readAsArrayBuffer(file);
             }
         });
+
 
         function deleteTemplate(id) {
             if (confirm('¿Estás seguro de que deseas eliminar esta plantilla?')) {

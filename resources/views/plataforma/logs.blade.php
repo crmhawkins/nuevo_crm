@@ -44,7 +44,7 @@
                         <tr>
                             <td>{{ $log->id }}</td>
                             <td>
-                                <span class="badge bg-{{ $log->type == 1 ? 'primary' : ($log->type == 2 ? 'success' : ($log->type == 3 ? 'warning' : ($log->type == 4 ? 'info' : 'danger'))) }}">
+                                <span class="badge bg-{{ $log->type == 1 ? 'success' : ($log->type == 2 ? 'primary' : ($log->type == 3 ? 'warning' : ($log->type == 4 ? 'danger' : 'danger'))) }}">
                                     @if($log->type == 1)
                                         Enviado
                                     @elseif($log->type == 2)

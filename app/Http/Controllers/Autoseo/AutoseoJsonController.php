@@ -189,34 +189,67 @@ class AutoseoJsonController extends Controller
         ]);
     }
 
+    public function uploadJsonCompetencia(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+            'json' => 'required|file|mimetypes:application/json,text/plain',
+        ]);
+
+        $id = $request->input('id');
+        $jsonFile = $request->file('json');
+
+        // Verificar que el Autoseo exista
+        $autoseo = Autoseo::find($id);
+        if (!$autoseo) {
+            return response()->json(['error' => 'Autoseo no encontrado'], 404);
+        }
+
+        // Crear nombre único y ruta relativa
+        $filename = uniqid() . '_' . $id . '.json';
+        $relativePath = "autoseo/json/$filename";
+
+        // Guardar el archivo en storage/public/autoseo/json
+        Storage::disk('public')->makeDirectory('autoseo/json');
+        Storage::disk('public')->putFileAs('autoseo/json', $jsonFile, $filename);
+
+        // Obtener y decodificar json_storage actual
+        $jsonStorage = $autoseo->json_storage ? json_decode($autoseo->json_storage, true) : [];
+
+        // Añadir nuevo archivo al array
+        $jsonStorage[] = [
+            'path' => $relativePath,
+            'uploaded_at' => now()->toDateTimeString(),
+        ];
+
+        // Guardar json_storage actualizado
+        $autoseo->json_storage = json_encode($jsonStorage, JSON_UNESCAPED_UNICODE);
+        $autoseo->save();
+
+        return response()->json([
+            'message' => 'Archivo JSON subido y registrado correctamente.',
+            'path' => $relativePath,
+            'json_storage' => $jsonStorage,
+        ]);
+    }
+
+
 
     public function getLastJson(Request $request)
     {
         $autoseo = Autoseo::find($request->id);
-
         if (!$autoseo) {
             return response()->json(['error' => 'Cliente no encontrado'], 404);
         }
 
-        $path = storage_path('app/public/' . $autoseo->json_mesanterior);
+        $json = $autoseo->json_mesanterior;
 
-        if (!file_exists($path)) {
-            return response()->json(['error' => 'Archivo no encontrado'], 404);
+        if (!$json) {
+            return response()->json(['error' => 'No hay JSON disponible'], 404);
         }
 
-        $data = json_decode(file_get_contents($path), true);
-
-        if (!isset($data['2'])) {
-            return response()->json(['error' => 'No se encontró la clave "2" en el JSON'], 400);
-        }
-
-        $filename = 'resultado_seo.json';
-
-        return response()->streamDownload(function () use ($data) {
-            echo json_encode($data['2'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        }, $filename, ['Content-Type' => 'application/json']);
+        return response()->download(storage_path('app/public/' . $json), 'autoseo_' . $autoseo->id . '_' . date('Y-m-d') . '.json', ['Content-Type' => 'application/json']);
     }
-
 
     public function getJsonStorage(Request $request)
     {

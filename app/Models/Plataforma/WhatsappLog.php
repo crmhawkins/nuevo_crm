@@ -17,7 +17,9 @@ class WhatsappLog extends Model
         'message',
         'response',
         'id_categoria',
-        'id_template'
+        'id_template',
+        'id_mensaje',
+        'id_chat'
     ];
 
     protected $casts = [
