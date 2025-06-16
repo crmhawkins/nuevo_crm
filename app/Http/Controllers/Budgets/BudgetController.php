@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use MO;
 
 class BudgetController extends Controller
 {
@@ -1657,6 +1658,9 @@ class BudgetController extends Controller
                 }
             }
 
+            $budget->budget_status_id = 6;
+            $budget->save();
+            
             if(!$generationSuccess){
                 foreach( $thisBudgetSupplierTypeConcepts as $thisBudgetSupplierTypeConcept ){
                     $thisBudgetSupplierTypeConcept->delete();
