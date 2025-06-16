@@ -32,7 +32,7 @@ class DonDominioController extends Controller
             $available = $domainData['available'];
             $price = $domainData['price'];
 
-            $price = $price * 1.21;
+            $price = $price;
 
             if ($available == 'true')
             {
@@ -218,28 +218,20 @@ class DonDominioController extends Controller
 
     public function registerDomain(Request $request)
     {
-        $domain = $request->domain;
-
-        $ownerContact = [
-
-        ];
-
-        $ownerContact = json_encode($ownerContact);
-
         $response = $this->dondominio->call('domain/create', [
-            'domain' => $domain,
+            'domain' => $request->domain,
             'period' => 1,
             "ownerContactType" => "individual",
-            "ownerContactFirstName" => "Elena",
-            "ownerContactLastName" => "Perez",
-            "ownerContactIdentNumber" => "75900659S",
-            "ownerContactEmail" => "administracion@hawkins.es",
-            "ownerContactPhone" => "+34.622440984",
-            "ownerContactAddress" => "C/General primo de rivera S/N",
-            "ownerContactPostalCode" => "11201",
-            "ownerContactCity" => "Algeciras",
-            "ownerContactState" => "Andalucia",
-            "ownerContactCountry" => "ES"
+            "ownerContactFirstName" => $request->name,
+            "ownerContactLastName" => $request->lastname,
+            "ownerContactIdentNumber" => $request->idnumber,
+            "ownerContactEmail" => $request->email,
+            "ownerContactPhone" => $request->phone,
+            "ownerContactAddress" => $request->address,
+            "ownerContactPostalCode" => $request->postal_code,
+            "ownerContactCity" => $request->city,
+            "ownerContactState" => $request->state,
+            "ownerContactCountry" => $request->country
         ]);
 
         if (is_string($response)) {
@@ -249,11 +241,11 @@ class DonDominioController extends Controller
         $success = $response['success'];
         if ($success == "true") {
             return response()->json([
-                "message" => "Dominio ".$domain." registrado con éxito"
+                "message" => "Dominio ".$request->domain." registrado con éxito"
             ], 200);
         } else {
             return response()->json([
-                "message" => "Error al registrar el dominio ".$domain,
+                "message" => "Error al registrar el dominio ".$request->domain,
                 "response" => $response,
             ], 400);
         }
