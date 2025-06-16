@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Plataforma;
 
 use App\Http\Controllers\Controller;
 use App\Models\Clients\Client;
+use App\Models\Plataforma\MensajesPendientes;
+use App\Models\Plataforma\ModeloMensajes;
 use App\Models\Plataforma\PlataformaTemplates;
 use App\Models\Plataforma\WhatsappAlerts;
 use App\Models\Plataforma\WhatsappConfig;
 use App\Models\Plataforma\WhatsappLog;
 use App\Models\Plataforma\WhatsappCatId;
+use App\Models\Plataforma\WhatsappMessages;
+use Http;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Plataforma\WhatsappContacts;
@@ -29,14 +33,24 @@ class PlataformaWhatsappController extends Controller
 
         $alerts = WhatsappAlerts::where('status', 0)->get();
 
+        // Estadísticas para el gráfico
+        $stats = [
+            'enviados' => WhatsappMessages::where('status', 1)->count(),
+            'leidos' => WhatsappMessages::where('status', 2)->count(),
+            'recibidos' => WhatsappMessages::where('status', 3)->count(),
+            'pendientes' => MensajesPendientes::where('status', 0)->count(),
+            'total' => WhatsappMessages::count(),
+        ];
+
         $respuestas = [];
         $campanias = [['nombre' => 'Campaña 1', 'estado' => 'Aceptada'], ['nombre' => 'Campaña 2', 'estado' => 'Rechazada'], ['nombre' => 'Campaña 3', 'estado' => 'Enviada']];
 
         $templates = PlataformaTemplates::all();
-        return view('plataforma.dashboard', compact('client', 'alerts', 'respuestas', 'campanias'));
+        return view('plataforma.dashboard', compact('client', 'alerts', 'respuestas', 'campanias', 'stats'));
     }
 
-    public function deleteAlert(Request $request) {
+    public function deleteAlert(Request $request)
+    {
         $alert = WhatsappAlerts::find($request->id);
         $alert->status = 1;
         $alert->save();
@@ -51,54 +65,42 @@ class PlataformaWhatsappController extends Controller
 
         $user = Auth::user();
         $campanias = CampaniasWhatsapp::paginate(20);
-        $url = 'https://graph.facebook.com/v22.0/262465576940163/message_templates?fields=name,status';
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . env('WHATSAPP_TOKEN'), 'Content-Type: application/json']);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode === 200) {
-            $templates = json_decode($response)->data;
-        } else {
-            $templates = [];
-        }
-
-        $clients = Client::select('id', 'name', 'phone')->whereNotNull('phone')->where('phone', '!=', '')->get();
+        $templates = PlataformaTemplates::all();
+        $clients = Client::select('id', 'name', 'phone')->where('phone', '!=', '')->whereNotNull('phone')->get();
         return view('plataforma.campanias', compact('user', 'campanias', 'templates', 'clients'));
     }
 
-    public function createCampania()
+    public function createCampania(Request $request)
     {
         if (!Auth::check()) {
             return redirect('/login');
         }
 
         $user = Auth::user();
-        $request = request();
 
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'mensaje' => 'required|string',
+            'plantilla' => 'required|integer',
+            'clientes' => 'required|array',
         ]);
 
-        // Convertir el HTML a formato compatible con WhatsApp
-        $mensaje = $this->convertHtmlToWhatsappFormat($validated['mensaje']);
+        $msg = PlataformaTemplates::find($validated['plantilla']);
+        $mensaje = $this->convertHtmlToWhatsappFormat($msg->mensaje);
+        $clientes = array_map('intval', $validated['clientes']);
 
-        // Crear la campaña
         $campania = CampaniasWhatsapp::create([
             'nombre' => $validated['nombre'],
             'mensaje' => $mensaje,
-            'estado' => 0,
+            'estado' => 1,
+            'clientes' => $clientes,
+            'id_template' => $validated['plantilla'],
         ]);
+
+        $campania->save();
 
         return response()->json([
             'success' => true,
-            'message' => 'Campaña creada exitosamente',
+            'message' => 'Campaña creada exitosamente. Se está procesando en segundo plano.',
             'campania' => $campania,
         ]);
     }
@@ -115,36 +117,53 @@ class PlataformaWhatsappController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'mensaje' => 'required|string',
-            'contenido' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,png,jpg,jpeg,gif,svg,webp,mp 4,avi,mov',
+            'contenido' => 'file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,png,jpg,jpeg,gif,svg,webp,mp 4,avi,mov',
             'botones' => 'nullable|string',
         ]);
         // Convertir el HTML a formato compatible con WhatsApp
         $mensaje = $this->convertHtmlToWhatsappFormat($validated['mensaje']);
+
         $validated['mensaje'] = $mensaje;
         // Crear la campaña
-        $campania = PlataformaTemplates::create($validated);
+        $plantilla = PlataformaTemplates::create($validated);
 
         return response()->json([
             'success' => true,
-            'message' => 'Campaña creada exitosamente',
-            'campania' => $campania,
+            'message' => 'Plantilla creada exitosamente',
+            'plantilla' => $plantilla,
         ]);
     }
 
-    // Función para convertir HTML a formato WhatsApp
     private function convertHtmlToWhatsappFormat($html)
     {
-        // Convertir etiquetas de HTML a WhatsApp
-        $html = preg_replace('/<b>(.*?)<\/b>/', '*$1*', $html); // Negrita
-        $html = preg_replace('/<i>(.*?)<\/i>/', '_$1_', $html); // Cursiva
-        $html = preg_replace('/<u>(.*?)<\/u>/', '$1', $html); // Subrayado no soportado por WhatsApp, lo eliminamos
+        // Convertir HTML a WhatsApp Format
 
-        $html = str_replace('<br>', "\n", $html);
+        // 1. Negrita y cursiva
+        $html = preg_replace('/<b>(.*?)<\/b>/i', '*$1*', $html);
+        $html = preg_replace('/<strong>(.*?)<\/strong>/i', '*$1*', $html);
+        $html = preg_replace('/<i>(.*?)<\/i>/i', '_$1_', $html);
+        $html = preg_replace('/<em>(.*?)<\/em>/i', '_$1_', $html);
 
-        // Limpiar el HTML residual
+        // 2. Eliminar subrayado
+        $html = preg_replace('/<u>(.*?)<\/u>/i', '$1', $html);
+
+        // 3. Convertir <br> y </p> a saltos reales
+        $html = str_ireplace(['<br>', '<br/>', '<br />'], "\n", $html);
+        $html = preg_replace('/<\/p>/i', "\n\n", $html);
+        $html = preg_replace('/<p[^>]*>/i', '', $html);
+
+        // 4. Convertir entidades HTML comunes (opcional)
+        $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5);
+
+        // 5. Eliminar etiquetas restantes
         $html = strip_tags($html);
 
-        return $html;
+        // 6. Preservar saltos de línea reales (ya incluidos o manuales)
+        $html = preg_replace("/\r\n|\r/", "\n", $html); // Normaliza
+        $html = preg_replace("/\n{3,}/", "\n\n", $html); // Máx 2 líneas seguidas
+
+        // 7. Trim
+        return trim($html);
     }
 
     public function clientes(Request $request)
@@ -192,7 +211,8 @@ class PlataformaWhatsappController extends Controller
         return view('plataforma.templates', compact('user', 'templates'));
     }
 
-    public function deleteTemplate(Request $request) {
+    public function deleteTemplate(Request $request)
+    {
         $template = PlataformaTemplates::find($request->id);
         $template->status = 3;
         $template->save();
@@ -258,24 +278,52 @@ class PlataformaWhatsappController extends Controller
             $campania->fecha_lanzamiento = now();
             $campania->save();
 
+            $log = new WhatsappLog();
+            $log->type = 1;
+            $log->clients = $clientes;
+            $log->id_campania = $campania->id;
+            $log->message = $campania->mensaje;
+            $log->id_template = $campania->id_template;
+            $log->save();
+
             // Send messages to each client
             foreach ($clientes as $clientId) {
                 $client = Client::find($clientId);
-                if ($client && $client->phone) {
-                    // Uncomment when ready to send actual messages
-                    // $this->sendWhatsappMessage($client, $campania->mensaje);
-                }
-            }
+                if (!$client) continue;
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Campaña enviada exitosamente',
-                'type' => 'success',
-                'data' => [
-                    'estado' => $campania->estado,
-                    'fecha_lanzamiento' => $campania->fecha_lanzamiento->format('d-m-Y H:i:s'),
+                $phone = $client->phone;
+                $phone = str_replace([' ', '+', '34'], '', $phone);
+
+                // Skip invalid phone numbers
+                if (empty($phone) || $phone[0] === '9' || $phone[0] === '8') {
+                    continue;
+                }
+
+                $phone = '34' . $phone;
+
+                $mensaje = $this->replaceTemplateVariables($campania->mensaje, $client);
+
+                // Create pending message
+                $mensajePendiente = new MensajesPendientes();
+                $mensajePendiente->tlf = $phone;
+                $mensajePendiente->message = $mensaje;
+                $mensajePendiente->save();
+
+                // Log the pending message
+                $log = new WhatsappLog();
+                $log->clients = $client->id;
+                $log->id_campania = $campania->id;
+                $log->message = 'Mensaje pendiente de envío';
+                $log->save();
+            }
+            return response()->json(
+                [
+                    'success' => true,
+                    'message' => 'Campaña enviada exitosamente y mensajes puestos en cola para ' . count($clientes) . ' clientes',
+                    'type' => 'success',
                 ],
-            ]);
+                200,
+            );
         } catch (\Exception $e) {
             return response()->json(
                 [
@@ -295,7 +343,7 @@ class PlataformaWhatsappController extends Controller
         }
 
         $user = Auth::user();
-        $logs = WhatsappLog::paginate(20);
+        $logs = WhatsappLog::orderBy('id', 'desc')->paginate(20);
         return view('plataforma.logs', compact('user', 'logs'));
     }
 
@@ -342,7 +390,8 @@ class PlataformaWhatsappController extends Controller
         return view('plataforma.configuracion', compact('client', 'config', 'categorias'));
     }
 
-    public function configuracionStore(Request $request) {
+    public function configuracionStore(Request $request)
+    {
         if (!Auth::check()) {
             return redirect('/login');
         }
@@ -420,10 +469,8 @@ class PlataformaWhatsappController extends Controller
         }
     }
 
-
-
-    public function saveLog(Request $request) {
-
+    public function saveLog(Request $request)
+    {
         // Tipos de estado:
         // 1 - Enviado
         // 2 - No enviado
@@ -450,4 +497,109 @@ class PlataformaWhatsappController extends Controller
         $log->id_template = $validated['id_template'];
         $log->save();
     }
+
+    public function storeLog(Request $request)
+    {
+        $log = new WhatsappLog();
+        $log->fill($request->all());
+        $log->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Log almacenado exitosamente',
+            'type' => 'success',
+        ]);
+    }
+
+    public function chat()
+    {
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
+
+        $user = Auth::user();
+        return view('plataforma.chat', compact('user'));
+    }
+
+    public function getContact($contactId)
+    {
+        $contact = WhatsappContacts::find($contactId);
+        return response()->json($contact);
+    }
+
+
+    public function getMessages(Request $request)
+    {
+        $response = Http::get('http://localhost:8080/get-chat', [
+            'chatId' => $request->chatId,
+        ]);
+
+        return response()->json($response->json());
+    }
+
+    public function getChats()
+    {
+        $response = Http::get('http://localhost:8080/get-chats');
+
+        return response()->json($response->json());
+    }
+
+    private function replaceTemplateVariables($message, $client = null)
+    {
+        $variables = [
+            '{cliente}' => $client ? $client->name : '',
+            '{fecha}' => now()->format('d/m/Y'),
+            '{telefono}' => $client ? $client->phone : '',
+            '{email}' => $client ? $client->email : '',
+            '{direccion}' => $client ? $client->address : '',
+        ];
+
+        return str_replace(array_keys($variables), array_values($variables), $message);
+    }
+
+    public function sendMessage(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'No autorizado'], 401);
+        }
+
+        $validated = $request->validate([
+            'chatId' => 'required|string',
+            'message' => 'required|string',
+        ]);
+
+        $cliente = Client::where('phone', $validated['chatId'])->first();
+
+        if ($cliente) {
+            $message = $this->replaceTemplateVariables($validated['message'], $cliente);
+        } else {
+            $message = $validated['message'];
+        }
+
+        $response = Http::post('http://localhost:8080/send-message', [
+            'message' => $message,
+            'chatId' => $validated['chatId'],
+        ]);
+
+        return response()->json($response->json());
+    }
+
+    public function storeMsg(Request $request)
+    {
+        $msg = new WhatsappMessages();
+        if (WhatsappMessages::where('message_id', $request->message_id)->exists()) {
+            $msg = WhatsappMessages::where('message_id', $request->message_id)->first();
+            $msg->status = $request->status;
+            $msg->save();
+        } else {
+            $msg->fill($request->all());
+            $msg->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mensaje almacenado exitosamente',
+            'type' => 'success',
+        ]);
+    }
+
 }

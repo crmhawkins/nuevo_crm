@@ -769,6 +769,11 @@ Route::prefix('plataforma')->group(function () {
     Route::post('/store-log', [PlataformaWhatsappController::class, 'storeLog'])->name('plataforma.storelog');
     Route::post('/delete-alert', [PlataformaWhatsappController::class, 'deleteAlert'])->name('plataforma.deleteAlert');
     Route::post('/delete-template', [PlataformaWhatsappController::class, 'deleteTemplate'])->name('plataforma.deleteTemplate');
+    Route::get('/chat', [PlataformaWhatsappController::class, 'chat'])->name('plataforma.chat');
+    Route::get('/get-contact/{contactId}', [PlataformaWhatsappController::class, 'getContact'])->name('plataforma.getContact');
+    Route::get('/get-chat', [PlataformaWhatsappController::class, 'getMessages'])->name('plataforma.getMessages');
+    Route::get('/get-chats', [PlataformaWhatsappController::class, 'getChats'])->name('plataforma.getChats');
+    Route::post('/send-message', [PlataformaWhatsappController::class, 'sendMessage'])->name('plataforma.sendMessage');
 });
 
 Route::prefix('tesoreria')->group(function () {
