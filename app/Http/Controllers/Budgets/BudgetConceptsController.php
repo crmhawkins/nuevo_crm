@@ -129,7 +129,6 @@ class BudgetConceptsController extends Controller
                 'base' => $base,
                 'iva' => $ivaTotal,
                 'total' => $total,
-
             ]);
         }
 

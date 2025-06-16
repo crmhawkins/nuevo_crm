@@ -246,7 +246,6 @@
 
     $('#actualizar').click(function(e) {
         e.preventDefault(); // Previene la navegación por defecto.
-        $(this).prop('disabled', true);
         $('form').submit(); // Envía el formulario.
         $(this).prop('disabled', true); // Desactiva el botón para evitar múltiples envíos.
     });

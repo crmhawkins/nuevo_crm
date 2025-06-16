@@ -259,15 +259,6 @@ class LogskitTable extends Component
             return $row;
         })->values();
 
-        // Filtrar por columnas visibles
-        // $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
-        //     foreach ($this->columnasEstados as $estado) {
-        //         if (!in_array($estado, $this->columnasOcultas) && empty($row[$estado])) {
-        //             return false;
-        //         }
-        //     }
-        //     return true;
-        // });
 
         $logsPivotadosCollection = $logsPivotadosCollection->filter(function ($row) {
             if ($this->mostrarSoloConValor) {
@@ -321,32 +312,32 @@ class LogskitTable extends Component
     }
 
     private function normalizarImporte($importe)
-{
-    $importe = trim($importe);
+    {
+        $importe = trim($importe);
 
-    // Caso 1: contiene punto como separador de miles y coma decimal (ej. 1.234,56)
-    if (preg_match('/^\d{1,3}(\.\d{3})*,\d{2}$/', $importe)) {
-        $importe = str_replace('.', '', $importe); // quitamos los miles
-        $importe = str_replace(',', '.', $importe); // convertimos decimal a punto
+        // Caso 1: contiene punto como separador de miles y coma decimal (ej. 1.234,56)
+        if (preg_match('/^\d{1,3}(\.\d{3})*,\d{2}$/', $importe)) {
+            $importe = str_replace('.', '', $importe); // quitamos los miles
+            $importe = str_replace(',', '.', $importe); // convertimos decimal a punto
+        }
+
+        // Caso 2: contiene coma como decimal sin miles (ej. 1234,56)
+        elseif (preg_match('/^\d+,\d{2}$/', $importe)) {
+            $importe = str_replace(',', '.', $importe);
+        }
+
+        // Caso 3: ya está con punto decimal (ej. 1234.56)
+        elseif (preg_match('/^\d+\.\d{2}$/', $importe)) {
+            // sin cambios
+        }
+
+        // Caso 4: número entero
+        elseif (preg_match('/^\d+$/', $importe)) {
+            $importe .= '.00';
+        }
+
+        return (float) $importe;
     }
-
-    // Caso 2: contiene coma como decimal sin miles (ej. 1234,56)
-    elseif (preg_match('/^\d+,\d{2}$/', $importe)) {
-        $importe = str_replace(',', '.', $importe);
-    }
-
-    // Caso 3: ya está con punto decimal (ej. 1234.56)
-    elseif (preg_match('/^\d+\.\d{2}$/', $importe)) {
-        // sin cambios
-    }
-
-    // Caso 4: número entero
-    elseif (preg_match('/^\d+$/', $importe)) {
-        $importe .= '.00';
-    }
-
-    return (float) $importe;
-}
 
 
     public function actualizarFecha($referenceId, $estado, $nuevaFecha, $id)

@@ -73,23 +73,37 @@ class DiscountVacaciones extends Command
                 }
             }
             $holidaysecond = $holiday * 8 * 60 * 60;
+
             if ($descontar > 0) {
-                $newHolidaysecond = $holidaysecond - $descontar ;
-                $newHoliday = $newHolidaysecond / 8 / 3600;
+            $newHolidaySeconds = $holidaysecond - $descontar;
+            $newHoliday = $newHolidaySeconds / 8 / 3600;
+            $horasDescontadas = $holiday - $newHoliday;
 
-                DB::update('UPDATE holidays SET quantity = ? WHERE user_id = ?', [$newHoliday, $user->id]);
-
-                $horasDescontadas= $holiday - $newHoliday;
-
-                 Alert::create([
-                    'admin_user_id' => 8,
-                    'stage_id' => 50,
-                    'activation_datetime' => Carbon::now(),
-                    'reference_id' => $user->id,
-                    'cont_postpone' => 0,
-                    'description' => 'Se ha descontado ' . $horasDescontadas . ' dias de vacaciones de '.$user->name.' '. $user->surname,
-                ]);
+            // SOLO MOSTRAR, NO GUARDAR
+            $this->line("Usuario: {$user->name} {$user->surname}");
+            $this->line("Descontar: {$descontar}");
+            $this->line("Vacaciones actuales: {$holiday}");
+            $this->line("Vacaciones nuevas simuladas: " . round($newHoliday, 2));
+            $this->line("Días descontados: " . round($horasDescontadas, 2));
+            $this->line("------");
             }
+            // if ($descontar > 0) {
+            //     $newHolidaysecond = $holidaysecond - $descontar ;
+            //     $newHoliday = $newHolidaysecond / 8 / 3600;
+
+            //     DB::update('UPDATE holidays SET quantity = ? WHERE user_id = ?', [$newHoliday, $user->id]);
+
+            //     $horasDescontadas= $holiday - $newHoliday;
+
+            //      Alert::create([
+            //         'admin_user_id' => 8,
+            //         'stage_id' => 50,
+            //         'activation_datetime' => Carbon::now(),
+            //         'reference_id' => $user->id,
+            //         'cont_postpone' => 0,
+            //         'description' => 'Se ha descontado ' . $horasDescontadas . ' dias de vacaciones de '.$user->name.' '. $user->surname,
+            //     ]);
+            // }
         }
         $this->info('Comando completado: Vacaciones');
     }

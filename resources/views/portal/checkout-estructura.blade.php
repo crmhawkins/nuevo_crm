@@ -54,21 +54,21 @@
                                 ['src' => '/assets/images/plantillas/web4.png', 'name' => 'Web 4', 'category' => 'tienda', 'url' => 'https://www.maquetacionweb04.hawkins.es'],
                                 ['src' => '/assets/images/plantillas/web5.png', 'name' => 'Web 5', 'category' => 'corporativa', 'url' => 'https://www.maquetacionweb05.hawkins.es'],
                                 ['src' => '/assets/images/plantillas/web6.png', 'name' => 'Web 6', 'category' => 'corporativa', 'url' => 'https://www.maquetacionweb06.hawkins.es'],
-                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Proximamente', 'category' => 'proximamente', 'url' => ''],
-                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Proximamente', 'category' => 'proximamente', 'url' => ''],
-                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Proximamente', 'category' => 'proximamente', 'url' => ''],
+                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Web 7', 'category' => 'proximamente', 'url' => 'https://www.maquetacionweb07.hawkins.es'],
+                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Web 8', 'category' => 'proximamente', 'url' => 'https://www.maquetacionweb08.hawkins.es'],
+                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Web 9', 'category' => 'proximamente', 'url' => 'https://www.maquetacionweb09.hawkins.es'],
                             ];
                         } elseif ($type === 'eccommerce') {
                             $estructuras = [
-                                ['src' => '/assets/images/plantillas/ecommerce1.png', 'name' => 'Ecommerce 1', 'category' => 'corporativa', 'url' => ''],
-                                ['src' => '/assets/images/plantillas/ecommerce2.png', 'name' => 'Ecommerce 2', 'category' => 'personal', 'url' => ''],
-                                ['src' => '/assets/images/plantillas/ecommerce3.png', 'name' => 'Ecommerce 3', 'category' => 'portfolio', 'url' => ''],
-                                ['src' => '/assets/images/plantillas/ecommerce4.png', 'name' => 'Ecommerce 4', 'category' => 'tienda', 'url' => ''],
-                                ['src' => '/assets/images/plantillas/ecommerce5.png', 'name' => 'Ecommerce 5', 'category' => 'corporativa', 'url' => ''],
-                                ['src' => '/assets/images/plantillas/ecommerce6.png', 'name' => 'Ecommerce 6', 'category' => 'corporativa', 'url' => ''],
-                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Proximamente', 'category' => 'proximamente', 'url' => ''],
-                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Proximamente', 'category' => 'proximamente', 'url' => ''],
-                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Proximamente', 'category' => 'proximamente', 'url' => ''],
+                                ['src' => '/assets/images/plantillas/ecommerce1.png', 'name' => 'Ecommerce 1', 'category' => 'corporativa', 'url' => 'https://www.maquetacion1.hawkins.es'],
+                                ['src' => '/assets/images/plantillas/ecommerce2.png', 'name' => 'Ecommerce 2', 'category' => 'personal', 'url' => 'https://www.maquetacion2.hawkins.es'],
+                                ['src' => '/assets/images/plantillas/ecommerce3.png', 'name' => 'Ecommerce 3', 'category' => 'portfolio', 'url' => 'https://www.maquetacion3.hawkins.es'],
+                                ['src' => '/assets/images/plantillas/ecommerce4.png', 'name' => 'Ecommerce 4', 'category' => 'tienda', 'url' => 'https://www.maquetacion4.hawkins.es'],
+                                ['src' => '/assets/images/plantillas/ecommerce5.png', 'name' => 'Ecommerce 5', 'category' => 'corporativa', 'url' => 'https://www.maquetacion5.hawkins.es'],
+                                ['src' => '/assets/images/plantillas/ecommerce6.png', 'name' => 'Ecommerce 6', 'category' => 'corporativa', 'url' => 'https://www.maquetacion6.hawkins.es'],
+                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Ecommerce 7', 'category' => 'proximamente', 'url' => 'https://www.maquetacion7.hawkins.es'],
+                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Ecommerce 8', 'category' => 'proximamente', 'url' => 'https://www.maquetacion8.hawkins.es'],
+                                ['src' => '/assets/images/logo/logo.png', 'name' => 'Ecommerce 9', 'category' => 'proximamente', 'url' => 'https://www.maquetacion9.hawkins.es'],
                             ];
                         }
                     @endphp
