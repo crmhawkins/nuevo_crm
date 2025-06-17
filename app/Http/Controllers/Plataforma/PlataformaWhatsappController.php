@@ -66,7 +66,7 @@ class PlataformaWhatsappController extends Controller
         $user = Auth::user();
         $campanias = CampaniasWhatsapp::paginate(20);
         $templates = PlataformaTemplates::all();
-        $clients = Client::select('id', 'name', 'phone')->where('phone', '!=', '')->whereNotNull('phone')->get();
+        $clients = Client::select('id', 'name', 'phone')->whereNotNull('phone')->where('phone', '!=', '')->orderBy('name', 'asc')->get();
         return view('plataforma.campanias', compact('user', 'campanias', 'templates', 'clients'));
     }
 

@@ -75,31 +75,31 @@ class AutomatizacionKitController extends Controller
                 'categoria_dias'  => $categoria, // ← NUEVO
             ];
         })->values();
-
-<<<<<<< Updated upstream
-=======
-
-    public function viewEstados2(Request $request)
-    {
-        // Asignamos valores por defecto si no se reciben
-        $dias_laborales = $request->input('dias_laborales', 21);
-        $dias = $request->input('dias', 15);
-        $mas6Meses = $request->input('mas6Meses', false);
-        if ($mas6Meses) {
-            $dias = 30*6;
-            $resultados = LogActions::mas6Meses()->get();
-        } else {
-            $resultados = $this->getContratos($dias_laborales);
-        }
-        if ($resultados->isEmpty()) {
-            return redirect()->back()
-            ->with('success_message', "Actualmente no existen kits con más de {$dias} días sin actualizar su estado ni con el SASAK enviado.")
-            ->with('success_dias', $dias);
-        }
-
-        return view('kitDigital.estadosKit', compact('resultados', 'dias'));
->>>>>>> Stashed changes
     }
+// <<<<<<< Updated upstream
+// =======
+
+//     public function viewEstados2(Request $request)
+//     {
+//         // Asignamos valores por defecto si no se reciben
+//         $dias_laborales = $request->input('dias_laborales', 21);
+//         $dias = $request->input('dias', 15);
+//         $mas6Meses = $request->input('mas6Meses', false);
+//         if ($mas6Meses) {
+//             $dias = 30*6;
+//             $resultados = LogActions::mas6Meses()->get();
+//         } else {
+//             $resultados = $this->getContratos($dias_laborales);
+//         }
+//         if ($resultados->isEmpty()) {
+//             return redirect()->back()
+//             ->with('success_message', "Actualmente no existen kits con más de {$dias} días sin actualizar su estado ni con el SASAK enviado.")
+//             ->with('success_dias', $dias);
+//         }
+
+//         return view('kitDigital.estadosKit', compact('resultados', 'dias'));
+// >>>>>>> Stashed changes
+//     }
 
     public function viewEstados(Request $request)
     {

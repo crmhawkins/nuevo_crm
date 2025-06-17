@@ -30,11 +30,11 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         $allowedIds = [1, 2, 8, 58];
-        $allowedIp = '88.30.82.217';
+        $allowedsIp = ['88.30.82.217', '127.0.0.1'];
 
         if (!in_array($user->id, $allowedIds)) {
-            if ($request->ip() !== $allowedIp) {
-                Auth::logout(); // Cierra la sesión
+            if (!in_array($request->ip(), $allowedsIp)) {
+                Auth::logout();
 
                 return redirect()->route('login')->withErrors([
                     'username' => 'Acceso denegado desde esta IP.',

@@ -22,5 +22,5 @@ class CampaniasWhatsapp extends Model
         'fecha_lanzamiento' => 'datetime',
         'estado' => 'int',
     ];
-    
+
 }

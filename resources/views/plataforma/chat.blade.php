@@ -189,7 +189,7 @@ function loadMessages(messages) {
 
     messages.forEach(msg => {
         const div = document.createElement('div');
-        const isSent = msg.fromMe === true || msg.from === '34634261382@c.us';
+        const isSent = msg.fromMe === true || msg.from === '34685713495@c.us';
 
         div.className = `message ${isSent ? 'sent' : 'received'}`;
         div.innerHTML = `${msg.body}<span class="timestamp">${formatTimestamp(msg.timestamp)}</span>`;

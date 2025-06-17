@@ -1,6 +1,6 @@
 @extends('layouts.appWhatsapp')
 
-@section('titulo', 'Campañas')
+@section('titulo', 'Acciones')
 
 <style>
     .sortable {
@@ -19,10 +19,10 @@
 
 @section('content')
 <div class="col-md-10 p-4 bg-white rounded">
-    <div class="d-flex justify-content-between mb-4 ">
-        <h2 class="mb-0">Campañas</h2>
+    <div class="d-flex justify-content-between mb-4">
+        <h2 class="mb-0">Acciones</h2>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCampaniaModal">
-            Nueva campaña
+            Nueva acción
         </button>
     </div>
 
@@ -30,9 +30,9 @@
         <table id="contactsTable" class="table table-bordered table-hover align-middle">
             <thead>
                 <tr>
-                    <th class="sortable" data-column="id">ID <span class="sort-icon">↕</span></th>
-                    <th class="sortable" data-column="name">Nombre <span class="sort-icon">↕</span></th>
-                    <th>Fecha de ultimo lanzamiento</th>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Fecha de último lanzamiento</th>
                     <th>Clientes</th>
                     <th>Estado</th>
                     <th>Acciones</th>
@@ -61,7 +61,7 @@
                         <td>
                             <button class="btn btn-primary send-campania" data-id="{{ $campania->id }}"
                                 {{ $campania->estado == 0 || $campania->estado == 2 ? 'disabled' : '' }}>
-                                Lanzar campaña
+                                Ejecutar acción
                             </button>
                         </td>
                     </tr>
@@ -71,14 +71,14 @@
     </div>
 </div>
 
-<!-- MODALES DE CLIENTES -->
+<!-- MODALES CLIENTES -->
 @foreach ($campanias as $campania)
 <div class="modal fade" id="clientesModal{{ $campania->id }}" tabindex="-1" aria-labelledby="clientesModalLabel{{ $campania->id }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="clientesModalLabel{{ $campania->id }}">Clientes de la campaña: {{ $campania->nombre }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Clientes de la acción: {{ $campania->nombre }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <div class="list-group">
@@ -103,30 +103,30 @@
 </div>
 @endforeach
 
-<!-- MODAL NUEVA CAMPAÑA -->
+<!-- MODAL NUEVA ACCIÓN -->
 <div class="modal fade" id="newCampaniaModal" tabindex="-1" aria-labelledby="newCampaniaModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Nueva Campaña</h5>
+                <h5 class="modal-title">Nueva acción</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <form id="campaniaForm">
                     <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombre de la campaña</label>
+                        <label for="nombre" class="form-label">Nombre de la acción</label>
                         <input type="text" class="form-control" id="nombre" name="nombre" required>
                     </div>
                     <div class="mb-3">
                         <label for="plantilla" class="form-label">Plantilla</label>
                         <select id="plantilla" name="plantilla" class="form-control">
                             @foreach ($templates as $template)
-                                <option style="color: #000;" value="{{ $template->id }}">{{ $template->nombre }} - {{ $template->id }}</option>
+                                <option value="{{ $template->id }}">{{ $template->nombre }} - {{ $template->id }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="clientes" class="form-label">Clientes</label>
+                        <label class="form-label">Clientes</label>
                         <div class="mb-2">
                             <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllClients">
                                 Seleccionar todos
@@ -148,7 +148,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="saveCampania">Guardar campaña</button>
+                <button type="button" class="btn btn-primary" id="saveCampania">Guardar acción</button>
             </div>
         </div>
     </div>
@@ -156,15 +156,12 @@
 @endsection
 
 @section('scripts')
-<!-- DEPENDENCIAS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
-<!-- SCRIPT COMPLETO -->
 <script>
 $(document).ready(function () {
-    // TOAST CONFIG
     const Toast = Swal.mixin({
         toast: true,
         position: 'top-end',
@@ -183,18 +180,17 @@ $(document).ready(function () {
         $(this).text(selectAll ? 'Deseleccionar todos' : 'Seleccionar todos');
     });
 
-    // RESET MODAL AL CERRAR
+    // RESET MODAL
     $('#newCampaniaModal').on('hidden.bs.modal', function () {
         $('.client-checkbox').prop('checked', false);
         $('#selectAllClients').text('Seleccionar todos');
         $('#campaniaForm')[0].reset();
         $('body').removeClass('modal-open');
         $('.modal-backdrop').remove();
-        $('body').css('overflow', '');
-        $('body').css('padding-right', '');
+        $('body').css('overflow', '').css('padding-right', '');
     });
 
-    // GUARDAR CAMPAÑA
+    // GUARDAR NUEVA ACCIÓN
     $('#saveCampania').on('click', function () {
         const nombre = $('#nombre').val();
         const plantilla = $('#plantilla').val();
@@ -214,14 +210,63 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     $('#newCampaniaModal').modal('hide');
-                    Toast.fire({ icon: 'success', title: 'Campaña creada correctamente' });
+                    Toast.fire({ icon: 'success', title: 'Acción creada correctamente' });
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    Toast.fire({ icon: 'error', title: response.message || 'Error al crear la campaña' });
+                    Toast.fire({ icon: 'error', title: response.message || 'Error al crear la acción' });
                 }
             },
             error: function () {
                 Toast.fire({ icon: 'error', title: 'Error al enviar los datos al servidor' });
+            }
+        });
+    });
+
+    // EJECUTAR ACCIÓN
+    $(document).on('click', '.send-campania', function (e) {
+        e.preventDefault();
+        const button = $(this);
+        const id = button.data('id');
+        const original = button.html();
+
+        if (button.prop('disabled')) return;
+
+        button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Ejecutando...');
+
+        $.ajax({
+            url: '/plataforma/send-campania',
+            method: 'POST',
+            data: {
+                campania_id: id,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (response) {
+                if (response.success) {
+                    Toast.fire({ icon: 'success', title: response.message });
+
+                    const row = button.closest('tr');
+                    const estadoCell = row.find('td:eq(4)');
+                    const fechaCell = row.find('td:eq(2)');
+
+                    let estado = 'Desconocido';
+                    switch (response.data.estado) {
+                        case 0: estado = 'Pendiente'; break;
+                        case 1: estado = 'Aceptada'; break;
+                        case 2: estado = 'Rechazada'; break;
+                        case 3: estado = 'Enviada'; break;
+                    }
+
+                    estadoCell.text(estado);
+                    fechaCell.text(response.data.fecha_lanzamiento);
+                } else {
+                    Toast.fire({ icon: 'error', title: response.message || 'Error al ejecutar la acción' });
+                }
+            },
+            error: function () {
+                Toast.fire({ icon: 'error', title: 'Error en la solicitud al servidor' });
+            },
+            complete: function () {
+                button.prop('disabled', false).html(original);
             }
         });
     });

@@ -113,7 +113,7 @@
                             <td>{{ $template->id }}</td>
                             <td>{{ $template->nombre }}</td>
                             <td>{{ $template->mensaje }}</td>
-                            
+
                             @php
                                 switch ($template->status) {
                                     case 0:
@@ -131,7 +131,8 @@
                             @endphp
                             <td>{!! $estado !!}</td>
                             <td>
-                                <button onclick="deleteTemplate({{ $template->id }})" class="btn btn-sm btn-danger delete-template" data-id="{{ $template->id }}">
+                                <button onclick="deleteTemplate({{ $template->id }})"
+                                    class="btn btn-sm btn-danger delete-template" data-id="{{ $template->id }}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -152,17 +153,17 @@
                 </div>
                 <div class="modal-body">
                     <div id="buttonsList" class="list-group">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Texto</th>
-                                <th>URL</th>
-                            </tr>
-                        </thead>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Texto</th>
+                                    <th>URL</th>
+                                </tr>
+                            </thead>
 
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -186,28 +187,6 @@
                             <label for="nombre" class="form-label">Nombre de la plantilla</label>
                             <input type="text" class="form-control" id="nombre" name="nombre" required>
                         </div>
-
-                        <div class="mb-3">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="incluirContenido">
-                                <label class="form-check-label" for="incluirContenido">
-                                    Añadir contenido
-                                </label>
-                            </div>
-                            <div id="contenidoContainer" style="display: none;">
-                                <label for="tipoContenidoLabel" class="form-label">Tipo de contenido</label>
-                                <select class="form-select mb-2" id="tipoContenido">
-                                    <option value="imagen">Imagen</option>
-                                    <option value="documento">Documento</option>
-                                    <option value="ubicacion">Ubicación</option>
-                                </select>
-
-                                <input type="file" class="form-control" id="archivoContenido" style="display: none;"
-                                    accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx">
-                            </div>
-                        </div>
-
-
                         <div class="mb-3">
                             <label class="form-label">Mensaje</label>
                             <div class="row">
@@ -216,8 +195,9 @@
                                     <textarea class="form-control" id="mensaje" name="mensaje" rows="8" placeholder="Escribe el mensaje..."
                                         required></textarea>
                                     <br>
-                                    <button type="button" class="btn btn-sm btn-primary" id="addVariableBtn">Añadir variable</button>
-                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary" id="addVariableBtn">Añadir
+                                        variable</button>
+                                </div>
 
                                 <!-- Previsualización tipo WhatsApp -->
                                 <div class="col-md-6">
@@ -226,7 +206,8 @@
                                             <div id="imagenPreview" class="imagen-preview" style="display: none;">
                                                 <img id="previewImg" src="" alt="Preview">
                                             </div>
-                                            <div id="mensajeContenido" class="mensaje-texto">Tu mensaje aparecerá aquí...</div>
+                                            <div id="mensajeContenido" class="mensaje-texto">Tu mensaje aparecerá aquí...
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -261,8 +242,7 @@
         $(document).ready(function() {
             // Handle add variable button click
             $('#addVariableBtn').on('click', function() {
-                variableCounter += 1;
-                $('#mensaje').summernote('insertText', '${' + variableCounter + '}');
+                $('#mensaje').summernote('insertText', '{cambiar_nombre_variable}');
             });
 
             $('#mensajeContenido').html('Tu mensaje aparecerá aquí...');
@@ -292,7 +272,9 @@
                             let finalContent = contents || 'Tu mensaje aparecerá aquí...';
                             if ($('#tipoContenido').val() === 'ubicacion') {
                                 if (!finalContent.includes('\{\{ ubicacion \}\}')) {
-                                    finalContent = '<div class="mb-2 text-muted">\{\{ ubicacion \}\}</div>' + finalContent;
+                                    finalContent =
+                                        '<div class="mb-2 text-muted">\{\{ ubicacion \}\}</div>' +
+                                        finalContent;
                                 }
                             }
                             $('#mensajeContenido').html(finalContent);
@@ -326,36 +308,22 @@
             });
 
             // Guardar plantilla
-            $('#saveTemplate').click(function() {
+            $('#saveTemplate').click(function(e) {
+                e.preventDefault();
+
                 var nombre = $('#nombre').val();
                 var mensaje = $('#mensaje').summernote('code');
-                var tipoContenido = $('#tipoContenido').val();
-                var contenido = $('#archivoContenido')[0].files[0];
-                var botones = [];
 
-                // Recopilar datos de los botones
-                $('#botonesList .input-group').each(function() {
-                    var boton = {
-                        texto: $(this).find('.boton-input').val(),
-                        url: $(this).find('.boton-input').val(),
-                        tipo: $(this).find('.boton-tipo').val()
-                    };
-                    if (boton.texto && boton.tipo) {
-                        botones.push(boton);
-                    }
-                });
+                if (!nombre || !mensaje) {
+                    toastr.error('Por favor complete todos los campos requeridos');
+                    return;
+                }
 
                 // Crear FormData para enviar archivos
                 var formData = new FormData();
                 formData.append('nombre', nombre);
                 formData.append('mensaje', mensaje);
-                formData.append('tipoContenido', tipoContenido);
-                formData.append('botones', JSON.stringify(botones));
                 formData.append('_token', '{{ csrf_token() }}');
-
-                if (contenido) {
-                    formData.append('contenido', contenido);
-                }
 
                 $.ajax({
                     url: '{{ route('plataforma.createTemplate') }}',
@@ -365,14 +333,20 @@
                     contentType: false,
                     success: function(response) {
                         if (response.success) {
+                            $('#newTemplateModal').modal('hide');
+                            $('.modal-backdrop').remove();
+                            $('body').removeClass('modal-open').css('padding-right', '');
                             toastr.success('Plantilla guardada exitosamente');
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 500);
                         } else {
                             toastr.error('Error al guardar la plantilla: ' + response.message);
                         }
                     },
                     error: function(xhr) {
                         console.error('Error:', xhr);
-                        alert('Error al guardar la plantilla');
+                        toastr.error('Error al guardar la plantilla');
                     }
                 });
             });
