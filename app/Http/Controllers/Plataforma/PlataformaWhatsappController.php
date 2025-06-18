@@ -319,7 +319,10 @@ class PlataformaWhatsappController extends Controller
                 }
 
                 $phone = $client->phone;
-                $phone = str_replace([' ', '+', '34'], '', $phone);
+                if (str_starts_with($phone, '34')) {
+                    $phone = substr($phone, 2);
+                }
+                $phone = str_replace([' ', '+'], '', $phone);
 
                 // Skip invalid phone numbers
                 if (empty($phone) || $phone[0] === '9' || $phone[0] === '8') {
