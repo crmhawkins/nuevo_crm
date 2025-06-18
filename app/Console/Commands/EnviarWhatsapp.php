@@ -54,7 +54,7 @@ class EnviarWhatsapp extends Command
             return;
         }
 
-        $campania = CampaniasWhatsapp::where('estado', 0)->first();
+        $campania = CampaniasWhatsapp::where('estado', 3)->first();
         $pendientes = MensajesPendientes::where('status', 0)->first();
 
         if ($campania && $pendientes) {
@@ -103,6 +103,8 @@ class EnviarWhatsapp extends Command
 
             $pendientes->status = 1;
             $pendientes->save();
+            $campania->status = 4;
+            $campania->save();
         } else {
             $this->info('No hay mensajes pendientes');
         }
