@@ -1255,7 +1255,7 @@ class BudgetController extends Controller
             ]);
         }
 
-        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
+        if($budget->budget_status_id == 7 || $budget->budget_status_id == 6){
             $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
             $porcentaje = 1 - ($totalFacturado / $budget->total);
             if($porcentaje == 0){
