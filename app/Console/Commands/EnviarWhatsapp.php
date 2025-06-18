@@ -61,7 +61,7 @@ class EnviarWhatsapp extends Command
             $mensaje = $pendientes->message;
             $clientId = $pendientes->client_id;
 
-            if(WhatsappContacts::find($clientId)->exists()) {
+            if(WhatsappContacts::find($clientId)) {
                 $cliente = WhatsappContacts::find($clientId);
             } else {
                 $cliente = Client::find($clientId);
