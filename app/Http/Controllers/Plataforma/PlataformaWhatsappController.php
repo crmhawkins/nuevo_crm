@@ -86,21 +86,36 @@ class PlataformaWhatsappController extends Controller
             'clientes' => 'required|array',
         ]);
 
-        if (str_starts_with($validated['clientes'][0], 'W')) {
-            $clientes = array_map(function($cliente) {
-                
-            }, $validated['clientes']);
+        // Crear lista de clientes según el tipo de ID
+        $clientes = [];
+        foreach ($validated['clientes'] as $clienteId) {
+            $w = 2;
+            // Verificar si el ID empieza con 'W' para determinar si es de la tabla whatsapp_contacts
+            if (str_starts_with($clienteId, 'W')) {
+                $id = substr($clienteId, 1); // Quitar el prefijo 'W'
+                $cliente = WhatsappContacts::find($id); // Buscar en la tabla whatsapp_contacts
+                $w = 1;
+            } else {
+                $cliente = Client::find($clienteId); // Buscar en la tabla clients
+                $w = 0;
+            }
+
+            if ($cliente && $w == 1) {
+                $clientes[] = $cliente->wid;
+            } else if ($cliente && $w == 0) {
+                $clientes[] = $cliente->id;
+            }
         }
 
         $msg = PlataformaTemplates::find($validated['plantilla']);
         $mensaje = $this->convertHtmlToWhatsappFormat($msg->mensaje);
-        $clientes = array_map('intval', $validated['clientes']);
 
+        // Crear campaña
         $campania = CampaniasWhatsapp::create([
             'nombre' => $validated['nombre'],
             'mensaje' => $mensaje,
             'estado' => 1,
-            'clientes' => $clientes,
+            'clientes' => $clientes, // Clientes procesados
             'id_template' => $validated['plantilla'],
         ]);
 

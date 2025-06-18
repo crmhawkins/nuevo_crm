@@ -61,10 +61,8 @@ class EnviarWhatsapp extends Command
             $mensaje = $pendientes->message;
             $clientId = $pendientes->client_id;
 
-            // Detectar si es WhatsappContact o Client
-            if (str_starts_with($clientId, 'W')) {
-                $id = substr($clientId, 1);
-                $cliente = WhatsappContacts::find($id);
+            if(WhatsappContacts::find($clientId)->exists()) {
+                $cliente = WhatsappContacts::find($clientId);
             } else {
                 $cliente = Client::find($clientId);
             }
@@ -74,7 +72,7 @@ class EnviarWhatsapp extends Command
                 return;
             }
 
-            $phone = str_replace([' ', '+'], '', $cliente->phone ?? '');
+            $phone = str_replace([' ', '+'], '', $pendientes->tlf ?? '');
             if (empty($phone)) {
                 $this->error("Teléfono vacío para cliente ID $clientId");
                 return;
@@ -100,6 +98,8 @@ class EnviarWhatsapp extends Command
 
             $pendientes->status = 1;
             $pendientes->save();
+        } else {
+            $this->info('No hay mensajes pendientes');
         }
     }
 
