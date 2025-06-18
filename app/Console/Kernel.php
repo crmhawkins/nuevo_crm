@@ -54,7 +54,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('Tesoreria:ProcesarExcel')->everyMinute();
         $schedule->command('Whatsapp:GenerarMensajeCampania')->everyTwentySeconds();
-        $schedule->command('Whatsapp:Enviar')->everyTwoMinutes();
+        $schedule->command('Whatsapp:Enviar')->everyMinute();
 
 
         // $schedule->call(function () {
