@@ -50,7 +50,7 @@ class EnviarWhatsapp extends Command
         $horaActual = now()->format('H:i');
 
         // Verificar si la hora está fuera de los rangos permitidos
-        if (!(($horaActual >= '12:00' && $horaActual <= '16:00') || ($horaActual >= '18:00' && $horaActual <= '22:00'))) {
+        if (!(($horaActual >= '08:00' && $horaActual <= '12:00') || ($horaActual >= '14:00' && $horaActual <= '18:00'))) {
             return;
         }
 
@@ -61,7 +61,7 @@ class EnviarWhatsapp extends Command
             $mensaje = $pendientes->message;
             $clientId = $pendientes->client_id;
 
-            if(WhatsappContacts::find($clientId)) {
+            if (WhatsappContacts::find($clientId)) {
                 $cliente = WhatsappContacts::find($clientId);
             } else {
                 $cliente = Client::find($clientId);
@@ -88,6 +88,11 @@ class EnviarWhatsapp extends Command
             $this->info('Enviando mensaje a ' . $cliente->name);
             $this->info('Mensaje: ' . $mensaje);
             $this->info('--------------------------------');
+
+            // Añadir un tiempo de espera aleatorio entre 1 y 30 segundos
+            $espera = rand(1, 30);
+            $this->info("Esperando $espera segundos antes de enviar el mensaje...");
+            sleep($espera);
 
             Http::post('http://whatsapp-api.hawkins.es:4688/send-message', [
                 'chatId' => $phone,
