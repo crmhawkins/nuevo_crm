@@ -1021,165 +1021,154 @@ class BudgetController extends Controller
     }
 
     public function generateInvoiceReference(Budget $budget){
-        // Obtener la fecha actual del presupuesto
+        DB::beginTransaction();
+        try {
+            // Obtener la fecha actual del presupuesto
+            $budgetCreationDate = now();
+            $datetimeBudgetCreationDate = new \DateTime($budgetCreationDate);
 
-        $budgetCreationDate = now();
-        $datetimeBudgetCreationDate = new \DateTime($budgetCreationDate);
+            // Formatear la fecha para obtener los componentes necesarios
+            $year = $datetimeBudgetCreationDate->format('Y');
+            $monthNum = $datetimeBudgetCreationDate->format('m');
 
-        // Formatear la fecha para obtener los componentes necesarios
-        $year = $datetimeBudgetCreationDate->format('Y');
-        $monthNum = $datetimeBudgetCreationDate->format('m');
-
-        // Buscar la última referencia autoincremental para el año y mes actual
-        $latestReference = InvoiceReferenceAutoincrement::where('year', $year)
+            // Buscar la última referencia autoincremental usando bloqueo para evitar duplicados
+            $latestReference = InvoiceReferenceAutoincrement::where('year', $year)
                             ->whereNull('ceuta')
                             ->where('month_num', $monthNum)
+                            ->lockForUpdate()
                             ->orderBy('id', 'desc')
                             ->first();
-        // Si no existe, empezamos desde 1, de lo contrario, incrementamos
-        $newReferenceAutoincrement = $latestReference ? $latestReference->reference_autoincrement + 1 : 1;
-        // Formatear el número autoincremental a 6 dígitos
-        $formattedAutoIncrement = str_pad($newReferenceAutoincrement, 4, '0', STR_PAD_LEFT);
-        // Crear la referencia
-        switch ($monthNum) {
-            case 1:
-                $monthLetter = 'A';
-            break;
-            case 2:
-                $monthLetter = 'B';
-            break;
-            case 3:
-                $monthLetter = 'C';
-            break;
-            case 4:
-                $monthLetter = 'D';
-            break;
-            case 5:
-                $monthLetter = 'E';
-            break;
-            case 6:
-                $monthLetter = 'F';
-            break;
-            case 7:
-                $monthLetter = 'G';
-            break;
-            case 8:
-                $monthLetter = 'H';
-            break;
-            case 9:
-                $monthLetter = 'I';
-            break;
-            case 10:
-                $monthLetter = 'J';
-            break;
-            case 11:
-                $monthLetter = 'K';
-            break;
-            case 12:
-                $monthLetter = 'L';
-            break;
-        }
-        $reference = $monthLetter.$year . '-'. $formattedAutoIncrement;
-        // Guardar o actualizar la referencia autoincremental en BudgetReferenceAutoincrement
-        $referenceToSave = new InvoiceReferenceAutoincrement([
-            'reference_autoincrement' => $newReferenceAutoincrement,
-            'year' => $year,
-            'month_num' => $monthNum,
-            'letter_months' => $monthLetter,
-        ]);
 
-        $referenceToSave->save();
+            // Si no existe, empezamos desde 1, de lo contrario, incrementamos
+            $newReferenceAutoincrement = $latestReference ? $latestReference->reference_autoincrement + 1 : 1;
+            $formattedAutoIncrement = str_pad($newReferenceAutoincrement, 4, '0', STR_PAD_LEFT);
 
-        return [
-            'id' => $referenceToSave->id,
-            'reference' => $reference,
-            'reference_autoincrement' => $newReferenceAutoincrement,
-            'budget_reference_autoincrements' => [
+            // Crear la referencia con el formato correcto
+            $monthLetter = '';
+            switch ($monthNum) {
+                case 1: $monthLetter = 'A'; break;
+                case 2: $monthLetter = 'B'; break;
+                case 3: $monthLetter = 'C'; break;
+                case 4: $monthLetter = 'D'; break;
+                case 5: $monthLetter = 'E'; break;
+                case 6: $monthLetter = 'F'; break;
+                case 7: $monthLetter = 'G'; break;
+                case 8: $monthLetter = 'H'; break;
+                case 9: $monthLetter = 'I'; break;
+                case 10: $monthLetter = 'J'; break;
+                case 11: $monthLetter = 'K'; break;
+                case 12: $monthLetter = 'L'; break;
+            }
+
+            $reference = $monthLetter.$year . '-'. $formattedAutoIncrement;
+
+            // Verificar que la referencia no exista ya en ninguna factura
+            $existingInvoice = Invoice::where('reference', $reference)->first();
+            if ($existingInvoice) {
+                DB::rollBack();
+                throw new \Exception("Ya existe una factura con la referencia: " . $reference);
+            }
+
+            // Guardar la nueva referencia
+            $referenceToSave = new InvoiceReferenceAutoincrement([
+                'reference_autoincrement' => $newReferenceAutoincrement,
                 'year' => $year,
                 'month_num' => $monthNum,
-            ],
-        ];
+                'letter_months' => $monthLetter,
+            ]);
+
+            $referenceToSave->save();
+            DB::commit();
+
+            return [
+                'id' => $referenceToSave->id,
+                'reference' => $reference,
+                'reference_autoincrement' => $newReferenceAutoincrement,
+                'budget_reference_autoincrements' => [
+                    'year' => $year,
+                    'month_num' => $monthNum,
+                ],
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     public function generateInvoiceReferenceCeuta(Budget $budget){
-        // Obtener la fecha actual del presupuesto
-        $budgetCreationDate = now();
-        $datetimeBudgetCreationDate = new \DateTime($budgetCreationDate);
+        DB::beginTransaction();
+        try {
+            // Obtener la fecha actual del presupuesto
+            $budgetCreationDate = now();
+            $datetimeBudgetCreationDate = new \DateTime($budgetCreationDate);
 
-        // Formatear la fecha para obtener los componentes necesarios
-        $year = $datetimeBudgetCreationDate->format('Y');
-        $monthNum = $datetimeBudgetCreationDate->format('m');
+            // Formatear la fecha para obtener los componentes necesarios
+            $year = $datetimeBudgetCreationDate->format('Y');
+            $monthNum = $datetimeBudgetCreationDate->format('m');
 
-        // Buscar la última referencia autoincremental para el año y mes actual
-        $latestReference = InvoiceReferenceAutoincrement::where('year', $year)
+            // Buscar la última referencia autoincremental usando bloqueo para evitar duplicados
+            $latestReference = InvoiceReferenceAutoincrement::where('year', $year)
                             ->where('ceuta', 1)
                             ->where('month_num', $monthNum)
+                            ->lockForUpdate()
                             ->orderBy('id', 'desc')
                             ->first();
-        // Si no existe, empezamos desde 1, de lo contrario, incrementamos
-        $newReferenceAutoincrement = $latestReference ? $latestReference->reference_autoincrement + 1 : 1;
-        // Formatear el número autoincremental a 6 dígitos
-        $formattedAutoIncrement = str_pad($newReferenceAutoincrement, 4, '0', STR_PAD_LEFT);
-        // Crear la referencia
-        switch ($monthNum) {
-            case 1:
-                $monthLetter = 'A';
-            break;
-            case 2:
-                $monthLetter = 'B';
-            break;
-            case 3:
-                $monthLetter = 'C';
-            break;
-            case 4:
-                $monthLetter = 'D';
-            break;
-            case 5:
-                $monthLetter = 'E';
-            break;
-            case 6:
-                $monthLetter = 'F';
-            break;
-            case 7:
-                $monthLetter = 'G';
-            break;
-            case 8:
-                $monthLetter = 'H';
-            break;
-            case 9:
-                $monthLetter = 'I';
-            break;
-            case 10:
-                $monthLetter = 'J';
-            break;
-            case 11:
-                $monthLetter = 'K';
-            break;
-            case 12:
-                $monthLetter = 'L';
-            break;
-        }
-        $reference = 'CE/' . $monthLetter.$year . '-'. $formattedAutoIncrement;
-        // Guardar o actualizar la referencia autoincremental en BudgetReferenceAutoincrement
-        $referenceToSave = new InvoiceReferenceAutoincrement([
-            'reference_autoincrement' => $newReferenceAutoincrement,
-            'year' => $year,
-            'month_num' => $monthNum,
-            'letter_months' => $monthLetter,
-            'ceuta' => 1,
-        ]);
 
-        $referenceToSave->save();
+            // Si no existe, empezamos desde 1, de lo contrario, incrementamos
+            $newReferenceAutoincrement = $latestReference ? $latestReference->reference_autoincrement + 1 : 1;
+            $formattedAutoIncrement = str_pad($newReferenceAutoincrement, 4, '0', STR_PAD_LEFT);
 
-        return [
-            'id' => $referenceToSave->id,
-            'reference' => $reference,
-            'reference_autoincrement' => $newReferenceAutoincrement,
-            'budget_reference_autoincrements' => [
+            // Crear la referencia con el formato correcto
+            $monthLetter = '';
+            switch ($monthNum) {
+                case 1: $monthLetter = 'A'; break;
+                case 2: $monthLetter = 'B'; break;
+                case 3: $monthLetter = 'C'; break;
+                case 4: $monthLetter = 'D'; break;
+                case 5: $monthLetter = 'E'; break;
+                case 6: $monthLetter = 'F'; break;
+                case 7: $monthLetter = 'G'; break;
+                case 8: $monthLetter = 'H'; break;
+                case 9: $monthLetter = 'I'; break;
+                case 10: $monthLetter = 'J'; break;
+                case 11: $monthLetter = 'K'; break;
+                case 12: $monthLetter = 'L'; break;
+            }
+
+            $reference = 'CE/' . $monthLetter.$year . '-'. $formattedAutoIncrement;
+
+            // Verificar que la referencia no exista ya en ninguna factura
+            $existingInvoice = Invoice::where('reference', $reference)->first();
+            if ($existingInvoice) {
+                DB::rollBack();
+                throw new \Exception("Ya existe una factura con la referencia: " . $reference);
+            }
+
+            // Guardar la nueva referencia
+            $referenceToSave = new InvoiceReferenceAutoincrement([
+                'reference_autoincrement' => $newReferenceAutoincrement,
                 'year' => $year,
                 'month_num' => $monthNum,
-            ],
-        ];
+                'letter_months' => $monthLetter,
+                'ceuta' => 1,
+            ]);
+
+            $referenceToSave->save();
+            DB::commit();
+
+            return [
+                'id' => $referenceToSave->id,
+                'reference' => $reference,
+                'reference_autoincrement' => $newReferenceAutoincrement,
+                'budget_reference_autoincrements' => [
+                    'year' => $year,
+                    'month_num' => $monthNum,
+                ],
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     //Comprueba si el presupuesto tiene conceptos
@@ -1266,7 +1255,7 @@ class BudgetController extends Controller
             ]);
         }
 
-        if($budget->budget_status_id = 7 || $budget->budget_status_id = 6){
+        if($budget->budget_status_id == 7 || $budget->budget_status_id == 6){
             $totalFacturado = Invoice::where('budget_id',$budget->id)->get()->sum('total');
             $porcentaje = 1 - ($totalFacturado / $budget->total);
             if($porcentaje == 0){
@@ -1463,7 +1452,7 @@ class BudgetController extends Controller
                         $conceptSupplierSaved = $conceptSupplierCreate->save();
 
                         if(!$conceptSupplierSaved){
-                                $generationSuccess = false;
+                            $duplicationSuccess = false;
                         }
                     }
                 }
@@ -1480,6 +1469,9 @@ class BudgetController extends Controller
 
             }
 
+            $budget->budget_status_id = 6;
+            $budget->save();
+            
             // Respuesta
             return response()->json([
                 'status' => true,
@@ -1689,9 +1681,9 @@ class BudgetController extends Controller
             ]);
         }
         $budget = Budget::find($request->id);
-        $porcentaje = $request['percentage'];
+        $porcentaje = $request->percentage;
 
-        if($porcentaje == 0){
+        if ($porcentaje == 0) {
             return response()->json([
                 'status' => false,
                 'mensaje' => "No es posible generar una factura con el 0% del presupuesto."
@@ -1757,6 +1749,7 @@ class BudgetController extends Controller
         ];
 
         // Creación de la factura
+
         $invoice = Invoice::create($data);
 
         $invoiceSaved = $invoice->save();
@@ -1770,7 +1763,7 @@ class BudgetController extends Controller
         if($invoiceSaved){
             if($budget->budget_status_id != BudgetStatu::ESPERANDO_PAGO_PARCIAL){
                 $budget->budget_status_id = 7;
-                $budget->save();
+                               $budget->save();
             }
             //////////////////////////////////////////////////////////////////////////////////////////////
             ////////////////////////////////         CONCEPTOS PROPIOS         ///////////////////////////
