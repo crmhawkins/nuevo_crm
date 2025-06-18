@@ -77,6 +77,17 @@ class AutoseoJsonController extends Controller
             'password' => $autoseo->password_app,
         ];
 
+        if ($autoseo->CompanyName) {
+            $jsonData['CompanyName'] = $autoseo->CompanyName;
+            $jsonData['AddressLine1'] = $autoseo->AddressLine1;
+            $jsonData['Locality'] = $autoseo->Locality;
+            $jsonData['AdminDistrict'] = $autoseo->AdminDistrict;
+            $jsonData['PostalCode'] = $autoseo->PostalCode;
+            $jsonData['CountryRegion'] = $autoseo->CountryRegion;
+        }
+
+
+
         // Convertir de nuevo a JSON
         $modifiedJsonContent = json_encode($jsonData, JSON_PRETTY_PRINT);
 
