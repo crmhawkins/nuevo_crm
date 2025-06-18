@@ -13,6 +13,7 @@ use App\Models\Invoices\Invoice;
 use App\Models\Plataforma\CampaniasWhatsapp;
 use App\Models\Plataforma\MensajesPendientes;
 use App\Models\Plataforma\ModeloMensajes;
+use App\Models\Plataforma\WhatsappContacts;
 use App\Models\Users\User;
 use Http;
 use Illuminate\Console\Command;
@@ -59,13 +60,30 @@ class EnviarWhatsapp extends Command
         if ($campania && $pendientes) {
             $mensaje = $pendientes->message;
             $clientId = $pendientes->client_id;
-            $cliente = Client::find($clientId);
-            $phone = $cliente->phone;
-            $phone = str_replace([' ', '+'], '', $phone);
+
+            // Detectar si es WhatsappContact o Client
+            if (str_starts_with($clientId, 'W')) {
+                $id = substr($clientId, 1);
+                $cliente = WhatsappContacts::find($id);
+            } else {
+                $cliente = Client::find($clientId);
+            }
+
+            if (!$cliente) {
+                $this->error("Cliente no encontrado: $clientId");
+                return;
+            }
+
+            $phone = str_replace([' ', '+'], '', $cliente->phone ?? '');
+            if (empty($phone)) {
+                $this->error("Teléfono vacío para cliente ID $clientId");
+                return;
+            }
 
             if (str_starts_with($phone, '34')) {
                 $phone = substr($phone, 2);
             }
+
             $phone = '34' . $phone;
             $mensaje = $this->replaceTemplateVariables($mensaje, $cliente);
 
@@ -73,7 +91,7 @@ class EnviarWhatsapp extends Command
             $this->info('Mensaje: ' . $mensaje);
             $this->info('--------------------------------');
 
-            Http::post('http://127.0.0.1:8080/send-message', [
+            Http::post('http://whatsapp-api.hawkins.es:4688/send-message', [
                 'chatId' => $phone,
                 'message' => $mensaje,
             ]);

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Clients\Client;
 use App\Models\Plataforma\MensajesPendientes;
+use App\Models\Plataforma\WhatsappContacts;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use App\Models\Plataforma\CampaniasWhatsapp;
@@ -50,7 +51,10 @@ class GenerarMensajeCampania extends Command
             - El mensaje debe ser formato Whatsapp, como el que te llega.
             - El mensaje no debe cambiar su estructura ni significado. Debe decir lo mismo de otra forma.
             - No divagues, no inventes y no añadas nada.
-            - Si encuentras cosas como {cliente} {fecha} no lo elimines, puedes moverlo pero son variables que se rellenaran mas adelante";
+            - Si encuentras cosas como {cliente} {fecha} no lo elimines, puedes moverlo pero son variables que se rellenaran mas adelante
+            - Si vas a escribir o reescribir 'costo' debes reemplazarlo como coste.
+            - Nunca escribar costo, siempre coste.
+            ";
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
@@ -88,10 +92,23 @@ class GenerarMensajeCampania extends Command
 
                     foreach ($clientes as $index => $clienteId) {
                         $this->info("Cliente ID: {$clienteId}");
-                        $cliente = Client::find($clienteId);
-                        $this->info("Creando mensajes pendientes para el cliente {$cliente->id}...");
-                        if (!$cliente) continue;
+
+                        // Detectar si es un contacto de whatsapp (W prefijo)
+                        if (str_starts_with($clienteId, 'W')) {
+                            $id = (int) substr($clienteId, 1);
+                            $cliente = WhatsappContacts::find($id);
+                        } else {
+                            $id = (int) $clienteId;
+                            $cliente = Client::find($id);
+                        }
+
+                        if (!$cliente) {
+                            $this->warn("Cliente no encontrado para ID {$clienteId}");
+                            continue;
+                        }
+
                         $this->info("Cliente encontrado: {$cliente->id}");
+
                         // Formatear teléfono
                         $telefono = str_replace([' ', '+'], '', $cliente->phone ?? '');
                         if (empty($telefono) || $telefono[0] === '9' || $telefono[0] === '8') {
@@ -99,17 +116,20 @@ class GenerarMensajeCampania extends Command
                         }
                         $telefono = '34' . $telefono;
                         $this->info("Teléfono formateado: {$telefono}");
+
                         // Obtener modelo cíclico
                         $modeloIds = array_keys($mensajes);
                         $modeloId = $modeloIds[$index % 10];
                         $mensajeTexto = $mensajes[$modeloId];
                         $this->info("Mensaje cíclico: {$mensajeTexto}");
+
                         $message = $this->replaceTemplateVariables($mensajeTexto, $cliente);
+
                         MensajesPendientes::create([
                             'tlf' => $telefono,
                             'message' => $message,
                             'modelo_id' => $modeloId,
-                            'client_id' => $clienteId,
+                            'client_id' => $id,
                             'status' => 0,
                         ]);
                     }

@@ -9,10 +9,9 @@ class WhatsappContacts extends Model
     protected $table = 'whatsapp_contacts';
 
     protected $fillable = [
-        'client_id',
-        'campania_id',
-        'last_message',
-        'chat_id'
+        'name',
+        'phone',
+        'wid'
     ];
 
     public function cliente()

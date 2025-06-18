@@ -19,7 +19,12 @@ return new class extends Migration
             $table->string('json_nosotros');
             $table->string('url');
             $table->string('last_seo');
-            $table->string('next_seo');
+            $table->string('company_name')->nullable();
+            $table->string('address_line1')->nullable();
+            $table->string('locality')->nullable();
+            $table->string('admin_district')->nullable();
+            $table->string('postal_code')->nullable();
+            $table->string('country_region', 2)->nullable();
             $table->timestamps();
         });
     }

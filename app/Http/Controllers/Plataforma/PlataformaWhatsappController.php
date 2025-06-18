@@ -67,7 +67,9 @@ class PlataformaWhatsappController extends Controller
         $campanias = CampaniasWhatsapp::paginate(20);
         $templates = PlataformaTemplates::all();
         $clients = Client::select('id', 'name', 'phone')->whereNotNull('phone')->where('phone', '!=', '')->orderBy('name', 'asc')->get();
-        return view('plataforma.campanias', compact('user', 'campanias', 'templates', 'clients'));
+        $whatsapp_clients = WhatsappContacts::select('wid', 'name', 'phone')->orderBy('name')->get();
+
+        return view('plataforma.campanias', compact('user', 'campanias', 'templates', 'clients', 'whatsapp_clients'));
     }
 
     public function createCampania(Request $request)
@@ -83,6 +85,12 @@ class PlataformaWhatsappController extends Controller
             'plantilla' => 'required|integer',
             'clientes' => 'required|array',
         ]);
+
+        if (str_starts_with($validated['clientes'][0], 'W')) {
+            $clientes = array_map(function($cliente) {
+                
+            }, $validated['clientes']);
+        }
 
         $msg = PlataformaTemplates::find($validated['plantilla']);
         $mensaje = $this->convertHtmlToWhatsappFormat($msg->mensaje);
@@ -117,6 +125,7 @@ class PlataformaWhatsappController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'mensaje' => 'required|string',
+
             'contenido' => 'file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,png,jpg,jpeg,gif,svg,webp,mp 4,avi,mov',
             'botones' => 'nullable|string',
         ]);
@@ -289,7 +298,9 @@ class PlataformaWhatsappController extends Controller
             // Send messages to each client
             foreach ($clientes as $clientId) {
                 $client = Client::find($clientId);
-                if (!$client) continue;
+                if (!$client) {
+                    continue;
+                }
 
                 $phone = $client->phone;
                 $phone = str_replace([' ', '+', '34'], '', $phone);
@@ -526,10 +537,9 @@ class PlataformaWhatsappController extends Controller
         return response()->json($contact);
     }
 
-
     public function getMessages(Request $request)
     {
-        $response = Http::get('http://localhost:8080/get-chat', [
+        $response = Http::get('http://whatsapp-api.hawkins.es:4688/get-chat', [
             'chatId' => $request->chatId,
         ]);
 
@@ -538,7 +548,7 @@ class PlataformaWhatsappController extends Controller
 
     public function getChats()
     {
-        $response = Http::get('http://localhost:8080/get-chats');
+        $response = Http::get('http://whatsapp-api.hawkins.es:4688/get-chats');
 
         return response()->json($response->json());
     }
@@ -575,7 +585,7 @@ class PlataformaWhatsappController extends Controller
             $message = $validated['message'];
         }
 
-        $response = Http::post('http://localhost:8080/send-message', [
+        $response = Http::post('http://whatsapp-api.hawkins.es:4688/send-message', [
             'message' => $message,
             'chatId' => $validated['chatId'],
         ]);
@@ -601,5 +611,4 @@ class PlataformaWhatsappController extends Controller
             'type' => 'success',
         ]);
     }
-
 }

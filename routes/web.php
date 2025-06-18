@@ -4,6 +4,7 @@ use App\Events\RecargarPagina;
 use App\Http\Controllers\Alert\AlertController;
 use App\Http\Controllers\Bajas\BajaController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
+use App\Http\Controllers\Plataforma\ExcelUploadController;
 use App\Http\Controllers\Suppliers\SuppliersController;
 use App\Http\Controllers\Tesoreria\CuadroController;
 use App\Http\Controllers\Tesoreria\TesoreriaContabilizarIa;
@@ -774,7 +775,10 @@ Route::prefix('plataforma')->group(function () {
     Route::get('/get-chat', [PlataformaWhatsappController::class, 'getMessages'])->name('plataforma.getMessages');
     Route::get('/get-chats', [PlataformaWhatsappController::class, 'getChats'])->name('plataforma.getChats');
     Route::post('/send-message', [PlataformaWhatsappController::class, 'sendMessage'])->name('plataforma.sendMessage');
+    Route::get('/upload-excel', [ExcelUploadController::class, 'showForm'])->name('plataforma.upload_excel');
+    Route::post('/upload-excel', [ExcelUploadController::class, 'upload'])->name('plataforma.upload_excel');
 });
+
 
 Route::prefix('tesoreria')->group(function () {
     Route::get('/contabilizar-ia', [TesoreriaContabilizarIa::class, 'index'])->name('tesoreria.contabilizar-ia');
