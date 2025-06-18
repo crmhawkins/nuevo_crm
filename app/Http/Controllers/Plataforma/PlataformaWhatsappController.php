@@ -148,6 +148,7 @@ class PlataformaWhatsappController extends Controller
         $mensaje = $this->convertHtmlToWhatsappFormat($validated['mensaje']);
 
         $validated['mensaje'] = $mensaje;
+        $validated['botones'] = [];
         // Crear la campaña
         $plantilla = PlataformaTemplates::create($validated);
 
