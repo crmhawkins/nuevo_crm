@@ -46,27 +46,40 @@ class EnviarWhatsapp extends Command
 
     public function handle()
     {
+        $horaActual = now()->format('H:i');
+
+        // Verificar si la hora está fuera de los rangos permitidos
+        if (!(($horaActual >= '12:00' && $horaActual <= '16:00') || ($horaActual >= '18:00' && $horaActual <= '22:00'))) {
+            return;
+        }
+
         $campania = CampaniasWhatsapp::where('estado', 0)->first();
         $pendientes = MensajesPendientes::where('status', 0)->first();
+
         if ($campania && $pendientes) {
-        $mensaje = $pendientes->message;
-        $clientId = $pendientes->client_id;
-        $cliente = Client::find($clientId);
-        $phone = $cliente->phone;
-        $phone = str_replace([' ', '+'], '', $phone);
-        if (str_starts_with($phone, '34')) {
-            $phone = substr($phone, 2);
-        }
-        $phone = '34' . $phone;
-        $mensaje = $this->replaceTemplateVariables($mensaje, $cliente);
-        $this->info('Enviando mensaje a ' . $cliente->name);
-        $this->info('Mensaje: ' . $mensaje);
-        $this->info('--------------------------------');
-        Http::post('http://127.0.0.1:8080/send-message', [
-            'chatId' => $phone,
-            'message' => $mensaje,
-        ]);
-        $this->info('Mensaje enviado correctamente');
+            $mensaje = $pendientes->message;
+            $clientId = $pendientes->client_id;
+            $cliente = Client::find($clientId);
+            $phone = $cliente->phone;
+            $phone = str_replace([' ', '+'], '', $phone);
+
+            if (str_starts_with($phone, '34')) {
+                $phone = substr($phone, 2);
+            }
+            $phone = '34' . $phone;
+            $mensaje = $this->replaceTemplateVariables($mensaje, $cliente);
+
+            $this->info('Enviando mensaje a ' . $cliente->name);
+            $this->info('Mensaje: ' . $mensaje);
+            $this->info('--------------------------------');
+
+            Http::post('http://127.0.0.1:8080/send-message', [
+                'chatId' => $phone,
+                'message' => $mensaje,
+            ]);
+
+            $this->info('Mensaje enviado correctamente');
+
             $pendientes->status = 1;
             $pendientes->save();
         }

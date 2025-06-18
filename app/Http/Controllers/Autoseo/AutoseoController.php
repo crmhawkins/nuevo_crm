@@ -18,17 +18,24 @@ class AutoseoController extends Controller
 
     public function store(Request $request)
     {
-        $client = new Autoseo();
+        $validated = $request->validate([
+            'client_name' => 'required|string|max:255',
+            'client_email' => 'required|email|max:255',
+            'url' => 'required|url|max:255',
+            'username' => 'required|string|max:255',
+            'password' => 'required|string|max:255',
+            'user_app' => 'required|string|max:255',
+            'password_app' => 'required|string|max:255',
+            'CompanyName' => 'nullable|string|max:255',
+            'AddressLine1' => 'nullable|string|max:255',
+            'Locality' => 'nullable|string|max:255',
+            'AdminDistrict' => 'nullable|string|max:255',
+            'PostalCode' => 'nullable|string|max:20',
+            'CountryRegion' => 'nullable|string|size:2',
+        ]);
 
-        $client->client_name = $request->client_name;
-        $client->client_email = $request->client_email;
-        $client->next_seo = $request->next_seo;
-        $client->url = $request->url;
-        $client->username = $request->username;
-        $client->password = $request->password;
-        $client->user_app = $request->user_app;
-        $client->password_app = $request->password_app;
-        // Save the client
+        $client = new Autoseo();
+        $client->fill($validated);
         $client->save();
 
         return redirect()->route('autoseo.index')->with('success', 'Cliente creado correctamente');
@@ -36,16 +43,25 @@ class AutoseoController extends Controller
 
     public function update(Request $request)
     {
-        $client = Autoseo::find($request->id);
-        $client->client_name = $request->client_name;
-        $client->client_email = $request->client_email;
-        $client->url = $request->url;
-        $client->next_seo = $request->next_seo;
-        $client->username = $request->username;
-        $client->password = $request->password;
-        $client->user_app = $request->user_app;
-        $client->password_app = $request->password_app;
+        $validated = $request->validate([
+            'id' => 'required|exists:autoseo,id',
+            'client_name' => 'required|string|max:255',
+            'client_email' => 'required|email|max:255',
+            'url' => 'required|url|max:255',
+            'username' => 'required|string|max:255',
+            'password' => 'required|string|max:255',
+            'user_app' => 'required|string|max:255',
+            'password_app' => 'required|string|max:255',
+            'CompanyName' => 'nullable|string|max:255',
+            'AddressLine1' => 'nullable|string|max:255',
+            'Locality' => 'nullable|string|max:255',
+            'AdminDistrict' => 'nullable|string|max:255',
+            'PostalCode' => 'nullable|string|max:20',
+            'CountryRegion' => 'nullable|string|size:2',
+        ]);
 
+        $client = Autoseo::findOrFail($request->id);
+        $client->fill($validated);
         $client->save();
 
         return redirect()->route('autoseo.index')->with('success', 'Cliente actualizado correctamente');
