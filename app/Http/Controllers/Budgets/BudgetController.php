@@ -1469,6 +1469,9 @@ class BudgetController extends Controller
 
             }
 
+            $budget->budget_status_id = 6;
+            $budget->save();
+            
             // Respuesta
             return response()->json([
                 'status' => true,
