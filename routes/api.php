@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\SalvineitorController;
 use App\Http\Controllers\Autoseo\AutoseoJsonController;
+use App\Http\Controllers\Autoseo\AutoseoReports;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Plataforma\PlataformaWhatsappController;
 use App\Http\Controllers\Tesoreria\TesoreriaContabilizarIa;
@@ -69,3 +70,6 @@ Route::post('/register/domain', [DonDominioController::class, 'registerDomain'])
 
 Route::post('/plataforma/store-log', [PlataformaWhatsappController::class, 'storeLog'])->name('storeLog');
 Route::post('/plataforma/store-msg', [PlataformaWhatsappController::class, 'storeMsg'])->name('storeMsg');
+
+Route::post('/autoseo/reports/login/', [AutoseoReports::class, 'login'])->name('autoseo.reports.login');
+Route::post('/autoseo/reports/upload', [AutoseoReports::class, 'upload'])->name('autoseo.reports.upload');

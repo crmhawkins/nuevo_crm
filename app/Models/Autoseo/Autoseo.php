@@ -32,7 +32,8 @@ class Autoseo extends Model
         'Locality',
         'AdminDistrict',
         'PostalCode',
-        'CountryRegion'
+        'CountryRegion',
+        'pin'
     ];
     use HasFactory;
 
@@ -40,4 +41,5 @@ class Autoseo extends Model
         'reports' => 'array',
         'json_storage' => 'array',
     ];
+
 }

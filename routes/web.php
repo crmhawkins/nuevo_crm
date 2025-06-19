@@ -2,6 +2,7 @@
 
 use App\Events\RecargarPagina;
 use App\Http\Controllers\Alert\AlertController;
+use App\Http\Controllers\Autoseo\AutoseoReports;
 use App\Http\Controllers\Bajas\BajaController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Plataforma\ExcelUploadController;
@@ -799,5 +800,7 @@ Route::middleware(['access.level:6'])->group(function () {
         Route::put('/update', [AutoseoController::class, 'update'])->name('autoseo.update');
         Route::post('/create', [AutoseoController::class, 'store'])->name('autoseo.store');
         Route::post('/delete', [AutoseoController::class, 'delete'])->name('autoseo.delete');
+        Route::get('/reports', [AutoseoReports::class, 'show'])->name('autoseo.reports.show');
+        Route::get('/reports/{userid}/{id}', [AutoseoReports::class, 'showReport'])->name('autoseo.reports.showReport');
     });
 });

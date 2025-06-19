@@ -36,6 +36,7 @@ class AutoseoController extends Controller
 
         $client = new Autoseo();
         $client->fill($validated);
+        $client->pin = bin2hex(random_bytes(4)); // Genera un PIN aleatorio de 8 caracteres
         $client->save();
 
         return redirect()->route('autoseo.index')->with('success', 'Cliente creado correctamente');
