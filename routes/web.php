@@ -800,7 +800,8 @@ Route::middleware(['access.level:6'])->group(function () {
         Route::put('/update', [AutoseoController::class, 'update'])->name('autoseo.update');
         Route::post('/create', [AutoseoController::class, 'store'])->name('autoseo.store');
         Route::post('/delete', [AutoseoController::class, 'delete'])->name('autoseo.delete');
-        Route::get('/reports', [AutoseoReports::class, 'show'])->name('autoseo.reports.show');
-        Route::get('/reports/{userid}/{id}', [AutoseoReports::class, 'showReport'])->name('autoseo.reports.showReport');
+
     });
 });
+Route::get('/autoseo/reports', [AutoseoReports::class, 'show'])->name('autoseo.reports.show');
+        Route::get('/autoseo/reports/{userid}/{id}', [AutoseoReports::class, 'showReport'])->name('autoseo.reports.showReport');
