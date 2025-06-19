@@ -53,8 +53,8 @@ class Kernel extends ConsoleKernel
         //  $schedule->command('kitdigital:avisar-contratos-antiguos')->dailyAt('08:00');
 
         $schedule->command('Tesoreria:ProcesarExcel')->everyMinute();
-        $schedule->command('Whatsapp:GenerarMensajeCampania')->everyTenSeconds();
-        $schedule->command('Whatsapp:Enviar')->everyTenMinutes();
+        // $schedule->command('Whatsapp:GenerarMensajeCampania')->everyTenSeconds();
+        // $schedule->command('Whatsapp:Enviar')->everyTenMinutes();
 
 
         // $schedule->call(function () {
