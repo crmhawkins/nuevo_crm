@@ -164,7 +164,7 @@ class AutoseoJsonController extends Controller
     public function uploadJson(Request $request)
     {
         $request->validate([
-            'id' => 'required|integer',
+            'id' => 'required',
             'json' => 'required|file|mimetypes:application/json,text/plain',
         ]);
 
