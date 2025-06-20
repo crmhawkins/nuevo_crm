@@ -175,9 +175,29 @@ class AutoseoJsonController extends Controller
         $filename = uniqid() . '_' . $id . '.json';
         $relativePath = "autoseo/json/$filename";
 
-        // Guardar archivo en storage/app/autoseo/json
+        // Leer el contenido del archivo JSON
+        $fileContent = $jsonFile->get();
+
+        if (empty($fileContent)) {
+            return response()->json(['error' => 'El archivo JSON está vacío'], 400);
+        }
+
+        $jsonContent = json_decode($fileContent, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json(['error' => 'El archivo no es un JSON válido: ' . json_last_error_msg()], 400);
+        }
+
+        // Añadir campo de fecha al contenido JSON
+        $jsonContent['uploaded_at'] = now()->toDateTimeString();
+
+        // Guardar archivo en storage/app/autoseo/json con el contenido modificado
         Storage::disk('public')->makeDirectory('autoseo/json');
-        Storage::disk('public')->putFileAs('autoseo/json', $jsonFile, $filename);
+        $saved = Storage::disk('public')->put('autoseo/json/' . $filename, json_encode($jsonContent, JSON_PRETTY_PRINT));
+
+        if (!$saved) {
+            return response()->json(['error' => 'Error al guardar el archivo'], 500);
+        }
 
         // Buscar el modelo
         $autoseo = Autoseo::find($id);
