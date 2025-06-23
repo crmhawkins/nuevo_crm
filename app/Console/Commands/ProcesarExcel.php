@@ -376,6 +376,7 @@ class ProcesarExcel extends Command
                         $hash = hash('sha256', $hashBase);
 
                         if ($movimiento['tipo'] == 'ingreso') {
+                            Log::info('Ingreso: ' . $hash);
                             if (UnclassifiedIncome::where('hash', $hash)->exists()) {
                                 continue;
                             }
@@ -395,6 +396,7 @@ class ProcesarExcel extends Command
                         }
 
                         if ($movimiento['tipo'] == 'gasto') {
+                            Log::info('Gasto: ' . $hash);
                             if (UnclassifiedExpenses::where('hash', $hash)->exists()) {
                                 continue;
                             }
