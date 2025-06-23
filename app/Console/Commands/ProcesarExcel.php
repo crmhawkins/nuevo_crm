@@ -233,12 +233,8 @@ class ProcesarExcel extends Command
                                 throw new \Exception("Formato de fecha no reconocido: '$fechaLimpia'");
                             }
 
-                            // Solo guardar si la fecha es hoy
-                            if ($fecha->isToday()) {
-                                $movimiento['received_date'] = $fecha;
-                            } else {
-                                continue; // Saltar este movimiento si no es de hoy
-                            }
+                            $movimiento['received_date'] = $fecha;
+
 
                         } catch (\Exception $e) {
                             Log::error('Error al procesar fecha en movimiento:', [
