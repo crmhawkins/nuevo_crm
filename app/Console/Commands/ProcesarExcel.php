@@ -427,6 +427,8 @@ class ProcesarExcel extends Command
             }
         }
         Log::info('Comando ProcesarExcel ejecutado exitosamente');
+        Log::info('Ficheros procesados: ' . count($cod1Files));
+        Log::info('Registros procesados: ' . UnclassifiedIncome::count() + UnclassifiedExpenses::count());
         $this->info('¡Comando ejecutado exitosamente!');
     }
 
