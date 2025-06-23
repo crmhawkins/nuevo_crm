@@ -1605,7 +1605,7 @@ class DashboardController extends Controller
             if ($isHalfDay) {
                 $targetHours = 5;
             } else {
-                $targetHours = $isFriday ? 7 : 8;
+                $targetHours = $isFriday ? 7 : 7;
             }
             $targetseconds = $targetHours * 3600;
             $difference = $targetseconds - $totalWorkedSeconds;
