@@ -49,12 +49,16 @@
                                 </div>
                                 
                                 <div class="col-12 mb-3">
+                                    <label for="description">Presupuesto:</label>
+                                    <p type="text" class="form-control"><a href="{{route('presupuesto.edit', $task->budget_id )}}" target="_blank" rel="noopener noreferrer">{{ $task->presupuesto->reference }}</a></p>
+                                </div>
+                                <div class="col-12 mb-3">
                                     <label for="description">Gestor:</label>
-                                    <input type="text" class="form-control" id="title" name="title" value="{{ $task->gestor->name }}"readonly>
+                                    <input type="text" class="form-control" value="{{ $task->gestor->name }}"readonly>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="description">Cliente:</label>
-                                    <input type="text" class="form-control" id="title" name="title" value="{{ $task->presupuesto->cliente->name }}"readonly>
+                                    <input type="text" class="form-control" value="{{ $task->presupuesto->cliente->name }}"readonly>
                                 </div>
 
                                 <div class="col-12 mb-3">
