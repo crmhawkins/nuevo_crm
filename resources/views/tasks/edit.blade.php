@@ -50,7 +50,7 @@
                                 
                                 <div class="col-12 mb-3">
                                     <label for="description">Gestor:</label>
-                                    <input type="text" class="form-control" id="title" name="title" value="{{ $task->gesto->name }}"readonly>
+                                    <input type="text" class="form-control" id="title" name="title" value="{{ $task->gestor->name }}"readonly>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="description">Cliente:</label>
