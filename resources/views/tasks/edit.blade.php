@@ -47,6 +47,16 @@
                                     <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <label for="description">Gestor:</label>
+                                    <input type="text" class="form-control" id="title" name="title" value="{{ $task->gesto->name }}"readonly>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="description">Cliente:</label>
+                                    <input type="text" class="form-control" id="title" name="title" value="{{ $task->presupuesto->cliente->name }}"readonly>
+                                </div>
+
                                 <div class="col-12 mb-3">
                                     <label for="extra_employee">Asignar Empleado</label>
                                     <button type="button" id="addExtraEmployee" class="btn btn-info btn-sm ml-2"><i class="fas fa-plus"></i></button>
