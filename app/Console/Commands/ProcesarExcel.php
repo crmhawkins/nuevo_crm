@@ -367,19 +367,21 @@ class ProcesarExcel extends Command
                         $message = $movimiento['message'] ?? '';
                         $amount = $movimiento['amount'] ?? 0;
                         $received_date = $movimiento['received_date'] ? Carbon::parse($movimiento['received_date'])->format('Y-m-d') : '';
-                        if ($received_date < '2025-06-05') {
+                        $saldo = $movimiento['saldo'] ?? 0;
+                        if ($received_date < '2025-06-10') {
                             continue;
                         }
-                        $saldo = $movimiento['saldo'] ?? 0;
 
-                        $hashBase = $message . '|' . $amount . '|' . $received_date;
+                        $hashBase = $message . '|' . $amount . '|' . $received_date . '|' . $saldo;
                         $hash = hash('sha256', $hashBase);
 
                         if ($movimiento['tipo'] == 'ingreso') {
                             Log::info('Ingreso: ' . $hash);
                             if (UnclassifiedIncome::where('hash', $hash)->exists()) {
+                                Log::info('Ingreso ya existe: ' . $hash);
                                 continue;
                             }
+                            Log::info('Ingreso no existe: ' . $hash);
                             $unclassifiedIncome = new UnclassifiedIncome();
                             $unclassifiedIncome->company_name = $movimiento['company_name'] ?? null;
                             $unclassifiedIncome->bank = $movimiento['bank'] ?? null;
@@ -398,8 +400,10 @@ class ProcesarExcel extends Command
                         if ($movimiento['tipo'] == 'gasto') {
                             Log::info('Gasto: ' . $hash);
                             if (UnclassifiedExpenses::where('hash', $hash)->exists()) {
+                                Log::info('Gasto ya existe: ' . $hash);
                                 continue;
                             }
+                            Log::info('Gasto no existe: ' . $hash);
                             $unclassifiedExpenses = new UnclassifiedExpenses();
                             $unclassifiedExpenses->company_name = $movimiento['company_name'] ?? null;
                             $unclassifiedExpenses->bank = $movimiento['bank'] ?? null;
