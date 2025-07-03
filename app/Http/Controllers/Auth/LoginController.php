@@ -29,9 +29,9 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        $allowedIds = [1, 2, 8, 58];
+        $allowedIds = [1, 2, 8, 58, 52];
         $allowedsIp = ['88.30.82.217', '127.0.0.1'];
-
+        
         if (!in_array($user->id, $allowedIds)) {
             if (!in_array($request->ip(), $allowedsIp)) {
                 Auth::logout();

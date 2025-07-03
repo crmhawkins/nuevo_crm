@@ -110,9 +110,25 @@
                                                     <td>{{ Str::limit($email->subject, 50) }}</td>
                                                     <td>{{ $email->category->name ?? 'Sin categoría' }}</td>
                                                     <td>
-                                                        <span id="status-{{ $email->id }}" class="badge bg-{{ optional($email->status)->color ?? 'secondary' }} {{ in_array(optional($email->status)->color, ['light', 'info', 'warning']) ? 'text-dark' : '' }}">
+                                                        @php
+                                                            switch ($email->status_id) {
+                                                                case 2:
+                                                                    $bg = 'secondary';
+                                                                    break;
+                                                                case 1:
+                                                                    $bg = 'primary';
+                                                                    break;
+                                                                default:
+                                                                    $bg = 'light';
+                                                            }
+                                                        @endphp
+
+                                                        <span id="status-{{ $email->id }}"
+                                                            class="badge bg-{{ $bg }}
+                                                                    {{ in_array(optional($email->status)->name, ['light', 'info', 'warning']) ? 'text-dark' : '' }}">
                                                             {{ $email->status->name ?? 'Desconocido' }}
                                                         </span>
+
                                                     </td>
                                                     <td>{{ $email->created_at->format('d M Y, g:i A') }}</td>
                                                     <td class="text-end">

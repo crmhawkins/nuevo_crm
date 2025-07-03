@@ -16,46 +16,50 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Mime\Part\Multipart\AlternativePart;
 use Symfony\Component\Mime\Part\TextPart;
+use Illuminate\Support\Facades\Cache;
 
 
 class EmailController extends Controller
 {
     public function index(Request $request)
-    {
-        $categoriaId = $request->input('categoria_id', null);  // Por defecto no filtra por categoría
-        $search = $request->input('search', null);
-        $query = Email::query();
+{
+    $categoriaId = $request->input('categoria_id');
+    $search = $request->input('search');
 
-        // Filtra los correos según la categoría si se especifica una
-        $query->where('admin_user_id', Auth::user()->id)
-                      ->with(['status', 'category', 'user'])
-                      ->orderBy('created_at', 'desc');
+    $query = Email::with([
+            'status:id,name',
+            'category:id,name',
+            'user:id,name,email'
+        ])
+        ->where('admin_user_id', Auth::id())
+        ->orderBy('created_at', 'desc');
 
-        if ($categoriaId) {
-            $query->where(function($q) use ($categoriaId) {
-                $q->where('category_id', $categoriaId);
-            });
-        }else{
-            $query->where(function($q){
-                $q->where('category_id', '!=', 6)
-                ->orWhereNull('category_id');
-            });
-        }
-
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('sender', 'like', "%{$search}%")
-                  ->orWhere('subject', 'like', "%{$search}%")
-                  ->orWhere('body', 'like', "%{$search}%");
-            });
-        }
-
-        $emails = $query->paginate(15)->appends($request->all());
-
-        $categorias = CategoryEmail::all();
-
-        return view('emails.index', compact('emails', 'categorias', 'categoriaId'));
+    if ($categoriaId) {
+        $query->where('category_id', $categoriaId);
+    } else {
+        $query->where(function ($q) {
+            $q->where('category_id', '!=', 6)
+              ->orWhereNull('category_id');
+        });
     }
+
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $q->where('sender', 'like', "%{$search}%")
+              ->orWhere('subject', 'like', "%{$search}%")
+              ->orWhere('body', 'like', "%{$search}%");
+        });
+    }
+
+    $emails = $query->paginate(15)->appends($request->all());
+
+    $categorias = Cache::remember('categorias_email', 3600, function () {
+        return CategoryEmail::all();
+    });
+
+    return view('emails.index', compact('emails', 'categorias', 'categoriaId'));
+}
+
 
     public function create()
     {
@@ -701,8 +705,99 @@ class EmailController extends Controller
             ]);
         }
     }
+	public function getCorreos()
+{
+    $userId = Auth::id();
+    $correo = UserEmailConfig::where('admin_user_id', $userId)->first();
 
-    function getCorreos(){
+    if (!$correo) {
+        return back()->with('toast', ['icon' => 'error', 'mensaje' => 'No hay configuraciones de correo disponibles']);
+    }
+
+    try {
+        $ClientManager = new ClientManager();
+        $client = $ClientManager->make([
+            'host' => $correo->host,
+            'port' => $correo->port,
+            'username' => $correo->username,
+            'password' => $correo->password,
+            'encryption' => 'ssl',
+            'validate_cert' => true,
+            'protocol' => 'imap',
+        ]);
+
+        $client->connect();
+        $inbox = $client->getFolder('INBOX');
+        $messages = $inbox->messages()->unseen()->limit(10)->get();
+
+        foreach ($messages as $message) {
+            try {
+                $messageId = $message->getMessageId();
+                if (Email::where('message_id', $messageId)->exists()) {
+                    continue;
+                }
+
+                $sender = $message->getFrom()[0]->mail;
+                $subject = $message->getSubject();
+                $body = $message->getHTMLBody() ?: $message->getTextBody();
+
+                $toList = collect($message->getTo())->pluck('mail')->implode(', ');
+                $ccList = collect($message->getCc())->pluck('mail')->implode(', ');
+
+                $attachments = $message->getAttachments();
+                foreach ($attachments as $attachment) {
+                    $cid = str_replace(['<', '>'], '', $attachment->getContentId());
+                    $publicPath = asset('storage/emails/temp/' . $attachment->getName());
+                    if ($cid) {
+                        $body = str_replace("cid:$cid", $publicPath, $body);
+                    }
+                }
+
+                $email = Email::create([
+                    'admin_user_id' => $correo->admin_user_id,
+                    'sender' => $sender,
+                    'subject' => $subject,
+                    'body' => $body,
+                    'message_id' => $messageId,
+                    'status_id' => 1,
+                    'cc' => $ccList,
+                    'to' => $toList,
+                ]);
+
+                foreach ($attachments as $attachment) {
+                    $filename = $attachment->getName();
+                    $path = "emails/{$email->id}/$filename";
+                    Storage::disk('public')->put($path, $attachment->getContent());
+
+                    Attachment::create([
+                        'email_id' => $email->id,
+                        'file_path' => $path,
+                        'file_name' => $filename,
+                    ]);
+                }
+
+                $message->setFlag('Seen');
+                if ($correo->admin_user_id !== 54) {
+                    $message->delete();
+                }
+            } catch (\Exception $e) {
+                \Log::error("Error procesando mensaje: {$e->getMessage()}");
+            }
+        }
+
+        $client->disconnect();
+    } catch (\Exception $e) {
+        return back()->with('toast', ['icon' => 'error', 'mensaje' => 'Error con la configuración del correo']);
+    }
+
+    return redirect()->route('admin.emails.index')->with('toast', [
+        'icon' => 'success',
+        'mensaje' => 'Correos procesados correctamente'
+    ]);
+}
+
+
+    function getCorreos2(){
 
         $userid = Auth::user()->id;
 

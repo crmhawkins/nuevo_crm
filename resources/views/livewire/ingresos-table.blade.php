@@ -52,6 +52,11 @@
             </div>
         </div>
     </div>
+    <div class="flex flex-row justify-end">
+        <button wire:click="exportToExcel" class="btn btn-success mx-2">
+            Descargar Excel
+        </button>
+    </div>
 
     @if ($ingresos->count())
         <div class="table-responsive">
