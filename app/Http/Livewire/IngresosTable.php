@@ -5,9 +5,11 @@ namespace App\Http\Livewire;
 use App\Models\Accounting\Ingreso;
 use App\Models\Clients\Client;
 use App\Models\Other\BankAccounts;
+use App\Exports\IngresosExport;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class IngresosTable extends Component
 {
@@ -93,5 +95,41 @@ class IngresosTable extends Component
     public function updatingPerPage()
     {
         $this->resetPage();
+    }
+
+    public function exportToExcel()
+    {
+        $paginate = $this->perPage;
+        $this->perPage = 'all';
+        $this->actualizargastos();
+        // Genera los ingresos basados en los filtros actuales
+        $ingresos = $this->getIngresos();
+        $this->perPage = $paginate;
+        // Exporta los datos a Excel
+        return Excel::download(new IngresosExport($ingresos), 'ingresos.xlsx');
+    }
+
+    protected function getIngresos()
+    {
+        $query = Ingreso::when($this->buscar, function ($query) {
+                    $query->where('title', 'like', '%' . $this->buscar . '%');
+                })
+                ->when($this->selectedYear, function ($query) {
+                    $query->whereYear('created_at', $this->selectedYear);
+                })
+                ->when($this->selectedBanco, function ($query) {
+                    $query->where('bank_id', $this->selectedBanco);
+                })
+                ->when($this->startDate, function ($query) {
+                    $query->whereDate('date', '>=', Carbon::parse($this->startDate));
+                })
+                ->when($this->endDate, function ($query) {
+                    $query->whereDate('date', '<=', Carbon::parse($this->endDate));
+                });
+
+         // Aplica la ordenación
+         $query->orderBy($this->sortColumn, $this->sortDirection);
+
+         return $query->get();
     }
 }
