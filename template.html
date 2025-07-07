@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Informe SEO Comparativo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #eef2f7;
+        color: #333;
+        padding: 40px;
+        margin: 0;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+      }
+      .card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        padding: 32px;
+        margin-bottom: 50px;
+      }
+      .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+      }
+      .stat-number {
+        font-size: 2em;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .stat-label {
+        font-size: 0.9em;
+        opacity: 0.9;
+      }
+      ul {
+        padding-left: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        margin-top: 20px;
+      }
+      th {
+        background-color: #dfe6ec;
+        color: #2c3e50;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+      }
+      td {
+        background: #fff;
+        padding: 12px;
+        border-top: 1px solid #e0e6ed;
+        border-bottom: 1px solid #e0e6ed;
+      }
+      tr:hover td {
+        background: #f4f9ff;
+      }
+      .chart-container {
+        position: relative;
+        height: 400px;
+        margin-top: 32px;
+        background: #fff;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .comparison-table {
+        margin-top: 30px;
+      }
+      .comparison-table th {
+        background-color: #34495e;
+        color: white;
+      }
+      .version-header {
+        background-color: #3498db !important;
+        color: white !important;
+      }
+      .evolution-summary {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 20px;
+      }
+      .evolution-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+      .evolution-item:last-child {
+        border-bottom: none;
+      }
+      .trend-up {
+        color: #28a745;
+      }
+      .trend-down {
+        color: #dc3545;
+      }
+      .trend-stable {
+        color: #6c757d;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>📊 Informe SEO Comparativo del Dominio</h1>
+
+    <div class="card">
+      <h2>🏠 Dominio Analizado</h2>
+      <p><strong>{{ seo.dominio }}</strong></p>
+
+      <div class="summary-stats">
+        <div class="stat-card">
+          <div class="stat-number">{{ short_tail_labels|length }}</div>
+          <div class="stat-label">Keywords Short Tail</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ long_tail_labels|length }}</div>
+          <div class="stat-label">Keywords Long Tail</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ paa_labels|length }}</div>
+          <div class="stat-label">Preguntas PAA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📈 Evolución de Palabras Clave Short Tail</h2>
+      <div class="chart-container">
+        <canvas id="shortTailChart"></canvas>
+      </div>
+
+      <div class="evolution-summary">
+        <h3>Resumen de Evolución Short Tail</h3>
+        {% for keyword in short_tail_labels %}
+        <div class="evolution-item">
+          <span><strong>{{ keyword }}</strong></span>
+          <span>
+            {% set dataset = short_tail_chartjs_datasets | selectattr('label',
+            'equalto', keyword) | list | first %} {% set values = dataset.data |
+            select('!=', None) | list if dataset else [] %} {% if values|length
+            > 1 %} {% set first_val = values[0] %} {% set last_val = values[-1]
+            %} {% set change = last_val - first_val %} {% set change_percent =
+            (change / first_val * 100) if first_val else 0 %} {% if change > 0
+            %}
+            <span class="trend-up"
+              >↗ +{{ "{:,.0f}".format(change) }} (+{{
+              "{:.1f}".format(change_percent) }}%)</span
+            >
+            {% elif change < 0 %}
+            <span class="trend-down"
+              >↘ {{ "{:,.0f}".format(change) }} ({{
+              "{:.1f}".format(change_percent) }}%)</span
+            >
+            {% else %}
+            <span class="trend-stable">→ Sin cambios</span>
+            {% endif %} {% elif values|length == 1 %}
+            <span>{{ "{:,}".format(values[0]) }}</span>
+            {% else %}
+            <span>-</span>
+            {% endif %}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="comparison-table">
+        <h3>Tabla Comparativa Short Tail</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Keyword</th>
+              {% for i in range(short_tail_datasets|length) %}
+              <th class="version-header">{{ version_dates[i] }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in range(short_tail_labels|length) %}
+            <tr>
+              <td><strong>{{ short_tail_labels[i] }}</strong></td>
+              {% for dataset in short_tail_datasets %}
+              <td>
+                {% if i < dataset.data|length %} {{
+                "{:,}".format(dataset.data[i]) }} {% else %} - {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Evolución de Palabras Clave Long Tail</h2>
+      <div class="chart-container">
+        <canvas id="longTailChart"></canvas>
+      </div>
+
+      <div class="evolution-summary">
+        <h3>Resumen de Evolución Long Tail</h3>
+        {% for keyword in long_tail_labels %}
+        <div class="evolution-item">
+          <span><strong>{{ keyword }}</strong></span>
+          <span>
+            {% set dataset = long_tail_chartjs_datasets | selectattr('label',
+            'equalto', keyword) | list | first %} {% set values = dataset.data |
+            select('!=', None) | list if dataset else [] %} {% if values|length
+            > 1 %} {% set first_val = values[0] %} {% set last_val = values[-1]
+            %} {% set change = last_val - first_val %} {% set change_percent =
+            (change / first_val * 100) if first_val else 0 %} {% if change > 0
+            %}
+            <span class="trend-up"
+              >↗ +{{ "{:,.0f}".format(change) }} (+{{
+              "{:.1f}".format(change_percent) }}%)</span
+            >
+            {% elif change < 0 %}
+            <span class="trend-down"
+              >↘ {{ "{:,.0f}".format(change) }} ({{
+              "{:.1f}".format(change_percent) }}%)</span
+            >
+            {% else %}
+            <span class="trend-stable">→ Sin cambios</span>
+            {% endif %} {% elif values|length == 1 %}
+            <span>{{ "{:,}".format(values[0]) }}</span>
+            {% else %}
+            <span>-</span>
+            {% endif %}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="comparison-table">
+        <h3>Tabla Comparativa Long Tail</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Keyword</th>
+              {% for i in range(long_tail_datasets|length) %}
+              <th class="version-header">{{ version_dates[i] }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in range(long_tail_labels|length) %}
+            <tr>
+              <td><strong>{{ long_tail_labels[i] }}</strong></td>
+              {% for dataset in long_tail_datasets %}
+              <td>
+                {% if i < dataset.data|length %} {{
+                "{:,}".format(dataset.data[i]) }} {% else %} - {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>❓ Evolución de People Also Ask</h2>
+      <div class="chart-container">
+        <canvas id="paaChart"></canvas>
+      </div>
+
+      <div class="evolution-summary">
+        <h3>Resumen de Evolución PAA</h3>
+        {% for question in paa_labels %}
+        <div class="evolution-item">
+          <span><strong>{{ question }}</strong></span>
+          <span>
+            {% set dataset = paa_chartjs_datasets | selectattr('label',
+            'equalto', question) | list | first %} {% set values = dataset.data
+            | select('!=', None) | list if dataset else [] %} {% if
+            values|length > 1 %} {% set first_val = values[0] %} {% set last_val
+            = values[-1] %} {% set change = last_val - first_val %} {% set
+            change_percent = (change / first_val * 100) if first_val else 0 %}
+            {% if change > 0 %}
+            <span class="trend-up"
+              >↗ +{{ "{:,.0f}".format(change) }} (+{{
+              "{:.1f}".format(change_percent) }}%)</span
+            >
+            {% elif change < 0 %}
+            <span class="trend-down"
+              >↘ {{ "{:,.0f}".format(change) }} ({{
+              "{:.1f}".format(change_percent) }}%)</span
+            >
+            {% else %}
+            <span class="trend-stable">→ Sin cambios</span>
+            {% endif %} {% elif values|length == 1 %}
+            <span>{{ "{:,}".format(values[0]) }}</span>
+            {% else %}
+            <span>-</span>
+            {% endif %}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="comparison-table">
+        <h3>Tabla Comparativa PAA</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Pregunta</th>
+              {% for i in range(paa_datasets|length) %}
+              <th class="version-header">{{ version_dates[i] }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in range(paa_labels|length) %}
+            <tr>
+              <td><strong>{{ paa_labels[i] }}</strong></td>
+              {% for dataset in paa_datasets %}
+              <td>
+                {% if i < dataset.data|length %} {{
+                "{:,}".format(dataset.data[i]) }} {% else %} - {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔍 Evolución de Detalles de Keywords</h2>
+      <div class="chart-container">
+        <canvas id="keywordChart"></canvas>
+      </div>
+
+      <div class="evolution-summary">
+        <h3>Resumen de Evolución Keywords</h3>
+        {% for keyword in detalle_keywords_labels %}
+        <div class="evolution-item">
+          <span><strong>{{ keyword }}</strong></span>
+          <span>
+            {% set dataset = detalle_keywords_chartjs_datasets |
+            selectattr('label', 'equalto', keyword) | list | first %} {% set
+            values = dataset.data | select('!=', None) | list if dataset else []
+            %} {% if values|length > 1 %} {% set first_val = values[0] %} {% set
+            last_val = values[-1] %} {% set change = last_val - first_val %} {%
+            set change_percent = (change / first_val * 100) if first_val else 0
+            %} {% if change > 0 %}
+            <span class="trend-up"
+              >↗ +{{ "{:,.0f}".format(change) }} (+{{
+              "{:.1f}".format(change_percent) }}%)</span
+            >
+            {% elif change < 0 %}
+            <span class="trend-down"
+              >↘ {{ "{:,.0f}".format(change) }} ({{
+              "{:.1f}".format(change_percent) }}%)</span
+            >
+            {% else %}
+            <span class="trend-stable">→ Sin cambios</span>
+            {% endif %} {% elif values|length == 1 %}
+            <span>{{ "{:,}".format(values[0]) }}</span>
+            {% else %}
+            <span>-</span>
+            {% endif %}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="comparison-table">
+        <h3>Tabla Comparativa Keywords</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Keyword</th>
+              {% for i in range(detalle_keywords_datasets|length) %}
+              <th class="version-header">{{ version_dates[i] }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in range(detalle_keywords_labels|length) %}
+            <tr>
+              <td><strong>{{ detalle_keywords_labels[i] }}</strong></td>
+              {% for dataset in detalle_keywords_datasets %}
+              <td>
+                {% if i < dataset.data|length %} {{
+                "{:,}".format(dataset.data[i]) }} {% else %} - {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Evolución Mensual Search Console</h2>
+      {% if sc_has_data %}
+      <div
+        class="chart-row"
+        style="
+          display: flex;
+          flex-wrap: wrap;
+          gap: 32px;
+          justify-content: center;
+          margin-bottom: 32px;
+        "
+      >
+        <div
+          class="chart-container"
+          style="
+            flex: 1 1 400px;
+            min-width: 350px;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          "
+        >
+          <canvas id="scClicksLine"></canvas>
+        </div>
+        <div
+          class="chart-container"
+          style="
+            flex: 1 1 400px;
+            min-width: 350px;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          "
+        >
+          <canvas id="scImpressionsBar"></canvas>
+        </div>
+      </div>
+      <div
+        class="chart-row"
+        style="
+          display: flex;
+          flex-wrap: wrap;
+          gap: 32px;
+          justify-content: center;
+          margin-bottom: 32px;
+        "
+      >
+        <div
+          class="chart-container"
+          style="
+            flex: 1 1 400px;
+            min-width: 350px;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          "
+        >
+          <canvas id="scCtrLine"></canvas>
+        </div>
+        <div
+          class="chart-container"
+          style="
+            flex: 1 1 400px;
+            min-width: 350px;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          "
+        >
+          <canvas id="scPositionLine"></canvas>
+        </div>
+      </div>
+      {% else %}
+      <div
+        style="padding: 32px; text-align: center; color: #888; font-size: 1.2em"
+      >
+        No hay datos mensuales de Search Console disponibles para mostrar.
+      </div>
+      {% endif %}
+    </div>
+
+    <script>
+      // Usar las fechas de los reportes como labels
+      const versionLabels = {{ version_dates | tojson }};
+
+      // --- Short Tail: una línea por keyword ---
+      const shortTailDatasets = {{ short_tail_chartjs_datasets | tojson }};
+      new Chart(document.getElementById('shortTailChart'), {
+          type: 'line',
+          data: {
+              labels: versionLabels,
+              datasets: shortTailDatasets
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: { display: true, position: 'top' },
+                  title: { display: true, text: 'Evolución de Keywords Short Tail' }
+              },
+              scales: {
+                  y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } },
+                  x: { title: { display: true, text: 'Fecha' } }
+              },
+              interaction: { intersect: false, mode: 'index' }
+          }
+      });
+
+      // --- Long Tail: una línea por keyword ---
+      const longTailDatasets = {{ long_tail_chartjs_datasets | tojson }};
+      new Chart(document.getElementById('longTailChart'), {
+          type: 'line',
+          data: {
+              labels: versionLabels,
+              datasets: longTailDatasets
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: { display: true, position: 'top' },
+                  title: { display: true, text: 'Evolución de Keywords Long Tail' }
+              },
+              scales: {
+                  y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } },
+                  x: { title: { display: true, text: 'Fecha' } }
+              },
+              interaction: { intersect: false, mode: 'index' }
+          }
+      });
+
+      // --- PAA: una línea por pregunta ---
+      const paaDatasets = {{ paa_chartjs_datasets | tojson }};
+      new Chart(document.getElementById('paaChart'), {
+          type: 'line',
+          data: {
+              labels: versionLabels,
+              datasets: paaDatasets
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: { display: true, position: 'top' },
+                  title: { display: true, text: 'Evolución de People Also Ask' }
+              },
+              scales: {
+                  y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } },
+                  x: { title: { display: true, text: 'Fecha' } }
+              },
+              interaction: { intersect: false, mode: 'index' }
+          }
+      });
+
+      // --- Detalles Keywords: una línea por keyword ---
+      const detalleKeywordsDatasets = {{ detalle_keywords_chartjs_datasets | tojson }};
+      new Chart(document.getElementById('keywordChart'), {
+          type: 'line',
+          data: {
+              labels: versionLabels,
+              datasets: detalleKeywordsDatasets
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: { display: true, position: 'top' },
+                  title: { display: true, text: 'Evolución de Detalles de Keywords' }
+              },
+              scales: {
+                  y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } },
+                  x: { title: { display: true, text: 'Fecha' } }
+              },
+              interaction: { intersect: false, mode: 'index' }
+          }
+      });
+
+      // --- Search Console ---
+      const scMonths = {{ sc_months|tojson|safe }};
+      const scClicks = {{ sc_clicks|tojson|safe }};
+      const scImpressions = {{ sc_impressions|tojson|safe }};
+      const scAvgCtr = {{ sc_avg_ctr|tojson|safe }};
+      const scAvgPosition = {{ sc_avg_position|tojson|safe }};
+
+      if (scMonths.length > 0) {
+        new Chart(document.getElementById('scClicksLine'), {
+          type: 'line',
+          data: {
+            labels: scMonths,
+            datasets: [{
+              label: 'Clics',
+              data: scClicks,
+              borderColor: 'rgba(52, 152, 219, 1)',
+              backgroundColor: 'rgba(52, 152, 219, 0.2)',
+              borderWidth: 3,
+              tension: 0.3,
+              fill: true,
+              pointRadius: 5,
+              pointHoverRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true, position: 'top' },
+              title: { display: true, text: 'Clics mensuales (último año)' },
+              tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString() + ' clics' } }
+            },
+            scales: {
+              y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } },
+              x: { title: { display: true, text: 'Mes' } }
+            }
+          }
+        });
+
+        new Chart(document.getElementById('scImpressionsBar'), {
+          type: 'bar',
+          data: {
+            labels: scMonths,
+            datasets: [{
+              label: 'Impresiones',
+              data: scImpressions,
+              backgroundColor: 'rgba(241, 196, 15, 0.7)',
+              borderColor: 'rgba(243, 156, 18, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true, position: 'top' },
+              title: { display: true, text: 'Impresiones mensuales (último año)' },
+              tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString() + ' impresiones' } }
+            },
+            scales: {
+              y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } },
+              x: { title: { display: true, text: 'Mes' } }
+            }
+          }
+        });
+
+        new Chart(document.getElementById('scCtrLine'), {
+          type: 'line',
+          data: {
+            labels: scMonths,
+            datasets: [{
+              label: 'CTR promedio (%)',
+              data: scAvgCtr,
+              borderColor: 'rgba(46, 204, 113, 1)',
+              backgroundColor: 'rgba(46, 204, 113, 0.2)',
+              borderWidth: 3,
+              tension: 0.3,
+              fill: true,
+              pointRadius: 5,
+              pointHoverRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true, position: 'top' },
+              title: { display: true, text: 'CTR promedio mensual (último año)' },
+              tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(2) + ' %' } }
+            },
+            scales: {
+              y: { beginAtZero: true, ticks: { callback: v => v.toFixed(2) + ' %' } },
+              x: { title: { display: true, text: 'Mes' } }
+            }
+          }
+        });
+
+        new Chart(document.getElementById('scPositionLine'), {
+          type: 'line',
+          data: {
+            labels: scMonths,
+            datasets: [{
+              label: 'Posición promedio',
+              data: scAvgPosition,
+              borderColor: 'rgba(155, 89, 182, 1)',
+              backgroundColor: 'rgba(155, 89, 182, 0.2)',
+              borderWidth: 3,
+              tension: 0.3,
+              fill: true,
+              pointRadius: 5,
+              pointHoverRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true, position: 'top' },
+              title: { display: true, text: 'Posición promedio mensual (último año)' },
+              tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(2) } }
+            },
+            scales: {
+              y: { reverse: true, beginAtZero: false, title: { display: true, text: 'Posición (1 = top)' } },
+              x: { title: { display: true, text: 'Mes' } }
+            }
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

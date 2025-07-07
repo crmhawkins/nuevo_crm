@@ -3,6 +3,7 @@
 use App\Events\RecargarPagina;
 use App\Http\Controllers\Alert\AlertController;
 use App\Http\Controllers\Autoseo\AutoseoReports;
+use App\Http\Controllers\Autoseo\AutoseoReportsGen;
 use App\Http\Controllers\Bajas\BajaController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Plataforma\ExcelUploadController;
@@ -804,4 +805,7 @@ Route::middleware(['access.level:6'])->group(function () {
     });
 });
 Route::get('/autoseo/reports', [AutoseoReports::class, 'show'])->name('autoseo.reports.show');
-        Route::get('/autoseo/reports/{userid}/{id}', [AutoseoReports::class, 'showReport'])->name('autoseo.reports.showReport');
+Route::get('/autoseo/reports/{userid}/{id}', [AutoseoReports::class, 'showReport'])->name('autoseo.reports.showReport');
+
+// Generación de informes SEO
+Route::match(['GET', 'POST'], '/autoseo/generate-report/{id?}', [AutoseoReportsGen::class, 'generateReport'])->name('autoseo.generate.report');
