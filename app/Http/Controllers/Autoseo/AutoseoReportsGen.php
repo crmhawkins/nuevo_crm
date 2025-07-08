@@ -68,53 +68,93 @@ class AutoseoReportsGen extends Controller
     private function sendReportNotification($autoseo, $filename)
     {
         try {
-            // Verificar credenciales
-            if (!env('AUTOSEO_MAIL') || !env('AUTOSEO_PASSWORD')) {
-                Log::error("Credenciales de correo Autoseo no configuradas", [
-                    'autoseo_id' => $autoseo->id,
-                    'has_mail' => (bool)env('AUTOSEO_MAIL'),
-                    'has_password' => (bool)env('AUTOSEO_PASSWORD')
-                ]);
-                throw new \Exception('Credenciales de correo no configuradas');
-            }
-
+            $domain = $autoseo->url;
+            $reportUrl = Storage::disk('public')->url("reports/{$filename}");
+            $clientEmail = $autoseo->client_email;
             $recipients = ['nico.garcia@hawkins.es'];
-            $domain = $autoseo->url ?? 'No especificado';
 
-            // Configurar el mailer de autoseo
-            $this->configureAutoseoMailer();
-
-            Log::info("Intentando enviar correo de notificación", [
+            \Log::info("Configurando envío de correo", [
                 'autoseo_id' => $autoseo->id,
                 'domain' => $domain,
-                'recipients' => $recipients,
-                'filename' => $filename
+                'recipients' => $recipients
             ]);
 
-            foreach ($recipients as $email) {
-                try {
-                    Mail::to($email)->send(new AutoseoReportGenerated($autoseo->id, $filename, $domain, $autoseo->pin));
-                    Log::info("Correo enviado exitosamente", [
-                        'email' => $email,
-                        'autoseo_id' => $autoseo->id
-                    ]);
-                } catch (\Exception $e) {
-                    Log::error("Error al enviar correo individual", [
-                        'email' => $email,
-                        'error' => $e->getMessage(),
-                        'autoseo_id' => $autoseo->id
-                    ]);
-                    throw $e;
+            // Configurar el mailer
+            $config = [
+                'transport' => 'smtp',
+                'host' => 'smtp.ionos.es',
+                'port' => 465,
+                'encryption' => 'ssl',
+                'username' => 'seo@hawkins.es',
+                'password' => env('AUTOSEO_PASSWORD'),
+                'timeout' => null,
+                'local_domain' => env('MAIL_EHLO_DOMAIN', 'hawkins.es'),
+                'verify_peer' => false,
+            ];
+
+            \Log::info("Configuración del mailer", [
+                'host' => $config['host'],
+                'port' => $config['port'],
+                'username' => $config['username']
+            ]);
+
+            Config::set('mail.mailers.autoseo', $config);
+            Config::set('mail.default', 'autoseo');
+            Config::set('mail.from.address', 'seo@hawkins.es');
+            Config::set('mail.from.name', 'SEO Hawkins');
+
+            // Si no hay destinatarios, salir
+            if (empty($recipients)) {
+                \Log::warning("No hay destinatarios configurados para el dominio $domain");
+                return;
+            }
+
+            try {
+                \Log::info("Intentando enviar correo", [
+                    'template' => 'mails.seo-report',
+                    'data' => [
+                        'domain' => $domain,
+                        'has_pin' => !empty($autoseo->pin),
+                        'has_report_url' => !empty($reportUrl)
+                    ]
+                ]);
+
+                foreach ($recipients as $email) {
+                    \Log::info("Enviando correo a destinatario", ['email' => $email]);
+
+                    Mail::send('mails.seo-report', [
+                        'domain' => $domain,
+                        'report_url' => $reportUrl,
+                        'pin' => $autoseo->pin
+                    ], function ($message) use ($email, $domain) {
+                        $message->from('seo@hawkins.es', 'SEO Hawkins')
+                               ->to($email)
+                               ->subject("Informe SEO - $domain");
+                    });
                 }
+
+                \Log::info("Correo enviado exitosamente", [
+                    'domain' => $domain,
+                    'recipients' => $recipients
+                ]);
+
+            } catch (\Exception $e) {
+                \Log::error("Error al enviar el correo", [
+                    'error' => $e->getMessage(),
+                    'error_class' => get_class($e),
+                    'stack_trace' => $e->getTraceAsString()
+                ]);
+                throw $e;
             }
 
         } catch (\Exception $e) {
-            Log::error("Error al enviar correo de notificación", [
+            \Log::error("Error general en el proceso de notificación", [
                 'error' => $e->getMessage(),
-                'autoseo_id' => $autoseo->id,
-                'trace' => $e->getTraceAsString()
+                'error_class' => get_class($e),
+                'stack_trace' => $e->getTraceAsString(),
+                'domain' => $autoseo->url ?? 'unknown',
+                'autoseo_id' => $autoseo->id ?? 'unknown'
             ]);
-            throw $e;
         }
     }
 
@@ -137,13 +177,58 @@ class AutoseoReportsGen extends Controller
         return $this->processReportGeneration($id);
     }
 
+    private function prepareKeywordData($data)
+    {
+        if (empty($data)) {
+            return [];
+        }
+
+        foreach ($data as &$row) {
+            if (!isset($row['keyword'])) {
+                continue;
+            }
+
+            $lastResult = end($row['total_results']);
+            $firstResult = reset($row['total_results']);
+            $change = $lastResult - $firstResult;
+            $changePercent = $firstResult ? round(($change / $firstResult) * 100, 1) : 0;
+
+            $lastPos = end($row['position']);
+            $firstPos = reset($row['position']);
+            $posChange = $firstPos - $lastPos;
+
+            $row['metrics'] = [
+                'last_result' => $lastResult,
+                'change_percent' => $changePercent,
+                'trend' => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'neutral'),
+                'last_position' => $lastPos,
+                'position_change' => $posChange,
+                'chart_id' => 'chart_' . preg_replace('/[^a-zA-Z0-9]+/', '_', $row['keyword'])
+            ];
+        }
+
+        return $data;
+    }
+
     private function processReportGeneration($id, $email = null)
     {
         try {
-            \Log::info("Iniciando generación de informe SEO para Autoseo ID $id");
+            \Log::info("Iniciando generación de informe SEO", [
+                'autoseo_id' => $id,
+                'email_provided' => $email ?? 'no',
+                'timestamp' => now()->toDateTimeString()
+            ]);
 
             // Obtener el registro de Autoseo
             $autoseo = Autoseo::findOrFail($id);
+
+            \Log::info("Datos del registro Autoseo", [
+                'id' => $autoseo->id,
+                'url' => $autoseo->url,
+                'client_email' => $autoseo->client_email,
+                'has_json_storage' => !empty($autoseo->json_storage)
+            ]);
+
             $now = Carbon::now();
 
             // Verificar si hay archivos en json_storage
@@ -165,33 +250,32 @@ class AutoseoReportsGen extends Controller
                 return response()->json(['error' => 'No se encontraron archivos JSON válidos.'], 400);
             }
 
-            // Si solo hay un JSON, mostrar solo los datos de ese JSON sin análisis comparativo
+            // Procesar datos de Search Console
+            $searchConsoleData = $this->processSearchConsoleData($jsonDataList);
+            $scHasData = !empty($searchConsoleData['months']);
+
+            // Si solo hay un JSON, usar la vista simple
             if (count($jsonDataList) === 1) {
                 \Log::info("Generando informe simple (un solo JSON)");
                 $seoData = $jsonDataList[0];
                 $shortTailLabels = $seoData['short_tail'] ?? [];
                 $longTailLabels = $seoData['long_tail'] ?? [];
-                $allKeywords = $this->getAllKeywords($jsonDataList);
+
+                // Generar tablas comparativas y preparar datos
+                $shortTailTable = $this->prepareKeywordData($this->generateComparisonTable($shortTailLabels, $jsonDataList));
+                $longTailTable = $this->prepareKeywordData($this->generateComparisonTable($longTailLabels, $jsonDataList));
+
+                // Procesar PAA (People Also Ask)
                 $paaData = $this->processPaaData($jsonDataList);
                 $paaLabels = $paaData['labels'];
-                $searchConsoleData = $this->processSearchConsoleData($jsonDataList);
-                $scHasData = !empty($searchConsoleData['months']);
+                $paaTable = $this->prepareKeywordData($this->generatePaaComparisonTable($paaLabels, $jsonDataList));
 
                 $html = view('autoseo.report-single', [
                     'seo' => $seoData,
-                    'short_tail_labels' => $shortTailLabels,
-                    'long_tail_labels' => $longTailLabels,
-                    'detalle_keywords_labels' => $allKeywords,
-                    'paa_labels' => $paaLabels,
                     'version_dates' => [$seoData['uploaded_at'] ?? '-'],
-                    'short_tail_chartjs_datasets' => [],
-                    'long_tail_chartjs_datasets' => [],
-                    'detalle_keywords_chartjs_datasets' => [],
-                    'paa_chartjs_datasets' => [],
-                    'short_tail_table' => [],
-                    'long_tail_table' => [],
-                    'detalle_keywords_table' => [],
-                    'paa_table' => [],
+                    'short_tail_table' => $shortTailTable,
+                    'long_tail_table' => $longTailTable,
+                    'paa_table' => $paaTable,
                     'sc_months' => $searchConsoleData['months'],
                     'sc_clicks' => $searchConsoleData['clicks'],
                     'sc_impressions' => $searchConsoleData['impressions'],
@@ -211,17 +295,17 @@ class AutoseoReportsGen extends Controller
                 $autoseo->last_report = $now;
                 $autoseo->save();
 
-                // Enviar notificación por correo
+                // Enviar notificación por correo siempre
                 $this->sendReportNotification($autoseo, $filename);
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Informe generado correctamente (solo un JSON)',
+                    'message' => 'Informe simple generado correctamente',
                     'filename' => $filename
                 ]);
             }
 
-            // Si hay más de un JSON, análisis comparativo como antes
+            // Si hay más de un JSON, generar informe comparativo
             $versionDates = $this->extractVersionDates($jsonDataList);
             $seoData = $jsonDataList[0];
 
@@ -231,35 +315,26 @@ class AutoseoReportsGen extends Controller
             ]);
 
             // Procesar keywords
-            $allKeywords = $this->getAllKeywords($jsonDataList);
             $shortTailLabels = $seoData['short_tail'] ?? [];
             $longTailLabels = $seoData['long_tail'] ?? [];
 
             Log::info("Keywords procesadas", [
                 'short_tail_count' => count($shortTailLabels),
-                'long_tail_count' => count($longTailLabels),
-                'all_keywords_count' => count($allKeywords)
+                'long_tail_count' => count($longTailLabels)
             ]);
-
-            // Generar datasets para Chart.js
-            $shortTailDatasets = $this->buildChartjsDatasetsFromKeywords($shortTailLabels, $jsonDataList);
-            $longTailDatasets = $this->buildChartjsDatasetsFromKeywords($longTailLabels, $jsonDataList);
-            $detalleKeywordsDatasets = $this->buildChartjsDatasetsFromKeywords($allKeywords, $jsonDataList);
 
             // Procesar PAA (People Also Ask)
             $paaData = $this->processPaaData($jsonDataList);
             $paaLabels = $paaData['labels'];
-            $paaDatasets = $paaData['datasets'];
 
             Log::info("PAA procesado", [
                 'paa_count' => count($paaLabels)
             ]);
 
-            // Generar tablas comparativas
-            $shortTailTable = $this->generateComparisonTable($shortTailLabels, $jsonDataList);
-            $longTailTable = $this->generateComparisonTable($longTailLabels, $jsonDataList);
-            $detalleKeywordsTable = $this->generateComparisonTable($allKeywords, $jsonDataList);
-            $paaTable = $this->generatePaaComparisonTable($paaLabels, $jsonDataList);
+            // Generar tablas comparativas y preparar datos
+            $shortTailTable = $this->prepareKeywordData($this->generateComparisonTable($shortTailLabels, $jsonDataList));
+            $longTailTable = $this->prepareKeywordData($this->generateComparisonTable($longTailLabels, $jsonDataList));
+            $paaTable = $this->prepareKeywordData($this->generatePaaComparisonTable($paaLabels, $jsonDataList));
 
             // Procesar datos de Search Console
             $searchConsoleData = $this->processSearchConsoleData($jsonDataList);
@@ -274,18 +349,9 @@ class AutoseoReportsGen extends Controller
                 // Renderizar vista Blade
                 $html = view('autoseo.report-template', [
                     'seo' => $seoData,
-                    'short_tail_labels' => $shortTailLabels,
-                    'long_tail_labels' => $longTailLabels,
-                    'detalle_keywords_labels' => $allKeywords,
-                    'paa_labels' => $paaLabels,
                     'version_dates' => $versionDates,
-                    'short_tail_chartjs_datasets' => $shortTailDatasets,
-                    'long_tail_chartjs_datasets' => $longTailDatasets,
-                    'detalle_keywords_chartjs_datasets' => $detalleKeywordsDatasets,
-                    'paa_chartjs_datasets' => $paaDatasets,
                     'short_tail_table' => $shortTailTable,
                     'long_tail_table' => $longTailTable,
-                    'detalle_keywords_table' => $detalleKeywordsTable,
                     'paa_table' => $paaTable,
                     'sc_months' => $searchConsoleData['months'],
                     'sc_clicks' => $searchConsoleData['clicks'],
@@ -293,7 +359,6 @@ class AutoseoReportsGen extends Controller
                     'sc_avg_ctr' => $searchConsoleData['avg_ctr'],
                     'sc_avg_position' => $searchConsoleData['avg_position'],
                     'sc_has_data' => $scHasData,
-                    'is_single' => false,
                 ])->render();
 
                 \Log::info("Vista renderizada correctamente");
@@ -324,12 +389,12 @@ class AutoseoReportsGen extends Controller
             $autoseo->last_report = $now;
             $autoseo->save();
 
-            // Enviar notificación por correo
+            // Enviar notificación por correo siempre
             $this->sendReportNotification($autoseo, $filename);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Informe generado correctamente',
+                'message' => 'Informe comparativo generado correctamente',
                 'filename' => $filename
             ]);
 
@@ -339,9 +404,7 @@ class AutoseoReportsGen extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return response()->json([
-                'error' => 'Error al generar el informe: ' . $e->getMessage()
-            ], 500);
+            throw $e;
         }
     }
 
@@ -510,30 +573,47 @@ class AutoseoReportsGen extends Controller
 
     private function getKeywordEvolution($keyword, $jsonDataList)
     {
-        $values = [];
+        $evolution = [
+            'total_results' => [],
+            'position' => []
+        ];
+
         foreach ($jsonDataList as $data) {
             $found = false;
             foreach ($data['detalles_keywords'] ?? [] as $item) {
                 if (($item['keyword'] ?? '') === $keyword) {
-                    $values[] = $item['total_results'] ?? null;
+                    $evolution['total_results'][] = $item['total_results'] ?? null;
+                    $evolution['position'][] = $item['position'] ?? null;
                     $found = true;
                     break;
                 }
             }
             if (!$found) {
-                $values[] = null;
+                $evolution['total_results'][] = null;
+                $evolution['position'][] = null;
             }
         }
-        return $values;
+        return $evolution;
     }
 
     private function buildChartjsDatasetsFromKeywords($keywords, $jsonDataList)
     {
         $datasets = [];
         foreach ($keywords as $keyword) {
+            $evolution = $this->getKeywordEvolution($keyword, $jsonDataList);
+            // Dataset para total_results
             $datasets[] = [
-                'label' => $keyword,
-                'data' => $this->getKeywordEvolution($keyword, $jsonDataList)
+                'label' => $keyword . ' (Resultados)',
+                'data' => $evolution['total_results'],
+                'yAxisID' => 'y'
+            ];
+            // Dataset para position
+            $datasets[] = [
+                'label' => $keyword . ' (Posición)',
+                'data' => $evolution['position'],
+                'yAxisID' => 'y1',
+                'type' => 'line',
+                'borderDash' => [5, 5]
             ];
         }
         return $datasets;
@@ -600,9 +680,12 @@ class AutoseoReportsGen extends Controller
     {
         $table = [];
         foreach ($keywords as $keyword) {
-            $row = [$keyword];
-            $row = array_merge($row, $this->getKeywordEvolution($keyword, $jsonDataList));
-            $table[] = $row;
+            $evolution = $this->getKeywordEvolution($keyword, $jsonDataList);
+            $table[] = [
+                'keyword' => $keyword,
+                'total_results' => $evolution['total_results'],
+                'position' => $evolution['position']
+            ];
         }
         return $table;
     }
@@ -611,9 +694,32 @@ class AutoseoReportsGen extends Controller
     {
         $table = [];
         foreach ($paaLabels as $question) {
-            $row = [$question];
-            $row = array_merge($row, $this->getPaaEvolution(strtolower(trim($question)), $jsonDataList));
-            $table[] = $row;
+            $evolution = [
+                'total_results' => [],
+                'position' => []
+            ];
+
+            foreach ($jsonDataList as $data) {
+                $found = false;
+                foreach ($data['people_also_ask'] ?? [] as $item) {
+                    if (strtolower(trim($item['question'] ?? '')) === strtolower(trim($question))) {
+                        $evolution['total_results'][] = $item['total_results'] ?? null;
+                        $evolution['position'][] = $item['position'] ?? null;
+                        $found = true;
+                        break;
+                    }
+                }
+                if (!$found) {
+                    $evolution['total_results'][] = null;
+                    $evolution['position'][] = null;
+                }
+            }
+
+            $table[] = [
+                'keyword' => $question,
+                'total_results' => $evolution['total_results'],
+                'position' => $evolution['position']
+            ];
         }
         return $table;
     }
@@ -661,7 +767,7 @@ class AutoseoReportsGen extends Controller
 
     private function uploadReport($filename, $id)
     {
-        // Obtener el registro de Autoseo para conseguir el client_id
+        // Obtener el registro de Autoseo para conseguir los datos del cliente
         $autoseo = Autoseo::findOrFail($id);
 
         $filePath = Storage::disk('public')->path("reports/{$filename}");
@@ -672,8 +778,7 @@ class AutoseoReportsGen extends Controller
 
         try {
             \Log::info("Iniciando subida de informe", [
-                'id' => $autoseo->id,
-                'client_id' => $autoseo->id,
+                'id' => $id,
                 'filename' => $filename,
                 'filesize' => File::size($filePath)
             ]);
@@ -681,7 +786,9 @@ class AutoseoReportsGen extends Controller
             // Log the payload being sent
             $payload = [
                 'id' => $id,
-                'client_id' => $autoseo->client_id
+                'client_name' => $autoseo->client_name,
+                'client_email' => $autoseo->client_email,
+                'url' => $autoseo->url
             ];
 
             \Log::info("Payload being sent to upload endpoint", [
@@ -691,7 +798,8 @@ class AutoseoReportsGen extends Controller
                 'file_size' => File::size($filePath)
             ]);
 
-            $response = Http::timeout(120)
+            // Primero creamos la instancia de Http con la configuración
+            $http = Http::timeout(120)
                 ->withoutVerifying()
                 ->withOptions([
                     'curl' => [
@@ -703,21 +811,21 @@ class AutoseoReportsGen extends Controller
                         CURLOPT_DNS_CACHE_TIMEOUT => 30,
                         CURLOPT_TCP_KEEPALIVE => 1,
                         CURLOPT_TIMEOUT => 120,
-                        CURLOPT_BUFFERSIZE => 128000,
-                        CURLOPT_UPLOAD => true
+                        CURLOPT_BUFFERSIZE => 128000
                     ]
                 ])
-                ->retry(3, 5000)
-                ->attach(
-                    'file',
-                    File::get($filePath),
-                    $filename
-                )
-                ->post($this->baseUrl . "/reports/upload", $payload);
+                ->retry(3, 5000);
+
+            // Luego adjuntamos el archivo y los datos en una sola llamada multipart
+            $response = $http->attach(
+                'file',
+                File::get($filePath),
+                $filename
+            )->post($this->baseUrl . "/reports/upload", $payload);
 
             \Log::info("Respuesta de subida", [
                 'status' => $response->status(),
-                'body' => substr($response->body(), 0, 1000), // Limitar el tamaño del log
+                'body' => substr($response->body(), 0, 1000),
                 'headers' => $response->headers()
             ]);
 
