@@ -116,7 +116,7 @@
                                                                         </button>
                                                                     </form>
                                                                 </div>
-                                                                @if ($client->reports && count($client->reports) > 0)
+                                                                @if ($client->reports && $client->reports && count($client->reports) > 0)
                                                                     <div class="list-group">
                                                                         @foreach ($client->reports as $index => $report)
                                                                             <div
@@ -400,8 +400,8 @@
                         </div>
                         <div class="col-md-6">
                             <label for="admin_district" class="form-label">Provincia/Región</label>
-                            <input type="text" class="form-control" id="admin_district" name="AdminDistrict"
-                                required autocomplete="off">
+                            <input type="text" class="form-control" id="admin_district" name="AdminDistrict" required
+                                autocomplete="off">
                         </div>
                         <div class="col-md-6">
                             <label for="postal_code" class="form-label">Código Postal</label>
@@ -410,8 +410,8 @@
                         </div>
                         <div class="col-md-6">
                             <label for="country_region" class="form-label">País</label>
-                            <input type="text" class="form-control" id="country_region" name="CountryRegion"
-                                required autocomplete="off" placeholder="ES" maxlength="2">
+                            <input type="text" class="form-control" id="country_region" name="CountryRegion" required
+                                autocomplete="off" placeholder="ES" maxlength="2">
                         </div>
                     </div>
                 </div>

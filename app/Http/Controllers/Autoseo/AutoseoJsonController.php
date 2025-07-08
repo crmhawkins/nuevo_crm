@@ -268,7 +268,7 @@ class AutoseoJsonController extends Controller
 
     public function getLastJson(Request $request)
     {
-        $autoseo = Autoseo::find($request->id);
+        $autoseo = \App\Models\Autoseo\Autoseo::find($request->id);
         if (!$autoseo) {
             return response()->json(['error' => 'Cliente no encontrado'], 404);
         }
@@ -284,26 +284,46 @@ class AutoseoJsonController extends Controller
 
     public function getJsonStorage(Request $request)
     {
-        $autoseo = Autoseo::find($request->id);
+        $id = $request->input('id');
+        $autoseo = Autoseo::find($id);
         if (!$autoseo) {
+            \Log::debug('Cliente no encontrado', ['id' => $id]);
             return response()->json(['error' => 'Cliente no encontrado'], 404);
         }
 
-        $jsonStorage = $autoseo->json_storage ? json_decode($autoseo->json_storage, true) : [];        $zip = new \ZipArchive();
+        $jsonStorage = $autoseo->json_storage ? json_decode($autoseo->json_storage, true) : [];
+        \Log::debug('json_storage count', ['count' => count($jsonStorage), 'jsonStorage' => $jsonStorage]);
+        $zip = new \ZipArchive();
         $zipName = 'autoseo_' . $autoseo->id . '_' . date('Y-m-d') . '.zip';
         $zipPath = storage_path('app/public/' . $zipName);
 
+        $addedFiles = 0;
         if ($zip->open($zipPath, \ZipArchive::CREATE) === true) {
             foreach ($jsonStorage as $json) {
-                if (isset($json['path']) && Storage::disk('public')->exists($json['path'])) {
+                if (isset($json['path']) && \Storage::disk('public')->exists($json['path'])) {
                     $zip->addFile(storage_path('app/public/' . $json['path']), basename($json['path']));
+                    $addedFiles++;
+                    \Log::debug('Archivo agregado al ZIP', ['path' => $json['path']]);
+                } else {
+                    \Log::debug('Archivo NO encontrado para agregar al ZIP', ['path' => $json['path'] ?? null]);
                 }
             }
             $zip->close();
 
+            \Log::debug('Total archivos agregados al ZIP', ['addedFiles' => $addedFiles]);
+            if ($addedFiles === 0) {
+                // El ZIP está vacío
+                if (file_exists($zipPath)) {
+                    unlink($zipPath);
+                }
+                \Log::debug('ZIP vacío, no se agregó ningún archivo');
+                return response()->json(['error' => 'No se encontró ningún archivo JSON físico para este cliente. El ZIP está vacío.'], 404);
+            }
+
             return response()->download($zipPath, $zipName)->deleteFileAfterSend(true);
         }
 
+        \Log::error('Error al crear el archivo ZIP', ['zipPath' => $zipPath]);
         return response()->json(['error' => 'Error al crear el archivo ZIP'], 500);
     }
 }
