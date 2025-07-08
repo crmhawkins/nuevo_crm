@@ -945,6 +945,9 @@ class TesoreriaController extends Controller
                 if($total == $invoice->total){
                     $invoice->invoice_status_id = 3;
                     $invoice->save();
+                } else {
+                    $invoice->invoice_status_id = 4;
+                    $invoice->save();
                 }
             }
 
