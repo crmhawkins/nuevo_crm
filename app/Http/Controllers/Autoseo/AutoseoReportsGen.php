@@ -678,6 +678,19 @@ class AutoseoReportsGen extends Controller
                 'filesize' => File::size($filePath)
             ]);
 
+            // Log the payload being sent
+            $payload = [
+                'id' => $id,
+                'client_id' => $autoseo->client_id
+            ];
+
+            \Log::info("Payload being sent to upload endpoint", [
+                'url' => $this->baseUrl . "/reports/upload",
+                'payload' => $payload,
+                'filename' => $filename,
+                'file_size' => File::size($filePath)
+            ]);
+
             $response = Http::timeout(120)
                 ->withoutVerifying()
                 ->withOptions([
@@ -700,10 +713,7 @@ class AutoseoReportsGen extends Controller
                     File::get($filePath),
                     $filename
                 )
-                ->post($this->baseUrl . "/reports/upload", [
-                    'id' => $id,
-                    'client_id' => $autoseo->client_id
-                ]);
+                ->post($this->baseUrl . "/reports/upload", $payload);
 
             \Log::info("Respuesta de subida", [
                 'status' => $response->status(),

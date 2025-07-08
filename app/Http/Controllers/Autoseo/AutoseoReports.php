@@ -41,6 +41,9 @@ class AutoseoReports extends Controller
 
     public function upload(Request $request) {
         $id = $request->input('id');
+        if (!$id) {
+            $id = $request->id;
+        }
         $file = $request->file('file');
 
         $cliente = Autoseo::where('id', $id)->first();
