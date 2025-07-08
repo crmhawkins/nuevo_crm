@@ -18,18 +18,29 @@ class GenerateMonthlySeoReports extends Command
         $now = Carbon::now();
         $controller = new AutoseoReportsGen();
         $autoseos = Autoseo::all();
+
         foreach ($autoseos as $autoseo) {
             $id = $autoseo->id;
-            $firstReport = $autoseo->first_report ? Carbon::parse($autoseo->first_report) : null;
-            $lastReport = $autoseo->last_report ? Carbon::parse($autoseo->last_report) : null;
-            $shouldGenerate = false;
-            $isAnnual = false;
 
             // Verificar si hay archivos en json_storage
             if (empty($autoseo->json_storage)) {
                 Log::info("Saltando generación de informe para Autoseo ID $id - No hay archivos en json_storage");
+
+                // Si no hay archivos JSON, reseteamos las fechas de reportes
+                if ($autoseo->first_report || $autoseo->last_report) {
+                    $autoseo->first_report = null;
+                    $autoseo->last_report = null;
+                    $autoseo->save();
+                    Log::info("Reseteadas fechas de reportes para Autoseo ID $id por falta de archivos JSON");
+                }
                 continue;
             }
+
+            // Solo procesamos las fechas si hay archivos JSON
+            $firstReport = $autoseo->first_report ? Carbon::parse($autoseo->first_report) : null;
+            $lastReport = $autoseo->last_report ? Carbon::parse($autoseo->last_report) : null;
+            $shouldGenerate = false;
+            $isAnnual = false;
 
             if (!$firstReport) {
                 // Nunca se ha hecho un informe
