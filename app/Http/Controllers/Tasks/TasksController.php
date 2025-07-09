@@ -164,17 +164,15 @@ class TasksController extends Controller
 
         // Solo validar tiempo si es maestra y se editan empleados/tiempos
         if ($esMaestra && $editaEmpleados) {
-            $totalAssignedTime = 0;
-            $totalBudgetTime = time_to_seconds($loadTask->total_time_budget);
-            for ($i = 1; $i <= $request['numEmployee']; $i++) {
-                if ($request['employeeId' . $i] && $request['estimatedTime' . $i]) {
-                    $estimatedTime = time_to_seconds($request['estimatedTime' . $i]);
-                    $totalAssignedTime += $estimatedTime;
-                }
+            $subtareas = Task::where('split_master_task_id', $loadTask->id)->get();
+            $totalEstimatedSubtareas = 0;
+            foreach ($subtareas as $sub) {
+                $totalEstimatedSubtareas += time_to_seconds($sub->estimated_time);
             }
-            if ($totalAssignedTime > $totalBudgetTime) {
+            // Si la suma de los estimados de las subtareas supera el estimado de la maestra, error
+            if ($totalEstimatedSubtareas > time_to_seconds($loadTask->estimated_time)) {
                 return redirect()->back()->withErrors([
-                    'time_exceeded' => 'El tiempo total asignado (' . seconds_to_time($totalAssignedTime) . ') supera el tiempo del presupuesto (' . $loadTask->total_time_budget . ')'
+                    'time_exceeded' => 'La suma de los tiempos estimados de las subtareas (' . seconds_to_time($totalEstimatedSubtareas) . ') supera el estimado de la tarea maestra (' . $loadTask->estimated_time . ')'
                 ])->withInput();
             }
         }
