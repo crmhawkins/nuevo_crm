@@ -60,8 +60,8 @@ class TasksController extends Controller
             $totalAssignedTime += time_to_seconds($existingTask->estimated_time);
         }
         
-        // Verificar si ya se ha superado el tiempo del presupuesto
-        $totalBudgetTime = time_to_seconds($task->total_time_budget);
+        // Usar estimated_time como presupuesto
+        $totalBudgetTime = time_to_seconds($task->estimated_time);
         $timeExceeded = $totalAssignedTime > $totalBudgetTime;
 
         if ($task->duplicated == 0) {
