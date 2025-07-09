@@ -135,6 +135,23 @@
                                         </table>
                                     </div>
                                 </div>
+                                @elseif($task->split_master_task_id != null)
+                                <div class="col-12 mb-3">
+                                    <label>Empleado asignado</label>
+                                    <input type="text" class="form-control" value="{{ $task->usuario ? $task->usuario->name . ' ' . $task->usuario->surname : 'No definido' }}" readonly>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label>Tiempo estimado</label>
+                                    <input type="text" class="form-control" value="{{ $task->estimated_time }}" readonly>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label>Tiempo real</label>
+                                    <input type="text" class="form-control" value="{{ $task->real_time }}" readonly>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label>Estado</label>
+                                    <input type="text" class="form-control" value="{{ $task->estado ? $task->estado->name : 'No definido' }}" readonly>
+                                </div>
                                 @endif
                                 <div class="col-6 mb-3">
                                     <label for="priority">Prioridad:</label>
