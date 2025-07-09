@@ -119,12 +119,22 @@
                     </div>
 
                     <div class="flex items-center space-x-3">
-                        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl shadow-sm text-white bg-gradient-to-r from-indigo-500 via-primary-500 to-purple-500 hover:from-indigo-600 hover:via-primary-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" id="generateBtn">
-                            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Generar Informe
-                        </button>
+                        <div class="flex justify-end space-x-4">
+                            <button type="submit" name="report_type" value="parallel" formaction="{{ route('autoseo.generate.report') }}?type=parallel"
+                                class="inline-flex items-center px-6 py-3.5 border border-gray-300 shadow-sm text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300">
+                                <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Generar Justificación
+                            </button>
+                            <button type="submit" name="report_type" value="standard"
+                                class="inline-flex items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-indigo-500 via-primary-500 to-purple-500 hover:from-indigo-600 hover:via-primary-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300">
+                                <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Generar Informe
+                            </button>
+                        </div>
                         <button type="button" onclick="history.back()" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                             <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -170,149 +180,127 @@
 </div>
 
 <script>
-document.getElementById('generateReportForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const submitButtons = form.querySelectorAll('button[type="submit"]');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const progressModal = document.getElementById('progressModal');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
 
-    const formData = new FormData(this);
-    const generateBtn = document.getElementById('generateBtn');
-    const progressModal = document.getElementById('progressModal');
+        submitButtons.forEach(button => {
+            button.addEventListener('click', async function(e) {
+                e.preventDefault();
 
-    // Mostrar modal de progreso
-    progressModal.classList.remove('hidden');
+                // Mostrar modal de progreso
+                progressModal.classList.remove('hidden');
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Iniciando proceso...';
 
-    // Deshabilitar botón
-    generateBtn.disabled = true;
-    generateBtn.innerHTML = `
-        <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        Generando...
-    `;
+                // Simular progreso
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 90) progress = 90;
+                    progressBar.style.width = progress + '%';
 
-    // Simular progreso
-    let progress = 0;
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
+                    if (progress < 30) {
+                        progressText.textContent = 'Descargando datos JSON...';
+                    } else if (progress < 60) {
+                        progressText.textContent = 'Procesando keywords y métricas...';
+                    } else if (progress < 90) {
+                        progressText.textContent = 'Generando informe...';
+                    }
+                }, 500);
 
-    const progressInterval = setInterval(() => {
-        progress += Math.random() * 15;
-        if (progress > 90) progress = 90;
+                const formData = new FormData(form);
+                const reportType = this.value; // 'standard' o 'parallel'
+                const url = `${form.action}?type=${reportType}`;
 
-        progressBar.style.width = progress + '%';
+                try {
+                    console.log('Iniciando generación de informe:', {
+                        type: reportType,
+                        url: url,
+                        client_id: formData.get('client_id'),
+                        email: formData.get('email_notification')
+                    });
 
-        if (progress < 30) {
-            progressText.textContent = 'Descargando datos JSON...';
-        } else if (progress < 60) {
-            progressText.textContent = 'Procesando keywords y métricas...';
-        } else if (progress < 90) {
-            progressText.textContent = 'Generando gráficos y tablas...';
-        }
-    }, 500);
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
 
-    // Enviar formulario
-    fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        clearInterval(progressInterval);
+                    const data = await response.json();
+                    console.log('Respuesta del servidor:', data);
 
-        if (data.success) {
-            progressBar.style.width = '100%';
-            progressText.innerHTML = `
-                <div class="mt-4">
-                    <div class="rounded-md bg-green-50 p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-green-800">Informe Generado Correctamente</h3>
-                                <div class="mt-2 text-sm text-green-700">
-                                    <p><strong>Archivo:</strong> ${data.filename}</p>
-                                    <p><strong>Mensaje:</strong> ${data.message}</p>
+                    clearInterval(progressInterval);
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Error al generar el informe');
+                    }
+
+                    // Mostrar mensaje de éxito
+                    progressBar.style.width = '100%';
+                    progressText.innerHTML = `
+                        <div class="mt-4">
+                            <div class="rounded-md bg-green-50 p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-green-800">Informe Generado Correctamente</h3>
+                                        <div class="mt-2 text-sm text-green-700">
+                                            <p><strong>Archivo:</strong> ${data.filename}</p>
+                                            <p><strong>Mensaje:</strong> ${data.message}</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            `;
-        } else {
-            progressText.innerHTML = `
-                <div class="mt-4">
-                    <div class="rounded-md bg-red-50 p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-red-800">Error al Generar Informe</h3>
-                                <div class="mt-2 text-sm text-red-700">
-                                    <p>${data.error}</p>
+                        <div class="mt-5 sm:mt-6">
+                            <button type="button" onclick="document.getElementById('progressModal').classList.add('hidden')" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:text-sm">
+                                Cerrar
+                            </button>
+                        </div>
+                    `;
+
+                } catch (error) {
+                    console.error('Error en la generación del informe:', error);
+                    clearInterval(progressInterval);
+                    progressText.innerHTML = `
+                        <div class="mt-4">
+                            <div class="rounded-md bg-red-50 p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-red-800">Error al Generar Informe</h3>
+                                        <div class="mt-2 text-sm text-red-700">
+                                            <p>${error.message}</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Agregar botón para cerrar el modal
-        progressText.innerHTML += `
-            <div class="mt-5 sm:mt-6">
-                <button type="button" onclick="document.getElementById('progressModal').classList.add('hidden')" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:text-sm">
-                    Cerrar
-                </button>
-            </div>
-        `;
-    })
-    .catch(error => {
-        clearInterval(progressInterval);
-        progressText.innerHTML = `
-            <div class="mt-4">
-                <div class="rounded-md bg-red-50 p-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                        <div class="mt-5 sm:mt-6">
+                            <button type="button" onclick="document.getElementById('progressModal').classList.add('hidden')" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:text-sm">
+                                Cerrar
+                            </button>
                         </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm font-medium text-red-800">Error de Conexión</h3>
-                            <div class="mt-2 text-sm text-red-700">
-                                <p>${error.message}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-5 sm:mt-6">
-                <button type="button" onclick="document.getElementById('progressModal').classList.add('hidden')" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:text-sm">
-                    Cerrar
-                </button>
-            </div>
-        `;
-    })
-    .finally(() => {
-        // Habilitar botón
-        generateBtn.disabled = false;
-        generateBtn.innerHTML = `
-            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Generar Informe
-        `;
+                    `;
+                }
+            });
+        });
     });
-});
 </script>
 
 <style>

@@ -164,16 +164,35 @@ class AutoseoReportsGen extends Controller
     {
         // Si es una petición GET, mostrar el formulario
         if ($request->isMethod('get')) {
+            Log::info("Mostrando formulario de generación de informe", [
+                'id' => $id,
+                'method' => 'GET'
+            ]);
             $clients = Autoseo::all();
             $selectedClientId = $id;
             return view('autoseo.generate-report', compact('clients', 'selectedClientId'));
         }
 
         // Si es POST, procesar la generación
+        Log::info("Iniciando proceso de generación de informe", [
+            'request_method' => $request->method(),
+            'report_type' => $request->query('type'),
+            'client_id' => $request->input('client_id'),
+            'email' => $request->input('email_notification')
+        ]);
+
         $id = $request->input('client_id');
         $email = $request->input('email_notification');
 
-        return $this->processReportGeneration($id, $email);
+        try {
+            return $this->processReportGeneration($id, $email);
+        } catch (\Exception $e) {
+            Log::error("Error en generateReport", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'Error al generar el informe: ' . $e->getMessage()], 500);
+        }
     }
 
     public function generateReportFromCommand($id = 15)
@@ -217,9 +236,11 @@ class AutoseoReportsGen extends Controller
     private function processReportGeneration($id, $email = null)
     {
         try {
+            $reportType = request()->query('type', 'standard');
             Log::info("Iniciando generación de informe SEO", [
                 'autoseo_id' => $id,
                 'email_provided' => $email ?? 'no',
+                'report_type' => $reportType,
                 'timestamp' => now()->toDateTimeString()
             ]);
 
@@ -230,49 +251,81 @@ class AutoseoReportsGen extends Controller
                 'id' => $autoseo->id,
                 'url' => $autoseo->url,
                 'client_email' => $autoseo->client_email,
-                'has_json_storage' => !empty($autoseo->json_storage)
+                'has_json_storage' => !empty($autoseo->json_storage),
+                'report_type' => $reportType
             ]);
 
             $now = Carbon::now();
 
             // Verificar si hay archivos en json_storage
             if (empty($autoseo->json_storage)) {
-                Log::info("Saltando generación de informe para Autoseo ID $id - No hay archivos en json_storage");
+                Log::warning("No hay archivos en json_storage", [
+                    'autoseo_id' => $id,
+                    'report_type' => $reportType
+                ]);
                 return response()->json(['error' => 'No hay archivos JSON disponibles para generar el informe.'], 400);
             }
 
             // Verificar que haya al menos 1 JSON en json_storage
             $jsonStorage = is_array($autoseo->json_storage) ? $autoseo->json_storage : json_decode($autoseo->json_storage, true);
             if (empty($jsonStorage) || count($jsonStorage) < 1) {
-                Log::info("Saltando generación de informe para Autoseo ID $id - No hay suficientes JSONs (mínimo 1 requerido)");
+                Log::warning("JSON storage vacío o inválido", [
+                    'autoseo_id' => $id,
+                    'json_storage_count' => count($jsonStorage ?? []),
+                    'report_type' => $reportType
+                ]);
                 return response()->json(['error' => 'Se requiere al menos 1 archivo JSON para generar el informe.'], 400);
             }
 
             // Descargar y extraer ZIP
+            Log::info("Iniciando descarga y extracción de ZIP", [
+                'autoseo_id' => $id,
+                'report_type' => $reportType
+            ]);
+
             $jsonDataList = $this->downloadAndExtractZip($id);
 
             Log::info("Datos JSON obtenidos", [
                 'count' => count($jsonDataList),
-                'first_date' => $jsonDataList[0]['uploaded_at'] ?? 'no date'
+                'first_date' => $jsonDataList[0]['uploaded_at'] ?? 'no date',
+                'report_type' => $reportType
             ]);
 
             if (empty($jsonDataList)) {
-                Log::warning("No se encontraron archivos JSON válidos para ID $id");
+                Log::warning("No se encontraron archivos JSON válidos", [
+                    'autoseo_id' => $id,
+                    'report_type' => $reportType
+                ]);
                 return response()->json(['error' => 'No se encontraron archivos JSON válidos.'], 400);
             }
 
             // Procesar datos de Search Console
+            Log::info("Procesando datos de Search Console", [
+                'autoseo_id' => $id,
+                'report_type' => $reportType
+            ]);
+
             $searchConsoleData = $this->processSearchConsoleData($jsonDataList);
             $scHasData = !empty($searchConsoleData['months']);
 
             // Si solo hay un JSON, usar la vista simple
             if (count($jsonDataList) === 1) {
-                Log::info("Generando informe simple (un solo JSON)");
+                Log::info("Generando informe simple (un solo JSON)", [
+                    'autoseo_id' => $id,
+                    'report_type' => $reportType
+                ]);
+
                 $seoData = $jsonDataList[0];
                 $shortTailLabels = $seoData['short_tail'] ?? [];
                 $longTailLabels = $seoData['long_tail'] ?? [];
 
                 // Generar tablas comparativas y preparar datos
+                Log::info("Preparando datos para tablas", [
+                    'short_tail_count' => count($shortTailLabels),
+                    'long_tail_count' => count($longTailLabels),
+                    'report_type' => $reportType
+                ]);
+
                 $shortTailTable = $this->prepareKeywordData($this->generateComparisonTable($shortTailLabels, $jsonDataList));
                 $longTailTable = $this->prepareKeywordData($this->generateComparisonTable($longTailLabels, $jsonDataList));
 
@@ -281,22 +334,53 @@ class AutoseoReportsGen extends Controller
                 $paaLabels = $paaData['labels'];
                 $paaTable = $this->prepareKeywordData($this->generatePaaComparisonTable($paaLabels, $jsonDataList));
 
-                $html = view('autoseo.report-single', [
-                    'seo' => $seoData,
-                    'version_dates' => [$seoData['uploaded_at'] ?? '-'],
-                    'short_tail_table' => $shortTailTable,
-                    'long_tail_table' => $longTailTable,
-                    'paa_table' => $paaTable,
-                    'sc_months' => $searchConsoleData['months'],
-                    'sc_clicks' => $searchConsoleData['clicks'],
-                    'sc_impressions' => $searchConsoleData['impressions'],
-                    'sc_avg_ctr' => $searchConsoleData['avg_ctr'],
-                    'sc_avg_position' => $searchConsoleData['avg_position'],
-                    'sc_has_data' => $scHasData,
-                ])->render();
+                // Determinar qué vista usar basado en el tipo de reporte
+                $view = $reportType === 'parallel' ? 'autoseo.report-justification' : 'autoseo.report-single';
 
-                $filename = "informe_seo_{$id}.html";
+                Log::info("Renderizando vista", [
+                    'view' => $view,
+                    'report_type' => $reportType,
+                    'autoseo_id' => $id
+                ]);
+
+                try {
+                    $html = view($view, [
+                        'seo' => $seoData,
+                        'version_dates' => [$seoData['uploaded_at'] ?? '-'],
+                        'short_tail_table' => $shortTailTable,
+                        'long_tail_table' => $longTailTable,
+                        'paa_table' => $paaTable,
+                        'sc_months' => $searchConsoleData['months'],
+                        'sc_clicks' => $searchConsoleData['clicks'],
+                        'sc_impressions' => $searchConsoleData['impressions'],
+                        'sc_avg_ctr' => $searchConsoleData['avg_ctr'],
+                        'sc_avg_position' => $searchConsoleData['avg_position'],
+                        'sc_has_data' => $scHasData,
+                    ])->render();
+
+                    Log::info("Vista renderizada correctamente", [
+                        'html_length' => strlen($html),
+                        'report_type' => $reportType
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error("Error al renderizar la vista", [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                        'view' => $view,
+                        'report_type' => $reportType
+                    ]);
+                    throw $e;
+                }
+
+                $filename = "informe_seo_{$id}" . ($reportType === 'parallel' ? '_justificacion' : '') . ".html";
                 Storage::disk('public')->put("reports/{$filename}", $html);
+
+                Log::info("Archivo guardado correctamente", [
+                    'filename' => $filename,
+                    'size' => strlen($html),
+                    'report_type' => $reportType
+                ]);
+
                 $this->uploadReport($filename, $id);
 
                 // Actualizar fechas de reporte
@@ -306,13 +390,30 @@ class AutoseoReportsGen extends Controller
                 $autoseo->last_report = $now;
                 $autoseo->save();
 
-                // Enviar notificación por correo siempre
-                $this->sendReportNotification($autoseo, $filename, $email);
+                Log::info("Fechas de reporte actualizadas", [
+                    'first_report' => $autoseo->first_report,
+                    'last_report' => $autoseo->last_report,
+                    'report_type' => $reportType
+                ]);
+
+                // Solo enviar correo si no es un informe de justificación
+                if ($reportType !== 'parallel') {
+                    Log::info("Enviando notificación por correo", [
+                        'email' => $email,
+                        'report_type' => $reportType
+                    ]);
+                    $this->sendReportNotification($autoseo, $filename, $email);
+                } else {
+                    Log::info("Omitiendo envío de correo para informe de justificación", [
+                        'report_type' => $reportType
+                    ]);
+                }
 
                 return response()->json([
                     'success' => true,
                     'message' => 'Informe simple generado correctamente',
-                    'filename' => $filename
+                    'filename' => $filename,
+                    'report_type' => $reportType
                 ]);
             }
 
@@ -329,36 +430,21 @@ class AutoseoReportsGen extends Controller
             $shortTailLabels = $seoData['short_tail'] ?? [];
             $longTailLabels = $seoData['long_tail'] ?? [];
 
-            Log::info("Keywords procesadas", [
-                'short_tail_count' => count($shortTailLabels),
-                'long_tail_count' => count($longTailLabels)
-            ]);
+            // Generar tablas comparativas
+            $shortTailTable = $this->prepareKeywordData($this->generateComparisonTable($shortTailLabels, $jsonDataList));
+            $longTailTable = $this->prepareKeywordData($this->generateComparisonTable($longTailLabels, $jsonDataList));
 
             // Procesar PAA (People Also Ask)
             $paaData = $this->processPaaData($jsonDataList);
             $paaLabels = $paaData['labels'];
-
-            Log::info("PAA procesado", [
-                'paa_count' => count($paaLabels)
-            ]);
-
-            // Generar tablas comparativas y preparar datos
-            $shortTailTable = $this->prepareKeywordData($this->generateComparisonTable($shortTailLabels, $jsonDataList));
-            $longTailTable = $this->prepareKeywordData($this->generateComparisonTable($longTailLabels, $jsonDataList));
             $paaTable = $this->prepareKeywordData($this->generatePaaComparisonTable($paaLabels, $jsonDataList));
 
-            // Procesar datos de Search Console
-            $searchConsoleData = $this->processSearchConsoleData($jsonDataList);
-            $scHasData = !empty($searchConsoleData['months']);
-
-            Log::info("Datos de Search Console procesados", [
-                'has_data' => $scHasData,
-                'num_months' => count($searchConsoleData['months'])
-            ]);
-
             try {
+                // Determinar qué vista usar basado en el tipo de reporte
+                $view = request()->query('type') === 'parallel' ? 'autoseo.report-justification' : 'autoseo.report-template';
+
                 // Renderizar vista Blade
-                $html = view('autoseo.report-template', [
+                $html = view($view, [
                     'seo' => $seoData,
                     'version_dates' => $versionDates,
                     'short_tail_table' => $shortTailTable,
@@ -382,7 +468,7 @@ class AutoseoReportsGen extends Controller
             }
 
             // Guardar archivo HTML
-            $filename = "informe_seo_{$id}.html";
+            $filename = "informe_seo_{$id}" . (request()->query('type') === 'parallel' ? '_justificacion' : '') . ".html";
             Storage::disk('public')->put("reports/{$filename}", $html);
 
             Log::info("Archivo HTML guardado", [
@@ -400,22 +486,26 @@ class AutoseoReportsGen extends Controller
             $autoseo->last_report = $now;
             $autoseo->save();
 
-            // Enviar notificación por correo siempre
-            $this->sendReportNotification($autoseo, $filename, $email);
+            // Solo enviar correo si no es un informe de justificación
+            if (request()->query('type') !== 'parallel') {
+                $this->sendReportNotification($autoseo, $filename, $email);
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Informe comparativo generado correctamente',
+                'message' => 'Informe generado correctamente',
                 'filename' => $filename
             ]);
 
         } catch (\Exception $e) {
-            Log::error("Error en processReportGeneration", [
-                'id' => $id,
+            Log::error("Error al generar informe SEO", [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            throw $e;
+
+            return response()->json([
+                'error' => 'Error al generar el informe: ' . $e->getMessage()
+            ], 500);
         }
     }
 
