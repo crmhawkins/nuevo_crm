@@ -155,10 +155,24 @@ class TasksController extends Controller
         // Si la tarea es maestra (no tiene split_master_task_id)
         $esMaestra = is_null($loadTask->split_master_task_id);
         $editaEmpleados = false;
+        // Comprobar si realmente hubo cambios en empleados o tiempos
         for ($i = 1; $i <= $request['numEmployee']; $i++) {
-            if ($request->has('employeeId' . $i) || $request->has('estimatedTime' . $i) || $request->has('realTime' . $i)) {
-                $editaEmpleados = true;
-                break;
+            $exist = Task::find($request['taskId' . $i]);
+            if ($exist) {
+                if (
+                    $exist->admin_user_id != $request['employeeId' . $i] ||
+                    $exist->estimated_time != $request['estimatedTime' . $i] ||
+                    $exist->real_time != $request['realTime' . $i]
+                ) {
+                    $editaEmpleados = true;
+                    break;
+                }
+            } else {
+                // Si no existe, es un nuevo empleado asignado
+                if ($request['employeeId' . $i]) {
+                    $editaEmpleados = true;
+                    break;
+                }
             }
         }
 
