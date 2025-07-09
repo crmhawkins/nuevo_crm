@@ -42,4 +42,8 @@ class Autoseo extends Model
         'json_storage' => 'array',
     ];
 
+    public function reports()
+    {
+        return $this->hasMany(AutoseoReport::class);
+    }
 }

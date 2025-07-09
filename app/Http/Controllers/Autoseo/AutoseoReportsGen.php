@@ -65,15 +65,17 @@ class AutoseoReportsGen extends Controller
         }
     }
 
-    private function sendReportNotification($autoseo, $filename)
+    private function sendReportNotification($autoseo, $filename, $email = null)
     {
         try {
             $domain = $autoseo->url;
             $reportUrl = Storage::disk('public')->url("reports/{$filename}");
             $clientEmail = $autoseo->client_email;
             $recipients = ['nico.garcia@hawkins.es'];
-
-            \Log::info("Configurando envío de correo", [
+            if ($email !== null) {
+                $recipients[] = $email;
+            }
+            Log::info("Configurando envío de correo", [
                 'autoseo_id' => $autoseo->id,
                 'domain' => $domain,
                 'recipients' => $recipients
@@ -92,7 +94,7 @@ class AutoseoReportsGen extends Controller
                 'verify_peer' => false,
             ];
 
-            \Log::info("Configuración del mailer", [
+            Log::info("Configuración del mailer", [
                 'host' => $config['host'],
                 'port' => $config['port'],
                 'username' => $config['username']
@@ -105,12 +107,12 @@ class AutoseoReportsGen extends Controller
 
             // Si no hay destinatarios, salir
             if (empty($recipients)) {
-                \Log::warning("No hay destinatarios configurados para el dominio $domain");
+                Log::warning("No hay destinatarios configurados para el dominio $domain");
                 return;
             }
 
             try {
-                \Log::info("Intentando enviar correo", [
+                Log::info("Intentando enviar correo", [
                     'template' => 'mails.seo-report',
                     'data' => [
                         'domain' => $domain,
@@ -120,7 +122,7 @@ class AutoseoReportsGen extends Controller
                 ]);
 
                 foreach ($recipients as $email) {
-                    \Log::info("Enviando correo a destinatario", ['email' => $email]);
+                    Log::info("Enviando correo a destinatario", ['email' => $email]);
 
                     Mail::send('mails.seo-report', [
                         'domain' => $domain,
@@ -133,13 +135,13 @@ class AutoseoReportsGen extends Controller
                     });
                 }
 
-                \Log::info("Correo enviado exitosamente", [
+                Log::info("Correo enviado exitosamente", [
                     'domain' => $domain,
                     'recipients' => $recipients
                 ]);
 
             } catch (\Exception $e) {
-                \Log::error("Error al enviar el correo", [
+                Log::error("Error al enviar el correo", [
                     'error' => $e->getMessage(),
                     'error_class' => get_class($e),
                     'stack_trace' => $e->getTraceAsString()
@@ -148,7 +150,7 @@ class AutoseoReportsGen extends Controller
             }
 
         } catch (\Exception $e) {
-            \Log::error("Error general en el proceso de notificación", [
+            Log::error("Error general en el proceso de notificación", [
                 'error' => $e->getMessage(),
                 'error_class' => get_class($e),
                 'stack_trace' => $e->getTraceAsString(),
@@ -158,15 +160,17 @@ class AutoseoReportsGen extends Controller
         }
     }
 
-    public function generateReport(Request $request, $id = 15)
+    public function generateReport(Request $request, $id = null)
     {
         // Si es una petición GET, mostrar el formulario
         if ($request->isMethod('get')) {
-            return view('autoseo.generate-report');
+            $clients = Autoseo::all();
+            $selectedClientId = $id;
+            return view('autoseo.generate-report', compact('clients', 'selectedClientId'));
         }
 
         // Si es POST, procesar la generación
-        $id = $request->input('report_id', $id);
+        $id = $request->input('client_id');
         $email = $request->input('email_notification');
 
         return $this->processReportGeneration($id, $email);
@@ -213,7 +217,7 @@ class AutoseoReportsGen extends Controller
     private function processReportGeneration($id, $email = null)
     {
         try {
-            \Log::info("Iniciando generación de informe SEO", [
+            Log::info("Iniciando generación de informe SEO", [
                 'autoseo_id' => $id,
                 'email_provided' => $email ?? 'no',
                 'timestamp' => now()->toDateTimeString()
@@ -222,7 +226,7 @@ class AutoseoReportsGen extends Controller
             // Obtener el registro de Autoseo
             $autoseo = Autoseo::findOrFail($id);
 
-            \Log::info("Datos del registro Autoseo", [
+            Log::info("Datos del registro Autoseo", [
                 'id' => $autoseo->id,
                 'url' => $autoseo->url,
                 'client_email' => $autoseo->client_email,
@@ -237,16 +241,23 @@ class AutoseoReportsGen extends Controller
                 return response()->json(['error' => 'No hay archivos JSON disponibles para generar el informe.'], 400);
             }
 
+            // Verificar que haya al menos 1 JSON en json_storage
+            $jsonStorage = is_array($autoseo->json_storage) ? $autoseo->json_storage : json_decode($autoseo->json_storage, true);
+            if (empty($jsonStorage) || count($jsonStorage) < 1) {
+                Log::info("Saltando generación de informe para Autoseo ID $id - No hay suficientes JSONs (mínimo 1 requerido)");
+                return response()->json(['error' => 'Se requiere al menos 1 archivo JSON para generar el informe.'], 400);
+            }
+
             // Descargar y extraer ZIP
             $jsonDataList = $this->downloadAndExtractZip($id);
 
-            \Log::info("Datos JSON obtenidos", [
+            Log::info("Datos JSON obtenidos", [
                 'count' => count($jsonDataList),
                 'first_date' => $jsonDataList[0]['uploaded_at'] ?? 'no date'
             ]);
 
             if (empty($jsonDataList)) {
-                \Log::warning("No se encontraron archivos JSON válidos para ID $id");
+                Log::warning("No se encontraron archivos JSON válidos para ID $id");
                 return response()->json(['error' => 'No se encontraron archivos JSON válidos.'], 400);
             }
 
@@ -256,7 +267,7 @@ class AutoseoReportsGen extends Controller
 
             // Si solo hay un JSON, usar la vista simple
             if (count($jsonDataList) === 1) {
-                \Log::info("Generando informe simple (un solo JSON)");
+                Log::info("Generando informe simple (un solo JSON)");
                 $seoData = $jsonDataList[0];
                 $shortTailLabels = $seoData['short_tail'] ?? [];
                 $longTailLabels = $seoData['long_tail'] ?? [];
@@ -296,7 +307,7 @@ class AutoseoReportsGen extends Controller
                 $autoseo->save();
 
                 // Enviar notificación por correo siempre
-                $this->sendReportNotification($autoseo, $filename);
+                $this->sendReportNotification($autoseo, $filename, $email);
 
                 return response()->json([
                     'success' => true,
@@ -309,7 +320,7 @@ class AutoseoReportsGen extends Controller
             $versionDates = $this->extractVersionDates($jsonDataList);
             $seoData = $jsonDataList[0];
 
-            \Log::info("Datos base procesados", [
+            Log::info("Datos base procesados", [
                 'num_dates' => count($versionDates),
                 'dominio' => $seoData['dominio'] ?? 'no domain'
             ]);
@@ -340,7 +351,7 @@ class AutoseoReportsGen extends Controller
             $searchConsoleData = $this->processSearchConsoleData($jsonDataList);
             $scHasData = !empty($searchConsoleData['months']);
 
-            \Log::info("Datos de Search Console procesados", [
+            Log::info("Datos de Search Console procesados", [
                 'has_data' => $scHasData,
                 'num_months' => count($searchConsoleData['months'])
             ]);
@@ -361,9 +372,9 @@ class AutoseoReportsGen extends Controller
                     'sc_has_data' => $scHasData,
                 ])->render();
 
-                \Log::info("Vista renderizada correctamente");
+                Log::info("Vista renderizada correctamente");
             } catch (\Exception $e) {
-                \Log::error("Error al renderizar la vista", [
+                Log::error("Error al renderizar la vista", [
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ]);
@@ -374,7 +385,7 @@ class AutoseoReportsGen extends Controller
             $filename = "informe_seo_{$id}.html";
             Storage::disk('public')->put("reports/{$filename}", $html);
 
-            \Log::info("Archivo HTML guardado", [
+            Log::info("Archivo HTML guardado", [
                 'filename' => $filename,
                 'size' => strlen($html)
             ]);
@@ -390,7 +401,7 @@ class AutoseoReportsGen extends Controller
             $autoseo->save();
 
             // Enviar notificación por correo siempre
-            $this->sendReportNotification($autoseo, $filename);
+            $this->sendReportNotification($autoseo, $filename, $email);
 
             return response()->json([
                 'success' => true,
@@ -399,7 +410,7 @@ class AutoseoReportsGen extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error("Error en processReportGeneration", [
+            Log::error("Error en processReportGeneration", [
                 'id' => $id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -411,7 +422,7 @@ class AutoseoReportsGen extends Controller
     private function downloadAndExtractZip($id)
     {
         try {
-            \Log::info("Iniciando descarga de ZIP", [
+            Log::info("Iniciando descarga de ZIP", [
                 'id' => $id,
                 'url' => $this->baseUrl . "/json/storage"
             ]);
@@ -433,36 +444,36 @@ class AutoseoReportsGen extends Controller
                 ->retry(3, 5000) // Reintentar 3 veces con 5 segundos entre intentos
                 ->get($this->baseUrl . "/json/storage", ['id' => $id]);
 
-            \Log::info("Respuesta del servidor", [
+            Log::info("Respuesta del servidor", [
                 'status' => $response->status(),
                 'headers' => $response->headers(),
                 'body_length' => strlen($response->body())
             ]);
 
             if (!$response->successful()) {
-                \Log::warning("La descarga del ZIP no fue exitosa, buscando JSONs locales", [
+                Log::warning("La descarga del ZIP no fue exitosa, buscando JSONs locales", [
                     'status' => $response->status(),
                     'body' => substr($response->body(), 0, 500) // Primeros 500 caracteres del body
                 ]);
 
                 // Si falla la descarga del ZIP, intentar buscar JSONs sueltos
                 $jsonDir = storage_path("app/public/autoseo_reports/{$id}");
-                if (\File::exists($jsonDir)) {
-                    $files = \File::glob($jsonDir . '/*.json');
+                if (File::exists($jsonDir)) {
+                    $files = File::glob($jsonDir . '/*.json');
                     sort($files);
                     $jsonDataList = [];
                     foreach ($files as $file) {
                         try {
-                            $data = json_decode(\File::get($file), true);
+                            $data = json_decode(File::get($file), true);
                             if ($data) {
                                 $jsonDataList[] = $data;
                             }
                         } catch (\Exception $e) {
-                            \Log::error("Error al procesar archivo JSON suelto: " . $file . " - " . $e->getMessage());
+                            Log::error("Error al procesar archivo JSON suelto: " . $file . " - " . $e->getMessage());
                         }
                     }
                     if (!empty($jsonDataList)) {
-                        \Log::info("Se encontraron JSONs locales", ['count' => count($jsonDataList)]);
+                        Log::info("Se encontraron JSONs locales", ['count' => count($jsonDataList)]);
                         return $jsonDataList;
                     }
                 }
@@ -482,25 +493,25 @@ class AutoseoReportsGen extends Controller
         } catch (\Exception $e) {
             // Si hay excepción, intentar buscar JSONs sueltos
             $jsonDir = storage_path("app/public/autoseo_reports/{$id}");
-            if (\File::exists($jsonDir)) {
-                $files = \File::glob($jsonDir . '/*.json');
+            if (File::exists($jsonDir)) {
+                $files = File::glob($jsonDir . '/*.json');
                 sort($files);
                 $jsonDataList = [];
                 foreach ($files as $file) {
                     try {
-                        $data = json_decode(\File::get($file), true);
+                        $data = json_decode(File::get($file), true);
                         if ($data) {
                             $jsonDataList[] = $data;
                         }
                     } catch (\Exception $e) {
-                        \Log::error("Error al procesar archivo JSON suelto: " . $file . " - " . $e->getMessage());
+                        Log::error("Error al procesar archivo JSON suelto: " . $file . " - " . $e->getMessage());
                     }
                 }
                 if (!empty($jsonDataList)) {
                     return $jsonDataList;
                 }
             }
-            \Log::error("Error en downloadAndExtractZip", [
+            Log::error("Error en downloadAndExtractZip", [
                 'id' => $id,
                 'url' => $this->zipUrl,
                 'error' => $e->getMessage()
@@ -539,7 +550,7 @@ class AutoseoReportsGen extends Controller
                     $jsonDataList[] = $data;
                 }
             } catch (\Exception $e) {
-                \Log::error("Error al procesar archivo JSON: " . $file . " - " . $e->getMessage());
+                Log::error("Error al procesar archivo JSON: " . $file . " - " . $e->getMessage());
             }
         }
 
@@ -777,7 +788,7 @@ class AutoseoReportsGen extends Controller
         }
 
         try {
-            \Log::info("Iniciando subida de informe", [
+            Log::info("Iniciando subida de informe", [
                 'id' => $id,
                 'filename' => $filename,
                 'filesize' => File::size($filePath)
@@ -791,7 +802,7 @@ class AutoseoReportsGen extends Controller
                 'url' => $autoseo->url
             ];
 
-            \Log::info("Payload being sent to upload endpoint", [
+            Log::info("Payload being sent to upload endpoint", [
                 'url' => $this->baseUrl . "/reports/upload",
                 'payload' => $payload,
                 'filename' => $filename,
@@ -823,14 +834,14 @@ class AutoseoReportsGen extends Controller
                 $filename
             )->post($this->baseUrl . "/reports/upload", $payload);
 
-            \Log::info("Respuesta de subida", [
+            Log::info("Respuesta de subida", [
                 'status' => $response->status(),
                 'body' => substr($response->body(), 0, 1000),
                 'headers' => $response->headers()
             ]);
 
             if (!$response->successful()) {
-                \Log::warning("Error en la subida del informe", [
+                Log::warning("Error en la subida del informe", [
                     'status' => $response->status(),
                     'body' => substr($response->body(), 0, 500)
                 ]);
@@ -838,7 +849,7 @@ class AutoseoReportsGen extends Controller
             }
 
         } catch (\Exception $e) {
-            \Log::error("Error en uploadReport", [
+            Log::error("Error en uploadReport", [
                 'id' => $id,
                 'url' => $this->baseUrl . "/reports/upload",
                 'error' => $e->getMessage(),
