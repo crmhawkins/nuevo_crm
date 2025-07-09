@@ -820,3 +820,9 @@ Route::get('/autoseo/clients', [AutoseoClientsController::class, 'index'])
         Route::get('/autoseo/clients', [AutoseoClientsController::class, 'index'])->name('autoseo.clients');
         Route::get('/autoseo/generate-report/{id?}', [AutoseoReportsGen::class, 'generateReport'])->name('autoseo.generate.report');
         Route::post('/autoseo/generate-report', [AutoseoReportsGen::class, 'generateReport'])->name('autoseo.generate.report');
+
+Route::get('/facturas/duplicar', function() {
+    return view('invoices.duplicar');
+})->name('factura.duplicar');
+
+Route::post('/facturas/duplicar-pdf', [InvoiceController::class, 'generateClonedPDFs'])->name('factura.generateClonedPDFs');

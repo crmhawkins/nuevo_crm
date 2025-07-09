@@ -28,6 +28,7 @@ use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 use ZipArchive;
+use Illuminate\Support\Str;
 
 class InvoiceController extends Controller
 {
@@ -367,6 +368,114 @@ class InvoiceController extends Controller
         return response()->download($zipFilePath)->deleteFileAfterSend(true);
     }
 
+    public function generateClonedPDFs(Request $request)
+    {
+        $refs = $request->input('refs');
+        if (!$refs || !is_array($refs)) {
+            return response()->json(['error' => 'Debe indicar referencias en el formulario'], 400);
+        }
+        $invoices = Invoice::whereIn('reference', $refs)->get();
+        if ($invoices->isEmpty()) {
+            return response()->json(['error' => 'No se encontraron facturas con esas referencias'], 404);
+        }
+        $tempDirectory = storage_path('app/public/temp/invoices/');
+        if (!file_exists($tempDirectory)) {
+            mkdir($tempDirectory, 0755, true);
+        }
+        $pdfFiles = [];
+        $hoy = now()->format('Y-m-d');
+        foreach ($invoices as $invoice) {
+            $cloned = $invoice->replicate();
+            $cloned->reference = $this->generateNewReference();
+            $cloned->created_at = $hoy;
+            $cloned->date = $hoy;
+            $concepts = $invoice->invoiceConcepts()->get();
+            $pdf = PDF::loadView('invoices.previewPDF', [
+                'invoice' => $cloned,
+                'data' => ['title' => 'Factura - ' . $cloned->reference, 'invoice_reference' => $cloned->reference],
+                'invoiceConceptsFormated' => $this->formatConcepts($concepts)
+            ]);
+            $nombre = str_replace('/', '_', $cloned->reference);
+            $pdfFilePath = $tempDirectory . 'factura_' . $nombre . '_' . $hoy . '.pdf';
+            $pdf->save($pdfFilePath);
+            $pdfFiles[] = $pdfFilePath;
+        }
+        $zipFileName = 'facturas_clonadas_' . $hoy . '.zip';
+        $zipFilePath = storage_path('app/public/temp/' . $zipFileName);
+        $zip = new ZipArchive();
+        if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
+            foreach ($pdfFiles as $file) {
+                $zip->addFile($file, basename($file));
+            }
+            $zip->close();
+        }
+        foreach ($pdfFiles as $file) {
+            unlink($file);
+        }
+        return response()->download($zipFilePath)->deleteFileAfterSend(true);
+    }
+
+    private function generateNewReference()
+    {
+        // Genera una referencia nueva tipo FACT-YYYYMMDD-XXXX
+        $base = 'FACT-' . now()->format('Ymd') . '-' . strtoupper(Str::random(4));
+        return $base;
+    }
+
+    private function formatConcepts($concepts)
+    {
+        $invoiceConceptsFormated = [];
+        foreach ($concepts as $invoiceConcept) {
+            if ($invoiceConcept->units > 0) {
+                $invoiceConceptsFormated[$invoiceConcept->id]['title'] = $invoiceConcept->title ?? 'Título no disponible';
+                $invoiceConceptsFormated[$invoiceConcept->id]['units'] = $invoiceConcept->units;
+                $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = round($invoiceConcept->total / $invoiceConcept->units, 2);
+                $invoiceConceptsFormated[$invoiceConcept->id]['subtotal'] = number_format((float)$invoiceConcept->units * $invoiceConcept->sale_price, 2, '.', '');
+                $invoiceConceptsFormated[$invoiceConcept->id]['discount'] = number_format((float)($invoiceConcept->discount ?? 0), 2, ',', '');
+                $invoiceConceptsFormated[$invoiceConcept->id]['total'] = number_format((float)$invoiceConcept->total, 2, ',', '');
+                $rawConcepts = $invoiceConcept->concept ?? '';
+                $arrayConceptStringsAndBreakLines = explode(PHP_EOL, $rawConcepts);
+                $maxLineLength = 50;
+                $charactersInALineCounter = 0;
+                $arrayWordsFormated = [];
+                $counter = 0;
+                $firstWordTempRow = true;
+                foreach ($arrayConceptStringsAndBreakLines as $stringItem) {
+                    $rowWords = explode(' ', $stringItem);
+                    $tempRow = '';
+                    foreach ($rowWords as $word) {
+                        $wordLength = strlen($word);
+                        if (!$firstWordTempRow && ($charactersInALineCounter + $wordLength) > $maxLineLength) {
+                            $arrayWordsFormated[$counter] = trim($tempRow);
+                            $counter++;
+                            $tempRow = $word;
+                            $charactersInALineCounter = $wordLength;
+                        } else {
+                            $tempRow .= ($firstWordTempRow ? '' : ' ') . $word;
+                            $charactersInALineCounter += $wordLength;
+                            $firstWordTempRow = false;
+                        }
+                    }
+                    $arrayWordsFormated[$counter] = trim($tempRow);
+                    $counter++;
+                    $charactersInALineCounter = 0;
+                    $firstWordTempRow = true;
+                }
+                $invoiceConceptsFormated[$invoiceConcept->id]['description'] = $arrayWordsFormated;
+            } else {
+                $invoiceConceptsFormated[$invoiceConcept->id] = [
+                    'title' => $invoiceConcept->title ?? 'Título no disponible',
+                    'units' => 0,
+                    'price_unit' => 0,
+                    'subtotal' => 0,
+                    'discount' => '0,00',
+                    'total' => '0,00',
+                    'description' => ['Descripción no disponible']
+                ];
+            }
+        }
+        return $invoiceConceptsFormated;
+    }
 
 
     public function rectificateInvoice(Request $request){
