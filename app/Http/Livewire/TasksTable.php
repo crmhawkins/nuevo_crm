@@ -33,6 +33,7 @@ class TasksTable extends Component
     public $perPage = 10;
     public $sortColumn = 'created_at'; // Columna por defecto
     public $sortDirection = 'desc'; // Dirección por defecto
+    public $soloMaestras = '';
     protected $tasks;
 
     public function mount(){
@@ -64,76 +65,98 @@ class TasksTable extends Component
     protected function agruparTareasMaestrasConSubtareas()
     {
         $tareasAgrupadas = [];
-        
-        // Obtener todas las tareas maestras (sin split_master_task_id)
-        $tareasMaestras = $this->tasks->whereNull('split_master_task_id');
-        
-        foreach ($tareasMaestras as $tareaMaestra) {
-            // Buscar las subtareas de esta tarea maestra
-            $subtareas = $this->tasks->where('split_master_task_id', $tareaMaestra->id);
-            
-            $tareasAgrupadas[] = [
-                'maestra' => $tareaMaestra,
-                'subtareas' => $subtareas
-            ];
+        if ($this->selectedEmpleado) {
+            // Solo mostrar maestras con subtareas del empleado y esas subtareas
+            $maestras = $this->tasks->whereNull('split_master_task_id');
+            foreach ($maestras as $tareaMaestra) {
+                $subtareas = $this->tasks->where('split_master_task_id', $tareaMaestra->id)
+                    ->where('admin_user_id', $this->selectedEmpleado);
+                if ($subtareas->count() > 0) {
+                    $tareasAgrupadas[] = [
+                        'maestra' => $tareaMaestra,
+                        'subtareas' => $subtareas
+                    ];
+                }
+            }
+        } else {
+            // Agrupación normal
+            $tareasMaestras = $this->tasks->whereNull('split_master_task_id');
+            foreach ($tareasMaestras as $tareaMaestra) {
+                $subtareas = $this->tasks->where('split_master_task_id', $tareaMaestra->id);
+                $tareasAgrupadas[] = [
+                    'maestra' => $tareaMaestra,
+                    'subtareas' => $subtareas
+                ];
+            }
         }
-        
         return $tareasAgrupadas;
     }
 
 
     protected function actualizartareas(){
-        $query = Task::when($this->buscar, function ($query) {
-                    $query->where('tasks.title', 'like', '%' . $this->buscar . '%')
-                          ->orWhere('tasks.description', 'like', '%' . $this->buscar . '%')
-                          ->orWhereHas('presupuesto', function($q) {
-                            $q->where('budgets.reference', 'like', '%' . $this->buscar . '%');
-                        })
-                          ->orWhereHas('presupuesto.cliente', function($q) {
-                            $q->where('clients.name', 'like', '%' . $this->buscar . '%');
-                        })
-                        ;
-                })
-                ->when($this->selectedCategoria, function ($query) {
-                    $query->whereHas('presupuestoConcepto', function ($query) {
-                        $query->where('budget_concepts.services_category_id', $this->selectedCategoria);
+        if ($this->selectedEmpleado) {
+            $maestrasIds = Task::where('admin_user_id', $this->selectedEmpleado)
+                ->whereNotNull('split_master_task_id')
+                ->pluck('split_master_task_id')
+                ->unique()
+                ->toArray();
+            $query = Task::whereIn('id', $maestrasIds)
+                ->orWhere(function($q) {
+                    $q->where('admin_user_id', $this->selectedEmpleado)
+                      ->whereNotNull('split_master_task_id');
+                });
+        } else {
+            $query = Task::when($this->buscar, function ($query) {
+                        $query->where('tasks.title', 'like', '%' . $this->buscar . '%')
+                              ->orWhere('tasks.description', 'like', '%' . $this->buscar . '%')
+                              ->orWhereHas('presupuesto', function($q) {
+                                $q->where('budgets.reference', 'like', '%' . $this->buscar . '%');
+                            })
+                              ->orWhereHas('presupuesto.cliente', function($q) {
+                                $q->where('clients.name', 'like', '%' . $this->buscar . '%');
+                            })
+                            ;
+                    })
+                    ->when($this->selectedCategoria, function ($query) {
+                        $query->whereHas('presupuestoConcepto', function ($query) {
+                            $query->where('budget_concepts.services_category_id', $this->selectedCategoria);
+                        });
+                    })
+                    ->when($this->selectedCliente, function ($query) {
+                        $query->whereHas('presupuesto', function ($query) {
+                            $query->where('budgets.client_id', $this->selectedCliente);
+                        });
+                    })
+                    ->when($this->selectedDepartamento, function ($query) {
+                        $query->whereHas('usuario', function ($query) {
+                            $query->where('admin_user_department_id', $this->selectedDepartamento);
+                        });
+                    })
+                    ->when($this->selectedEstado, function ($query) {
+                        $query->where('tasks.task_status_id', $this->selectedEstado);
+                    })
+                    ->when($this->selectedYear, function ($query) {
+                        $query->whereYear('tasks.created_at', $this->selectedYear);
+                    })
+                    ->when($this->selectedGestor, function ($query) {
+                        $query->where('tasks.gestor_id', $this->selectedGestor);
+                    })
+                    ->when($this->soloMaestras == '1', function ($query) {
+                        $query->whereNull('split_master_task_id');
                     });
-                })
-                ->when($this->selectedCliente, function ($query) {
-                    $query->whereHas('presupuesto', function ($query) {
-                        $query->where('budgets.client_id', $this->selectedCliente);
-                    });
-                })
-                ->when($this->selectedDepartamento, function ($query) {
-                    $query->whereHas('usuario', function ($query) {
-                        $query->where('admin_user_department_id', $this->selectedDepartamento);
-                    });
-                })
-                ->when($this->selectedEstado, function ($query) {
-                    $query->where('tasks.task_status_id', $this->selectedEstado);
-                })
-                ->when($this->selectedYear, function ($query) {
-                    $query->whereYear('tasks.created_at', $this->selectedYear);
-                })
-                ->when($this->selectedEmpleado, function ($query) {
-                    $query->where('tasks.admin_user_id', $this->selectedEmpleado);
-                })
-                ->when($this->selectedGestor, function ($query) {
-                    $query->where('tasks.gestor_id', $this->selectedGestor);
-                })
-                ->leftJoin('budget_concepts', 'tasks.budget_concept_id', '=', 'budget_concepts.id')
-                ->leftJoin('priority', 'tasks.priority_id', '=', 'priority.id')
-                ->leftJoin('budgets', 'tasks.budget_id', '=', 'budgets.id')
-                ->leftJoin('clients', 'budgets.client_id', '=', 'clients.id')
-                ->leftJoin('admin_user as gestor', 'tasks.gestor_id', '=', 'gestor.id')
-                ->leftJoin('admin_user as empleado', 'tasks.admin_user_id', '=', 'empleado.id')
-                ->leftJoin('admin_user_department', 'empleado.admin_user_department_id', '=', 'admin_user_department.id')
-                ->select('tasks.*', 'priority.name as prioridad', 'admin_user_department.name as departamento','budget_concepts.title as concept', 'clients.name as cliente', 'gestor.name as gestor','empleado.name as empleado');
+        }
 
+        $query->leftJoin('budget_concepts', 'tasks.budget_concept_id', '=', 'budget_concepts.id')
+            ->leftJoin('priority', 'tasks.priority_id', '=', 'priority.id')
+            ->leftJoin('budgets', 'tasks.budget_id', '=', 'budgets.id')
+            ->leftJoin('clients', 'budgets.client_id', '=', 'clients.id')
+            ->leftJoin('admin_user as gestor', 'tasks.gestor_id', '=', 'gestor.id')
+            ->leftJoin('admin_user as empleado', 'tasks.admin_user_id', '=', 'empleado.id')
+            ->leftJoin('admin_user_department', 'empleado.admin_user_department_id', '=', 'admin_user_department.id')
+            ->select('tasks.*', 'priority.name as prioridad', 'admin_user_department.name as departamento','budget_concepts.title as concept', 'clients.name as cliente', 'gestor.name as gestor','empleado.name as empleado');
 
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
-        // Verifica si se seleccionó 'all' para mostrar todos los registros
         $this->tasks = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
