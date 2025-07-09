@@ -752,3 +752,9 @@ Route::prefix('tesoreria')->group(function () {
 
 
 Route::get('/kit_sin_actualizar', [TesoreriaController::class, 'kit_sin_actualizar'])->name('kitDigital.sin_actualizar');
+
+Route::get('/facturas/duplicar', function() {
+    return view('invoices.duplicar');
+})->name('factura.duplicar');
+
+Route::post('/facturas/duplicar-pdf', [\App\Http\Controllers\Invoice\InvoiceController::class, 'generateClonedPDFs'])->name('factura.generateClonedPDFs');
