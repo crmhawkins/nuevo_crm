@@ -84,6 +84,13 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="mb-3 px-2 flex-fill" style="width: 150px">
+                    <label for="soloMaestras">Tipo de tarea</label>
+                    <select wire:model="soloMaestras" id="soloMaestras" class="form-select">
+                        <option value="">Todas</option>
+                        <option value="1">Solo tareas maestras</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
