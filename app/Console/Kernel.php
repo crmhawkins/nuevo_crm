@@ -46,6 +46,7 @@ class Kernel extends ConsoleKernel
          $schedule->command('Alertas:presupuestoConfirmar')->dailyAt('03:00');
          $schedule->command('Alertas:presupuestoFinalizado')->dailyAt('03:00');
          $schedule->command('Alertas:HorasTrabajadas')->weeklyOn(4, '07:30');
+         $schedule->command('tareas:finalizar-maestras')->everyFiveMinutes();
          $schedule->command('Ordenes:Alerta')->dailyAt('07:00')->when(function () {
              return now()->isLastOfMonth();
          });
