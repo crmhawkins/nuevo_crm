@@ -136,6 +136,22 @@ class TasksController extends Controller
     {
         $loadTask = Task::find($request->taskId);
 
+        // Si la tarea es subtarea, solo guardar cambios y salir
+        if ($loadTask->split_master_task_id != null) {
+            $loadTask->admin_user_id = $request['employeeId1'] ?? $loadTask->admin_user_id;
+            $loadTask->estimated_time = $request['estimatedTime1'] ?? $loadTask->estimated_time;
+            $loadTask->real_time = $request['realTime1'] ?? $loadTask->real_time;
+            $loadTask->priority_id = $request['priority'] ?? $loadTask->priority_id;
+            $loadTask->task_status_id = $request['status1'] ?? $loadTask->task_status_id;
+            $loadTask->title = $request['title'] ?? $loadTask->title;
+            $loadTask->description = $request['description'] ?? $loadTask->description;
+            $loadTask->save();
+            return redirect()->route('tarea.edit',$loadTask->id)->with('toast',[
+                'icon' => 'success',
+                'mensaje' => 'Tarea actualizada'
+            ]);
+        }
+
         // Si la tarea es maestra (no tiene split_master_task_id)
         $esMaestra = is_null($loadTask->split_master_task_id);
         $editaEmpleados = false;
