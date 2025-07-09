@@ -36,6 +36,13 @@ class GenerateMonthlySeoReports extends Command
                 continue;
             }
 
+            // Verificar que haya al menos 1 JSON en json_storage
+            $jsonStorage = is_array($autoseo->json_storage) ? $autoseo->json_storage : json_decode($autoseo->json_storage, true);
+            if (empty($jsonStorage) || count($jsonStorage) < 1) {
+                Log::info("Saltando generación de informe para Autoseo ID $id - No hay suficientes JSONs (mínimo 1 requerido)");
+                continue;
+            }
+
             // Solo procesamos las fechas si hay archivos JSON
             $firstReport = $autoseo->first_report ? Carbon::parse($autoseo->first_report) : null;
             $lastReport = $autoseo->last_report ? Carbon::parse($autoseo->last_report) : null;

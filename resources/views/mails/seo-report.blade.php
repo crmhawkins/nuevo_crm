@@ -90,7 +90,7 @@
             <p>Puede ver su informe en el siguiente enlace:</p>
 
             <center>
-                <a href="https://crm.hawkins.es/autoseo/reports" class="button" target="_blank">
+                <a href="https://crm.hawkins.es/autoseo/reports" class="button" target="_blank" style="background-color: #1a56db; color: white; text-decoration: none; padding: 12px 25px; border-radius: 5px; display: inline-block;">
                     Ver Informe SEO
                 </a>
             </center>

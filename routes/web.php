@@ -74,6 +74,7 @@ use App\Http\Controllers\PresupuestoComentarioController;
 use App\Http\Controllers\Plataforma\PlataformaWhatsappController;
 use App\Http\Controllers\Suite\SuiteController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Autoseo\AutoseoClientsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -809,3 +810,13 @@ Route::get('/autoseo/reports/{userid}/{id}', [AutoseoReports::class, 'showReport
 
 // Generación de informes SEO
 Route::match(['GET', 'POST'], '/autoseo/generate-report/{id?}', [AutoseoReportsGen::class, 'generateReport'])->name('autoseo.generate.report');
+
+// Lista de clientes Autoseo
+Route::get('/autoseo/clients', [AutoseoClientsController::class, 'index'])
+    ->name('autoseo.clients')
+    ->middleware(['auth']);
+
+        // Autoseo
+        Route::get('/autoseo/clients', [AutoseoClientsController::class, 'index'])->name('autoseo.clients');
+        Route::get('/autoseo/generate-report/{id?}', [AutoseoReportsGen::class, 'generateReport'])->name('autoseo.generate.report');
+        Route::post('/autoseo/generate-report', [AutoseoReportsGen::class, 'generateReport'])->name('autoseo.generate.report');
