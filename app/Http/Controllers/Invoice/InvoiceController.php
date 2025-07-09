@@ -384,9 +384,26 @@ class InvoiceController extends Controller
         }
         $pdfFiles = [];
         $hoy = now()->format('Y-m-d');
+        $year = now()->format('Y');
+        $monthNum = now()->format('n');
+        $monthLetter = $this->getMonthLetter($monthNum);
+        // Buscar el mayor correlativo actual para este mes y año
+        $pattern = $monthLetter . $year . '-';
+        $lastRef = Invoice::where('reference', 'like', $pattern . '%')
+            ->orderBy('reference', 'desc')
+            ->first();
+        $lastNumber = 0;
+        if ($lastRef) {
+            $parts = explode('-', $lastRef->reference);
+            if (count($parts) == 2 && is_numeric($parts[1])) {
+                $lastNumber = intval($parts[1]);
+            }
+        }
+        $nextNumber = $lastNumber + 1;
         foreach ($invoices as $invoice) {
             $cloned = $invoice->replicate();
-            $cloned->reference = $this->generateNewReference();
+            $refNumber = str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            $cloned->reference = $monthLetter . $year . '-' . $refNumber;
             $cloned->created_at = $hoy;
             $cloned->date = $hoy;
             $concepts = $invoice->invoiceConcepts()->get();
@@ -399,11 +416,12 @@ class InvoiceController extends Controller
             $pdfFilePath = $tempDirectory . 'factura_' . $nombre . '_' . $hoy . '.pdf';
             $pdf->save($pdfFilePath);
             $pdfFiles[] = $pdfFilePath;
+            $nextNumber++;
         }
         $zipFileName = 'facturas_clonadas_' . $hoy . '.zip';
         $zipFilePath = storage_path('app/public/temp/' . $zipFileName);
-        $zip = new ZipArchive();
-        if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
+        $zip = new \ZipArchive();
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE) === TRUE) {
             foreach ($pdfFiles as $file) {
                 $zip->addFile($file, basename($file));
             }
@@ -475,6 +493,12 @@ class InvoiceController extends Controller
             }
         }
         return $invoiceConceptsFormated;
+    }
+
+    private function getMonthLetter($monthNum)
+    {
+        $letters = ['', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+        return $letters[intval($monthNum)];
     }
 
 
