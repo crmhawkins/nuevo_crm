@@ -136,25 +136,34 @@ class TasksController extends Controller
     {
         $loadTask = Task::find($request->taskId);
 
-                // Validar que el tiempo total asignado no supere el tiempo total del presupuesto
-        $totalAssignedTime = 0;
-        $totalBudgetTime = time_to_seconds($loadTask->total_time_budget);
-        
-        // Calcular el tiempo total que se va a asignar
+        // Si la tarea es maestra (no tiene split_master_task_id)
+        $esMaestra = is_null($loadTask->split_master_task_id);
+        $editaEmpleados = false;
         for ($i = 1; $i <= $request['numEmployee']; $i++) {
-            if ($request['employeeId' . $i] && $request['estimatedTime' . $i]) {
-                $estimatedTime = time_to_seconds($request['estimatedTime' . $i]);
-                $totalAssignedTime += $estimatedTime;
+            if ($request->has('employeeId' . $i) || $request->has('estimatedTime' . $i) || $request->has('realTime' . $i)) {
+                $editaEmpleados = true;
+                break;
             }
         }
-        
-        // Verificar si supera el tiempo del presupuesto
-        if ($totalAssignedTime > $totalBudgetTime) {
-            return redirect()->back()->withErrors([
-                'time_exceeded' => 'El tiempo total asignado (' . seconds_to_time($totalAssignedTime) . ') supera el tiempo del presupuesto (' . $loadTask->total_time_budget . ')'
-            ])->withInput();
+
+        // Solo validar tiempo si es maestra y se editan empleados/tiempos
+        if ($esMaestra && $editaEmpleados) {
+            $totalAssignedTime = 0;
+            $totalBudgetTime = time_to_seconds($loadTask->total_time_budget);
+            for ($i = 1; $i <= $request['numEmployee']; $i++) {
+                if ($request['employeeId' . $i] && $request['estimatedTime' . $i]) {
+                    $estimatedTime = time_to_seconds($request['estimatedTime' . $i]);
+                    $totalAssignedTime += $estimatedTime;
+                }
+            }
+            if ($totalAssignedTime > $totalBudgetTime) {
+                return redirect()->back()->withErrors([
+                    'time_exceeded' => 'El tiempo total asignado (' . seconds_to_time($totalAssignedTime) . ') supera el tiempo del presupuesto (' . $loadTask->total_time_budget . ')'
+                ])->withInput();
+            }
         }
 
+        // Guardar cambios en subtareas si corresponde
         for ($i = 1; $i <= $request['numEmployee']; $i++) {
             $exist = Task::find($request['taskId' . $i]);
             if ($exist) {
@@ -163,7 +172,6 @@ class TasksController extends Controller
                 $exist->real_time = $request['realTime' . $i];
                 $exist->priority_id = $request['priority'];
                 $exist->task_status_id = $request['status' . $i];
-
                 $exist->save();
             } else {
                 if ($request['employeeId' . $i]) {
@@ -180,16 +188,29 @@ class TasksController extends Controller
                     $data['title'] = $request['title'];
                     $data['estimated_time'] = $request['estimatedTime' . $i];
                     $data['real_time'] = $request['realTime' . $i] ?? '00:00:00';
-
                     $newtask = Task::create($data);
                     $taskSaved = $newtask->save();
                 }
             }
         }
+
+        // Guardar cambios generales
         $loadTask->title = $request['title'];
         $loadTask->description = $request['description'];
+        $loadTask->priority_id = $request['priority'];
         $loadTask->duplicated = 1;
         $loadTask->save();
+
+        // Si es maestra, actualizar el real_time sumando los real_time de las subtareas
+        if ($esMaestra) {
+            $subtareas = Task::where('split_master_task_id', $loadTask->id)->get();
+            $totalRealTime = 0;
+            foreach ($subtareas as $sub) {
+                $totalRealTime += time_to_seconds($sub->real_time);
+            }
+            $loadTask->real_time = seconds_to_time($totalRealTime);
+            $loadTask->save();
+        }
 
         return redirect()->route('tarea.edit',$loadTask->id)->with('toast',[
             'icon' => 'success',

@@ -73,6 +73,7 @@
                                     <input type="text" class="form-control" value="{{ $task->presupuesto->cliente->name }}"readonly>
                                 </div>
 
+                                @if($task->split_master_task_id == null)
                                 <div class="col-12 mb-3">
                                     <label for="extra_employee">Asignar Empleado</label>
                                     <button type="button" id="addExtraEmployee" class="btn btn-info btn-sm ml-2" @if($timeExceeded) disabled @endif><i class="fas fa-plus"></i></button>
@@ -134,6 +135,7 @@
                                         </table>
                                     </div>
                                 </div>
+                                @endif
                                 <div class="col-6 mb-3">
                                     <label for="priority">Prioridad:</label>
                                     <select name="priority" class="form-control">
