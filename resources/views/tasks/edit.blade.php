@@ -137,20 +137,43 @@
                                 </div>
                                 @elseif($task->split_master_task_id != null)
                                 <div class="col-12 mb-3">
-                                    <label>Empleado asignado</label>
-                                    <input type="text" class="form-control" value="{{ $task->usuario ? $task->usuario->name . ' ' . $task->usuario->surname : 'No definido' }}" readonly>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <label>Tiempo estimado</label>
-                                    <input type="text" class="form-control" value="{{ $task->estimated_time }}" readonly>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <label>Tiempo real</label>
-                                    <input type="text" class="form-control" value="{{ $task->real_time }}" readonly>
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label>Estado</label>
-                                    <input type="text" class="form-control" value="{{ $task->estado ? $task->estado->name : 'No definido' }}" readonly>
+                                    <label>Empleado, tiempos y estado</label>
+                                    <div id="dynamic_field_employee" class="mt-3">
+                                        <table class="table-employees table table-striped table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>H.Estimadas</th>
+                                                    <th>H.Reales</th>
+                                                    <th>Estado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="dynamic-added">
+                                                    <td style="width: 250px !important">
+                                                        <select class="choices form-select" name="employeeId1" class="form-control">
+                                                            <option value="">Empleado</option>
+                                                            @foreach($employees as $empleado)
+                                                            <option value="{{$empleado->id}}" @if( $task->admin_user_id == $empleado->id ) selected @endif>{{$empleado->name.' '.$empleado->surname}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td ><input type="text" class="form-control estimated-time-input" name="estimatedTime1" value="{{$task->estimated_time}}"></td>
+                                                    <td ><input type="text" class="form-control" name="realTime1" value="{{$task->real_time}}"></td>
+                                                    <td style="width: 200px !important">
+                                                        <select class="choices form-select" name="status1" class="form-control">
+                                                            <option  value="">-- Seleccione --</option>
+                                                            @foreach($status as $s)
+                                                            <option value="{{$s->id}}" @if($s->id == $task->task_status_id) selected @endif>{{$s->name}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <input type="hidden" name="numEmployee" id="numEmployee" value="1">
+                                    <input type="hidden" name="taskId1" value="{{$task->id}}">
                                 </div>
                                 @endif
                                 <div class="col-6 mb-3">
