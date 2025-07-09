@@ -10,7 +10,8 @@
         "beyondcode/laravel-websockets": "^1.14",
         "cloudconvert/cloudconvert-php": "^3.4",
         "dondominio/api-sdk-php": "^2.0",
-        "guzzlehttp/guzzle": "^7.2",
+        "endroid/qr-code": "^6.0",
+        "guzzlehttp/guzzle": "^7.9",
         "intervention/image": "^3.9",
         "jenssegers/agent": "^2.6",
         "josemmo/facturae-php": "^1.8",
@@ -41,8 +42,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
-
+        },
+        "files": [
+            "app/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
