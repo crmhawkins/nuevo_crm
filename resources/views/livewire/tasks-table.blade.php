@@ -121,35 +121,74 @@
                         <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
-                    {{-- Recorremos los servicios --}}
-                    @foreach ( $tareas as $tarea )
-                        <tr class="clickable-row" data-href="{{route('tarea.edit', $tarea->id)}}" >
-                            <td class="px-3">{{$tarea->title}}</td>
-                            <td class="">{{$tarea->prioridad ? $tarea->prioridad : 'Prioridad no asignada'}}</td>
-                            <td class="">{{$tarea->estado ? $tarea->estado->name  : 'Estado no asignado'}}</td>
-                            <td class="">{{$tarea->presupuesto->cliente->company ?? $tarea->presupuesto->cliente->name ?? 'Cliente Borrado'}}</td>
-                            <td class="">{{$tarea->split_master_task_id ? ($tarea->usuario ? ($tarea->departamento ?? 'Usuario sin departamento'  ) : 'Usuario no asignado') : ''}}</td>
-                            <td class="">{{$tarea->split_master_task_id ? ($tarea->empleado ?? 'No definido') : 'Tarea Maestra'}}</td>
-                            <td class="">{{$tarea->gestor ?? 'No definido'}}</td>
-                            <td class="">{{$tarea->split_master_task_id ? $tarea->estimated_time : $tarea->total_time_budget}}</td>
-                            <td class="">{{$tarea->split_master_task_id ? $tarea->real_time : $tarea->real_time_maestra()}}</td>
-                            <td class="">{{Carbon\Carbon::parse($tarea->created_at)->format('d/m/Y')}}</td>
+                    {{-- Recorremos las tareas agrupadas --}}
+                    @foreach ( $tareasAgrupadas as $grupo )
+                        {{-- Tarea Maestra --}}
+                        <tr class="clickable-row tarea-maestra" data-href="{{route('tarea.edit', $grupo['maestra']->id)}}">
+                            <td class="px-3">
+                                <strong>{{$grupo['maestra']->title}}</strong>
+                                @if($grupo['subtareas']->count() > 0)
+                                    <span class="badge bg-info ms-2">{{$grupo['subtareas']->count()}} subtareas</span>
+                                @endif
+                            </td>
+                            <td class=""><strong>{{$grupo['maestra']->prioridad ? $grupo['maestra']->prioridad : 'Prioridad no asignada'}}</strong></td>
+                            <td class=""><strong>{{$grupo['maestra']->estado ? $grupo['maestra']->estado->name  : 'Estado no asignado'}}</strong></td>
+                            <td class=""><strong>{{$grupo['maestra']->presupuesto->cliente->company ?? $grupo['maestra']->presupuesto->cliente->name ?? 'Cliente Borrado'}}</strong></td>
+                            <td class=""><strong>Tarea Maestra</strong></td>
+                            <td class=""><strong>Tarea Maestra</strong></td>
+                            <td class=""><strong>{{$grupo['maestra']->gestor ?? 'No definido'}}</strong></td>
+                            <td class=""><strong>{{$grupo['maestra']->total_time_budget}}</strong></td>
+                            <td class=""><strong>{{$grupo['maestra']->real_time_maestra()}}</strong></td>
+                            <td class=""><strong>{{Carbon\Carbon::parse($grupo['maestra']->created_at)->format('d/m/Y')}}</strong></td>
                             <td>
-                                @if($tarea->task_status_id == 3)
-                                    {{Carbon\Carbon::parse($tarea->updated_at)->format('d/m/Y')}}
+                                @if($grupo['maestra']->task_status_id == 3)
+                                    <strong>{{Carbon\Carbon::parse($grupo['maestra']->updated_at)->format('d/m/Y')}}</strong>
                                 @else
-                                    @if (isset($fechasEstimadas[$tarea->id]))
-                                        {{ $fechasEstimadas[$tarea->id]['fecha_estimada'] }}
+                                    @if (isset($fechasEstimadas[$grupo['maestra']->id]))
+                                        <strong>{{ $fechasEstimadas[$grupo['maestra']->id]['fecha_estimada'] }}</strong>
                                     @else
-                                        No calculada
+                                        <strong>No calculada</strong>
                                     @endif
                                 @endif
                             </td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
-                                <a class="" href="{{route('tarea.edit', $tarea->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar servicio"></a>
-                                <a class="delete" data-id="{{$tarea->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar servicio"></a>
+                                <a class="" href="{{route('tarea.edit', $grupo['maestra']->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar tarea"></a>
+                                <a class="delete" data-id="{{$grupo['maestra']->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar tarea"></a>
                             </td>
                         </tr>
+                        
+                        {{-- Subtareas --}}
+                        @foreach ( $grupo['subtareas'] as $subtarea )
+                            <tr class="clickable-row subtarea" data-href="{{route('tarea.edit', $subtarea->id)}}">
+                                <td class="px-3">
+                                    <span class="ms-4">└─ {{$subtarea->title}}</span>
+                                </td>
+                                <td class="">{{$subtarea->prioridad ? $subtarea->prioridad : 'Prioridad no asignada'}}</td>
+                                <td class="">{{$subtarea->estado ? $subtarea->estado->name  : 'Estado no asignado'}}</td>
+                                <td class="">{{$subtarea->presupuesto->cliente->company ?? $subtarea->presupuesto->cliente->name ?? 'Cliente Borrado'}}</td>
+                                <td class="">{{$subtarea->usuario ? ($subtarea->departamento ?? 'Usuario sin departamento') : 'Usuario no asignado'}}</td>
+                                <td class="">{{$subtarea->empleado ?? 'No definido'}}</td>
+                                <td class="">{{$subtarea->gestor ?? 'No definido'}}</td>
+                                <td class="">{{$subtarea->estimated_time}}</td>
+                                <td class="">{{$subtarea->real_time}}</td>
+                                <td class="">{{Carbon\Carbon::parse($subtarea->created_at)->format('d/m/Y')}}</td>
+                                <td>
+                                    @if($subtarea->task_status_id == 3)
+                                        {{Carbon\Carbon::parse($subtarea->updated_at)->format('d/m/Y')}}
+                                    @else
+                                        @if (isset($fechasEstimadas[$subtarea->id]))
+                                            {{ $fechasEstimadas[$subtarea->id]['fecha_estimada'] }}
+                                        @else
+                                            No calculada
+                                        @endif
+                                    @endif
+                                </td>
+                                <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
+                                    <a class="" href="{{route('tarea.edit', $subtarea->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar tarea"></a>
+                                    <a class="delete" data-id="{{$subtarea->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar tarea"></a>
+                                </td>
+                            </tr>
+                        @endforeach
                     @endforeach
                 </tbody>
             </table>
@@ -174,7 +213,33 @@
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 
-
+<style>
+    .tarea-maestra {
+        background-color: #f8f9fa !important;
+        border-left: 4px solid #007bff;
+    }
+    
+    .tarea-maestra:hover {
+        background-color: #e9ecef !important;
+    }
+    
+    .subtarea {
+        background-color: #ffffff !important;
+        border-left: 4px solid #dee2e6;
+    }
+    
+    .subtarea:hover {
+        background-color: #f8f9fa !important;
+    }
+    
+    .subtarea td:first-child {
+        padding-left: 2rem !important;
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+    }
+</style>
 
     @include('partials.toast')
 

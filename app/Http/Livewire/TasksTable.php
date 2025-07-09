@@ -50,10 +50,35 @@ class TasksTable extends Component
     {
         $fechasEstimadas = $this->calcularFechasEstimadasTodasTareas();
         $this->actualizartareas(); // Ahora se llama directamente en render para refrescar los clientes.
+        
+        // Agrupar tareas maestras con sus subtareas
+        $tareasAgrupadas = $this->agruparTareasMaestrasConSubtareas();
+        
         return view('livewire.tasks-table', [
             'tareas' => $this->tasks,
+            'tareasAgrupadas' => $tareasAgrupadas,
             'fechasEstimadas' => $fechasEstimadas // Enviamos las fechas estimadas
         ]);
+    }
+
+    protected function agruparTareasMaestrasConSubtareas()
+    {
+        $tareasAgrupadas = [];
+        
+        // Obtener todas las tareas maestras (sin split_master_task_id)
+        $tareasMaestras = $this->tasks->whereNull('split_master_task_id');
+        
+        foreach ($tareasMaestras as $tareaMaestra) {
+            // Buscar las subtareas de esta tarea maestra
+            $subtareas = $this->tasks->where('split_master_task_id', $tareaMaestra->id);
+            
+            $tareasAgrupadas[] = [
+                'maestra' => $tareaMaestra,
+                'subtareas' => $subtareas
+            ];
+        }
+        
+        return $tareasAgrupadas;
     }
 
 
