@@ -25,6 +25,18 @@
             </div>
         </div>
     </div>
+
+    <!-- Mostrar errores de validación -->
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <section class="section mt-4">
         <div class="row">
             <div class="col-9">
@@ -47,7 +59,7 @@
                                     <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
-                                
+
                                 <div class="col-12 mb-3">
                                     <label for="description">Presupuesto:</label>
                                     <p type="text" class="form-control"><a href="{{route('presupuesto.edit', $task->budget_id )}}" target="_blank" rel="noopener noreferrer">{{ $task->presupuesto->reference }}</a></p>
@@ -63,7 +75,21 @@
 
                                 <div class="col-12 mb-3">
                                     <label for="extra_employee">Asignar Empleado</label>
-                                    <button type="button" id="addExtraEmployee" class="btn btn-info btn-sm ml-2"><i class="fas fa-plus"></i></button>
+                                    <button type="button" id="addExtraEmployee" class="btn btn-info btn-sm ml-2" @if($timeExceeded) disabled @endif><i class="fas fa-plus"></i></button>
+
+                                    @if($timeExceeded)
+                                        <div class="alert alert-warning mt-2">
+                                            <strong>⚠️ Advertencia:</strong> El tiempo total asignado ({{ $totalAssignedTime ? seconds_to_time($totalAssignedTime) : '00:00:00' }}) ya supera el tiempo del presupuesto ({{ $task->total_time_budget }}). No se pueden crear más tareas secundarias.
+                                        </div>
+                                    @endif
+
+                                    <div class="alert alert-info mt-2">
+                                        <strong>Tiempo total del presupuesto:</strong> {{ $task->total_time_budget }}
+                                        <br>
+                                        <strong>Tiempo asignado actual:</strong> <span id="totalAssignedTime">{{ $totalAssignedTime ? seconds_to_time($totalAssignedTime) : '00:00:00' }}</span>
+                                        <br>
+                                        <strong>Tiempo restante:</strong> <span id="remainingTime">{{ $totalBudgetTime > $totalAssignedTime ? seconds_to_time($totalBudgetTime - $totalAssignedTime) : '00:00:00' }}</span>
+                                    </div>
                                     <div id="dynamic_field_employee" class="mt-3">
                                         <table class="table-employees table table-striped table-bordered">
                                             <thead>
@@ -87,7 +113,7 @@
                                                             @endforeach
                                                         </select>
                                                     </td>
-                                                    <td ><input type="text" class="form-control" name="estimatedTime{{$item['num']}}" value="{{$item['horas_estimadas']}}"></td>
+                                                    <td ><input type="text" class="form-control estimated-time-input" name="estimatedTime{{$item['num']}}" value="{{$item['horas_estimadas']}}"></td>
                                                     <td ><input type="text" class="form-control" name="realTime{{$item['num']}}" value="{{$item['horas_reales']}}"></td>
                                                     <td  style="width: 200px !important">
                                                         <select class="choices form-select" name="status{{$item['num']}}" class="form-control">
@@ -183,13 +209,63 @@
             return formattedTime;
         }
 
+        // Función para convertir tiempo en formato HH:MM:SS a segundos
+        function timeToSeconds(time) {
+            if (!time) return 0;
+            var parts = time.split(':');
+            if (parts.length >= 3) {
+                return (parseInt(parts[0]) * 3600) + (parseInt(parts[1]) * 60) + parseInt(parts[2]);
+            }
+            return 0;
+        }
+
+        // Función para convertir segundos a formato HH:MM:SS
+        function secondsToTime(seconds) {
+            var hours = Math.floor(seconds / 3600);
+            var minutes = Math.floor((seconds % 3600) / 60);
+            var secs = seconds % 60;
+
+            return String(hours).padStart(2, '0') + ':' +
+                   String(minutes).padStart(2, '0') + ':' +
+                   String(secs).padStart(2, '0');
+        }
+
+        // Función para calcular el tiempo total asignado
+        function calculateTotalAssignedTime() {
+            var totalSeconds = 0;
+            $('.table-employees tbody tr').each(function() {
+                var estimatedTime = $(this).find('input[name^="estimatedTime"]').val();
+                if (estimatedTime) {
+                    totalSeconds += timeToSeconds(estimatedTime);
+                }
+            });
+            return totalSeconds;
+        }
+
+        // Función para actualizar los indicadores de tiempo
+        function updateTimeIndicators() {
+            var totalAssignedSeconds = calculateTotalAssignedTime();
+            var totalBudgetSeconds = timeToSeconds('{{ $task->total_time_budget }}');
+            var remainingSeconds = totalBudgetSeconds - totalAssignedSeconds;
+
+            $('#totalAssignedTime').text(secondsToTime(totalAssignedSeconds));
+            $('#remainingTime').text(secondsToTime(remainingSeconds > 0 ? remainingSeconds : 0));
+
+            // Cambiar color del tiempo restante si es negativo
+            if (remainingSeconds < 0) {
+                $('#remainingTime').css('color', 'red').css('font-weight', 'bold');
+            } else {
+                $('#remainingTime').css('color', 'inherit').css('font-weight', 'normal');
+            }
+        }
+
         // Función para calcular el tiempo restante
         function calculateRemainingTime() {
             var totalAssignedTime = 0;
 
             // Sumar las horas estimadas ya asignadas a otros empleados
             $('.table-employees tbody tr').each(function() {
-                var estimatedTime = $(this).find('input[name^="realTime"]').val();
+                var estimatedTime = $(this).find('input[name^="estimatedTime"]').val();
                 if (estimatedTime) {
                     // Convertir el valor de horas en formato 00:00:00 a decimal para la suma
                     var timeParts = estimatedTime.split(':');
@@ -203,13 +279,47 @@
             return remainingTime > 0 ? remainingTime : 0;
         }
 
+        // Actualizar indicadores de tiempo al cargar la página
+        updateTimeIndicators();
+
+        // Actualizar indicadores cuando cambie el tiempo estimado
+        $(document).on('input', '.estimated-time-input', function() {
+            updateTimeIndicators();
+        });
+
         $('#actualizarTarea').click(function(e) {
             e.preventDefault();
+
+            // Validar que no se supere el tiempo del presupuesto
+            var totalAssignedSeconds = calculateTotalAssignedTime();
+            var totalBudgetSeconds = timeToSeconds('{{ $task->total_time_budget }}');
+
+            if (totalAssignedSeconds > totalBudgetSeconds) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de validación',
+                    text: 'El tiempo total asignado (' + secondsToTime(totalAssignedSeconds) + ') supera el tiempo del presupuesto (' + '{{ $task->total_time_budget }}' + ')',
+                    confirmButtonText: 'Entendido'
+                });
+                return false;
+            }
+
             $('form').submit();
         });
 
         $('#addExtraEmployee').click(function() {
             var remainingTime = calculateRemainingTime(); // Calcula el tiempo restante en decimal
+
+            // Verificar si hay tiempo disponible
+            if (remainingTime <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Sin tiempo disponible',
+                    text: 'No hay tiempo restante disponible para asignar más empleados.',
+                    confirmButtonText: 'Entendido'
+                });
+                return;
+            }
 
             if (i == 0 || $("#estimatedTime" + i).val() != '') {
                 i++;
@@ -224,7 +334,7 @@
                                 @endforeach
                             </select>
                         </td>
-                        <td ><input type="text" class="form-control" name="estimatedTime${i}" value="${formattedTime}" placeholder="Horas estimadas"></td>
+                        <td ><input type="text" class="form-control estimated-time-input" name="estimatedTime${i}" value="${formattedTime}" placeholder="Horas estimadas"></td>
                         <td ><input type="text" class="form-control" name="realTime${i}" value="00:00:00" placeholder="Horas reales"></td>
                         <td style="width: 200px !important">
                             <select class="choices form-select" name="status${i}" class="form-control">
@@ -241,6 +351,7 @@
                     </tr>
                 `);
                 $('#numEmployee').val(i);
+                updateTimeIndicators();
             }
         });
 
@@ -249,6 +360,7 @@
             $('#rowEmployee' + button_id).remove();
             i--;
             $('#numEmployee').val(i);
+            updateTimeIndicators();
         });
     });
 

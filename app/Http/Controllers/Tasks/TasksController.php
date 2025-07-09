@@ -52,6 +52,18 @@ class TasksController extends Controller
         $prioritys = Priority::all();
         $status = TaskStatus::all();
         $data = [];
+
+                // Calcular el tiempo total ya asignado
+        $totalAssignedTime = 0;
+        $existingTasks = Task::where('split_master_task_id', $task->id)->get();
+        foreach ($existingTasks as $existingTask) {
+            $totalAssignedTime += time_to_seconds($existingTask->estimated_time);
+        }
+        
+        // Verificar si ya se ha superado el tiempo del presupuesto
+        $totalBudgetTime = time_to_seconds($task->total_time_budget);
+        $timeExceeded = $totalAssignedTime > $totalBudgetTime;
+
         if ($task->duplicated == 0) {
             $trabajador = User::find($task->admin_user_id);
             if ($trabajador) {
@@ -117,12 +129,32 @@ class TasksController extends Controller
                 }
             }
         }
-        return view('tasks.edit', compact('task', 'prioritys', 'employees', 'data', 'status'));
+        return view('tasks.edit', compact('task', 'prioritys', 'employees', 'data', 'status', 'timeExceeded', 'totalAssignedTime', 'totalBudgetTime'));
     }
 
     public function update(Request $request)
     {
         $loadTask = Task::find($request->taskId);
+
+                // Validar que el tiempo total asignado no supere el tiempo total del presupuesto
+        $totalAssignedTime = 0;
+        $totalBudgetTime = time_to_seconds($loadTask->total_time_budget);
+        
+        // Calcular el tiempo total que se va a asignar
+        for ($i = 1; $i <= $request['numEmployee']; $i++) {
+            if ($request['employeeId' . $i] && $request['estimatedTime' . $i]) {
+                $estimatedTime = time_to_seconds($request['estimatedTime' . $i]);
+                $totalAssignedTime += $estimatedTime;
+            }
+        }
+        
+        // Verificar si supera el tiempo del presupuesto
+        if ($totalAssignedTime > $totalBudgetTime) {
+            return redirect()->back()->withErrors([
+                'time_exceeded' => 'El tiempo total asignado (' . seconds_to_time($totalAssignedTime) . ') supera el tiempo del presupuesto (' . $loadTask->total_time_budget . ')'
+            ])->withInput();
+        }
+
         for ($i = 1; $i <= $request['numEmployee']; $i++) {
             $exist = Task::find($request['taskId' . $i]);
             if ($exist) {
@@ -163,6 +195,22 @@ class TasksController extends Controller
             'icon' => 'success',
             'mensaje' => 'Tarea actualizada'
         ]);
+    }
+
+        /**
+     * Convierte tiempo en formato HH:MM:SS a segundos
+     */
+    private function timeToSeconds($time)
+    {
+        return time_to_seconds($time);
+    }
+
+    /**
+     * Convierte segundos a formato HH:MM:SS
+     */
+    public function secondsToTime($seconds)
+    {
+        return seconds_to_time($seconds);
     }
 
     public function updateStatus(Request $request, $id)
