@@ -756,26 +756,27 @@ class InvoiceController extends Controller
         }
         $pdfFiles = [];
         $hoy = now()->format('Y-m-d');
-        $year = now()->format('Y');
-        $monthNum = now()->format('n');
-        $monthLetter = $this->getMonthLetter($monthNum);
-        // Buscar el mayor correlativo actual para este mes y año
-        $pattern = $monthLetter . $year . '-';
-        $lastRef = Invoice::where('reference', 'like', $pattern . '%')
-            ->orderBy('reference', 'desc')
-            ->first();
-        $lastNumber = 0;
-        if ($lastRef) {
-            $parts = explode('-', $lastRef->reference);
-            if (count($parts) == 2 && is_numeric($parts[1])) {
-                $lastNumber = intval($parts[1]);
+        // Buscar el prefijo de la referencia que termina en 0014, o usar el de la primera referencia enviada
+        $refBase = null;
+        foreach ($refs as $ref) {
+            if (substr($ref, -4) === '0014') {
+                $refBase = $ref;
+                break;
             }
         }
-        $nextNumber = $lastNumber + 1;
+        if (!$refBase) {
+            $refBase = $refs[0];
+        }
+        $parts = explode('-', $refBase);
+        if (count($parts) != 2 || !is_numeric($parts[1])) {
+            return response()->json(['error' => 'La referencia base no tiene el formato esperado.'], 400);
+        }
+        $refPrefix = $parts[0] . '-';
+        $nextNumber = 14;
         foreach ($invoices as $invoice) {
             $cloned = $invoice->replicate();
             $refNumber = str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-            $cloned->reference = $monthLetter . $year . '-' . $refNumber;
+            $cloned->reference = $refPrefix . $refNumber;
             $cloned->created_at = $hoy;
             $cloned->date = $hoy;
             $concepts = $invoice->invoiceConcepts()->get();
