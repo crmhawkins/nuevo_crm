@@ -847,7 +847,7 @@ class BudgetConceptsController extends Controller
         return response()->json($services);
     }
 
-    public function getInfoByServices(Request $request)
+    public function getInfoByServices2(Request $request)
     {
         $categoryId = $request->input('categoryId');
         $service = Service::find( $categoryId);
@@ -864,6 +864,36 @@ class BudgetConceptsController extends Controller
 
         return response()->json($services);
     }
+    public function getInfoByServices(Request $request)
+    {
+        $categoryId = $request->input('categoryId');
+        $service = Service::find($categoryId);
+        $empresa = CompanyDetails::find(1);
+
+        // Calcular precio medio con lógica existente
+        $preciomedi = $service->calcularPrecioMedio($empresa->price_hour);
+
+        // Obtener cantidad del servicio (ajusta si el campo se llama distinto)
+        $cantidad = $service->cantidad ?? 0;
+
+        // Calcular tiempo estimado en horas
+        $tiempo = $cantidad > 0 ? $cantidad / 128 : 0;
+
+        // Calcular nuevo precio basado en tiempo y precio por hora
+        $precio_estimado = $tiempo * $empresa->price_hour;
+
+        // Construir respuesta
+        $services = Service::where('id', $categoryId)
+            ->get(['id', 'title', 'concept', 'price'])
+            ->toArray();
+
+        $services[0]['preciomedi'] = $preciomedi > 0 ? $preciomedi : null;
+        $services[0]['tiempo_estimado'] = round($tiempo, 2);
+        $services[0]['precio_estimado'] = round($precio_estimado, 2);
+
+        return response()->json($services);
+    }
+
 
     public function saveAndSend(BudgetConcept $budgetConcept,$file){
         //Enviar los emails
