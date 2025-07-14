@@ -756,22 +756,11 @@ class InvoiceController extends Controller
         }
         $pdfFiles = [];
         $hoy = now()->format('Y-m-d');
-        // Buscar el prefijo de la referencia que termina en 0014, o usar el de la primera referencia enviada
-        $refBase = null;
-        foreach ($refs as $ref) {
-            if (substr($ref, -4) === '0014') {
-                $refBase = $ref;
-                break;
-            }
-        }
-        if (!$refBase) {
-            $refBase = $refs[0];
-        }
-        $parts = explode('-', $refBase);
-        if (count($parts) != 2 || !is_numeric($parts[1])) {
-            return response()->json(['error' => 'La referencia base no tiene el formato esperado.'], 400);
-        }
-        $refPrefix = $parts[0] . '-';
+        // Forzar el prefijo a la letra del mes actual + año actual
+        $year = now()->format('Y');
+        $monthNum = now()->format('n');
+        $monthLetter = $this->getMonthLetter($monthNum);
+        $refPrefix = $monthLetter . $year . '-';
         $nextNumber = 14;
         foreach ($invoices as $invoice) {
             $cloned = $invoice->replicate();
