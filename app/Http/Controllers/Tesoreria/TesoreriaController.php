@@ -922,7 +922,7 @@ class TesoreriaController extends Controller
 
         foreach($request->facturas as $factura){
             $invoice = Invoice::find($factura['id']);
-            $title = $invoice->reference . ' - ' . $invoice->concept;
+            $title = $invoice->reference . ' - ' . $invoice->concept. ' - ' . $invoice->cliente->name;
             $ingreso = new Ingreso();
             $ingreso->quantity = $factura['importe'];
             $ingreso->bank_id = $bank;
