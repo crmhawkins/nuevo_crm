@@ -529,7 +529,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 
-    Route::middleware(['access.level:1'])->group(function () {
+    Route::middleware(['access.level:5'])->group(function () {
         Route::get('/suite', [SuiteController::class, 'index'])->name('suite');
         Route::get('/suite/create', [SuiteController::class, 'create'])->name('suite.create');
         Route::get('/suite/edit', [SuiteController::class, 'edit'])->name('suite.edit');
