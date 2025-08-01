@@ -141,12 +141,12 @@ class BudgetConceptsController extends Controller
         return redirect(route('presupuesto.edit', $budget));
     }
 
-    public function updateTypeOwn(Request $request, $budget)
+    public function updateTypeOwn(Request $request, $budgetConcept)
     {
 
         $this->validate($request, [
             'services_category_id' => 'required|filled',
-            'service_id' => 'required',
+            'service_id' => 'nullable',
             'title' => 'required',
             'concept' => 'required',
             'units' => 'required',
@@ -164,8 +164,10 @@ class BudgetConceptsController extends Controller
 
         // Construimos la DATA
         $data = $request->all();
-        // Creamos el concepto
-        $conceptoCreate = BudgetConcept::where('id', $budget)->first()->update($data);
+
+        // Actualizamos el concepto
+        $conceptoActualizado = BudgetConcept::where('id', $budgetConcept)->first();
+        $conceptoActualizado->update($data);
 
         // Variables
         $ivaTotal = 0;
@@ -174,11 +176,10 @@ class BudgetConceptsController extends Controller
         $descuento = 0;
         $base = 0;
 
-        $budgetConceptActualizado = BudgetConcept::where('id', $budget)->first();
         // Obtenemos el presupuesto para Actualizar
-        $budgetToUpdate = Budget::where('id', $budgetConceptActualizado->budget_id)->first();
+        $budgetToUpdate = Budget::where('id', $conceptoActualizado->budget_id)->first();
         // Obtenemos todos los conceptos de este presupuesto
-        $budgetConcepts = BudgetConcept::where('budget_id', $budgetConceptActualizado->budget_id)->get();
+        $budgetConcepts = BudgetConcept::where('budget_id', $conceptoActualizado->budget_id)->get();
 
         if (count($budgetConcepts) >= 1) {
             // Recorremos los conceptos
@@ -187,7 +188,7 @@ class BudgetConceptsController extends Controller
                 if ($concept->concept_type_id === 1) {
                     if ($concept->discount === null) {
                         // Calculamos el Bruto del concepto (unidades * precio del concepto)
-                        $grossConcept = $concept->sale_price;
+                        $grossConcept = $concept->units * $concept->sale_price;
                         // Calculamos las Base del Concepto
                         $baseConcept = $grossConcept;
                         // Añadimos la informacion a las variables globales para actualizar presupuesto
@@ -199,7 +200,7 @@ class BudgetConceptsController extends Controller
 
                     }else {
                         // Calculamos el Bruto del concepto (unidades * precio del concepto)
-                        $grossConcept =  $concept->sale_price;
+                        $grossConcept = $concept->units * $concept->sale_price;
                         // Descuento del concepto
                         $descuentoConcept = $concept->discount;
                         // Calculamos el descuento del concepto
@@ -226,6 +227,10 @@ class BudgetConceptsController extends Controller
                         // Añadimos la informacion a las variables globales para actualizar presupuesto
                         $gross += $grossConcept;
                         $base += $baseConcept;
+                        // Actualizar el concepto con los nuevos totales
+                        $concept->total_no_discount = $grossConcept;
+                        $concept->total = $baseConcept;
+                        $concept->save();
 
                     }else {
                         // Calculamos el Bruto del concepto (unidades * precio del concepto)
@@ -267,7 +272,7 @@ class BudgetConceptsController extends Controller
             'mensaje' => 'El concepto se actualizo correctamente'
         ]);
 
-        return redirect(route('presupuesto.edit', $budgetConceptActualizado->budget_id));
+        return redirect(route('presupuesto.edit', $conceptoActualizado->budget_id));
     }
 
     public function editTypeOwn(BudgetConcept $budgetConcept)
