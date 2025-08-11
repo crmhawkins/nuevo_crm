@@ -252,7 +252,9 @@ class InvoiceController extends Controller
                     $invoiceConceptsFormated[$invoiceConcept->id]['price_unit'] = round($purchasePriceWithMarginBenefit / $invoiceConcept->units, 2);
                     $invoiceConceptsFormated[$invoiceConcept->id]['subtotal'] = number_format((float)$invoiceConcept->total_no_discount, 2, '.', '');
                 }
-                // Descuento
+                // Descuento (porcentaje)
+                $invoiceConceptsFormated[$invoiceConcept->id]['discount_percentage'] = $invoiceConcept->discount_percentage ?? 0;
+                // Descuento (importe)
                 $invoiceConceptsFormated[$invoiceConcept->id]['discount'] = number_format((float)($invoiceConcept->discount ?? 0), 2, ',', '');
                 // Total
                 $invoiceConceptsFormated[$invoiceConcept->id]['total'] = number_format((float)$invoiceConcept->total, 2, ',', '');
@@ -302,6 +304,7 @@ class InvoiceController extends Controller
                     'units' => 0,
                     'price_unit' => 0,
                     'subtotal' => 0,
+                    'discount_percentage' => 0,
                     'discount' => '0,00',
                     'total' => '0,00',
                     'description' => ['Descripción no disponible']

@@ -34,6 +34,7 @@ class InvoiceConcepts extends Model
         'benefit_margin',
         'sale_price',
         'discount',
+        'discount_percentage',
         'total',
         'total_no_discount',
     ];

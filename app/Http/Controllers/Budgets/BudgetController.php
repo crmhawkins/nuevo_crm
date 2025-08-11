@@ -1794,7 +1794,8 @@ class BudgetController extends Controller
                         'purchase_price' => $thisBudgetOwnTypeConcept->purchase_price,
                         'benefit_margin' => $thisBudgetOwnTypeConcept->benefit_margin,
                         'sale_price' => $sale_price,
-                        'discount' => $discount_amount, // Usar el importe calculado del descuento
+                        'discount' => $discount_amount, // Importe calculado del descuento
+                        'discount_percentage' => $discount_percentage, // Porcentaje original del descuento
                         'total' => $total,
                         'total_no_discount' => $total_no_discount,
                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -1841,7 +1842,8 @@ class BudgetController extends Controller
                             'purchase_price' => $thisBudgetSupplierTypeConcept->purchase_price,
                             'benefit_margin' => $thisBudgetSupplierTypeConcept->benefit_margin,
                             'sale_price' => $sale_price,
-                            'discount' => $discount_amount, // Usar el importe calculado del descuento
+                            'discount' => $discount_amount, // Importe calculado del descuento
+                            'discount_percentage' => $discount_percentage, // Porcentaje original del descuento
                             'total' => $total,
                             'total_no_discount' => $total_no_discount,
                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
