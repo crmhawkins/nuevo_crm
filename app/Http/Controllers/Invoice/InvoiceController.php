@@ -904,8 +904,8 @@ class InvoiceController extends Controller
         $empresa = CompanyDetails::find(1);
         $invoiceConcepts = InvoiceConcepts::where('invoice_id', $invoice->id)->get();
 
-
-        return view('invoices.show', compact('invoice','empresa','invoiceConcepts'));
+        // Generar y devolver el PDF de la factura
+        return $this->createPdf($invoice);
     }
 
 }

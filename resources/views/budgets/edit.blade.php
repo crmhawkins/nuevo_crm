@@ -370,6 +370,34 @@
                             <a href="" id="generateInvoice" class="btn btn-dark btn-block mb-3">Generar factura</a>
                             <a href="" id="generateInvoicePartial" class="btn btn-dark btn-block mb-3">Generar factura parcial</a>
                             @endif
+
+                            {{-- Mostrar botones para ver facturas existentes --}}
+                            @if($facturas->count() > 0)
+                                <div class="card-title mt-3">
+                                    <small class="text-muted">Facturas Generadas</small>
+                                    <hr>
+                                </div>
+
+                                {{-- Facturas Parciales --}}
+                                @if($facturas->where('partial', 1)->count() > 0)
+                                    @foreach($facturas->where('partial', 1) as $facturaParcial)
+                                        <a href="{{ route('factura.show', $facturaParcial->id) }}" target="_blank" class="btn btn-info btn-block mb-2">
+                                            <i class="fas fa-file-invoice"></i> Ver Factura Parcial
+                                            <br><small>{{ $facturaParcial->reference }} - {{ number_format($facturaParcial->total, 2) }}€</small>
+                                        </a>
+                                    @endforeach
+                                @endif
+
+                                {{-- Facturas Completas --}}
+                                @if($facturas->where('partial', 0)->count() > 0)
+                                    @foreach($facturas->where('partial', 0) as $facturaCompleta)
+                                        <a href="{{ route('factura.show', $facturaCompleta->id) }}" target="_blank" class="btn btn-success btn-block mb-2">
+                                            <i class="fas fa-file-invoice-dollar"></i> Ver Factura Completa
+                                            <br><small>{{ $facturaCompleta->reference }} - {{ number_format($facturaCompleta->total, 2) }}€</small>
+                                        </a>
+                                    @endforeach
+                                @endif
+                            @endif
                             <a href="" id="generateTask" class="btn btn-dark btn-block mb-3">Generar tareas</a>
                             <a href="" id="deletePresupuesto" data-id="{{$presupuesto->id}}" class="btn btn-outline-danger btn-block mb-3">Eliminar</a>
                         </div>

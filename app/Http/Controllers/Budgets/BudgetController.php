@@ -415,9 +415,12 @@ class BudgetController extends Controller
             $porcentaje = ($totalFacturado / $presupuesto->total) * 100;
         }else{ $porcentaje = 0;}
 
+        // Obtener las facturas del presupuesto
+        $facturas = Invoice::where('budget_id', $presupuesto->id)->orderBy('created_at', 'desc')->get();
+
         session('projectId') != null ? $projectId = session('projectId') : $projectId = null;
 
-        return view('budgets.edit', compact('projectId','presupuesto', 'campanias', 'gestores', 'formasPago','estadoPresupuesto', 'budgetConcepts','thisBudgetStatus','clientes','porcentaje'));
+        return view('budgets.edit', compact('projectId','presupuesto', 'campanias', 'gestores', 'formasPago','estadoPresupuesto', 'budgetConcepts','thisBudgetStatus','clientes','porcentaje','facturas'));
     }
 
     /**
