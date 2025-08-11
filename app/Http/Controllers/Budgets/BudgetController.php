@@ -1778,9 +1778,10 @@ class BudgetController extends Controller
                 $thisBudgetOwnTypeConcepts = BudgetConcept::where('budget_id', $budget->id)->where('concept_type_id',BudgetConceptType::TYPE_OWN )->get();
                 foreach( $thisBudgetOwnTypeConcepts as $thisBudgetOwnTypeConcept ){
                     $total = ($thisBudgetOwnTypeConcept->total * $porcentaje) / 100;
-                    // El descuento se mantiene como porcentaje, no como importe
-                    $discount = ($thisBudgetOwnTypeConcept->total_no_discount * $porcentaje * ($thisBudgetOwnTypeConcept->discount ?? 0)) / 10000;
+                    // El descuento se mantiene como porcentaje, solo se calcula el importe proporcional
+                    $discount_percentage = $thisBudgetOwnTypeConcept->discount ?? 0; // Mantener el porcentaje original
                     $total_no_discount = ($thisBudgetOwnTypeConcept->total_no_discount * $porcentaje) / 100;
+                    $discount_amount = ($total_no_discount * $discount_percentage) / 100; // Calcular el importe del descuento
                     $sale_price = ($thisBudgetOwnTypeConcept->sale_price * $porcentaje) / 100;
                     $conceptOwnData = [
                         'invoice_id' => $invoice->id,
@@ -1793,7 +1794,7 @@ class BudgetController extends Controller
                         'purchase_price' => $thisBudgetOwnTypeConcept->purchase_price,
                         'benefit_margin' => $thisBudgetOwnTypeConcept->benefit_margin,
                         'sale_price' => $sale_price,
-                        'discount' => $discount,
+                        'discount' => $discount_amount, // Usar el importe calculado del descuento
                         'total' => $total,
                         'total_no_discount' => $total_no_discount,
                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -1824,9 +1825,10 @@ class BudgetController extends Controller
                 if($thisBudgetSupplierTypeConcepts){
                     foreach ($thisBudgetSupplierTypeConcepts as $thisBudgetSupplierTypeConcept){
                         $total = ($thisBudgetSupplierTypeConcept->total * $porcentaje) / 100;
-                        // El descuento se mantiene como porcentaje, no como importe
-                        $discount = ($thisBudgetSupplierTypeConcept->total_no_discount * $porcentaje * ($thisBudgetSupplierTypeConcept->discount ?? 0)) / 10000;
+                        // El descuento se mantiene como porcentaje, solo se calcula el importe proporcional
+                        $discount_percentage = $thisBudgetSupplierTypeConcept->discount ?? 0; // Mantener el porcentaje original
                         $total_no_discount = ($thisBudgetSupplierTypeConcept->total_no_discount * $porcentaje) / 100;
+                        $discount_amount = ($total_no_discount * $discount_percentage) / 100; // Calcular el importe del descuento
                         $sale_price = ($thisBudgetSupplierTypeConcept->sale_price * $porcentaje) / 100;
                         $conceptSupplierData = [
                             'invoice_id' => $invoice->id,
@@ -1839,7 +1841,7 @@ class BudgetController extends Controller
                             'purchase_price' => $thisBudgetSupplierTypeConcept->purchase_price,
                             'benefit_margin' => $thisBudgetSupplierTypeConcept->benefit_margin,
                             'sale_price' => $sale_price,
-                            'discount' => $discount,
+                            'discount' => $discount_amount, // Usar el importe calculado del descuento
                             'total' => $total,
                             'total_no_discount' => $total_no_discount,
                             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
