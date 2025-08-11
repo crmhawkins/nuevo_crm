@@ -1471,7 +1471,7 @@ class BudgetController extends Controller
 
             $budget->budget_status_id = 6;
             $budget->save();
-            
+
             // Respuesta
             return response()->json([
                 'status' => true,
@@ -1652,7 +1652,7 @@ class BudgetController extends Controller
 
             $budget->budget_status_id = 6;
             $budget->save();
-            
+
             if(!$generationSuccess){
                 foreach( $thisBudgetSupplierTypeConcepts as $thisBudgetSupplierTypeConcept ){
                     $thisBudgetSupplierTypeConcept->delete();
@@ -1715,7 +1715,8 @@ class BudgetController extends Controller
         $gross = ($budget->gross * $porcentaje) / 100;
         $base = ($budget->base * $porcentaje) / 100;
         $iva = ($budget->iva * $porcentaje) / 100;
-        $discount = ($budget->discount * $porcentaje) / 100;
+        // El descuento se mantiene como porcentaje, no como importe
+        $discount = ($budget->base * $porcentaje * $budget->discount_percentage) / 10000;
 
 
         $budget->invoiced_advance = $porcentaje;
@@ -1774,7 +1775,8 @@ class BudgetController extends Controller
                 $thisBudgetOwnTypeConcepts = BudgetConcept::where('budget_id', $budget->id)->where('concept_type_id',BudgetConceptType::TYPE_OWN )->get();
                 foreach( $thisBudgetOwnTypeConcepts as $thisBudgetOwnTypeConcept ){
                     $total = ($thisBudgetOwnTypeConcept->total * $porcentaje) / 100;
-                    $discount = ($thisBudgetOwnTypeConcept->discount * $porcentaje) / 100;
+                    // El descuento se mantiene como porcentaje, no como importe
+                    $discount = ($thisBudgetOwnTypeConcept->total_no_discount * $porcentaje * ($thisBudgetOwnTypeConcept->discount ?? 0)) / 10000;
                     $total_no_discount = ($thisBudgetOwnTypeConcept->total_no_discount * $porcentaje) / 100;
                     $sale_price = ($thisBudgetOwnTypeConcept->sale_price * $porcentaje) / 100;
                     $conceptOwnData = [
@@ -1819,7 +1821,8 @@ class BudgetController extends Controller
                 if($thisBudgetSupplierTypeConcepts){
                     foreach ($thisBudgetSupplierTypeConcepts as $thisBudgetSupplierTypeConcept){
                         $total = ($thisBudgetSupplierTypeConcept->total * $porcentaje) / 100;
-                        $discount = ($thisBudgetSupplierTypeConcept->discount * $porcentaje) / 100;
+                        // El descuento se mantiene como porcentaje, no como importe
+                        $discount = ($thisBudgetSupplierTypeConcept->total_no_discount * $porcentaje * ($thisBudgetSupplierTypeConcept->discount ?? 0)) / 10000;
                         $total_no_discount = ($thisBudgetSupplierTypeConcept->total_no_discount * $porcentaje) / 100;
                         $sale_price = ($thisBudgetSupplierTypeConcept->sale_price * $porcentaje) / 100;
                         $conceptSupplierData = [
