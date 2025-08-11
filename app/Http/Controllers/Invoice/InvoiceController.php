@@ -898,14 +898,25 @@ class InvoiceController extends Controller
     }
 
 
-    public function show(string $id)
+    public function show(string $id, Request $request = null)
     {
         $invoice = invoice::find($id);
-        $empresa = CompanyDetails::find(1);
-        $invoiceConcepts = InvoiceConcepts::where('invoice_id', $invoice->id)->get();
 
-        // Generar y devolver el PDF de la factura
-        return $this->createPdf($invoice);
+        // Validar que la factura exista
+        if (!$invoice) {
+            return response()->json(['error' => 'Factura no encontrada'], 404);
+        }
+
+        // Generar el PDF
+        $pdf = $this->createPdf($invoice);
+
+        // Si se solicita descarga, devolver como descarga, sino mostrar en navegador
+        if ($request && $request->has('download')) {
+            return $pdf->download('factura_' . $invoice->reference . '_' . Carbon::now()->format('Y-m-d') . '.pdf');
+        }
+
+        // Por defecto, mostrar en el navegador
+        return $pdf->stream('factura_' . $invoice->reference . '_' . Carbon::now()->format('Y-m-d') . '.pdf');
     }
 
 }
