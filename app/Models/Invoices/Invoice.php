@@ -41,6 +41,8 @@ class Invoice extends Model
         'base',
         'iva',
         'iva_percentage',
+        'retenciones_porcentaje',
+        'retenciones_valor',
         'discount',
         'discount_percentage',
         'total',

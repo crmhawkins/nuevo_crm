@@ -89,7 +89,9 @@ class InvoiceController extends Controller
             'show_summary' => 'nullable',
             'creation_date' => 'nullable',
             'created_at' => 'nullable',
-            'paid_date' => 'nullable'
+            'paid_date' => 'nullable',
+            'retenciones_porcentaje' => 'nullable|numeric|min:0|max:100',
+            'retenciones_valor' => 'nullable|numeric|min:0'
         ]);
 
         // Formulario datos

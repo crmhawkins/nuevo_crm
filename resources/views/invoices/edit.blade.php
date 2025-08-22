@@ -139,6 +139,28 @@
                                             @enderror
                                         </div>
                                     </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label class="mb-2 text-left" for="retenciones_porcentaje">% Retenciones:</label>
+                                            <input type="number" step="0.01" min="0" max="100" class="form-control @error('retenciones_porcentaje') is-invalid @enderror" id="retenciones_porcentaje" value="{{ $factura->retenciones_porcentaje ?? 0 }}" name="retenciones_porcentaje">
+                                            @error('retenciones_porcentaje')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label class="mb-2 text-left" for="retenciones_valor">Valor Retenciones:</label>
+                                            <input type="number" step="0.01" min="0" class="form-control @error('retenciones_valor') is-invalid @enderror" id="retenciones_valor" value="{{ $factura->retenciones_valor ?? 0 }}" name="retenciones_valor" readonly>
+                                            @error('retenciones_valor')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                            @enderror
+                                        </div>
+                                    </div>
                                 </div>
                                 <hr class="mt-3 mb-3">
                                 <div class="row">
@@ -232,6 +254,8 @@
                                               <th>Base</th>
                                               <th>% IVA</th>
                                               <th>IVA</th>
+                                              <th>% Retenciones</th>
+                                              <th>Retenciones</th>
                                               <th>TOTAL</th>
                                             </tr>
                                           </thead>
@@ -242,6 +266,8 @@
                                                 <td id="base_amount"> {{ number_format((float)$factura->base, 2, '.', '')  }}</td>
                                                 <td id="iva_percentage">{{ number_format((float)$factura->iva_percentage, 0, '.', '')  }}</td>
                                                 <td id="iva_amount">{{ number_format((float)$factura->iva, 2, '.', '')  }}</td>
+                                                <td id="retenciones_percentage">{{ number_format((float)($factura->retenciones_porcentaje ?? 0), 2, '.', '')  }}</td>
+                                                <td id="retenciones_amount">{{ number_format((float)($factura->retenciones_valor ?? 0), 2, '.', '')  }}</td>
                                                 <td id="budget_total"><strong>{{ number_format((float)$factura->total, 2, '.', '')  }} €</strong></td>
                                             </tr>
                                           </tbody>
@@ -310,6 +336,28 @@
 
 <script>
     $(document).ready(function() {
+
+        // Función para calcular retenciones automáticamente
+        function calcularRetenciones() {
+            const base = parseFloat($('#base_amount').text().replace(',', '')) || 0;
+            const porcentajeRetenciones = parseFloat($('#retenciones_porcentaje').val()) || 0;
+            const valorRetenciones = (base * porcentajeRetenciones) / 100;
+            
+            $('#retenciones_valor').val(valorRetenciones.toFixed(2));
+            $('#retenciones_amount').text(valorRetenciones.toFixed(2));
+            
+            // Recalcular el total incluyendo retenciones
+            const iva = parseFloat($('#iva_amount').text().replace(',', '')) || 0;
+            const totalSinRetenciones = base + iva;
+            const totalConRetenciones = totalSinRetenciones - valorRetenciones;
+            
+            $('#budget_total').html('<strong>' + totalConRetenciones.toFixed(2) + ' €</strong>');
+        }
+
+        // Evento para calcular retenciones cuando cambia el porcentaje
+        $('#retenciones_porcentaje').on('input', function() {
+            calcularRetenciones();
+        });
 
         // Boton Actualizar factura
         $('#actualizarfactura').click(function(e){
