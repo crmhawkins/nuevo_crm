@@ -366,8 +366,14 @@
             const base = parseFloat(baseText) || 0;
             const porcentajeIVA = parseFloat($('#iva_percentage_edit').val()) || 0;
             
+            console.log('Calculando IVA:');
+            console.log('Base:', base);
+            console.log('Porcentaje IVA:', porcentajeIVA);
+            
             // Calcular el valor del IVA
             const valorIVA = (base * porcentajeIVA) / 100;
+            
+            console.log('Valor IVA calculado:', valorIVA);
             
             // Actualizar el campo de IVA
             $('#iva_edit').val(valorIVA.toFixed(2));
@@ -416,7 +422,8 @@
         }
 
         // Evento para calcular IVA cuando cambia el porcentaje
-        $('#iva_percentage_edit').on('input', function() {
+        $('#iva_percentage_edit').on('input change', function() {
+            console.log('Cambio detectado en iva_percentage_edit:', $(this).val());
             calcularIVA();
         });
 
