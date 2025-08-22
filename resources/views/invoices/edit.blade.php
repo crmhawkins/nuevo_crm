@@ -161,6 +161,28 @@
                                             @enderror
                                         </div>
                                     </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label class="mb-2 text-left" for="iva_percentage_edit">% IVA:</label>
+                                            <input type="number" step="0.01" min="0" max="100" class="form-control @error('iva_percentage_edit') is-invalid @enderror" id="iva_percentage_edit" value="{{ $factura->iva_percentage ?? 21 }}" name="iva_percentage_edit">
+                                            @error('iva_percentage_edit')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="form-group mb-3">
+                                            <label class="mb-2 text-left" for="iva_edit">IVA:</label>
+                                            <input type="number" step="0.01" min="0" class="form-control @error('iva_edit') is-invalid @enderror" id="iva_edit" value="{{ $factura->iva ?? 0 }}" name="iva_edit" readonly>
+                                            @error('iva_edit')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                            @enderror
+                                        </div>
+                                    </div>
                                 </div>
                                 <hr class="mt-3 mb-3">
                                 <div class="row">
@@ -337,27 +359,59 @@
 <script>
     $(document).ready(function() {
 
+        // Función para calcular IVA automáticamente
+        function calcularIVA() {
+            const base = parseFloat($('#base_amount').text().replace(',', '')) || 0;
+            const porcentajeIVA = parseFloat($('#iva_percentage_edit').val()) || 0;
+            
+            // Calcular el valor del IVA
+            const valorIVA = (base * porcentajeIVA) / 100;
+            
+            // Actualizar el campo de IVA
+            $('#iva_edit').val(valorIVA.toFixed(2));
+            $('#iva_amount').text(valorIVA.toFixed(2));
+            $('#iva_percentage').text(porcentajeIVA.toFixed(0));
+            
+            // Recalcular retenciones y total
+            calcularRetenciones();
+        }
+
         // Función para calcular retenciones automáticamente
         function calcularRetenciones() {
             const base = parseFloat($('#base_amount').text().replace(',', '')) || 0;
             const porcentajeRetenciones = parseFloat($('#retenciones_porcentaje').val()) || 0;
+            const iva = parseFloat($('#iva_edit').val()) || 0;
+            
+            // Calcular el valor de retenciones sobre la base imponible
             const valorRetenciones = (base * porcentajeRetenciones) / 100;
             
+            // Actualizar el campo de valor de retenciones
             $('#retenciones_valor').val(valorRetenciones.toFixed(2));
             $('#retenciones_amount').text(valorRetenciones.toFixed(2));
             
-            // Recalcular el total incluyendo retenciones
-            const iva = parseFloat($('#iva_amount').text().replace(',', '')) || 0;
+            // Recalcular el total: Base + IVA - Retenciones
             const totalSinRetenciones = base + iva;
             const totalConRetenciones = totalSinRetenciones - valorRetenciones;
             
+            // Actualizar el total en la tabla
             $('#budget_total').html('<strong>' + totalConRetenciones.toFixed(2) + ' €</strong>');
+            
+            // Actualizar también el porcentaje mostrado en la tabla
+            $('#retenciones_percentage').text(porcentajeRetenciones.toFixed(2));
         }
+
+        // Evento para calcular IVA cuando cambia el porcentaje
+        $('#iva_percentage_edit').on('input', function() {
+            calcularIVA();
+        });
 
         // Evento para calcular retenciones cuando cambia el porcentaje
         $('#retenciones_porcentaje').on('input', function() {
             calcularRetenciones();
         });
+
+        // Calcular IVA y retenciones al cargar la página
+        calcularIVA();
 
         // Boton Actualizar factura
         $('#actualizarfactura').click(function(e){

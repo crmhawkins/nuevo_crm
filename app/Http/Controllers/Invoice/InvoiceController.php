@@ -91,8 +91,20 @@ class InvoiceController extends Controller
             'created_at' => 'nullable',
             'paid_date' => 'nullable',
             'retenciones_porcentaje' => 'nullable|numeric|min:0|max:100',
-            'retenciones_valor' => 'nullable|numeric|min:0'
+            'retenciones_valor' => 'nullable|numeric|min:0',
+            'iva_percentage_edit' => 'nullable|numeric|min:0|max:100',
+            'iva_edit' => 'nullable|numeric|min:0'
         ]);
+
+        // Mapear los campos editables a los campos de la base de datos
+        if (isset($data['iva_percentage_edit'])) {
+            $data['iva_percentage'] = $data['iva_percentage_edit'];
+            unset($data['iva_percentage_edit']);
+        }
+        if (isset($data['iva_edit'])) {
+            $data['iva'] = $data['iva_edit'];
+            unset($data['iva_edit']);
+        }
 
         // Formulario datos
 
