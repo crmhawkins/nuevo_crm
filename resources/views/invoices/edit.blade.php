@@ -361,19 +361,12 @@
 
         // Función para calcular IVA automáticamente
         function calcularIVA() {
-            // Mejorar el parsing de números para manejar formatos europeos
-            const baseText = $('#base_amount').text().replace(/\./g, '').replace(',', '.');
-            const base = parseFloat(baseText) || 0;
+            // Corregir el parsing de números - los números ya están en formato correcto
+            const base = parseFloat($('#base_amount').text()) || 0;
             const porcentajeIVA = parseFloat($('#iva_percentage_edit').val()) || 0;
-            
-            console.log('Calculando IVA:');
-            console.log('Base:', base);
-            console.log('Porcentaje IVA:', porcentajeIVA);
             
             // Calcular el valor del IVA
             const valorIVA = (base * porcentajeIVA) / 100;
-            
-            console.log('Valor IVA calculado:', valorIVA);
             
             // Actualizar el campo de IVA
             $('#iva_edit').val(valorIVA.toFixed(2));
@@ -386,22 +379,13 @@
 
         // Función para calcular retenciones automáticamente
         function calcularRetenciones() {
-            // Mejorar el parsing de números para manejar formatos europeos
-            const baseText = $('#base_amount').text().replace(/\./g, '').replace(',', '.');
-            const base = parseFloat(baseText) || 0;
+            // Corregir el parsing de números - los números ya están en formato correcto
+            const base = parseFloat($('#base_amount').text()) || 0;
             const porcentajeRetenciones = parseFloat($('#retenciones_porcentaje').val()) || 0;
-            const ivaText = $('#iva_amount').text().replace(/\./g, '').replace(',', '.');
-            const iva = parseFloat(ivaText) || 0;
-            
-            console.log('Calculando retenciones:');
-            console.log('Base:', base);
-            console.log('Porcentaje retenciones:', porcentajeRetenciones);
-            console.log('IVA:', iva);
+            const iva = parseFloat($('#iva_amount').text()) || 0;
             
             // Calcular el valor de retenciones sobre la base imponible
             const valorRetenciones = (base * porcentajeRetenciones) / 100;
-            
-            console.log('Valor retenciones calculado:', valorRetenciones);
             
             // Actualizar el campo de valor de retenciones
             $('#retenciones_valor').val(valorRetenciones.toFixed(2));
@@ -410,9 +394,6 @@
             // Recalcular el total: Base + IVA - Retenciones
             const totalSinRetenciones = base + iva;
             const totalConRetenciones = totalSinRetenciones - valorRetenciones;
-            
-            console.log('Total sin retenciones:', totalSinRetenciones);
-            console.log('Total con retenciones:', totalConRetenciones);
             
             // Actualizar el total en la tabla
             $('#budget_total').html('<strong>' + totalConRetenciones.toFixed(2) + ' €</strong>');
