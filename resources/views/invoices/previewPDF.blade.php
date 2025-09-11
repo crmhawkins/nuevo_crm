@@ -183,7 +183,7 @@
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['price_unit'] }} &nbsp;€</td>
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['subtotal'] }} &nbsp;€</td>
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['discount_percentage'] ?? 0 }}%</td>
-                                    <td style="text-align:right;vertical-align: top;">{{ $invoice->rectification ? abs($concept['total']) : $concept['total'] }} &nbsp;€</td>
+                                    <td style="text-align:right;vertical-align: top;">{{ $invoice->rectification ? abs((float)$concept['total']) : $concept['total'] }} &nbsp;€</td>
                                 </tr>
                             @endforeach
 
@@ -212,7 +212,7 @@
                                 <td style="text-align:center">{{ $invoice->base }}&nbsp;€</td>
                                 <td style="text-align:center">{{ $invoice->iva }}&nbsp;€</td>
                                 @if($invoice->rectification)
-                                <td style="text-align:center">{{ abs($invoice->base) }}&nbsp;€</td>
+                                <td style="text-align:center">{{ abs((float)$invoice->base) }}&nbsp;€</td>
                                 @endif
                                 <td style="text-align:right">{{ $invoice->total }}&nbsp;€</td>
                             </tr>
