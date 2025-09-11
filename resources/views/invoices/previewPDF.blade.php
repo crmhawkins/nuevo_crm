@@ -207,12 +207,12 @@
                                 <th style="text-align:right">TOTAL</th>
                             </tr>
                             <tr>
-                                <td style="text-align:center">{{ $invoice->gross }}&nbsp;€</td>
+                                <td style="text-align:center">{{ $invoice->rectification ? abs((float)$invoice->gross) : $invoice->gross }}&nbsp;€</td>
                                 <td style="text-align:center">{{ $invoice->discount }}&nbsp;€</td>
                                 <td style="text-align:center">{{ $invoice->base }}&nbsp;€</td>
-                                <td style="text-align:center">{{ $invoice->iva }}&nbsp;€</td>
+                                <td style="text-align:center">{{ $invoice->rectification ? -abs((float)$invoice->iva) : $invoice->iva }}&nbsp;€</td>
                                 @if($invoice->rectification)
-                                <td style="text-align:center">{{ abs((float)$invoice->base) }}&nbsp;€</td>
+                                <td style="text-align:center">{{ -abs((float)$invoice->base) }}&nbsp;€</td>
                                 @endif
                                 <td style="text-align:right">{{ $invoice->total }}&nbsp;€</td>
                             </tr>
