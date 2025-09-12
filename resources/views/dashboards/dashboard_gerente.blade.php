@@ -139,8 +139,8 @@
                                     <div class="col-12 d-flex flex-wrap justify-content-center mb-4 align-items-center">
                                         <div class="mx-4 text-center">
                                             <h5 class="my-3">{{$user->name}}&nbsp;{{$user->surname}}</h5>
-                                            <p class="text-muted mb-1">{{$user->departamento->name}}</p>
-                                            <p class="text-muted mb-4">{{$user->acceso->name}}</p>
+                                            <p class="text-muted mb-1">{{$user->departamento ? $user->departamento->name : 'Sin departamento'}}</p>
+                                            <p class="text-muted mb-4">{{$user->acceso ? $user->acceso->name : 'Sin acceso'}}</p>
                                            {{-- <div class="d-flex  align-items-center my-2">
                                                 <input type="color" class="form-control form-control-color" style="padding: 0.4rem" id="color">
                                                 <label for="color" class="form-label m-2">Color</label>
@@ -247,7 +247,7 @@
                                                                                             <a href="{{ asset('storage/' . $mensaje->archivo) }}" target="_blank"><i class="fa-regular fa-file-lines fa-2x"></i></a>
                                                                                         </div>
                                                                                     @endif
-                                                                                    <strong>{{ $mensaje->user->name }}:</strong> {{ $mensaje->mensaje }}
+                                                                                    <strong>{{ $mensaje->user ? $mensaje->user->name : 'Usuario eliminado' }}:</strong> {{ $mensaje->mensaje }}
                                                                                 </div>
                                                                             @endforeach
                                                                         </div>
@@ -311,7 +311,7 @@
                                                                                             <a href="{{ asset('storage/' . $mensaje->archivo) }}" target="_blank"><i class="fa-regular fa-file-lines fa-2x"></i></a>
                                                                                         </div>
                                                                                     @endif
-                                                                                    <strong>{{ $mensaje->user->name }}:</strong> {{ $mensaje->mensaje }}
+                                                                                    <strong>{{ $mensaje->user ? $mensaje->user->name : 'Usuario eliminado' }}:</strong> {{ $mensaje->mensaje }}
                                                                                 </div>
                                                                             @endforeach
                                                                         </div>
