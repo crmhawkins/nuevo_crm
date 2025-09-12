@@ -319,7 +319,7 @@
                                                                             @foreach ($to_do->TodoUsers as $usuario)
                                                                                 <span
                                                                                     class="badge m-2 {{ $usuario->completada ? 'bg-success' : 'bg-secondary' }}">
-                                                                                    {{ $usuario->usuarios->name }}
+                                                                                    {{ $usuario->usuarios ? $usuario->usuarios->name : 'Usuario eliminado' }}
                                                                                 </span>
                                                                             @endforeach
                                                                         </div>
@@ -433,7 +433,7 @@
                                                                             @foreach ($to_do_finalizado->TodoUsers as $usuario)
                                                                                 <span
                                                                                     class="badge m-2 {{ $usuario->completada ? 'bg-success' : 'bg-secondary' }}">
-                                                                                    {{ $usuario->usuarios->name }}
+                                                                                    {{ $usuario->usuarios ? $usuario->usuarios->name : 'Usuario eliminado' }}
                                                                                 </span>
                                                                             @endforeach
                                                                         </div>
