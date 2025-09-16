@@ -68,6 +68,13 @@ class DashboardController extends Controller
         }
         $unclassifiedIncomes =[];
 
+        // Verificar primero si es departamento 9
+        if ($user->admin_user_department_id == 9) {
+            // Para el departamento 9, usar un layout sin barra superior
+            return view('dashboards.dashboard_dep9', compact('user', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'))
+                ->with('hideTopBar', true);
+        }
+
         switch ($acceso) {
             case 1:
                 // Obtener las fechas de la solicitud, o asignar fechas predeterminadas si no están presentes

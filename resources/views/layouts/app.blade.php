@@ -49,12 +49,16 @@
                 </div>
             </div>
         </div>
-        <div class="css-96uzu9"></div>
+        @if(!isset($hideTopBar) || !$hideTopBar)
+            <div class="css-96uzu9"></div>
+        @endif
 
         @include('layouts.sidebar')
 
         <main id="main">
-            @include('layouts.topBar')
+            @if(!isset($hideTopBar) || !$hideTopBar)
+                @include('layouts.topBar')
+            @endif
             <div class="contenedor p-4">
                 @yield('content')
             </div>
