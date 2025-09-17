@@ -24,7 +24,7 @@ class ApiController extends Controller
 
     public function getClientes(){
         $clientes = Client::where('is_client', 1)->get();
-        response()->json($clientes);
+        return response()->json($clientes);
     }
 
     public function updateAyudas($id){
