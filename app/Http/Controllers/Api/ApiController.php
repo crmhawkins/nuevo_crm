@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Clients\Client;
 use App\Models\EnvioB2b;
 use App\Models\EnvioDani;
 use App\Models\KitDigital;
@@ -21,6 +22,10 @@ class ApiController extends Controller
         return $kitDigitals;
     }
 
+    public function getClientes(){
+        $clientes = Client::where('is_client', 1)->get();
+        response()->json($clientes);
+    }
 
     public function updateAyudas($id){
         $kitDigital = EnvioB2b::find($id);
