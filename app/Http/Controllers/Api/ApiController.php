@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Clients\Client;
+use App\Models\Contacts\Contact;
 use App\Models\EnvioB2b;
 use App\Models\EnvioDani;
 use App\Models\KitDigital;
@@ -42,6 +43,12 @@ class ApiController extends Controller
             ->select('id', 'name', 'company', 'email', 'cif')
             ->get();
         return response()->json($clientes);
+    }
+
+    public function getClientesContactos(Request $request){
+        $idCliente = $request->input('id_cliente');
+        $contactos = Contact::where('client_id', $idCliente)->get();
+        return response()->json($contactos);
     }
 
     public function updateAyudas($id){

@@ -74,4 +74,8 @@ Route::post('/plataforma/store-msg', [PlataformaWhatsappController::class, 'stor
 Route::post('/autoseo/reports/login/', [AutoseoReports::class, 'login'])->name('autoseo.reports.login');
 Route::post('/autoseo/reports/upload', [AutoseoReports::class, 'upload'])->name('autoseo.reports.upload');
 
+
+
+// TOOLS
 Route::get('/get-clientes', action: [ApiController::class, 'getClientes']);
+Route::get('/get-clientes-contactos', action: [ApiController::class, 'getClientesContactos']);
