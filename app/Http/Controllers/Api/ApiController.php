@@ -47,12 +47,10 @@ class ApiController extends Controller
         // Primero obtenemos los IDs de los contactos asociados al cliente desde la tabla pivote clients_x_contacts
         $idCliente = $request->input('id_cliente');
         if ($idCliente) {
-            $contactIds = DB::table('clients_x_contacts')
-                ->where('client_id', $idCliente)
-                ->pluck('contact_id');
+            $cliente = Client::find($idCliente);
 
             // Ahora obtenemos los contactos correspondientes a esos IDs
-            $contactos = Contact::whereIn('id', $contactIds)->get();
+            $contactos = $cliente->contacto;
             return response()->json($contactos);
         } else {
             return response()->json(['error' => 'ID de cliente no proporcionado']);
