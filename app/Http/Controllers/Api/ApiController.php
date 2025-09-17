@@ -12,6 +12,7 @@ use App\Models\Whatsapp\Mensaje;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ApiController extends Controller
 {
@@ -43,13 +44,20 @@ class ApiController extends Controller
     }
 
     public function getClientesContactos(Request $request){
+        // Primero obtenemos los IDs de los contactos asociados al cliente desde la tabla pivote clients_x_contacts
         $idCliente = $request->input('id_cliente');
-        if($idCliente){
-            $contactos = Contact::where('client_id', $idCliente)->get();
-        }else{
+        if ($idCliente) {
+            $contactIds = DB::table('clients_x_contacts')
+                ->where('client_id', $idCliente)
+                ->pluck('contact_id');
+
+            // Ahora obtenemos los contactos correspondientes a esos IDs
+            $contactos = Contact::whereIn('id', $contactIds)->get();
+            return response()->json($contactos);
+        } else {
             return response()->json(['error' => 'ID de cliente no proporcionado']);
         }
-        return response()->json($contactos);
+
     }
 
     public function updateAyudas($id){
