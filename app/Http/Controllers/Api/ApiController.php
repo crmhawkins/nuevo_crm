@@ -23,7 +23,10 @@ class ApiController extends Controller
     }
 
     public function getClientes(){
-        $clientes = Client::where('is_client', 1)->get();
+        // Solo seleccionamos los campos requeridos: id, name, company, email, cif
+        $clientes = Client::where('is_client', 1)
+            ->select('id', 'name', 'company', 'email', 'cif')
+            ->get();
         return response()->json($clientes);
     }
 
