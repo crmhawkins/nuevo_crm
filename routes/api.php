@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\AIController;
 use App\Http\Controllers\Api\SalvineitorController;
 use App\Http\Controllers\Autoseo\AutoseoJsonController;
 use App\Http\Controllers\Autoseo\AutoseoReports;
@@ -79,3 +80,10 @@ Route::post('/autoseo/reports/upload', [AutoseoReports::class, 'upload'])->name(
 // TOOLS
 Route::get('/get-clientes', action: [ApiController::class, 'getClientes']);
 Route::get('/get-clientes-contactos', action: [ApiController::class, 'getClientesContactos']);
+
+// AI AGENT TOOLS
+Route::post('/buscar-cliente', action: [AIController::class, 'buscarCliente']);
+Route::post('/get-cliente-resumen', action: [AIController::class, 'getClienteResumen']);
+Route::post('/get-producto-precio', action: [AIController::class, 'getProductoPrecio']);
+Route::post('/get-clientes-contactos', action: [AIController::class, 'getClientesContactos']);
+Route::post('/buscar-producto', action: [AIController::class, 'buscarProducto']);
