@@ -37,17 +37,18 @@ class ApiController extends Controller
                 })
                 ->get();
             return response()->json($clientes);
+        } else {
+            return response()->json(['error' => 'No se proporcionó un criterio de búsqueda']);
         }
-        // Solo seleccionamos los campos requeridos: id, name, company, email, cif
-        $clientes = Client::where('is_client', 1)
-            ->select('id', 'name', 'company', 'email', 'cif')
-            ->get();
-        return response()->json($clientes);
     }
 
     public function getClientesContactos(Request $request){
         $idCliente = $request->input('id_cliente');
-        $contactos = Contact::where('client_id', $idCliente)->get();
+        if($idCliente){
+            $contactos = Contact::where('client_id', $idCliente)->get();
+        }else{
+            return response()->json(['error' => 'ID de cliente no proporcionado']);
+        }
         return response()->json($contactos);
     }
 
