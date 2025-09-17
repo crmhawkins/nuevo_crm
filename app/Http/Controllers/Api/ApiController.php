@@ -22,7 +22,21 @@ class ApiController extends Controller
         return $kitDigitals;
     }
 
-    public function getClientes(){
+    public function getClientes(Request $request){
+        $search = $request->input('search');
+
+        if ($search) {
+            $clientes = Client::where('is_client', 1)
+                ->where(function($query) use ($search) {
+                    $query->where('id', 'like', "%{$search}%")
+                        ->orWhere('name', 'like', "%{$search}%")
+                        ->orWhere('company', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('cif', 'like', "%{$search}%");
+                })
+                ->get();
+            return response()->json($clientes);
+        }
         // Solo seleccionamos los campos requeridos: id, name, company, email, cif
         $clientes = Client::where('is_client', 1)
             ->select('id', 'name', 'company', 'email', 'cif')
