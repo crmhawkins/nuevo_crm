@@ -175,7 +175,7 @@ class HorasController extends Controller
                     }
                 }
             }
-            if ($usuario->id != 81 && $usuario->id != 52) { // Filtro de usuarios específicos
+            if ($usuario->id != 52) { // Filtro de usuarios específicos
                 $datosUsuario = [
                     'id' => $usuario->id,
                     'usuario' => $usuario->name . ' ' . $usuario->surname,
