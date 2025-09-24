@@ -69,10 +69,8 @@ class DomainSyncService
             // Normalizar el dominio para la búsqueda
             $normalizedDomain = $this->normalizeDomain($domainName);
             
-            // Buscar el dominio usando normalización
-            $domain = Dominio::all()->filter(function($d) use ($normalizedDomain) {
-                return $this->normalizeDomain($d->dominio) === $normalizedDomain;
-            })->first();
+            // Buscar el dominio usando múltiples patrones
+            $domain = $this->findDomainByNormalization($normalizedDomain);
             
             if (!$domain) {
                 Log::warning("Dominio no encontrado en la base local: {$domainName} (normalizado: {$normalizedDomain})");
@@ -138,6 +136,39 @@ class DomainSyncService
             Log::error("Error en sincronización masiva: " . $e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * Buscar dominio por normalización
+     */
+    private function findDomainByNormalization($normalizedDomain)
+    {
+        // Buscar por coincidencia exacta normalizada
+        $domain = Dominio::all()->filter(function($d) use ($normalizedDomain) {
+            return $this->normalizeDomain($d->dominio) === $normalizedDomain;
+        })->first();
+        
+        if ($domain) {
+            return $domain;
+        }
+        
+        // Buscar por patrones alternativos
+        $patterns = [
+            "http://{$normalizedDomain}/",
+            "https://{$normalizedDomain}/",
+            "www.{$normalizedDomain}",
+            "http://www.{$normalizedDomain}/",
+            "https://www.{$normalizedDomain}/"
+        ];
+        
+        foreach ($patterns as $pattern) {
+            $domain = Dominio::where('dominio', $pattern)->first();
+            if ($domain) {
+                return $domain;
+            }
+        }
+        
+        return null;
     }
 
     /**

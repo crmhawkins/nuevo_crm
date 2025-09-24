@@ -43,7 +43,7 @@
                             <div class="col-sm-4"><strong>Cliente:</strong></div>
                             <div class="col-sm-8">
                                 @if($dominio->cliente)
-                                    <a href="{{ route('clients.show', $dominio->cliente->id) }}" class="text-primary">
+                                    <a href="{{ route('clientes.show', $dominio->cliente->id) }}" class="text-primary">
                                         {{ $dominio->cliente->name }}
                                     </a>
                                 @else
