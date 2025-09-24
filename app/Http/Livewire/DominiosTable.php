@@ -20,6 +20,8 @@ class DominiosTable extends Component
     public $buscar;
     public $selectedCliente = '';
     public $selectedEstado;
+    public $fechaInicio = '';
+    public $fechaFin = '';
     public $clientes;
     public $estados;
     public $perPage = 10;
@@ -44,7 +46,8 @@ class DominiosTable extends Component
 
     protected function actualizarDominios()
     {
-        $query = Dominio::when($this->buscar, function ($query) {
+        $query = Dominio::with(['cliente', 'estadoName'])
+                ->when($this->buscar, function ($query) {
                     $query->where('dominio', 'like', '%' . $this->buscar . '%');
                 })
                 ->when($this->selectedCliente, function ($query) {
@@ -52,6 +55,12 @@ class DominiosTable extends Component
                 })
                 ->when($this->selectedEstado, function ($query) {
                     $query->where('estado_id', $this->selectedEstado);
+                })
+                ->when($this->fechaInicio, function ($query) {
+                    $query->where('date_end', '>=', $this->fechaInicio);
+                })
+                ->when($this->fechaFin, function ($query) {
+                    $query->where('date_end', '<=', $this->fechaFin);
                 });
 
          // Aplica la ordenación
@@ -86,7 +95,7 @@ class DominiosTable extends Component
     }
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado') {
+        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado' || $propertyName === 'fechaInicio' || $propertyName === 'fechaFin') {
             $this->resetPage(); // Resetear la paginación solo cuando estos filtros cambien.
         }
     }
@@ -94,5 +103,52 @@ class DominiosTable extends Component
     public function updatingPerPage()
     {
         $this->resetPage();
+    }
+
+    public function limpiarFiltrosFecha()
+    {
+        $this->fechaInicio = '';
+        $this->fechaFin = '';
+        $this->resetPage();
+    }
+
+    public function updatedFechaInicio()
+    {
+        // Validar que fecha inicio no sea mayor que fecha fin
+        if ($this->fechaInicio && $this->fechaFin && $this->fechaInicio > $this->fechaFin) {
+            $this->fechaFin = $this->fechaInicio;
+        }
+    }
+
+    public function updatedFechaFin()
+    {
+        // Validar que fecha fin no sea menor que fecha inicio
+        if ($this->fechaInicio && $this->fechaFin && $this->fechaInicio > $this->fechaFin) {
+            $this->fechaInicio = $this->fechaFin;
+        }
+    }
+
+    public function filtroRango30Dias()
+    {
+        $this->fechaInicio = now()->format('Y-m-d');
+        $this->fechaFin = now()->addDays(30)->format('Y-m-d');
+    }
+
+    public function filtroRango90Dias()
+    {
+        $this->fechaInicio = now()->format('Y-m-d');
+        $this->fechaFin = now()->addDays(90)->format('Y-m-d');
+    }
+
+    public function filtroVencidos()
+    {
+        $this->fechaInicio = '';
+        $this->fechaFin = now()->format('Y-m-d');
+    }
+
+    public function filtroEsteMes()
+    {
+        $this->fechaInicio = now()->startOfMonth()->format('Y-m-d');
+        $this->fechaFin = now()->endOfMonth()->format('Y-m-d');
     }
 }

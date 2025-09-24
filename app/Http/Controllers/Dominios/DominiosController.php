@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Clients\Client;
 use App\Models\Dominios\Dominio;
 use App\Models\Dominios\estadosDominios;
+use App\Models\Invoices\InvoiceConcepts;
+use App\Models\Invoices\Invoice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -15,6 +17,23 @@ class DominiosController extends Controller
     {
         $dominios = Dominio::paginate(2);
         return view('dominios.index', compact('dominios'));
+    }
+
+    public function show($id)
+    {
+        $dominio = Dominio::with(['cliente', 'estadoName'])->find($id);
+        
+        if (!$dominio) {
+            return redirect()->route('dominios.index')->with('toast', [
+                'icon' => 'error',
+                'mensaje' => 'Dominio no encontrado'
+            ]);
+        }
+
+        // Buscar facturas asociadas a este dominio
+        $facturasAsociadas = $this->buscarFacturasAsociadas($dominio->dominio);
+
+        return view('dominios.show', compact('dominio', 'facturasAsociadas'));
     }
 
     public function edit($id)
@@ -140,5 +159,44 @@ class DominiosController extends Controller
             'error' => false,
             'mensaje' => 'El usuario fue borrado correctamente'
         ]);
+    }
+
+    /**
+     * Buscar facturas asociadas a un dominio
+     */
+    private function buscarFacturasAsociadas($domainName)
+    {
+        // Normalizar el dominio para búsqueda
+        $normalizedDomain = $this->normalizeDomain($domainName);
+        
+        // Buscar en conceptos de facturas
+        $conceptos = InvoiceConcepts::with(['invoice'])
+            ->where(function($query) use ($normalizedDomain) {
+                $query->where('title', 'like', "%{$normalizedDomain}%")
+                      ->orWhere('concept', 'like', "%{$normalizedDomain}%");
+            })
+            ->get();
+
+        $facturas = collect();
+        
+        foreach ($conceptos as $concepto) {
+            if ($concepto->invoice && !$facturas->contains('id', $concepto->invoice->id)) {
+                $facturas->push($concepto->invoice);
+            }
+        }
+
+        return $facturas;
+    }
+
+    /**
+     * Normalizar dominio para búsqueda
+     */
+    private function normalizeDomain($domain)
+    {
+        $domain = strtolower(trim($domain));
+        $domain = preg_replace('/^https?:\/\//', '', $domain);
+        $domain = preg_replace('/^www\./', '', $domain);
+        $domain = rtrim($domain, '/'); // Eliminar barra final
+        return $domain;
     }
 }

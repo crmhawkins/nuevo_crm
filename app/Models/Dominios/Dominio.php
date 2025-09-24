@@ -42,6 +42,16 @@ class Dominio extends Model
         'created_at', 'updated_at', 'deleted_at', 'ultima_sincronizacion'
     ];
 
+    /**
+     * Casts para atributos
+     */
+    protected $casts = [
+        'ultima_sincronizacion' => 'datetime',
+        'sincronizado' => 'boolean',
+        'precio_compra' => 'decimal:2',
+        'precio_venta' => 'decimal:2',
+    ];
+
 
     /**
      * Obtener el cliente al que está vinculado
@@ -97,5 +107,21 @@ class Dominio extends Model
             'sincronizado' => true,
             'ultima_sincronizacion' => now()
         ]);
+    }
+
+    /**
+     * Obtener la fecha de última sincronización formateada
+     */
+    public function getUltimaSincronizacionFormateadaAttribute()
+    {
+        if (!$this->ultima_sincronizacion) {
+            return 'N/A';
+        }
+        
+        try {
+            return $this->ultima_sincronizacion->format('d/m/Y H:i');
+        } catch (\Exception $e) {
+            return 'Fecha inválida';
+        }
     }
 }

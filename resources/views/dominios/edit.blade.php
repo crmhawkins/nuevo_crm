@@ -146,7 +146,7 @@
                         <div class="alert alert-success">
                             <h5>✅ Sincronización:</h5>
                             <p><strong>Estado:</strong> Sincronizado</p>
-                            <p><strong>Última sincronización:</strong> {{ $dominio->ultima_sincronizacion ? $dominio->ultima_sincronizacion->format('d/m/Y H:i') : 'N/A' }}</p>
+                            <p><strong>Última sincronización:</strong> {{ $dominio->ultima_sincronizacion_formateada }}</p>
                         </div>
                         @else
                         <div class="alert alert-warning">

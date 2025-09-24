@@ -142,6 +142,27 @@ class SyncDomainsCommand extends Command
                 ]
             );
 
+            // Mostrar errores específicos si los hay
+            if (isset($result['error_details']) && count($result['error_details']) > 0) {
+                $this->newLine();
+                $this->warn('⚠️ ERRORES DETECTADOS:');
+                $this->line(str_repeat('-', 40));
+                
+                // Mostrar solo los primeros 20 errores para no saturar
+                $errorsToShow = array_slice($result['error_details'], 0, 20);
+                
+                foreach ($errorsToShow as $error) {
+                    $this->line("• {$error}");
+                }
+                
+                if (count($result['error_details']) > 20) {
+                    $this->warn("... y " . (count($result['error_details']) - 20) . " errores más");
+                }
+                
+                $this->newLine();
+                $this->info('💡 Tip: Usa --domain=nombre.com para sincronizar dominios específicos');
+            }
+
         } catch (\Exception $e) {
             $this->error("❌ Error en sincronización: " . $e->getMessage());
         }

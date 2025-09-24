@@ -269,6 +269,7 @@ Route::group(['middleware' => 'auth'], function () {
         // Dominios
         Route::get('/dominios', [DominiosController::class, 'index'])->name('dominios.index');
         Route::get('/dominios/create', [DominiosController::class, 'create'])->name('dominios.create');
+        Route::get('/dominios/show/{id}', [DominiosController::class, 'show'])->name('dominios.show');
         Route::get('/dominios/edit/{id}', [DominiosController::class, 'edit'])->name('dominios.edit');
         Route::post('/dominios/store', [DominiosController::class, 'store'])->name('dominios.store');
         Route::post('/dominios/update/{id}', [DominiosController::class, 'update'])->name('dominios.update');

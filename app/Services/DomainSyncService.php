@@ -66,10 +66,16 @@ class DomainSyncService
     public function syncDomain($domainName, $externalData)
     {
         try {
-            $domain = Dominio::where('dominio', $domainName)->first();
+            // Normalizar el dominio para la búsqueda
+            $normalizedDomain = $this->normalizeDomain($domainName);
+            
+            // Buscar el dominio usando normalización
+            $domain = Dominio::all()->filter(function($d) use ($normalizedDomain) {
+                return $this->normalizeDomain($d->dominio) === $normalizedDomain;
+            })->first();
             
             if (!$domain) {
-                Log::warning("Dominio no encontrado en la base local: {$domainName}");
+                Log::warning("Dominio no encontrado en la base local: {$domainName} (normalizado: {$normalizedDomain})");
                 return false;
             }
 
@@ -99,16 +105,23 @@ class DomainSyncService
             $externalDomains = $this->getExternalDomains();
             $syncedCount = 0;
             $errorCount = 0;
+            $errors = [];
 
             Log::info("Iniciando sincronización de " . count($externalDomains) . " dominios");
 
             foreach ($externalDomains as $externalDomain) {
                 $domainName = $externalDomain['nombre'];
                 
-                if ($this->syncDomain($domainName, $externalDomain)) {
-                    $syncedCount++;
-                } else {
+                try {
+                    if ($this->syncDomain($domainName, $externalDomain)) {
+                        $syncedCount++;
+                    } else {
+                        $errorCount++;
+                        $errors[] = "Error sincronizando {$domainName}: Dominio no encontrado en base local";
+                    }
+                } catch (Exception $e) {
                     $errorCount++;
+                    $errors[] = "Error sincronizando {$domainName}: " . $e->getMessage();
                 }
             }
 
@@ -117,13 +130,26 @@ class DomainSyncService
             return [
                 'total' => count($externalDomains),
                 'synced' => $syncedCount,
-                'errors' => $errorCount
+                'errors' => $errorCount,
+                'error_details' => $errors
             ];
 
         } catch (Exception $e) {
             Log::error("Error en sincronización masiva: " . $e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * Normalizar dominio para comparación
+     */
+    private function normalizeDomain($domain)
+    {
+        $domain = strtolower(trim($domain));
+        $domain = preg_replace('/^https?:\/\//', '', $domain);
+        $domain = preg_replace('/^www\./', '', $domain);
+        $domain = rtrim($domain, '/'); // Eliminar barra final
+        return $domain;
     }
 
     /**

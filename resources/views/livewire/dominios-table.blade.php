@@ -40,15 +40,69 @@
                         @endforeach
                     </select>
                 </div>
-                {{-- <div>
-                    <label for="">Estados</label>
-                    <select wire:model="selectedEstados" name="" id="" class="form-select ">
-                        <option value="">-- Seleccione un Estado --</option>
-                        @foreach ($estados as $estado)
-                            <option value="{{$estado->id}}">{{$estado->name}}</option>
-                        @endforeach
-                    </select>
-                </div> --}}
+            </div>
+        </div>
+    </div>
+    
+    {{-- Filtros de Fecha --}}
+    <div class="filtros-fecha row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">📅 Filtros de Fecha de Vencimiento</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="fechaInicio">Fecha Inicio:</label>
+                            <input wire:model="fechaInicio" type="date" class="form-control" id="fechaInicio">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fechaFin">Fecha Fin:</label>
+                            <input wire:model="fechaFin" type="date" class="form-control" id="fechaFin">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button wire:click="limpiarFiltrosFecha" class="btn btn-outline-secondary me-2">
+                                🗑️ Limpiar Fechas
+                            </button>
+                            @if($fechaInicio || $fechaFin)
+                                <span class="badge bg-info">
+                                    @if($fechaInicio && $fechaFin)
+                                        {{ \Carbon\Carbon::parse($fechaInicio)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($fechaFin)->format('d/m/Y') }}
+                                    @elseif($fechaInicio)
+                                        Desde: {{ \Carbon\Carbon::parse($fechaInicio)->format('d/m/Y') }}
+                                    @else
+                                        Hasta: {{ \Carbon\Carbon::parse($fechaFin)->format('d/m/Y') }}
+                                    @endif
+                                </span>
+                                <span class="badge bg-secondary ms-1">
+                                    {{ $dominios->count() }} resultados
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    {{-- Botones de filtros rápidos --}}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label class="form-label">Filtros Rápidos:</label>
+                            <div class="btn-group" role="group">
+                                <button wire:click="filtroRango30Dias" class="btn btn-outline-primary btn-sm">
+                                    📅 Próximos 30 días
+                                </button>
+                                <button wire:click="filtroRango90Dias" class="btn btn-outline-primary btn-sm">
+                                    📅 Próximos 90 días
+                                </button>
+                                <button wire:click="filtroVencidos" class="btn btn-outline-danger btn-sm">
+                                    ⚠️ Vencidos
+                                </button>
+                                <button wire:click="filtroEsteMes" class="btn btn-outline-info btn-sm">
+                                    📆 Este mes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -120,9 +174,9 @@
                                 @endif
                             </td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
-                                {{-- <a class="" href="{{route('presupuesto.show', $dominio->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar dominio"></a> --}}
-                                <a class="" href="{{route('dominios.edit', $dominio->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
-                                <a class="delete" data-id="{{$dominio->id}}" href=""><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar dominio"></a>
+                                <a class="" href="{{route('dominios.show', $dominio->id)}}" title="Ver detalles"><img src="{{asset('assets/icons/eye.svg')}}" alt="Ver dominio"></a>
+                                <a class="" href="{{route('dominios.edit', $dominio->id)}}" title="Editar"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
+                                <a class="delete" data-id="{{$dominio->id}}" href="" title="Eliminar"><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar dominio"></a>
                             </td>
                         </tr>
                     @endforeach
