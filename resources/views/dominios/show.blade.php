@@ -172,6 +172,71 @@
             </div>
         </div>
 
+        <!-- Preview del Dominio -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">🌐 Estado del Sitio Web</h4>
+                        <button class="btn btn-sm btn-outline-primary" onclick="verificarEstado()" id="btn-verificar">
+                            <i class="bi bi-arrow-clockwise"></i> Verificar Estado
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="preview-container">
+                            <div class="text-center py-4" id="preview-loading" style="display: none;">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Verificando...</span>
+                                </div>
+                                <p class="mt-2">Verificando estado del dominio...</p>
+                            </div>
+                            
+                            <div id="preview-content" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <strong>URL:</strong> 
+                                            <a href="#" id="preview-url" target="_blank" class="text-primary">
+                                                <i class="bi bi-box-arrow-up-right"></i>
+                                            </a>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Estado:</strong> 
+                                            <span id="preview-estado" class="badge"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Descripción:</strong> 
+                                            <span id="preview-descripcion"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Tiempo de respuesta:</strong> 
+                                            <span id="preview-tiempo"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <button class="btn btn-primary btn-lg" onclick="abrirPreview()" id="btn-preview">
+                                                <i class="bi bi-eye"></i> Ver Preview
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="preview-inicial" class="text-center py-4">
+                                <i class="bi bi-globe display-1 text-muted"></i>
+                                <h5 class="text-muted mt-3">Estado del sitio web</h5>
+                                <p class="text-muted">Haz clic en "Verificar Estado" para comprobar si el sitio web está funcionando correctamente.</p>
+                                <button class="btn btn-primary" onclick="verificarEstado()">
+                                    <i class="bi bi-search"></i> Verificar Estado
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Facturas Asociadas -->
         <div class="row mt-4">
             <div class="col-12">
@@ -381,6 +446,138 @@
                         confirmButtonText: 'OK'
                     });
                 });
+            }
+        });
+    }
+
+    // Variables globales para el preview
+    let estadoActual = null;
+    let urlActual = null;
+
+    // Función para verificar el estado del dominio
+    function verificarEstado() {
+        const loading = document.getElementById('preview-loading');
+        const content = document.getElementById('preview-content');
+        const inicial = document.getElementById('preview-inicial');
+        
+        // Mostrar loading
+        loading.style.display = 'block';
+        content.style.display = 'none';
+        inicial.style.display = 'none';
+        
+        // Hacer petición AJAX
+        fetch(`/dominios/verificar/{{ $dominio->id }}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            loading.style.display = 'none';
+            
+            if (data.success) {
+                estadoActual = data;
+                urlActual = data.url;
+                
+                // Actualizar contenido
+                document.getElementById('preview-url').href = data.url;
+                document.getElementById('preview-url').textContent = data.url;
+                
+                const estadoBadge = document.getElementById('preview-estado');
+                estadoBadge.textContent = data.estado;
+                estadoBadge.className = `badge bg-${data.clase}`;
+                
+                document.getElementById('preview-descripcion').textContent = data.descripcion;
+                
+                if (data.tiempo_respuesta) {
+                    document.getElementById('preview-tiempo').textContent = `${data.tiempo_respuesta}ms`;
+                } else {
+                    document.getElementById('preview-tiempo').textContent = 'N/A';
+                }
+                
+                content.style.display = 'block';
+            } else {
+                // Mostrar error
+                Swal.fire({
+                    title: 'Error',
+                    text: data.message || 'Error al verificar el dominio',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                inicial.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            loading.style.display = 'none';
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Error de conexión al verificar el dominio',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            inicial.style.display = 'block';
+        });
+    }
+
+    // Función para abrir el preview del dominio
+    function abrirPreview() {
+        if (!urlActual) {
+            Swal.fire({
+                title: 'Error',
+                text: 'Primero debes verificar el estado del dominio',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Crear modal con iframe
+        Swal.fire({
+            title: `Preview de ${urlActual}`,
+            html: `
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <span class="badge bg-${estadoActual.clase}">${estadoActual.estado}</span>
+                    <span class="ms-2">${estadoActual.descripcion}</span>
+                </div>
+                <iframe 
+                    src="${urlActual}" 
+                    style="width: 100%; height: 500px; border: 1px solid #ddd; border-radius: 5px;"
+                    frameborder="0"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                ></iframe>
+                <div style="display: none; text-align: center; padding: 50px; background: #f8f9fa; border-radius: 5px;">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem; color: #dc3545;"></i>
+                    <p class="mt-2">No se pudo cargar el preview del sitio web</p>
+                    <a href="${urlActual}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-up-right"></i> Abrir en nueva pestaña
+                    </a>
+                </div>
+            `,
+            width: '90%',
+            showConfirmButton: true,
+            confirmButtonText: 'Cerrar',
+            showCancelButton: true,
+            cancelButtonText: 'Abrir en nueva pestaña',
+            cancelButtonColor: '#3085d6',
+            didOpen: () => {
+                // Agregar estilos adicionales si es necesario
+                const iframe = document.querySelector('iframe');
+                if (iframe) {
+                    iframe.onload = function() {
+                        console.log('Preview cargado correctamente');
+                    };
+                    iframe.onerror = function() {
+                        console.log('Error al cargar el preview');
+                    };
+                }
+            }
+        }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.cancel) {
+                // Abrir en nueva pestaña
+                window.open(urlActual, '_blank');
             }
         });
     }

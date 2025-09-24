@@ -237,4 +237,169 @@ class DominiosController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Verificar el estado HTTP del dominio
+     */
+    public function verificarEstado($id)
+    {
+        try {
+            $dominio = Dominio::find($id);
+            
+            if (!$dominio) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dominio no encontrado'
+                ], 404);
+            }
+
+            $url = $this->normalizarUrl($dominio->dominio);
+            $estado = $this->verificarEstadoHttp($url);
+
+            return response()->json([
+                'success' => true,
+                'url' => $url,
+                'estado' => $estado['codigo'],
+                'descripcion' => $estado['descripcion'],
+                'clase' => $estado['clase'],
+                'tiempo_respuesta' => $estado['tiempo_respuesta'] ?? null
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al verificar el dominio: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Normalizar URL para verificación
+     */
+    private function normalizarUrl($dominio)
+    {
+        $dominio = trim($dominio);
+        
+        // Si no tiene protocolo, agregar https://
+        if (!preg_match('/^https?:\/\//', $dominio)) {
+            $dominio = 'https://' . $dominio;
+        }
+        
+        return $dominio;
+    }
+
+    /**
+     * Verificar estado HTTP del dominio
+     */
+    private function verificarEstadoHttp($url)
+    {
+        $inicio = microtime(true);
+        
+        try {
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'HEAD',
+                    'timeout' => 10,
+                    'user_agent' => 'Mozilla/5.0 (compatible; DomainChecker/1.0)',
+                    'follow_location' => true,
+                    'max_redirects' => 5
+                ]
+            ]);
+
+            $headers = @get_headers($url, 1, $context);
+            $tiempo = round((microtime(true) - $inicio) * 1000, 2);
+
+            if ($headers === false) {
+                return [
+                    'codigo' => 'ERROR',
+                    'descripcion' => 'No se pudo conectar al dominio',
+                    'clase' => 'danger',
+                    'tiempo_respuesta' => null
+                ];
+            }
+
+            $codigo = $this->extraerCodigoHttp($headers[0]);
+            $descripcion = $this->obtenerDescripcionEstado($codigo);
+            $clase = $this->obtenerClaseEstado($codigo);
+
+            return [
+                'codigo' => $codigo,
+                'descripcion' => $descripcion,
+                'clase' => $clase,
+                'tiempo_respuesta' => $tiempo
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'codigo' => 'ERROR',
+                'descripcion' => 'Error al verificar: ' . $e->getMessage(),
+                'clase' => 'danger',
+                'tiempo_respuesta' => null
+            ];
+        }
+    }
+
+    /**
+     * Extraer código HTTP de los headers
+     */
+    private function extraerCodigoHttp($header)
+    {
+        if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', $header, $matches)) {
+            return (int)$matches[1];
+        }
+        return 'ERROR';
+    }
+
+    /**
+     * Obtener descripción amigable del estado HTTP
+     */
+    private function obtenerDescripcionEstado($codigo)
+    {
+        $estados = [
+            200 => 'Sitio web funcionando correctamente',
+            201 => 'Recurso creado exitosamente',
+            202 => 'Solicitud aceptada',
+            204 => 'Sin contenido',
+            301 => 'Redirección permanente',
+            302 => 'Redirección temporal',
+            304 => 'Contenido no modificado',
+            400 => 'Solicitud incorrecta',
+            401 => 'Acceso no autorizado',
+            403 => 'Acceso prohibido',
+            404 => 'Página no encontrada',
+            405 => 'Método no permitido',
+            408 => 'Tiempo de espera agotado',
+            410 => 'Contenido no disponible',
+            429 => 'Demasiadas solicitudes',
+            500 => 'Error interno del servidor',
+            502 => 'Puerta de enlace incorrecta',
+            503 => 'Servicio no disponible',
+            504 => 'Tiempo de espera de puerta de enlace',
+            505 => 'Versión HTTP no soportada'
+        ];
+
+        return $estados[$codigo] ?? 'Estado desconocido';
+    }
+
+    /**
+     * Obtener clase CSS para el estado
+     */
+    private function obtenerClaseEstado($codigo)
+    {
+        if ($codigo === 'ERROR') {
+            return 'danger';
+        }
+
+        if ($codigo >= 200 && $codigo < 300) {
+            return 'success';
+        } elseif ($codigo >= 300 && $codigo < 400) {
+            return 'warning';
+        } elseif ($codigo >= 400 && $codigo < 500) {
+            return 'danger';
+        } elseif ($codigo >= 500) {
+            return 'danger';
+        }
+
+        return 'secondary';
+    }
 }
