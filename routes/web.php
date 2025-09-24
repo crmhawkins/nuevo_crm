@@ -274,6 +274,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/dominios/store', [DominiosController::class, 'store'])->name('dominios.store');
         Route::post('/dominios/update/{id}', [DominiosController::class, 'update'])->name('dominios.update');
         Route::post('/dominios/destroy', [DominiosController::class, 'destroy'])->name('dominios.delete');
+        Route::post('/dominios/cancelar/{id}', [DominiosController::class, 'cancelar'])->name('dominios.cancelar');
 
         // Kit Digital
         Route::get('/kit-digital-whatsapp', [KitDigitalController::class, 'index'])->name('kitDigital.indexWhatsapp');

@@ -173,9 +173,14 @@
                                     <span class="text-muted">-</span>
                                 @endif
                             </td>
-                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
+                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 150px">
                                 <a class="" href="{{route('dominios.show', $dominio->id)}}" title="Ver detalles"><img src="{{asset('assets/icons/eye.svg')}}" alt="Ver dominio"></a>
                                 <a class="" href="{{route('dominios.edit', $dominio->id)}}" title="Editar"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
+                                @if($dominio->estado_id != 2)
+                                <button class="btn btn-sm btn-outline-danger cancelar-dominio" data-id="{{$dominio->id}}" title="Cancelar dominio">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                                @endif
                                 <a class="delete" data-id="{{$dominio->id}}" href="" title="Eliminar"><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar dominio"></a>
                             </td>
                         </tr>
@@ -260,5 +265,73 @@
                 dataType: "json"
             });
         }
+
+        // Función para cancelar dominio
+        $(document).on('click', '.cancelar-dominio', function(e) {
+            e.preventDefault();
+            const id = $(this).data('id');
+            
+            Swal.fire({
+                title: '¿Cancelar Dominio?',
+                text: '¿Estás seguro de que deseas cancelar este dominio? Esta acción cambiará el estado a "Cancelado".',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, cancelar',
+                cancelButtonText: 'No, mantener'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar loading
+                    Swal.fire({
+                        title: 'Procesando...',
+                        text: 'Cancelando dominio',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Hacer petición AJAX
+                    fetch(`/dominios/cancelar/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: '¡Cancelado!',
+                                text: data.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                // Recargar la página para mostrar el nuevo estado
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: data.message,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Error de conexión. Inténtalo de nuevo.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+                }
+            });
+        });
     </script>
 @endsection

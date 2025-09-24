@@ -214,14 +214,21 @@
                                                 <span class="text-success">€{{ number_format($factura->total, 2) }}</span>
                                             </td>
                                             <td>
-                                                @if($factura->invoice_status_id == 1)
-                                                    <span class="badge bg-warning">Pendiente</span>
-                                                @elseif($factura->invoice_status_id == 2)
-                                                    <span class="badge bg-success">Pagada</span>
-                                                @elseif($factura->invoice_status_id == 3)
-                                                    <span class="badge bg-danger">Cancelada</span>
+                                                @if($factura->invoiceStatus)
+                                                    @php
+                                                        $estado = $factura->invoiceStatus;
+                                                        $badgeClass = match($estado->id) {
+                                                            1 => 'bg-warning',      // Pendiente
+                                                            2 => 'bg-secondary',   // No cobrada
+                                                            3 => 'bg-success',     // Cobrada
+                                                            4 => 'bg-info',       // Cobrada parcialmente
+                                                            5 => 'bg-danger',     // Cancelada
+                                                            default => 'bg-secondary'
+                                                        };
+                                                    @endphp
+                                                    <span class="badge {{ $badgeClass }}">{{ $estado->name }}</span>
                                                 @else
-                                                    <span class="badge bg-secondary">Desconocido</span>
+                                                    <span class="badge bg-secondary">Sin estado</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -254,6 +261,11 @@
                         <a href="{{ route('dominios.edit', $dominio->id) }}" class="btn btn-warning me-2">
                             <i class="bi bi-pencil"></i> Editar Dominio
                         </a>
+                        @if($dominio->estado_id != 2)
+                        <button class="btn btn-danger me-2" onclick="cancelarDominio({{ $dominio->id }})">
+                            <i class="bi bi-x-circle"></i> Cancelar Dominio
+                        </button>
+                        @endif
                         <a href="{{ route('dominios.index') }}" class="btn btn-secondary me-2">
                             <i class="bi bi-arrow-left"></i> Volver a Lista
                         </a>
@@ -288,6 +300,70 @@
                     title: 'Sincronización',
                     text: 'Funcionalidad de sincronización en desarrollo',
                     icon: 'info'
+                });
+            }
+        });
+    }
+
+    function cancelarDominio(dominioId) {
+        Swal.fire({
+            title: '¿Cancelar Dominio?',
+            text: '¿Estás seguro de que deseas cancelar este dominio? Esta acción cambiará el estado a "Cancelado".',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, cancelar',
+            cancelButtonText: 'No, mantener'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Mostrar loading
+                Swal.fire({
+                    title: 'Procesando...',
+                    text: 'Cancelando dominio',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Hacer petición AJAX
+                fetch(`/dominios/cancelar/${dominioId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Cancelado!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Recargar la página para mostrar el nuevo estado
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Error de conexión. Inténtalo de nuevo.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 });
             }
         });

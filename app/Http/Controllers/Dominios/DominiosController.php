@@ -31,7 +31,7 @@ class DominiosController extends Controller
         }
 
         // Buscar facturas asociadas a este dominio
-        $facturasAsociadas = $this->buscarFacturasAsociadas($dominio->dominio);
+        $facturasAsociadas = $this->buscarFacturasAsociadas($dominio->dominio, $dominio->client_id);
 
         return view('dominios.show', compact('dominio', 'facturasAsociadas'));
     }
@@ -164,13 +164,16 @@ class DominiosController extends Controller
     /**
      * Buscar facturas asociadas a un dominio
      */
-    private function buscarFacturasAsociadas($domainName)
+    private function buscarFacturasAsociadas($domainName, $clienteId)
     {
         // Normalizar el dominio para búsqueda
         $normalizedDomain = $this->normalizeDomain($domainName);
         
-        // Buscar en conceptos de facturas
-        $conceptos = InvoiceConcepts::with(['invoice'])
+        // Buscar en conceptos de facturas del mismo cliente
+        $conceptos = InvoiceConcepts::with(['invoice.budget.cliente', 'invoice.invoiceStatus'])
+            ->whereHas('invoice.budget', function($query) use ($clienteId) {
+                $query->where('client_id', $clienteId);
+            })
             ->where(function($query) use ($normalizedDomain) {
                 $query->where('title', 'like', "%{$normalizedDomain}%")
                       ->orWhere('concept', 'like', "%{$normalizedDomain}%");
@@ -180,7 +183,11 @@ class DominiosController extends Controller
         $facturas = collect();
         
         foreach ($conceptos as $concepto) {
-            if ($concepto->invoice && !$facturas->contains('id', $concepto->invoice->id)) {
+            if ($concepto->invoice && 
+                $concepto->invoice->budget && 
+                $concepto->invoice->budget->cliente &&
+                $concepto->invoice->budget->client_id == $clienteId &&
+                !$facturas->contains('id', $concepto->invoice->id)) {
                 $facturas->push($concepto->invoice);
             }
         }
@@ -198,5 +205,36 @@ class DominiosController extends Controller
         $domain = preg_replace('/^www\./', '', $domain);
         $domain = rtrim($domain, '/'); // Eliminar barra final
         return $domain;
+    }
+
+    /**
+     * Cambiar estado del dominio a cancelado
+     */
+    public function cancelar($id)
+    {
+        try {
+            $dominio = Dominio::find($id);
+            
+            if (!$dominio) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dominio no encontrado'
+                ], 404);
+            }
+
+            $dominio->update(['estado_id' => 2]); // ID 2 = Cancelado
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dominio cancelado exitosamente',
+                'estado' => 'Cancelado'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cancelar el dominio: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
