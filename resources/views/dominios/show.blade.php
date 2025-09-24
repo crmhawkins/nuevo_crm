@@ -4,6 +4,18 @@
 
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
+<style>
+.card-header {
+    background-color: #f8f9fa !important;
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+.card-header .card-title {
+    color: #495057 !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+}
+</style>
 @endsection
 
 @section('content')
