@@ -262,8 +262,11 @@
                             <i class="bi bi-pencil"></i> Editar Dominio
                         </a>
                         @if($dominio->estado_id != 2)
-                        <button class="btn btn-danger me-2" onclick="cancelarDominio({{ $dominio->id }})">
+                        <button class="btn btn-danger me-2" onclick="cancelarDominio({{ $dominio->id }})" id="btn-cancelar">
                             <i class="bi bi-x-circle"></i> Cancelar Dominio
+                        </button>
+                        <button class="btn btn-info me-2" onclick="testFunction()" id="btn-test">
+                            <i class="bi bi-bug"></i> Test
                         </button>
                         @endif
                         <a href="{{ route('dominios.index') }}" class="btn btn-secondary me-2">
@@ -305,7 +308,20 @@
         });
     }
 
+    function testFunction() {
+        alert('JavaScript está funcionando!');
+        console.log('Test function ejecutada');
+    }
+
     function cancelarDominio(dominioId) {
+        console.log('Función cancelarDominio llamada con ID:', dominioId);
+        
+        // Verificar que SweetAlert2 esté disponible
+        if (typeof Swal === 'undefined') {
+            alert('SweetAlert2 no está cargado. ID del dominio: ' + dominioId);
+            return;
+        }
+        
         Swal.fire({
             title: '¿Cancelar Dominio?',
             text: '¿Estás seguro de que deseas cancelar este dominio? Esta acción cambiará el estado a "Cancelado".',
@@ -368,5 +384,18 @@
             }
         });
     }
+
+    // Event listener adicional para el botón
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnCancelar = document.getElementById('btn-cancelar');
+        if (btnCancelar) {
+            btnCancelar.addEventListener('click', function(e) {
+                e.preventDefault();
+                const dominioId = {{ $dominio->id }};
+                console.log('Event listener activado para dominio:', dominioId);
+                cancelarDominio(dominioId);
+            });
+        }
+    });
 </script>
 @endsection

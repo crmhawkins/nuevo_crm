@@ -180,6 +180,9 @@
                                 <button class="btn btn-sm btn-outline-danger cancelar-dominio" data-id="{{$dominio->id}}" title="Cancelar dominio">
                                     <i class="bi bi-x-circle"></i>
                                 </button>
+                                <button class="btn btn-sm btn-outline-info test-js" data-id="{{$dominio->id}}" title="Test JS">
+                                    <i class="bi bi-bug"></i>
+                                </button>
                                 @endif
                                 <a class="delete" data-id="{{$dominio->id}}" href="" title="Eliminar"><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar dominio"></a>
                             </td>
@@ -270,6 +273,13 @@
         $(document).on('click', '.cancelar-dominio', function(e) {
             e.preventDefault();
             const id = $(this).data('id');
+            console.log('Botón cancelar clickeado en index, ID:', id);
+            
+            // Verificar que SweetAlert2 esté disponible
+            if (typeof Swal === 'undefined') {
+                alert('SweetAlert2 no está cargado en index. ID del dominio: ' + id);
+                return;
+            }
             
             Swal.fire({
                 title: '¿Cancelar Dominio?',
@@ -332,6 +342,14 @@
                     });
                 }
             });
+        });
+
+        // Función para test de JavaScript
+        $(document).on('click', '.test-js', function(e) {
+            e.preventDefault();
+            const id = $(this).data('id');
+            console.log('Botón test clickeado, ID:', id);
+            alert('JavaScript funciona en index! ID: ' + id);
         });
     </script>
 @endsection
