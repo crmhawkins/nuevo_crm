@@ -186,7 +186,7 @@
                                         @foreach($facturasAsociadas as $factura)
                                         <tr>
                                             <td>
-                                                <a href="{{ route('invoices.show', $factura->id) }}" class="text-primary">
+                                                <a href="{{ route('factura.show', $factura->id) }}" class="text-primary">
                                                     {{ $factura->reference }}
                                                 </a>
                                             </td>
@@ -213,7 +213,7 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{ route('invoices.show', $factura->id) }}" class="btn btn-sm btn-outline-primary">
+                                                <a href="{{ route('factura.show', $factura->id) }}" class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-eye"></i> Ver
                                                 </a>
                                             </td>
