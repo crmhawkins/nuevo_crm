@@ -66,6 +66,9 @@
                             'date_start' => 'FECHA CONTRATACION',
                             'date_end' => 'FECHA VENCIMIENTO',
                             'estado_id' => 'ESTADO',
+                            'precio_compra' => 'PRECIO COMPRA',
+                            'precio_venta' => 'PRECIO VENTA',
+                            'iban' => 'IBAN',
 
                         ] as $field => $label)
                             <th class="px-3" style="font-size:0.75rem">
@@ -95,6 +98,27 @@
                             @else
                                 <td></td>
                             @endif
+                            <td>
+                                @if($dominio->precio_compra)
+                                    <span class="text-success">€{{ number_format($dominio->precio_compra, 2) }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($dominio->precio_venta)
+                                    <span class="text-primary">€{{ number_format($dominio->precio_venta, 2) }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($dominio->iban)
+                                    <span class="text-info" title="{{ $dominio->iban }}">{{ Str::limit($dominio->iban, 20) }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
                                 {{-- <a class="" href="{{route('presupuesto.show', $dominio->id)}}"><img src="{{asset('assets/icons/eye.svg')}}" alt="Mostrar dominio"></a> --}}
                                 <a class="" href="{{route('dominios.edit', $dominio->id)}}"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>

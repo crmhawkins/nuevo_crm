@@ -38,11 +38,17 @@ class DominiosController extends Controller
             'dominio' => 'required|max:200',
             'client_id' => 'required',
             'date' => 'required',
+            'precio_compra' => 'nullable|numeric|min:0',
+            'precio_venta' => 'nullable|numeric|min:0',
+            'iban' => 'nullable|string|max:100',
 
         ], [
             'dominio.required' => 'El nombre es requerido para continuar',
             'client_id.required' => 'El cliente es requerido para continuar',
             'date.required' => 'La fecha de contratación es requerido para continuar',
+            'precio_compra.numeric' => 'El precio de compra debe ser un número válido',
+            'precio_venta.numeric' => 'El precio de venta debe ser un número válido',
+            'iban.string' => 'El IBAN debe ser una cadena de texto válida',
 
         ]);
 
@@ -80,11 +86,17 @@ class DominiosController extends Controller
             'dominio' => 'required|max:200',
             'client_id' => 'required',
             'date' => 'required',
+            'precio_compra' => 'nullable|numeric|min:0',
+            'precio_venta' => 'nullable|numeric|min:0',
+            'iban' => 'nullable|string|max:100',
 
         ], [
             'dominio.required' => 'El nombre es requerido para continuar',
             'client_id.required' => 'El cliente es requerido para continuar',
             'date.required' => 'La fecha de contratación es requerido para continuar',
+            'precio_compra.numeric' => 'El precio de compra debe ser un número válido',
+            'precio_venta.numeric' => 'El precio de venta debe ser un número válido',
+            'iban.string' => 'El IBAN debe ser una cadena de texto válida',
 
         ]);
 

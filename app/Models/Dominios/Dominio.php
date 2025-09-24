@@ -25,7 +25,12 @@ class Dominio extends Model
         'date_end',
         'comentario',
         'date_start',
-        'estado_id'
+        'estado_id',
+        'precio_compra',
+        'precio_venta',
+        'iban',
+        'sincronizado',
+        'ultima_sincronizacion'
     ];
 
     /**
@@ -34,7 +39,7 @@ class Dominio extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at', 
+        'created_at', 'updated_at', 'deleted_at', 'ultima_sincronizacion'
     ];
 
 
@@ -51,5 +56,46 @@ class Dominio extends Model
     public function estadoName()
     {
         return $this->belongsTo(estadosDominios::class,'estado_id');
+    }
+
+    /**
+     * Obtener el margen de beneficio
+     */
+    public function getMargenBeneficioAttribute()
+    {
+        if ($this->precio_compra && $this->precio_venta) {
+            return $this->precio_venta - $this->precio_compra;
+        }
+        return 0;
+    }
+
+    /**
+     * Obtener el porcentaje de margen
+     */
+    public function getPorcentajeMargenAttribute()
+    {
+        if ($this->precio_compra && $this->precio_venta && $this->precio_compra > 0) {
+            return (($this->precio_venta - $this->precio_compra) / $this->precio_compra) * 100;
+        }
+        return 0;
+    }
+
+    /**
+     * Verificar si el dominio está sincronizado
+     */
+    public function isSincronizado()
+    {
+        return $this->sincronizado && $this->ultima_sincronizacion;
+    }
+
+    /**
+     * Marcar como sincronizado
+     */
+    public function marcarSincronizado()
+    {
+        $this->update([
+            'sincronizado' => true,
+            'ultima_sincronizacion' => now()
+        ]);
     }
 }

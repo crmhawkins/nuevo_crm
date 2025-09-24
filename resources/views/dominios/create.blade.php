@@ -77,6 +77,44 @@
                                     </span>
                             @enderror
                         </div>
+
+                        {{-- Información de Precios e IBAN --}}
+                        <h3 class="mb-2 text-left uppercase">Información Financiera (Opcional)</h3>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label class="text-uppercase" style="font-weight: bold" for="precio_compra">Precio de Compra (€):</label>
+                                    <input type="number" step="0.01" class="form-control @error('precio_compra') is-invalid @enderror" id="precio_compra" value="{{ old('precio_compra') }}" name="precio_compra" placeholder="0.00">
+                                    @error('precio_compra')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label class="text-uppercase" style="font-weight: bold" for="precio_venta">Precio de Venta (€):</label>
+                                    <input type="number" step="0.01" class="form-control @error('precio_venta') is-invalid @enderror" id="precio_venta" value="{{ old('precio_venta') }}" name="precio_venta" placeholder="0.00">
+                                    @error('precio_venta')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="text-uppercase" style="font-weight: bold" for="iban">IBAN:</label>
+                            <input type="text" class="form-control @error('iban') is-invalid @enderror" id="iban" value="{{ old('iban') }}" name="iban" placeholder="ES1234567890123456789012">
+                            @error('iban')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
                         {{-- Boton --}}
                         <div class="form-group mt-5">
                           <button type="submit" class="btn btn-success w-100 text-uppercase">

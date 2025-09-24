@@ -96,6 +96,66 @@
                             @enderror
                         </div>
 
+                        {{-- Información de Precios e IBAN --}}
+                        <h3 class="mb-2 text-left uppercase">Información Financiera</h3>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label class="text-uppercase" style="font-weight: bold" for="precio_compra">Precio de Compra (€):</label>
+                                    <input type="number" step="0.01" class="form-control @error('precio_compra') is-invalid @enderror" id="precio_compra" value="{{ old('precio_compra', $dominio->precio_compra) }}" name="precio_compra">
+                                    @error('precio_compra')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label class="text-uppercase" style="font-weight: bold" for="precio_venta">Precio de Venta (€):</label>
+                                    <input type="number" step="0.01" class="form-control @error('precio_venta') is-invalid @enderror" id="precio_venta" value="{{ old('precio_venta', $dominio->precio_venta) }}" name="precio_venta">
+                                    @error('precio_venta')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="text-uppercase" style="font-weight: bold" for="iban">IBAN:</label>
+                            <input type="text" class="form-control @error('iban') is-invalid @enderror" id="iban" value="{{ old('iban', $dominio->iban) }}" name="iban" placeholder="ES1234567890123456789012">
+                            @error('iban')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+
+                        @if($dominio->precio_compra && $dominio->precio_venta)
+                        <div class="alert alert-info">
+                            <h5>📊 Información de Beneficios:</h5>
+                            <p><strong>Margen de Beneficio:</strong> €{{ number_format($dominio->margen_beneficio, 2) }}</p>
+                            <p><strong>Porcentaje de Margen:</strong> {{ number_format($dominio->porcentaje_margen, 2) }}%</p>
+                        </div>
+                        @endif
+
+                        @if($dominio->sincronizado)
+                        <div class="alert alert-success">
+                            <h5>✅ Sincronización:</h5>
+                            <p><strong>Estado:</strong> Sincronizado</p>
+                            <p><strong>Última sincronización:</strong> {{ $dominio->ultima_sincronizacion ? $dominio->ultima_sincronizacion->format('d/m/Y H:i') : 'N/A' }}</p>
+                        </div>
+                        @else
+                        <div class="alert alert-warning">
+                            <h5>⚠️ Sincronización:</h5>
+                            <p><strong>Estado:</strong> No sincronizado</p>
+                            <p>Los datos de precios e IBAN no están sincronizados con la base externa.</p>
+                        </div>
+                        @endif
+
                         {{-- Boton --}}
                         <div class="form-group mt-5">
                             <button type="submit" class="btn btn-success w-100 text-uppercase">
