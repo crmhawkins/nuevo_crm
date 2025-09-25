@@ -91,12 +91,16 @@ class DominiosTable extends Component
          // Verifica si se seleccionó 'all' para mostrar todos los registros
          // Limitar resultados para filtros pesados
          if ($this->filtroSinFacturas && $this->añoSinFacturas) {
-             // Para filtros pesados, obtener solo los primeros 50 resultados
+             // Para filtros pesados, obtener el total real primero
+             $totalReal = $query->count();
+             
+             // Luego obtener solo los primeros 50 resultados para mostrar
              $resultados = $query->limit(50)->get();
-             // Crear una paginación manual con los resultados limitados
+             
+             // Crear una paginación manual con el total real
              $this->dominios = new \Illuminate\Pagination\LengthAwarePaginator(
                  $resultados->forPage(1, 10), // 10 por página
-                 50, // Total de 50 resultados
+                 $totalReal, // Total real de resultados
                  10, // Por página
                  1, // Página actual
                  ['path' => request()->url(), 'pageName' => 'page']
