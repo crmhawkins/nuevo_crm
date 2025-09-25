@@ -125,7 +125,14 @@
                                    placeholder="Ej: 2024" min="2020" max="{{ now()->year + 1 }}">
                         </div>
                         <div class="col-md-6 d-flex align-items-end">
-                            @if($filtroSinFacturas)
+                            @if($cargandoFiltro)
+                                <div class="d-flex align-items-center">
+                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                    <span class="text-muted">Procesando filtro...</span>
+                                </div>
+                            @elseif($filtroSinFacturas)
                                 <button wire:click="desactivarFiltroSinFacturas" class="btn btn-outline-danger me-2">
                                     ❌ Desactivar Filtro
                                 </button>
@@ -147,6 +154,7 @@
                             <div class="col-12">
                                 <div class="alert alert-info">
                                     <strong>ℹ️ Información:</strong> Se muestran solo los dominios que NO tienen facturas asociadas con la palabra "dominio" en el año {{ $añoSinFacturas }}.
+                                    <br><strong>⚠️ Nota:</strong> Para optimizar el rendimiento, se muestran máximo 50 resultados.
                                 </div>
                             </div>
                         </div>

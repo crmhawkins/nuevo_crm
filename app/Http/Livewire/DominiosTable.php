@@ -29,6 +29,7 @@ class DominiosTable extends Component
     public $sortDirection = 'desc'; // Dirección por defecto
     public $filtroSinFacturas = false; // Nuevo filtro para dominios sin facturas
     public $añoSinFacturas = ''; // Año para filtrar dominios sin facturas
+    public $cargandoFiltro = false; // Indicador de carga
     protected $dominios; // Propiedad protegida para los usuarios
 
     public function mount(){
@@ -65,16 +66,21 @@ class DominiosTable extends Component
                     $query->where('date_end', '<=', $this->fechaFin);
                 })
                 ->when($this->filtroSinFacturas && $this->añoSinFacturas, function ($query) {
-                    // Filtrar dominios que NO tienen facturas asociadas en el año especificado
-                    $query->whereDoesntHave('cliente.presupuestos.factura.invoiceConcepts', function ($subQuery) {
-                        $subQuery->whereYear('created_at', $this->añoSinFacturas)
+                    // Optimización: Usar subconsulta más eficiente
+                    $query->whereNotExists(function ($subQuery) {
+                        $subQuery->select(\Illuminate\Support\Facades\DB::raw(1))
+                                ->from('budgets')
+                                ->join('invoices', 'budgets.id', '=', 'invoices.budget_id')
+                                ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                                ->whereColumn('budgets.client_id', 'dominios.client_id')
+                                ->whereYear('invoice_concepts.created_at', $this->añoSinFacturas)
                                 ->where(function ($q) {
-                                    $q->where('title', 'like', '%dominio%')
-                                      ->orWhere('concept', 'like', '%dominio%')
-                                      ->orWhere('title', 'like', '%Dominio%')
-                                      ->orWhere('concept', 'like', '%Dominio%')
-                                      ->orWhere('title', 'like', '%DOMINIO%')
-                                      ->orWhere('concept', 'like', '%DOMINIO%');
+                                    $q->where('invoice_concepts.title', 'like', '%dominio%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%dominio%')
+                                      ->orWhere('invoice_concepts.title', 'like', '%Dominio%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%Dominio%')
+                                      ->orWhere('invoice_concepts.title', 'like', '%DOMINIO%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
                                 });
                     });
                 });
@@ -83,7 +89,14 @@ class DominiosTable extends Component
          $query->orderBy($this->sortColumn, $this->sortDirection);
 
          // Verifica si se seleccionó 'all' para mostrar todos los registros
-         $this->dominios = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+         // Limitar resultados para filtros pesados
+         if ($this->filtroSinFacturas && $this->añoSinFacturas) {
+             $query->limit(50); // Limitar a 50 resultados para filtros pesados
+             // Para filtros pesados, usar get() en lugar de paginate
+             $this->dominios = $query->get();
+         } else {
+             $this->dominios = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+         }
     }
 
     public function getCategorias()
@@ -182,24 +195,36 @@ class DominiosTable extends Component
 
     public function activarFiltroSinFacturas()
     {
+        $this->cargandoFiltro = true;
         $this->filtroSinFacturas = true;
         $this->añoSinFacturas = now()->year; // Año actual por defecto
         $this->resetPage();
+        $this->actualizarDominios();
+        $this->cargandoFiltro = false;
     }
 
     public function desactivarFiltroSinFacturas()
     {
+        $this->cargandoFiltro = true;
         $this->filtroSinFacturas = false;
         $this->añoSinFacturas = '';
         $this->resetPage();
+        $this->actualizarDominios();
+        $this->cargandoFiltro = false;
     }
 
     public function updatedAñoSinFacturas()
     {
         if ($this->añoSinFacturas) {
+            $this->cargandoFiltro = true;
             $this->filtroSinFacturas = true;
+            $this->resetPage();
+            $this->actualizarDominios();
+            $this->cargandoFiltro = false;
+        } else {
+            $this->filtroSinFacturas = false;
+            $this->actualizarDominios();
         }
-        $this->resetPage();
     }
 
     public function testFiltros()
@@ -211,7 +236,14 @@ class DominiosTable extends Component
             'selectedCliente' => $this->selectedCliente,
             'selectedEstado' => $this->selectedEstado,
             'filtroSinFacturas' => $this->filtroSinFacturas,
-            'añoSinFacturas' => $this->añoSinFacturas
+            'añoSinFacturas' => $this->añoSinFacturas,
+            'totalDominios' => $this->dominios->count()
+        ]);
+        
+        // Mostrar alerta con información
+        $this->dispatch('mostrar-alerta', [
+            'tipo' => 'info',
+            'mensaje' => 'Filtros aplicados: ' . $this->dominios->count() . ' dominios encontrados'
         ]);
     }
 }
