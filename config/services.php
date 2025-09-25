@@ -39,6 +39,10 @@ return [
         'api_secret' => env('DONDOMINIO_API_SECRET'),
     ],
 
-
+    'ionos' => [
+        'api_key' => env('IONOS_API_KEY'),
+        'base_url' => env('IONOS_BASE_URL', 'https://api.ionos.com'),
+        'tenant_id' => env('IONOS_TENANT_ID'),
+    ],
 
 ];

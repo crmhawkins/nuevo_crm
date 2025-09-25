@@ -172,6 +172,79 @@
             </div>
         </div>
 
+        <!-- Información de IONOS -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">🏢 Información de IONOS</h4>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="sincronizarIonos({{ $dominio->id }})" id="btn-sincronizar-ionos">
+                                <i class="bi bi-arrow-clockwise"></i> Sincronizar con IONOS
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" onclick="probarConexionIonos()" id="btn-probar-ionos">
+                                <i class="bi bi-wifi"></i> Probar Conexión
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Fecha Activación IONOS:</strong></div>
+                                    <div class="col-sm-8">
+                                        @if($dominio->fecha_activacion_ionos)
+                                            <span class="text-success">{{ $dominio->fecha_activacion_ionos_formateada }}</span>
+                                        @else
+                                            <span class="text-muted">No disponible</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Fecha Renovación IONOS:</strong></div>
+                                    <div class="col-sm-8">
+                                        @if($dominio->fecha_renovacion_ionos)
+                                            <span class="text-primary">{{ $dominio->fecha_renovacion_ionos_formateada }}</span>
+                                        @else
+                                            <span class="text-muted">No disponible</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Estado IONOS:</strong></div>
+                                    <div class="col-sm-8">
+                                        @if($dominio->isSincronizadoIonos())
+                                            <span class="badge bg-success">Sincronizado con IONOS</span>
+                                            <br><small class="text-muted">Última: {{ $dominio->ultima_sincronizacion_ionos->format('d/m/Y H:i') }}</small>
+                                        @else
+                                            <span class="badge bg-warning">No sincronizado con IONOS</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4"><strong>Acciones:</strong></div>
+                                    <div class="col-sm-8">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="obtenerInfoIonos({{ $dominio->id }})">
+                                            <i class="bi bi-info-circle"></i> Ver Info IONOS
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @if(!$dominio->isSincronizadoIonos())
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-info-circle"></i> Información de IONOS</h6>
+                            <p class="mb-0">Este dominio no ha sido sincronizado con IONOS. Haz clic en "Sincronizar con IONOS" para obtener las fechas de activación y renovación.</p>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Preview del Dominio -->
         <div class="row mt-4">
             <div class="col-12">
@@ -579,6 +652,175 @@
                 // Abrir en nueva pestaña
                 window.open(urlActual, '_blank');
             }
+        });
+    }
+
+    // Funciones para IONOS
+    function sincronizarIonos(dominioId) {
+        console.log('Sincronizando con IONOS para dominio:', dominioId);
+        
+        Swal.fire({
+            title: 'Sincronizando con IONOS',
+            text: 'Obteniendo información del dominio...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        fetch(`/dominios/sincronizar-ionos/${dominioId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: '¡Sincronizado!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Error de conexión al sincronizar con IONOS',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+    }
+
+    function obtenerInfoIonos(dominioId) {
+        console.log('Obteniendo información de IONOS para dominio:', dominioId);
+        
+        Swal.fire({
+            title: 'Obteniendo información',
+            text: 'Consultando API de IONOS...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        fetch(`/dominios/info-ionos/${dominioId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let html = `
+                    <div class="text-start">
+                        <h6>Información de IONOS:</h6>
+                        <p><strong>Dominio:</strong> ${data.domain_name || 'N/A'}</p>
+                        <p><strong>Estado:</strong> ${data.status || 'N/A'}</p>
+                        <p><strong>Registrar:</strong> ${data.registrar || 'N/A'}</p>
+                        <p><strong>Auto Renovación:</strong> ${data.auto_renew ? 'Sí' : 'No'}</p>
+                `;
+                
+                if (data.fecha_activacion_ionos) {
+                    html += `<p><strong>Fecha Activación:</strong> ${data.fecha_activacion_ionos}</p>`;
+                }
+                
+                if (data.fecha_renovacion_ionos) {
+                    html += `<p><strong>Fecha Renovación:</strong> ${data.fecha_renovacion_ionos}</p>`;
+                }
+                
+                html += '</div>';
+                
+                Swal.fire({
+                    title: 'Información de IONOS',
+                    html: html,
+                    icon: 'info',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Error de conexión al obtener información de IONOS',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+    }
+
+    function probarConexionIonos() {
+        console.log('Probando conexión con IONOS');
+        
+        Swal.fire({
+            title: 'Probando conexión',
+            text: 'Verificando conectividad con IONOS...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        fetch('/dominios/probar-ionos', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: '¡Conexión exitosa!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error de conexión',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Error de conexión al probar IONOS',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
         });
     }
 

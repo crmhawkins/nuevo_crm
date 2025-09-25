@@ -27,6 +27,8 @@ class DominiosTable extends Component
     public $perPage = 10;
     public $sortColumn = 'created_at'; // Columna por defecto
     public $sortDirection = 'desc'; // Dirección por defecto
+    public $filtroSinFacturas = false; // Nuevo filtro para dominios sin facturas
+    public $añoSinFacturas = ''; // Año para filtrar dominios sin facturas
     protected $dominios; // Propiedad protegida para los usuarios
 
     public function mount(){
@@ -61,6 +63,20 @@ class DominiosTable extends Component
                 })
                 ->when($this->fechaFin, function ($query) {
                     $query->where('date_end', '<=', $this->fechaFin);
+                })
+                ->when($this->filtroSinFacturas && $this->añoSinFacturas, function ($query) {
+                    // Filtrar dominios que NO tienen facturas asociadas en el año especificado
+                    $query->whereDoesntHave('cliente.presupuestos.factura.invoiceConcepts', function ($subQuery) {
+                        $subQuery->whereYear('created_at', $this->añoSinFacturas)
+                                ->where(function ($q) {
+                                    $q->where('title', 'like', '%dominio%')
+                                      ->orWhere('concept', 'like', '%dominio%')
+                                      ->orWhere('title', 'like', '%Dominio%')
+                                      ->orWhere('concept', 'like', '%Dominio%')
+                                      ->orWhere('title', 'like', '%DOMINIO%')
+                                      ->orWhere('concept', 'like', '%DOMINIO%');
+                                });
+                    });
                 });
 
          // Aplica la ordenación
@@ -95,7 +111,7 @@ class DominiosTable extends Component
     }
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado' || $propertyName === 'fechaInicio' || $propertyName === 'fechaFin') {
+        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado' || $propertyName === 'fechaInicio' || $propertyName === 'fechaFin' || $propertyName === 'filtroSinFacturas' || $propertyName === 'añoSinFacturas') {
             $this->resetPage(); // Resetear la paginación solo cuando estos filtros cambien.
         }
     }
@@ -118,6 +134,8 @@ class DominiosTable extends Component
         if ($this->fechaInicio && $this->fechaFin && $this->fechaInicio > $this->fechaFin) {
             $this->fechaFin = $this->fechaInicio;
         }
+        $this->resetPage();
+        $this->actualizarDominios();
     }
 
     public function updatedFechaFin()
@@ -126,29 +144,74 @@ class DominiosTable extends Component
         if ($this->fechaInicio && $this->fechaFin && $this->fechaInicio > $this->fechaFin) {
             $this->fechaInicio = $this->fechaFin;
         }
+        $this->resetPage();
+        $this->actualizarDominios();
     }
 
     public function filtroRango30Dias()
     {
         $this->fechaInicio = now()->format('Y-m-d');
         $this->fechaFin = now()->addDays(30)->format('Y-m-d');
+        $this->resetPage();
+        $this->actualizarDominios();
     }
 
     public function filtroRango90Dias()
     {
         $this->fechaInicio = now()->format('Y-m-d');
         $this->fechaFin = now()->addDays(90)->format('Y-m-d');
+        $this->resetPage();
+        $this->actualizarDominios();
     }
 
     public function filtroVencidos()
     {
         $this->fechaInicio = '';
         $this->fechaFin = now()->format('Y-m-d');
+        $this->resetPage();
+        $this->actualizarDominios();
     }
 
     public function filtroEsteMes()
     {
         $this->fechaInicio = now()->startOfMonth()->format('Y-m-d');
         $this->fechaFin = now()->endOfMonth()->format('Y-m-d');
+        $this->resetPage();
+        $this->actualizarDominios();
+    }
+
+    public function activarFiltroSinFacturas()
+    {
+        $this->filtroSinFacturas = true;
+        $this->añoSinFacturas = now()->year; // Año actual por defecto
+        $this->resetPage();
+    }
+
+    public function desactivarFiltroSinFacturas()
+    {
+        $this->filtroSinFacturas = false;
+        $this->añoSinFacturas = '';
+        $this->resetPage();
+    }
+
+    public function updatedAñoSinFacturas()
+    {
+        if ($this->añoSinFacturas) {
+            $this->filtroSinFacturas = true;
+        }
+        $this->resetPage();
+    }
+
+    public function testFiltros()
+    {
+        \Illuminate\Support\Facades\Log::info('Filtros actuales:', [
+            'fechaInicio' => $this->fechaInicio,
+            'fechaFin' => $this->fechaFin,
+            'buscar' => $this->buscar,
+            'selectedCliente' => $this->selectedCliente,
+            'selectedEstado' => $this->selectedEstado,
+            'filtroSinFacturas' => $this->filtroSinFacturas,
+            'añoSinFacturas' => $this->añoSinFacturas
+        ]);
     }
 }

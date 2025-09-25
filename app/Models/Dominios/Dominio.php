@@ -30,7 +30,11 @@ class Dominio extends Model
         'precio_venta',
         'iban',
         'sincronizado',
-        'ultima_sincronizacion'
+        'ultima_sincronizacion',
+        'fecha_activacion_ionos',
+        'fecha_renovacion_ionos',
+        'sincronizado_ionos',
+        'ultima_sincronizacion_ionos'
     ];
 
     /**
@@ -39,7 +43,7 @@ class Dominio extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at', 'ultima_sincronizacion'
+        'created_at', 'updated_at', 'deleted_at', 'ultima_sincronizacion', 'fecha_activacion_ionos', 'fecha_renovacion_ionos', 'ultima_sincronizacion_ionos'
     ];
 
     /**
@@ -50,6 +54,10 @@ class Dominio extends Model
         'sincronizado' => 'boolean',
         'precio_compra' => 'decimal:2',
         'precio_venta' => 'decimal:2',
+        'fecha_activacion_ionos' => 'datetime',
+        'fecha_renovacion_ionos' => 'datetime',
+        'sincronizado_ionos' => 'boolean',
+        'ultima_sincronizacion_ionos' => 'datetime',
     ];
 
 
@@ -123,5 +131,56 @@ class Dominio extends Model
         } catch (\Exception $e) {
             return 'Fecha inválida';
         }
+    }
+
+    /**
+     * Obtener la fecha de activación en IONOS formateada
+     */
+    public function getFechaActivacionIonosFormateadaAttribute()
+    {
+        if (!$this->fecha_activacion_ionos) {
+            return 'N/A';
+        }
+        
+        try {
+            return $this->fecha_activacion_ionos->format('d/m/Y H:i');
+        } catch (\Exception $e) {
+            return 'Fecha inválida';
+        }
+    }
+
+    /**
+     * Obtener la fecha de renovación en IONOS formateada
+     */
+    public function getFechaRenovacionIonosFormateadaAttribute()
+    {
+        if (!$this->fecha_renovacion_ionos) {
+            return 'N/A';
+        }
+        
+        try {
+            return $this->fecha_renovacion_ionos->format('d/m/Y H:i');
+        } catch (\Exception $e) {
+            return 'Fecha inválida';
+        }
+    }
+
+    /**
+     * Verificar si el dominio está sincronizado con IONOS
+     */
+    public function isSincronizadoIonos()
+    {
+        return $this->sincronizado_ionos && $this->ultima_sincronizacion_ionos;
+    }
+
+    /**
+     * Marcar como sincronizado con IONOS
+     */
+    public function marcarSincronizadoIonos()
+    {
+        $this->update([
+            'sincronizado_ionos' => true,
+            'ultima_sincronizacion_ionos' => now()
+        ]);
     }
 }

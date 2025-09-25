@@ -8,6 +8,7 @@ use App\Models\Dominios\Dominio;
 use App\Models\Dominios\estadosDominios;
 use App\Models\Invoices\InvoiceConcepts;
 use App\Models\Invoices\Invoice;
+use App\Services\IonosApiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -176,7 +177,14 @@ class DominiosController extends Controller
             })
             ->where(function($query) use ($normalizedDomain) {
                 $query->where('title', 'like', "%{$normalizedDomain}%")
-                      ->orWhere('concept', 'like', "%{$normalizedDomain}%");
+                      ->orWhere('concept', 'like', "%{$normalizedDomain}%")
+                      // Buscar también por la palabra "dominio" en diferentes casos
+                      ->orWhere('title', 'like', '%dominio%')
+                      ->orWhere('concept', 'like', '%dominio%')
+                      ->orWhere('title', 'like', '%Dominio%')
+                      ->orWhere('concept', 'like', '%Dominio%')
+                      ->orWhere('title', 'like', '%DOMINIO%')
+                      ->orWhere('concept', 'like', '%DOMINIO%');
             })
             ->get();
 
@@ -401,5 +409,101 @@ class DominiosController extends Controller
         }
 
         return 'secondary';
+    }
+
+    /**
+     * Sincronizar información de IONOS para un dominio específico
+     */
+    public function sincronizarIonos($id)
+    {
+        try {
+            $dominio = Dominio::find($id);
+            
+            if (!$dominio) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dominio no encontrado'
+                ], 404);
+            }
+
+            $ionosService = new IonosApiService();
+            $result = $ionosService->getDomainInfo($dominio->dominio);
+
+            if ($result['success']) {
+                $dominio->update([
+                    'fecha_activacion_ionos' => $result['fecha_activacion_ionos'],
+                    'fecha_renovacion_ionos' => $result['fecha_renovacion_ionos'],
+                    'sincronizado_ionos' => true,
+                    'ultima_sincronizacion_ionos' => now()
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Dominio sincronizado con IONOS exitosamente',
+                    'data' => [
+                        'fecha_activacion' => $dominio->fecha_activacion_ionos_formateada,
+                        'fecha_renovacion' => $dominio->fecha_renovacion_ionos_formateada
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $result['message']
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al sincronizar con IONOS: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener información de IONOS para un dominio
+     */
+    public function obtenerInfoIonos($id)
+    {
+        try {
+            $dominio = Dominio::find($id);
+            
+            if (!$dominio) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dominio no encontrado'
+                ], 404);
+            }
+
+            $ionosService = new IonosApiService();
+            $result = $ionosService->getDomainInfo($dominio->dominio);
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener información de IONOS: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Probar conexión con la API de IONOS
+     */
+    public function probarConexionIonos()
+    {
+        try {
+            $ionosService = new IonosApiService();
+            $result = $ionosService->testConnection();
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al probar conexión: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -142,15 +142,58 @@
                         </div>
                         @endif
 
-                        @if($dominio->sincronizado)
+                        <h3 class="mb-2 text-left uppercase">Información de IONOS</h3>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label class="text-uppercase" style="font-weight: bold">Fecha de Activación IONOS:</label>
+                                    <div class="form-control-plaintext">
+                                        @if($dominio->fecha_activacion_ionos)
+                                            <span class="text-success">{{ $dominio->fecha_activacion_ionos_formateada }}</span>
+                                        @else
+                                            <span class="text-muted">No disponible</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label class="text-uppercase" style="font-weight: bold">Fecha de Renovación IONOS:</label>
+                                    <div class="form-control-plaintext">
+                                        @if($dominio->fecha_renovacion_ionos)
+                                            <span class="text-primary">{{ $dominio->fecha_renovacion_ionos_formateada }}</span>
+                                        @else
+                                            <span class="text-muted">No disponible</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if($dominio->sincronizado_ionos)
                         <div class="alert alert-success">
-                            <h5>✅ Sincronización:</h5>
+                            <h5>✅ Sincronización IONOS:</h5>
+                            <p><strong>Estado:</strong> Sincronizado con IONOS</p>
+                            <p><strong>Última sincronización:</strong> {{ $dominio->ultima_sincronizacion_ionos ? $dominio->ultima_sincronizacion_ionos->format('d/m/Y H:i') : 'N/A' }}</p>
+                        </div>
+                        @else
+                        <div class="alert alert-warning">
+                            <h5>⚠️ Sincronización IONOS:</h5>
+                            <p><strong>Estado:</strong> No sincronizado con IONOS</p>
+                            <p>Las fechas de activación y renovación no están sincronizadas con IONOS.</p>
+                        </div>
+                        @endif
+
+                        @if($dominio->sincronizado)
+                        <div class="alert alert-info">
+                            <h5>📊 Sincronización Externa:</h5>
                             <p><strong>Estado:</strong> Sincronizado</p>
                             <p><strong>Última sincronización:</strong> {{ $dominio->ultima_sincronizacion_formateada }}</p>
                         </div>
                         @else
                         <div class="alert alert-warning">
-                            <h5>⚠️ Sincronización:</h5>
+                            <h5>⚠️ Sincronización Externa:</h5>
                             <p><strong>Estado:</strong> No sincronizado</p>
                             <p>Los datos de precios e IBAN no están sincronizados con la base externa.</p>
                         </div>

@@ -47,23 +47,26 @@
     {{-- Filtros de Fecha --}}
     <div class="filtros-fecha row mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
                     <h5 class="card-title mb-0">📅 Filtros de Fecha de Vencimiento</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <label for="fechaInicio">Fecha Inicio:</label>
+                            <label for="fechaInicio" class="form-label fw-bold">Fecha Inicio:</label>
                             <input wire:model="fechaInicio" type="date" class="form-control" id="fechaInicio">
                         </div>
                         <div class="col-md-4">
-                            <label for="fechaFin">Fecha Fin:</label>
+                            <label for="fechaFin" class="form-label fw-bold">Fecha Fin:</label>
                             <input wire:model="fechaFin" type="date" class="form-control" id="fechaFin">
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
                             <button wire:click="limpiarFiltrosFecha" class="btn btn-outline-secondary me-2">
                                 🗑️ Limpiar Fechas
+                            </button>
+                            <button wire:click="testFiltros" class="btn btn-outline-info me-2">
+                                🔍 Test Filtros
                             </button>
                             @if($fechaInicio || $fechaFin)
                                 <span class="badge bg-info">
@@ -85,7 +88,7 @@
                     {{-- Botones de filtros rápidos --}}
                     <div class="row mt-3">
                         <div class="col-12">
-                            <label class="form-label">Filtros Rápidos:</label>
+                            <label class="form-label fw-bold">Filtros Rápidos:</label>
                             <div class="btn-group" role="group">
                                 <button wire:click="filtroRango30Dias" class="btn btn-outline-primary btn-sm">
                                     📅 Próximos 30 días
@@ -106,6 +109,53 @@
             </div>
         </div>
     </div>
+
+    {{-- Filtro de Dominios Sin Facturas --}}
+    <div class="filtros-sin-facturas row mb-4">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">📄 Filtro de Dominios Sin Facturas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="añoSinFacturas" class="form-label fw-bold">Año para filtrar:</label>
+                            <input wire:model="añoSinFacturas" type="number" class="form-control" id="añoSinFacturas" 
+                                   placeholder="Ej: 2024" min="2020" max="{{ now()->year + 1 }}">
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            @if($filtroSinFacturas)
+                                <button wire:click="desactivarFiltroSinFacturas" class="btn btn-outline-danger me-2">
+                                    ❌ Desactivar Filtro
+                                </button>
+                                <span class="badge bg-warning text-dark">
+                                    Sin facturas en {{ $añoSinFacturas }}
+                                </span>
+                                <span class="badge bg-secondary ms-1">
+                                    {{ $dominios->count() }} resultados
+                                </span>
+                            @else
+                                <button wire:click="activarFiltroSinFacturas" class="btn btn-outline-success">
+                                    ✅ Filtrar Dominios Sin Facturas
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                    @if($filtroSinFacturas)
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <strong>ℹ️ Información:</strong> Se muestran solo los dominios que NO tienen facturas asociadas con la palabra "dominio" en el año {{ $añoSinFacturas }}.
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- {{dd($users)}} --}}
     @if ( $dominios )
         {{-- Filtros --}}
@@ -119,6 +169,8 @@
                             'client_id' => 'CLIENTE',
                             'date_start' => 'FECHA CONTRATACION',
                             'date_end' => 'FECHA VENCIMIENTO',
+                            'fecha_activacion_ionos' => 'FECHA ACTIVACION IONOS',
+                            'fecha_renovacion_ionos' => 'FECHA RENOVACION IONOS',
                             'estado_id' => 'ESTADO',
                             'precio_compra' => 'PRECIO COMPRA',
                             'precio_venta' => 'PRECIO VENTA',
@@ -143,6 +195,20 @@
                             <td>{{$dominio->cliente->name ?? 'Cliente no asociado'}}</td>
                             <td>{{ \Carbon\Carbon::parse($dominio->date_start)->format('d/m/Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($dominio->date_end)->format('d/m/Y') }}</td>
+                            <td>
+                                @if($dominio->fecha_activacion_ionos)
+                                    <span class="text-success">{{ $dominio->fecha_activacion_ionos_formateada }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($dominio->fecha_renovacion_ionos)
+                                    <span class="text-primary">{{ $dominio->fecha_renovacion_ionos_formateada }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             @if ($dominio->estado_id == 2)
                                 <td><span class="badge bg-warning text-dark">{{$dominio->estadoName->name}}</span></td>
                             @elseif($dominio->estado_id == 3)
