@@ -90,24 +90,37 @@ class DominiosTable extends Component
          $query->orderBy($this->sortColumn, $this->sortDirection);
 
          // Verifica si se seleccionó 'all' para mostrar todos los registros
-         // Limitar resultados para filtros pesados
+         // Lógica especial para filtro de dominios sin facturas
          if ($this->filtroSinFacturas && $this->añoSinFacturas) {
              // Para filtros pesados, obtener el total real primero
              $totalReal = $query->count();
              
-             // Luego obtener solo los primeros 50 resultados para mostrar
-             $resultados = $query->limit(50)->get();
+             // Obtener la página actual de Livewire
+             $currentPage = $this->getPage();
+             $perPage = is_numeric($this->perPage) ? $this->perPage : 10;
              
-             // Crear una paginación manual con el total real
+             // Obtener los resultados para la página actual
+             $resultados = $query->forPage($currentPage, $perPage)->get();
+             
+             // Crear una paginación manual que respete la página actual
              $this->dominios = new \Illuminate\Pagination\LengthAwarePaginator(
-                 $resultados->forPage(1, 10), // 10 por página
-                 $totalReal, // Total real de resultados
-                 10, // Por página
-                 1, // Página actual
-                 ['path' => request()->url(), 'pageName' => 'page']
+                 $resultados,
+                 $totalReal,
+                 $perPage,
+                 $currentPage,
+                 [
+                     'path' => request()->url(),
+                     'pageName' => 'page',
+                     'query' => request()->query()
+                 ]
              );
          } else {
-             $this->dominios = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+             // Paginación normal para otros casos
+             if ($this->perPage === 'all') {
+                 $this->dominios = $query->get();
+             } else {
+                 $this->dominios = $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+             }
          }
     }
 

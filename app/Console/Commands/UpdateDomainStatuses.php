@@ -41,41 +41,49 @@ class UpdateDomainStatuses extends Command
             if ($dominio->fecha_renovacion_ionos) {
                 $fechaRenovacion = Carbon::parse($dominio->fecha_renovacion_ionos);
                 $añoVencimiento = $fechaRenovacion->year;
+                $añoActual = $today->year;
                 
                 if ($fechaRenovacion->isPast()) {
                     // Dominio vencido
                     $newStatus = 7; // Vencido
                     $reason = "Vencido desde " . $fechaRenovacion->format('d/m/Y');
                 } else {
-                    // Verificar si tiene factura del año de vencimiento
-                    $tieneFactura = $this->tieneFacturaDelAño($dominio, $añoVencimiento);
+                    // Para dominios futuros, buscar factura del año actual
+                    // Para dominios del año actual, buscar factura del año de vencimiento
+                    $añoBuscar = $añoVencimiento <= $añoActual ? $añoVencimiento : $añoActual;
+                    
+                    $tieneFactura = $this->tieneFacturaDelAño($dominio, $añoBuscar);
                     
                     if ($tieneFactura) {
                         $newStatus = 8; // Renovado
-                        $reason = "Renovado hasta " . $fechaRenovacion->format('d/m/Y') . " (con factura {$añoVencimiento})";
+                        $reason = "Renovado hasta " . $fechaRenovacion->format('d/m/Y') . " (con factura {$añoBuscar})";
                     } else {
                         $newStatus = 1; // No pagado
-                        $reason = "Sin factura del año {$añoVencimiento}";
+                        $reason = "Sin factura del año {$añoBuscar}";
                     }
                 }
             } elseif ($dominio->date_end) {
                 // Usar fecha_end como fallback
                 $fechaEnd = Carbon::parse($dominio->date_end);
                 $añoVencimiento = $fechaEnd->year;
+                $añoActual = $today->year;
                 
                 if ($fechaEnd->isPast()) {
                     $newStatus = 7; // Vencido
                     $reason = "Vencido desde " . $fechaEnd->format('d/m/Y') . " (fecha_end)";
                 } else {
-                    // Verificar si tiene factura del año de vencimiento
-                    $tieneFactura = $this->tieneFacturaDelAño($dominio, $añoVencimiento);
+                    // Para dominios futuros, buscar factura del año actual
+                    // Para dominios del año actual, buscar factura del año de vencimiento
+                    $añoBuscar = $añoVencimiento <= $añoActual ? $añoVencimiento : $añoActual;
+                    
+                    $tieneFactura = $this->tieneFacturaDelAño($dominio, $añoBuscar);
                     
                     if ($tieneFactura) {
                         $newStatus = 8; // Renovado
-                        $reason = "Renovado hasta " . $fechaEnd->format('d/m/Y') . " (con factura {$añoVencimiento})";
+                        $reason = "Renovado hasta " . $fechaEnd->format('d/m/Y') . " (con factura {$añoBuscar})";
                     } else {
                         $newStatus = 1; // No pagado
-                        $reason = "Sin factura del año {$añoVencimiento}";
+                        $reason = "Sin factura del año {$añoBuscar}";
                     }
                 }
             }
