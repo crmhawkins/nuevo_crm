@@ -35,7 +35,8 @@ class Dominio extends Model
         'fecha_renovacion_ionos',
         'sincronizado_ionos',
         'ultima_sincronizacion_ionos',
-        'fecha_registro_calculada'
+        'fecha_registro_calculada',
+        'ionos_id'
     ];
 
     /**

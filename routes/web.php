@@ -280,6 +280,7 @@ Route::post('/dominios/sincronizar-ionos/{id}', [DominiosController::class, 'sin
 Route::get('/dominios/info-ionos/{id}', [DominiosController::class, 'obtenerInfoIonos'])->name('dominios.info-ionos');
 Route::get('/dominios/probar-ionos', [DominiosController::class, 'probarConexionIonos'])->name('dominios.probar-ionos');
 Route::post('/dominios/calcular-fecha-registro/{id}', [DominiosController::class, 'calcularFechaRegistro'])->name('dominios.calcular-fecha-registro');
+Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'ejecutarComandoIonos'])->name('dominios.ejecutar-comando-ionos');
 
         // Kit Digital
         Route::get('/kit-digital-whatsapp', [KitDigitalController::class, 'index'])->name('kitDigital.indexWhatsapp');

@@ -25,17 +25,16 @@ class IonosApiService
     public function getDomainInfo($domainName)
     {
         try {
-            // Primero obtener la lista de dominios para encontrar el ID
+            // Usar la nueva URL para obtener todos los dominios
+            $listUrl = 'https://api.hosting.ionos.com/domains/v1/domainitems/domains';
             $listResponse = Http::withHeaders([
-                'X-API-Key' => $this->apiKey,
-                'X-Tenant-Id' => $this->tenantId,
-                'Content-Type' => 'application/json',
+                'X-Api-Key' => $this->apiKey,
                 'Accept' => 'application/json'
-            ])->timeout(30)->get($this->baseUrl, [
-                'includeDomainStatus' => 'true',
+            ])->timeout(30)->get($listUrl, [
+                'limit' => 5000,
+                'includeProvisioningStatus' => 'false',
                 'sortBy' => 'DOMAIN_NAME',
-                'direction' => 'ASC',
-                'limit' => 100
+                'direction' => 'ASC'
             ]);
 
             if (!$listResponse->successful()) {
@@ -65,12 +64,10 @@ class IonosApiService
                 ];
             }
 
-            // Obtener información detallada del dominio
+            // Obtener información detallada del dominio usando la nueva URL
             $detailUrl = "https://api.hosting.ionos.com/domains/v1/domainitems/{$domainId}?includeDomainStatus=true";
             $response = Http::withHeaders([
-                'X-API-Key' => $this->apiKey,
-                'X-Tenant-Id' => $this->tenantId,
-                'Content-Type' => 'application/json',
+                'X-Api-Key' => $this->apiKey,
                 'Accept' => 'application/json'
             ])->timeout(30)->get($detailUrl);
 
@@ -150,6 +147,7 @@ class IonosApiService
             'fecha_expiracion' => null,
             'auto_renew' => $domainData['autoRenew'] ?? false,
             'domain_id' => $domainData['id'] ?? null,
+            'ionos_id' => $domainData['id'] ?? null, // ID de IONOS para futuras consultas
             'tld' => $domainData['tld'] ?? null,
             'privacy_enabled' => $domainData['privacyEnabled'] ?? false,
             'transfer_lock' => $domainData['transferLock'] ?? false,

@@ -164,6 +164,53 @@
         </div>
     </div>
 
+    {{-- Botones de sincronización IONOS --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">🔄 Sincronización IONOS</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary w-100" onclick="actualizarTodasLasFechasIonos()" id="btn-actualizar-todas-fechas">
+                                <i class="bi bi-arrow-clockwise"></i> Actualizar TODAS las Fechas IONOS
+                            </button>
+                            <small class="text-muted d-block mt-1">Actualiza fechas de TODOS los dominios sin fechas IONOS</small>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-success w-100" onclick="sincronizarDominiosFaltantes()" id="btn-sincronizar-faltantes">
+                                <i class="bi bi-plus-circle"></i> Sincronizar Dominios Faltantes
+                            </button>
+                            <small class="text-muted d-block mt-1">Añade dominios nuevos de IONOS</small>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-info w-100" onclick="probarConexionIonos()" id="btn-probar-ionos">
+                                <i class="bi bi-wifi"></i> Probar Conexión IONOS
+                            </button>
+                            <small class="text-muted d-block mt-1">Verifica la conexión con IONOS</small>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-warning w-100" onclick="analizarDominiosFaltantes()" id="btn-analizar-faltantes">
+                                <i class="bi bi-search"></i> Analizar Dominios Faltantes
+                            </button>
+                            <small class="text-muted d-block mt-1">Analiza qué dominios faltan</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-secondary w-100" onclick="probarComandoWeb()" id="btn-probar-comando">
+                                <i class="bi bi-bug"></i> Probar Comando Web
+                            </button>
+                            <small class="text-muted d-block mt-1">Prueba la ejecución de comandos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- {{dd($users)}} --}}
     @if ( $dominios )
         {{-- Filtros --}}
@@ -175,8 +222,7 @@
                         @foreach ([
                             'dominio' => 'DOMINIO',
                             'client_id' => 'CLIENTE',
-                            'date_start' => 'FECHA CONTRATACION',
-                            'date_end' => 'FECHA VENCIMIENTO',
+                            'created_at' => 'FECHA INSERCIÓN',
        'fecha_activacion_ionos' => 'FECHA ACTIVACION IONOS',
        'fecha_renovacion_ionos' => 'FECHA RENOVACION IONOS',
        'fecha_registro_calculada' => 'FECHA REGISTRO CALCULADA',
@@ -199,11 +245,10 @@
                 </thead>
                 <tbody>
                     @foreach ( $dominios as $dominio )
-                        <tr class="clickable-row" data-href="{{route('dominios.edit', $dominio->id)}}">
+                        <tr>
                             <td>{{$dominio->dominio}}</td>
                             <td>{{$dominio->cliente->name ?? 'Cliente no asociado'}}</td>
-                            <td>{{ \Carbon\Carbon::parse($dominio->date_start)->format('d/m/Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($dominio->date_end)->format('d/m/Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($dominio->created_at)->format('d/m/Y H:i') }}</td>
                             <td>
                                 @if($dominio->fecha_activacion_ionos)
                                     <span class="text-success">{{ $dominio->fecha_activacion_ionos_formateada }}</span>
@@ -255,28 +300,32 @@
                                     <span class="text-muted">-</span>
                                 @endif
                             </td>
-                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 150px">
-                                <a class="" href="{{route('dominios.show', $dominio->id)}}" title="Ver detalles"><img src="{{asset('assets/icons/eye.svg')}}" alt="Ver dominio"></a>
-                                <a class="" href="{{route('dominios.edit', $dominio->id)}}" title="Editar"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
-       @if($dominio->estado_id != 2)
-       <button class="btn btn-sm btn-outline-danger cancelar-dominio" data-id="{{$dominio->id}}" title="Cancelar dominio">
-           <i class="bi bi-x-circle"></i>
-       </button>
-       <button class="btn btn-sm btn-outline-info test-js" data-id="{{$dominio->id}}" title="Test JS">
-           <i class="bi bi-bug"></i>
-       </button>
-       @endif
-       
-       @if($dominio->fecha_renovacion_ionos && !$dominio->fecha_registro_calculada)
-       <button class="btn btn-sm btn-outline-success calcular-fecha-registro" data-id="{{$dominio->id}}" title="Calcular fecha de registro">
-           <i class="bi bi-calculator"></i>
-       </button>
-       @elseif($dominio->fecha_registro_calculada)
-       <span class="badge bg-success" title="Fecha calculada: {{ $dominio->fecha_registro_calculada_formateada }}">
-           <i class="bi bi-check-circle"></i>
-       </span>
-       @endif
-                                <a class="delete" data-id="{{$dominio->id}}" href="" title="Eliminar"><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar dominio"></a>
+                            <td class="text-center" style="min-width: 200px">
+                                <div class="btn-group" role="group">
+                                    <a class="btn btn-sm btn-outline-primary" href="{{route('dominios.show', $dominio->id)}}" title="Ver detalles">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-secondary" href="{{route('dominios.edit', $dominio->id)}}" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    @if($dominio->estado_id != 2)
+                                    <button class="btn btn-sm btn-outline-danger cancelar-dominio" data-id="{{$dominio->id}}" title="Cancelar dominio">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                    @endif
+                                    @if($dominio->fecha_renovacion_ionos && !$dominio->fecha_registro_calculada)
+                                    <button class="btn btn-sm btn-success" title="Calcular fecha de registro" onclick="calcularFechaRegistro({{$dominio->id}})">
+                                        <i class="bi bi-calculator"></i>
+                                    </button>
+                                    @elseif($dominio->fecha_registro_calculada)
+                                    <span class="btn btn-sm btn-success disabled" title="Fecha calculada: {{ $dominio->fecha_registro_calculada_formateada }}">
+                                        <i class="bi bi-check-circle"></i>
+                                    </span>
+                                    @endif
+                                    <a class="btn btn-sm btn-outline-danger delete" data-id="{{$dominio->id}}" href="" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -299,6 +348,7 @@
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 
     <script>
+        
         $(document).ready(() => {
             $('.delete').on('click', function(e) {
                 e.preventDefault();
@@ -411,10 +461,10 @@
                                 text: data.message,
                                 icon: 'success',
                                 confirmButtonText: 'OK'
-                            }).then(() => {
-                                // Recargar la página para mostrar el nuevo estado
-                                location.reload();
-                            });
+                           }).then(() => {
+                               // Actualizar solo el componente Livewire sin recargar la página
+                               @this.call('actualizarDominios');
+                           });
                         } else {
                             Swal.fire({
                                 title: 'Error',
@@ -436,19 +486,11 @@
             });
         });
 
-       // Función para test de JavaScript
-       $(document).on('click', '.test-js', function(e) {
-           e.preventDefault();
-           const id = $(this).data('id');
-           console.log('Botón test clickeado, ID:', id);
-           alert('JavaScript funciona en index! ID: ' + id);
-       });
+       
 
-       // Función para calcular fecha de registro
-       $(document).on('click', '.calcular-fecha-registro', function(e) {
-           e.preventDefault();
-           const id = $(this).data('id');
-           console.log('Botón calcular fecha registro clickeado, ID:', id);
+       // Función global para calcular fecha de registro
+       window.calcularFechaRegistro = function(id) {
+           console.log('Función calcularFechaRegistro llamada con ID:', id);
            
            // Verificar que SweetAlert2 esté disponible
            if (typeof Swal === 'undefined') {
@@ -494,10 +536,10 @@
                                text: data.message,
                                icon: 'success',
                                confirmButtonText: 'OK'
-                           }).then(() => {
-                               // Recargar la página para mostrar la nueva fecha
-                               location.reload();
-                           });
+                   }).then(() => {
+                       // Actualizar solo el componente Livewire sin recargar la página
+                       @this.call('actualizarDominios');
+                   });
                        } else {
                            Swal.fire({
                                title: 'Error',
@@ -517,6 +559,220 @@
                    });
                }
            });
-       });
+       };
+
+       // Funciones para sincronización IONOS
+       function actualizarTodasLasFechasIonos() {
+           if (typeof Swal === 'undefined') {
+               alert('SweetAlert2 no está cargado');
+               return;
+           }
+           
+           Swal.fire({
+               title: '¿Actualizar TODAS las Fechas IONOS?',
+               text: 'Esto actualizará las fechas de IONOS para TODOS los dominios que no las tengan. Puede tomar varios minutos. ¿Continuar?',
+               icon: 'warning',
+               showCancelButton: true,
+               confirmButtonColor: '#0d6efd',
+               cancelButtonColor: '#6c757d',
+               confirmButtonText: 'Sí, actualizar TODAS',
+               cancelButtonText: 'Cancelar'
+           }).then((result) => {
+               if (result.isConfirmed) {
+                   ejecutarComandoIonos('ionos:update-all-dates', 'Actualizando TODAS las fechas IONOS...');
+               }
+           });
+       }
+
+       function sincronizarIonos() {
+           if (typeof Swal === 'undefined') {
+               alert('SweetAlert2 no está cargado');
+               return;
+           }
+           
+           Swal.fire({
+               title: '¿Sincronizar Fechas IONOS?',
+               text: 'Esto sincronizará las fechas de IONOS para dominios existentes. ¿Continuar?',
+               icon: 'question',
+               showCancelButton: true,
+               confirmButtonColor: '#0d6efd',
+               cancelButtonColor: '#6c757d',
+               confirmButtonText: 'Sí, sincronizar',
+               cancelButtonText: 'Cancelar'
+           }).then((result) => {
+               if (result.isConfirmed) {
+                   ejecutarComandoIonos('ionos:sync-missing-dates', 'Sincronizando fechas IONOS...');
+               }
+           });
+       }
+
+       function sincronizarDominiosFaltantes() {
+           if (typeof Swal === 'undefined') {
+               alert('SweetAlert2 no está cargado');
+               return;
+           }
+           
+           Swal.fire({
+               title: '¿Sincronizar Dominios Faltantes?',
+               text: 'Esto añadirá dominios nuevos de IONOS a la base de datos. ¿Continuar?',
+               icon: 'question',
+               showCancelButton: true,
+               confirmButtonColor: '#198754',
+               cancelButtonColor: '#6c757d',
+               confirmButtonText: 'Sí, sincronizar',
+               cancelButtonText: 'Cancelar'
+           }).then((result) => {
+               if (result.isConfirmed) {
+                   ejecutarComandoIonos('ionos:sync-all-missing', 'Sincronizando dominios faltantes...');
+               }
+           });
+       }
+
+       function probarConexionIonos() {
+           if (typeof Swal === 'undefined') {
+               alert('SweetAlert2 no está cargado');
+               return;
+           }
+           
+           Swal.fire({
+               title: 'Probando conexión...',
+               text: 'Verificando conexión con IONOS',
+               allowOutsideClick: false,
+               showConfirmButton: false,
+               willOpen: () => {
+                   Swal.showLoading();
+               }
+           });
+
+           fetch('/dominios/probar-ionos', {
+               method: 'GET',
+               headers: {
+                   'Content-Type': 'application/json',
+                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+               }
+           })
+           .then(response => response.json())
+           .then(data => {
+               if (data.success) {
+                   Swal.fire({
+                       title: '¡Conexión Exitosa!',
+                       text: data.message,
+                       icon: 'success',
+                       confirmButtonText: 'OK'
+                   });
+               } else {
+                   Swal.fire({
+                       title: 'Error de Conexión',
+                       text: data.message,
+                       icon: 'error',
+                       confirmButtonText: 'OK'
+                   });
+               }
+           })
+           .catch(error => {
+               Swal.fire({
+                   title: 'Error',
+                   text: 'Error de conexión. Inténtalo de nuevo.',
+                   icon: 'error',
+                   confirmButtonText: 'OK'
+               });
+           });
+       }
+
+       function probarComandoWeb() {
+           if (typeof Swal === 'undefined') {
+               alert('SweetAlert2 no está cargado');
+               return;
+           }
+           
+           Swal.fire({
+               title: '¿Probar Comando Web?',
+               text: 'Esto ejecutará un comando de prueba para verificar que la ejecución desde la web funciona correctamente.',
+               icon: 'question',
+               showCancelButton: true,
+               confirmButtonColor: '#6c757d',
+               cancelButtonColor: '#6c757d',
+               confirmButtonText: 'Sí, probar',
+               cancelButtonText: 'Cancelar'
+           }).then((result) => {
+               if (result.isConfirmed) {
+                   ejecutarComandoIonos('test:web-command', 'Probando comando web...');
+               }
+           });
+       }
+
+       function analizarDominiosFaltantes() {
+           if (typeof Swal === 'undefined') {
+               alert('SweetAlert2 no está cargado');
+               return;
+           }
+           
+           Swal.fire({
+               title: '¿Analizar Dominios Faltantes?',
+               text: 'Esto analizará qué dominios de IONOS no existen en la base de datos. ¿Continuar?',
+               icon: 'question',
+               showCancelButton: true,
+               confirmButtonColor: '#fd7e14',
+               cancelButtonColor: '#6c757d',
+               confirmButtonText: 'Sí, analizar',
+               cancelButtonText: 'Cancelar'
+           }).then((result) => {
+               if (result.isConfirmed) {
+                   ejecutarComandoIonos('ionos:analyze-missing', 'Analizando dominios faltantes...');
+               }
+           });
+       }
+
+       function ejecutarComandoIonos(comando, mensaje) {
+           Swal.fire({
+               title: mensaje,
+               text: 'Esto puede tomar varios minutos...',
+               allowOutsideClick: false,
+               showConfirmButton: false,
+               willOpen: () => {
+                   Swal.showLoading();
+               }
+           });
+
+           fetch('/dominios/ejecutar-comando-ionos', {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+               },
+               body: JSON.stringify({
+                   comando: comando
+               })
+           })
+           .then(response => response.json())
+           .then(data => {
+               if (data.success) {
+                   Swal.fire({
+                       title: '¡Comando Ejecutado!',
+                       text: data.message,
+                       icon: 'success',
+                       confirmButtonText: 'OK'
+                   }).then(() => {
+                       // Actualizar solo el componente Livewire sin recargar la página
+                       @this.call('actualizarDominios');
+                   });
+               } else {
+                   Swal.fire({
+                       title: 'Error',
+                       text: data.message,
+                       icon: 'error',
+                       confirmButtonText: 'OK'
+                   });
+               }
+           })
+           .catch(error => {
+               Swal.fire({
+                   title: 'Error',
+                   text: 'Error de conexión. Inténtalo de nuevo.',
+                   icon: 'error',
+                   confirmButtonText: 'OK'
+               });
+           });
+       }
     </script>
 @endsection

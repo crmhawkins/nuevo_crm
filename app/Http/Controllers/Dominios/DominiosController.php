@@ -433,6 +433,7 @@ class DominiosController extends Controller
                 $dominio->update([
                     'fecha_activacion_ionos' => $result['fecha_activacion_ionos'],
                     'fecha_renovacion_ionos' => $result['fecha_renovacion_ionos'],
+                    'ionos_id' => $result['ionos_id'],
                     'sincronizado_ionos' => true,
                     'ultima_sincronizacion_ionos' => now()
                 ]);
@@ -503,6 +504,66 @@ class DominiosController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al probar conexión: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function ejecutarComandoIonos(Request $request)
+    {
+        try {
+            $comando = $request->input('comando');
+            
+            if (!$comando) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Comando no especificado'
+                ], 400);
+            }
+
+            // Validar que el comando sea uno de los permitidos
+            $comandosPermitidos = [
+                'ionos:sync-missing-dates',
+                'ionos:sync-all-missing', 
+                'ionos:analyze-missing',
+                'ionos:sync-all',
+                'ionos:update-all-dates',
+                'test:web-command'
+            ];
+
+            if (!in_array($comando, $comandosPermitidos)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Comando no permitido'
+                ], 400);
+            }
+
+            // Ejecutar el comando
+            $output = [];
+            $returnCode = 0;
+            
+            // Usar la ruta completa del directorio del proyecto
+            $projectPath = base_path();
+            $command = "cd {$projectPath} && php artisan {$comando} --limit=10";
+            exec($command . ' 2>&1', $output, $returnCode);
+            
+            $outputString = implode("\n", $output);
+            
+            if ($returnCode === 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Comando ejecutado exitosamente:\n" . $outputString
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Error al ejecutar comando:\n" . $outputString
+                ], 500);
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al ejecutar comando: ' . $e->getMessage()
             ], 500);
         }
     }

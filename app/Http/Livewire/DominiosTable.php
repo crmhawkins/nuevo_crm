@@ -47,9 +47,10 @@ class DominiosTable extends Component
         ]);
     }
 
-    protected function actualizarDominios()
+    public function actualizarDominios()
     {
         $query = Dominio::with(['cliente', 'estadoName'])
+                ->where('estado_id', '!=', 2) // Excluir dominios cancelados
                 ->when($this->buscar, function ($query) {
                     $query->where('dominio', 'like', '%' . $this->buscar . '%');
                 })
