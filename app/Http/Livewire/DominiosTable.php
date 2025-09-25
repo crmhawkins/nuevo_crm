@@ -91,9 +91,16 @@ class DominiosTable extends Component
          // Verifica si se seleccionó 'all' para mostrar todos los registros
          // Limitar resultados para filtros pesados
          if ($this->filtroSinFacturas && $this->añoSinFacturas) {
-             $query->limit(50); // Limitar a 50 resultados para filtros pesados
-             // Para filtros pesados, usar paginate con límite fijo
-             $this->dominios = $query->paginate(50);
+             // Para filtros pesados, obtener solo los primeros 50 resultados
+             $resultados = $query->limit(50)->get();
+             // Crear una paginación manual con los resultados limitados
+             $this->dominios = new \Illuminate\Pagination\LengthAwarePaginator(
+                 $resultados->forPage(1, 10), // 10 por página
+                 50, // Total de 50 resultados
+                 10, // Por página
+                 1, // Página actual
+                 ['path' => request()->url(), 'pageName' => 'page']
+             );
          } else {
              $this->dominios = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
          }
