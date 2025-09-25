@@ -276,9 +276,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/dominios/destroy', [DominiosController::class, 'destroy'])->name('dominios.delete');
         Route::post('/dominios/cancelar/{id}', [DominiosController::class, 'cancelar'])->name('dominios.cancelar');
         Route::get('/dominios/verificar/{id}', [DominiosController::class, 'verificarEstado'])->name('dominios.verificar');
-        Route::post('/dominios/sincronizar-ionos/{id}', [DominiosController::class, 'sincronizarIonos'])->name('dominios.sincronizar-ionos');
-        Route::get('/dominios/info-ionos/{id}', [DominiosController::class, 'obtenerInfoIonos'])->name('dominios.info-ionos');
-        Route::get('/dominios/probar-ionos', [DominiosController::class, 'probarConexionIonos'])->name('dominios.probar-ionos');
+Route::post('/dominios/sincronizar-ionos/{id}', [DominiosController::class, 'sincronizarIonos'])->name('dominios.sincronizar-ionos');
+Route::get('/dominios/info-ionos/{id}', [DominiosController::class, 'obtenerInfoIonos'])->name('dominios.info-ionos');
+Route::get('/dominios/probar-ionos', [DominiosController::class, 'probarConexionIonos'])->name('dominios.probar-ionos');
+Route::post('/dominios/calcular-fecha-registro/{id}', [DominiosController::class, 'calcularFechaRegistro'])->name('dominios.calcular-fecha-registro');
 
         // Kit Digital
         Route::get('/kit-digital-whatsapp', [KitDigitalController::class, 'index'])->name('kitDigital.indexWhatsapp');

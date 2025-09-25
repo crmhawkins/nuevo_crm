@@ -200,16 +200,27 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-4"><strong>Fecha Renovación IONOS:</strong></div>
-                                    <div class="col-sm-8">
-                                        @if($dominio->fecha_renovacion_ionos)
-                                            <span class="text-primary">{{ $dominio->fecha_renovacion_ionos_formateada }}</span>
-                                        @else
-                                            <span class="text-muted">No disponible</span>
-                                        @endif
-                                    </div>
-                                </div>
+                               <div class="row mb-3">
+                                   <div class="col-sm-4"><strong>Fecha Renovación IONOS:</strong></div>
+                                   <div class="col-sm-8">
+                                       @if($dominio->fecha_renovacion_ionos)
+                                           <span class="text-primary">{{ $dominio->fecha_renovacion_ionos_formateada }}</span>
+                                       @else
+                                           <span class="text-muted">No disponible</span>
+                                       @endif
+                                   </div>
+                               </div>
+                               <div class="row mb-3">
+                                   <div class="col-sm-4"><strong>Fecha Registro Calculada:</strong></div>
+                                   <div class="col-sm-8">
+                                       @if($dominio->fecha_registro_calculada)
+                                           <span class="text-success">{{ $dominio->fecha_registro_calculada_formateada }}</span>
+                                           <br><small class="text-muted">Calculada basándose en fecha de renovación IONOS - 1 año</small>
+                                       @else
+                                           <span class="text-muted">No calculada</span>
+                                       @endif
+                                   </div>
+                               </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="row mb-3">
@@ -223,14 +234,21 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-4"><strong>Acciones:</strong></div>
-                                    <div class="col-sm-8">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="obtenerInfoIonos({{ $dominio->id }})">
-                                            <i class="bi bi-info-circle"></i> Ver Info IONOS
-                                        </button>
-                                    </div>
-                                </div>
+                               <div class="row mb-3">
+                                   <div class="col-sm-4"><strong>Acciones:</strong></div>
+                                   <div class="col-sm-8">
+                                       <button class="btn btn-sm btn-outline-primary me-2" onclick="obtenerInfoIonos({{ $dominio->id }})">
+                                           <i class="bi bi-info-circle"></i> Ver Info IONOS
+                                       </button>
+                                       @if($dominio->fecha_renovacion_ionos && !$dominio->fecha_registro_calculada)
+                                       <button class="btn btn-sm btn-outline-success" onclick="calcularFechaRegistro({{ $dominio->id }})" id="btn-calcular-registro">
+                                           <i class="bi bi-calculator"></i> Calcular Fecha Registro
+                                       </button>
+                                       @elseif($dominio->fecha_registro_calculada)
+                                       <span class="badge bg-success">Fecha calculada: {{ $dominio->fecha_registro_calculada_formateada }}</span>
+                                       @endif
+                                   </div>
+                               </div>
                             </div>
                         </div>
                         
@@ -824,17 +842,71 @@
         });
     }
 
-    // Event listener adicional para el botón
-    document.addEventListener('DOMContentLoaded', function() {
-        const btnCancelar = document.getElementById('btn-cancelar');
-        if (btnCancelar) {
-            btnCancelar.addEventListener('click', function(e) {
-                e.preventDefault();
-                const dominioId = {{ $dominio->id }};
-                console.log('Event listener activado para dominio:', dominioId);
-                cancelarDominio(dominioId);
-            });
-        }
-    });
+       // Función para calcular fecha de registro
+       function calcularFechaRegistro(dominioId) {
+           console.log('Calculando fecha de registro para dominio:', dominioId);
+           
+           // Mostrar loading
+           Swal.fire({
+               title: 'Calculando...',
+               text: 'Calculando fecha de registro basada en IONOS',
+               allowOutsideClick: false,
+               showConfirmButton: false,
+               willOpen: () => {
+                   Swal.showLoading();
+               }
+           });
+
+           // Hacer petición AJAX
+           fetch(`/dominios/calcular-fecha-registro/${dominioId}`, {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+               }
+           })
+           .then(response => response.json())
+           .then(data => {
+               if (data.success) {
+                   Swal.fire({
+                       title: '¡Calculado!',
+                       text: data.message,
+                       icon: 'success',
+                       confirmButtonText: 'OK'
+                   }).then(() => {
+                       // Recargar la página para mostrar la nueva fecha
+                       location.reload();
+                   });
+               } else {
+                   Swal.fire({
+                       title: 'Error',
+                       text: data.message,
+                       icon: 'error',
+                       confirmButtonText: 'OK'
+                   });
+               }
+           })
+           .catch(error => {
+               Swal.fire({
+                   title: 'Error',
+                   text: 'Error de conexión. Inténtalo de nuevo.',
+                   icon: 'error',
+                   confirmButtonText: 'OK'
+               });
+           });
+       }
+
+       // Event listener adicional para el botón
+       document.addEventListener('DOMContentLoaded', function() {
+           const btnCancelar = document.getElementById('btn-cancelar');
+           if (btnCancelar) {
+               btnCancelar.addEventListener('click', function(e) {
+                   e.preventDefault();
+                   const dominioId = {{ $dominio->id }};
+                   console.log('Event listener activado para dominio:', dominioId);
+                   cancelarDominio(dominioId);
+               });
+           }
+       });
 </script>
 @endsection

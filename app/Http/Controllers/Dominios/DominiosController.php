@@ -506,4 +506,53 @@ class DominiosController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Calcular fecha de registro basada en fecha de renovación IONOS
+     */
+    public function calcularFechaRegistro($id)
+    {
+        try {
+            $dominio = Dominio::find($id);
+            
+            if (!$dominio) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dominio no encontrado'
+                ], 404);
+            }
+
+            if (!$dominio->fecha_renovacion_ionos) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No hay fecha de renovación IONOS disponible para calcular la fecha de registro'
+                ], 400);
+            }
+
+            $resultado = $dominio->calcularFechaRegistro();
+
+            if ($resultado) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Fecha de registro calculada exitosamente',
+                    'data' => [
+                        'fecha_registro_calculada' => $dominio->fecha_registro_calculada_formateada,
+                        'fecha_renovacion_ionos' => $dominio->fecha_renovacion_ionos_formateada,
+                        'diferencia_anos' => 1
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al calcular la fecha de registro'
+            ], 500);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al calcular fecha de registro: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

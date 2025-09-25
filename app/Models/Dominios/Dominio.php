@@ -34,7 +34,8 @@ class Dominio extends Model
         'fecha_activacion_ionos',
         'fecha_renovacion_ionos',
         'sincronizado_ionos',
-        'ultima_sincronizacion_ionos'
+        'ultima_sincronizacion_ionos',
+        'fecha_registro_calculada'
     ];
 
     /**
@@ -43,7 +44,7 @@ class Dominio extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at', 'ultima_sincronizacion', 'fecha_activacion_ionos', 'fecha_renovacion_ionos', 'ultima_sincronizacion_ionos'
+        'created_at', 'updated_at', 'deleted_at', 'ultima_sincronizacion', 'fecha_activacion_ionos', 'fecha_renovacion_ionos', 'ultima_sincronizacion_ionos', 'fecha_registro_calculada'
     ];
 
     /**
@@ -58,6 +59,7 @@ class Dominio extends Model
         'fecha_renovacion_ionos' => 'datetime',
         'sincronizado_ionos' => 'boolean',
         'ultima_sincronizacion_ionos' => 'datetime',
+        'fecha_registro_calculada' => 'datetime',
     ];
 
 
@@ -182,5 +184,44 @@ class Dominio extends Model
             'sincronizado_ionos' => true,
             'ultima_sincronizacion_ionos' => now()
         ]);
+    }
+
+    /**
+     * Obtener la fecha de registro calculada formateada
+     */
+    public function getFechaRegistroCalculadaFormateadaAttribute()
+    {
+        if (!$this->fecha_registro_calculada) {
+            return 'N/A';
+        }
+        
+        try {
+            return $this->fecha_registro_calculada->format('d/m/Y H:i');
+        } catch (\Exception $e) {
+            return 'Fecha inválida';
+        }
+    }
+
+    /**
+     * Calcular fecha de registro basada en fecha de renovación IONOS
+     */
+    public function calcularFechaRegistro()
+    {
+        if (!$this->fecha_renovacion_ionos) {
+            return false;
+        }
+        
+        try {
+            $fechaRenovacion = $this->fecha_renovacion_ionos;
+            $fechaRegistro = $fechaRenovacion->copy()->subYear();
+            
+            $this->update([
+                'fecha_registro_calculada' => $fechaRegistro
+            ]);
+            
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

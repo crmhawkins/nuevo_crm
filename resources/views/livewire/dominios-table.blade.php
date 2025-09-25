@@ -177,8 +177,9 @@
                             'client_id' => 'CLIENTE',
                             'date_start' => 'FECHA CONTRATACION',
                             'date_end' => 'FECHA VENCIMIENTO',
-                            'fecha_activacion_ionos' => 'FECHA ACTIVACION IONOS',
-                            'fecha_renovacion_ionos' => 'FECHA RENOVACION IONOS',
+       'fecha_activacion_ionos' => 'FECHA ACTIVACION IONOS',
+       'fecha_renovacion_ionos' => 'FECHA RENOVACION IONOS',
+       'fecha_registro_calculada' => 'FECHA REGISTRO CALCULADA',
                             'estado_id' => 'ESTADO',
                             'precio_compra' => 'PRECIO COMPRA',
                             'precio_venta' => 'PRECIO VENTA',
@@ -210,13 +211,20 @@
                                     <span class="text-muted">-</span>
                                 @endif
                             </td>
-                            <td>
-                                @if($dominio->fecha_renovacion_ionos)
-                                    <span class="text-primary">{{ $dominio->fecha_renovacion_ionos_formateada }}</span>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
+       <td>
+           @if($dominio->fecha_renovacion_ionos)
+               <span class="text-primary">{{ $dominio->fecha_renovacion_ionos_formateada }}</span>
+           @else
+               <span class="text-muted">-</span>
+           @endif
+       </td>
+       <td>
+           @if($dominio->fecha_registro_calculada)
+               <span class="text-success">{{ $dominio->fecha_registro_calculada_formateada }}</span>
+           @else
+               <span class="text-muted">-</span>
+           @endif
+       </td>
                             @if ($dominio->estado_id == 2)
                                 <td><span class="badge bg-warning text-dark">{{$dominio->estadoName->name}}</span></td>
                             @elseif($dominio->estado_id == 3)
@@ -250,14 +258,24 @@
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 150px">
                                 <a class="" href="{{route('dominios.show', $dominio->id)}}" title="Ver detalles"><img src="{{asset('assets/icons/eye.svg')}}" alt="Ver dominio"></a>
                                 <a class="" href="{{route('dominios.edit', $dominio->id)}}" title="Editar"><img src="{{asset('assets/icons/edit.svg')}}" alt="Editar dominio"></a>
-                                @if($dominio->estado_id != 2)
-                                <button class="btn btn-sm btn-outline-danger cancelar-dominio" data-id="{{$dominio->id}}" title="Cancelar dominio">
-                                    <i class="bi bi-x-circle"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-info test-js" data-id="{{$dominio->id}}" title="Test JS">
-                                    <i class="bi bi-bug"></i>
-                                </button>
-                                @endif
+       @if($dominio->estado_id != 2)
+       <button class="btn btn-sm btn-outline-danger cancelar-dominio" data-id="{{$dominio->id}}" title="Cancelar dominio">
+           <i class="bi bi-x-circle"></i>
+       </button>
+       <button class="btn btn-sm btn-outline-info test-js" data-id="{{$dominio->id}}" title="Test JS">
+           <i class="bi bi-bug"></i>
+       </button>
+       @endif
+       
+       @if($dominio->fecha_renovacion_ionos && !$dominio->fecha_registro_calculada)
+       <button class="btn btn-sm btn-outline-success calcular-fecha-registro" data-id="{{$dominio->id}}" title="Calcular fecha de registro">
+           <i class="bi bi-calculator"></i>
+       </button>
+       @elseif($dominio->fecha_registro_calculada)
+       <span class="badge bg-success" title="Fecha calculada: {{ $dominio->fecha_registro_calculada_formateada }}">
+           <i class="bi bi-check-circle"></i>
+       </span>
+       @endif
                                 <a class="delete" data-id="{{$dominio->id}}" href="" title="Eliminar"><img src="{{asset('assets/icons/trash.svg')}}" alt="Eliminar dominio"></a>
                             </td>
                         </tr>
@@ -418,12 +436,87 @@
             });
         });
 
-        // Función para test de JavaScript
-        $(document).on('click', '.test-js', function(e) {
-            e.preventDefault();
-            const id = $(this).data('id');
-            console.log('Botón test clickeado, ID:', id);
-            alert('JavaScript funciona en index! ID: ' + id);
-        });
+       // Función para test de JavaScript
+       $(document).on('click', '.test-js', function(e) {
+           e.preventDefault();
+           const id = $(this).data('id');
+           console.log('Botón test clickeado, ID:', id);
+           alert('JavaScript funciona en index! ID: ' + id);
+       });
+
+       // Función para calcular fecha de registro
+       $(document).on('click', '.calcular-fecha-registro', function(e) {
+           e.preventDefault();
+           const id = $(this).data('id');
+           console.log('Botón calcular fecha registro clickeado, ID:', id);
+           
+           // Verificar que SweetAlert2 esté disponible
+           if (typeof Swal === 'undefined') {
+               alert('SweetAlert2 no está cargado. ID del dominio: ' + id);
+               return;
+           }
+           
+           Swal.fire({
+               title: '¿Calcular Fecha de Registro?',
+               text: 'Se calculará la fecha de registro basándose en la fecha de renovación IONOS menos 1 año.',
+               icon: 'question',
+               showCancelButton: true,
+               confirmButtonColor: '#28a745',
+               cancelButtonColor: '#6c757d',
+               confirmButtonText: 'Sí, calcular',
+               cancelButtonText: 'Cancelar'
+           }).then((result) => {
+               if (result.isConfirmed) {
+                   // Mostrar loading
+                   Swal.fire({
+                       title: 'Calculando...',
+                       text: 'Calculando fecha de registro basada en IONOS',
+                       allowOutsideClick: false,
+                       showConfirmButton: false,
+                       willOpen: () => {
+                           Swal.showLoading();
+                       }
+                   });
+
+                   // Hacer petición AJAX
+                   fetch(`/dominios/calcular-fecha-registro/${id}`, {
+                       method: 'POST',
+                       headers: {
+                           'Content-Type': 'application/json',
+                           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                       }
+                   })
+                   .then(response => response.json())
+                   .then(data => {
+                       if (data.success) {
+                           Swal.fire({
+                               title: '¡Calculado!',
+                               text: data.message,
+                               icon: 'success',
+                               confirmButtonText: 'OK'
+                           }).then(() => {
+                               // Recargar la página para mostrar la nueva fecha
+                               location.reload();
+                           });
+                       } else {
+                           Swal.fire({
+                               title: 'Error',
+                               text: data.message,
+                               icon: 'error',
+                               confirmButtonText: 'OK'
+                           });
+                       }
+                   })
+                   .catch(error => {
+                       Swal.fire({
+                           title: 'Error',
+                           text: 'Error de conexión. Inténtalo de nuevo.',
+                           icon: 'error',
+                           confirmButtonText: 'OK'
+                       });
+                   });
+               }
+           });
+       });
     </script>
 @endsection

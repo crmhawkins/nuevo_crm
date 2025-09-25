@@ -111,6 +111,32 @@ php artisan ionos:sync-missing --client-id=1 --limit=50 --offset=50
 php artisan ionos:sync-all-missing --client-id=1 --batch-size=100
 ```
 
+## Resultados de Pruebas
+
+### Análisis Completo (286 dominios)
+- **Total de dominios en IONOS**: 286
+- **Dominios existentes localmente**: 159 (55.59%)
+- **Dominios faltantes**: 127 (44.41%)
+- **Por TLD**: .com (122), .es (15), .org (1), .info (2)
+
+### Sincronización Exitosa (20 dominios)
+- **Dominios procesados**: 20
+- **Dominios encontrados**: 11
+- **Dominios creados**: 9
+- **Errores**: 0
+- **Cliente asignado**: A.C.P. LEVEL (ID: 1)
+
+### Dominios Creados Exitosamente
+- `almadrabadezaharaspain.com` (ID: 471)
+- `amcamparquitectos.com` (ID: 472)
+- `angelesmadro.com` (ID: 473)
+- `arqjedimer.com` (ID: 474)
+- `alzomes.com` (ID: 475)
+- `antoniogd.com` (ID: 476)
+- `antoniomadronal.com` (ID: 477)
+- `aquatropicanimales.com` (ID: 478)
+- `arqdobleeme.com` (ID: 479)
+
 ## Notas Importantes
 
 1. **Modo DRY RUN**: Siempre usa `--dry-run` primero para ver qué se crearía
