@@ -90,37 +90,11 @@ class DominiosTable extends Component
          $query->orderBy($this->sortColumn, $this->sortDirection);
 
          // Verifica si se seleccionó 'all' para mostrar todos los registros
-         // Lógica especial para filtro de dominios sin facturas
-         if ($this->filtroSinFacturas && $this->añoSinFacturas) {
-             // Para filtros pesados, obtener el total real primero
-             $totalReal = $query->count();
-             
-             // Obtener la página actual de Livewire
-             $currentPage = $this->getPage();
-             $perPage = is_numeric($this->perPage) ? $this->perPage : 10;
-             
-             // Obtener los resultados para la página actual
-             $resultados = $query->forPage($currentPage, $perPage)->get();
-             
-             // Crear una paginación manual que respete la página actual
-             $this->dominios = new \Illuminate\Pagination\LengthAwarePaginator(
-                 $resultados,
-                 $totalReal,
-                 $perPage,
-                 $currentPage,
-                 [
-                     'path' => request()->url(),
-                     'pageName' => 'page',
-                     'query' => request()->query()
-                 ]
-             );
+         if ($this->perPage === 'all') {
+             $this->dominios = $query->get();
          } else {
-             // Paginación normal para otros casos
-             if ($this->perPage === 'all') {
-                 $this->dominios = $query->get();
-             } else {
-                 $this->dominios = $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
-             }
+             // Usar paginación normal de Livewire para todos los casos
+             $this->dominios = $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
          }
     }
 
