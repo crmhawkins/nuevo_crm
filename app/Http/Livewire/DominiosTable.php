@@ -92,8 +92,8 @@ class DominiosTable extends Component
          // Limitar resultados para filtros pesados
          if ($this->filtroSinFacturas && $this->añoSinFacturas) {
              $query->limit(50); // Limitar a 50 resultados para filtros pesados
-             // Para filtros pesados, usar get() en lugar de paginate
-             $this->dominios = $query->get();
+             // Para filtros pesados, usar paginate con límite fijo
+             $this->dominios = $query->paginate(50);
          } else {
              $this->dominios = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
          }

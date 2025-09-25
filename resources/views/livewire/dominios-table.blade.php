@@ -264,7 +264,7 @@
                     @endforeach
                 </tbody>
             </table>
-            @if($perPage !== 'all')
+            @if($perPage !== 'all' && method_exists($dominios, 'links'))
                 {{ $dominios->links() }}
             @endif
         </div>
