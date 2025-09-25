@@ -67,23 +67,25 @@ class DominiosTable extends Component
                     $query->where('date_end', '<=', $this->fechaFin);
                 })
                 ->when($this->filtroSinFacturas && $this->añoSinFacturas, function ($query) {
-                    // Optimización: Usar subconsulta más eficiente
-                    $query->whereNotExists(function ($subQuery) {
-                        $subQuery->select(\Illuminate\Support\Facades\DB::raw(1))
-                                ->from('budgets')
-                                ->join('invoices', 'budgets.id', '=', 'invoices.budget_id')
-                                ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
-                                ->whereColumn('budgets.client_id', 'dominios.client_id')
-                                ->whereYear('invoice_concepts.created_at', $this->añoSinFacturas)
-                                ->where(function ($q) {
-                                    $q->where('invoice_concepts.title', 'like', '%dominio%')
-                                      ->orWhere('invoice_concepts.concept', 'like', '%dominio%')
-                                      ->orWhere('invoice_concepts.title', 'like', '%Dominio%')
-                                      ->orWhere('invoice_concepts.concept', 'like', '%Dominio%')
-                                      ->orWhere('invoice_concepts.title', 'like', '%DOMINIO%')
-                                      ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
-                                });
-                    });
+                    // Excluir dominios que tienen fecha_registro_calculada (ya están facturados)
+                    $query->whereNull('fecha_registro_calculada')
+                          // Optimización: Usar subconsulta más eficiente
+                          ->whereNotExists(function ($subQuery) {
+                              $subQuery->select(\Illuminate\Support\Facades\DB::raw(1))
+                                      ->from('budgets')
+                                      ->join('invoices', 'budgets.id', '=', 'invoices.budget_id')
+                                      ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                                      ->whereColumn('budgets.client_id', 'dominios.client_id')
+                                      ->whereYear('invoice_concepts.created_at', $this->añoSinFacturas)
+                                      ->where(function ($q) {
+                                          $q->where('invoice_concepts.title', 'like', '%dominio%')
+                                            ->orWhere('invoice_concepts.concept', 'like', '%dominio%')
+                                            ->orWhere('invoice_concepts.title', 'like', '%Dominio%')
+                                            ->orWhere('invoice_concepts.concept', 'like', '%Dominio%')
+                                            ->orWhere('invoice_concepts.title', 'like', '%DOMINIO%')
+                                            ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
+                                      });
+                          });
                 });
 
          // Aplica la ordenación
