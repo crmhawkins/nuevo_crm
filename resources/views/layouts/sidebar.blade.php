@@ -31,8 +31,9 @@
                     $actasActive= request()->routeIs('reunion.*');
                     $IncidenciasActive = request()->routeIs('incidencias.*');
                     $dominiosActive = request()->routeIs('dominios.index') || request()->routeIs('dominios.create') || request()->routeIs('dominios.edit');
+                    $citasActive = request()->routeIs('citas.*');
                     $poveedoresActive= request()->routeIs('proveedores.*');
-                    $gestionActive =  $clientesActive || $presupuestoActive || $peticionesActive || $projectActive || $tareaActive || $actasActive || $IncidenciasActive|| $dominiosActive || $poveedoresActive;
+                    $gestionActive =  $clientesActive || $presupuestoActive || $peticionesActive || $projectActive || $tareaActive || $actasActive || $IncidenciasActive|| $dominiosActive || $citasActive || $poveedoresActive;
                     // Contabilidad
                     $ingresosActive = request()->routeIs('ingreso.*');
                     $gastosActive =  request()->routeIs('gasto.*') || request()->routeIs('categorias-gastos.*');
@@ -61,12 +62,13 @@
                     $DireccionActive = $LlamadasActive || $logsActive || $StadisticsActive || request()->routeIs('productividad.index');
 
 
-                    $admin = (Auth::user()->access_level_id == 1);
-                    $gerente = (Auth::user()->access_level_id == 2);
-                    $contable = (Auth::user()->access_level_id == 3);
-                    $gestor = (Auth::user()->access_level_id == 4);
-                    $personal = (Auth::user()->access_level_id == 5);
-                    $comercial = (Auth::user()->access_level_id == 6);
+                    $user = Auth::user();
+                    $admin = $user && $user->access_level_id == 1;
+                    $gerente = $user && $user->access_level_id == 2;
+                    $contable = $user && $user->access_level_id == 3;
+                    $gestor = $user && $user->access_level_id == 4;
+                    $personal = $user && $user->access_level_id == 5;
+                    $comercial = $user && $user->access_level_id == 6;
                     @endphp
 
                 <li class="sidebar-item has-sub ">
@@ -231,6 +233,12 @@
                                     </a>
                                 </li>
                             </ul>
+                        </li>
+                        <li class="sidebar-item is_sub {{ $citasActive ? 'active' : '' }}">
+                            <a href="{{route('citas.index')}}" class='sidebar-link hasnt_sub' target="_blank">
+                                <i class="fa-solid fa-calendar-days fs-5"></i>
+                                <span>Citas</span>
+                            </a>
                         </li>
                         <li class="sidebar-item is_sub has-sub {{ $poveedoresActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
