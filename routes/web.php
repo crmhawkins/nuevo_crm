@@ -924,20 +924,3 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/citas/proximas', [CitasController::class, 'proximas'])->name('citas.proximas');
 });
 
-// Rutas API para Eleven Labs (sin autenticación para el agente)
-Route::prefix('api/eleven-labs')->group(function () {
-    // Citas
-    Route::get('/citas-disponibles', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getCitasDisponibles']);
-    Route::post('/agendar-cita', [\App\Http\Controllers\Api\ElevenLabsController::class, 'agendarCita']);
-    
-    // Peticiones
-    Route::post('/crear-peticion', [\App\Http\Controllers\Api\ElevenLabsController::class, 'crearPeticion']);
-    
-    // Datos de referencia
-    Route::get('/gestores', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getGestores']);
-    Route::get('/clientes', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getClientes']);
-    
-    // Gestión de clientes
-    Route::get('/buscar-cliente', [\App\Http\Controllers\Api\ElevenLabsController::class, 'buscarCliente']);
-    Route::post('/crear-cliente', [\App\Http\Controllers\Api\ElevenLabsController::class, 'crearCliente']);
-});
