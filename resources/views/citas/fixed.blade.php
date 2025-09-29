@@ -756,10 +756,12 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     <script>
+    // Variables globales
+    let calendar;
+    let citasData = [];
+    let citaActual = null;
+    
     document.addEventListener('DOMContentLoaded', function() {
-        let calendar;
-        let citasData = [];
-        let citaActual = null;
 
         console.log('🚀 Iniciando sistema de citas...');
         console.log('👥 Gestores disponibles:', @json($gestores));
@@ -925,54 +927,36 @@
         function cargarCitas(start, end, callback) {
             console.log('📅 Cargando citas desde', start, 'hasta', end);
             
-            // Simular datos de prueba
-            const eventos = [
-                {
-                    id: 1,
-                    title: 'Reunión de Prueba',
-                    start: new Date(),
-                    end: new Date(Date.now() + 2 * 60 * 60 * 1000),
-                    color: '#3b82f6',
-                    extendedProps: {
-                        tipo: 'reunion',
-                        cliente: 'Cliente de Prueba',
-                        gestor: 'Gestor Asignado',
-                        descripcion: 'Reunión de prueba del sistema',
-                        ubicacion: 'Oficina Principal'
-                    }
-                },
-                {
-                    id: 2,
-                    title: 'Llamada Cliente',
-                    start: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                    end: new Date(Date.now() + 24 * 60 * 60 * 1000 + 60 * 60 * 1000),
-                    color: '#10b981',
-                    extendedProps: {
-                        tipo: 'llamada',
-                        cliente: 'Cliente Importante',
-                        gestor: 'Gestor Principal',
-                        descripcion: 'Llamada de seguimiento',
-                        ubicacion: 'Remoto'
-                    }
-                },
-                {
-                    id: 3,
-                    title: 'Presentación Proyecto',
-                    start: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-                    end: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 90 * 60 * 1000),
-                    color: '#f59e0b',
-                    extendedProps: {
-                        tipo: 'presentacion',
-                        cliente: 'Cliente Corporativo',
-                        gestor: 'Gestor Senior',
-                        descripcion: 'Presentación del nuevo proyecto',
-                        ubicacion: 'Sala de Conferencias'
-                    }
+            // Usar la API real para cargar citas
+            fetch('/api/eleven-labs/citas?' + new URLSearchParams({
+                start: start.toISOString().split('T')[0],
+                end: end.toISOString().split('T')[0],
+                v: Date.now() // Forzar recarga del cache
+            }), {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
-            ];
-            
-            console.log('📅 Eventos cargados:', eventos.length);
-            callback(eventos);
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al cargar citas: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('📅 Citas cargadas desde API ElevenLabs:', data);
+                console.log('📅 Total de citas recibidas:', data.length);
+                console.log('📅 Primera cita completa:', JSON.stringify(data[0], null, 2));
+                console.log('📅 Todas las citas:', JSON.stringify(data, null, 2));
+                callback(data);
+            })
+            .catch(error => {
+                console.error('❌ Error cargando citas:', error);
+                console.log('⚠️ No se pudieron cargar las citas. Mostrando calendario vacío.');
+                callback([]);
+            });
         }
 
         function mostrarDetalleCita(event) {
@@ -1195,20 +1179,77 @@
             
             const formData = new FormData(form);
             const titulo = formData.get('titulo');
+            const descripcion = formData.get('descripcion');
+            const fechaInicio = formData.get('fecha_inicio');
+            const fechaFin = formData.get('fecha_fin');
+            const tipo = formData.get('tipo');
+            const ubicacion = formData.get('ubicacion');
+            const color = formData.get('color');
+            const clienteId = formData.get('cliente_id');
+            const gestorId = formData.get('gestor_id');
             
             console.log('💾 Guardando cita:', titulo);
+            console.log('📝 Datos del formulario:', {
+                titulo, descripcion, fechaInicio, fechaFin, tipo, ubicacion, color, clienteId, gestorId
+            });
             
-            // Mostrar notificación de éxito
-            mostrarNotificacion('success', 'Cita guardada exitosamente', `La cita "${titulo}" ha sido guardada correctamente.`);
+            // Determinar si es edición o creación
+            const esEdicion = citaActual !== null;
             
+            if (esEdicion) {
+                console.log('✏️ Editando cita existente:', citaActual);
+                
+                // Buscar la cita en el calendario
+                const cita = calendar.getEventById(citaActual);
+                if (cita) {
+                    // Actualizar los datos de la cita
+                    cita.setProp('title', titulo);
+                    cita.setStart(fechaInicio);
+                    cita.setEnd(fechaFin);
+                    cita.setProp('color', color);
+                    cita.setExtendedProp('descripcion', descripcion);
+                    cita.setExtendedProp('tipo', tipo);
+                    cita.setExtendedProp('ubicacion', ubicacion);
+                    cita.setExtendedProp('cliente', clienteId);
+                    cita.setExtendedProp('gestor', gestorId);
+                    
+                    console.log('✅ Cita actualizada en el calendario');
+                }
+                
+                mostrarNotificacion('success', 'Cita actualizada exitosamente', `La cita "${titulo}" ha sido actualizada correctamente.`);
+            } else {
+                console.log('➕ Creando nueva cita');
+                
+                // Crear nuevo evento en el calendario
+                const nuevoEvento = {
+                    id: Date.now(), // ID temporal
+                    title: titulo,
+                    start: fechaInicio,
+                    end: fechaFin,
+                    color: color,
+                    extendedProps: {
+                        descripcion: descripcion,
+                        tipo: tipo,
+                        ubicacion: ubicacion,
+                        cliente: clienteId,
+                        gestor: gestorId
+                    }
+                };
+                
+                calendar.addEvent(nuevoEvento);
+                console.log('✅ Nueva cita agregada al calendario');
+                
+                mostrarNotificacion('success', 'Cita creada exitosamente', `La cita "${titulo}" ha sido creada correctamente.`);
+            }
+            
+            // Limpiar variables
+            citaActual = null;
+            document.getElementById('titulo-modal-cita').textContent = 'Nueva Cita';
+            
+            // Cerrar modal
             const modalCita = document.getElementById('modal-cita');
             if (modalCita) {
                 bootstrap.Modal.getInstance(modalCita).hide();
-            }
-            
-            // Recargar calendario
-            if (calendar) {
-                calendar.refetchEvents();
             }
         }
 
@@ -1320,15 +1361,126 @@
             return true;
         }
 
-        // Función para editar cita
-        function editarCita(citaId) {
-            console.log('✏️ Editando cita:', citaId);
-            mostrarModalCita();
-            // Aquí podrías cargar los datos de la cita para editar
-        }
-
         console.log('✅ Sistema de citas inicializado correctamente');
     });
+
+    // Función global para editar cita
+    function editarCita(citaId) {
+        console.log('✏️ Editando cita:', citaId);
+        
+        // Eliminar completamente el modal de detalles del DOM
+        const modalDetalles = document.getElementById('modal-detalle-cita');
+        if (modalDetalles) {
+            modalDetalles.remove();
+            console.log('🗑️ Modal de detalles eliminado del DOM');
+        }
+        
+        // Limpiar cualquier backdrop restante
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        // Limpiar estilos del body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        // Esperar un momento y luego abrir el modal de edición
+        setTimeout(() => {
+            abrirModalEdicion(citaId);
+        }, 100);
+    }
+    
+    function abrirModalEdicion(citaId) {
+        // Buscar la cita en el calendario
+        const cita = calendar.getEventById(citaId);
+        if (!cita) {
+            console.error('❌ No se encontró la cita con ID:', citaId);
+            alert('No se pudo encontrar la cita para editar');
+            return;
+        }
+        
+        // Configurar el modal para edición
+        document.getElementById('titulo-modal-cita').textContent = 'Editar Cita';
+        document.getElementById('form-cita').reset();
+        
+        // Llenar el formulario con los datos de la cita
+        document.getElementById('titulo').value = cita.title;
+        document.getElementById('descripcion').value = cita.extendedProps.descripcion || '';
+        document.getElementById('fecha_inicio').value = cita.start.toISOString().slice(0, 16);
+        document.getElementById('fecha_fin').value = cita.end.toISOString().slice(0, 16);
+        document.getElementById('tipo').value = cita.extendedProps.tipo || 'reunion';
+        document.getElementById('ubicacion').value = cita.extendedProps.ubicacion || '';
+        document.getElementById('color').value = cita.color || '#3b82f6';
+        
+        // Guardar el ID de la cita para la actualización
+        citaActual = citaId;
+        
+        // Mostrar el modal
+        const modalEdicion = new bootstrap.Modal(document.getElementById('modal-cita'));
+        modalEdicion.show();
+        
+        // Configurar Select2 de forma simple
+        setTimeout(() => {
+            console.log('🔧 Configurando Select2...');
+            
+            // Destruir Select2 existente
+            try {
+                $('#cliente_id').select2('destroy');
+                $('#gestor_id').select2('destroy');
+            } catch(e) {
+                console.log('Select2 no estaba inicializado');
+            }
+            
+            // Limpiar contenedores
+            $('.select2-container').remove();
+            $('.select2-dropdown').remove();
+            
+            // Reinicializar Select2
+            $('#cliente_id').select2({
+                placeholder: 'Buscar cliente...',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#modal-cita')
+            });
+            
+            $('#gestor_id').select2({
+                placeholder: 'Buscar gestor...',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#modal-cita')
+            });
+            
+            console.log('✅ Select2 inicializado');
+            
+            // Configurar valores
+            if (cita.extendedProps.cliente) {
+                console.log('🔧 Configurando cliente:', cita.extendedProps.cliente);
+                const clienteSelect = document.getElementById('cliente_id');
+                const clienteOptions = clienteSelect.options;
+                for (let i = 0; i < clienteOptions.length; i++) {
+                    if (clienteOptions[i].text === cita.extendedProps.cliente) {
+                        $('#cliente_id').val(clienteOptions[i].value).trigger('change');
+                        console.log('✅ Cliente seleccionado:', clienteOptions[i].value);
+                        break;
+                    }
+                }
+            }
+            
+            if (cita.extendedProps.gestor) {
+                console.log('🔧 Configurando gestor:', cita.extendedProps.gestor);
+                const gestorSelect = document.getElementById('gestor_id');
+                const gestorOptions = gestorSelect.options;
+                for (let i = 0; i < gestorOptions.length; i++) {
+                    if (gestorOptions[i].text === cita.extendedProps.gestor) {
+                        $('#gestor_id').val(gestorOptions[i].value).trigger('change');
+                        console.log('✅ Gestor seleccionado:', gestorOptions[i].value);
+                        break;
+                    }
+                }
+            }
+            
+        }, 300);
+    }
     </script>
 </body>
 </html>

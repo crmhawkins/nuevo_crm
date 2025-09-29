@@ -104,5 +104,8 @@ Route::prefix('eleven-labs')->group(function () {
     // Gestión de clientes
     Route::get('/buscar-cliente', [\App\Http\Controllers\Api\ElevenLabsController::class, 'buscarCliente']);
     Route::post('/crear-cliente', [\App\Http\Controllers\Api\ElevenLabsController::class, 'crearCliente']);
+    
+    // Obtener citas existentes
+    Route::get('/citas', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getCitas']);
 });
 

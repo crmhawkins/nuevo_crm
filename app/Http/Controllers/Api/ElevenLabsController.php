@@ -21,6 +21,9 @@ class ElevenLabsController extends Controller
     public function getCitasDisponibles(Request $request)
     {
         try {
+            Log::info('=== INICIO getCitasDisponibles ===');
+            Log::info('Datos recibidos:', $request->all());
+
             $validator = Validator::make($request->all(), [
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
@@ -29,6 +32,7 @@ class ElevenLabsController extends Controller
             ]);
 
             if ($validator->fails()) {
+                Log::error('Validación fallida:', $validator->errors()->toArray());
                 return response()->json([
                     'success' => false,
                     'message' => 'Datos de entrada inválidos',
@@ -41,6 +45,13 @@ class ElevenLabsController extends Controller
             $duracionMinutos = $request->duracion_minutos ?? 60; // Por defecto 1 hora
             $gestorId = $request->gestor_id;
 
+            Log::info('Parámetros procesados:', [
+                'fecha_inicio' => $fechaInicio->format('Y-m-d H:i:s'),
+                'fecha_fin' => $fechaFin->format('Y-m-d H:i:s'),
+                'duracion_minutos' => $duracionMinutos,
+                'gestor_id' => $gestorId
+            ]);
+
             // Obtener citas existentes en el rango de fechas
             $query = Cita::whereBetween('fecha_inicio', [$fechaInicio, $fechaFin])
                         ->where('estado', '!=', 'cancelada');
@@ -50,16 +61,24 @@ class ElevenLabsController extends Controller
             }
 
             $citasExistentes = $query->get();
+            Log::info('Citas existentes encontradas:', [
+                'total' => $citasExistentes->count(),
+                'citas' => $citasExistentes->map(function($cita) {
+                    return [
+                        'id' => $cita->id,
+                        'fecha_inicio' => $cita->fecha_inicio,
+                        'fecha_fin' => $cita->fecha_fin,
+                        'estado' => $cita->estado
+                    ];
+                })->toArray()
+            ]);
 
             // Generar horarios disponibles
             $horariosDisponibles = $this->generarHorariosDisponibles($fechaInicio, $fechaFin, $citasExistentes, $duracionMinutos);
 
-            // Log para debugging
-            Log::info('Generando horarios disponibles', [
-                'fecha_inicio' => $fechaInicio->format('Y-m-d'),
-                'fecha_fin' => $fechaFin->format('Y-m-d'),
-                'citas_existentes' => $citasExistentes->count(),
-                'horarios_generados' => count($horariosDisponibles)
+            Log::info('Generación completada', [
+                'total_horarios' => count($horariosDisponibles),
+                'primeros_3_horarios' => array_slice($horariosDisponibles, 0, 3)
             ]);
 
             return response()->json([
@@ -75,6 +94,12 @@ class ElevenLabsController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Error en getCitasDisponibles:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Error interno del servidor',
@@ -89,6 +114,9 @@ class ElevenLabsController extends Controller
     public function agendarCita(Request $request)
     {
         try {
+            Log::info('=== INICIO agendarCita ===');
+            Log::info('Datos recibidos para agendar cita:', $request->all());
+
             $validator = Validator::make($request->all(), [
                 'titulo' => 'required|string|max:255',
                 'descripcion' => 'nullable|string',
@@ -103,6 +131,7 @@ class ElevenLabsController extends Controller
             ]);
 
             if ($validator->fails()) {
+                Log::error('Validación fallida en agendarCita:', $validator->errors()->toArray());
                 return response()->json([
                     'success' => false,
                     'message' => 'Datos de entrada inválidos',
@@ -116,6 +145,15 @@ class ElevenLabsController extends Controller
             // Calcular fecha de fin
             $fechaInicio = Carbon::parse($request->fecha_inicio);
             $fechaFin = $fechaInicio->copy()->addMinutes($duracionMinutos);
+
+            Log::info('Parámetros calculados:', [
+                'fecha_inicio' => $fechaInicio->format('Y-m-d H:i:s'),
+                'fecha_fin' => $fechaFin->format('Y-m-d H:i:s'),
+                'duracion_minutos' => $duracionMinutos,
+                'tipo' => $request->tipo,
+                'cliente_id' => $request->cliente_id,
+                'gestor_id' => $request->gestor_id
+            ]);
 
             $cita = Cita::create([
                 'titulo' => $request->titulo,
@@ -134,8 +172,19 @@ class ElevenLabsController extends Controller
                 'minutos_recordatorio' => 15
             ]);
 
+            Log::info('Cita creada exitosamente:', [
+                'id' => $cita->id,
+                'titulo' => $cita->titulo,
+                'fecha_inicio' => $cita->fecha_inicio->format('Y-m-d H:i:s'),
+                'fecha_fin' => $cita->fecha_fin->format('Y-m-d H:i:s'),
+                'estado' => $cita->estado,
+                'cliente_id' => $cita->cliente_id,
+                'gestor_id' => $cita->gestor_id
+            ]);
+
             // Crear alerta para el gestor asignado
             if ($request->gestor_id) {
+                Log::info('Creando alerta para gestor:', ['gestor_id' => $request->gestor_id]);
                 $this->crearAlertaCita($cita);
             }
 
@@ -152,6 +201,12 @@ class ElevenLabsController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Error en agendarCita:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Error interno del servidor',
@@ -396,7 +451,15 @@ class ElevenLabsController extends Controller
     private function crearAlertaCita($cita)
     {
         try {
-            Alert::create([
+            Log::info('=== INICIO crearAlertaCita ===');
+            Log::info('Datos de la cita para alerta:', [
+                'cita_id' => $cita->id,
+                'gestor_id' => $cita->gestor_id,
+                'titulo' => $cita->titulo,
+                'fecha_inicio' => $cita->fecha_inicio->format('Y-m-d H:i:s')
+            ]);
+
+            $alerta = Alert::create([
                 'reference_id' => $cita->id,
                 'admin_user_id' => $cita->gestor_id,
                 'stage_id' => 10, // ID para alertas de citas (nuevo stage)
@@ -405,8 +468,21 @@ class ElevenLabsController extends Controller
                 'cont_postpone' => 0,
                 'description' => 'Nueva cita agendada: ' . $cita->titulo . ' para ' . $cita->fecha_inicio->format('d/m/Y H:i')
             ]);
+
+            Log::info('Alerta creada exitosamente:', [
+                'alerta_id' => $alerta->id,
+                'reference_id' => $alerta->reference_id,
+                'admin_user_id' => $alerta->admin_user_id,
+                'description' => $alerta->description
+            ]);
+
         } catch (\Exception $e) {
-            Log::error('Error creando alerta de cita: ' . $e->getMessage());
+            Log::error('Error creando alerta de cita:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'cita_id' => $cita->id ?? 'N/A'
+            ]);
         }
     }
 
@@ -469,6 +545,8 @@ class ElevenLabsController extends Controller
      */
     private function generarHorariosDisponibles($fechaInicio, $fechaFin, $citasExistentes, $duracionMinutos)
     {
+        Log::info('=== INICIO generarHorariosDisponibles ===');
+        
         $horariosDisponibles = [];
         $fechaActual = $fechaInicio->copy();
 
@@ -478,13 +556,19 @@ class ElevenLabsController extends Controller
             ['inicio' => 16, 'minuto_inicio' => 30, 'fin' => 18, 'minuto_fin' => 30] // Tarde
         ];
 
-        Log::info('Iniciando generación de horarios', [
+        Log::info('Parámetros de generación:', [
             'fecha_inicio' => $fechaInicio->format('Y-m-d'),
             'fecha_fin' => $fechaFin->format('Y-m-d'),
-            'duracion_minutos' => $duracionMinutos
+            'duracion_minutos' => $duracionMinutos,
+            'citas_existentes_count' => $citasExistentes->count()
         ]);
 
+        $diasProcesados = 0;
+        $slotsGenerados = 0;
+
         while ($fechaActual->lte($fechaFin)) {
+            $diasProcesados++;
+            
             // Saltar fines de semana
             if ($fechaActual->isWeekend()) {
                 Log::info('Saltando fin de semana: ' . $fechaActual->format('Y-m-d'));
@@ -498,19 +582,24 @@ class ElevenLabsController extends Controller
                 $horaInicio = $fechaActual->copy()->setHour($horario['inicio'])->setMinute($horario['minuto_inicio'])->setSecond(0);
                 $horaFin = $fechaActual->copy()->setHour($horario['fin'])->setMinute($horario['minuto_fin'])->setSecond(0);
 
-                Log::info('Procesando horario', [
+                Log::info('Procesando horario de trabajo:', [
                     'hora_inicio' => $horaInicio->format('Y-m-d H:i:s'),
-                    'hora_fin' => $horaFin->format('Y-m-d H:i:s')
+                    'hora_fin' => $horaFin->format('Y-m-d H:i:s'),
+                    'tipo' => $horario['inicio'] < 12 ? 'mañana' : 'tarde'
                 ]);
 
                 // Generar slots de tiempo dentro del horario de trabajo
                 $slotActual = $horaInicio->copy();
+                $slotsEnHorario = 0;
                 
                 while ($slotActual->copy()->addMinutes($duracionMinutos)->lte($horaFin)) {
                     $slotFin = $slotActual->copy()->addMinutes($duracionMinutos);
+                    $slotsEnHorario++;
                     
                     // Verificar si este slot está disponible (no hay citas existentes)
-                    if ($this->esSlotDisponible($slotActual, $slotFin, $citasExistentes)) {
+                    $disponible = $this->esSlotDisponible($slotActual, $slotFin, $citasExistentes);
+                    
+                    if ($disponible) {
                         $horariosDisponibles[] = [
                             'fecha_inicio' => $slotActual->format('Y-m-d H:i:s'),
                             'fecha_fin' => $slotFin->format('Y-m-d H:i:s'),
@@ -522,7 +611,15 @@ class ElevenLabsController extends Controller
                             'tipo_horario' => $horario['inicio'] < 12 ? 'mañana' : 'tarde'
                         ];
                         
-                        Log::info('Slot disponible encontrado', [
+                        $slotsGenerados++;
+                        
+                        Log::info('Slot disponible encontrado:', [
+                            'slot_inicio' => $slotActual->format('Y-m-d H:i:s'),
+                            'slot_fin' => $slotFin->format('Y-m-d H:i:s'),
+                            'total_slots' => $slotsGenerados
+                        ]);
+                    } else {
+                        Log::info('Slot ocupado:', [
                             'slot_inicio' => $slotActual->format('Y-m-d H:i:s'),
                             'slot_fin' => $slotFin->format('Y-m-d H:i:s')
                         ]);
@@ -531,13 +628,21 @@ class ElevenLabsController extends Controller
                     // Avanzar 30 minutos para el siguiente slot
                     $slotActual->addMinutes(30);
                 }
+                
+                Log::info('Horario procesado:', [
+                    'tipo' => $horario['inicio'] < 12 ? 'mañana' : 'tarde',
+                    'slots_en_horario' => $slotsEnHorario,
+                    'slots_disponibles' => $slotsEnHorario
+                ]);
             }
 
             $fechaActual->addDay();
         }
 
-        Log::info('Generación completada', [
-            'total_horarios' => count($horariosDisponibles)
+        Log::info('Generación completada:', [
+            'dias_procesados' => $diasProcesados,
+            'total_horarios' => count($horariosDisponibles),
+            'slots_generados' => $slotsGenerados
         ]);
 
         return $horariosDisponibles;
@@ -567,5 +672,89 @@ class ElevenLabsController extends Controller
     private function haySolapamiento($inicio1, $fin1, $inicio2, $fin2)
     {
         return $inicio1->lt($fin2) && $fin1->gt($inicio2);
+    }
+
+    /**
+     * Obtener citas existentes para el calendario
+     */
+    public function getCitas(Request $request)
+    {
+        try {
+            Log::info('=== INICIO getCitas ===');
+            Log::info('Datos recibidos:', $request->all());
+
+            $fechaInicio = $request->input('start', now()->startOfMonth());
+            $fechaFin = $request->input('end', now()->endOfMonth());
+            $gestorId = $request->input('gestor_id');
+
+            Log::info('Parámetros procesados:', [
+                'fecha_inicio' => $fechaInicio,
+                'fecha_fin' => $fechaFin,
+                'gestor_id' => $gestorId
+            ]);
+
+            $query = \App\Models\Cita::with(['cliente', 'gestor'])
+                        ->whereBetween('fecha_inicio', [$fechaInicio, $fechaFin]);
+
+            if ($gestorId) {
+                $query->where('gestor_id', $gestorId);
+            }
+
+            $citas = $query->get();
+
+            Log::info('Citas encontradas:', [
+                'total' => $citas->count(),
+                'citas' => $citas->map(function($cita) {
+                    return [
+                        'id' => $cita->id,
+                        'titulo' => $cita->titulo,
+                        'fecha_inicio' => $cita->fecha_inicio,
+                        'fecha_fin' => $cita->fecha_fin,
+                        'estado' => $cita->estado
+                    ];
+                })->toArray()
+            ]);
+
+            $eventos = $citas->map(function ($cita) {
+                return [
+                    'id' => $cita->id,
+                    'title' => $cita->titulo,
+                    'start' => $cita->fecha_inicio->toISOString(),
+                    'end' => $cita->fecha_fin->toISOString(),
+                    'color' => $cita->color ?? '#3b82f6',
+                    'backgroundColor' => $cita->color ?? '#3b82f6',
+                    'borderColor' => $cita->color ?? '#3b82f6',
+                    'textColor' => '#ffffff',
+                    'extendedProps' => [
+                        'descripcion' => $cita->descripcion,
+                        'estado' => $cita->estado,
+                        'tipo' => $cita->tipo,
+                        'ubicacion' => $cita->ubicacion,
+                        'cliente' => $cita->cliente ? $cita->cliente->name : 'Sin cliente',
+                        'gestor' => $cita->gestor ? $cita->gestor->name : 'Sin gestor'
+                    ]
+                ];
+            });
+
+            Log::info('Eventos formateados:', [
+                'total' => $eventos->count(),
+                'primeros_3' => $eventos->take(3)->toArray()
+            ]);
+
+            return response()->json($eventos);
+
+        } catch (\Exception $e) {
+            Log::error('Error en getCitas:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error interno del servidor',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

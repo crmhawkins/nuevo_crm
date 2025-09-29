@@ -333,4 +333,5 @@ class Cita extends Model
             // Aquí se pueden agregar notificaciones de cambios
         });
     }
+
 }

@@ -469,54 +469,36 @@ document.addEventListener('DOMContentLoaded', function() {
     function cargarCitas(start, end, callback) {
         console.log('📅 Cargando citas desde', start, 'hasta', end);
         
-        // Simular datos de prueba
-        const eventos = [
-            {
-                id: 1,
-                title: 'Reunión de Prueba',
-                start: new Date(),
-                end: new Date(Date.now() + 2 * 60 * 60 * 1000),
-                color: '#3b82f6',
-                extendedProps: {
-                    tipo: 'reunion',
-                    cliente: 'Cliente de Prueba',
-                    gestor: 'Gestor Asignado',
-                    descripcion: 'Reunión de prueba del sistema',
-                    ubicacion: 'Oficina Principal'
-                }
-            },
-            {
-                id: 2,
-                title: 'Llamada Cliente',
-                start: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                end: new Date(Date.now() + 24 * 60 * 60 * 1000 + 60 * 60 * 1000),
-                color: '#10b981',
-                extendedProps: {
-                    tipo: 'llamada',
-                    cliente: 'Cliente Importante',
-                    gestor: 'Gestor Principal',
-                    descripcion: 'Llamada de seguimiento',
-                    ubicacion: 'Remoto'
-                }
-            },
-            {
-                id: 3,
-                title: 'Presentación Proyecto',
-                start: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-                end: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 90 * 60 * 1000),
-                color: '#f59e0b',
-                extendedProps: {
-                    tipo: 'presentacion',
-                    cliente: 'Cliente Corporativo',
-                    gestor: 'Gestor Senior',
-                    descripcion: 'Presentación del nuevo proyecto',
-                    ubicacion: 'Sala de Conferencias'
-                }
+        // Usar directamente la nueva API
+        fetch('/api/eleven-labs/citas?' + new URLSearchParams({
+            start: start.toISOString().split('T')[0],
+            end: end.toISOString().split('T')[0],
+            v: Date.now() // Forzar recarga del cache
+        }), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
-        ];
-        
-        console.log('📅 Eventos cargados:', eventos.length);
-        callback(eventos);
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al cargar citas: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('📅 Citas cargadas desde API ElevenLabs:', data);
+            console.log('📅 Total de citas recibidas:', data.length);
+            console.log('📅 Primera cita completa:', JSON.stringify(data[0], null, 2));
+            console.log('📅 Todas las citas:', JSON.stringify(data, null, 2));
+            callback(data);
+        })
+        .catch(error => {
+            console.error('❌ Error cargando citas:', error);
+            console.log('⚠️ No se pudieron cargar las citas. Mostrando calendario vacío.');
+            callback([]);
+        });
     }
 
     function cargarEstadisticas() {
