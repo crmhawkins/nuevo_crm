@@ -757,4 +757,56 @@ class ElevenLabsController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Obtener información del día de hoy
+     */
+    public function getDiaHoy(Request $request)
+    {
+        try {
+            Log::info('=== INICIO getDiaHoy ===');
+            
+            $hoy = now();
+            $fechaFormateada = $hoy->format('d/m/Y');
+            $diaSemana = $hoy->locale('es')->dayName;
+            $mes = $hoy->locale('es')->monthName;
+            $año = $hoy->year;
+            $hora = $hoy->format('H:i');
+            $fechaCompleta = $hoy->format('d/m/Y H:i');
+            
+            $informacion = [
+                'fecha' => $fechaFormateada,
+                'dia_semana' => $diaSemana,
+                'mes' => $mes,
+                'año' => $año,
+                'hora' => $hora,
+                'fecha_completa' => $fechaCompleta,
+                'timestamp' => $hoy->timestamp,
+                'formato_iso' => $hoy->toISOString(),
+                'zona_horaria' => $hoy->timezone->getName(),
+                'descripcion' => "Hoy es {$diaSemana}, {$fechaFormateada} y son las {$hora}"
+            ];
+
+            Log::info('Información del día generada:', $informacion);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Información del día de hoy obtenida exitosamente',
+                'data' => $informacion
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error en getDiaHoy:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error interno del servidor',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

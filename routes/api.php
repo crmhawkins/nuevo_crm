@@ -107,5 +107,8 @@ Route::prefix('eleven-labs')->group(function () {
     
     // Obtener citas existentes
     Route::get('/citas', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getCitas']);
+    
+    // Obtener información del día de hoy
+    Route::get('/dia-hoy', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getDiaHoy']);
 });
 
