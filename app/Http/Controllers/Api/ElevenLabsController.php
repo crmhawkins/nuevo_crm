@@ -10,12 +10,13 @@ use App\Models\Petitions\Petition;
 use App\Models\Alerts\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class ElevenLabsController extends Controller
 {
     /**
-     * Obtener citas disponibles para un rango de fechas
+     * Obtener horarios disponibles para agendar citas
      */
     public function getCitasDisponibles(Request $request)
     {
@@ -23,7 +24,8 @@ class ElevenLabsController extends Controller
             $validator = Validator::make($request->all(), [
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-                'gestor_id' => 'nullable|exists:admin_user,id'
+                'gestor_id' => 'nullable|exists:admin_user,id',
+                'duracion_minutos' => 'nullable|integer|min:15|max:480'
             ]);
 
             if ($validator->fails()) {
@@ -36,42 +38,40 @@ class ElevenLabsController extends Controller
 
             $fechaInicio = Carbon::parse($request->fecha_inicio);
             $fechaFin = Carbon::parse($request->fecha_fin);
+            $duracionMinutos = $request->duracion_minutos ?? 60; // Por defecto 1 hora
+            $gestorId = $request->gestor_id;
 
+            // Obtener citas existentes en el rango de fechas
             $query = Cita::whereBetween('fecha_inicio', [$fechaInicio, $fechaFin])
                         ->where('estado', '!=', 'cancelada');
 
-            if ($request->gestor_id) {
-                $query->where('gestor_id', $request->gestor_id);
+            if ($gestorId) {
+                $query->where('gestor_id', $gestorId);
             }
 
-            $citas = $query->with(['cliente', 'gestor'])->get();
+            $citasExistentes = $query->get();
 
-            $citasFormateadas = $citas->map(function ($cita) {
-                return [
-                    'id' => $cita->id,
-                    'titulo' => $cita->titulo,
-                    'descripcion' => $cita->descripcion,
-                    'fecha_inicio' => $cita->fecha_inicio->format('Y-m-d H:i:s'),
-                    'fecha_fin' => $cita->fecha_fin->format('Y-m-d H:i:s'),
-                    'estado' => $cita->estado,
-                    'tipo' => $cita->tipo,
-                    'ubicacion' => $cita->ubicacion,
-                    'cliente' => $cita->cliente ? [
-                        'id' => $cita->cliente->id,
-                        'nombre' => $cita->cliente->name,
-                        'empresa' => $cita->cliente->company
-                    ] : null,
-                    'gestor' => $cita->gestor ? [
-                        'id' => $cita->gestor->id,
-                        'nombre' => $cita->gestor->name
-                    ] : null
-                ];
-            });
+            // Generar horarios disponibles
+            $horariosDisponibles = $this->generarHorariosDisponibles($fechaInicio, $fechaFin, $citasExistentes, $duracionMinutos);
+
+            // Log para debugging
+            Log::info('Generando horarios disponibles', [
+                'fecha_inicio' => $fechaInicio->format('Y-m-d'),
+                'fecha_fin' => $fechaFin->format('Y-m-d'),
+                'citas_existentes' => $citasExistentes->count(),
+                'horarios_generados' => count($horariosDisponibles)
+            ]);
 
             return response()->json([
                 'success' => true,
-                'data' => $citasFormateadas,
-                'total' => $citasFormateadas->count()
+                'data' => $horariosDisponibles,
+                'total' => count($horariosDisponibles),
+                'filtros' => [
+                    'fecha_inicio' => $fechaInicio->format('Y-m-d'),
+                    'fecha_fin' => $fechaFin->format('Y-m-d'),
+                    'duracion_minutos' => $duracionMinutos,
+                    'gestor_id' => $gestorId
+                ]
             ]);
 
         } catch (\Exception $e) {
@@ -377,7 +377,7 @@ class ElevenLabsController extends Controller
                 'description' => 'Nueva cita agendada: ' . $cita->titulo . ' para ' . $cita->fecha_inicio->format('d/m/Y H:i')
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error creando alerta de cita: ' . $e->getMessage());
+            Log::error('Error creando alerta de cita: ' . $e->getMessage());
         }
     }
 
@@ -397,7 +397,7 @@ class ElevenLabsController extends Controller
                 'description' => 'Nueva petición de ' . $peticion->cliente->name . ': ' . substr($peticion->note, 0, 50) . '...'
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error creando alerta de petición: ' . $e->getMessage());
+            Log::error('Error creando alerta de petición: ' . $e->getMessage());
         }
     }
 
@@ -433,5 +433,110 @@ class ElevenLabsController extends Controller
         ];
 
         return $colores[$tipo] ?? '#3b82f6';
+    }
+
+    /**
+     * Generar horarios disponibles considerando horarios de trabajo y citas existentes
+     */
+    private function generarHorariosDisponibles($fechaInicio, $fechaFin, $citasExistentes, $duracionMinutos)
+    {
+        $horariosDisponibles = [];
+        $fechaActual = $fechaInicio->copy();
+
+        // Horarios de trabajo: 09:30-13:30 y 16:30-18:30
+        $horariosTrabajo = [
+            ['inicio' => 9, 'minuto_inicio' => 30, 'fin' => 13, 'minuto_fin' => 30], // Mañana
+            ['inicio' => 16, 'minuto_inicio' => 30, 'fin' => 18, 'minuto_fin' => 30] // Tarde
+        ];
+
+        Log::info('Iniciando generación de horarios', [
+            'fecha_inicio' => $fechaInicio->format('Y-m-d'),
+            'fecha_fin' => $fechaFin->format('Y-m-d'),
+            'duracion_minutos' => $duracionMinutos
+        ]);
+
+        while ($fechaActual->lte($fechaFin)) {
+            // Saltar fines de semana
+            if ($fechaActual->isWeekend()) {
+                Log::info('Saltando fin de semana: ' . $fechaActual->format('Y-m-d'));
+                $fechaActual->addDay();
+                continue;
+            }
+
+            Log::info('Procesando día: ' . $fechaActual->format('Y-m-d'));
+
+            foreach ($horariosTrabajo as $horario) {
+                $horaInicio = $fechaActual->copy()->setHour($horario['inicio'])->setMinute($horario['minuto_inicio'])->setSecond(0);
+                $horaFin = $fechaActual->copy()->setHour($horario['fin'])->setMinute($horario['minuto_fin'])->setSecond(0);
+
+                Log::info('Procesando horario', [
+                    'hora_inicio' => $horaInicio->format('Y-m-d H:i:s'),
+                    'hora_fin' => $horaFin->format('Y-m-d H:i:s')
+                ]);
+
+                // Generar slots de tiempo dentro del horario de trabajo
+                $slotActual = $horaInicio->copy();
+                
+                while ($slotActual->copy()->addMinutes($duracionMinutos)->lte($horaFin)) {
+                    $slotFin = $slotActual->copy()->addMinutes($duracionMinutos);
+                    
+                    // Verificar si este slot está disponible (no hay citas existentes)
+                    if ($this->esSlotDisponible($slotActual, $slotFin, $citasExistentes)) {
+                        $horariosDisponibles[] = [
+                            'fecha_inicio' => $slotActual->format('Y-m-d H:i:s'),
+                            'fecha_fin' => $slotFin->format('Y-m-d H:i:s'),
+                            'fecha_formateada' => $slotActual->format('d/m/Y'),
+                            'hora_inicio' => $slotActual->format('H:i'),
+                            'hora_fin' => $slotFin->format('H:i'),
+                            'duracion_minutos' => $duracionMinutos,
+                            'disponible' => true,
+                            'tipo_horario' => $horario['inicio'] < 12 ? 'mañana' : 'tarde'
+                        ];
+                        
+                        Log::info('Slot disponible encontrado', [
+                            'slot_inicio' => $slotActual->format('Y-m-d H:i:s'),
+                            'slot_fin' => $slotFin->format('Y-m-d H:i:s')
+                        ]);
+                    }
+                    
+                    // Avanzar 30 minutos para el siguiente slot
+                    $slotActual->addMinutes(30);
+                }
+            }
+
+            $fechaActual->addDay();
+        }
+
+        Log::info('Generación completada', [
+            'total_horarios' => count($horariosDisponibles)
+        ]);
+
+        return $horariosDisponibles;
+    }
+
+    /**
+     * Verificar si un slot de tiempo está disponible (no hay citas existentes)
+     */
+    private function esSlotDisponible($slotInicio, $slotFin, $citasExistentes)
+    {
+        foreach ($citasExistentes as $cita) {
+            $citaInicio = Carbon::parse($cita->fecha_inicio);
+            $citaFin = Carbon::parse($cita->fecha_fin);
+
+            // Verificar si hay solapamiento
+            if ($this->haySolapamiento($slotInicio, $slotFin, $citaInicio, $citaFin)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Verificar si dos rangos de tiempo se solapan
+     */
+    private function haySolapamiento($inicio1, $fin1, $inicio2, $fin2)
+    {
+        return $inicio1->lt($fin2) && $fin1->gt($inicio2);
     }
 }

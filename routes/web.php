@@ -924,3 +924,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/citas/proximas', [CitasController::class, 'proximas'])->name('citas.proximas');
 });
 
+

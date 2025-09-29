@@ -105,3 +105,4 @@ Route::prefix('eleven-labs')->group(function () {
     Route::get('/buscar-cliente', [\App\Http\Controllers\Api\ElevenLabsController::class, 'buscarCliente']);
     Route::post('/crear-cliente', [\App\Http\Controllers\Api\ElevenLabsController::class, 'crearCliente']);
 });
+
