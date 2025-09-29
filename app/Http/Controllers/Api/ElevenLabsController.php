@@ -313,10 +313,39 @@ class ElevenLabsController extends Controller
     public function crearCliente(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
+            // Limpiar y formatear los datos antes de la validación
+            $data = $request->all();
+            
+            // Log para debugging
+            Log::info('Datos recibidos para crear cliente', $data);
+            
+            // Limpiar el teléfono: quitar espacios, guiones y caracteres especiales
+            if (isset($data['phone']) && !empty($data['phone'])) {
+                $data['phone'] = preg_replace('/[^0-9+]/', '', $data['phone']);
+            }
+            
+            // Limpiar el email: quitar espacios
+            if (isset($data['email']) && !empty($data['email'])) {
+                $data['email'] = trim($data['email']);
+            }
+            
+            // Limpiar el nombre: quitar espacios extra
+            if (isset($data['name']) && !empty($data['name'])) {
+                $data['name'] = trim(preg_replace('/\s+/', ' ', $data['name']));
+            }
+            
+            // Limpiar la empresa: quitar espacios extra
+            if (isset($data['company']) && !empty($data['company'])) {
+                $data['company'] = trim(preg_replace('/\s+/', ' ', $data['company']));
+            }
+            
+            // Log de datos limpios
+            Log::info('Datos limpios para crear cliente', $data);
+
+            $validator = Validator::make($data, [
                 'name' => 'required|string|max:255',
                 'company' => 'nullable|string|max:255',
-                'email' => 'nullable|email|max:255',
+                'email' => 'nullable|string|max:255',
                 'phone' => 'nullable|string|max:20',
                 'gestor_id' => 'nullable|exists:admin_user,id'
             ]);
@@ -330,12 +359,12 @@ class ElevenLabsController extends Controller
             }
 
             $cliente = Client::create([
-                'name' => $request->name,
-                'company' => $request->company,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'is_client' => 1,
-                'admin_user_id' => $request->gestor_id ?? 1, // Asignar al gestor o al usuario por defecto
+                'name' => $data['name'],
+                'company' => $data['company'] ?? null,
+                'email' => $data['email'] ?? null,
+                'phone' => $data['phone'] ?? null,
+                'is_client' => 0,
+                'admin_user_id' => $data['gestor_id'] ?? 1, // Asignar al gestor o al usuario por defecto
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
