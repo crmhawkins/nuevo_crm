@@ -12,6 +12,7 @@ use App\Models\Alerts\AlertStatus;
 use App\Models\Bajas\Baja;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
+use App\Models\VisitaComercial;
 use App\Models\Holidays\Holidays;
 use App\Models\Holidays\HolidaysPetitions;
 use App\Models\HoursMonthly\HoursMonthly;
@@ -354,7 +355,17 @@ class DashboardController extends Controller
                         $comisionRestante += $this->convertToNumber($ayuda->importe) * 0.05;
                     }
                 }
-                return view('dashboards.dashboard_comercial', compact('user', 'diasDiferencia', 'estadosKit', 'comisionRestante', 'ayudas', 'comisionTramitadas', 'comisionPendiente', 'comisionCurso', 'pedienteCierre', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+
+                // Agregar variables para la nueva vista comercial
+                $visitas = VisitaComercial::with(['cliente', 'comercial'])
+                    ->where('comercial_id', $user->id)
+                    ->orderBy('created_at', 'desc')
+                    ->limit(20)
+                    ->get();
+                    
+                $clientes = Client::where('is_client', 1)->get();
+
+                return view('dashboards.dashboard_comercial_standalone', compact('user', 'diasDiferencia', 'visitas', 'clientes', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
         }
     }
 

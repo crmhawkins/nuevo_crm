@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Comercial - CRM Hawkins</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-custom {
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-custom.w-100 {
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .visita-paso {
+            min-height: 300px;
+        }
+        .valoracion-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 5px;
+        }
+        .table-custom {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .badge-custom {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* Mobile-First Responsive Design */
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 10px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+            
+            /* Header móvil optimizado */
+            .header-mobile {
+                padding: 15px 0;
+                text-align: center;
+            }
+            
+            .header-mobile h2 {
+                font-size: 1.3rem;
+                margin-bottom: 5px;
+            }
+            
+            .header-mobile p {
+                font-size: 0.9rem;
+                margin-bottom: 10px;
+            }
+            
+            /* Timer móvil */
+            .timer-mobile {
+                background: rgba(255,255,255,0.1);
+                border-radius: 15px;
+                padding: 15px;
+                margin: 10px 0;
+            }
+            
+            .timer-mobile #timer {
+                font-size: 2rem;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            
+            /* Botones móviles - ancho completo */
+            .btn-mobile {
+                width: 100%;
+                margin: 5px 0;
+                padding: 12px 20px;
+                font-size: 1rem;
+                border-radius: 10px;
+                font-weight: 600;
+            }
+            
+            .btn-group-mobile {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 10px;
+            }
+            
+            /* Cards de visitas móviles */
+            .visita-card {
+                background: white;
+                border-radius: 15px;
+                padding: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                border-left: 4px solid #667eea;
+            }
+            
+            .visita-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+            
+            .visita-card-fecha {
+                font-size: 0.8rem;
+                color: #666;
+                background: #f8f9fa;
+                padding: 4px 8px;
+                border-radius: 10px;
+            }
+            
+            .visita-card-cliente {
+                font-weight: 600;
+                font-size: 1.1rem;
+                color: #333;
+                margin-bottom: 8px;
+            }
+            
+            .visita-card-tipo {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 15px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                margin-bottom: 8px;
+            }
+            
+            .visita-card-tipo.presencial {
+                background: #e3f2fd;
+                color: #1976d2;
+            }
+            
+            .visita-card-tipo.telefonico {
+                background: #e8f5e8;
+                color: #388e3c;
+            }
+            
+            .visita-card-valoracion {
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+            
+            .valoracion-stars {
+                color: #ffc107;
+                margin-right: 8px;
+            }
+            
+            .valoracion-numero {
+                background: #ffc107;
+                color: white;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-size: 0.8rem;
+                font-weight: 600;
+            }
+            
+            .visita-card-comentarios {
+                font-size: 0.9rem;
+                color: #666;
+                margin-bottom: 8px;
+                line-height: 1.4;
+            }
+            
+            .visita-card-seguimiento {
+                display: flex;
+                align-items: center;
+                font-size: 0.9rem;
+            }
+            
+            .seguimiento-badge {
+                padding: 4px 8px;
+                border-radius: 10px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                margin-right: 8px;
+            }
+            
+            .seguimiento-badge.si {
+                background: #d4edda;
+                color: #155724;
+            }
+            
+            .seguimiento-badge.no {
+                background: #f8d7da;
+                color: #721c24;
+            }
+            
+            .visita-card-acciones {
+                margin-top: 10px;
+                text-align: center;
+            }
+            
+            .btn-ver-detalle {
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 8px 20px;
+                border-radius: 20px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                width: 100%;
+            }
+            
+            /* Modal móvil */
+            .modal-dialog {
+                margin: 10px;
+            }
+            
+            .modal-content {
+                border-radius: 15px;
+            }
+            
+            .modal-header {
+                border-radius: 15px 15px 0 0;
+            }
+            
+            /* Botones del modal móvil */
+            .modal-btn-mobile {
+                width: 100%;
+                padding: 15px;
+                margin: 5px 0;
+                border-radius: 10px;
+                font-size: 1rem;
+                font-weight: 600;
+            }
+            
+            /* Valoración móvil */
+            .valoracion-mobile {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+                margin: 15px 0;
+            }
+            
+            .valoracion-btn-mobile {
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                font-weight: 600;
+                font-size: 1rem;
+            }
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            .visita-card {
+                display: none;
+            }
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .table-responsive {
+                display: none;
+            }
+        }
+        
+        /* SweetAlert2 Custom Styles */
+        .swal2-popup-custom {
+            border-radius: 15px !important;
+        }
+        
+        .swal2-html-container {
+            text-align: left !important;
+        }
+        
+        .swal2-title {
+            color: #333 !important;
+            font-weight: 600 !important;
+        }
+        
+        .swal2-close {
+            color: #666 !important;
+            font-size: 1.5rem !important;
+        }
+        
+        .swal2-close:hover {
+            color: #333 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-chart-line me-2"></i>CRM Hawkins
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-1"></i>{{ $user->name }}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i>Salir
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header con información del usuario -->
+    <div class="container-fluid py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <div class="container">
+            <!-- Desktop Header -->
+            <div class="row align-items-center d-none d-md-flex">
+                <div class="col-md-8">
+                    <h2 class="mb-1">Bienvenido {{ $user->name }}</h2>
+                    <p class="mb-0">Quedan {{ $diasDiferencia }} días para finalizar el mes</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex align-items-center justify-content-end gap-3">
+                        <div class="text-center">
+                            <div id="timer" class="h3 mb-0">00:00:00</div>
+                            <small>Jornada</small>
+                        </div>
+                        <div class="btn-group">
+                            <button id="startJornadaBtn" class="btn btn-light btn-sm" onclick="startJornada()" style="{{ $jornadaActiva ? 'display:none;' : '' }}">
+                                <i class="fas fa-play me-1"></i>Inicio
+                            </button>
+                            <button id="startPauseBtn" class="btn btn-warning btn-sm" onclick="startPause()" style="{{ $jornadaActiva && !$pausaActiva ? '' : 'display:none;' }}">
+                                <i class="fas fa-pause me-1"></i>Pausa
+                            </button>
+                            <button id="endPauseBtn" class="btn btn-info btn-sm" onclick="endPause()" style="{{ $pausaActiva ? '' : 'display:none;' }}">
+                                <i class="fas fa-play me-1"></i>Reanudar
+                            </button>
+                            <button id="endJornadaBtn" class="btn btn-danger btn-sm" onclick="endJornada()" style="{{ $jornadaActiva ? '' : 'display:none;' }}">
+                                <i class="fas fa-stop me-1"></i>Fin
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Header -->
+            <div class="header-mobile d-md-none">
+                <h2 class="mb-1">Bienvenido {{ $user->name }}</h2>
+                <p class="mb-0">Quedan {{ $diasDiferencia }} días para finalizar el mes</p>
+                
+                <div class="timer-mobile">
+                    <div id="timer-mobile" class="h3 mb-0">00:00:00</div>
+                    <small>Jornada</small>
+                </div>
+                
+                <div class="btn-group-mobile">
+                    <button id="startJornadaBtn-mobile" class="btn btn-light btn-mobile" onclick="startJornada()" style="{{ $jornadaActiva ? 'display:none;' : '' }}">
+                        <i class="fas fa-play me-2"></i>Iniciar Jornada
+                    </button>
+                    <button id="startPauseBtn-mobile" class="btn btn-warning btn-mobile" onclick="startPause()" style="{{ $jornadaActiva && !$pausaActiva ? '' : 'display:none;' }}">
+                        <i class="fas fa-pause me-2"></i>Pausar
+                    </button>
+                    <button id="endPauseBtn-mobile" class="btn btn-info btn-mobile" onclick="endPause()" style="{{ $pausaActiva ? '' : 'display:none;' }}">
+                        <i class="fas fa-play me-2"></i>Reanudar
+                    </button>
+                    <button id="endJornadaBtn-mobile" class="btn btn-danger btn-mobile" onclick="endJornada()" style="{{ $jornadaActiva ? '' : 'display:none;' }}">
+                        <i class="fas fa-stop me-2"></i>Finalizar Jornada
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container-fluid py-4">
+        <div class="container">
+
+            <!-- Botón Nueva Visita -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <button type="button" class="btn btn-success btn-custom w-100 py-3" data-bs-toggle="modal" data-bs-target="#modalNuevaVisita">
+                        <i class="fas fa-plus me-2"></i>Nueva Visita Comercial
+                    </button>
+                </div>
+            </div>
+
+            <!-- Gestión Comercial -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-briefcase me-2"></i>Gestión Comercial
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Desktop Table -->
+                            <div class="table-responsive">
+                                <table class="table table-hover table-custom">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th><i class="fas fa-calendar me-1"></i>Fecha</th>
+                                            <th><i class="fas fa-user me-1"></i>Cliente</th>
+                                            <th><i class="fas fa-tag me-1"></i>Tipo</th>
+                                            <th><i class="fas fa-star me-1"></i>Valoración</th>
+                                            <th><i class="fas fa-comment me-1"></i>Comentarios</th>
+                                            <th><i class="fas fa-bell me-1"></i>Seguimiento</th>
+                                            <th><i class="fas fa-cog me-1"></i>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($visitas as $visita)
+                                            <tr>
+                                                <td>
+                                                    <span class="badge bg-primary">{{ $visita->created_at->format('d/m/Y') }}</span>
+                                                    <br><small class="text-muted">{{ $visita->created_at->format('H:i') }}</small>
+                                                </td>
+                                                <td>
+                                                    <strong>{{ $visita->cliente ? $visita->cliente->name : $visita->nombre_cliente }}</strong>
+                                                    @if(!$visita->cliente)
+                                                        <br><span class="badge bg-warning">Lead</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-custom bg-{{ $visita->tipo_visita == 'presencial' ? 'primary' : 'info' }}">
+                                                        <i class="fas fa-{{ $visita->tipo_visita == 'presencial' ? 'handshake' : 'phone' }} me-1"></i>
+                                                        {{ ucfirst($visita->tipo_visita) }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="badge bg-warning me-2">{{ $visita->valoracion }}/10</span>
+                                                        <div class="progress" style="width: 60px; height: 8px;">
+                                                            <div class="progress-bar bg-warning" style="width: {{ ($visita->valoracion / 10) * 100 }}%"></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @if($visita->comentarios)
+                                                        <span title="{{ $visita->comentarios }}">{{ Str::limit($visita->comentarios, 30) }}</span>
+                                                    @else
+                                                        <span class="text-muted">Sin comentarios</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if($visita->requiere_seguimiento)
+                                                        <span class="badge bg-success">
+                                                            <i class="fas fa-check me-1"></i>Sí
+                                                        </span>
+                                                        @if($visita->fecha_seguimiento)
+                                                            <br><small class="text-muted">{{ $visita->fecha_seguimiento->format('d/m/Y H:i') }}</small>
+                                                        @endif
+                                                    @else
+                                                        <span class="badge bg-secondary">
+                                                            <i class="fas fa-times me-1"></i>No
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="verVisita({{ $visita->id }})" title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="text-center py-5">
+                                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                                    <h5 class="text-muted">No hay visitas registradas</h5>
+                                                    <p class="text-muted">Comienza registrando tu primera visita comercial</p>
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Mobile Cards -->
+                            <div class="d-md-none">
+                                @forelse($visitas as $visita)
+                                    <div class="visita-card">
+                                        <div class="visita-card-header">
+                                            <div class="visita-card-fecha">
+                                                {{ $visita->created_at->format('d/m/Y H:i') }}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="visita-card-cliente">
+                                            {{ $visita->cliente ? $visita->cliente->name : $visita->nombre_cliente }}
+                                            @if(!$visita->cliente)
+                                                <span class="badge bg-warning ms-2">Lead</span>
+                                            @endif
+                                        </div>
+                                        
+                                        <div class="visita-card-tipo {{ $visita->tipo_visita }}">
+                                            <i class="fas fa-{{ $visita->tipo_visita == 'presencial' ? 'handshake' : 'phone' }} me-1"></i>
+                                            {{ ucfirst($visita->tipo_visita) }}
+                                        </div>
+                                        
+                                        <div class="visita-card-valoracion">
+                                            <div class="valoracion-stars">
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    <i class="fas fa-star{{ $i <= ($visita->valoracion / 2) ? '' : '-o' }}"></i>
+                                                @endfor
+                                            </div>
+                                            <span class="valoracion-numero">{{ $visita->valoracion }}/10</span>
+                                        </div>
+                                        
+                                        @if($visita->comentarios)
+                                            <div class="visita-card-comentarios">
+                                                <i class="fas fa-comment me-1"></i>{{ Str::limit($visita->comentarios, 50) }}
+                                            </div>
+                                        @endif
+                                        
+                                        <div class="visita-card-seguimiento">
+                                            @if($visita->requiere_seguimiento)
+                                                <span class="seguimiento-badge si">
+                                                    <i class="fas fa-check me-1"></i>Seguimiento
+                                                </span>
+                                                @if($visita->fecha_seguimiento)
+                                                    <small class="text-muted">{{ $visita->fecha_seguimiento->format('d/m/Y H:i') }}</small>
+                                                @endif
+                                            @else
+                                                <span class="seguimiento-badge no">
+                                                    <i class="fas fa-times me-1"></i>Sin seguimiento
+                                                </span>
+                                            @endif
+                                        </div>
+                                        
+                                        <div class="visita-card-acciones">
+                                            <button class="btn-ver-detalle" onclick="verVisita({{ $visita->id }})">
+                                                <i class="fas fa-eye me-1"></i>Ver Detalles
+                                            </button>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">No hay visitas registradas</h5>
+                                        <p class="text-muted">Comienza registrando tu primera visita comercial</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Visita -->
+    <div class="modal fade" id="modalNuevaVisita" tabindex="-1" aria-labelledby="modalNuevaVisitaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalNuevaVisitaLabel">
+                        <i class="fas fa-plus me-2"></i>Nueva Visita Comercial
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNuevaVisita">
+                        @csrf
+                        <input type="hidden" name="comercial_id" value="{{ $user->id }}">
+
+                        <!-- Paso 1: Tipo de cliente -->
+                        <div id="paso1" class="visita-paso">
+                            <h6 class="mb-4 text-center">
+                                <i class="fas fa-question-circle me-2"></i>¿Es un cliente nuevo o existente?
+                            </h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-primary w-100 py-4" onclick="seleccionarTipoCliente('nuevo')">
+                                        <i class="fas fa-user-plus fa-2x mb-2 d-block"></i>
+                                        <strong>Cliente Nuevo</strong>
+                                        <br><small>Registrar como lead</small>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-success w-100 py-4" onclick="seleccionarTipoCliente('existente')">
+                                        <i class="fas fa-user fa-2x mb-2 d-block"></i>
+                                        <strong>Cliente Existente</strong>
+                                        <br><small>Seleccionar de la lista</small>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 2: Datos del cliente -->
+                        <div id="paso2" class="visita-paso" style="display: none;">
+                            <!-- Cliente Nuevo -->
+                            <div id="clienteNuevo" style="display: none;">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-user-plus me-2"></i>Datos del Cliente Nuevo
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nombre_cliente" class="form-label">Nombre del cliente *</label>
+                                        <input type="text" class="form-control" id="nombre_cliente" name="nombre_cliente">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="telefono_cliente" class="form-label">Teléfono</label>
+                                        <input type="text" class="form-control" id="telefono_cliente" name="telefono_cliente">
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label for="email_cliente" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email_cliente" name="email_cliente">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cliente Existente -->
+                            <div id="clienteExistente" style="display: none;">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-search me-2"></i>Seleccionar Cliente Existente
+                                </h6>
+                                <div class="mb-3">
+                                    <label for="clienteSelect" class="form-label">Cliente *</label>
+                                    <select class="form-control" id="clienteSelect" name="cliente_id">
+                                        <option value="">Seleccionar cliente...</option>
+                                        @foreach($clientes as $cliente)
+                                            <option value="{{ $cliente->id }}">{{ $cliente->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(1)">
+                                    <i class="fas fa-arrow-left me-2"></i>Atrás
+                                </button>
+                                <button type="button" class="btn btn-primary btn-custom" onclick="avanzarPaso2()">
+                                    Siguiente<i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Paso 3: Tipo de visita -->
+                        <div id="paso3" class="visita-paso" style="display: none;">
+                            <h6 class="mb-4 text-center">
+                                <i class="fas fa-question-circle me-2"></i>¿Cómo fue la visita?
+                            </h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-primary w-100 py-4" onclick="seleccionarTipoVisita('presencial')">
+                                        <i class="fas fa-handshake fa-2x mb-2 d-block"></i>
+                                        <strong>Presencial</strong>
+                                        <br><small>Reunión en persona</small>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-info w-100 py-4" onclick="seleccionarTipoVisita('telefonico')">
+                                        <i class="fas fa-phone fa-2x mb-2 d-block"></i>
+                                        <strong>Telefónico</strong>
+                                        <br><small>Llamada telefónica</small>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(2)">
+                                    <i class="fas fa-arrow-left me-2"></i>Atrás
+                                </button>
+                                <button type="button" class="btn btn-primary btn-custom" onclick="avanzarPaso3()">
+                                    Siguiente<i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Paso 4: Valoración -->
+                        <div id="paso4" class="visita-paso" style="display: none;">
+                            <h6 class="mb-3 text-center">
+                                <i class="fas fa-star me-2"></i>Valoración de la visita (1-10)
+                            </h6>
+                            <div class="mb-3">
+                                <input type="hidden" id="valoracionInput" name="valoracion">
+                                <!-- Desktop valoración -->
+                                <div class="d-none d-md-flex justify-content-center flex-wrap gap-2">
+                                    @for($i = 1; $i <= 10; $i++)
+                                        <button type="button" class="btn btn-outline-warning valoracion-btn" data-valor="{{ $i }}" onclick="seleccionarValoracion({{ $i }})">
+                                            {{ $i }}
+                                        </button>
+                                    @endfor
+                                </div>
+                                <!-- Mobile valoración -->
+                                <div class="d-md-none valoracion-mobile">
+                                    @for($i = 1; $i <= 10; $i++)
+                                        <button type="button" class="btn btn-outline-warning valoracion-btn-mobile" data-valor="{{ $i }}" onclick="seleccionarValoracion({{ $i }})">
+                                            {{ $i }}
+                                        </button>
+                                    @endfor
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-secondary btn-custom d-none d-md-inline-block" onclick="volverPaso(3)">
+                                    <i class="fas fa-arrow-left me-2"></i>Atrás
+                                </button>
+                                <button type="button" class="btn btn-secondary modal-btn-mobile d-md-none" onclick="volverPaso(3)">
+                                    <i class="fas fa-arrow-left me-2"></i>Atrás
+                                </button>
+                                <button type="button" class="btn btn-primary btn-custom d-none d-md-inline-block" onclick="avanzarPaso4()">
+                                    Siguiente<i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary modal-btn-mobile d-md-none" onclick="avanzarPaso4()">
+                                    Siguiente<i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Paso 5: Seguimiento -->
+                        <div id="paso5" class="visita-paso" style="display: none;">
+                            <h6 class="mb-3">
+                                <i class="fas fa-bell me-2"></i>¿Requiere seguimiento?
+                            </h6>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="requiere_seguimiento" id="seguimiento_si" value="1" onchange="toggleFechaSeguimiento()">
+                                    <label class="form-check-label" for="seguimiento_si">
+                                        <i class="fas fa-check-circle me-2 text-success"></i>Sí, requiere seguimiento
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="requiere_seguimiento" id="seguimiento_no" value="0" onchange="toggleFechaSeguimiento()" checked>
+                                    <label class="form-check-label" for="seguimiento_no">
+                                        <i class="fas fa-times-circle me-2 text-danger"></i>No requiere seguimiento
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="fechaSeguimientoDiv" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="fecha_seguimiento" class="form-label">
+                                        <i class="fas fa-calendar me-2"></i>Fecha de seguimiento
+                                    </label>
+                                    <input type="datetime-local" class="form-control" id="fecha_seguimiento" name="fecha_seguimiento">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="comentarios" class="form-label">
+                                    <i class="fas fa-comment me-2"></i>Comentarios adicionales
+                                </label>
+                                <textarea class="form-control" id="comentarios" name="comentarios" rows="3" placeholder="Comentarios sobre la visita..."></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(4)">
+                                    <i class="fas fa-arrow-left me-2"></i>Atrás
+                                </button>
+                                <button type="submit" class="btn btn-success btn-custom">
+                                    <i class="fas fa-save me-2"></i>Guardar Visita
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Variables globales
+        let pasoActual = 1;
+        let tipoCliente = null;
+        let tipoVisita = null;
+
+        // Funciones del modal
+        function seleccionarTipoCliente(tipo) {
+            tipoCliente = tipo;
+            
+            if (tipo === 'nuevo') {
+                $('#clienteNuevo').show();
+                $('#clienteExistente').hide();
+            } else {
+                $('#clienteExistente').show();
+                $('#clienteNuevo').hide();
+                
+                // Inicializar Select2
+                setTimeout(() => {
+                    $('#clienteSelect').select2({
+                        placeholder: 'Buscar cliente...',
+                        allowClear: true,
+                        width: '100%',
+                        dropdownParent: $('#modalNuevaVisita')
+                    });
+                }, 100);
+            }
+            
+            mostrarPaso(2);
+        }
+
+        function avanzarPaso2() {
+            if (tipoCliente === 'nuevo') {
+                const nombre = $('#nombre_cliente').val();
+                if (!nombre || nombre.trim() === '') {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Por favor ingresa el nombre del cliente',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+            } else {
+                const clienteId = $('#clienteSelect').val();
+                if (!clienteId) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Por favor selecciona un cliente',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+            }
+            
+            mostrarPaso(3);
+        }
+
+        function seleccionarTipoVisita(tipo) {
+            tipoVisita = tipo;
+            $('input[name="tipo_visita"]').remove();
+            $('#formNuevaVisita').append(`<input type="hidden" name="tipo_visita" value="${tipo}">`);
+        }
+
+        function avanzarPaso3() {
+            if (!tipoVisita) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Por favor selecciona el tipo de visita',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            
+            mostrarPaso(4);
+        }
+
+        function seleccionarValoracion(valor) {
+            $('#valoracionInput').val(valor);
+            $('.valoracion-btn').removeClass('btn-warning').addClass('btn-outline-warning');
+            $(`.valoracion-btn[data-valor="${valor}"]`).removeClass('btn-outline-warning').addClass('btn-warning');
+        }
+
+        function avanzarPaso4() {
+            const valoracion = $('#valoracionInput').val();
+            if (!valoracion) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Por favor selecciona una valoración',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            
+            mostrarPaso(5);
+        }
+
+        function toggleFechaSeguimiento() {
+            const requiereSeguimiento = $('#seguimiento_si').is(':checked');
+            if (requiereSeguimiento) {
+                $('#fechaSeguimientoDiv').show();
+            } else {
+                $('#fechaSeguimientoDiv').hide();
+            }
+        }
+
+        function volverPaso(paso) {
+            mostrarPaso(paso);
+        }
+
+        function mostrarPaso(paso) {
+            $('.visita-paso').hide();
+            $(`#paso${paso}`).show();
+            pasoActual = paso;
+        }
+
+        // Envío del formulario
+        $('#formNuevaVisita').on('submit', function(e) {
+            e.preventDefault();
+            
+            // Validaciones antes de enviar
+            if (tipoCliente === 'nuevo') {
+                const nombre = $('#nombre_cliente').val();
+                if (!nombre || nombre.trim() === '') {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Por favor ingresa el nombre del cliente',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+            } else if (tipoCliente === 'existente') {
+                const clienteId = $('#clienteSelect').val();
+                if (!clienteId) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Por favor selecciona un cliente',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+            }
+            
+            if (!tipoVisita) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Por favor selecciona el tipo de visita',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            
+            const valoracion = $('#valoracionInput').val();
+            if (!valoracion) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Por favor selecciona una valoración',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            
+            // Preparar datos del formulario
+            const formData = new FormData();
+            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('comercial_id', '{{ $user->id }}');
+            
+            if (tipoCliente === 'nuevo') {
+                formData.append('nombre_cliente', $('#nombre_cliente').val());
+                formData.append('telefono_cliente', $('#telefono_cliente').val());
+                formData.append('email_cliente', $('#email_cliente').val());
+            } else {
+                formData.append('cliente_id', $('#clienteSelect').val());
+            }
+            
+            formData.append('tipo_visita', tipoVisita);
+            formData.append('valoracion', valoracion);
+            formData.append('comentarios', $('#comentarios').val());
+            formData.append('requiere_seguimiento', $('input[name="requiere_seguimiento"]:checked').val());
+            
+            if ($('#fecha_seguimiento').val()) {
+                formData.append('fecha_seguimiento', $('#fecha_seguimiento').val());
+            }
+            
+            // Mostrar loading
+            Swal.fire({
+                title: 'Guardando...',
+                text: 'Por favor espera',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            fetch('{{ route("visitas.store") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.close();
+                if (data.success) {
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        $('#modalNuevaVisita').modal('hide');
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.close();
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Ocurrió un error al guardar la visita',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        });
+
+        // Limpiar modal al cerrar
+        $('#modalNuevaVisita').on('hidden.bs.modal', function() {
+            // Resetear formulario
+            $('#formNuevaVisita')[0].reset();
+            $('.visita-paso').hide();
+            $('#paso1').show();
+            pasoActual = 1;
+            tipoCliente = null;
+            tipoVisita = null;
+            
+            // Destruir Select2 si existe
+            if ($('#clienteSelect').hasClass('select2-hidden-accessible')) {
+                $('#clienteSelect').select2('destroy');
+            }
+        });
+
+        function verVisita(id) {
+            // Buscar la visita en los datos actuales
+            const visitas = @json($visitas);
+            const visita = visitas.find(v => v.id === id);
+            
+            if (!visita) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se encontró la visita',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            
+            // Formatear fecha de creación
+            const fechaCreacion = new Date(visita.created_at).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Formatear fecha de seguimiento si existe
+            let fechaSeguimiento = '';
+            if (visita.fecha_seguimiento) {
+                fechaSeguimiento = new Date(visita.fecha_seguimiento).toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            // Generar estrellas para la valoración
+            let estrellas = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= (visita.valoracion / 2)) {
+                    estrellas += '<i class="fas fa-star text-warning"></i>';
+                } else {
+                    estrellas += '<i class="fas fa-star-o text-muted"></i>';
+                }
+            }
+            
+            // Crear el HTML del modal
+            const modalContent = `
+                <div class="text-start">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong><i class="fas fa-calendar text-primary me-2"></i>Fecha:</strong>
+                            <p class="mb-0">${fechaCreacion}</p>
+                        </div>
+                        <div class="col-6">
+                            <strong><i class="fas fa-user text-success me-2"></i>Cliente:</strong>
+                            <p class="mb-0">${visita.cliente ? visita.cliente.name : visita.nombre_cliente}</p>
+                            ${!visita.cliente ? '<span class="badge bg-warning ms-2">Lead</span>' : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong><i class="fas fa-tag text-info me-2"></i>Tipo:</strong>
+                            <p class="mb-0">
+                                <span class="badge bg-${visita.tipo_visita === 'presencial' ? 'primary' : 'info'}">
+                                    <i class="fas fa-${visita.tipo_visita === 'presencial' ? 'handshake' : 'phone'} me-1"></i>
+                                    ${visita.tipo_visita.charAt(0).toUpperCase() + visita.tipo_visita.slice(1)}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <strong><i class="fas fa-star text-warning me-2"></i>Valoración:</strong>
+                            <p class="mb-0">
+                                ${estrellas} 
+                                <span class="badge bg-warning ms-2">${visita.valoracion}/10</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    ${visita.comentarios ? `
+                    <div class="mb-3">
+                        <strong><i class="fas fa-comment text-secondary me-2"></i>Comentarios:</strong>
+                        <p class="mb-0 bg-light p-2 rounded">${visita.comentarios}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="mb-3">
+                        <strong><i class="fas fa-bell text-primary me-2"></i>Seguimiento:</strong>
+                        <p class="mb-0">
+                            ${visita.requiere_seguimiento ? 
+                                `<span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Sí
+                                </span>` : 
+                                `<span class="badge bg-secondary">
+                                    <i class="fas fa-times me-1"></i>No
+                                </span>`
+                            }
+                        </p>
+                        ${fechaSeguimiento ? `<small class="text-muted d-block mt-1">Fecha: ${fechaSeguimiento}</small>` : ''}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong><i class="fas fa-user-tie text-info me-2"></i>Comercial:</strong>
+                        <p class="mb-0">${visita.comercial ? visita.comercial.name : 'N/A'}</p>
+                    </div>
+                </div>
+            `;
+            
+            Swal.fire({
+                title: '<i class="fas fa-eye text-primary me-2"></i>Detalles de la Visita',
+                html: modalContent,
+                width: '600px',
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'swal2-popup-custom'
+                }
+            });
+        }
+
+        function logout() {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: '¿Quieres cerrar sesión?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, salir',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        }
+
+        // Control de jornada
+        let timerState = '{{ $jornadaActiva ? "running" : "stopped" }}';
+        let timerTime = {{ $timeWorkedToday }}; // En segundos
+        let timerInterval;
+
+        function getTime() {
+            fetch('/dashboard/timeworked', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    timerTime = data.time;
+                    updateTime();
+                }
+            });
+        }
+
+        function updateTime() {
+            let hours = Math.floor(timerTime / 3600);
+            let minutes = Math.floor((timerTime % 3600) / 60);
+            let seconds = timerTime % 60;
+
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            
+            // Actualizar timer desktop
+            const timerDesktop = document.getElementById('timer');
+            if (timerDesktop) {
+                timerDesktop.textContent = timeString;
+            }
+            
+            // Actualizar timer móvil
+            const timerMobile = document.getElementById('timer-mobile');
+            if (timerMobile) {
+                timerMobile.textContent = timeString;
+            }
+        }
+
+        function startTimer() {
+            timerState = 'running';
+            timerInterval = setInterval(() => {
+                timerTime++;
+                updateTime();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerState = 'stopped';
+        }
+
+        function startJornada() {
+            fetch('/start-jornada', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    startTimer();
+                    // Desktop buttons
+                    document.getElementById('startJornadaBtn').style.display = 'none';
+                    document.getElementById('startPauseBtn').style.display = 'block';
+                    document.getElementById('endJornadaBtn').style.display = 'block';
+                    // Mobile buttons
+                    document.getElementById('startJornadaBtn-mobile').style.display = 'none';
+                    document.getElementById('startPauseBtn-mobile').style.display = 'block';
+                    document.getElementById('endJornadaBtn-mobile').style.display = 'block';
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.mensaje || 'Error al iniciar la jornada',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error al iniciar la jornada',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+
+        function endJornada() {
+            // Obtener el tiempo actualizado
+            getTime();
+
+            let now = new Date();
+            let currentHour = now.getHours();
+            let workedHours = timerTime / 3600;
+
+            // Verificar si es antes de las 18:00 o si ha trabajado menos de 8 horas
+            if (currentHour < 18 || workedHours < 8) {
+                let title = '';
+                let message = '';
+
+                if (currentHour < 18) {
+                    title = '¿Finalizar jornada antes de las 18:00?';
+                    message = `Son las ${currentHour}:${now.getMinutes().toString().padStart(2, '0')} y has trabajado ${workedHours.toFixed(1)} horas. ¿Estás seguro de que quieres finalizar la jornada?`;
+                } else {
+                    title = '¿Finalizar jornada?';
+                    message = `Has trabajado ${workedHours.toFixed(1)} horas. ¿Estás seguro de que quieres finalizar la jornada?`;
+                }
+
+                Swal.fire({
+                    title: title,
+                    text: message,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, finalizar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        finalizarJornada();
+                    }
+                });
+            } else {
+                finalizarJornada();
+            }
+        }
+
+        function finalizarJornada() {
+            fetch('/end-jornada', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    stopTimer();
+                    // Desktop buttons
+                    document.getElementById('startJornadaBtn').style.display = 'block';
+                    document.getElementById('startPauseBtn').style.display = 'none';
+                    document.getElementById('endPauseBtn').style.display = 'none';
+                    document.getElementById('endJornadaBtn').style.display = 'none';
+                    // Mobile buttons
+                    document.getElementById('startJornadaBtn-mobile').style.display = 'block';
+                    document.getElementById('startPauseBtn-mobile').style.display = 'none';
+                    document.getElementById('endPauseBtn-mobile').style.display = 'none';
+                    document.getElementById('endJornadaBtn-mobile').style.display = 'none';
+                    
+                    Swal.fire({
+                        title: 'Jornada finalizada',
+                        text: `Has trabajado ${(timerTime / 3600).toFixed(1)} horas hoy`,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.mensaje || 'Error al finalizar la jornada',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Error al finalizar la jornada',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+
+        function startPause() {
+            fetch('/start-pause', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    stopTimer();
+                    // Desktop buttons
+                    document.getElementById('startPauseBtn').style.display = 'none';
+                    document.getElementById('endPauseBtn').style.display = 'block';
+                    // Mobile buttons
+                    document.getElementById('startPauseBtn-mobile').style.display = 'none';
+                    document.getElementById('endPauseBtn-mobile').style.display = 'block';
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.mensaje || 'Error al iniciar la pausa',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+
+        function endPause() {
+            fetch('/end-pause', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    startTimer();
+                    // Desktop buttons
+                    document.getElementById('startPauseBtn').style.display = 'block';
+                    document.getElementById('endPauseBtn').style.display = 'none';
+                    // Mobile buttons
+                    document.getElementById('startPauseBtn-mobile').style.display = 'block';
+                    document.getElementById('endPauseBtn-mobile').style.display = 'none';
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.mensaje || 'Error al finalizar la pausa',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+
+        // Inicializar el timer al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            
+            // Configurar botones según el estado inicial
+            if (timerState === 'running') {
+                startTimer();
+                // Los botones ya están configurados desde el servidor
+            } else {
+                // Asegurar que solo se muestre el botón de inicio
+                document.getElementById('startJornadaBtn').style.display = 'block';
+                document.getElementById('startPauseBtn').style.display = 'none';
+                document.getElementById('endPauseBtn').style.display = 'none';
+                document.getElementById('endJornadaBtn').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

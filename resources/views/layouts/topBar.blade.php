@@ -285,7 +285,7 @@
             12: 'Un cliente ha descargado el presupuesto',
             13: 'Productividad',
             14: 'Tarea Revision Antes Previsto',
-            15: 'Alerta recordatorio',
+            15: 'Alerta ElevenLabs',
             16: 'Peticion vacaciones',
             17: 'Vacaciones Aceptadas',
             18: 'Vacaciones Denegadas',
@@ -510,8 +510,9 @@
                         break;
 
                     case 15:
-                        mensajeDetalle = alerta['remitente'] + ": " + alerta['nota'];
-                        botonposponer = false;
+                        // Alerta ElevenLabs - mostrar descripción directamente
+                        mensajeDetalle = alerta['description'] || "Alerta de ElevenLabs";
+                        botonposponer = true; // Permitir posponer alertas de ElevenLabs
                         break;
 
                     case 16:

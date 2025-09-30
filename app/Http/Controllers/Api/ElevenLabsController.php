@@ -462,11 +462,11 @@ class ElevenLabsController extends Controller
             $alerta = Alert::create([
                 'reference_id' => $cita->id,
                 'admin_user_id' => $cita->gestor_id,
-                'stage_id' => 10, // ID para alertas de citas (nuevo stage)
+                'stage_id' => 15, // Alerta Custom - Para alertas de ElevenLabs
                 'status_id' => 1, // Activa
                 'activation_datetime' => Carbon::now(),
                 'cont_postpone' => 0,
-                'description' => 'Nueva cita agendada: ' . $cita->titulo . ' para ' . $cita->fecha_inicio->format('d/m/Y H:i')
+                'description' => '[ELEVENLABS] Nueva cita agendada: ' . $cita->titulo . ' para ' . $cita->fecha_inicio->format('d/m/Y H:i')
             ]);
 
             Log::info('Alerta creada exitosamente:', [
@@ -495,14 +495,21 @@ class ElevenLabsController extends Controller
             Alert::create([
                 'reference_id' => $peticion->id,
                 'admin_user_id' => $peticion->admin_user_id,
-                'stage_id' => 1, // ID para alertas de peticiones
+                'stage_id' => 15, // Alerta Custom - Para alertas de ElevenLabs
                 'status_id' => 1, // Activa
                 'activation_datetime' => Carbon::now(),
                 'cont_postpone' => 0,
-                'description' => 'Nueva petición de ' . $peticion->cliente->name . ': ' . substr($peticion->note, 0, 50) . '...'
+                'description' => '[ELEVENLABS] Nueva petición de ' . $peticion->cliente->name . ': ' . substr($peticion->note, 0, 50) . '...'
+            ]);
+            
+            Log::info('Alerta de ElevenLabs creada:', [
+                'peticion_id' => $peticion->id,
+                'cliente' => $peticion->cliente->name,
+                'stage_id' => 15,
+                'description' => '[ELEVENLABS] Nueva petición de ' . $peticion->cliente->name
             ]);
         } catch (\Exception $e) {
-            Log::error('Error creando alerta de petición: ' . $e->getMessage());
+            Log::error('Error creando alerta de petición ElevenLabs: ' . $e->getMessage());
         }
     }
 

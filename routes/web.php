@@ -574,6 +574,12 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
 
     //Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Visitas Comerciales
+    Route::get('/visitas-comerciales', [\App\Http\Controllers\VisitaComercialController::class, 'index'])->name('visitas.index');
+    Route::post('/visitas/store', [\App\Http\Controllers\VisitaComercialController::class, 'store'])->name('visitas.store');
+    Route::post('/visitas/store-lead', [\App\Http\Controllers\VisitaComercialController::class, 'storeLead'])->name('visitas.storeLead');
+    Route::get('/visitas/get', [\App\Http\Controllers\VisitaComercialController::class, 'getVisitas'])->name('visitas.get');
     Route::post('/dashboard/getDataTask', [DashboardController::class, 'getDataTask'])->name('dashboard.getDataTask');
     Route::post('/dashboard/getTasksRefresh', [DashboardController::class, 'getTasksRefresh'])->name('dashboard.getTasksRefresh');
     Route::post('/dashboard/setStatusTask', [DashboardController::class, 'setStatusTask'])->name('dashboard.setStatusTask');
