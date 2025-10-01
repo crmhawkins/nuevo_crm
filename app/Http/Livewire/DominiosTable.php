@@ -64,10 +64,10 @@ class DominiosTable extends Component
                     $query->where('estado_id', $this->selectedEstado);
                 })
                 ->when($this->fechaInicio, function ($query) {
-                    $query->where('date_end', '>=', $this->fechaInicio);
+                    $query->where('fecha_renovacion_ionos', '>=', $this->fechaInicio);
                 })
                 ->when($this->fechaFin, function ($query) {
-                    $query->where('date_end', '<=', $this->fechaFin);
+                    $query->where('fecha_renovacion_ionos', '<=', $this->fechaFin);
                 })
                 ->when($this->filtroSinFacturas && $this->añoSinFacturas, function ($query) {
                     // Excluir dominios que tienen fecha_registro_calculada (ya están facturados)
@@ -106,9 +106,11 @@ class DominiosTable extends Component
                                       ->orWhere('invoice_concepts.concept', 'like', '%renovacion%')
                                       ->orWhere('invoice_concepts.title', 'like', '%dominio%')
                                       ->orWhere('invoice_concepts.title', 'like', '%Dominio%')
+                                      ->orWhere('invoice_concepts.title', 'like', '%DOMINIO%')
                                       ->orWhere('invoice_concepts.title', 'like', '%anual%')
                                       ->orWhere('invoice_concepts.concept', 'like', '%dominio%')
-                                      ->orWhere('invoice_concepts.concept', 'like', '%Dominio%');
+                                      ->orWhere('invoice_concepts.concept', 'like', '%Dominio%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
                                 });
                     });
                 })
@@ -128,9 +130,11 @@ class DominiosTable extends Component
                                       ->orWhere('invoice_concepts.concept', 'like', '%renovacion%')
                                       ->orWhere('invoice_concepts.title', 'like', '%dominio%')
                                       ->orWhere('invoice_concepts.title', 'like', '%Dominio%')
+                                      ->orWhere('invoice_concepts.title', 'like', '%DOMINIO%')
                                       ->orWhere('invoice_concepts.title', 'like', '%anual%')
                                       ->orWhere('invoice_concepts.concept', 'like', '%dominio%')
-                                      ->orWhere('invoice_concepts.concept', 'like', '%Dominio%');
+                                      ->orWhere('invoice_concepts.concept', 'like', '%Dominio%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
                                 });
                     });
                 });

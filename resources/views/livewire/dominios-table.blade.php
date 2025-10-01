@@ -325,9 +325,11 @@
                                                   ->orWhere('invoice_concepts.concept', 'like', '%renovacion%')
                                                   ->orWhere('invoice_concepts.title', 'like', '%dominio%')
                                                   ->orWhere('invoice_concepts.title', 'like', '%Dominio%')
+                                                  ->orWhere('invoice_concepts.title', 'like', '%DOMINIO%')
                                                   ->orWhere('invoice_concepts.title', 'like', '%anual%')
                                                   ->orWhere('invoice_concepts.concept', 'like', '%dominio%')
-                                                  ->orWhere('invoice_concepts.concept', 'like', '%Dominio%');
+                                                  ->orWhere('invoice_concepts.concept', 'like', '%Dominio%')
+                                                  ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
                                         })
                                         ->exists();
                                 @endphp
