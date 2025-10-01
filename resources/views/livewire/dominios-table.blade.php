@@ -230,7 +230,6 @@
                             'precio_compra' => 'PRECIO COMPRA',
                             'precio_venta' => 'PRECIO VENTA',
                             'iban' => 'IBAN',
-                            'factura_año_actual' => 'FACTURA ' . date('Y'),
 
                         ] as $field => $label)
                             <th class="px-3" style="font-size:0.75rem">
@@ -242,6 +241,7 @@
                                 </a>
                             </th>
                         @endforeach
+                        <th class="text-center" style="font-size:0.75rem">FACTURA {{ date('Y') }}</th>
                         <th class="text-center" style="font-size:0.75rem">ACCIONES</th>
                 </thead>
                 <tbody>
@@ -304,11 +304,10 @@
                             <td class="text-center">
                                 @php
                                     $añoActual = date('Y');
-                                    // Consulta optimizada para verificar si tiene factura del año actual
-                                    $tieneFactura = \DB::table('domain_invoice_relations')
-                                        ->join('invoices', 'domain_invoice_relations.invoice_id', '=', 'invoices.id')
-                                        ->where('domain_invoice_relations.domain_id', $dominio->id)
-                                        ->whereYear('invoices.created_at', $añoActual)
+                                    // Buscar facturas del cliente del año actual
+                                    $tieneFactura = \DB::table('invoices')
+                                        ->where('client_id', $dominio->client_id)
+                                        ->whereYear('created_at', $añoActual)
                                         ->exists();
                                 @endphp
                                 @if($tieneFactura)
