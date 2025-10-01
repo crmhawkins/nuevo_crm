@@ -30,6 +30,7 @@ class DominiosTable extends Component
     public $filtroSinFacturas = false; // Nuevo filtro para dominios sin facturas
     public $añoSinFacturas = ''; // Año para filtrar dominios sin facturas
     public $cargandoFiltro = false; // Indicador de carga
+    public $filtroFacturacion = ''; // Filtro para facturado/pendiente
     protected $dominios; // Propiedad protegida para los usuarios
 
     public function mount(){
@@ -88,6 +89,40 @@ class DominiosTable extends Component
                                             ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
                                       });
                           });
+                })
+                ->when($this->filtroFacturacion === 'facturado', function ($query) use ($añoActual) {
+                    // Filtrar dominios facturados del año actual
+                    $query->whereExists(function ($subQuery) use ($añoActual) {
+                        $subQuery->select(\DB::raw(1))
+                                ->from('invoices')
+                                ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                                ->whereColumn('invoices.client_id', 'dominios.client_id')
+                                ->where(function($q) use ($añoActual) {
+                                    $q->where('invoice_concepts.title', 'like', '%' . $añoActual . '%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%' . $añoActual . '%')
+                                      ->orWhere('invoice_concepts.title', 'like', '%renovación%')
+                                      ->orWhere('invoice_concepts.title', 'like', '%renovacion%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%renovación%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%renovacion%');
+                                });
+                    });
+                })
+                ->when($this->filtroFacturacion === 'pendiente', function ($query) use ($añoActual) {
+                    // Filtrar dominios pendientes de facturar del año actual
+                    $query->whereNotExists(function ($subQuery) use ($añoActual) {
+                        $subQuery->select(\DB::raw(1))
+                                ->from('invoices')
+                                ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                                ->whereColumn('invoices.client_id', 'dominios.client_id')
+                                ->where(function($q) use ($añoActual) {
+                                    $q->where('invoice_concepts.title', 'like', '%' . $añoActual . '%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%' . $añoActual . '%')
+                                      ->orWhere('invoice_concepts.title', 'like', '%renovación%')
+                                      ->orWhere('invoice_concepts.title', 'like', '%renovacion%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%renovación%')
+                                      ->orWhere('invoice_concepts.concept', 'like', '%renovacion%');
+                                });
+                    });
                 });
 
          // Aplica la ordenación
@@ -127,7 +162,7 @@ class DominiosTable extends Component
     }
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado' || $propertyName === 'fechaInicio' || $propertyName === 'fechaFin' || $propertyName === 'filtroSinFacturas' || $propertyName === 'añoSinFacturas') {
+        if ($propertyName === 'buscar' || $propertyName === 'selectedCliente' || $propertyName === 'selectedEstado' || $propertyName === 'fechaInicio' || $propertyName === 'fechaFin' || $propertyName === 'filtroSinFacturas' || $propertyName === 'añoSinFacturas' || $propertyName === 'filtroFacturacion') {
             $this->resetPage(); // Resetear la paginación solo cuando estos filtros cambien.
         }
     }

@@ -40,6 +40,14 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="mr-3">
+                    <label for="">Facturación {{ date('Y') }}</label>
+                    <select wire:model="filtroFacturacion" name="" id="" class="form-select">
+                        <option value="">-- Todos --</option>
+                        <option value="facturado">✅ Facturado</option>
+                        <option value="pendiente">⏳ Pendiente</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
@@ -304,10 +312,18 @@
                             <td class="text-center">
                                 @php
                                     $añoActual = date('Y');
-                                    // Buscar facturas del cliente del año actual
+                                    // Buscar facturas del cliente que contengan el año actual en conceptos o títulos
                                     $tieneFactura = \DB::table('invoices')
-                                        ->where('client_id', $dominio->client_id)
-                                        ->whereYear('created_at', $añoActual)
+                                        ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                                        ->where('invoices.client_id', $dominio->client_id)
+                                        ->where(function($query) use ($añoActual) {
+                                            $query->where('invoice_concepts.title', 'like', '%' . $añoActual . '%')
+                                                  ->orWhere('invoice_concepts.concept', 'like', '%' . $añoActual . '%')
+                                                  ->orWhere('invoice_concepts.title', 'like', '%renovación%')
+                                                  ->orWhere('invoice_concepts.title', 'like', '%renovacion%')
+                                                  ->orWhere('invoice_concepts.concept', 'like', '%renovación%')
+                                                  ->orWhere('invoice_concepts.concept', 'like', '%renovacion%');
+                                        })
                                         ->exists();
                                 @endphp
                                 @if($tieneFactura)
