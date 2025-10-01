@@ -49,6 +49,8 @@ class DominiosTable extends Component
 
     public function actualizarDominios()
     {
+        $añoActual = date('Y');
+        
         $query = Dominio::with(['cliente', 'estadoName'])
                 ->where('estado_id', '!=', 2) // Excluir dominios cancelados
                 ->when($this->buscar, function ($query) {

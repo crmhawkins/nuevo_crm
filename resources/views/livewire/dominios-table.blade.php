@@ -230,6 +230,7 @@
                             'precio_compra' => 'PRECIO COMPRA',
                             'precio_venta' => 'PRECIO VENTA',
                             'iban' => 'IBAN',
+                            'factura_año_actual' => 'FACTURA ' . date('Y'),
 
                         ] as $field => $label)
                             <th class="px-3" style="font-size:0.75rem">
@@ -298,6 +299,26 @@
                                     <span class="text-info" title="{{ $dominio->iban }}">{{ Str::limit($dominio->iban, 20) }}</span>
                                 @else
                                     <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @php
+                                    $añoActual = date('Y');
+                                    // Consulta optimizada para verificar si tiene factura del año actual
+                                    $tieneFactura = \DB::table('domain_invoice_relations')
+                                        ->join('invoices', 'domain_invoice_relations.invoice_id', '=', 'invoices.id')
+                                        ->where('domain_invoice_relations.domain_id', $dominio->id)
+                                        ->whereYear('invoices.created_at', $añoActual)
+                                        ->exists();
+                                @endphp
+                                @if($tieneFactura)
+                                    <span class="badge bg-success" title="Tiene factura del año {{ $añoActual }}">
+                                        <i class="bi bi-check-circle me-1"></i>FACTURADO
+                                    </span>
+                                @else
+                                    <span class="badge bg-warning text-dark" title="Sin factura del año {{ $añoActual }}">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>PENDIENTE
+                                    </span>
                                 @endif
                             </td>
                             <td class="text-center" style="min-width: 200px">
