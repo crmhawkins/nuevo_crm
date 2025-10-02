@@ -89,26 +89,31 @@ Route::post('/get-clientes-contactos', action: [AIController::class, 'getCliente
 Route::post('/buscar-producto', action: [AIController::class, 'buscarProducto']);
 
 // RUTAS PARA ELEVEN LABS (sin autenticación para el agente)
-Route::prefix('eleven-labs')->group(function () {
-    // Citas
-    Route::get('/citas-disponibles', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getCitasDisponibles']);
-    Route::post('/agendar-cita', [\App\Http\Controllers\Api\ElevenLabsController::class, 'agendarCita']);
+    Route::prefix('eleven-labs')->group(function () {
+        // Citas
+        Route::get('/citas-disponibles', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getCitasDisponibles']);
+        Route::post('/agendar-cita', [\App\Http\Controllers\Api\ElevenLabsController::class, 'agendarCita']);
+        
+        // Peticiones
+        Route::post('/crear-peticion', [\App\Http\Controllers\Api\ElevenLabsController::class, 'crearPeticion']);
+        
+        // Datos de referencia
+        Route::get('/gestores', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getGestores']);
+        Route::get('/clientes', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getClientes']);
+        Route::get('/proyectos', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getProyectos']);
+        
+        // Gestión de clientes
+        Route::get('/buscar-cliente', [\App\Http\Controllers\Api\ElevenLabsController::class, 'buscarCliente']);
+        Route::post('/crear-cliente', [\App\Http\Controllers\Api\ElevenLabsController::class, 'crearCliente']);
     
-    // Peticiones
-    Route::post('/crear-peticion', [\App\Http\Controllers\Api\ElevenLabsController::class, 'crearPeticion']);
-    
-    // Datos de referencia
-    Route::get('/gestores', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getGestores']);
-    Route::get('/clientes', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getClientes']);
-    
-    // Gestión de clientes
-    Route::get('/buscar-cliente', [\App\Http\Controllers\Api\ElevenLabsController::class, 'buscarCliente']);
-    Route::post('/crear-cliente', [\App\Http\Controllers\Api\ElevenLabsController::class, 'crearCliente']);
-    
-    // Obtener citas existentes
-    Route::get('/citas', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getCitas']);
-    
-    // Obtener información del día de hoy
-    Route::get('/dia-hoy', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getDiaHoy']);
-});
+        // Obtener citas existentes
+        Route::get('/citas', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getCitas']);
+
+        // Obtener información del día de hoy
+        Route::get('/dia-hoy', [\App\Http\Controllers\Api\ElevenLabsController::class, 'getDiaHoy']);
+
+        // Presupuestos
+        Route::post('/crear-presupuesto', [\App\Http\Controllers\Api\ElevenLabsController::class, 'crearPresupuesto']);
+        Route::post('/enviar-presupuesto-pdf', [\App\Http\Controllers\Api\ElevenLabsController::class, 'enviarPresupuestoPDF']);
+    });
 
