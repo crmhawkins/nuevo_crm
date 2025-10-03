@@ -1468,8 +1468,8 @@
 
         function avanzarPaso6() {
             console.log('=== AVANZAR PASO 6 INICIADO ===');
-            console.log('Avanzando al paso 7 (grabación de audio)');
-            mostrarPaso(7); // Ir al paso de grabación de audio
+            console.log('Avanzando al paso 8 (seguimiento - paso final)');
+            mostrarPaso(8); // Ir directamente al paso de seguimiento (paso final)
         }
 
         function avanzarPaso7() {
