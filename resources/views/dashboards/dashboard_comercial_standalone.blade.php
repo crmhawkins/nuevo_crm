@@ -726,6 +726,8 @@
                                             <th><i class="fas fa-flag me-1"></i>Estado</th>
                                             <th><i class="fas fa-microphone me-1"></i>Audio</th>
                                             <th><i class="fas fa-star me-1"></i>Valoración</th>
+                                            <th><i class="fas fa-comment me-1"></i>Comentarios</th>
+                                            <th><i class="fas fa-bell me-1"></i>Seguimiento</th>
                                             <th><i class="fas fa-cog me-1"></i>Acciones</th>
                                         </tr>
                                     </thead>
@@ -816,7 +818,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="text-center py-5">
+                                                <td colspan="9" class="text-center py-5">
                                                     <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                                     <h5 class="text-muted">No hay visitas registradas</h5>
                                                     <p class="text-muted">Comienza registrando tu primera visita comercial</p>
