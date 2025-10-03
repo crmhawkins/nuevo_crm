@@ -1072,16 +1072,16 @@
                                     <div class="card border-info">
                                         <div class="card-body text-center">
                                             <div id="audioControls">
-                                                <button type="button" class="btn btn-outline-danger btn-lg mb-3" id="startRecording" onclick="startRecording()">
+                                                <button type="button" class="btn btn-outline-danger btn-lg mb-3" id="startRecording2" onclick="startRecording()">
                                                     <i class="fas fa-microphone me-2"></i>Iniciar Grabación
                                                 </button>
-                                                <button type="button" class="btn btn-outline-warning btn-lg mb-3" id="stopRecording" onclick="stopRecording()" style="display: none;">
+                                                <button type="button" class="btn btn-outline-warning btn-lg mb-3" id="stopRecording2" onclick="stopRecording()" style="display: none;">
                                                     <i class="fas fa-stop me-2"></i>Detener Grabación
                                                 </button>
-                                                <button type="button" class="btn btn-outline-success btn-lg mb-3" id="playRecording" onclick="playRecording()" style="display: none;">
+                                                <button type="button" class="btn btn-outline-success btn-lg mb-3" id="playRecording2" onclick="playRecording()" style="display: none;">
                                                     <i class="fas fa-play me-2"></i>Reproducir
                                                 </button>
-                                                <button type="button" class="btn btn-outline-secondary btn-lg mb-3" id="deleteRecording" onclick="deleteRecording()" style="display: none;">
+                                                <button type="button" class="btn btn-outline-secondary btn-lg mb-3" id="deleteRecording2" onclick="deleteRecording()" style="display: none;">
                                                     <i class="fas fa-trash me-2"></i>Eliminar
                                                 </button>
                                             </div>
@@ -1224,16 +1224,16 @@
                                     <div class="card border-info">
                                         <div class="card-body text-center">
                                             <div id="audioControls">
-                                                <button type="button" class="btn btn-outline-danger btn-lg mb-3" id="startRecording" onclick="startRecording()">
+                                                <button type="button" class="btn btn-outline-danger btn-lg mb-3" id="startRecording2" onclick="startRecording()">
                                                     <i class="fas fa-microphone me-2"></i>Iniciar Grabación
                                                 </button>
-                                                <button type="button" class="btn btn-outline-warning btn-lg mb-3" id="stopRecording" onclick="stopRecording()" style="display: none;">
+                                                <button type="button" class="btn btn-outline-warning btn-lg mb-3" id="stopRecording2" onclick="stopRecording()" style="display: none;">
                                                     <i class="fas fa-stop me-2"></i>Detener Grabación
                                                 </button>
-                                                <button type="button" class="btn btn-outline-success btn-lg mb-3" id="playRecording" onclick="playRecording()" style="display: none;">
+                                                <button type="button" class="btn btn-outline-success btn-lg mb-3" id="playRecording2" onclick="playRecording()" style="display: none;">
                                                     <i class="fas fa-play me-2"></i>Reproducir
                                                 </button>
-                                                <button type="button" class="btn btn-outline-secondary btn-lg mb-3" id="deleteRecording" onclick="deleteRecording()" style="display: none;">
+                                                <button type="button" class="btn btn-outline-secondary btn-lg mb-3" id="deleteRecording2" onclick="deleteRecording()" style="display: none;">
                                                     <i class="fas fa-trash me-2"></i>Eliminar
                                                 </button>
                                             </div>
@@ -1804,8 +1804,8 @@
                             document.getElementById('audioPlayback').src = audioUrl;
                             
                             // Mostrar controles de reproducción
-                            document.getElementById('playRecording').style.display = 'inline-block';
-                            document.getElementById('deleteRecording').style.display = 'inline-block';
+                            document.getElementById('playRecording2').style.display = 'inline-block';
+                            document.getElementById('deleteRecording2').style.display = 'inline-block';
                             document.getElementById('audioPlayer').style.display = 'block';
                             
                             // Calcular duración
@@ -1839,8 +1839,8 @@
                         recordingStartTime = Date.now();
                         
                         // Actualizar UI
-                        document.getElementById('startRecording').style.display = 'none';
-                        document.getElementById('stopRecording').style.display = 'inline-block';
+                        document.getElementById('startRecording2').style.display = 'none';
+                        document.getElementById('stopRecording2').style.display = 'inline-block';
                         document.getElementById('recordingStatus').style.display = 'block';
                         
                         // Iniciar contador
@@ -1887,8 +1887,8 @@
                 mediaRecorder.stop();
                 
                 // Actualizar UI
-                document.getElementById('stopRecording').style.display = 'none';
-                document.getElementById('startRecording').style.display = 'inline-block';
+                document.getElementById('stopRecording2').style.display = 'none';
+                document.getElementById('startRecording2').style.display = 'inline-block';
                 document.getElementById('recordingStatus').style.display = 'none';
                 
                 // Limpiar contador
@@ -1915,8 +1915,8 @@
             document.getElementById('audioBlob').value = '';
             document.getElementById('audioDuration').value = '';
             document.getElementById('audioDuration').textContent = '00:00';
-            document.getElementById('playRecording').style.display = 'none';
-            document.getElementById('deleteRecording').style.display = 'none';
+            document.getElementById('playRecording2').style.display = 'none';
+            document.getElementById('deleteRecording2').style.display = 'none';
             document.getElementById('audioPlayer').style.display = 'none';
             document.getElementById('audioPlayback').src = '';
         }
@@ -1935,7 +1935,7 @@
                     console.log('Estado de permisos de micrófono:', permissionStatus.state);
                     
                     // Actualizar el estado del botón según los permisos
-                    const startBtn = document.getElementById('startRecording');
+                    const startBtn = document.getElementById('startRecording2');
                     const retryBtn = document.querySelector('button[onclick="forzarSolicitudPermisos()"]');
                     
                     if (startBtn) {
@@ -2532,21 +2532,30 @@
 
         // Inicializar el timer al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Inicializando timer...');
             // Cargar tiempo actualizado del servidor y luego inicializar
-            loadCurrentTime().then(() => {
+            loadCurrentTime().then((savedTime) => {
+                console.log('Tiempo cargado:', savedTime);
+                timerTime = savedTime || 0;
                 updateTime();
                 
                 // Configurar botones según el estado inicial
                 if (timerState === 'running') {
+                    console.log('Timer estaba corriendo, reiniciando...');
                     startTimer();
                     // Los botones ya están configurados desde el servidor
                 } else {
+                    console.log('Timer no estaba corriendo');
                     // Asegurar que solo se muestre el botón de inicio
                     document.getElementById('startJornadaBtn').style.display = 'block';
                     document.getElementById('startPauseBtn').style.display = 'none';
                     document.getElementById('endPauseBtn').style.display = 'none';
                     document.getElementById('endJornadaBtn').style.display = 'none';
                 }
+            }).catch(error => {
+                console.error('Error cargando tiempo:', error);
+                // Fallback: usar tiempo calculado
+                getTime();
             });
 
             // Verificar permisos de micrófono al cargar
