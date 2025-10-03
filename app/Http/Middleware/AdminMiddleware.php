@@ -15,16 +15,38 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Debug: Log de información
+        \Log::info('AdminMiddleware - Verificando acceso', [
+            'authenticated' => auth()->check(),
+            'user_id' => auth()->id(),
+            'access_level' => auth()->check() ? auth()->user()->access_level_id : 'N/A',
+            'url' => $request->url()
+        ]);
+
         // Verificar que el usuario esté autenticado
         if (!auth()->check()) {
+            \Log::warning('AdminMiddleware - Usuario no autenticado');
             return redirect()->route('login');
         }
 
-        // Verificar que el usuario tenga nivel de acceso de administrador (nivel 1) o gestor (nivel 2)
-        if (auth()->user()->access_level_id != 1 && auth()->user()->access_level_id != 2) {
+        $user = auth()->user();
+        \Log::info('AdminMiddleware - Usuario autenticado', [
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'access_level_id' => $user->access_level_id
+        ]);
+
+        // Verificar que el usuario tenga nivel de acceso de administrador (nivel 1), gestor (nivel 2) o contable (nivel 3)
+        if ($user->access_level_id != 1 && $user->access_level_id != 2 && $user->access_level_id != 3) {
+            \Log::warning('AdminMiddleware - Acceso denegado', [
+                'user_id' => $user->id,
+                'access_level_id' => $user->access_level_id,
+                'required_levels' => [1, 2, 3]
+            ]);
             abort(403, 'No tienes permisos para acceder a esta sección.');
         }
 
+        \Log::info('AdminMiddleware - Acceso permitido');
         return $next($request);
     }
 }

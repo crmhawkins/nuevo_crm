@@ -19,41 +19,55 @@
                 </div>
 
                 <div class="card-body">
+                    <!-- Debug Info -->
+                    <div class="alert alert-info">
+                        <h5>Debug Info:</h5>
+                        <p>Total Visitas: {{ $totalVisitas ?? 'N/A' }}</p>
+                        <p>Presenciales: {{ $visitasPresenciales ?? 'N/A' }}</p>
+                        <p>Telefónicas: {{ $visitasTelefonicas ?? 'N/A' }}</p>
+                        <p>Con Audio: {{ $visitasConAudio ?? 'N/A' }}</p>
+                        <p>Visitas por Mes: {{ $visitasPorMes->count() ?? 'N/A' }}</p>
+                        <p>Visitas por Comercial: {{ $visitasPorComercial->count() ?? 'N/A' }}</p>
+                        <p>Estados: {{ $estadosPropuestas->count() ?? 'N/A' }}</p>
+                        <p><strong>Bootstrap cargado:</strong> <span id="bootstrap-status">Verificando...</span></p>
+                        <p><strong>Chart.js cargado:</strong> <span id="chartjs-status">Verificando...</span></p>
+                    </div>
+
                     <!-- Resumen General -->
-                    <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="card bg-primary text-white">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-handshake fa-2x mb-2"></i>
-                                    <h3 class="mb-0">{{ $totalVisitas }}</h3>
-                                    <p class="mb-0">Total Visitas</p>
+                    <div class="row mb-4" style="display: flex; flex-wrap: wrap; margin: -10px;">
+                        <div class="col-lg-3 col-md-6 mb-3" style="padding: 10px; flex: 0 0 25%; max-width: 25%;">
+                            <div class="card" style="height: 150px; display: flex; align-items: center; justify-content: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #007bff !important;">
+                                <div class="card-body text-center" style="padding: 20px; color: white !important;">
+                                    <i class="fas fa-handshake fa-2x mb-2" style="display: block; color: white !important;"></i>
+                                    <h3 class="mb-0" style="font-size: 2rem; font-weight: bold; color: white !important;">{{ $totalVisitas ?? 0 }}</h3>
+                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">Total Visitas</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card bg-success text-white">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-handshake fa-2x mb-2"></i>
-                                    <h3 class="mb-0">{{ $visitasPresenciales }}</h3>
-                                    <p class="mb-0">Presenciales</p>
+                        <div class="col-lg-3 col-md-6 mb-3" style="padding: 10px; flex: 0 0 25%; max-width: 25%;">
+                            <div class="card" style="height: 150px; display: flex; align-items: center; justify-content: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #28a745 !important;">
+                                <div class="card-body text-center" style="padding: 20px; color: white !important;">
+                                    <i class="fas fa-handshake fa-2x mb-2" style="display: block; color: white !important;"></i>
+                                    <h3 class="mb-0" style="font-size: 2rem; font-weight: bold; color: white !important;">{{ $visitasPresenciales ?? 0 }}</h3>
+                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">Presenciales</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card bg-info text-white">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-phone fa-2x mb-2"></i>
-                                    <h3 class="mb-0">{{ $visitasTelefonicas }}</h3>
-                                    <p class="mb-0">Telefónicas</p>
+                        <div class="col-lg-3 col-md-6 mb-3" style="padding: 10px; flex: 0 0 25%; max-width: 25%;">
+                            <div class="card" style="height: 150px; display: flex; align-items: center; justify-content: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #17a2b8 !important;">
+                                <div class="card-body text-center" style="padding: 20px; color: white !important;">
+                                    <i class="fas fa-phone fa-2x mb-2" style="display: block; color: white !important;"></i>
+                                    <h3 class="mb-0" style="font-size: 2rem; font-weight: bold; color: white !important;">{{ $visitasTelefonicas ?? 0 }}</h3>
+                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">Telefónicas</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card bg-warning text-white">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-microphone fa-2x mb-2"></i>
-                                    <h3 class="mb-0">{{ $visitasConAudio }}</h3>
-                                    <p class="mb-0">Con Audio</p>
+                        <div class="col-lg-3 col-md-6 mb-3" style="padding: 10px; flex: 0 0 25%; max-width: 25%;">
+                            <div class="card" style="height: 150px; display: flex; align-items: center; justify-content: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #ffc107 !important;">
+                                <div class="card-body text-center" style="padding: 20px; color: white !important;">
+                                    <i class="fas fa-microphone fa-2x mb-2" style="display: block; color: white !important;"></i>
+                                    <h3 class="mb-0" style="font-size: 2rem; font-weight: bold; color: white !important;">{{ $visitasConAudio ?? 0 }}</h3>
+                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">Con Audio</p>
                                 </div>
                             </div>
                         </div>
@@ -160,92 +174,137 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== INICIANDO GRÁFICOS ===');
+    
+    // Verificar Bootstrap
+    const bootstrapStatus = document.getElementById('bootstrap-status');
+    if (typeof $ !== 'undefined' && $('.card').length > 0) {
+        bootstrapStatus.textContent = '✅ Cargado';
+        bootstrapStatus.style.color = 'green';
+    } else {
+        bootstrapStatus.textContent = '❌ No cargado';
+        bootstrapStatus.style.color = 'red';
+    }
+    
+    // Verificar Chart.js
+    const chartjsStatus = document.getElementById('chartjs-status');
+    if (typeof Chart !== 'undefined') {
+        chartjsStatus.textContent = '✅ Cargado';
+        chartjsStatus.style.color = 'green';
+    } else {
+        chartjsStatus.textContent = '❌ No cargado';
+        chartjsStatus.style.color = 'red';
+    }
+    
     // Datos para los gráficos
     const visitasPorMes = @json($visitasPorMes);
     const visitasPorComercial = @json($visitasPorComercial);
     const estadosPropuestas = @json($estadosPropuestas);
 
+    console.log('Datos recibidos:', {
+        visitasPorMes: visitasPorMes,
+        visitasPorComercial: visitasPorComercial,
+        estadosPropuestas: estadosPropuestas
+    });
+
     // Gráfico de Visitas por Mes
-    const ctxMes = document.getElementById('visitasPorMesChart').getContext('2d');
-    new Chart(ctxMes, {
-        type: 'line',
-        data: {
-            labels: visitasPorMes.map(item => {
-                const [year, month] = item.mes.split('-');
-                return new Date(year, month - 1).toLocaleDateString('es-ES', { year: 'numeric', month: 'short' });
-            }),
-            datasets: [{
-                label: 'Visitas',
-                data: visitasPorMes.map(item => item.total),
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true
+    const ctxMes = document.getElementById('visitasPorMesChart');
+    console.log('Canvas de visitas por mes encontrado:', ctxMes);
+    if (ctxMes) {
+        console.log('Creando gráfico de visitas por mes...');
+        try {
+            new Chart(ctxMes, {
+            type: 'line',
+            data: {
+                labels: visitasPorMes.map(item => {
+                    const [year, month] = item.mes.split('-');
+                    return new Date(year, month - 1).toLocaleDateString('es-ES', { year: 'numeric', month: 'short' });
+                }),
+                datasets: [{
+                    label: 'Visitas',
+                    data: visitasPorMes.map(item => item.total),
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
+        });
+        console.log('✅ Gráfico de visitas por mes creado exitosamente');
+        } catch (error) {
+            console.error('❌ Error creando gráfico de visitas por mes:', error);
         }
-    });
+    } else {
+        console.error('❌ No se encontró el canvas de visitas por mes');
+    }
 
     // Gráfico de Visitas por Comercial
-    const ctxComercial = document.getElementById('visitasPorComercialChart').getContext('2d');
-    new Chart(ctxComercial, {
-        type: 'doughnut',
-        data: {
-            labels: visitasPorComercial.map(item => item.comercial.name || 'N/A'),
-            datasets: [{
-                data: visitasPorComercial.map(item => item.total),
-                backgroundColor: [
-                    '#FF6384',
-                    '#36A2EB',
-                    '#FFCE56',
-                    '#4BC0C0',
-                    '#9966FF',
-                    '#FF9F40'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
+    const ctxComercial = document.getElementById('visitasPorComercialChart');
+    if (ctxComercial) {
+        new Chart(ctxComercial, {
+            type: 'doughnut',
+            data: {
+                labels: visitasPorComercial.map(item => item.comercial ? item.comercial.name : 'N/A'),
+                datasets: [{
+                    data: visitasPorComercial.map(item => item.total),
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF',
+                        '#FF9F40'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        console.log('Gráfico de visitas por comercial creado');
+    }
 
     // Gráfico de Estados de Propuestas
-    const ctxEstados = document.getElementById('estadosPropuestasChart').getContext('2d');
-    new Chart(ctxEstados, {
-        type: 'pie',
-        data: {
-            labels: estadosPropuestas.map(item => {
-                const estados = {
-                    'pendiente': 'Pendiente',
-                    'en_proceso': 'En Proceso',
-                    'aceptado': 'Aceptado',
-                    'rechazado': 'Rechazado'
-                };
-                return estados[item.estado] || item.estado;
-            }),
-            datasets: [{
-                data: estadosPropuestas.map(item => item.total),
-                backgroundColor: [
-                    '#FFC107',
-                    '#17A2B8',
-                    '#28A745',
-                    '#DC3545'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
+    const ctxEstados = document.getElementById('estadosPropuestasChart');
+    if (ctxEstados) {
+        new Chart(ctxEstados, {
+            type: 'pie',
+            data: {
+                labels: estadosPropuestas.map(item => {
+                    const estados = {
+                        'pendiente': 'Pendiente',
+                        'en_proceso': 'En Proceso',
+                        'aceptado': 'Aceptado',
+                        'rechazado': 'Rechazado'
+                    };
+                    return estados[item.estado] || item.estado;
+                }),
+                datasets: [{
+                    data: estadosPropuestas.map(item => item.total),
+                    backgroundColor: [
+                        '#FFC107',
+                        '#17A2B8',
+                        '#28A745',
+                        '#DC3545'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        console.log('Gráfico de estados creado');
+    }
 });
 </script>
 @endpush

@@ -1334,24 +1334,30 @@
 
         // Funciones del modal
         function seleccionarTipoCliente(tipo) {
+            console.log('Seleccionando tipo de cliente:', tipo);
+            console.log('jQuery disponible:', typeof $ !== 'undefined');
             tipoCliente = tipo;
             
             if (tipo === 'nuevo') {
-                $('#clienteNuevo').show();
-                $('#clienteExistente').hide();
+                document.getElementById('clienteNuevo').style.display = 'block';
+                document.getElementById('clienteExistente').style.display = 'none';
+                console.log('Mostrando formulario de cliente nuevo');
             } else {
-                $('#clienteExistente').show();
-                $('#clienteNuevo').hide();
+                document.getElementById('clienteExistente').style.display = 'block';
+                document.getElementById('clienteNuevo').style.display = 'none';
+                console.log('Mostrando formulario de cliente existente');
                 
-                // Inicializar Select2
-                setTimeout(() => {
-                    $('#clienteSelect').select2({
-                        placeholder: 'Buscar cliente...',
-                        allowClear: true,
-                        width: '100%',
-                        dropdownParent: $('#modalNuevaVisita')
-                    });
-                }, 100);
+                // Inicializar Select2 con jQuery
+                if (typeof $ !== 'undefined') {
+                    setTimeout(() => {
+                        $('#clienteSelect').select2({
+                            placeholder: 'Buscar cliente...',
+                            allowClear: true,
+                            width: '100%',
+                            dropdownParent: $('#modalNuevaVisita')
+                        });
+                    }, 100);
+                }
             }
             
             mostrarPaso(2);
@@ -2263,6 +2269,12 @@
             if (timerMobile) {
                 timerMobile.textContent = timeString;
             }
+            
+            // También actualizar el timer en el header móvil si existe
+            const timerMobileHeader = document.getElementById('timer');
+            if (timerMobileHeader) {
+                timerMobileHeader.textContent = timeString;
+            }
         }
 
         function startTimer() {
@@ -2541,6 +2553,23 @@
 
             // Verificar permisos de micrófono al cargar
             checkMicrophonePermissions();
+        });
+
+        // Inicializar modal cuando se abre
+        document.getElementById('modalNuevaVisita').addEventListener('shown.bs.modal', function () {
+            console.log('Modal de nueva visita abierto');
+            // Resetear el modal
+            pasoActual = 1;
+            tipoCliente = null;
+            tipoVisita = null;
+            
+            // Mostrar solo el paso 1
+            $('.visita-paso').hide();
+            $('#paso1').show();
+            
+            // Resetear formularios
+            $('#clienteNuevo').hide();
+            $('#clienteExistente').hide();
         });
     </script>
 </body>
