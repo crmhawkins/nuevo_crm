@@ -1201,7 +1201,7 @@
                                 <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(4)">
                                     <i class="fas fa-arrow-left me-2"></i>Atrás
                                 </button>
-                                <button type="button" class="btn btn-primary btn-custom" onclick="console.log('BOTÓN SIGUIENTE CLICKEADO'); avanzarPaso5();">
+                                <button type="button" class="btn btn-primary btn-custom" id="btnSiguientePaso5">
                                     Siguiente<i class="fas fa-arrow-right ms-2"></i>
                                 </button>
                             </div>
@@ -2566,9 +2566,32 @@
                 getTime();
             });
 
-            // Verificar permisos de micrófono al cargar
-            checkMicrophonePermissions();
+        // Verificar permisos de micrófono al cargar
+        checkMicrophonePermissions();
+        
+        // Event listener para el botón Siguiente del paso 5
+        const btnSiguiente = document.getElementById('btnSiguientePaso5');
+        if (btnSiguiente) {
+            btnSiguiente.addEventListener('click', function(e) {
+                console.log('BOTÓN SIGUIENTE CLICKEADO - EVENT LISTENER');
+                e.preventDefault();
+                e.stopPropagation();
+                avanzarPaso5();
+            });
+        } else {
+            console.error('No se encontró el botón btnSiguientePaso5');
+        }
+        
+        // Event listener alternativo con delegación de eventos
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'btnSiguientePaso5') {
+                console.log('BOTÓN SIGUIENTE CLICKEADO - DELEGACIÓN DE EVENTOS');
+                e.preventDefault();
+                e.stopPropagation();
+                avanzarPaso5();
+            }
         });
+    });
 
         // Inicializar modal cuando se abre
         document.getElementById('modalNuevaVisita').addEventListener('shown.bs.modal', function () {
