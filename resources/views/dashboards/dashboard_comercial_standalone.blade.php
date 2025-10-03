@@ -1201,7 +1201,7 @@
                                 <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(4)">
                                     <i class="fas fa-arrow-left me-2"></i>Atrás
                                 </button>
-                                <button type="button" class="btn btn-primary btn-custom" onclick="avanzarPaso5()">
+                                <button type="button" class="btn btn-primary btn-custom" onclick="console.log('BOTÓN SIGUIENTE CLICKEADO'); avanzarPaso5();">
                                     Siguiente<i class="fas fa-arrow-right ms-2"></i>
                                 </button>
                             </div>
@@ -1440,11 +1440,18 @@
         }
 
         function avanzarPaso5() {
-            console.log('avanzarPaso5() llamada');
-            const valoracion = $('#valoracionInput').val();
-            console.log('Valoración seleccionada:', valoracion);
+            console.log('=== AVANZAR PASO 5 INICIADO ===');
+            console.log('jQuery disponible:', typeof $ !== 'undefined');
+            console.log('Elemento valoracionInput existe:', document.getElementById('valoracionInput'));
             
-            if (!valoracion) {
+            const valoracion = $('#valoracionInput').val();
+            console.log('Valoración obtenida con jQuery:', valoracion);
+            
+            // También verificar con JavaScript vanilla
+            const valoracionVanilla = document.getElementById('valoracionInput').value;
+            console.log('Valoración obtenida con vanilla JS:', valoracionVanilla);
+            
+            if (!valoracion && !valoracionVanilla) {
                 console.log('No hay valoración seleccionada');
                 Swal.fire({
                     title: 'Error',
@@ -1500,9 +1507,18 @@
         }
 
         function mostrarPaso(paso) {
+            console.log('=== MOSTRAR PASO ===');
+            console.log('Paso solicitado:', paso);
+            console.log('jQuery disponible:', typeof $ !== 'undefined');
+            
             $('.visita-paso').hide();
+            console.log('Todos los pasos ocultados');
+            
             $(`#paso${paso}`).show();
+            console.log(`Paso ${paso} mostrado`);
+            
             pasoActual = paso;
+            console.log('Paso actual actualizado a:', pasoActual);
             
             // Actualizar mensaje de valoración según el tipo de visita
             if (paso === 5) {
@@ -1513,6 +1529,8 @@
                     mensajeValoracion.innerHTML = 'Valora la visita presencial del 1 al 10';
                 }
             }
+            
+            console.log('=== FIN MOSTRAR PASO ===');
         }
 
         // Envío del formulario
