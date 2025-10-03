@@ -59,7 +59,8 @@
                     $StadisticsActive = request()->routeIs('estadistica.*');
                     $LlamadasActive = request()->routeIs('llamadas.*');
                     $logsActive = request()->routeIs('logs.*');
-                    $DireccionActive = $LlamadasActive || $logsActive || $StadisticsActive || request()->routeIs('productividad.index');
+                    $VisitasComercialesActive = request()->routeIs('visitas-comerciales.*');
+                    $DireccionActive = $LlamadasActive || $logsActive || $StadisticsActive || $VisitasComercialesActive || request()->routeIs('productividad.index');
 
 
                     $user = Auth::user();
@@ -668,6 +669,12 @@
                                 <a href="{{route('llamadas.index')}}" class='sidebar-link hasnt_sub'>
                                     <i class="fa-solid fa-file-invoice-dollar  fs-5"></i>
                                     <span>Llamadas</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item is_sub {{ request()->routeIs('visitas-comerciales.*') ? 'active' : '' }}">
+                                <a href="{{route('visitas-comerciales.index')}}" class='sidebar-link hasnt_sub'>
+                                    <i class="fa-solid fa-handshake  fs-5"></i>
+                                    <span>Visitas Comerciales</span>
                                 </a>
                             </li>
                         </ul>

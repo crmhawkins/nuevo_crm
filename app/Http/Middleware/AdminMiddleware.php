@@ -20,8 +20,8 @@ class AdminMiddleware
             return redirect()->route('login');
         }
 
-        // Verificar que el usuario tenga nivel de acceso de administrador (nivel 3)
-        if (auth()->user()->access_level_id != 3) {
+        // Verificar que el usuario tenga nivel de acceso de administrador (nivel 1) o gestor (nivel 2)
+        if (auth()->user()->access_level_id != 1 && auth()->user()->access_level_id != 2) {
             abort(403, 'No tienes permisos para acceder a esta sección.');
         }
 

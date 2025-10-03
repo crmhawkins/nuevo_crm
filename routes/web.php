@@ -600,6 +600,18 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     Route::post('/end-jornada', [DashboardController::class, 'endJornada'])->name('dashboard.endJornada');
     Route::post('/start-pause', [DashboardController::class, 'startPause'])->name('dashboard.startPause');
     Route::post('/end-pause', [DashboardController::class, 'endPause'])->name('dashboard.endPause');
+    Route::post('/dashboard/save-time', [DashboardController::class, 'saveCurrentTime'])->name('dashboard.saveTime');
+    Route::post('/dashboard/get-current-time', [DashboardController::class, 'getCurrentTime'])->name('dashboard.getCurrentTime');
+
+    // Visitas Comerciales - Admin
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::get('/visitas-comerciales', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'index'])->name('visitas-comerciales.index');
+        Route::get('/visitas-comerciales/{visita}', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'show'])->name('visitas-comerciales.show');
+        Route::delete('/visitas-comerciales/{visita}', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'destroy'])->name('visitas-comerciales.destroy');
+        Route::get('/visitas-comerciales/{visita}/audio', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'getAudio'])->name('visitas-comerciales.audio');
+        Route::delete('/visitas-comerciales/{visita}/audio', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'deleteAudio'])->name('visitas-comerciales.audio.delete');
+        Route::get('/visitas-comerciales/estadisticas', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'estadisticas'])->name('visitas-comerciales.estadisticas');
+    });
 
     //Jornadas
     Route::get('/jornadas', [HorasController::class, 'indexHoras'])->name('horas.index');

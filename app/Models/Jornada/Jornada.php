@@ -14,7 +14,8 @@ class Jornada extends Model
         'admin_user_id',
         'start_time',
         'end_time',
-        'is_active'
+        'is_active',
+        'current_time'
     ];
 
     public function user() {

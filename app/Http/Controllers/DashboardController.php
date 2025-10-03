@@ -683,6 +683,45 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'time' => $timeWorkedToday]);
     }
 
+    public function saveCurrentTime(Request $request)
+    {
+        $user = Auth::user();
+        $time = $request->input('time', 0);
+        
+        // Guardar el tiempo en la sesión
+        session(['current_work_time_' . $user->id => $time]);
+        
+        // También guardar en la base de datos si hay una jornada activa
+        $jornadaActiva = $user->activeJornada();
+        if ($jornadaActiva) {
+            // Actualizar el tiempo en la jornada activa
+            $jornadaActiva->update(['current_time' => $time]);
+        }
+        
+        return response()->json(['success' => true, 'time' => $time]);
+    }
+
+    public function getCurrentTime(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Primero intentar obtener de la jornada activa
+        $jornadaActiva = $user->activeJornada();
+        if ($jornadaActiva && $jornadaActiva->current_time) {
+            return response()->json(['success' => true, 'time' => $jornadaActiva->current_time]);
+        }
+        
+        // Si no hay jornada activa, obtener de la sesión
+        $savedTime = session('current_work_time_' . $user->id, 0);
+        
+        // Si no hay tiempo guardado, calcular el tiempo trabajado hoy
+        if ($savedTime == 0) {
+            $savedTime = $this->calculateTimeWorkedToday($user);
+        }
+        
+        return response()->json(['success' => true, 'time' => $savedTime]);
+    }
+
     public function llamada(Request $request)
     {
         $user = Auth::user();

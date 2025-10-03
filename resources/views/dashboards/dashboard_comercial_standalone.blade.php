@@ -1056,10 +1056,15 @@
                                 <i class="fas fa-microphone me-2"></i>Grabación de Audio (Opcional)
                             </h6>
                             <div class="text-center mb-4">
-                                <p class="text-muted">Puedes grabar la conversación para tener un registro de la visita</p>
-                                <button type="button" class="btn btn-outline-info btn-sm" onclick="showMicrophoneInfo()">
-                                    <i class="fas fa-info-circle me-1"></i>Información sobre permisos
-                                </button>
+                                <p class="text-muted">Puedes grabar la conversación para tener un registro de la visita presencial</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button type="button" class="btn btn-outline-info btn-sm" onclick="showMicrophoneInfo()">
+                                        <i class="fas fa-info-circle me-1"></i>Información sobre permisos
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="forzarSolicitudPermisos()">
+                                        <i class="fas fa-microphone-slash me-1"></i>Reintentar permisos
+                                    </button>
+                                </div>
                             </div>
                             
                             <div class="row">
@@ -1117,6 +1122,11 @@
                             <h6 class="mb-3 text-center">
                                 <i class="fas fa-star me-2"></i>Valoración de la visita (1-10)
                             </h6>
+                            <div class="text-center mb-4">
+                                <p class="text-muted" id="valoracionMensaje">
+                                    <!-- El mensaje se actualizará dinámicamente según el tipo de visita -->
+                                </p>
+                            </div>
                             <div class="mb-3">
                                 <input type="hidden" id="valoracionInput" name="valoracion">
                                 <!-- Desktop valoración -->
@@ -1379,6 +1389,25 @@
             tipoVisita = tipo;
             $('input[name="tipo_visita"]').remove();
             $('#formNuevaVisita').append(`<input type="hidden" name="tipo_visita" value="${tipo}">`);
+            
+            // Mostrar mensaje informativo para visitas telefónicas
+            if (tipo === 'telefonico') {
+                Swal.fire({
+                    title: 'Visita Telefónica',
+                    html: `
+                        <div class="text-start">
+                            <p><strong>Nota importante:</strong></p>
+                            <ul>
+                                <li>📞 Las visitas telefónicas no incluyen grabación de audio</li>
+                                <li>🎙️ Solo las visitas presenciales pueden ser grabadas</li>
+                                <li>📝 Podrás registrar la valoración y plan al final de la llamada</li>
+                            </ul>
+                        </div>
+                    `,
+                    icon: 'info',
+                    confirmButtonText: 'Entendido'
+                });
+            }
         }
 
         function avanzarPaso3() {
@@ -1392,7 +1421,12 @@
                 return;
             }
             
-            mostrarPaso(4); // Ir al paso de grabación de audio
+            // Si es telefónica, saltar directamente a valoración
+            if (tipoVisita === 'telefonico') {
+                mostrarPaso(5); // Ir directamente a valoración
+            } else {
+                mostrarPaso(4); // Ir al paso de grabación de audio (solo presencial)
+            }
         }
 
         function avanzarPaso4() {
@@ -1455,6 +1489,16 @@
             $('.visita-paso').hide();
             $(`#paso${paso}`).show();
             pasoActual = paso;
+            
+            // Actualizar mensaje de valoración según el tipo de visita
+            if (paso === 5) {
+                const mensajeValoracion = document.getElementById('valoracionMensaje');
+                if (tipoVisita === 'telefonico') {
+                    mensajeValoracion.innerHTML = 'Valora la llamada telefónica del 1 al 10';
+                } else {
+                    mensajeValoracion.innerHTML = 'Valora la visita presencial del 1 al 10';
+                }
+            }
         }
 
         // Envío del formulario
@@ -1638,7 +1682,43 @@
                 return;
             }
 
-            // Mostrar mensaje de solicitud de permisos
+            // Verificar permisos existentes primero
+            if (navigator.permissions) {
+                navigator.permissions.query({ name: 'microphone' }).then(function(permissionStatus) {
+                    if (permissionStatus.state === 'granted') {
+                        // Ya tenemos permisos, iniciar grabación directamente
+                        iniciarGrabacion();
+                    } else if (permissionStatus.state === 'denied') {
+                        // Permisos denegados, pero intentar solicitar de nuevo
+                        Swal.fire({
+                            title: 'Permisos de Micrófono',
+                            text: 'Los permisos de micrófono fueron denegados anteriormente. ¿Quieres intentar concederlos de nuevo?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí, intentar',
+                            cancelButtonText: 'Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Limpiar localStorage y intentar de nuevo
+                                localStorage.removeItem('microphonePermissionGranted');
+                                iniciarGrabacion();
+                            }
+                        });
+                    } else {
+                        // Estado 'prompt' - solicitar permisos
+                        solicitarPermisos();
+                    }
+                }).catch(() => {
+                    // Fallback si no soporta permissions API
+                    solicitarPermisos();
+                });
+            } else {
+                // Fallback para navegadores que no soportan permissions API
+                solicitarPermisos();
+            }
+        }
+
+        function solicitarPermisos() {
             Swal.fire({
                 title: 'Permisos de Micrófono',
                 text: 'Se solicitará acceso al micrófono para grabar la conversación.',
@@ -1648,19 +1728,46 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Solicitar permisos con configuración específica
-                    navigator.mediaDevices.getUserMedia({ 
-                        audio: {
-                            echoCancellation: true,
-                            noiseSuppression: true,
-                            autoGainControl: true,
-                            sampleRate: 44100
-                        } 
-                    })
-                    .then(stream => {
-                        console.log('Micrófono accedido correctamente');
-                        
-                        // Crear MediaRecorder con configuración específica
+                    iniciarGrabacion();
+                }
+            });
+        }
+
+        function forzarSolicitudPermisos() {
+            // Limpiar localStorage para forzar nueva solicitud
+            localStorage.removeItem('microphonePermissionGranted');
+            
+            Swal.fire({
+                title: 'Solicitar Permisos de Micrófono',
+                text: 'Se solicitará acceso al micrófono nuevamente. Si anteriormente los denegaste, el navegador te permitirá cambiarlos.',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Solicitar Permisos',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    iniciarGrabacion();
+                }
+            });
+        }
+
+        function iniciarGrabacion() {
+            // Solicitar permisos con configuración específica
+            navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true,
+                    sampleRate: 44100
+                } 
+            })
+                        .then(stream => {
+                            console.log('Micrófono accedido correctamente');
+                            
+                            // Recordar que los permisos fueron concedidos
+                            localStorage.setItem('microphonePermissionGranted', 'true');
+                            
+                            // Crear MediaRecorder con configuración específica
                         const options = {
                             mimeType: 'audio/webm;codecs=opus' // Mejor compatibilidad
                         };
@@ -1742,6 +1849,11 @@
                     .catch(error => {
                         console.error('Error accessing microphone:', error);
                         
+                        // Limpiar localStorage si hay error de permisos
+                        if (error.name === 'NotAllowedError') {
+                            localStorage.removeItem('microphonePermissionGranted');
+                        }
+                        
                         let errorMessage = 'No se pudo acceder al micrófono.';
                         
                         if (error.name === 'NotAllowedError') {
@@ -1814,20 +1926,39 @@
 
         // Función para verificar permisos de micrófono
         function checkMicrophonePermissions() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                return Promise.reject(new Error('Navegador no compatible'));
-            }
-
-            return navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    // Detener el stream inmediatamente, solo queremos verificar permisos
-                    stream.getTracks().forEach(track => track.stop());
-                    return true;
-                })
-                .catch(error => {
-                    console.log('Permisos de micrófono:', error.name);
-                    return false;
+            if (navigator.permissions) {
+                navigator.permissions.query({ name: 'microphone' }).then(function(permissionStatus) {
+                    console.log('Estado de permisos de micrófono:', permissionStatus.state);
+                    
+                    // Actualizar el estado del botón según los permisos
+                    const startBtn = document.getElementById('startRecording');
+                    const retryBtn = document.querySelector('button[onclick="forzarSolicitudPermisos()"]');
+                    
+                    if (startBtn) {
+                        if (permissionStatus.state === 'granted') {
+                            startBtn.innerHTML = '<i class="fas fa-microphone me-2"></i>Iniciar Grabación';
+                            startBtn.className = 'btn btn-outline-danger btn-lg mb-3';
+                            startBtn.disabled = false;
+                            if (retryBtn) retryBtn.style.display = 'none';
+                        } else if (permissionStatus.state === 'denied') {
+                            startBtn.innerHTML = '<i class="fas fa-microphone-slash me-2"></i>Permisos Denegados';
+                            startBtn.className = 'btn btn-outline-secondary btn-lg mb-3';
+                            startBtn.disabled = true;
+                            if (retryBtn) retryBtn.style.display = 'inline-block';
+                        } else {
+                            startBtn.innerHTML = '<i class="fas fa-microphone me-2"></i>Iniciar Grabación';
+                            startBtn.className = 'btn btn-outline-danger btn-lg mb-3';
+                            startBtn.disabled = false;
+                            if (retryBtn) retryBtn.style.display = 'none';
+                        }
+                    }
+                }).catch(function(error) {
+                    console.log('Error verificando permisos:', error);
                 });
+            } else {
+                // Fallback para navegadores que no soportan permissions API
+                console.log('Permissions API no soportada, usando verificación directa');
+            }
         }
 
         // Función para mostrar información sobre permisos
@@ -2085,6 +2216,7 @@
         let timerState = '{{ $jornadaActiva ? "running" : "stopped" }}';
         let timerTime = {{ $timeWorkedToday }}; // En segundos
         let timerInterval;
+        let lastSavedTime = {{ $timeWorkedToday }}; // Tiempo guardado en servidor
 
         function getTime() {
             fetch('/dashboard/timeworked', {
@@ -2121,6 +2253,11 @@
                 timerDesktop.textContent = timeString;
             }
             
+            // Guardar tiempo cada 30 segundos si hay diferencia
+            if (timerState === 'running' && Math.abs(timerTime - lastSavedTime) >= 30) {
+                saveCurrentTime();
+            }
+            
             // Actualizar timer móvil
             const timerMobile = document.getElementById('timer-mobile');
             if (timerMobile) {
@@ -2139,6 +2276,31 @@
         function stopTimer() {
             clearInterval(timerInterval);
             timerState = 'stopped';
+            // Guardar tiempo al pausar
+            saveCurrentTime();
+        }
+
+        function saveCurrentTime() {
+            fetch('/dashboard/save-time', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    time: timerTime
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    lastSavedTime = timerTime;
+                    console.log('Tiempo guardado:', timerTime);
+                }
+            })
+            .catch(error => {
+                console.error('Error guardando tiempo:', error);
+            });
         }
 
         function startJornada() {
@@ -2221,6 +2383,9 @@
         }
 
         function finalizarJornada() {
+            // Guardar tiempo antes de finalizar
+            saveCurrentTime();
+            
             fetch('/end-jornada', {
                 method: 'POST',
                 headers: {
@@ -2330,21 +2495,52 @@
             });
         }
 
+        function loadCurrentTime() {
+            return fetch('/dashboard/get-current-time', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    timerTime = data.time;
+                    lastSavedTime = data.time;
+                    console.log('Tiempo cargado del servidor:', data.time);
+                    return data.time;
+                }
+                return 0;
+            })
+            .catch(error => {
+                console.error('Error cargando tiempo:', error);
+                return 0;
+            });
+        }
+
         // Inicializar el timer al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
-            updateTime();
-            
-            // Configurar botones según el estado inicial
-            if (timerState === 'running') {
-                startTimer();
-                // Los botones ya están configurados desde el servidor
-            } else {
-                // Asegurar que solo se muestre el botón de inicio
-                document.getElementById('startJornadaBtn').style.display = 'block';
-                document.getElementById('startPauseBtn').style.display = 'none';
-                document.getElementById('endPauseBtn').style.display = 'none';
-                document.getElementById('endJornadaBtn').style.display = 'none';
-            }
+            // Cargar tiempo actualizado del servidor y luego inicializar
+            loadCurrentTime().then(() => {
+                updateTime();
+                
+                // Configurar botones según el estado inicial
+                if (timerState === 'running') {
+                    startTimer();
+                    // Los botones ya están configurados desde el servidor
+                } else {
+                    // Asegurar que solo se muestre el botón de inicio
+                    document.getElementById('startJornadaBtn').style.display = 'block';
+                    document.getElementById('startPauseBtn').style.display = 'none';
+                    document.getElementById('endPauseBtn').style.display = 'none';
+                    document.getElementById('endJornadaBtn').style.display = 'none';
+                }
+            });
+
+            // Verificar permisos de micrófono al cargar
+            checkMicrophonePermissions();
         });
     </script>
 </body>
