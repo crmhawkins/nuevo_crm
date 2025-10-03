@@ -1154,10 +1154,10 @@
                                 <button type="button" class="btn btn-secondary modal-btn-mobile d-md-none" onclick="volverPaso(3)">
                                     <i class="fas fa-arrow-left me-2"></i>Atrás
                                 </button>
-                                <button type="button" class="btn btn-primary btn-custom d-none d-md-inline-block" onclick="avanzarPaso4()">
+                                <button type="button" class="btn btn-primary btn-custom d-none d-md-inline-block" id="btnSiguientePaso5">
                                     Siguiente<i class="fas fa-arrow-right ms-2"></i>
                                 </button>
-                                <button type="button" class="btn btn-primary modal-btn-mobile d-md-none" onclick="avanzarPaso4()">
+                                <button type="button" class="btn btn-primary modal-btn-mobile d-md-none" id="btnSiguientePaso5Mobile">
                                     Siguiente<i class="fas fa-arrow-right ms-2"></i>
                                 </button>
                             </div>
@@ -2575,24 +2575,39 @@
         // Método 1: Event listener directo
         setTimeout(() => {
             const btnSiguiente = document.getElementById('btnSiguientePaso5');
-            console.log('Botón encontrado:', btnSiguiente);
+            const btnSiguienteMobile = document.getElementById('btnSiguientePaso5Mobile');
+            console.log('Botón desktop encontrado:', btnSiguiente);
+            console.log('Botón mobile encontrado:', btnSiguienteMobile);
+            
             if (btnSiguiente) {
                 btnSiguiente.addEventListener('click', function(e) {
-                    console.log('BOTÓN SIGUIENTE CLICKEADO - EVENT LISTENER DIRECTO');
+                    console.log('BOTÓN SIGUIENTE CLICKEADO - EVENT LISTENER DIRECTO DESKTOP');
                     e.preventDefault();
                     e.stopPropagation();
                     avanzarPaso5();
                 });
-                console.log('Event listener directo agregado');
-            } else {
-                console.error('No se encontró el botón btnSiguientePaso5');
+                console.log('Event listener directo desktop agregado');
+            }
+            
+            if (btnSiguienteMobile) {
+                btnSiguienteMobile.addEventListener('click', function(e) {
+                    console.log('BOTÓN SIGUIENTE CLICKEADO - EVENT LISTENER DIRECTO MOBILE');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    avanzarPaso5();
+                });
+                console.log('Event listener directo mobile agregado');
+            }
+            
+            if (!btnSiguiente && !btnSiguienteMobile) {
+                console.error('No se encontraron los botones btnSiguientePaso5');
             }
         }, 1000);
         
         // Método 2: Delegación de eventos más amplia
         document.addEventListener('click', function(e) {
             console.log('Click detectado en:', e.target);
-            if (e.target && (e.target.id === 'btnSiguientePaso5' || e.target.closest('#btnSiguientePaso5'))) {
+            if (e.target && (e.target.id === 'btnSiguientePaso5' || e.target.id === 'btnSiguientePaso5Mobile' || e.target.closest('#btnSiguientePaso5') || e.target.closest('#btnSiguientePaso5Mobile'))) {
                 console.log('BOTÓN SIGUIENTE CLICKEADO - DELEGACIÓN DE EVENTOS');
                 e.preventDefault();
                 e.stopPropagation();
