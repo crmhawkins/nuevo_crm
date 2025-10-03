@@ -1050,8 +1050,70 @@
                             </div>
                         </div>
 
-                        <!-- Paso 4: Valoración -->
+                        <!-- Paso 4: Grabación de Audio -->
                         <div id="paso4" class="visita-paso" style="display: none;">
+                            <h6 class="mb-3 text-center">
+                                <i class="fas fa-microphone me-2"></i>Grabación de Audio (Opcional)
+                            </h6>
+                            <div class="text-center mb-4">
+                                <p class="text-muted">Puedes grabar la conversación para tener un registro de la visita</p>
+                                <button type="button" class="btn btn-outline-info btn-sm" onclick="showMicrophoneInfo()">
+                                    <i class="fas fa-info-circle me-1"></i>Información sobre permisos
+                                </button>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card border-info">
+                                        <div class="card-body text-center">
+                                            <div id="audioControls">
+                                                <button type="button" class="btn btn-outline-danger btn-lg mb-3" id="startRecording" onclick="startRecording()">
+                                                    <i class="fas fa-microphone me-2"></i>Iniciar Grabación
+                                                </button>
+                                                <button type="button" class="btn btn-outline-warning btn-lg mb-3" id="stopRecording" onclick="stopRecording()" style="display: none;">
+                                                    <i class="fas fa-stop me-2"></i>Detener Grabación
+                                                </button>
+                                                <button type="button" class="btn btn-outline-success btn-lg mb-3" id="playRecording" onclick="playRecording()" style="display: none;">
+                                                    <i class="fas fa-play me-2"></i>Reproducir
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-lg mb-3" id="deleteRecording" onclick="deleteRecording()" style="display: none;">
+                                                    <i class="fas fa-trash me-2"></i>Eliminar
+                                                </button>
+                                            </div>
+                                            
+                                            <div id="recordingStatus" class="mt-3" style="display: none;">
+                                                <div class="alert alert-info">
+                                                    <i class="fas fa-circle text-danger me-2"></i>
+                                                    <span id="recordingTime">00:00</span> - Grabando...
+                                                </div>
+                                            </div>
+                                            
+                                            <div id="audioPlayer" class="mt-3" style="display: none;">
+                                                <audio id="audioPlayback" controls class="w-100"></audio>
+                                                <div class="mt-2">
+                                                    <small class="text-muted">Duración: <span id="audioDuration">00:00</span></small>
+                                                </div>
+                                            </div>
+                                            
+                                            <input type="hidden" id="audioBlob" name="audio_blob">
+                                            <input type="hidden" id="audioDuration" name="audio_duration">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(3)">
+                                    <i class="fas fa-arrow-left me-2"></i>Atrás
+                                </button>
+                                <button type="button" class="btn btn-primary btn-custom" onclick="avanzarPaso4()">
+                                    <i class="fas fa-arrow-right me-2"></i>Siguiente
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Paso 5: Valoración -->
+                        <div id="paso5" class="visita-paso" style="display: none;">
                             <h6 class="mb-3 text-center">
                                 <i class="fas fa-star me-2"></i>Valoración de la visita (1-10)
                             </h6>
@@ -1091,24 +1153,25 @@
                             </div>
                         </div>
 
-                        <!-- Paso 5: Plan Interesado -->
-                        <div id="paso5" class="visita-paso" style="display: none;">
+                        <!-- Paso 6: Plan Interesado -->
+                        <div id="paso6" class="visita-paso" style="display: none;">
                             <h6 class="mb-3 text-center">
                                 <i class="fas fa-star me-2"></i>Plan de Interés del Cliente
                             </h6>
                             <div class="row">
                                 <div class="col-md-6">
                                     <label class="form-label">Plan que le interesa</label>
-                                    <select class="form-select" id="plan_interesado" name="plan_interesado">
+                                    <select class="form-select" id="plan_interesado" name="plan_interesado" onchange="actualizarPrecioPlan()">
                                         <option value="">Seleccionar plan</option>
-                                        <option value="esencial">Plan Esencial (€19)</option>
-                                        <option value="profesional">Plan Profesional (€49)</option>
-                                        <option value="avanzado">Plan Avanzado (€129)</option>
+                                        <option value="esencial" data-precio="19">Plan Esencial (€19)</option>
+                                        <option value="profesional" data-precio="49">Plan Profesional (€49)</option>
+                                        <option value="avanzado" data-precio="129">Plan Avanzado (€129)</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Precio del Plan</label>
-                                    <input type="number" class="form-control" id="precio_plan" name="precio_plan" step="0.01" min="0">
+                                    <input type="number" class="form-control" id="precio_plan" name="precio_plan" step="0.01" min="0" readonly>
+                                    <small class="text-muted">El precio se asigna automáticamente según el plan seleccionado</small>
                                 </div>
                             </div>
                             <div class="mt-3">
@@ -1329,16 +1392,14 @@
                 return;
             }
             
-            mostrarPaso(4);
-        }
-
-        function seleccionarValoracion(valor) {
-            $('#valoracionInput').val(valor);
-            $('.valoracion-btn').removeClass('btn-warning').addClass('btn-outline-warning');
-            $(`.valoracion-btn[data-valor="${valor}"]`).removeClass('btn-outline-warning').addClass('btn-warning');
+            mostrarPaso(4); // Ir al paso de grabación de audio
         }
 
         function avanzarPaso4() {
+            mostrarPaso(5); // Ir al paso de valoración
+        }
+
+        function avanzarPaso5() {
             const valoracion = $('#valoracionInput').val();
             if (!valoracion) {
                 Swal.fire({
@@ -1350,8 +1411,32 @@
                 return;
             }
             
-            mostrarPaso(5);
+            mostrarPaso(6); // Ir al paso de plan interesado
         }
+
+        function avanzarPaso6() {
+            mostrarPaso(7); // Ir al paso de seguimiento
+        }
+
+        function seleccionarValoracion(valor) {
+            $('#valoracionInput').val(valor);
+            $('.valoracion-btn').removeClass('btn-warning').addClass('btn-outline-warning');
+            $(`.valoracion-btn[data-valor="${valor}"]`).removeClass('btn-outline-warning').addClass('btn-warning');
+        }
+
+        // Función para actualizar precio automáticamente
+        function actualizarPrecioPlan() {
+            const planSelect = document.getElementById('plan_interesado');
+            const precioInput = document.getElementById('precio_plan');
+            
+            if (planSelect.value) {
+                const precio = planSelect.options[planSelect.selectedIndex].getAttribute('data-precio');
+                precioInput.value = precio;
+            } else {
+                precioInput.value = '';
+            }
+        }
+
 
         function toggleFechaSeguimiento() {
             const requiereSeguimiento = $('#seguimiento_si').is(':checked');
