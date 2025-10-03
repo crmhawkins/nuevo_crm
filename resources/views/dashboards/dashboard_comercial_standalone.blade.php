@@ -1440,8 +1440,12 @@
         }
 
         function avanzarPaso5() {
+            console.log('avanzarPaso5() llamada');
             const valoracion = $('#valoracionInput').val();
+            console.log('Valoración seleccionada:', valoracion);
+            
             if (!valoracion) {
+                console.log('No hay valoración seleccionada');
                 Swal.fire({
                     title: 'Error',
                     text: 'Por favor selecciona una valoración',
@@ -1451,6 +1455,7 @@
                 return;
             }
             
+            console.log('Avanzando al paso 6 (plan interesado)');
             mostrarPaso(6); // Ir al paso de plan interesado
         }
 
@@ -1459,9 +1464,12 @@
         }
 
         function seleccionarValoracion(valor) {
+            console.log('seleccionarValoracion llamada con valor:', valor);
             $('#valoracionInput').val(valor);
+            console.log('Valor establecido en input:', $('#valoracionInput').val());
             $('.valoracion-btn').removeClass('btn-warning').addClass('btn-outline-warning');
             $(`.valoracion-btn[data-valor="${valor}"]`).removeClass('btn-outline-warning').addClass('btn-warning');
+            console.log('Estilos de botones actualizados');
         }
 
         // Función para actualizar precio automáticamente
@@ -1648,25 +1656,7 @@
             });
         });
 
-        // Funciones para el manejo de pasos
-        function avanzarPaso5() {
-            mostrarPaso(6); // Ir al paso de audio
-            // Verificar permisos cuando se entra al paso de audio
-            setTimeout(() => {
-                checkMicrophonePermissions().then(hasPermission => {
-                    if (!hasPermission) {
-                        console.log('Permisos de micrófono no concedidos');
-                        // No mostrar error, solo informar que es opcional
-                    }
-                }).catch(error => {
-                    console.log('Error verificando permisos:', error);
-                });
-            }, 500);
-        }
-
-        function avanzarPaso6() {
-            mostrarPaso(7); // Ir al paso de seguimiento
-        }
+        // Funciones para el manejo de pasos - ELIMINADAS (duplicadas)
 
         // Variables para grabación de audio
         let mediaRecorder;
