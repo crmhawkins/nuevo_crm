@@ -1879,8 +1879,6 @@
                             confirmButtonText: 'OK'
                         });
                     });
-                }
-            });
         }
 
         // Función para detener grabación
