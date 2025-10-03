@@ -3,6 +3,95 @@
 @section('title', 'Estadísticas de Visitas Comerciales')
 
 @section('content')
+<style>
+/* Estilos forzados para las tarjetas de estadísticas */
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    border-radius: 15px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+    height: 180px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 10px !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.stats-card-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; }
+.stats-card-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important; }
+.stats-card-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important; }
+.stats-card-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important; }
+
+.stats-content {
+    position: relative !important;
+    z-index: 2 !important;
+    text-align: center !important;
+    color: white !important;
+    padding: 20px !important;
+}
+
+.stats-icon {
+    font-size: 3rem !important;
+    color: white !important;
+    margin-bottom: 15px !important;
+    display: block !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+}
+
+.stats-number {
+    font-size: 3rem !important;
+    font-weight: bold !important;
+    color: white !important;
+    margin: 0 !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+    line-height: 1 !important;
+}
+
+.stats-label {
+    font-size: 1.1rem !important;
+    color: white !important;
+    margin: 0 !important;
+    opacity: 0.9 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+    font-weight: 500 !important;
+}
+
+.stats-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    margin: 20px 0 !important;
+    gap: 20px !important;
+}
+
+.stats-col {
+    flex: 0 0 calc(25% - 20px) !important;
+    min-width: 250px !important;
+    max-width: 300px !important;
+}
+
+@media (max-width: 1200px) {
+    .stats-col { flex: 0 0 calc(50% - 20px) !important; }
+}
+
+@media (max-width: 768px) {
+    .stats-col { flex: 0 0 100% !important; }
+}
+</style>
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -34,40 +123,40 @@
                     </div>
 
                     <!-- Resumen General -->
-                    <div class="row mb-4" style="display: flex; flex-wrap: wrap; margin: -10px;">
-                        <div class="col-lg-3 col-md-6 mb-3" style="padding: 10px; flex: 0 0 25%; max-width: 25%;">
-                            <div class="card" style="height: 150px; display: flex; align-items: center; justify-content: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #007bff !important;">
-                                <div class="card-body text-center" style="padding: 20px; color: white !important;">
-                                    <i class="fas fa-handshake fa-2x mb-2" style="display: block; color: white !important;"></i>
-                                    <h3 class="mb-0" style="font-size: 2rem; font-weight: bold; color: white !important;">{{ $totalVisitas ?? 0 }}</h3>
-                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">Total Visitas</p>
+                    <div class="stats-row">
+                        <div class="stats-col">
+                            <div class="stats-card stats-card-1">
+                                <div class="stats-content">
+                                    <i class="fas fa-handshake stats-icon"></i>
+                                    <div class="stats-number">{{ $totalVisitas ?? 0 }}</div>
+                                    <div class="stats-label">Total Visitas</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 mb-3" style="padding: 10px; flex: 0 0 25%; max-width: 25%;">
-                            <div class="card" style="height: 150px; display: flex; align-items: center; justify-content: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #28a745 !important;">
-                                <div class="card-body text-center" style="padding: 20px; color: white !important;">
-                                    <i class="fas fa-handshake fa-2x mb-2" style="display: block; color: white !important;"></i>
-                                    <h3 class="mb-0" style="font-size: 2rem; font-weight: bold; color: white !important;">{{ $visitasPresenciales ?? 0 }}</h3>
-                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">Presenciales</p>
+                        <div class="stats-col">
+                            <div class="stats-card stats-card-2">
+                                <div class="stats-content">
+                                    <i class="fas fa-handshake stats-icon"></i>
+                                    <div class="stats-number">{{ $visitasPresenciales ?? 0 }}</div>
+                                    <div class="stats-label">Presenciales</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 mb-3" style="padding: 10px; flex: 0 0 25%; max-width: 25%;">
-                            <div class="card" style="height: 150px; display: flex; align-items: center; justify-content: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #17a2b8 !important;">
-                                <div class="card-body text-center" style="padding: 20px; color: white !important;">
-                                    <i class="fas fa-phone fa-2x mb-2" style="display: block; color: white !important;"></i>
-                                    <h3 class="mb-0" style="font-size: 2rem; font-weight: bold; color: white !important;">{{ $visitasTelefonicas ?? 0 }}</h3>
-                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">Telefónicas</p>
+                        <div class="stats-col">
+                            <div class="stats-card stats-card-3">
+                                <div class="stats-content">
+                                    <i class="fas fa-phone stats-icon"></i>
+                                    <div class="stats-number">{{ $visitasTelefonicas ?? 0 }}</div>
+                                    <div class="stats-label">Telefónicas</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 mb-3" style="padding: 10px; flex: 0 0 25%; max-width: 25%;">
-                            <div class="card" style="height: 150px; display: flex; align-items: center; justify-content: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #ffc107 !important;">
-                                <div class="card-body text-center" style="padding: 20px; color: white !important;">
-                                    <i class="fas fa-microphone fa-2x mb-2" style="display: block; color: white !important;"></i>
-                                    <h3 class="mb-0" style="font-size: 2rem; font-weight: bold; color: white !important;">{{ $visitasConAudio ?? 0 }}</h3>
-                                    <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">Con Audio</p>
+                        <div class="stats-col">
+                            <div class="stats-card stats-card-4">
+                                <div class="stats-content">
+                                    <i class="fas fa-microphone stats-icon"></i>
+                                    <div class="stats-number">{{ $visitasConAudio ?? 0 }}</div>
+                                    <div class="stats-label">Con Audio</div>
                                 </div>
                             </div>
                         </div>
