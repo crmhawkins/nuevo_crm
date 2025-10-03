@@ -13,6 +13,8 @@ use App\Models\Bajas\Baja;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
 use App\Models\VisitaComercial;
+use App\Models\ObjetivoComercial;
+use App\Models\IncentivoComercial;
 use App\Models\Holidays\Holidays;
 use App\Models\Holidays\HolidaysPetitions;
 use App\Models\HoursMonthly\HoursMonthly;
@@ -364,8 +366,32 @@ class DashboardController extends Controller
                     ->get();
                     
                 $clientes = Client::where('is_client', 1)->get();
+                
+                // Obtener objetivos del comercial
+                $objetivo = ObjetivoComercial::delComercial($user->id)
+                    ->activos()
+                    ->vigentes()
+                    ->first();
+                
+                // Calcular progreso si hay objetivo
+                $progreso = null;
+                if ($objetivo) {
+                    $progreso = $this->calcularProgresoComercial($user->id, $objetivo);
+                }
 
-                return view('dashboards.dashboard_comercial_standalone', compact('user', 'diasDiferencia', 'visitas', 'clientes', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva'));
+                // Obtener incentivos del comercial
+                $incentivo = IncentivoComercial::delComercial($user->id)
+                    ->activos()
+                    ->vigentes()
+                    ->first();
+                
+                // Calcular incentivos si hay incentivo
+                $progresoIncentivos = null;
+                if ($incentivo) {
+                    $progresoIncentivos = $this->calcularIncentivosComercial($user->id, $incentivo);
+                }
+
+                return view('dashboards.dashboard_comercial_standalone', compact('user', 'diasDiferencia', 'visitas', 'clientes', 'timeWorkedToday', 'jornadaActiva', 'pausaActiva', 'objetivo', 'progreso', 'incentivo', 'progresoIncentivos'));
         }
     }
 
@@ -1576,6 +1602,148 @@ class DashboardController extends Controller
                 500,
             );
         }
+    }
+
+    /**
+     * Calcular el progreso del comercial
+     */
+    private function calcularProgresoComercial($comercialId, $objetivo)
+    {
+        $fechaInicio = now()->startOfMonth();
+        $fechaFin = now()->endOfMonth();
+
+        // Calcular visitas realizadas
+        $visitasRealizadas = VisitaComercial::where('comercial_id', $comercialId)
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->get();
+
+        $visitasPresenciales = $visitasRealizadas->where('tipo_visita', 'presencial')->count();
+        $visitasTelefonicas = $visitasRealizadas->where('tipo_visita', 'telefonico')->count();
+        $visitasMixtas = $visitasRealizadas->where('tipo_visita', 'mixto')->count();
+
+        // Calcular ventas realizadas (simplificado - basado en presupuestos)
+        $ventasRealizadas = Budget::where('comercial_id', $comercialId)
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->where('budget_status_id', 2) // Aceptado
+            ->get();
+
+        $planesEsenciales = $ventasRealizadas->where('concept', 'like', '%esencial%')->count();
+        $planesProfesionales = $ventasRealizadas->where('concept', 'like', '%profesional%')->count();
+        $planesAvanzados = $ventasRealizadas->where('concept', 'like', '%avanzado%')->count();
+        $ventasEuros = $ventasRealizadas->sum('total');
+
+        // Calcular porcentajes
+        $progresoVisitasPresenciales = $objetivo->visitas_presenciales_diarias > 0 
+            ? ($visitasPresenciales / $objetivo->visitas_presenciales_diarias) * 100 
+            : 0;
+
+        $progresoVisitasTelefonicas = $objetivo->visitas_telefonicas_diarias > 0 
+            ? ($visitasTelefonicas / $objetivo->visitas_telefonicas_diarias) * 100 
+            : 0;
+
+        $progresoVisitasMixtas = $objetivo->visitas_mixtas_diarias > 0 
+            ? ($visitasMixtas / $objetivo->visitas_mixtas_diarias) * 100 
+            : 0;
+
+        $progresoPlanesEsenciales = $objetivo->planes_esenciales_mensuales > 0 
+            ? ($planesEsenciales / $objetivo->planes_esenciales_mensuales) * 100 
+            : 0;
+
+        $progresoPlanesProfesionales = $objetivo->planes_profesionales_mensuales > 0 
+            ? ($planesProfesionales / $objetivo->planes_profesionales_mensuales) * 100 
+            : 0;
+
+        $progresoPlanesAvanzados = $objetivo->planes_avanzados_mensuales > 0 
+            ? ($planesAvanzados / $objetivo->planes_avanzados_mensuales) * 100 
+            : 0;
+
+        $progresoVentasEuros = $objetivo->ventas_euros_mensuales > 0 
+            ? ($ventasEuros / $objetivo->ventas_euros_mensuales) * 100 
+            : 0;
+
+        return [
+            'visitas' => [
+                'presenciales' => [
+                    'objetivo' => $objetivo->visitas_presenciales_diarias,
+                    'realizado' => $visitasPresenciales,
+                    'progreso' => round($progresoVisitasPresenciales, 2)
+                ],
+                'telefonicas' => [
+                    'objetivo' => $objetivo->visitas_telefonicas_diarias,
+                    'realizado' => $visitasTelefonicas,
+                    'progreso' => round($progresoVisitasTelefonicas, 2)
+                ],
+                'mixtas' => [
+                    'objetivo' => $objetivo->visitas_mixtas_diarias,
+                    'realizado' => $visitasMixtas,
+                    'progreso' => round($progresoVisitasMixtas, 2)
+                ]
+            ],
+            'ventas' => [
+                'planes_esenciales' => [
+                    'objetivo' => $objetivo->planes_esenciales_mensuales,
+                    'realizado' => $planesEsenciales,
+                    'progreso' => round($progresoPlanesEsenciales, 2)
+                ],
+                'planes_profesionales' => [
+                    'objetivo' => $objetivo->planes_profesionales_mensuales,
+                    'realizado' => $planesProfesionales,
+                    'progreso' => round($progresoPlanesProfesionales, 2)
+                ],
+                'planes_avanzados' => [
+                    'objetivo' => $objetivo->planes_avanzados_mensuales,
+                    'realizado' => $planesAvanzados,
+                    'progreso' => round($progresoPlanesAvanzados, 2)
+                ],
+                'ventas_euros' => [
+                    'objetivo' => $objetivo->ventas_euros_mensuales,
+                    'realizado' => $ventasEuros,
+                    'progreso' => round($progresoVentasEuros, 2)
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Calcular los incentivos del comercial
+     */
+    private function calcularIncentivosComercial($comercialId, $incentivo)
+    {
+        $fechaInicio = now()->startOfMonth();
+        $fechaFin = now()->endOfMonth();
+
+        // Calcular ventas realizadas
+        $ventasRealizadas = Budget::where('comercial_id', $comercialId)
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->where('budget_status_id', 2) // Aceptado
+            ->get();
+
+        $ventasTotales = $ventasRealizadas->sum('total');
+
+        // Calcular clientes únicos
+        $clientesUnicos = $ventasRealizadas->pluck('client_id')->unique()->count();
+
+        // Calcular incentivos
+        $incentivos = $incentivo->calcularIncentivo($ventasTotales, $clientesUnicos);
+
+        // Calcular ventas por plan
+        $ventasPorPlan = [
+            'esencial' => $ventasRealizadas->where('concept', 'like', '%esencial%')->sum('total'),
+            'profesional' => $ventasRealizadas->where('concept', 'like', '%profesional%')->sum('total'),
+            'avanzado' => $ventasRealizadas->where('concept', 'like', '%avanzado%')->sum('total')
+        ];
+
+        return [
+            'ventas_totales' => $ventasTotales,
+            'clientes_unicos' => $clientesUnicos,
+            'ventas_por_plan' => $ventasPorPlan,
+            'incentivos' => $incentivos,
+            'cumple_minimo_clientes' => $clientesUnicos >= $incentivo->min_clientes_mensuales,
+            'cumple_minimo_ventas' => $ventasTotales >= $incentivo->min_ventas_mensuales,
+            'porcentaje_venta' => $incentivo->porcentaje_venta,
+            'porcentaje_adicional' => $incentivo->porcentaje_adicional,
+            'min_clientes_mensuales' => $incentivo->min_clientes_mensuales
+        ];
     }
 
     public function horasSemanales()

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Grabación de Audio</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .btn { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .recording { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .ready { background: #d4edda; border: 1px solid #c3e6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ Test de Grabación de Audio</h1>
+        
+        <div class="card">
+            <h3>Controles de Grabación</h3>
+            <div id="audioControls">
+                <button class="btn btn-primary" id="startRecording" onclick="startRecording()">
+                    🎤 Iniciar Grabación
+                </button>
+                <button class="btn btn-danger" id="stopRecording" onclick="stopRecording()" style="display: none;">
+                    ⏹️ Detener Grabación
+                </button>
+                <button class="btn btn-success" id="playRecording" onclick="playRecording()" style="display: none;">
+                    ▶️ Reproducir
+                </button>
+                <button class="btn btn-secondary" id="deleteRecording" onclick="deleteRecording()" style="display: none;">
+                    🗑️ Eliminar
+                </button>
+            </div>
+            
+            <div id="recordingStatus" class="status" style="display: none;">
+                <strong>🔴 Grabando...</strong> <span id="recordingTime">00:00</span>
+            </div>
+            
+            <div id="audioPlayer" style="display: none;">
+                <audio id="audioPlayback" controls style="width: 100%; margin: 10px 0;"></audio>
+                <div>
+                    <small>Duración: <span id="audioDuration">00:00</span></small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Información del Sistema</h3>
+            <div id="systemInfo">
+                <p><strong>Navegador:</strong> <span id="browserInfo">Verificando...</span></p>
+                <p><strong>MediaRecorder:</strong> <span id="mediaRecorderInfo">Verificando...</span></p>
+                <p><strong>getUserMedia:</strong> <span id="getUserMediaInfo">Verificando...</span></p>
+                <p><strong>Permisos:</strong> <span id="permissionsInfo">Verificando...</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let mediaRecorder;
+        let audioChunks = [];
+        let audioBlob = null;
+        let recordingStartTime = null;
+        let recordingInterval = null;
+
+        // Verificar compatibilidad del navegador
+        function checkBrowserCompatibility() {
+            const browserInfo = document.getElementById('browserInfo');
+            const mediaRecorderInfo = document.getElementById('mediaRecorderInfo');
+            const getUserMediaInfo = document.getElementById('getUserMediaInfo');
+            
+            // Información del navegador
+            browserInfo.textContent = navigator.userAgent.split(' ')[0];
+            
+            // Verificar MediaRecorder
+            if (typeof MediaRecorder !== 'undefined') {
+                mediaRecorderInfo.textContent = '✅ Soportado';
+                mediaRecorderInfo.style.color = 'green';
+            } else {
+                mediaRecorderInfo.textContent = '❌ No soportado';
+                mediaRecorderInfo.style.color = 'red';
+            }
+            
+            // Verificar getUserMedia
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                getUserMediaInfo.textContent = '✅ Soportado';
+                getUserMediaInfo.style.color = 'green';
+            } else {
+                getUserMediaInfo.textContent = '❌ No soportado';
+                getUserMediaInfo.style.color = 'red';
+            }
+        }
+
+        // Verificar permisos de micrófono
+        function checkMicrophonePermissions() {
+            const permissionsInfo = document.getElementById('permissionsInfo');
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                permissionsInfo.textContent = '❌ No disponible';
+                permissionsInfo.style.color = 'red';
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    permissionsInfo.textContent = '✅ Permisos concedidos';
+                    permissionsInfo.style.color = 'green';
+                    stream.getTracks().forEach(track => track.stop());
+                })
+                .catch(error => {
+                    permissionsInfo.textContent = `❌ ${error.name}`;
+                    permissionsInfo.style.color = 'red';
+                });
+        }
+
+        // Función para iniciar grabación
+        function startRecording() {
+            // Verificar compatibilidad
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Tu navegador no soporta grabación de audio');
+                return;
+            }
+
+            // Solicitar permisos
+            navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true,
+                    sampleRate: 44100
+                } 
+            })
+            .then(stream => {
+                console.log('Micrófono accedido correctamente');
+                
+                // Crear MediaRecorder
+                const options = { mimeType: 'audio/webm;codecs=opus' };
+                if (MediaRecorder.isTypeSupported(options.mimeType)) {
+                    mediaRecorder = new MediaRecorder(stream, options);
+                } else {
+                    mediaRecorder = new MediaRecorder(stream);
+                }
+                
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const mimeType = mediaRecorder.mimeType || 'audio/webm';
+                    audioBlob = new Blob(audioChunks, { type: mimeType });
+                    
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    document.getElementById('audioPlayback').src = audioUrl;
+                    
+                    // Mostrar controles
+                    document.getElementById('playRecording').style.display = 'inline-block';
+                    document.getElementById('deleteRecording').style.display = 'inline-block';
+                    document.getElementById('audioPlayer').style.display = 'block';
+                    
+                    // Calcular duración
+                    const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    document.getElementById('audioDuration').textContent = formatTime(duration);
+                    
+                    // Detener stream
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                mediaRecorder.onerror = (event) => {
+                    console.error('Error en MediaRecorder:', event.error);
+                    alert('Error durante la grabación');
+                };
+                
+                // Iniciar grabación
+                mediaRecorder.start(1000);
+                recordingStartTime = Date.now();
+                
+                // Actualizar UI
+                document.getElementById('startRecording').style.display = 'none';
+                document.getElementById('stopRecording').style.display = 'inline-block';
+                document.getElementById('recordingStatus').style.display = 'block';
+                
+                // Iniciar contador
+                recordingInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    document.getElementById('recordingTime').textContent = formatTime(elapsed);
+                }, 1000);
+                
+                console.log('Grabación iniciada');
+            })
+            .catch(error => {
+                console.error('Error accessing microphone:', error);
+                
+                let errorMessage = 'No se pudo acceder al micrófono.';
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMessage = 'Permisos de micrófono denegados. Por favor, permite el acceso al micrófono.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage = 'No se encontró ningún micrófono.';
+                } else if (error.name === 'NotSupportedError') {
+                    errorMessage = 'Tu navegador no soporta grabación de audio.';
+                } else if (error.name === 'NotReadableError') {
+                    errorMessage = 'El micrófono está siendo usado por otra aplicación.';
+                }
+                
+                alert(errorMessage);
+            });
+        }
+
+        // Función para detener grabación
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                
+                // Actualizar UI
+                document.getElementById('stopRecording').style.display = 'none';
+                document.getElementById('startRecording').style.display = 'inline-block';
+                document.getElementById('recordingStatus').style.display = 'none';
+                
+                // Limpiar contador
+                if (recordingInterval) {
+                    clearInterval(recordingInterval);
+                    recordingInterval = null;
+                }
+                
+                console.log('Grabación detenida');
+            }
+        }
+
+        // Función para reproducir grabación
+        function playRecording() {
+            const audio = document.getElementById('audioPlayback');
+            if (audio.src) {
+                audio.play();
+            }
+        }
+
+        // Función para eliminar grabación
+        function deleteRecording() {
+            audioBlob = null;
+            document.getElementById('audioPlayback').src = '';
+            document.getElementById('audioDuration').textContent = '00:00';
+            document.getElementById('playRecording').style.display = 'none';
+            document.getElementById('deleteRecording').style.display = 'none';
+            document.getElementById('audioPlayer').style.display = 'none';
+        }
+
+        // Función para formatear tiempo
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Inicializar al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            checkBrowserCompatibility();
+            checkMicrophonePermissions();
+        });
+    </script>
+</body>
+</html>

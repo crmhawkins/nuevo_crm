@@ -19,13 +19,33 @@ class VisitaComercial extends Model
         'valoracion',
         'comentarios',
         'requiere_seguimiento',
-        'fecha_seguimiento'
+        'fecha_seguimiento',
+        'plan_interesado',
+        'precio_plan',
+        'estado',
+        'observaciones_plan',
+        'audio_file',
+        'audio_duration',
+        'audio_recorded_at'
     ];
 
     protected $casts = [
         'fecha_seguimiento' => 'datetime',
-        'requiere_seguimiento' => 'boolean'
+        'requiere_seguimiento' => 'boolean',
+        'precio_plan' => 'decimal:2',
+        'audio_recorded_at' => 'datetime'
     ];
+
+    // Constantes para estados
+    const ESTADO_PENDIENTE = 'pendiente';
+    const ESTADO_ACEPTADO = 'aceptado';
+    const ESTADO_RECHAZADO = 'rechazado';
+    const ESTADO_EN_PROCESO = 'en_proceso';
+
+    // Constantes para planes
+    const PLAN_ESENCIAL = 'esencial';
+    const PLAN_PROFESIONAL = 'profesional';
+    const PLAN_AVANZADO = 'avanzado';
 
     // Relaciones
     public function comercial()

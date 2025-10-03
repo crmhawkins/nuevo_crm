@@ -185,6 +185,30 @@
                 margin-bottom: 8px;
             }
             
+            .visita-card-plan {
+                margin: 8px 0;
+                padding: 8px;
+                background: rgba(255, 193, 7, 0.1);
+                border-radius: 8px;
+                border-left: 3px solid #ffc107;
+            }
+            
+            .visita-card-estado {
+                margin: 8px 0;
+                padding: 8px;
+                background: rgba(108, 117, 125, 0.1);
+                border-radius: 8px;
+                border-left: 3px solid #6c757d;
+            }
+            
+            .visita-card-audio {
+                margin: 8px 0;
+                padding: 8px;
+                background: rgba(13, 110, 253, 0.1);
+                border-radius: 8px;
+                border-left: 3px solid #0d6efd;
+            }
+            
             .valoracion-stars {
                 color: #ffc107;
                 margin-right: 8px;
@@ -421,15 +445,274 @@
                 </div>
             </div>
 
-            <!-- Gestión Comercial -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-briefcase me-2"></i>Gestión Comercial
-                            </h5>
+    <!-- Objetivos Comerciales -->
+    @if($objetivo && $progreso)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-target me-2"></i>Mis Objetivos Comerciales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Objetivos de Visitas -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-walking me-2"></i>Objetivos de Visitas Diarias
+                            </h6>
+                            
+                            @if($objetivo->visitas_presenciales_diarias > 0)
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">
+                                        <i class="fas fa-walking text-success me-1"></i>Presenciales
+                                    </span>
+                                    <span class="small fw-bold">
+                                        {{ $progreso['visitas']['presenciales']['realizado'] }}/{{ $progreso['visitas']['presenciales']['objetivo'] }}
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: {{ min($progreso['visitas']['presenciales']['progreso'], 100) }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ $progreso['visitas']['presenciales']['progreso'] }}% completado</small>
+                            </div>
+                            @endif
+
+                            @if($objetivo->visitas_telefonicas_diarias > 0)
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">
+                                        <i class="fas fa-phone text-info me-1"></i>Telefónicas
+                                    </span>
+                                    <span class="small fw-bold">
+                                        {{ $progreso['visitas']['telefonicas']['realizado'] }}/{{ $progreso['visitas']['telefonicas']['objetivo'] }}
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-info" style="width: {{ min($progreso['visitas']['telefonicas']['progreso'], 100) }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ $progreso['visitas']['telefonicas']['progreso'] }}% completado</small>
+                            </div>
+                            @endif
+
+                            @if($objetivo->visitas_mixtas_diarias > 0)
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">
+                                        <i class="fas fa-users text-warning me-1"></i>Mixtas
+                                    </span>
+                                    <span class="small fw-bold">
+                                        {{ $progreso['visitas']['mixtas']['realizado'] }}/{{ $progreso['visitas']['mixtas']['objetivo'] }}
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" style="width: {{ min($progreso['visitas']['mixtas']['progreso'], 100) }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ $progreso['visitas']['mixtas']['progreso'] }}% completado</small>
+                            </div>
+                            @endif
                         </div>
+
+                        <!-- Objetivos de Ventas -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-euro-sign me-2"></i>Objetivos de Ventas Mensuales
+                            </h6>
+                            
+                            @if($objetivo->planes_esenciales_mensuales > 0)
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">
+                                        <i class="fas fa-star text-primary me-1"></i>Planes Esenciales
+                                    </span>
+                                    <span class="small fw-bold">
+                                        {{ $progreso['ventas']['planes_esenciales']['realizado'] }}/{{ $progreso['ventas']['planes_esenciales']['objetivo'] }}
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" style="width: {{ min($progreso['ventas']['planes_esenciales']['progreso'], 100) }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ $progreso['ventas']['planes_esenciales']['progreso'] }}% completado</small>
+                            </div>
+                            @endif
+
+                            @if($objetivo->planes_profesionales_mensuales > 0)
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">
+                                        <i class="fas fa-star text-success me-1"></i>Planes Profesionales
+                                    </span>
+                                    <span class="small fw-bold">
+                                        {{ $progreso['ventas']['planes_profesionales']['realizado'] }}/{{ $progreso['ventas']['planes_profesionales']['objetivo'] }}
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: {{ min($progreso['ventas']['planes_profesionales']['progreso'], 100) }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ $progreso['ventas']['planes_profesionales']['progreso'] }}% completado</small>
+                            </div>
+                            @endif
+
+                            @if($objetivo->planes_avanzados_mensuales > 0)
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">
+                                        <i class="fas fa-star text-warning me-1"></i>Planes Avanzados
+                                    </span>
+                                    <span class="small fw-bold">
+                                        {{ $progreso['ventas']['planes_avanzados']['realizado'] }}/{{ $progreso['ventas']['planes_avanzados']['objetivo'] }}
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" style="width: {{ min($progreso['ventas']['planes_avanzados']['progreso'], 100) }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ $progreso['ventas']['planes_avanzados']['progreso'] }}% completado</small>
+                            </div>
+                            @endif
+
+                            @if($objetivo->ventas_euros_mensuales > 0)
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">
+                                        <i class="fas fa-euro-sign text-info me-1"></i>Ventas en Euros
+                                    </span>
+                                    <span class="small fw-bold">
+                                        €{{ number_format($progreso['ventas']['ventas_euros']['realizado'], 0) }}/€{{ number_format($progreso['ventas']['ventas_euros']['objetivo'], 0) }}
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-info" style="width: {{ min($progreso['ventas']['ventas_euros']['progreso'], 100) }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ $progreso['ventas']['ventas_euros']['progreso'] }}% completado</small>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Incentivos Comerciales -->
+    @if($incentivo && $progresoIncentivos)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-money-bill-wave me-2"></i>Mis Incentivos Comerciales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Resumen de Incentivos -->
+                        <div class="col-md-6">
+                            <h6 class="text-success mb-3">
+                                <i class="fas fa-chart-line me-2"></i>Resumen de Incentivos
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h4 class="text-success">€{{ number_format($progresoIncentivos['incentivos']['incentivo_base'], 2) }}</h4>
+                                            <small class="text-muted">Incentivo Base ({{ $progresoIncentivos['porcentaje_venta'] }}%)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h4 class="text-warning">€{{ number_format($progresoIncentivos['incentivos']['incentivo_adicional'], 2) }}</h4>
+                                            <small class="text-muted">Incentivo Adicional ({{ $progresoIncentivos['porcentaje_adicional'] }}%)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body text-center">
+                                        <h3>€{{ number_format($progresoIncentivos['incentivos']['total_incentivo'], 2) }}</h3>
+                                        <small>Total de Incentivos</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progreso hacia Incentivo Adicional -->
+                        <div class="col-md-6">
+                            <h6 class="text-success mb-3">
+                                <i class="fas fa-trophy me-2"></i>Progreso hacia Incentivo Adicional
+                            </h6>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">
+                                        <i class="fas fa-users text-info me-1"></i>Clientes Únicos
+                                    </span>
+                                    <span class="small fw-bold">
+                                        {{ $progresoIncentivos['clientes_unicos'] }}/{{ $progresoIncentivos['min_clientes_mensuales'] }}
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-info" style="width: {{ min(($progresoIncentivos['clientes_unicos'] / $progresoIncentivos['min_clientes_mensuales']) * 100, 100) }}%"></div>
+                                </div>
+                                <small class="text-muted">
+                                    @if($progresoIncentivos['cumple_minimo_clientes'])
+                                        ✅ ¡Cumples el mínimo de clientes!
+                                    @else
+                                        Faltan {{ $progresoIncentivos['min_clientes_mensuales'] - $progresoIncentivos['clientes_unicos'] }} clientes
+                                    @endif
+                                </small>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small">
+                                        <i class="fas fa-euro-sign text-success me-1"></i>Ventas Totales
+                                    </span>
+                                    <span class="small fw-bold">
+                                        €{{ number_format($progresoIncentivos['ventas_totales'], 0) }}
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                                </div>
+                                <small class="text-muted">Ventas realizadas este mes</small>
+                            </div>
+
+                            @if($progresoIncentivos['cumple_minimo_clientes'])
+                            <div class="alert alert-success">
+                                <i class="fas fa-star me-2"></i>
+                                <strong>¡Felicidades!</strong> Cumples el mínimo de clientes para el incentivo adicional del {{ $progresoIncentivos['porcentaje_adicional'] }}%
+                            </div>
+                            @else
+                            <div class="alert alert-warning">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Necesitas {{ $progresoIncentivos['min_clientes_mensuales'] - $progresoIncentivos['clientes_unicos'] }} clientes más para el incentivo adicional
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Gestión Comercial -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-briefcase me-2"></i>Gestión Comercial
+                    </h5>
+                </div>
                         <div class="card-body">
                             <!-- Desktop Table -->
                             <div class="table-responsive">
@@ -439,9 +722,10 @@
                                             <th><i class="fas fa-calendar me-1"></i>Fecha</th>
                                             <th><i class="fas fa-user me-1"></i>Cliente</th>
                                             <th><i class="fas fa-tag me-1"></i>Tipo</th>
+                                            <th><i class="fas fa-star me-1"></i>Plan</th>
+                                            <th><i class="fas fa-flag me-1"></i>Estado</th>
+                                            <th><i class="fas fa-microphone me-1"></i>Audio</th>
                                             <th><i class="fas fa-star me-1"></i>Valoración</th>
-                                            <th><i class="fas fa-comment me-1"></i>Comentarios</th>
-                                            <th><i class="fas fa-bell me-1"></i>Seguimiento</th>
                                             <th><i class="fas fa-cog me-1"></i>Acciones</th>
                                         </tr>
                                     </thead>
@@ -463,6 +747,37 @@
                                                         <i class="fas fa-{{ $visita->tipo_visita == 'presencial' ? 'handshake' : 'phone' }} me-1"></i>
                                                         {{ ucfirst($visita->tipo_visita) }}
                                                     </span>
+                                                </td>
+                                                <td>
+                                                    @if($visita->plan_interesado)
+                                                        <span class="badge bg-{{ $visita->plan_interesado == 'esencial' ? 'primary' : ($visita->plan_interesado == 'profesional' ? 'success' : 'warning') }}">
+                                                            {{ ucfirst($visita->plan_interesado) }}
+                                                        </span>
+                                                        @if($visita->precio_plan)
+                                                            <br><small class="text-muted">€{{ number_format($visita->precio_plan, 2) }}</small>
+                                                        @endif
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if($visita->estado)
+                                                        <span class="badge bg-{{ $visita->estado == 'aceptado' ? 'success' : ($visita->estado == 'rechazado' ? 'danger' : ($visita->estado == 'en_proceso' ? 'warning' : 'secondary')) }}">
+                                                            {{ ucfirst($visita->estado) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if($visita->audio_file)
+                                                        <button class="btn btn-sm btn-outline-primary" onclick="playVisitaAudio({{ $visita->id }})" title="Reproducir audio">
+                                                            <i class="fas fa-play me-1"></i>
+                                                            <small>{{ $visita->audio_duration ? gmdate('i:s', $visita->audio_duration) : 'Audio' }}</small>
+                                                        </button>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
                                                 </td>
                                                 <td>
                                                     <div class="d-flex align-items-center">
@@ -533,6 +848,37 @@
                                             <i class="fas fa-{{ $visita->tipo_visita == 'presencial' ? 'handshake' : 'phone' }} me-1"></i>
                                             {{ ucfirst($visita->tipo_visita) }}
                                         </div>
+                                        
+                                        @if($visita->plan_interesado)
+                                        <div class="visita-card-plan">
+                                            <i class="fas fa-star me-1"></i>
+                                            <strong>Plan:</strong> {{ ucfirst($visita->plan_interesado) }}
+                                            @if($visita->precio_plan)
+                                                - €{{ number_format($visita->precio_plan, 2) }}
+                                            @endif
+                                        </div>
+                                        @endif
+                                        
+                                        @if($visita->estado)
+                                        <div class="visita-card-estado">
+                                            <i class="fas fa-flag me-1"></i>
+                                            <strong>Estado:</strong> 
+                                            <span class="badge bg-{{ $visita->estado == 'aceptado' ? 'success' : ($visita->estado == 'rechazado' ? 'danger' : ($visita->estado == 'en_proceso' ? 'warning' : 'secondary')) }}">
+                                                {{ ucfirst($visita->estado) }}
+                                            </span>
+                                        </div>
+                                        @endif
+                                        
+                                        @if($visita->audio_file)
+                                        <div class="visita-card-audio">
+                                            <i class="fas fa-microphone me-1"></i>
+                                            <strong>Audio:</strong> 
+                                            <button class="btn btn-sm btn-outline-primary ms-2" onclick="playVisitaAudio({{ $visita->id }})" title="Reproducir audio">
+                                                <i class="fas fa-play me-1"></i>
+                                                <small>{{ $visita->audio_duration ? gmdate('i:s', $visita->audio_duration) : 'Audio' }}</small>
+                                            </button>
+                                        </div>
+                                        @endif
                                         
                                         <div class="visita-card-valoracion">
                                             <div class="valoracion-stars">
@@ -745,8 +1091,113 @@
                             </div>
                         </div>
 
-                        <!-- Paso 5: Seguimiento -->
+                        <!-- Paso 5: Plan Interesado -->
                         <div id="paso5" class="visita-paso" style="display: none;">
+                            <h6 class="mb-3 text-center">
+                                <i class="fas fa-star me-2"></i>Plan de Interés del Cliente
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Plan que le interesa</label>
+                                    <select class="form-select" id="plan_interesado" name="plan_interesado">
+                                        <option value="">Seleccionar plan</option>
+                                        <option value="esencial">Plan Esencial (€19)</option>
+                                        <option value="profesional">Plan Profesional (€49)</option>
+                                        <option value="avanzado">Plan Avanzado (€129)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Precio del Plan</label>
+                                    <input type="number" class="form-control" id="precio_plan" name="precio_plan" step="0.01" min="0">
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <label class="form-label">Estado de la Propuesta</label>
+                                <select class="form-select" id="estado" name="estado">
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="en_proceso">En Proceso</option>
+                                    <option value="aceptado">Aceptado</option>
+                                    <option value="rechazado">Rechazado</option>
+                                </select>
+                            </div>
+                            <div class="mt-3">
+                                <label class="form-label">Observaciones del Plan</label>
+                                <textarea class="form-control" id="observaciones_plan" name="observaciones_plan" rows="3" placeholder="Observaciones sobre el plan de interés..."></textarea>
+                            </div>
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(4)">
+                                    <i class="fas fa-arrow-left me-2"></i>Atrás
+                                </button>
+                                <button type="button" class="btn btn-primary btn-custom" onclick="avanzarPaso5()">
+                                    Siguiente<i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Paso 6: Grabación de Audio -->
+                        <div id="paso6" class="visita-paso" style="display: none;">
+                            <h6 class="mb-3 text-center">
+                                <i class="fas fa-microphone me-2"></i>Grabación de Audio (Opcional)
+                            </h6>
+                            <div class="text-center mb-4">
+                                <p class="text-muted">Puedes grabar la conversación para tener un registro de la visita</p>
+                                <button type="button" class="btn btn-outline-info btn-sm" onclick="showMicrophoneInfo()">
+                                    <i class="fas fa-info-circle me-1"></i>Información sobre permisos
+                                </button>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card border-info">
+                                        <div class="card-body text-center">
+                                            <div id="audioControls">
+                                                <button type="button" class="btn btn-outline-danger btn-lg mb-3" id="startRecording" onclick="startRecording()">
+                                                    <i class="fas fa-microphone me-2"></i>Iniciar Grabación
+                                                </button>
+                                                <button type="button" class="btn btn-outline-warning btn-lg mb-3" id="stopRecording" onclick="stopRecording()" style="display: none;">
+                                                    <i class="fas fa-stop me-2"></i>Detener Grabación
+                                                </button>
+                                                <button type="button" class="btn btn-outline-success btn-lg mb-3" id="playRecording" onclick="playRecording()" style="display: none;">
+                                                    <i class="fas fa-play me-2"></i>Reproducir
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-lg mb-3" id="deleteRecording" onclick="deleteRecording()" style="display: none;">
+                                                    <i class="fas fa-trash me-2"></i>Eliminar
+                                                </button>
+                                            </div>
+                                            
+                                            <div id="recordingStatus" class="mt-3" style="display: none;">
+                                                <div class="alert alert-info">
+                                                    <i class="fas fa-circle text-danger me-2"></i>
+                                                    <span id="recordingTime">00:00</span> - Grabando...
+                                                </div>
+                                            </div>
+                                            
+                                            <div id="audioPlayer" class="mt-3" style="display: none;">
+                                                <audio id="audioPlayback" controls class="w-100"></audio>
+                                                <div class="mt-2">
+                                                    <small class="text-muted">Duración: <span id="audioDuration">00:00</span></small>
+                                                </div>
+                                            </div>
+                                            
+                                            <input type="hidden" id="audioBlob" name="audio_blob">
+                                            <input type="hidden" id="audioDuration" name="audio_duration">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(5)">
+                                    <i class="fas fa-arrow-left me-2"></i>Atrás
+                                </button>
+                                <button type="button" class="btn btn-primary btn-custom" onclick="avanzarPaso6()">
+                                    <i class="fas fa-arrow-right me-2"></i>Siguiente
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Paso 7: Seguimiento -->
+                        <div id="paso7" class="visita-paso" style="display: none;">
                             <h6 class="mb-3">
                                 <i class="fas fa-bell me-2"></i>¿Requiere seguimiento?
                             </h6>
@@ -782,7 +1233,7 @@
                             </div>
 
                             <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(4)">
+                                <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(6)">
                                     <i class="fas fa-arrow-left me-2"></i>Atrás
                                 </button>
                                 <button type="submit" class="btn btn-success btn-custom">
@@ -993,6 +1444,26 @@
                 formData.append('fecha_seguimiento', $('#fecha_seguimiento').val());
             }
             
+            // Agregar datos del plan interesado
+            if ($('#plan_interesado').val()) {
+                formData.append('plan_interesado', $('#plan_interesado').val());
+            }
+            if ($('#precio_plan').val()) {
+                formData.append('precio_plan', $('#precio_plan').val());
+            }
+            if ($('#estado').val()) {
+                formData.append('estado', $('#estado').val());
+            }
+            if ($('#observaciones_plan').val()) {
+                formData.append('observaciones_plan', $('#observaciones_plan').val());
+            }
+            
+            // Agregar audio si existe
+            if (audioBlob) {
+                formData.append('audio', audioBlob, 'visita_audio.wav');
+                formData.append('audio_duration', $('#audioDuration').val());
+            }
+            
             // Mostrar loading
             Swal.fire({
                 title: 'Guardando...',
@@ -1041,6 +1512,337 @@
                 });
             });
         });
+
+        // Funciones para el manejo de pasos
+        function avanzarPaso5() {
+            mostrarPaso(6); // Ir al paso de audio
+            // Verificar permisos cuando se entra al paso de audio
+            setTimeout(() => {
+                checkMicrophonePermissions().then(hasPermission => {
+                    if (!hasPermission) {
+                        console.log('Permisos de micrófono no concedidos');
+                        // No mostrar error, solo informar que es opcional
+                    }
+                }).catch(error => {
+                    console.log('Error verificando permisos:', error);
+                });
+            }, 500);
+        }
+
+        function avanzarPaso6() {
+            mostrarPaso(7); // Ir al paso de seguimiento
+        }
+
+        // Variables para grabación de audio
+        let mediaRecorder;
+        let audioChunks = [];
+        let audioBlob = null;
+        let recordingStartTime = null;
+        let recordingInterval = null;
+
+        // Función para iniciar grabación
+        function startRecording() {
+            // Verificar si el navegador soporta MediaRecorder
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Tu navegador no soporta grabación de audio. Usa Chrome, Firefox o Safari.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            // Mostrar mensaje de solicitud de permisos
+            Swal.fire({
+                title: 'Permisos de Micrófono',
+                text: 'Se solicitará acceso al micrófono para grabar la conversación.',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Permitir',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Solicitar permisos con configuración específica
+                    navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true,
+                            sampleRate: 44100
+                        } 
+                    })
+                    .then(stream => {
+                        console.log('Micrófono accedido correctamente');
+                        
+                        // Crear MediaRecorder con configuración específica
+                        const options = {
+                            mimeType: 'audio/webm;codecs=opus' // Mejor compatibilidad
+                        };
+                        
+                        // Verificar si el navegador soporta el tipo MIME
+                        if (MediaRecorder.isTypeSupported(options.mimeType)) {
+                            mediaRecorder = new MediaRecorder(stream, options);
+                        } else {
+                            // Fallback a configuración por defecto
+                            mediaRecorder = new MediaRecorder(stream);
+                        }
+                        
+                        audioChunks = [];
+                        
+                        mediaRecorder.ondataavailable = event => {
+                            if (event.data.size > 0) {
+                                audioChunks.push(event.data);
+                            }
+                        };
+                        
+                        mediaRecorder.onstop = () => {
+                            // Crear blob con el tipo correcto
+                            const mimeType = mediaRecorder.mimeType || 'audio/webm';
+                            audioBlob = new Blob(audioChunks, { type: mimeType });
+                            
+                            // Crear URL para reproducción
+                            const audioUrl = URL.createObjectURL(audioBlob);
+                            document.getElementById('audioPlayback').src = audioUrl;
+                            
+                            // Mostrar controles de reproducción
+                            document.getElementById('playRecording').style.display = 'inline-block';
+                            document.getElementById('deleteRecording').style.display = 'inline-block';
+                            document.getElementById('audioPlayer').style.display = 'block';
+                            
+                            // Calcular duración
+                            const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+                            document.getElementById('audioDuration').textContent = formatTime(duration);
+                            document.getElementById('audioDuration').value = duration;
+                            
+                            // Guardar blob en input hidden
+                            const reader = new FileReader();
+                            reader.onload = function() {
+                                document.getElementById('audioBlob').value = reader.result;
+                            };
+                            reader.readAsDataURL(audioBlob);
+                            
+                            // Detener stream
+                            stream.getTracks().forEach(track => track.stop());
+                        };
+                        
+                        mediaRecorder.onerror = (event) => {
+                            console.error('Error en MediaRecorder:', event.error);
+                            Swal.fire({
+                                title: 'Error de Grabación',
+                                text: 'Ocurrió un error durante la grabación.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        };
+                        
+                        // Iniciar grabación
+                        mediaRecorder.start(1000); // Recopilar datos cada segundo
+                        recordingStartTime = Date.now();
+                        
+                        // Actualizar UI
+                        document.getElementById('startRecording').style.display = 'none';
+                        document.getElementById('stopRecording').style.display = 'inline-block';
+                        document.getElementById('recordingStatus').style.display = 'block';
+                        
+                        // Iniciar contador
+                        recordingInterval = setInterval(() => {
+                            const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                            document.getElementById('recordingTime').textContent = formatTime(elapsed);
+                        }, 1000);
+                        
+                        console.log('Grabación iniciada');
+                        
+                    })
+                    .catch(error => {
+                        console.error('Error accessing microphone:', error);
+                        
+                        let errorMessage = 'No se pudo acceder al micrófono.';
+                        
+                        if (error.name === 'NotAllowedError') {
+                            errorMessage = 'Permisos de micrófono denegados. Por favor, permite el acceso al micrófono en la configuración del navegador.';
+                        } else if (error.name === 'NotFoundError') {
+                            errorMessage = 'No se encontró ningún micrófono. Verifica que tengas un micrófono conectado.';
+                        } else if (error.name === 'NotSupportedError') {
+                            errorMessage = 'Tu navegador no soporta grabación de audio. Usa Chrome, Firefox o Safari.';
+                        } else if (error.name === 'NotReadableError') {
+                            errorMessage = 'El micrófono está siendo usado por otra aplicación.';
+                        }
+                        
+                        Swal.fire({
+                            title: 'Error de Micrófono',
+                            text: errorMessage,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+                }
+            });
+        }
+
+        // Función para detener grabación
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                
+                // Actualizar UI
+                document.getElementById('stopRecording').style.display = 'none';
+                document.getElementById('startRecording').style.display = 'inline-block';
+                document.getElementById('recordingStatus').style.display = 'none';
+                
+                // Limpiar contador
+                if (recordingInterval) {
+                    clearInterval(recordingInterval);
+                    recordingInterval = null;
+                }
+                
+                console.log('Grabación detenida');
+            }
+        }
+
+        // Función para reproducir grabación
+        function playRecording() {
+            const audio = document.getElementById('audioPlayback');
+            if (audio.src) {
+                audio.play();
+            }
+        }
+
+        // Función para eliminar grabación
+        function deleteRecording() {
+            audioBlob = null;
+            document.getElementById('audioBlob').value = '';
+            document.getElementById('audioDuration').value = '';
+            document.getElementById('audioDuration').textContent = '00:00';
+            document.getElementById('playRecording').style.display = 'none';
+            document.getElementById('deleteRecording').style.display = 'none';
+            document.getElementById('audioPlayer').style.display = 'none';
+            document.getElementById('audioPlayback').src = '';
+        }
+
+        // Función para formatear tiempo
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Función para verificar permisos de micrófono
+        function checkMicrophonePermissions() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                return Promise.reject(new Error('Navegador no compatible'));
+            }
+
+            return navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    // Detener el stream inmediatamente, solo queremos verificar permisos
+                    stream.getTracks().forEach(track => track.stop());
+                    return true;
+                })
+                .catch(error => {
+                    console.log('Permisos de micrófono:', error.name);
+                    return false;
+                });
+        }
+
+        // Función para mostrar información sobre permisos
+        function showMicrophoneInfo() {
+            Swal.fire({
+                title: 'Grabación de Audio',
+                html: `
+                    <div class="text-start">
+                        <p><strong>Para grabar audio necesitas:</strong></p>
+                        <ul>
+                            <li>✅ Un micrófono conectado</li>
+                            <li>✅ Permisos de micrófono en el navegador</li>
+                            <li>✅ Navegador compatible (Chrome, Firefox, Safari)</li>
+                        </ul>
+                        <p class="text-muted small">
+                            <i class="fas fa-info-circle me-1"></i>
+                            El audio se graba en formato WebM para mejor compatibilidad.
+                        </p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
+        }
+
+        // Función para reproducir audio de una visita
+        function playVisitaAudio(visitaId) {
+            fetch(`/visitas/${visitaId}/audio`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Crear modal para reproducir audio
+                        const modalHtml = `
+                            <div class="modal fade" id="audioModal" tabindex="-1" aria-labelledby="audioModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title" id="audioModalLabel">
+                                                <i class="fas fa-microphone me-2"></i>Audio de la Visita
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <audio controls class="w-100 mb-3">
+                                                <source src="${data.audio.url}" type="audio/wav">
+                                                Tu navegador no soporta el elemento de audio.
+                                            </audio>
+                                            <div class="text-muted">
+                                                <small>
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    Duración: ${data.audio.duration ? formatTime(data.audio.duration) : 'Desconocida'}
+                                                </small>
+                                                <br>
+                                                <small>
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    Grabado: ${data.audio.recorded_at ? new Date(data.audio.recorded_at).toLocaleString('es-ES') : 'Desconocido'}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Remover modal anterior si existe
+                        const existingModal = document.getElementById('audioModal');
+                        if (existingModal) {
+                            existingModal.remove();
+                        }
+                        
+                        // Agregar nuevo modal
+                        document.body.insertAdjacentHTML('beforeend', modalHtml);
+                        
+                        // Mostrar modal
+                        const audioModal = new bootstrap.Modal(document.getElementById('audioModal'));
+                        audioModal.show();
+                        
+                        // Limpiar modal al cerrar
+                        document.getElementById('audioModal').addEventListener('hidden.bs.modal', function() {
+                            this.remove();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No se pudo cargar el audio',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
 
         // Limpiar modal al cerrar
         $('#modalNuevaVisita').on('hidden.bs.modal', function() {

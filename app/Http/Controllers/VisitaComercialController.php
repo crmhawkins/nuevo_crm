@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\VisitaComercial;
 use App\Models\Clients\Client;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class VisitaComercialController extends Controller
 {
@@ -102,7 +104,13 @@ class VisitaComercialController extends Controller
                 'valoracion' => 'required|integer|min:1|max:10',
                 'comentarios' => 'nullable|string',
                 'requiere_seguimiento' => 'boolean',
-                'fecha_seguimiento' => 'nullable|date'
+                'fecha_seguimiento' => 'nullable|date',
+                'plan_interesado' => 'nullable|in:esencial,profesional,avanzado',
+                'precio_plan' => 'nullable|numeric|min:0',
+                'estado' => 'nullable|in:pendiente,aceptado,rechazado,en_proceso',
+                'observaciones_plan' => 'nullable|string',
+                'audio' => 'nullable|file|mimes:mp3,wav,ogg,m4a,webm|max:102400', // 100MB máximo
+                'audio_duration' => 'nullable|integer|min:1'
             ]);
 
             // Validar que tenga cliente_id o nombre_cliente
@@ -133,7 +141,8 @@ class VisitaComercialController extends Controller
                 ]);
             }
 
-            $visita = VisitaComercial::create([
+            // Preparar datos de la visita
+            $visitaData = [
                 'comercial_id' => $request->comercial_id,
                 'cliente_id' => $clienteId,
                 'nombre_cliente' => $request->nombre_cliente,
@@ -141,8 +150,26 @@ class VisitaComercialController extends Controller
                 'valoracion' => $request->valoracion,
                 'comentarios' => $request->comentarios,
                 'requiere_seguimiento' => $request->requiere_seguimiento ?? false,
-                'fecha_seguimiento' => $request->fecha_seguimiento
-            ]);
+                'fecha_seguimiento' => $request->fecha_seguimiento,
+                'plan_interesado' => $request->plan_interesado,
+                'precio_plan' => $request->precio_plan,
+                'estado' => $request->estado ?? 'pendiente',
+                'observaciones_plan' => $request->observaciones_plan
+            ];
+
+            // Manejar audio si existe
+            if ($request->hasFile('audio')) {
+                $audioFile = $request->file('audio');
+                $extension = $audioFile->getClientOriginalExtension();
+                $filename = 'visita_' . time() . '_' . Str::random(8) . '.' . $extension;
+                $path = $audioFile->storeAs('visitas_audio', $filename, 'public');
+                
+                $visitaData['audio_file'] = $path;
+                $visitaData['audio_duration'] = $request->audio_duration;
+                $visitaData['audio_recorded_at'] = now();
+            }
+
+            $visita = VisitaComercial::create($visitaData);
 
             Log::info('Visita comercial creada:', [
                 'visita_id' => $visita->id,

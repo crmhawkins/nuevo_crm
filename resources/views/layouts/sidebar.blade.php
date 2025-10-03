@@ -312,6 +312,21 @@
                                 </li>
                             </ul>
                         </li>
+                        
+                        @if ($admin || $gerente || $contable)
+                        <li class="sidebar-item {{ request()->routeIs('objetivos.*') ? 'active' : '' }}">
+                            <a href="{{route('objetivos.index')}}" class='sidebar-link hasnt_sub'>
+                                <i class="fa-solid fa-target fs-5"></i>
+                                <span>Objetivos Comerciales</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item {{ request()->routeIs('incentivos.*') ? 'active' : '' }}">
+                            <a href="{{route('incentivos.index')}}" class='sidebar-link hasnt_sub'>
+                                <i class="fa-solid fa-money-bill-wave fs-5"></i>
+                                <span>Incentivos Comerciales</span>
+                            </a>
+                        </li>
+                        @endif
                     </ul>
                 </li>
 

@@ -580,6 +580,11 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     Route::post('/visitas/store', [\App\Http\Controllers\VisitaComercialController::class, 'store'])->name('visitas.store');
     Route::post('/visitas/store-lead', [\App\Http\Controllers\VisitaComercialController::class, 'storeLead'])->name('visitas.storeLead');
     Route::get('/visitas/get', [\App\Http\Controllers\VisitaComercialController::class, 'getVisitas'])->name('visitas.get');
+    
+    // Audio de Visitas Comerciales
+    Route::post('/visitas/audio/upload', [\App\Http\Controllers\VisitaAudioController::class, 'uploadAudio'])->name('visitas.audio.upload');
+    Route::get('/visitas/{visitaId}/audio', [\App\Http\Controllers\VisitaAudioController::class, 'getAudioUrl'])->name('visitas.audio.get');
+    Route::delete('/visitas/{visitaId}/audio', [\App\Http\Controllers\VisitaAudioController::class, 'deleteAudio'])->name('visitas.audio.delete');
     Route::post('/dashboard/getDataTask', [DashboardController::class, 'getDataTask'])->name('dashboard.getDataTask');
     Route::post('/dashboard/getTasksRefresh', [DashboardController::class, 'getTasksRefresh'])->name('dashboard.getTasksRefresh');
     Route::post('/dashboard/setStatusTask', [DashboardController::class, 'setStatusTask'])->name('dashboard.setStatusTask');
@@ -928,6 +933,22 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/citas/{cita}/estado', [CitasController::class, 'updateEstado'])->name('citas.update.estado');
     Route::get('/citas/estadisticas', [CitasController::class, 'estadisticas'])->name('citas.estadisticas');
     Route::get('/citas/proximas', [CitasController::class, 'proximas'])->name('citas.proximas');
+    
+        // Objetivos Comerciales (Solo para administradores)
+        Route::middleware(['admin'])->prefix('admin')->group(function () {
+            Route::get('/objetivos-comerciales', [\App\Http\Controllers\ObjetivoComercialController::class, 'index'])->name('objetivos.index');
+            Route::post('/objetivos-comerciales', [\App\Http\Controllers\ObjetivoComercialController::class, 'store'])->name('objetivos.store');
+            Route::get('/objetivos-comerciales/progreso/{comercialId}', [\App\Http\Controllers\ObjetivoComercialController::class, 'getProgreso'])->name('objetivos.progreso');
+            Route::put('/objetivos-comerciales/{id}', [\App\Http\Controllers\ObjetivoComercialController::class, 'update'])->name('objetivos.update');
+            Route::delete('/objetivos-comerciales/{id}', [\App\Http\Controllers\ObjetivoComercialController::class, 'destroy'])->name('objetivos.destroy');
+            
+            // Incentivos Comerciales
+            Route::get('/incentivos-comerciales', [\App\Http\Controllers\IncentivoComercialController::class, 'index'])->name('incentivos.index');
+            Route::post('/incentivos-comerciales', [\App\Http\Controllers\IncentivoComercialController::class, 'store'])->name('incentivos.store');
+            Route::get('/incentivos-comerciales/progreso/{comercialId}', [\App\Http\Controllers\IncentivoComercialController::class, 'getProgresoIncentivos'])->name('incentivos.progreso');
+            Route::put('/incentivos-comerciales/{id}', [\App\Http\Controllers\IncentivoComercialController::class, 'update'])->name('incentivos.update');
+            Route::delete('/incentivos-comerciales/{id}', [\App\Http\Controllers\IncentivoComercialController::class, 'destroy'])->name('incentivos.destroy');
+        });
 });
 
 
