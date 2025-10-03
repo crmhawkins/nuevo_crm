@@ -1201,14 +1201,14 @@
                                 <button type="button" class="btn btn-secondary btn-custom" onclick="volverPaso(4)">
                                     <i class="fas fa-arrow-left me-2"></i>Atrás
                                 </button>
-                                <button type="button" class="btn btn-primary btn-custom" id="btnSiguientePaso5">
+                                <button type="button" class="btn btn-primary btn-custom" id="btnSiguientePaso6">
                                     Siguiente<i class="fas fa-arrow-right ms-2"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Paso 6: Grabación de Audio -->
-                        <div id="paso6" class="visita-paso" style="display: none;">
+                        <!-- Paso 7: Grabación de Audio -->
+                        <div id="paso7" class="visita-paso" style="display: none;">
                             <h6 class="mb-3 text-center">
                                 <i class="fas fa-microphone me-2"></i>Grabación de Audio (Opcional)
                             </h6>
@@ -1269,8 +1269,8 @@
                             </div>
                         </div>
 
-                        <!-- Paso 7: Seguimiento -->
-                        <div id="paso7" class="visita-paso" style="display: none;">
+                        <!-- Paso 8: Seguimiento -->
+                        <div id="paso8" class="visita-paso" style="display: none;">
                             <h6 class="mb-3">
                                 <i class="fas fa-bell me-2"></i>¿Requiere seguimiento?
                             </h6>
@@ -1467,7 +1467,15 @@
         }
 
         function avanzarPaso6() {
-            mostrarPaso(7); // Ir al paso de seguimiento
+            console.log('=== AVANZAR PASO 6 INICIADO ===');
+            console.log('Avanzando al paso 7 (grabación de audio)');
+            mostrarPaso(7); // Ir al paso de grabación de audio
+        }
+
+        function avanzarPaso7() {
+            console.log('=== AVANZAR PASO 7 INICIADO ===');
+            console.log('Avanzando al paso 8 (seguimiento)');
+            mostrarPaso(8); // Ir al paso de seguimiento
         }
 
         function seleccionarValoracion(valor) {
@@ -2576,8 +2584,10 @@
         setTimeout(() => {
             const btnSiguiente = document.getElementById('btnSiguientePaso5');
             const btnSiguienteMobile = document.getElementById('btnSiguientePaso5Mobile');
+            const btnSiguientePaso6 = document.getElementById('btnSiguientePaso6');
             console.log('Botón desktop encontrado:', btnSiguiente);
             console.log('Botón mobile encontrado:', btnSiguienteMobile);
+            console.log('Botón paso 6 encontrado:', btnSiguientePaso6);
             
             if (btnSiguiente) {
                 btnSiguiente.addEventListener('click', function(e) {
@@ -2599,8 +2609,18 @@
                 console.log('Event listener directo mobile agregado');
             }
             
-            if (!btnSiguiente && !btnSiguienteMobile) {
-                console.error('No se encontraron los botones btnSiguientePaso5');
+            if (btnSiguientePaso6) {
+                btnSiguientePaso6.addEventListener('click', function(e) {
+                    console.log('BOTÓN SIGUIENTE PASO 6 CLICKEADO - EVENT LISTENER DIRECTO');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    avanzarPaso6();
+                });
+                console.log('Event listener directo paso 6 agregado');
+            }
+            
+            if (!btnSiguiente && !btnSiguienteMobile && !btnSiguientePaso6) {
+                console.error('No se encontraron los botones btnSiguientePaso5/6');
             }
         }, 1000);
         
@@ -2608,10 +2628,15 @@
         document.addEventListener('click', function(e) {
             console.log('Click detectado en:', e.target);
             if (e.target && (e.target.id === 'btnSiguientePaso5' || e.target.id === 'btnSiguientePaso5Mobile' || e.target.closest('#btnSiguientePaso5') || e.target.closest('#btnSiguientePaso5Mobile'))) {
-                console.log('BOTÓN SIGUIENTE CLICKEADO - DELEGACIÓN DE EVENTOS');
+                console.log('BOTÓN SIGUIENTE CLICKEADO - DELEGACIÓN DE EVENTOS PASO 5');
                 e.preventDefault();
                 e.stopPropagation();
                 avanzarPaso5();
+            } else if (e.target && (e.target.id === 'btnSiguientePaso6' || e.target.closest('#btnSiguientePaso6'))) {
+                console.log('BOTÓN SIGUIENTE CLICKEADO - DELEGACIÓN DE EVENTOS PASO 6');
+                e.preventDefault();
+                e.stopPropagation();
+                avanzarPaso6();
             }
         });
         
