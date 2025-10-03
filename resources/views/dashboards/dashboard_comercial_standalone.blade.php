@@ -2569,28 +2569,49 @@
         // Verificar permisos de micrófono al cargar
         checkMicrophonePermissions();
         
-        // Event listener para el botón Siguiente del paso 5
-        const btnSiguiente = document.getElementById('btnSiguientePaso5');
-        if (btnSiguiente) {
-            btnSiguiente.addEventListener('click', function(e) {
-                console.log('BOTÓN SIGUIENTE CLICKEADO - EVENT LISTENER');
-                e.preventDefault();
-                e.stopPropagation();
-                avanzarPaso5();
-            });
-        } else {
-            console.error('No se encontró el botón btnSiguientePaso5');
-        }
+        // Event listener para el botón Siguiente del paso 5 - SOLUCIÓN AGRESIVA
+        console.log('Inicializando event listeners para botón Siguiente...');
         
-        // Event listener alternativo con delegación de eventos
+        // Método 1: Event listener directo
+        setTimeout(() => {
+            const btnSiguiente = document.getElementById('btnSiguientePaso5');
+            console.log('Botón encontrado:', btnSiguiente);
+            if (btnSiguiente) {
+                btnSiguiente.addEventListener('click', function(e) {
+                    console.log('BOTÓN SIGUIENTE CLICKEADO - EVENT LISTENER DIRECTO');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    avanzarPaso5();
+                });
+                console.log('Event listener directo agregado');
+            } else {
+                console.error('No se encontró el botón btnSiguientePaso5');
+            }
+        }, 1000);
+        
+        // Método 2: Delegación de eventos más amplia
         document.addEventListener('click', function(e) {
-            if (e.target && e.target.id === 'btnSiguientePaso5') {
+            console.log('Click detectado en:', e.target);
+            if (e.target && (e.target.id === 'btnSiguientePaso5' || e.target.closest('#btnSiguientePaso5'))) {
                 console.log('BOTÓN SIGUIENTE CLICKEADO - DELEGACIÓN DE EVENTOS');
                 e.preventDefault();
                 e.stopPropagation();
                 avanzarPaso5();
             }
         });
+        
+        // Método 3: Event listener en el modal
+        const modal = document.getElementById('modalNuevaVisita');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target && e.target.id === 'btnSiguientePaso5') {
+                    console.log('BOTÓN SIGUIENTE CLICKEADO - MODAL EVENT');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    avanzarPaso5();
+                }
+            });
+        }
     });
 
         // Inicializar modal cuando se abre
@@ -2608,6 +2629,22 @@
             // Resetear formularios
             $('#clienteNuevo').hide();
             $('#clienteExistente').hide();
+            
+            // RE-INICIALIZAR EVENT LISTENERS cuando se abre el modal
+            setTimeout(() => {
+                const btnSiguiente = document.getElementById('btnSiguientePaso5');
+                console.log('Re-inicializando botón Siguiente:', btnSiguiente);
+                if (btnSiguiente) {
+                    // Agregar nuevo listener
+                    btnSiguiente.addEventListener('click', function(e) {
+                        console.log('BOTÓN SIGUIENTE CLICKEADO - RE-INICIALIZADO');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        avanzarPaso5();
+                    });
+                    console.log('Event listener re-inicializado');
+                }
+            }, 500);
         });
     </script>
 </body>
