@@ -36,12 +36,12 @@ class AdminMiddleware
             'access_level_id' => $user->access_level_id
         ]);
 
-        // Verificar que el usuario tenga nivel de acceso de administrador (nivel 1), gestor (nivel 2) o contable (nivel 3)
-        if ($user->access_level_id != 1 && $user->access_level_id != 2 && $user->access_level_id != 3) {
+        // Verificar que el usuario tenga nivel de acceso de administrador (nivel 1), gerente (nivel 2), contable (nivel 3) o gestor (nivel 4)
+        if ($user->access_level_id != 1 && $user->access_level_id != 2 && $user->access_level_id != 3 && $user->access_level_id != 4) {
             \Log::warning('AdminMiddleware - Acceso denegado', [
                 'user_id' => $user->id,
                 'access_level_id' => $user->access_level_id,
-                'required_levels' => [1, 2, 3]
+                'required_levels' => [1, 2, 3, 4]
             ]);
             abort(403, 'No tienes permisos para acceder a esta sección.');
         }
