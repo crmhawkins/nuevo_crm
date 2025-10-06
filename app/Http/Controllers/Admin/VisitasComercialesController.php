@@ -63,15 +63,41 @@ class VisitasComercialesController extends Controller
 
     public function destroy(VisitaComercial $visita)
     {
+        // Soft delete - no eliminar archivos físicos, solo marcar como eliminado
+        $visita->delete();
+
+        return redirect()->route('visitas-comerciales.index')
+            ->with('success', 'Visita comercial eliminada correctamente.');
+    }
+
+    /**
+     * Restaurar una visita eliminada (solo para administradores)
+     */
+    public function restore($id)
+    {
+        $visita = VisitaComercial::withTrashed()->findOrFail($id);
+        $visita->restore();
+
+        return redirect()->route('visitas-comerciales.index')
+            ->with('success', 'Visita comercial restaurada correctamente.');
+    }
+
+    /**
+     * Eliminar permanentemente una visita (solo para administradores)
+     */
+    public function forceDelete($id)
+    {
+        $visita = VisitaComercial::withTrashed()->findOrFail($id);
+        
         // Eliminar audio si existe
         if ($visita->audio_file && \Storage::disk('public')->exists($visita->audio_file)) {
             \Storage::disk('public')->delete($visita->audio_file);
         }
 
-        $visita->delete();
+        $visita->forceDelete();
 
         return redirect()->route('visitas-comerciales.index')
-            ->with('success', 'Visita comercial eliminada correctamente.');
+            ->with('success', 'Visita comercial eliminada permanentemente.');
     }
 
     public function getAudio(VisitaComercial $visita)
