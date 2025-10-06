@@ -40,7 +40,7 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label class="form-label fw-bold">Fecha y Hora:</label>
-                                                <p class="mb-0">{{ $visita->created_at->format('d/m/Y H:i:s') }}</p>
+                                                <p class="mb-0">{{ $visita->created_at ? $visita->created_at->format('d/m/Y H:i:s') : 'No disponible' }}</p>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -117,7 +117,7 @@
                                                             <i class="fas fa-check me-1"></i>Sí
                                                         </span>
                                                         @if($visita->fecha_seguimiento)
-                                                            <br><small class="text-muted">Fecha: {{ $visita->fecha_seguimiento->format('d/m/Y H:i') }}</small>
+                                                            <br><small class="text-muted">Fecha: {{ $visita->fecha_seguimiento ? $visita->fecha_seguimiento->format('d/m/Y H:i') : 'No disponible' }}</small>
                                                         @endif
                                                     @else
                                                         <span class="badge bg-secondary">
@@ -225,7 +225,7 @@
                                                 <div class="text-center">
                                                     <label class="form-label fw-bold">Grabado:</label>
                                                     <p class="mb-0">
-                                                        <small>{{ $visita->audio_recorded_at->format('d/m/Y H:i') }}</small>
+                                                        <small>{{ $visita->audio_recorded_at ? $visita->audio_recorded_at->format('d/m/Y H:i') : 'No disponible' }}</small>
                                                     </p>
                                                 </div>
                                             </div>
