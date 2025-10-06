@@ -270,7 +270,7 @@
                         </div>
                         <div class="col-6">
                             <strong>Grabado:</strong><br>
-                            <span class="text-muted">{{ $visita->audio_recorded_at->format('d/m/Y H:i') }}</span>
+                            <span class="text-muted">{{ $visita->audio_recorded_at ? $visita->audio_recorded_at->format('d/m/Y H:i') : 'No disponible' }}</span>
                         </div>
                     </div>
                 </div>
