@@ -33,6 +33,7 @@ class Autoseo extends Model
         'AdminDistrict',
         'PostalCode',
         'CountryRegion',
+        'company_context',
         'pin'
     ];
     use HasFactory;

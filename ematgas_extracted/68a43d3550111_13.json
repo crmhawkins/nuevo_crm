@@ -1,0 +1,59 @@
+{
+    "dominio": "https:\/\/ematgas.es",
+    "servicios": "sin definir",
+    "ubicacion": "sin definir",
+    "short_tail": [
+        "Torniller\u00eda industrial Los Barrios",
+        "Servicios de mecanizado en Los Barrios"
+    ],
+    "long_tail": [
+        "Empresas de corte por oxicorte en Los Barrios",
+        "Proveedores de retrofits en Los Barrios",
+        "Proveedor de servicios industriales en Los Barrios"
+    ],
+    "palabras_clave_generadas": [
+        "Torniller\u00eda industrial Los Barrios",
+        "Servicios de mecanizado en Los Barrios",
+        "Proveedor de servicios industriales en Los Barrios"
+    ],
+    "detalles_keywords": [
+        {
+            "keyword": "Torniller\u00eda industrial Los Barrios",
+            "position": null,
+            "total_results": 561000
+        },
+        {
+            "keyword": "Servicios de mecanizado en Los Barrios",
+            "position": null,
+            "total_results": 148000
+        },
+        {
+            "keyword": "Proveedor de servicios industriales en Los Barrios",
+            "position": null,
+            "total_results": 569000
+        }
+    ],
+    "people_also_ask": [
+        {
+            "pregunta": "\"\u00bfCu\u00e1l es la mejor opci\u00f3n para la torniller\u00eda industrial en Los Barrios?\"",
+            "keyword_origen": "GPT"
+        },
+        {
+            "pregunta": "\"\u00bfC\u00f3mo encontrar servicios de mecanizado eficientes en Los Barrios?\"",
+            "keyword_origen": "GPT"
+        },
+        {
+            "pregunta": "\"\u00bfEn qu\u00e9 consiste el mecanizado y c\u00f3mo puedo encontrar estos servicios en Los Barrios?\"",
+            "keyword_origen": "GPT"
+        },
+        {
+            "pregunta": "\"\u00bfBuscas un proveedor de servicios industriales en Los Barrios? \u00bfCu\u00e1l es el mejor?\"",
+            "keyword_origen": "GPT"
+        },
+        {
+            "pregunta": "\"\u00bfC\u00f3mo puede ayudar un proveedor de servicios industriales a potenciar tu negocio en Los Barrios?\"",
+            "keyword_origen": "GPT"
+        }
+    ],
+    "uploaded_at": "2025-08-19 09:00:37"
+}

@@ -74,6 +74,8 @@ Route::post('/plataforma/store-msg', [PlataformaWhatsappController::class, 'stor
 
 Route::post('/autoseo/reports/login/', [AutoseoReports::class, 'login'])->name('autoseo.reports.login');
 Route::post('/autoseo/reports/upload', [AutoseoReports::class, 'upload'])->name('autoseo.reports.upload');
+Route::post('/autoseo/reports/generate-json-only', [AutoseoReports::class, 'generateJsonOnlyReport'])->name('autoseo.reports.generate.json.only');
+Route::post('/autoseo/upload-and-generate-report', [AutoseoJsonController::class, 'uploadJsonAndGenerateReport'])->name('autoseo.upload.and.generate');
 
 
 

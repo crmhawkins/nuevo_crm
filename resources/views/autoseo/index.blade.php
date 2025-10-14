@@ -299,6 +299,18 @@
                                                                             autocomplete="off" placeholder="ES"
                                                                             maxlength="2">
                                                                     </div>
+                                                                    <div class="col-12">
+                                                                        <h6 class="mt-3 mb-3">Contexto Empresarial</h6>
+                                                                    </div>
+                                                                    <div class="col-md-12">
+                                                                        <label for="edit_company_context{{ $client->id }}"
+                                                                            class="form-label">Descripción de la Empresa</label>
+                                                                        <textarea class="form-control" 
+                                                                            id="edit_company_context{{ $client->id }}"
+                                                                            name="company_context" rows="4" 
+                                                                            placeholder="Describe brevemente qué hace la empresa, a qué se dedica, qué servicios o productos ofrece, su sector de actividad, etc. Esta información ayudará a generar contenido más relevante y personalizado.">{{ $client->company_context }}</textarea>
+                                                                        <small class="form-text text-muted">Información opcional que ayudará a mejorar la generación de contenido SEO personalizado.</small>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer">
@@ -412,6 +424,15 @@
                             <label for="country_region" class="form-label">País</label>
                             <input type="text" class="form-control" id="country_region" name="CountryRegion" required
                                 autocomplete="off" placeholder="ES" maxlength="2">
+                        </div>
+                        <div class="col-12">
+                            <h6 class="mt-3 mb-3">Contexto Empresarial</h6>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="company_context" class="form-label">Descripción de la Empresa</label>
+                            <textarea class="form-control" id="company_context" name="company_context" rows="4" 
+                                placeholder="Describe brevemente qué hace la empresa, a qué se dedica, qué servicios o productos ofrece, su sector de actividad, etc. Esta información ayudará a generar contenido más relevante y personalizado."></textarea>
+                            <small class="form-text text-muted">Información opcional que ayudará a mejorar la generación de contenido SEO personalizado.</small>
                         </div>
                     </div>
                 </div>

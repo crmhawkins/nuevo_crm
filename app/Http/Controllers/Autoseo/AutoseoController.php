@@ -32,6 +32,7 @@ class AutoseoController extends Controller
             'AdminDistrict' => 'nullable|string|max:255',
             'PostalCode' => 'nullable|string|max:20',
             'CountryRegion' => 'nullable|string|size:2',
+            'company_context' => 'nullable|string|max:2000',
         ]);
 
         $client = new Autoseo();
@@ -59,6 +60,7 @@ class AutoseoController extends Controller
             'AdminDistrict' => 'nullable|string|max:255',
             'PostalCode' => 'nullable|string|max:20',
             'CountryRegion' => 'nullable|string|size:2',
+            'company_context' => 'nullable|string|max:2000',
         ]);
 
         $client = Autoseo::findOrFail($request->id);

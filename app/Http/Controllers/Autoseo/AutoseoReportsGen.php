@@ -14,6 +14,8 @@ use File;
 use App\Models\Autoseo\Autoseo;
 use Carbon\Carbon;
 use App\Mail\AutoseoReportGenerated;
+use App\Services\SerpApiService;
+use App\Services\ImprovedSerpApiService;
 
 class AutoseoReportsGen extends Controller
 {
@@ -257,33 +259,60 @@ class AutoseoReportsGen extends Controller
 
             $now = Carbon::now();
 
-            // Verificar si hay archivos en json_storage
-            if (empty($autoseo->json_storage)) {
-                Log::warning("No hay archivos en json_storage", [
-                    'autoseo_id' => $id,
-                    'report_type' => $reportType
-                ]);
-                return response()->json(['error' => 'No hay archivos JSON disponibles para generar el informe.'], 400);
-            }
-
-            // Verificar que haya al menos 1 JSON en json_storage
-            $jsonStorage = is_array($autoseo->json_storage) ? $autoseo->json_storage : json_decode($autoseo->json_storage, true);
-            if (empty($jsonStorage) || count($jsonStorage) < 1) {
-                Log::warning("JSON storage vacío o inválido", [
-                    'autoseo_id' => $id,
-                    'json_storage_count' => count($jsonStorage ?? []),
-                    'report_type' => $reportType
-                ]);
-                return response()->json(['error' => 'Se requiere al menos 1 archivo JSON para generar el informe.'], 400);
-            }
-
-            // Descargar y extraer ZIP
-            Log::info("Iniciando descarga y extracción de ZIP", [
+            // PASO 1: Obtener datos actuales de SerpAPI
+            Log::info("Obteniendo datos actuales de SerpAPI", [
                 'autoseo_id' => $id,
-                'report_type' => $reportType
+                'domain' => $autoseo->url
             ]);
 
-            $jsonDataList = $this->downloadAndExtractZip($id);
+            $improvedSerpApiService = new ImprovedSerpApiService();
+            $currentData = $improvedSerpApiService->getRealisticSeoData($autoseo);
+
+            // PASO 2: Obtener datos históricos (JSONs almacenados)
+            $historicalData = [];
+            if (!empty($autoseo->json_storage)) {
+                Log::info("Obteniendo datos históricos", [
+                    'autoseo_id' => $id,
+                    'has_json_storage' => true
+                ]);
+                
+                $historicalData = $this->downloadAndExtractZip($id);
+            } else {
+                Log::info("No hay datos históricos disponibles", [
+                    'autoseo_id' => $id
+                ]);
+            }
+
+            // PASO 3: Combinar datos actuales con históricos
+            $jsonDataList = array_merge($historicalData, [$currentData]);
+            
+            // PASO 3.5: Generar informe mejorado si es el nuevo formato
+            if (isset($currentData['summary'])) {
+                $html = $this->generateImprovedReportHtml($jsonDataList, $autoseo);
+                $filename = "informe_seo_mejorado_{$id}_" . date('Y-m-d') . ".html";
+                Storage::disk('public')->put("reports/{$filename}", $html);
+                
+                Log::info("Informe mejorado generado", [
+                    'autoseo_id' => $id,
+                    'filename' => $filename
+                ]);
+                
+                // Almacenar datos actuales para próximo mes
+                $this->storeCurrentDataForNextMonth($autoseo, $currentData);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Informe generado correctamente',
+                    'filename' => $filename,
+                    'url' => Storage::disk('public')->url("reports/{$filename}")
+                ]);
+            }
+            
+            Log::info("Datos combinados obtenidos", [
+                'historical_count' => count($historicalData),
+                'current_data' => !empty($currentData),
+                'total_count' => count($jsonDataList)
+            ]);
 
             Log::info("Datos JSON obtenidos", [
                 'count' => count($jsonDataList),
@@ -396,6 +425,9 @@ class AutoseoReportsGen extends Controller
                     'report_type' => $reportType
                 ]);
 
+                // PASO 4: Almacenar JSON actual para el próximo mes
+                $this->storeCurrentDataForNextMonth($autoseo, $currentData);
+
                 // Solo enviar correo si no es un informe de justificación
                 if ($reportType !== 'parallel') {
                     Log::info("Enviando notificación por correo", [
@@ -485,6 +517,9 @@ class AutoseoReportsGen extends Controller
             }
             $autoseo->last_report = $now;
             $autoseo->save();
+
+            // PASO 4: Almacenar JSON actual para el próximo mes
+            $this->storeCurrentDataForNextMonth($autoseo, $currentData);
 
             // Solo enviar correo si no es un informe de justificación
             if (request()->query('type') !== 'parallel') {
@@ -950,5 +985,60 @@ class AutoseoReportsGen extends Controller
         }
 
         return $response->json();
+    }
+
+    /**
+     * Almacena los datos actuales de SerpAPI para el próximo mes
+     */
+    private function storeCurrentDataForNextMonth(Autoseo $autoseo, $currentData)
+    {
+        try {
+            Log::info("Almacenando datos actuales para próximo mes", [
+                'autoseo_id' => $autoseo->id,
+                'domain' => $autoseo->url
+            ]);
+
+            // Crear nombre único para el archivo JSON
+            $filename = uniqid() . '_' . $autoseo->id . '.json';
+            $relativePath = "autoseo/json/$filename";
+
+            // Guardar archivo en storage/app/public/autoseo/json
+            Storage::disk('public')->makeDirectory('autoseo/json');
+            $saved = Storage::disk('public')->put('autoseo/json/' . $filename, json_encode($currentData, JSON_PRETTY_PRINT));
+
+            if (!$saved) {
+                Log::error("Error al guardar datos actuales", [
+                    'autoseo_id' => $autoseo->id,
+                    'filename' => $filename
+                ]);
+                return;
+            }
+
+            // Actualizar json_storage (array con id y path)
+            $jsonStorage = $autoseo->json_storage ? json_decode($autoseo->json_storage, true) : [];
+            $jsonStorage[] = [
+                'id' => $autoseo->id,
+                'path' => $relativePath,
+                'uploaded_at' => now()->toDateTimeString(),
+                'source' => 'serpapi_current'
+            ];
+
+            // Guardar cambios
+            $autoseo->json_mesanterior = $relativePath;
+            $autoseo->json_storage = json_encode($jsonStorage);
+            $autoseo->save();
+
+            Log::info("Datos actuales almacenados correctamente", [
+                'autoseo_id' => $autoseo->id,
+                'filename' => $filename,
+                'storage_count' => count($jsonStorage)
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error almacenando datos actuales", [
+                'autoseo_id' => $autoseo->id,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 }
