@@ -18,6 +18,26 @@
             z-index: 1055 !important;
             position: relative;
         }
+
+        /* Estilos para el modal de visualización mejorado */
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-xl {
+            max-width: 1200px;
+        }
+        
+        code {
+            font-size: 0.9rem;
+            padding: 0.2rem 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+        }
     </style>
 @endsection
 
@@ -64,85 +84,230 @@
                                                     <i class="fas fa-eye"></i> Ver
                                                 </button>
 
-                                                <!-- Modal Ver Cliente -->
+                                                <!-- Modal Ver Cliente - Versión Mejorada -->
                                                 <div class="modal fade" id="clientModal{{ $client->id }}" tabindex="-1"
                                                     aria-labelledby="clientModalLabel{{ $client->id }}"
                                                     aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                        <div class="modal-content bg-white text-dark shadow">
-                                                            <div class="modal-header bg-dark text-white">
-                                                                <h5 class="modal-title"
-                                                                    id="clientModalLabel{{ $client->id }}">Detalles de
-                                                                    {{ $client->client_name }}</h5>
+                                                    <div class="modal-dialog modal-dialog-centered modal-xl">
+                                                        <div class="modal-content">
+                                                            <!-- Header con gradiente -->
+                                                            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                                                <div>
+                                                                    <h4 class="modal-title text-white mb-1" id="clientModalLabel{{ $client->id }}">
+                                                                        <i class="fas fa-building me-2"></i>{{ $client->client_name }}
+                                                                    </h4>
+                                                                    <p class="text-white-50 mb-0 small">
+                                                                        <i class="fas fa-calendar me-1"></i>Cliente desde {{ $client->created_at->format('d/m/Y') }}
+                                                                    </p>
+                                                                </div>
                                                                 <button type="button" class="btn-close btn-close-white"
                                                                     data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                                             </div>
-                                                            <div class="modal-body">
-                                                                <p><strong>Email:</strong> {{ $client->client_email }}</p>
-                                                                <p><strong>URL:</strong> {{ $client->url }}</p>
-                                                                <p><strong>Usuario Aplicación:</strong>
-                                                                    {{ $client->user_app }}</p>
-                                                                <p><strong>Contraseña Aplicación:</strong>
-                                                                    {{ $client->password_app }}</p>
-                                                                <p><strong>Creado:</strong>
-                                                                    {{ $client->created_at->format('d/m/Y') }}</p>
-                                                                <hr>
-                                                                <h6>Dirección de la Empresa</h6>
-                                                                <p><strong>Nombre de la Empresa:</strong>
-                                                                    {{ $client->CompanyName }}</p>
-                                                                <p><strong>Dirección:</strong> {{ $client->AddressLine1 }}
-                                                                </p>
-                                                                <p><strong>Ciudad:</strong> {{ $client->Locality }}</p>
-                                                                <p><strong>Provincia/Región:</strong>
-                                                                    {{ $client->AdminDistrict }}</p>
-                                                                <p><strong>Código Postal:</strong>
-                                                                    {{ $client->PostalCode }}</p>
-                                                                <p><strong>País:</strong> {{ $client->CountryRegion }}</p>
-                                                                <hr>
-                                                                <h6>Reportes</h6>
-                                                                <div class="mb-3">
+                                                            
+                                                            <div class="modal-body p-4">
+                                                                <!-- Información de Contacto -->
+                                                                <div class="row mb-4">
+                                                                    <div class="col-12">
+                                                                        <h5 class="border-bottom pb-2 mb-3">
+                                                                            <i class="fas fa-address-card text-primary me-2"></i>Información de Contacto
+                                                                        </h5>
+                                                                    </div>
+                                                                    <div class="col-md-6 mb-3">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="icon-box bg-primary bg-opacity-10 text-primary rounded p-3 me-3">
+                                                                                <i class="fas fa-envelope fa-lg"></i>
+                                                                            </div>
+                                                                            <div>
+                                                                                <small class="text-muted d-block">Email</small>
+                                                                                <strong>{{ $client->client_email }}</strong>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6 mb-3">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="icon-box bg-success bg-opacity-10 text-success rounded p-3 me-3">
+                                                                                <i class="fas fa-globe fa-lg"></i>
+                                                                            </div>
+                                                                            <div>
+                                                                                <small class="text-muted d-block">Sitio Web</small>
+                                                                                <strong><a href="{{ $client->url }}" target="_blank" class="text-decoration-none">{{ $client->url }}</a></strong>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Credenciales de Acceso -->
+                                                                <div class="row mb-4">
+                                                                    <div class="col-12">
+                                                                        <h5 class="border-bottom pb-2 mb-3">
+                                                                            <i class="fas fa-key text-warning me-2"></i>Credenciales de Acceso
+                                                                        </h5>
+                                                                    </div>
+                                                                    <div class="col-md-6 mb-3">
+                                                                        <div class="card border-0 bg-light">
+                                                                            <div class="card-body">
+                                                                                <h6 class="card-subtitle mb-2 text-muted">
+                                                                                    <i class="fas fa-user me-1"></i>Cuenta de aplicacion
+                                                                                </h6>
+                                                                                <p class="mb-1"><small class="text-muted">Usuario:</small> <code class="bg-white px-2 py-1 rounded">{{ $client->username }}</code></p>
+                                                                                <p class="mb-0"><small class="text-muted">Contraseña:</small> <code class="bg-white px-2 py-1 rounded">{{ $client->password }}</code></p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6 mb-3">
+                                                                        <div class="card border-0 bg-light">
+                                                                            <div class="card-body">
+                                                                                <h6 class="card-subtitle mb-2 text-muted">
+                                                                                    <i class="fab fa-wordpress me-1"></i>WordPress
+                                                                                </h6>
+                                                                                <p class="mb-1"><small class="text-muted">Usuario:</small> <code class="bg-white px-2 py-1 rounded">{{ $client->user_app }}</code></p>
+                                                                                <p class="mb-0"><small class="text-muted">Contraseña:</small> <code class="bg-white px-2 py-1 rounded">{{ $client->password_app }}</code></p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <div class="card border-0 bg-info bg-opacity-10">
+                                                                            <div class="card-body">
+                                                                                <h6 class="card-subtitle mb-2 text-info">
+                                                                                    <i class="fas fa-shield-alt me-1"></i>PIN de Acceso
+                                                                                </h6>
+                                                                                <p class="mb-0"><code class="bg-white px-3 py-2 rounded fs-5 text-info">{{ $client->pin }}</code></p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Dirección de la Empresa -->
+                                                                <div class="row mb-4">
+                                                                    <div class="col-12">
+                                                                        <h5 class="border-bottom pb-2 mb-3">
+                                                                            <i class="fas fa-map-marker-alt text-danger me-2"></i>Dirección de la Empresa
+                                                                        </h5>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <div class="card border-0 bg-light">
+                                                                            <div class="card-body">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-12 mb-2">
+                                                                                        <h6 class="mb-0">{{ $client->CompanyName }}</h6>
+                                                                                    </div>
+                                                                                    <div class="col-md-8 mb-2">
+                                                                                        <i class="fas fa-map-pin text-danger me-2"></i>
+                                                                                        <span>{{ $client->AddressLine1 }}</span>
+                                                                                    </div>
+                                                                                    <div class="col-md-4 mb-2">
+                                                                                        <i class="fas fa-mailbox text-primary me-2"></i>
+                                                                                        <span>{{ $client->PostalCode }}</span>
+                                                                                    </div>
+                                                                                    <div class="col-md-6">
+                                                                                        <i class="fas fa-city text-info me-2"></i>
+                                                                                        <span>{{ $client->Locality }}, {{ $client->AdminDistrict }}</span>
+                                                                                    </div>
+                                                                                    <div class="col-md-6">
+                                                                                        <i class="fas fa-flag text-success me-2"></i>
+                                                                                        <span>{{ $client->CountryRegion }}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Contexto Empresarial -->
+                                                                @if($client->company_context)
+                                                                <div class="row mb-4">
+                                                                    <div class="col-12">
+                                                                        <h5 class="border-bottom pb-2 mb-3">
+                                                                            <i class="fas fa-info-circle text-info me-2"></i>Contexto Empresarial
+                                                                        </h5>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <div class="card border-0" style="background: linear-gradient(135deg, #e0f7fa 0%, #e1f5fe 100%);">
+                                                                            <div class="card-body">
+                                                                                <p class="mb-0 text-dark" style="line-height: 1.6;">
+                                                                                    {{ $client->company_context }}
+                                                                                </p>
+                                                                                <small class="text-muted d-block mt-2">
+                                                                                    <i class="fas fa-robot me-1"></i>Optimizado por IA
+                                                                                </small>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                @endif
+
+                                                                <!-- Reportes SEO -->
+                                                                <div class="row">
+                                                                    <div class="col-12">
+                                                                        <h5 class="border-bottom pb-2 mb-3">
+                                                                            <i class="fas fa-chart-line text-success me-2"></i>Reportes SEO
+                                                                        </h5>
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
                                                                     <form
                                                                         action="{{ route('autoseo.json.upload', ['field' => 'reporte', 'id' => $client->id]) }}"
                                                                         method="POST" enctype="multipart/form-data"
-                                                                        class="d-flex gap-2">
+                                                                            class="d-flex gap-2 align-items-center">
                                                                         @csrf
                                                                         <input type="file"
                                                                             class="form-control form-control-sm"
                                                                             name="file" accept=".pdf,.doc,.docx"
                                                                             required>
                                                                         <button type="submit"
-                                                                            class="btn btn-primary btn-sm">
-                                                                            <i class="fas fa-upload"></i> Subir Reporte
+                                                                                class="btn btn-success btn-sm">
+                                                                                <i class="fas fa-upload me-1"></i> Subir Reporte
                                                                         </button>
                                                                     </form>
                                                                 </div>
-                                                                @if ($client->reports && $client->reports && count($client->reports) > 0)
-                                                                    <div class="list-group">
-                                                                        @foreach ($client->reports as $index => $report)
-                                                                            <div
-                                                                                class="list-group-item d-flex justify-content-between align-items-center">
-                                                                                <div>
-                                                                                    <i class="fas fa-file-pdf me-2"></i>
-                                                                                    Reporte #{{ $index + 1 }}
-                                                                                    <small class="text-muted ms-2">
-                                                                                        {{ \Carbon\Carbon::parse($report['creation_date'])->format('d/m/Y H:i') }}
-                                                                                    </small>
-                                                                                </div>
-                                                                                <a href="{{ route('autoseo.json.download', ['field' => 'reporte', 'id' => $client->id, 'index' => $index]) }}"
-                                                                                    class="btn btn-sm btn-primary">
-                                                                                    <i class="fas fa-download"></i>
-                                                                                    Descargar
-                                                                                </a>
+                                                                    <div class="col-12">
+                                                                        @php
+                                                                            $htmlReports = \App\Models\Autoseo\AutoseoReportsModel::where('autoseo_id', $client->id)
+                                                                                ->orderBy('created_at', 'desc')
+                                                                                ->get()
+                                                                                ->filter(function($report) {
+                                                                                    return file_exists(storage_path("app/public/{$report->path}"));
+                                                                                });
+                                                                        @endphp
+                                                                        
+                                                                        @if ($htmlReports->count() > 0)
+                                                                            <div class="list-group">
+                                                                                @foreach ($htmlReports as $index => $report)
+                                                                                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                            <div class="icon-box bg-success bg-opacity-10 text-success rounded p-2 me-3">
+                                                                                                <i class="fas fa-file-alt fa-lg"></i>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <strong>Informe SEO</strong>
+                                                                                                <br>
+                                                                                                <small class="text-muted">
+                                                                                                    <i class="fas fa-clock me-1"></i>
+                                                                                                    {{ $report->created_at->format('d/m/Y H:i') }}
+                                                                                                </small>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <a href="{{ route('autoseo.reports.showReport', ['userid' => $client->id, 'id' => $report->id]) }}" 
+                                                                                            target="_blank"
+                                                                                            class="btn btn-sm btn-success">
+                                                                                            <i class="fas fa-external-link-alt me-1"></i>
+                                                                                            Ver Informe
+                                                                                        </a>
+                                                                                    </div>
+                                                                                @endforeach
                                                                             </div>
-                                                                        @endforeach
+                                                                        @else
+                                                                            <div class="alert alert-info mb-0">
+                                                                                <i class="fas fa-info-circle me-2"></i>No hay informes SEO disponibles para este cliente
+                                                                            </div>
+                                                                        @endif
                                                                     </div>
-                                                                @else
-                                                                    <p class="text-muted">No hay reportes disponibles</p>
-                                                                @endif
+                                                                </div>
                                                             </div>
-                                                            <div class="modal-footer">
-                                                                <button class="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Cerrar</button>
+                                                            
+                                                            <div class="modal-footer bg-light">
+                                                                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                                                                    <i class="fas fa-times me-1"></i>Cerrar
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -304,12 +469,18 @@
                                                                     </div>
                                                                     <div class="col-md-12">
                                                                         <label for="edit_company_context{{ $client->id }}"
-                                                                            class="form-label">Descripción de la Empresa</label>
+                                                                            class="form-label">Descripción de la Empresa <span class="text-danger">*</span></label>
                                                                         <textarea class="form-control" 
                                                                             id="edit_company_context{{ $client->id }}"
                                                                             name="company_context" rows="4" 
+                                                                            maxlength="2000"
+                                                                            minlength="100"
+                                                                            required
                                                                             placeholder="Describe brevemente qué hace la empresa, a qué se dedica, qué servicios o productos ofrece, su sector de actividad, etc. Esta información ayudará a generar contenido más relevante y personalizado.">{{ $client->company_context }}</textarea>
-                                                                        <small class="form-text text-muted">Información opcional que ayudará a mejorar la generación de contenido SEO personalizado.</small>
+                                                                        <small class="form-text text-muted">
+                                                                            <span id="edit_company_context_counter{{ $client->id }}">{{ strlen($client->company_context ?? '') }} / 2000 caracteres</span> (mínimo 100 caracteres) - 
+                                                                            Información obligatoria que será optimizada automáticamente por IA.
+                                                                        </small>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -429,10 +600,16 @@
                             <h6 class="mt-3 mb-3">Contexto Empresarial</h6>
                         </div>
                         <div class="col-md-12">
-                            <label for="company_context" class="form-label">Descripción de la Empresa</label>
+                            <label for="company_context" class="form-label">Descripción de la Empresa <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="company_context" name="company_context" rows="4" 
+                                maxlength="2000"
+                                minlength="100"
+                                required
                                 placeholder="Describe brevemente qué hace la empresa, a qué se dedica, qué servicios o productos ofrece, su sector de actividad, etc. Esta información ayudará a generar contenido más relevante y personalizado."></textarea>
-                            <small class="form-text text-muted">Información opcional que ayudará a mejorar la generación de contenido SEO personalizado.</small>
+                            <small class="form-text text-muted">
+                                <span id="company_context_counter">0 / 2000 caracteres</span> (mínimo 100 caracteres) - 
+                                Información obligatoria que será optimizada automáticamente por IA.
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -451,7 +628,56 @@
 @section('js')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            new bootstrap.Modal(document.getElementById('createClientModal'));
+            // Contador de caracteres para crear cliente
+            const companyContextCreate = document.getElementById('company_context');
+            const counterCreate = document.getElementById('company_context_counter');
+            
+            if (companyContextCreate && counterCreate) {
+                // Actualizar contador en tiempo real
+                companyContextCreate.addEventListener('input', function() {
+                    updateCounter(this, counterCreate);
+                });
+                
+                // Inicializar el contador
+                updateCounter(companyContextCreate, counterCreate);
+            }
+            
+            // Función para actualizar contadores
+            function updateCounter(textarea, counterElement) {
+                const length = textarea.value.length;
+                counterElement.textContent = length + ' / 2000 caracteres';
+                
+                // Cambiar color según el estado
+                if (length < 100) {
+                    counterElement.style.color = '#dc2626'; // Rojo si no llega al mínimo
+                    counterElement.style.fontWeight = 'bold';
+                } else if (length > 1800) {
+                    counterElement.style.color = '#dc2626'; // Rojo si está cerca del límite
+                    counterElement.style.fontWeight = 'normal';
+                } else if (length > 1500) {
+                    counterElement.style.color = '#f59e0b'; // Naranja
+                    counterElement.style.fontWeight = 'normal';
+                } else {
+                    counterElement.style.color = '#059669'; // Verde cuando está bien
+                    counterElement.style.fontWeight = 'normal';
+                }
+            }
+            
+            // Contador de caracteres para editar cliente
+            document.querySelectorAll('[id^="edit_company_context"]').forEach(function(textarea) {
+                const clientId = textarea.id.replace('edit_company_context', '');
+                const counter = document.getElementById('edit_company_context_counter' + clientId);
+                
+                if (counter) {
+                    // Actualizar contador en tiempo real
+                    textarea.addEventListener('input', function() {
+                        updateCounter(this, counter);
+                    });
+                    
+                    // Inicializar el contador
+                    updateCounter(textarea, counter);
+                }
+            });
         });
     </script>
 @endsection

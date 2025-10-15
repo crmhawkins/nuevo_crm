@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 class AutoseoJsonController extends Controller
 {
-    public function download($field, $id)
+    public function download($field, $id, Request $request)
     {
         $autoseo = Autoseo::find($id);
         if (!$autoseo) {
@@ -31,16 +31,27 @@ class AutoseoJsonController extends Controller
                 ->values()
                 ->all();
 
-            // Obtener el reporte más reciente
-            $latestReport = $reports[0];
-            $filename = $latestReport['path'];
+            // Obtener el índice del reporte a descargar
+            $index = $request->query('index', 0); // Por defecto el más reciente (índice 0)
+            
+            if (!isset($reports[$index])) {
+                abort(502, 'Reporte no encontrado en el índice especificado');
+            }
+
+            $selectedReport = $reports[$index];
+            $filename = $selectedReport['path'];
             $path = public_path("storage/{$filename}");
 
             if (!file_exists($path)) {
-                abort(503, 'Archivo no encontrado');
+                // Intentar ruta alternativa en storage/app/public
+                $path = storage_path("app/public/{$filename}");
+                if (!file_exists($path)) {
+                    abort(503, 'Archivo no encontrado: ' . $filename);
+                }
             }
 
-            return Response::download($path, $latestReport['original_name']);
+            $downloadName = $selectedReport['original_name'] ?? basename($filename);
+            return Response::download($path, $downloadName);
         }
 
         // Verifica si el campo existe en el modelo
