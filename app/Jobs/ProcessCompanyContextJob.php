@@ -73,15 +73,19 @@ class ProcessCompanyContextJob implements ShouldQueue
                         Log::info("✅ [Job] Contexto procesado y actualizado (" . strlen($processedContext) . " caracteres)");
                         Log::info("📝 [Job] Resultado: " . substr($processedContext, 0, 300) . "...");
                     } else {
-                        Log::warning("⚠️ [Job] No se encontró el cliente Autoseo ID: {$this->autoseoId}");
+                        Log::error("❌ [Job] No se encontró el cliente Autoseo ID: {$this->autoseoId}");
                     }
                 } else {
-                    Log::warning("⚠️ [Job] La IA devolvió un contexto vacío o inválido");
-                    Log::info("📝 [Job] Respuesta completa de IA: " . json_encode($data));
+                    Log::error("❌ [Job] La IA devolvió un contexto vacío o inválido");
+                    Log::error("📝 [Job] Respuesta completa de IA: " . json_encode($data));
                     // Mantener el contexto original, ya está guardado
                 }
             } else {
-                Log::warning("⚠️ [Job] Error al comunicar con IA (HTTP " . $response->status() . ")");
+                Log::error("❌ [Job] Error al comunicar con IA (HTTP " . $response->status() . ")");
+                Log::error("❌ [Job] URL: https://aiapi.hawkins.es/chat");
+                Log::error("❌ [Job] Modelo: gpt-oss:120b-cloud");
+                Log::error("❌ [Job] Respuesta del servidor: " . $response->body());
+                Log::error("❌ [Job] Headers de respuesta: " . json_encode($response->headers()));
                 // Mantener el contexto original, ya está guardado
             }
 
