@@ -47,15 +47,11 @@ class ProcessCompanyContextJob implements ShouldQueue
             
             // Llamar a la IA (timeout de 100 segundos)
             $response = Http::timeout(100)
-                ->withHeaders([
-                    'X-Api-Key' => 'OllamaAPI_2024_K8mN9pQ2rS5tU7vW3xY6zA1bC4eF8hJ0lM',
-                    'Content-Type' => 'application/json',
-                ])
                 ->post('https://aiapi.hawkins.es/chat/chat', [
                     'modelo' => 'gpt-oss:120b-cloud',
-                    'prompt' => "Contexto de empresa a procesar:\n\n" . $this->originalContext . "\n\nINSTRUCCIONES:\n- Si el texto es demasiado largo (>1200 caracteres): Resúmelo manteniendo la información clave. Es vital que no inventes informacion, solo expande la existente, no te inventes la capacidad de la empresa, ni servicios, ni ubicaciones. Basate en el contexto existente.\n- Si el texto es muy corto (<800 caracteres): Amplíalo con detalles profesionales relevantes.\n- Objetivo: Aproximadamente 1000 caracteres.\n- IMPORTANTE: Devuelve ÚNICAMENTE el texto procesado, sin introducciones, sin explicaciones, sin frases como 'Aquí está el resumen' ni nada similar. Solo el texto final.\n\nTexto procesado:",
+                    'prompt' => "CONTEXTO DEL SISTEMA:\nEres un procesador de información empresarial. El texto que vas a procesar es una descripción de una empresa que será usada como CONTEXTO DE REFERENCIA por otra IA de generación de contenido SEO.\n\nCuando la IA de contenido reciba este contexto, lo usará para:\n- Escribir artículos de blog relacionados con los servicios de la empresa\n- Crear descripciones de productos/servicios\n- Generar contenido optimizado para SEO\n- Responder preguntas sobre la empresa\n\nPor lo tanto, este texto debe ser FACTUAL, COMPLETO y ESTRUCTURADO para que la IA de contenido NO tenga que inventar información cuando genere textos.\n\nTEXTO ORIGINAL A PROCESAR:\n\n" . $this->originalContext . "\n\nTU TAREA:\nOptimiza este texto para que sirva como contexto de referencia claro y útil. La IA de contenido necesita saber exactamente:\n- Qué servicios ofrece la empresa (específicos, no genéricos)\n- Dónde opera (ciudades, regiones, países)\n- Qué especialidades o sectores cubre\n- Cualquier dato factual relevante (años de experiencia, certificaciones, etc.)\n\nREGLAS ESTRICTAS:\n❌ NO inventes servicios, ubicaciones, capacidades o datos que no estén en el texto original\n❌ NO añadas información que no esté explícita o claramente implícita\n❌ NO uses lenguaje promocional o de ventas\n❌ NO exageres ni embellezas la información\n\n✅ SÍ reformula para mayor claridad\n✅ SÍ estructura la información de forma lógica\n✅ SÍ corrige errores gramaticales\n✅ SÍ mantén TODOS los datos factuales del original\n\nLONGITUD:\n- Si >1200 caracteres: Resume pero mantén TODOS los servicios, ubicaciones y datos clave\n- Si <800 caracteres: Amplía SOLO clarificando o contextualizando lo ya mencionado\n- Objetivo: ~1000 caracteres, texto neutro, factual y estructurado\n\nFORMATO DE SALIDA:\nDevuelve ÚNICAMENTE el texto optimizado, sin introducciones, sin 'Aquí está...', sin explicaciones. Solo el contexto procesado.\n\nTexto optimizado:",
                     'stream' => false,
-                    'temperature' => 0.7
+                    'temperature' => 0.3
                 ]);
 
             if ($response->successful()) {
