@@ -104,8 +104,8 @@ class SeoProgramacionController extends Controller
                 ->orderBy('fecha_programada', 'asc')
                 ->get();
 
-            // Convertir estados a códigos numéricos
-            $programaciones->transform(function ($prog) {
+            // Convertir a array con formato específico
+            $data = $programaciones->map(function ($prog) {
                 $statusCode = array_search($prog->estado, self::STATUS_MAP);
                 return [
                     'id' => $prog->id,
@@ -113,23 +113,23 @@ class SeoProgramacionController extends Controller
                     'client_name' => $prog->autoseo->client_name ?? null,
                     'client_email' => $prog->autoseo->client_email ?? null,
                     'url' => $prog->autoseo->url ?? null,
-                    'fecha_programada' => $prog->fecha_programada,
+                    'fecha_programada' => $prog->fecha_programada->format('Y-m-d H:i:s'),
                     'estado' => $prog->estado,
                     'status_code' => $statusCode !== false ? $statusCode : null,
                     'priority' => $prog->priority,
-                    'created_at' => $prog->created_at,
-                    'updated_at' => $prog->updated_at,
+                    'created_at' => $prog->created_at->format('Y-m-d H:i:s'),
+                    'updated_at' => $prog->updated_at->format('Y-m-d H:i:s'),
                 ];
-            });
+            })->values()->toArray();
 
             Log::info("🚀 Obteniendo SEOs con prioridad alta", [
-                'total' => $programaciones->count()
+                'total' => count($data)
             ]);
 
             return response()->json([
                 'success' => true,
-                'data' => $programaciones,
-                'total' => $programaciones->count()
+                'data' => $data,
+                'total' => count($data)
             ], 200);
 
         } catch (\Exception $e) {
@@ -174,26 +174,26 @@ class SeoProgramacionController extends Controller
 
             $programaciones = $query->orderBy('fecha_programada', 'desc')->get();
 
-            // Convertir estados a códigos numéricos
-            $programaciones->transform(function ($prog) {
+            // Convertir a array con formato específico
+            $data = $programaciones->map(function ($prog) {
                 $statusCode = array_search($prog->estado, self::STATUS_MAP);
                 return [
                     'id' => $prog->id,
                     'autoseo_id' => $prog->autoseo_id,
                     'client_name' => $prog->autoseo->client_name ?? null,
                     'url' => $prog->autoseo->url ?? null,
-                    'fecha_programada' => $prog->fecha_programada,
+                    'fecha_programada' => $prog->fecha_programada->format('Y-m-d H:i:s'),
                     'estado' => $prog->estado,
                     'status_code' => $statusCode !== false ? $statusCode : null,
-                    'created_at' => $prog->created_at,
-                    'updated_at' => $prog->updated_at,
+                    'created_at' => $prog->created_at->format('Y-m-d H:i:s'),
+                    'updated_at' => $prog->updated_at->format('Y-m-d H:i:s'),
                 ];
-            });
+            })->values()->toArray();
 
             return response()->json([
                 'success' => true,
-                'data' => $programaciones,
-                'total' => $programaciones->count()
+                'data' => $data,
+                'total' => count($data)
             ], 200);
 
         } catch (\Exception $e) {
