@@ -164,6 +164,32 @@ class AutoseoController extends Controller
     }
 
     /**
+     * Crea una programación SEO puntual para hoy
+     */
+    public function createPuntualSeo(Request $request)
+    {
+        $validated = $request->validate([
+            'client_id' => 'required|exists:autoseo,id',
+            'hora' => 'nullable|date_format:H:i',
+        ]);
+
+        $client = Autoseo::findOrFail($validated['client_id']);
+        $hora = $validated['hora'] ?? '09:00';
+        $fechaHoy = Carbon::today()->format('Y-m-d') . ' ' . $hora;
+
+        // Crear la programación puntual para hoy
+        SeoProgramacion::create([
+            'autoseo_id' => $client->id,
+            'fecha_programada' => $fechaHoy,
+            'estado' => 'pendiente',
+        ]);
+
+        Log::info("⚡ SEO Puntual creado para cliente ID {$client->id} ({$client->client_name}) - Fecha: {$fechaHoy}");
+
+        return redirect()->route('autoseo.index')->with('success', "SEO puntual creado para {$client->client_name} hoy a las {$hora}");
+    }
+
+    /**
      * Crea programaciones periódicas de SEO para un cliente
      */
     private function createSeoSchedule($client, $config)

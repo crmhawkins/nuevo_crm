@@ -845,6 +845,7 @@ Route::middleware(['access.level:6'])->group(function () {
         Route::put('/update', [AutoseoController::class, 'update'])->name('autoseo.update');
         Route::post('/create', [AutoseoController::class, 'store'])->name('autoseo.store');
         Route::post('/delete', [AutoseoController::class, 'delete'])->name('autoseo.delete');
+        Route::post('/create-puntual-seo', [AutoseoController::class, 'createPuntualSeo'])->name('autoseo.createPuntualSeo');
 
     });
 });

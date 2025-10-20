@@ -49,6 +49,10 @@
                     <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                         <div class="fw-bold">Clientes</div>
                         <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#createPuntualSeoModal">
+                                <i class="fas fa-bolt"></i> SEO Manual
+                            </button>
                             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#createClientModal">
                                 <i class="fas fa-plus"></i> Crear cliente
@@ -586,6 +590,61 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal SEO Puntual -->
+    <div class="modal fade" id="createPuntualSeoModal" tabindex="-1" aria-labelledby="createPuntualSeoModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ route('autoseo.createPuntualSeo') }}" method="POST">
+                    @csrf
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="createPuntualSeoModalLabel">
+                            <i class="fas fa-bolt"></i> Crear SEO Puntual para Hoy
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Nota:</strong> Se creará una programación SEO única para <strong>hoy</strong> al cliente seleccionado.
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="puntual_client_id" class="form-label fw-bold">
+                                <i class="fas fa-user me-1"></i>Selecciona un Cliente
+                            </label>
+                            <select class="form-select" id="puntual_client_id" name="client_id" required>
+                                <option value="">-- Selecciona un cliente --</option>
+                                @foreach ($clients as $client)
+                                    <option value="{{ $client->id }}">
+                                        {{ $client->client_name }} - {{ $client->url }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="puntual_hora" class="form-label fw-bold">
+                                <i class="fas fa-clock me-1"></i>Hora de Ejecución
+                            </label>
+                            <input type="time" class="form-control" id="puntual_hora" name="hora" value="09:00" required>
+                            <small class="text-muted">Hora en la que se ejecutará el SEO hoy</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-bolt"></i> Crear SEO Puntual
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
