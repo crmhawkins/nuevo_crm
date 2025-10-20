@@ -90,6 +90,7 @@ Route::post('/autoseo/guardar-servicios', [AutoseoScheduleController::class, 'gu
 // Endpoints para gestión de estado de programaciones SEO
 Route::post('/autoseo/programacion/cambiar-estado', [\App\Http\Controllers\Api\SeoProgramacionController::class, 'cambiarEstado'])->name('autoseo.programacion.cambiar.estado');
 Route::get('/autoseo/programacion/listar', [\App\Http\Controllers\Api\SeoProgramacionController::class, 'listar'])->name('autoseo.programacion.listar');
+Route::get('/autoseo/priority', [\App\Http\Controllers\Api\SeoProgramacionController::class, 'getPriority'])->name('autoseo.programacion.priority');
 
 
 

@@ -91,6 +91,61 @@ class SeoProgramacionController extends Controller
     }
 
     /**
+     * Obtiene solo las programaciones SEO con prioridad alta (priority = 1)
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getPriority()
+    {
+        try {
+            $programaciones = SeoProgramacion::with('autoseo:id,client_name,url,client_email')
+                ->where('priority', 1)
+                ->where('estado', 'pendiente') // Solo los pendientes con prioridad
+                ->orderBy('fecha_programada', 'asc')
+                ->get();
+
+            // Convertir estados a códigos numéricos
+            $programaciones->transform(function ($prog) {
+                $statusCode = array_search($prog->estado, self::STATUS_MAP);
+                return [
+                    'id' => $prog->id,
+                    'autoseo_id' => $prog->autoseo_id,
+                    'client_name' => $prog->autoseo->client_name ?? null,
+                    'client_email' => $prog->autoseo->client_email ?? null,
+                    'url' => $prog->autoseo->url ?? null,
+                    'fecha_programada' => $prog->fecha_programada,
+                    'estado' => $prog->estado,
+                    'status_code' => $statusCode !== false ? $statusCode : null,
+                    'priority' => $prog->priority,
+                    'created_at' => $prog->created_at,
+                    'updated_at' => $prog->updated_at,
+                ];
+            });
+
+            Log::info("🚀 Obteniendo SEOs con prioridad alta", [
+                'total' => $programaciones->count()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $programaciones,
+                'total' => $programaciones->count()
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error("❌ Error al obtener SEOs prioritarios", [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las programaciones prioritarias',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Obtiene el listado de programaciones SEO con sus estados
      * 
      * @param Request $request
