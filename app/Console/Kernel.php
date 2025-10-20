@@ -47,6 +47,9 @@ class Kernel extends ConsoleKernel
          $schedule->command('Alertas:presupuestoFinalizado')->dailyAt('03:00');
          $schedule->command('Alertas:HorasTrabajadas')->weeklyOn(4, '07:30');
          $schedule->command('tareas:finalizar-maestras')->everyFiveMinutes();
+         
+         // Mantenimiento diario SEO - ejecuta SEO programado y renueva programaciones
+         $schedule->command('autoseo:daily-maintenance')->dailyAt('09:00');
          $schedule->command('Ordenes:Alerta')->dailyAt('07:00')->when(function () {
              return now()->isLastOfMonth();
          });

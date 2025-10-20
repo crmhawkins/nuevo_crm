@@ -46,13 +46,13 @@ class ProcessCompanyContextJob implements ShouldQueue
             Log::info("🤖 [Job] Procesando contexto empresarial para Autoseo ID: {$this->autoseoId}");
             Log::info("📝 [Job] Texto original (" . strlen($this->originalContext) . " caracteres)");
 
-            // Llamar a la IA local (timeout de 100 segundos)
+            // Llamar a la IA (timeout de 100 segundos)
             $response = Http::timeout(100)
                 ->withHeaders([
                     'X-Api-Key' => 'OllamaAPI_2024_K8mN9pQ2rS5tU7vW3xY6zA1bC4eF8hJ0lM',
                     'Content-Type' => 'application/json',
                 ])
-                ->post('http://192.168.1.45:5000/chat', [
+                ->post('https://aiapi.hawkins.es/chat/chat', [
                     'modelo' => 'gpt-oss:120b-cloud',
                     'prompt' => "Contexto de empresa a procesar:\n\n" . $this->originalContext . "\n\nINSTRUCCIONES:\n- Si el texto es demasiado largo (>1200 caracteres): Resúmelo manteniendo la información clave. Es vital que no inventes informacion, solo expande la existente, no te inventes la capacidad de la empresa, ni servicios, ni ubicaciones. Basate en el contexto existente.\n- Si el texto es muy corto (<800 caracteres): Amplíalo con detalles profesionales relevantes.\n- Objetivo: Aproximadamente 1000 caracteres.\n- IMPORTANTE: Devuelve ÚNICAMENTE el texto procesado, sin introducciones, sin explicaciones, sin frases como 'Aquí está el resumen' ni nada similar. Solo el texto final.\n\nTexto procesado:"
                 ]);

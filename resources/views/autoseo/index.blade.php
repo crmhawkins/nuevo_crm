@@ -64,18 +64,50 @@
                                         <th>Cliente</th>
                                         <th>Email</th>
                                         <th>URL</th>
-                                        <th>Último SEO</th>
+                                        <th>Próximo SEO</th>
                                         <th>Creado</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($clients as $client)
-                                        <tr>
-                                            <td>{{ $client->client_name }}</td>
+                                        <tr class="@if($client->alert_info['is_overdue']) table-danger @elseif($client->alert_info['is_expiring_soon']) table-warning @elseif($client->alert_info['is_expiring_in_one_month']) table-info @endif">
+                                            <td>
+                                                {{ $client->client_name }}
+                                                @if($client->alert_info['is_overdue'])
+                                                    <span class="badge bg-danger ms-1">⚠️ Vencido</span>
+                                                @elseif($client->alert_info['is_expiring_soon'])
+                                                    <span class="badge bg-warning ms-1">⏰ Pronto</span>
+                                                @elseif($client->alert_info['is_expiring_in_one_month'])
+                                                    <span class="badge bg-info ms-1">📅 Expira en 1 mes</span>
+                                                @endif
+                                            </td>
                                             <td>{{ $client->client_email }}</td>
                                             <td>{{ $client->url }}</td>
-                                            <td>{{ $client->last_seo }}</td>
+                                            <td>
+                                                @if($client->alert_info['next_date'])
+                                                    <div class="d-flex flex-column">
+                                                        <span class="fw-bold">{{ $client->alert_info['next_date']->format('d/m/Y') }}</span>
+                                                        <small class="text-muted">
+                                                            @if($client->alert_info['days_until'] < 0)
+                                                                Hace {{ abs($client->alert_info['days_until']) }} días
+                                                            @elseif($client->alert_info['days_until'] == 0)
+                                                                Hoy
+                                                            @else
+                                                                En {{ $client->alert_info['days_until'] }} días
+                                                            @endif
+                                                        </small>
+                                                        @if($client->alert_info['total_pending'] > 1)
+                                                            <small class="text-info">{{ $client->alert_info['total_pending'] }} programaciones</small>
+                                                        @endif
+                                                        @if($client->alert_info['is_expiring_in_one_month'])
+                                                            <small class="text-warning">⚠️ Solo {{ $client->alert_info['months_until_expiration'] }} mes(es) restante(s)</small>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted">Sin programar</span>
+                                                @endif
+                                            </td>
                                             <td>{{ $client->created_at->format('d/m/Y') }}</td>
                                             <td>
                                                 <!-- Botón Ver -->
@@ -482,6 +514,50 @@
                                                                             Información obligatoria que será optimizada automáticamente por IA.
                                                                         </small>
                                                                     </div>
+                                                                    
+                                                                    <!-- Configuración Periódica SEO -->
+                                                                    <div class="col-12">
+                                                                        <h6 class="mt-3 mb-3">📅 Configuración Periódica SEO</h6>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <label for="edit_seo_frequency{{ $client->id }}" class="form-label">Frecuencia</label>
+                                                                        <select class="form-control" id="edit_seo_frequency{{ $client->id }}" name="seo_frequency">
+                                                                            <option value="manual" {{ ($client->seo_frequency ?? 'manual') == 'manual' ? 'selected' : '' }}>Manual</option>
+                                                                            <option value="weekly" {{ ($client->seo_frequency ?? '') == 'weekly' ? 'selected' : '' }}>Semanal</option>
+                                                                            <option value="biweekly" {{ ($client->seo_frequency ?? '') == 'biweekly' ? 'selected' : '' }}>Quincenal</option>
+                                                                            <option value="monthly" {{ ($client->seo_frequency ?? '') == 'monthly' ? 'selected' : '' }}>Mensual</option>
+                                                                            <option value="bimonthly" {{ ($client->seo_frequency ?? '') == 'bimonthly' ? 'selected' : '' }}>Bimensual</option>
+                                                                            <option value="quarterly" {{ ($client->seo_frequency ?? '') == 'quarterly' ? 'selected' : '' }}>Trimestral</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <label for="edit_seo_time{{ $client->id }}" class="form-label">Hora</label>
+                                                                        <input type="time" class="form-control" id="edit_seo_time{{ $client->id }}" name="seo_time" value="{{ $client->seo_time ?? '09:00' }}">
+                                                                    </div>
+                                                                    <div class="col-md-6" id="edit_seo_day_of_month_div{{ $client->id }}" style="display: none;">
+                                                                        <label for="edit_seo_day_of_month{{ $client->id }}" class="form-label">Día del Mes</label>
+                                                                        <select class="form-control" id="edit_seo_day_of_month{{ $client->id }}" name="seo_day_of_month">
+                                                                            <option value="1" {{ ($client->seo_day_of_month ?? '15') == '1' ? 'selected' : '' }}>1</option>
+                                                                            <option value="5" {{ ($client->seo_day_of_month ?? '15') == '5' ? 'selected' : '' }}>5</option>
+                                                                            <option value="10" {{ ($client->seo_day_of_month ?? '15') == '10' ? 'selected' : '' }}>10</option>
+                                                                            <option value="15" {{ ($client->seo_day_of_month ?? '15') == '15' ? 'selected' : '' }}>15</option>
+                                                                            <option value="20" {{ ($client->seo_day_of_month ?? '15') == '20' ? 'selected' : '' }}>20</option>
+                                                                            <option value="25" {{ ($client->seo_day_of_month ?? '15') == '25' ? 'selected' : '' }}>25</option>
+                                                                            <option value="last" {{ ($client->seo_day_of_month ?? '15') == 'last' ? 'selected' : '' }}>Último día</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-md-6" id="edit_seo_day_of_week_div{{ $client->id }}" style="display: none;">
+                                                                        <label for="edit_seo_day_of_week{{ $client->id }}" class="form-label">Día de la Semana</label>
+                                                                        <select class="form-control" id="edit_seo_day_of_week{{ $client->id }}" name="seo_day_of_week">
+                                                                            <option value="monday" {{ ($client->seo_day_of_week ?? 'friday') == 'monday' ? 'selected' : '' }}>Lunes</option>
+                                                                            <option value="tuesday" {{ ($client->seo_day_of_week ?? 'friday') == 'tuesday' ? 'selected' : '' }}>Martes</option>
+                                                                            <option value="wednesday" {{ ($client->seo_day_of_week ?? 'friday') == 'wednesday' ? 'selected' : '' }}>Miércoles</option>
+                                                                            <option value="thursday" {{ ($client->seo_day_of_week ?? 'friday') == 'thursday' ? 'selected' : '' }}>Jueves</option>
+                                                                            <option value="friday" {{ ($client->seo_day_of_week ?? 'friday') == 'friday' ? 'selected' : '' }}>Viernes</option>
+                                                                            <option value="saturday" {{ ($client->seo_day_of_week ?? 'friday') == 'saturday' ? 'selected' : '' }}>Sábado</option>
+                                                                            <option value="sunday" {{ ($client->seo_day_of_week ?? 'friday') == 'sunday' ? 'selected' : '' }}>Domingo</option>
+                                                                        </select>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer">
@@ -611,6 +687,70 @@
                                 Información obligatoria que será optimizada automáticamente por IA.
                             </small>
                         </div>
+                        
+                        <!-- Configuración Periódica SEO -->
+                        <div class="col-12">
+                            <hr class="my-4">
+                            <h6 class="mb-3">
+                                <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                Configuración Periódica SEO
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="seo_frequency" class="form-label">Frecuencia de SEO</label>
+                            <select class="form-select" id="seo_frequency" name="seo_frequency">
+                                <option value="manual">Manual (Solo cuando se solicite)</option>
+                                <option value="weekly">Semanal</option>
+                                <option value="biweekly">Quincenal</option>
+                                <option value="monthly" selected>Mensual</option>
+                                <option value="bimonthly">Bimensual</option>
+                                <option value="quarterly">Trimestral</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                Define con qué frecuencia se ejecutará automáticamente el análisis SEO.
+                            </small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="seo_day_of_month" class="form-label">Día del Mes</label>
+                            <select class="form-select" id="seo_day_of_month" name="seo_day_of_month">
+                                <option value="1">1</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="15" selected>15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="last">Último día del mes</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                Solo aplica para frecuencias mensuales o superiores.
+                            </small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="seo_day_of_week" class="form-label">Día de la Semana</label>
+                            <select class="form-select" id="seo_day_of_week" name="seo_day_of_week">
+                                <option value="monday">Lunes</option>
+                                <option value="tuesday">Martes</option>
+                                <option value="wednesday">Miércoles</option>
+                                <option value="thursday">Jueves</option>
+                                <option value="friday" selected>Viernes</option>
+                                <option value="saturday">Sábado</option>
+                                <option value="sunday">Domingo</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                Solo aplica para frecuencias semanales o quincenales.
+                            </small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="seo_time" class="form-label">Hora de Ejecución</label>
+                            <input type="time" class="form-control" id="seo_time" name="seo_time" value="09:00">
+                            <small class="form-text text-muted">
+                                Hora en la que se ejecutará el análisis SEO automático.
+                            </small>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -623,61 +763,135 @@
             </form>
         </div>
     </div>
-@endsection
-
-@section('js')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Contador de caracteres para crear cliente
-            const companyContextCreate = document.getElementById('company_context');
-            const counterCreate = document.getElementById('company_context_counter');
+        function initCharacterCounter() {
+            console.log('=== INICIANDO CONTADOR DE CARACTERES ===');
             
-            if (companyContextCreate && counterCreate) {
-                // Actualizar contador en tiempo real
-                companyContextCreate.addEventListener('input', function() {
-                    updateCounter(this, counterCreate);
-                });
-                
-                // Inicializar el contador
-                updateCounter(companyContextCreate, counterCreate);
-            }
+            // Para el modal de crear cliente
+            const createTextarea = document.getElementById('company_context');
+            const createCounter = document.getElementById('company_context_counter');
             
-            // Función para actualizar contadores
-            function updateCounter(textarea, counterElement) {
-                const length = textarea.value.length;
-                counterElement.textContent = length + ' / 2000 caracteres';
+            console.log('Textarea crear:', createTextarea);
+            console.log('Contador crear:', createCounter);
+            
+            if (createTextarea && createCounter) {
+                console.log('✅ Elementos de crear encontrados');
                 
-                // Cambiar color según el estado
-                if (length < 100) {
-                    counterElement.style.color = '#dc2626'; // Rojo si no llega al mínimo
-                    counterElement.style.fontWeight = 'bold';
-                } else if (length > 1800) {
-                    counterElement.style.color = '#dc2626'; // Rojo si está cerca del límite
-                    counterElement.style.fontWeight = 'normal';
-                } else if (length > 1500) {
-                    counterElement.style.color = '#f59e0b'; // Naranja
-                    counterElement.style.fontWeight = 'normal';
-                } else {
-                    counterElement.style.color = '#059669'; // Verde cuando está bien
-                    counterElement.style.fontWeight = 'normal';
+                // Función simple para actualizar
+                function updateCreateCounter() {
+                    const length = createTextarea.value.length;
+                    createCounter.textContent = length + ' / 2000 caracteres';
+                    console.log('📝 Actualizando crear:', length, 'caracteres');
                 }
+                
+                // Eventos
+                createTextarea.addEventListener('input', updateCreateCounter);
+                createTextarea.addEventListener('keyup', updateCreateCounter);
+                
+                // Inicializar
+                updateCreateCounter();
+            } else {
+                console.log('❌ Elementos de crear NO encontrados');
             }
             
-            // Contador de caracteres para editar cliente
-            document.querySelectorAll('[id^="edit_company_context"]').forEach(function(textarea) {
+            // Para modales de editar cliente
+            const editTextareas = document.querySelectorAll('textarea[id^="edit_company_context"]');
+            console.log('Textareas de editar encontrados:', editTextareas.length);
+            
+            editTextareas.forEach(function(textarea, index) {
                 const clientId = textarea.id.replace('edit_company_context', '');
                 const counter = document.getElementById('edit_company_context_counter' + clientId);
                 
+                console.log(`Textarea ${index}:`, textarea.id);
+                console.log(`Contador ${index}:`, counter ? counter.id : 'NO ENCONTRADO');
+                
                 if (counter) {
-                    // Actualizar contador en tiempo real
-                    textarea.addEventListener('input', function() {
-                        updateCounter(this, counter);
-                    });
+                    console.log(`✅ Elementos de editar ${index} encontrados`);
                     
-                    // Inicializar el contador
-                    updateCounter(textarea, counter);
+                    // Función simple para actualizar
+                    function updateEditCounter() {
+                        const length = textarea.value.length;
+                        counter.textContent = length + ' / 2000 caracteres';
+                        console.log(`📝 Actualizando editar ${index}:`, length, 'caracteres');
+                    }
+                    
+                    // Eventos
+                    textarea.addEventListener('input', updateEditCounter);
+                    textarea.addEventListener('keyup', updateEditCounter);
+                    
+                    // Inicializar
+                    updateEditCounter();
+                } else {
+                    console.log(`❌ Contador de editar ${index} NO encontrado`);
                 }
             });
+            
+            console.log('=== FIN INICIALIZACIÓN CONTADOR ===');
+        }
+        
+        // Ejecutar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM cargado, iniciando contadores...');
+            initCharacterCounter();
+        });
+        
+        // También ejecutar cuando se abren modales
+        document.addEventListener('shown.bs.modal', function() {
+            console.log('📱 Modal abierto, reiniciando contadores...');
+            setTimeout(initCharacterCounter, 200);
+        });
+        
+        // Control de campos de frecuencia SEO
+        const seoFrequencySelect = document.getElementById('seo_frequency');
+        const seoDayOfMonthDiv = document.getElementById('seo_day_of_month').parentElement;
+        const seoDayOfWeekDiv = document.getElementById('seo_day_of_week').parentElement;
+        
+        function toggleFrequencyFields() {
+            const frequency = seoFrequencySelect.value;
+            
+            // Mostrar/ocultar campos según la frecuencia
+            if (frequency === 'manual') {
+                seoDayOfMonthDiv.style.display = 'none';
+                seoDayOfWeekDiv.style.display = 'none';
+            } else if (frequency === 'weekly' || frequency === 'biweekly') {
+                seoDayOfMonthDiv.style.display = 'none';
+                seoDayOfWeekDiv.style.display = 'block';
+            } else { // monthly, bimonthly, quarterly
+                seoDayOfMonthDiv.style.display = 'block';
+                seoDayOfWeekDiv.style.display = 'none';
+            }
+        }
+        
+        // Inicializar campos de frecuencia
+        if (seoFrequencySelect) {
+            seoFrequencySelect.addEventListener('change', toggleFrequencyFields);
+            toggleFrequencyFields(); // Ejecutar al cargar la página
+        }
+        
+        // Control de campos de frecuencia para modales de edición
+        document.querySelectorAll('[id^="edit_seo_frequency"]').forEach(function(select) {
+            const clientId = select.id.replace('edit_seo_frequency', '');
+            const seoDayOfMonthDiv = document.getElementById('edit_seo_day_of_month_div' + clientId);
+            const seoDayOfWeekDiv = document.getElementById('edit_seo_day_of_week_div' + clientId);
+            
+            function toggleEditFrequencyFields() {
+                const frequency = select.value;
+                
+                // Mostrar/ocultar campos según la frecuencia
+                if (frequency === 'manual') {
+                    seoDayOfMonthDiv.style.display = 'none';
+                    seoDayOfWeekDiv.style.display = 'none';
+                } else if (frequency === 'weekly' || frequency === 'biweekly') {
+                    seoDayOfMonthDiv.style.display = 'none';
+                    seoDayOfWeekDiv.style.display = 'block';
+                } else { // monthly, bimonthly, quarterly
+                    seoDayOfMonthDiv.style.display = 'block';
+                    seoDayOfWeekDiv.style.display = 'none';
+                }
+            }
+            
+            select.addEventListener('change', toggleEditFrequencyFields);
+            toggleEditFrequencyFields(); // Ejecutar al cargar
         });
     </script>
 @endsection
