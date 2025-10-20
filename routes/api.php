@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\AIController;
 use App\Http\Controllers\Api\SalvineitorController;
 use App\Http\Controllers\Autoseo\AutoseoJsonController;
 use App\Http\Controllers\Autoseo\AutoseoReports;
+use App\Http\Controllers\Autoseo\AutoseoAdvancedReports;
+use App\Http\Controllers\Autoseo\AutoseoScheduleController;
 use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Plataforma\PlataformaWhatsappController;
 use App\Http\Controllers\Tesoreria\TesoreriaContabilizarIa;
@@ -75,7 +77,15 @@ Route::post('/plataforma/store-msg', [PlataformaWhatsappController::class, 'stor
 Route::post('/autoseo/reports/login/', [AutoseoReports::class, 'login'])->name('autoseo.reports.login');
 Route::post('/autoseo/reports/upload', [AutoseoReports::class, 'upload'])->name('autoseo.reports.upload');
 Route::post('/autoseo/reports/generate-json-only', [AutoseoReports::class, 'generateJsonOnlyReport'])->name('autoseo.reports.generate.json.only');
+Route::post('/autoseo/reports/generate-advanced', [AutoseoAdvancedReports::class, 'generateAdvancedReport'])->name('autoseo.reports.generate.advanced');
 Route::post('/autoseo/upload-and-generate-report', [AutoseoJsonController::class, 'uploadJsonAndGenerateReport'])->name('autoseo.upload.and.generate');
+
+// Endpoints para AutoSEO automático
+Route::get('/autoseo/seotoday', [AutoseoScheduleController::class, 'getSeoToday'])->name('autoseo.seotoday');
+Route::get('/autoseo/servicios/{id}', [AutoseoScheduleController::class, 'getServicios'])->name('autoseo.servicios');
+Route::post('/autoseo/programar', [AutoseoScheduleController::class, 'programarCliente'])->name('autoseo.programar');
+Route::post('/autoseo/actualizar-estado', [AutoseoScheduleController::class, 'actualizarEstado'])->name('autoseo.actualizar.estado');
+Route::post('/autoseo/guardar-servicios', [AutoseoScheduleController::class, 'guardarServicios'])->name('autoseo.guardar.servicios');
 
 
 

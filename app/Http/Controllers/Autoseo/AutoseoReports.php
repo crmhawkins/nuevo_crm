@@ -248,7 +248,7 @@ class AutoseoReports extends Controller
 
             $historicalData = array_slice($historicalData, -12); // Últimos 12 meses
 
-            File::deleteDirectory($tempDir);
+            #File::deleteDirectory($tempDir);
 
             return $historicalData;
 

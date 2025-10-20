@@ -47,4 +47,20 @@ class Autoseo extends Model
     {
         return $this->hasMany(AutoseoReport::class);
     }
+
+    /**
+     * Relación con SeoProgramacion
+     */
+    public function programaciones()
+    {
+        return $this->hasMany(SeoProgramacion::class, 'autoseo_id');
+    }
+
+    /**
+     * Relación con ClienteServicio
+     */
+    public function servicios()
+    {
+        return $this->hasMany(ClienteServicio::class, 'autoseo_id');
+    }
 }
