@@ -87,13 +87,14 @@ class AutoseoAdvancedReports extends Controller
     }
 
     /**
-     * Carga todos los JSONs históricos del cliente desde el storage local
+     * Carga todos los JSONs históricos del cliente desde múltiples fuentes
      */
     private function loadAllHistoricalJsons($autoseo)
     {
-        $jsonStorage = $autoseo->json_storage ? json_decode($autoseo->json_storage, true) : [];
         $historicalData = [];
 
+        // 1. Cargar desde json_storage (archivos guardados)
+        $jsonStorage = $autoseo->json_storage ? json_decode($autoseo->json_storage, true) : [];
         foreach ($jsonStorage as $jsonInfo) {
             $path = $jsonInfo['path'] ?? null;
             
@@ -111,12 +112,90 @@ class AutoseoAdvancedReports extends Controller
             }
         }
 
+        // 2. Cargar desde json_home (datos actuales)
+        if ($autoseo->json_home) {
+            $currentData = json_decode($autoseo->json_home, true);
+            if ($currentData) {
+                $currentData['uploaded_at'] = $autoseo->updated_at->format('Y-m-d H:i:s');
+                $currentData['source'] = 'current';
+                $historicalData[] = $currentData;
+            }
+        }
+
+        // 3. Cargar desde json_mesanterior (datos del mes anterior)
+        if ($autoseo->json_mesanterior) {
+            $previousData = json_decode($autoseo->json_mesanterior, true);
+            if ($previousData) {
+                $previousData['uploaded_at'] = date('Y-m-d H:i:s', strtotime('-1 month'));
+                $previousData['source'] = 'previous_month';
+                $historicalData[] = $previousData;
+            }
+        }
+
+        // 4. Buscar archivos JSON adicionales en el directorio del cliente
+        $clientDir = storage_path('app/public/autoseo_json/' . $autoseo->id);
+        if (File::exists($clientDir)) {
+            $files = File::glob($clientDir . '/*.json');
+            foreach ($files as $file) {
+                $jsonContent = File::get($file);
+                $data = json_decode($jsonContent, true);
+                
+                if ($data) {
+                    // Intentar extraer fecha del nombre del archivo o usar fecha de modificación
+                    $filename = basename($file);
+                    $fileDate = File::lastModified($file);
+                    $data['uploaded_at'] = date('Y-m-d H:i:s', $fileDate);
+                    $data['source'] = 'file_' . $filename;
+                    $historicalData[] = $data;
+                }
+            }
+        }
+
+        // 5. Buscar en directorio general de autoseo_json
+        $generalDir = storage_path('app/public/autoseo_json');
+        if (File::exists($generalDir)) {
+            $files = File::glob($generalDir . '/*_' . $autoseo->id . '_*.json');
+            foreach ($files as $file) {
+                $jsonContent = File::get($file);
+                $data = json_decode($jsonContent, true);
+                
+                if ($data) {
+                    $fileDate = File::lastModified($file);
+                    $data['uploaded_at'] = date('Y-m-d H:i:s', $fileDate);
+                    $data['source'] = 'general_' . basename($file);
+                    $historicalData[] = $data;
+                }
+            }
+        }
+
+        // Eliminar duplicados basándose en la fecha y contenido
+        $uniqueData = [];
+        foreach ($historicalData as $data) {
+            $date = $data['uploaded_at'] ?? '1970-01-01';
+            $month = date('Y-m', strtotime($date));
+            $key = $month . '_' . md5(json_encode($data['detalles_keywords'] ?? []));
+            
+            if (!isset($uniqueData[$key])) {
+                $uniqueData[$key] = $data;
+            }
+        }
+
+        $historicalData = array_values($uniqueData);
+
         // Ordenar por fecha
         usort($historicalData, function($a, $b) {
             $dateA = $a['uploaded_at'] ?? '1970-01-01';
             $dateB = $b['uploaded_at'] ?? '1970-01-01';
             return strtotime($dateA) - strtotime($dateB);
         });
+
+        Log::info("📊 Datos históricos encontrados: " . count($historicalData) . " períodos");
+        foreach ($historicalData as $data) {
+            $date = $data['uploaded_at'] ?? 'Unknown';
+            $source = $data['source'] ?? 'unknown';
+            $keywords = count($data['detalles_keywords'] ?? []);
+            Log::info("  - {$date} ({$source}): {$keywords} keywords");
+        }
 
         return $historicalData;
     }
@@ -136,9 +215,9 @@ class AutoseoAdvancedReports extends Controller
             'performance_score' => 0,
         ];
 
-        // Si no hay datos históricos, retornar estructura vacía
+        // Si no hay datos históricos, crear análisis básico con datos actuales
         if (empty($historicalData)) {
-            return $this->getEmptyAnalysis();
+            return $this->getBasicAnalysis($autoseo);
         }
 
         // Análisis de keywords a lo largo del tiempo
@@ -372,6 +451,7 @@ class AutoseoAdvancedReports extends Controller
         ];
     }
 
+
     /**
      * Genera el HTML avanzado del informe
      */
@@ -399,73 +479,61 @@ class AutoseoAdvancedReports extends Controller
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe SEO Avanzado - ' . htmlspecialchars($domain) . '</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    colors: {
+                        primary: {
+                            50: "#eef2ff",
+                            100: "#e0e7ff",
+                            200: "#c7d2fe",
+                            300: "#a5b4fc",
+                            400: "#818cf8",
+                            500: "#6366f1",
+                            600: "#4f46e5",
+                            700: "#4338ca",
+                            800: "#3730a3",
+                            900: "#312e81",
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root {
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #3b82f6;
-        }
-
         body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 2rem 0;
+            font-family: "Inter", sans-serif;
         }
 
-        .report-container {
-            max-width: 1400px;
-            margin: 0 auto;
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .header-card {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        .custom-gradient {
+            background: linear-gradient(135deg, #4338ca 0%, #6366f1 50%, #818cf8 100%);
         }
 
-        .stat-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-            transition: transform 0.2s, box-shadow 0.2s;
-            height: 100%;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-        }
-
-        .stat-label {
-            color: #6b7280;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .chart-container {
-            background: white;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        .pattern-bg {
+            background-image: url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%236366f1\' fill-opacity=\'0.1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2V6h4V4H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
 
         .chart-wrapper {
@@ -473,99 +541,8 @@ class AutoseoAdvancedReports extends Controller
             height: 400px;
         }
 
-        .performance-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: white;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        .keyword-table {
-            background: white;
-            border-radius: 1rem;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-        }
-
-        .keyword-row:hover {
-            background: #f9fafb;
-        }
-
-        .badge-custom {
-            padding: 0.4rem 0.8rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            font-size: 0.75rem;
-        }
-
-        .trend-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: #1f2937;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .icon-stat {
-            width: 60px;
-            height: 60px;
-            border-radius: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .progress-modern {
-            height: 8px;
-            border-radius: 10px;
-            background: #e5e7eb;
-        }
-
-        .progress-bar-modern {
-            border-radius: 10px;
-            transition: width 0.6s ease;
-        }
-
-        .paa-card {
-            background: white;
-            border-left: 4px solid var(--info-color);
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .competition-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 0.5rem;
-        }
-
-        .printable {
-            display: none;
-        }
-
         @media print {
             .no-print { display: none; }
-            .printable { display: block; }
             body { background: white; }
         }
 
@@ -585,8 +562,28 @@ class AutoseoAdvancedReports extends Controller
         }
     </style>
 </head>
-<body>
-    <div class="container report-container">';
+<body class="min-h-screen pattern-bg">
+    <!-- Navbar -->
+    <nav class="glass-morphism border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <img src="https://hawkins.es/wp-content/uploads/2022/05/logo-hawkins.png" alt="Hawkins Logo" class="h-8 w-auto">
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="https://hawkins.es/contacto" class="text-gray-600 hover:text-primary-600 text-sm font-medium">
+                        Contacto
+                    </a>
+                    <a href="https://hawkins.es" class="text-gray-600 hover:text-primary-600 text-sm font-medium">
+                        Volver a Hawkins
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">';
 
         // Continúa en la siguiente parte...
         $html .= $this->generateHeaderSection($autoseo, $reportDate, $summary, $scoreColor);
@@ -602,11 +599,13 @@ class AutoseoAdvancedReports extends Controller
         $html .= $this->generateFooterSection($autoseo);
 
         $html .= '
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        </div>
+    </main>
+
     <script>
         ' . $this->generateChartScripts($chartData, $trends, $summary) . '
     </script>
+    
     <script>
         // Animaciones al scroll
         const observer = new IntersectionObserver((entries) => {
@@ -615,9 +614,9 @@ class AutoseoAdvancedReports extends Controller
                     entry.target.classList.add("animate-in");
                 }
             });
-        });
+        }, { threshold: 0.1 });
         
-        document.querySelectorAll(".stat-card, .chart-container").forEach(el => {
+        document.querySelectorAll(".animate-in").forEach(el => {
             observer.observe(el);
         });
     </script>
@@ -634,23 +633,36 @@ class AutoseoAdvancedReports extends Controller
         $domain = parse_url($autoseo->url, PHP_URL_HOST) ?: $autoseo->url;
         
         return '
-        <div class="header-card">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1 class="display-4 mb-2">
-                        <i class="fas fa-chart-line me-3"></i>Informe SEO Avanzado
+        <!-- Header -->
+        <div class="glass-morphism rounded-2xl shadow-xl p-8 mb-8 animate-in">
+            <div class="grid md:grid-cols-3 gap-8 items-center">
+                <div class="md:col-span-2">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2 flex items-center">
+                        <i class="fas fa-chart-line text-primary-600 mr-3"></i>
+                        Informe SEO Avanzado
                     </h1>
-                    <h3 class="mb-3">' . htmlspecialchars($domain) . '</h3>
-                    <p class="mb-2"><i class="fas fa-building me-2"></i>' . htmlspecialchars($autoseo->client_name) . '</p>
-                    <p class="mb-0"><i class="fas fa-calendar me-2"></i>Generado: ' . $reportDate . '</p>
-                    ' . ($summary['date_range']['start'] ? '<p class="mb-0 mt-2 text-white-50"><i class="fas fa-clock me-2"></i>Período analizado: ' . date('d/m/Y', strtotime($summary['date_range']['start'])) . ' - ' . date('d/m/Y', strtotime($summary['date_range']['end'])) . '</p>' : '') . '
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">' . htmlspecialchars($domain) . '</h3>
+                    <div class="space-y-2 text-gray-600">
+                        <p class="flex items-center">
+                            <i class="fas fa-building mr-2 text-primary-500"></i>
+                            <span class="font-medium">' . htmlspecialchars($autoseo->client_name) . '</span>
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-calendar mr-2 text-primary-500"></i>
+                            <span>Generado: ' . $reportDate . '</span>
+                        </p>
+                        ' . ($summary['date_range']['start'] ? '<p class="flex items-center text-sm text-gray-500">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>Período: ' . date('d/m/Y', strtotime($summary['date_range']['start'])) . ' - ' . date('d/m/Y', strtotime($summary['date_range']['end'])) . '</span>
+                        </p>' : '') . '
+                    </div>
                 </div>
-                <div class="col-md-4 text-center">
-                    <div class="performance-circle mx-auto" style="background: ' . $scoreColor . ';">
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-36 h-36 rounded-full text-white text-5xl font-bold shadow-2xl" style="background: ' . $scoreColor . ';">
                         ' . $summary['performance_score'] . '
                     </div>
-                    <p class="text-white mt-3 mb-0 fw-bold">Performance Score</p>
-                    <small class="text-white-50">Puntuación general de rendimiento SEO</small>
+                    <p class="text-gray-900 font-bold mt-4 mb-1">Performance Score</p>
+                    <p class="text-sm text-gray-500">Puntuación general de rendimiento SEO</p>
                 </div>
             </div>
         </div>';
@@ -659,180 +671,184 @@ class AutoseoAdvancedReports extends Controller
     private function generateStatsSection($summary, $trends)
     {
         return '
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="stat-card">
-                    <div class="icon-stat bg-primary bg-opacity-10 text-primary">
-                        <i class="fas fa-hashtag"></i>
-                    </div>
-                    <div class="stat-label">Total Keywords</div>
-                    <div class="stat-value text-primary">' . $summary['total_keywords'] . '</div>
-                    <div class="progress-modern mt-2">
-                        <div class="progress-bar-modern bg-primary" style="width: 100%"></div>
-                    </div>
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- Total Keywords -->
+            <div class="glass-morphism rounded-xl p-6 hover:shadow-xl transition-all duration-300 animate-in">
+                <div class="flex items-center justify-center w-14 h-14 bg-primary-100 rounded-lg mb-4">
+                    <i class="fas fa-hashtag text-primary-600 text-2xl"></i>
+                </div>
+                <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Total Keywords</div>
+                <div class="text-4xl font-bold text-primary-600">' . $summary['total_keywords'] . '</div>
+                <div class="mt-3 bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div class="h-full bg-primary-600 rounded-full" style="width: 100%"></div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <div class="stat-card">
-                    <div class="icon-stat bg-success bg-opacity-10 text-success">
-                        <i class="fas fa-trophy"></i>
-                    </div>
-                    <div class="stat-label">Top 10 Posiciones</div>
-                    <div class="stat-value text-success">' . $summary['keywords_in_top10'] . '</div>
-                    <div class="progress-modern mt-2">
-                        <div class="progress-bar-modern bg-success" style="width: ' . ($summary['total_keywords'] > 0 ? ($summary['keywords_in_top10'] / $summary['total_keywords'] * 100) : 0) . '%"></div>
-                    </div>
+
+            <!-- Top 10 -->
+            <div class="glass-morphism rounded-xl p-6 hover:shadow-xl transition-all duration-300 animate-in" style="animation-delay: 0.1s">
+                <div class="flex items-center justify-center w-14 h-14 bg-green-100 rounded-lg mb-4">
+                    <i class="fas fa-trophy text-green-600 text-2xl"></i>
+                </div>
+                <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Top 10 Posiciones</div>
+                <div class="text-4xl font-bold text-green-600">' . $summary['keywords_in_top10'] . '</div>
+                <div class="mt-3 bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div class="h-full bg-green-600 rounded-full" style="width: ' . ($summary['total_keywords'] > 0 ? ($summary['keywords_in_top10'] / $summary['total_keywords'] * 100) : 0) . '%"></div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <div class="stat-card">
-                    <div class="icon-stat bg-warning bg-opacity-10 text-warning">
-                        <i class="fas fa-chart-bar"></i>
-                    </div>
-                    <div class="stat-label">Posición Promedio</div>
-                    <div class="stat-value text-warning">' . ($summary['average_position'] > 0 ? number_format($summary['average_position'], 1) : 'N/A') . '</div>
-                    <small class="text-muted">Menor es mejor</small>
+
+            <!-- Posición Promedio -->
+            <div class="glass-morphism rounded-xl p-6 hover:shadow-xl transition-all duration-300 animate-in" style="animation-delay: 0.2s">
+                <div class="flex items-center justify-center w-14 h-14 bg-amber-100 rounded-lg mb-4">
+                    <i class="fas fa-chart-bar text-amber-600 text-2xl"></i>
                 </div>
+                <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Posición Promedio</div>
+                <div class="text-4xl font-bold text-amber-600">' . ($summary['average_position'] > 0 ? number_format($summary['average_position'], 1) : 'N/A') . '</div>
+                <p class="text-xs text-gray-500 mt-2">Menor es mejor</p>
             </div>
-            <div class="col-md-3 mb-3">
-                <div class="stat-card">
-                    <div class="icon-stat bg-info bg-opacity-10 text-info">
-                        <i class="fas fa-eye"></i>
-                    </div>
-                    <div class="stat-label">Score de Visibilidad</div>
-                    <div class="stat-value text-info">' . $summary['visibility_score'] . '%</div>
-                    <div class="progress-modern mt-2">
-                        <div class="progress-bar-modern bg-info" style="width: ' . $summary['visibility_score'] . '%"></div>
-                    </div>
+
+            <!-- Visibilidad -->
+            <div class="glass-morphism rounded-xl p-6 hover:shadow-xl transition-all duration-300 animate-in" style="animation-delay: 0.3s">
+                <div class="flex items-center justify-center w-14 h-14 bg-blue-100 rounded-lg mb-4">
+                    <i class="fas fa-eye text-blue-600 text-2xl"></i>
+                </div>
+                <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Score de Visibilidad</div>
+                <div class="text-4xl font-bold text-blue-600">' . $summary['visibility_score'] . '%</div>
+                <div class="mt-3 bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div class="h-full bg-blue-600 rounded-full" style="width: ' . $summary['visibility_score'] . '%"></div>
                 </div>
             </div>
         </div>
 
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="chart-container">
-                    <h5 class="section-title">
-                        <i class="fas fa-chart-pie text-primary"></i>
-                        Distribución de Tendencias
-                    </h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <canvas id="trendsChart" height="250"></canvas>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="row">
-                                <div class="col-6 mb-3">
-                                    <div class="text-center p-3 rounded" style="background: #d1fae5;">
-                                        <i class="fas fa-arrow-up fa-2x text-success mb-2"></i>
-                                        <h4 class="mb-0 text-success">' . $trends['improved'] . '</h4>
-                                        <small class="text-muted">Mejoradas</small>
-                                    </div>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <div class="text-center p-3 rounded" style="background: #fee2e2;">
-                                        <i class="fas fa-arrow-down fa-2x text-danger mb-2"></i>
-                                        <h4 class="mb-0 text-danger">' . $trends['declined'] . '</h4>
-                                        <small class="text-muted">Empeoradas</small>
-                                    </div>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <div class="text-center p-3 rounded" style="background: #dbeafe;">
-                                        <i class="fas fa-star fa-2x text-primary mb-2"></i>
-                                        <h4 class="mb-0 text-primary">' . $trends['new'] . '</h4>
-                                        <small class="text-muted">Nuevas</small>
-                                    </div>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <div class="text-center p-3 rounded" style="background: #e5e7eb;">
-                                        <i class="fas fa-minus fa-2x text-secondary mb-2"></i>
-                                        <h4 class="mb-0 text-secondary">' . $trends['stable'] . '</h4>
-                                        <small class="text-muted">Estables</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Tendencias -->
+        <div class="glass-morphism rounded-2xl shadow-xl p-8 mb-8 animate-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-chart-pie text-primary-600 mr-3"></i>
+                Distribución de Tendencias
+            </h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <canvas id="trendsChart" height="250"></canvas>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center p-4 bg-green-50 rounded-xl">
+                        <i class="fas fa-arrow-up text-4xl text-green-600 mb-3"></i>
+                        <h4 class="text-3xl font-bold text-green-600 mb-1">' . $trends['improved'] . '</h4>
+                        <small class="text-gray-600 font-medium">Mejoradas</small>
+                    </div>
+                    <div class="text-center p-4 bg-red-50 rounded-xl">
+                        <i class="fas fa-arrow-down text-4xl text-red-600 mb-3"></i>
+                        <h4 class="text-3xl font-bold text-red-600 mb-1">' . $trends['declined'] . '</h4>
+                        <small class="text-gray-600 font-medium">Empeoradas</small>
+                    </div>
+                    <div class="text-center p-4 bg-blue-50 rounded-xl">
+                        <i class="fas fa-star text-4xl text-blue-600 mb-3"></i>
+                        <h4 class="text-3xl font-bold text-blue-600 mb-1">' . $trends['new'] . '</h4>
+                        <small class="text-gray-600 font-medium">Nuevas</small>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-xl">
+                        <i class="fas fa-minus text-4xl text-gray-600 mb-3"></i>
+                        <h4 class="text-3xl font-bold text-gray-600 mb-1">' . $trends['stable'] . '</h4>
+                        <small class="text-gray-600 font-medium">Estables</small>
                     </div>
                 </div>
             </div>
         </div>';
-
-        return $html;
     }
 
     private function generateChartsSection($chartData, $monthlyData)
     {
-        $html = '
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="chart-container">
-                    <h5 class="section-title">
-                        <i class="fas fa-chart-line text-success"></i>
-                        Evolución de Posiciones (Top Keywords)
-                    </h5>
-                    <div class="chart-wrapper">
-                        <canvas id="positionsChart"></canvas>
-                    </div>
-                    <small class="text-muted mt-2 d-block">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Muestra las 10 keywords con mejor rendimiento. Posiciones más bajas son mejores.
-                    </small>
+        $hasHistoricalData = $chartData['hasHistoricalData'] ?? false;
+        $chartTitle = $hasHistoricalData ? 
+            'Evolución de Posiciones (Top Keywords)' : 
+            'Posiciones Actuales (Top Keywords)';
+        $chartSubtitle = $hasHistoricalData ? 
+            'Muestra las 10 keywords con mejor rendimiento. Posiciones más bajas son mejores.' :
+            'Posiciones actuales de las mejores keywords. Se mostrará la evolución cuando haya datos históricos.';
+
+        return '
+        <!-- Evolución de Posiciones -->
+        <div class="glass-morphism rounded-2xl shadow-xl p-8 mb-8 animate-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-chart-line text-green-600 mr-3"></i>
+                ' . $chartTitle . '
+            </h2>
+            <div class="chart-wrapper">
+                <canvas id="positionsChart"></canvas>
+            </div>
+            <p class="text-sm text-gray-500 mt-4 flex items-center">
+                <i class="fas fa-info-circle mr-2"></i>
+                ' . $chartSubtitle . '
+            </p>
+            ' . (!$hasHistoricalData ? '
+            <div class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-lightbulb text-blue-600 mr-2"></i>
+                    <p class="text-blue-800 text-sm">
+                        <strong>💡 Consejo:</strong> Para ver la evolución temporal, necesitas tener datos de meses anteriores. 
+                        Los próximos informes mostrarán la progresión de tus keywords.
+                    </p>
+                </div>
+            </div>' : '') . '
+        </div>
+
+        <!-- Distribución y Top Positions -->
+        <div class="grid md:grid-cols-2 gap-8 mb-8">
+            <div class="glass-morphism rounded-2xl shadow-xl p-8 animate-in">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-layer-group text-amber-600 mr-3"></i>
+                    Distribución de Posiciones
+                </h2>
+                <div class="chart-wrapper" style="height: 300px;">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+            <div class="glass-morphism rounded-2xl shadow-xl p-8 animate-in">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-trophy text-amber-600 mr-3"></i>
+                    Posiciones Top 1, Top 3, Top 10
+                </h2>
+                <div class="chart-wrapper" style="height: 300px;">
+                    <canvas id="topPositionsChart"></canvas>
                 </div>
             </div>
         </div>';
-
-        // Gráfico de distribución de posiciones
-        $html .= '
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5 class="section-title">
-                        <i class="fas fa-layer-group text-warning"></i>
-                        Distribución de Posiciones
-                    </h5>
-                    <div class="chart-wrapper" style="height: 300px;">
-                        <canvas id="distributionChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5 class="section-title">
-                        <i class="fas fa-trophy text-warning"></i>
-                        Posiciones Top 1, Top 3, Top 10
-                    </h5>
-                    <div class="chart-wrapper" style="height: 300px;">
-                        <canvas id="topPositionsChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>';
-
-        return $html;
     }
 
     private function generateKeywordsTableSection($keywords)
     {
         $html = '
-        <div class="mb-4">
-            <div class="keyword-table">
-                <div class="p-4">
-                    <h5 class="section-title">
-                        <i class="fas fa-table text-info"></i>
-                        Análisis Detallado de Keywords
-                    </h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead style="background: #f9fafb;">
-                                <tr>
-                                    <th><i class="fas fa-key me-1"></i>Keyword</th>
-                                    <th class="text-center"><i class="fas fa-map-marker-alt me-1"></i>Posición Actual</th>
-                                    <th class="text-center"><i class="fas fa-trophy me-1"></i>Mejor Posición</th>
-                                    <th class="text-center"><i class="fas fa-chart-line me-1"></i>Tendencia</th>
-                                    <th class="text-center"><i class="fas fa-users me-1"></i>Competencia</th>
-                                    <th class="text-center"><i class="fas fa-history me-1"></i>Historial</th>
-                                </tr>
-                            </thead>
-                            <tbody>';
+        <!-- Tabla de Keywords -->
+        <div class="glass-morphism rounded-2xl shadow-xl p-8 mb-8 animate-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-table text-blue-600 mr-3"></i>
+                Análisis Detallado de Keywords
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <i class="fas fa-key mr-1"></i>Keyword
+                            </th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <i class="fas fa-map-marker-alt mr-1"></i>Posición Actual
+                            </th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <i class="fas fa-trophy mr-1"></i>Mejor Posición
+                            </th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <i class="fas fa-chart-line mr-1"></i>Tendencia
+                            </th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <i class="fas fa-users mr-1"></i>Competencia
+                            </th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <i class="fas fa-history mr-1"></i>Historial
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">';
 
         // Ordenar keywords por posición actual
         $sortedKeywords = $keywords;
@@ -849,19 +865,19 @@ class AutoseoAdvancedReports extends Controller
             
             // Badge de posición
             $positionBadge = $currentPos !== 'N/A' ? 
-                ($currentPos == 1 ? '<span class="badge bg-warning text-dark">#' . $currentPos . '</span>' :
-                ($currentPos <= 3 ? '<span class="badge bg-success">#' . $currentPos . '</span>' :
-                ($currentPos <= 10 ? '<span class="badge bg-info">#' . $currentPos . '</span>' :
-                '<span class="badge bg-secondary">#' . $currentPos . '</span>'))) :
-                '<span class="badge bg-light text-dark">N/A</span>';
+                ($currentPos == 1 ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">#' . $currentPos . '</span>' :
+                ($currentPos <= 3 ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">#' . $currentPos . '</span>' :
+                ($currentPos <= 10 ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">#' . $currentPos . '</span>' :
+                '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">#' . $currentPos . '</span>'))) :
+                '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">N/A</span>';
 
             // Tendencia
             $trendIcons = [
-                'improved' => '<span class="trend-badge badge-custom" style="background: #d1fae5; color: #065f46;"><i class="fas fa-arrow-up"></i> Mejorada</span>',
-                'declined' => '<span class="trend-badge badge-custom" style="background: #fee2e2; color: #991b1b;"><i class="fas fa-arrow-down"></i> Empeorada</span>',
-                'stable' => '<span class="trend-badge badge-custom" style="background: #e5e7eb; color: #374151;"><i class="fas fa-minus"></i> Estable</span>',
-                'new' => '<span class="trend-badge badge-custom" style="background: #dbeafe; color: #1e40af;"><i class="fas fa-star"></i> Nueva</span>',
-                'not_found' => '<span class="trend-badge badge-custom" style="background: #fee; color: #666;"><i class="fas fa-search-minus"></i> No encontrada</span>',
+                'improved' => '<span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-green-50 text-green-700"><i class="fas fa-arrow-up mr-1"></i> Mejorada</span>',
+                'declined' => '<span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-red-50 text-red-700"><i class="fas fa-arrow-down mr-1"></i> Empeorada</span>',
+                'stable' => '<span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-gray-50 text-gray-700"><i class="fas fa-minus mr-1"></i> Estable</span>',
+                'new' => '<span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-700"><i class="fas fa-star mr-1"></i> Nueva</span>',
+                'not_found' => '<span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-gray-50 text-gray-600"><i class="fas fa-search-minus mr-1"></i> No encontrada</span>',
             ];
             $trendBadge = $trendIcons[$kw['trend']] ?? '';
 
@@ -874,18 +890,22 @@ class AutoseoAdvancedReports extends Controller
                         ($competition < 1000000 ? '#ef4444' : '#7f1d1d'));
 
             $html .= '
-                                <tr class="keyword-row">
-                                    <td><strong>' . htmlspecialchars($kw['keyword']) . '</strong></td>
-                                    <td class="text-center">' . $positionBadge . '</td>
-                                    <td class="text-center">' . ($bestPos !== 'N/A' ? '<span class="badge bg-light text-success">#' . $bestPos . '</span>' : 'N/A') . '</td>
-                                    <td class="text-center">' . $trendBadge . '</td>
-                                    <td class="text-center">
-                                        <span class="competition-indicator" style="background: ' . $compColor . ';"></span>
-                                        ' . $compLevel . '
-                                        <br><small class="text-muted">' . number_format($competition) . ' resultados</small>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">' . htmlspecialchars($kw['keyword']) . '</div>
                                     </td>
-                                    <td class="text-center">
-                                        <small class="text-muted">' . count($kw['positions']) . ' registros</small>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">' . $positionBadge . '</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">' . ($bestPos !== 'N/A' ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">#' . $bestPos . '</span>' : '<span class="text-gray-400">N/A</span>') . '</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">' . $trendBadge . '</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <div class="flex items-center justify-center">
+                                            <span class="w-3 h-3 rounded-full mr-2" style="background: ' . $compColor . ';"></span>
+                                            <span class="text-sm text-gray-900">' . $compLevel . '</span>
+                                        </div>
+                                        <div class="text-xs text-gray-500">' . number_format($competition) . ' resultados</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <span class="text-sm text-gray-500">' . count($kw['positions']) . ' registros</span>
                                     </td>
                                 </tr>';
         }
@@ -895,54 +915,40 @@ class AutoseoAdvancedReports extends Controller
                         </table>
                     </div>
                 </div>
-            </div>
-        </div>';
+            </div>';
 
         return $html;
     }
 
     private function generateCompetitionSection($competition)
     {
-        $total = array_sum($competition);
-        
         return '
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="chart-container">
-                    <h5 class="section-title">
-                        <i class="fas fa-users-cog text-danger"></i>
-                        Análisis de Competencia
-                    </h5>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="text-center p-3 rounded" style="background: #d1fae5;">
-                                <h3 class="text-success">' . $competition['low'] . '</h3>
-                                <p class="mb-0">Competencia Baja</p>
-                                <small class="text-muted">< 10K resultados</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center p-3 rounded" style="background: #fef3c7;">
-                                <h3 class="text-warning">' . $competition['medium'] . '</h3>
-                                <p class="mb-0">Competencia Media</p>
-                                <small class="text-muted">10K - 100K</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center p-3 rounded" style="background: #fed7aa;">
-                                <h3 class="text-danger">' . $competition['high'] . '</h3>
-                                <p class="mb-0">Competencia Alta</p>
-                                <small class="text-muted">100K - 1M</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center p-3 rounded" style="background: #fee2e2;">
-                                <h3 style="color: #7f1d1d;">' . $competition['very_high'] . '</h3>
-                                <p class="mb-0">Competencia Muy Alta</p>
-                                <small class="text-muted">> 1M resultados</small>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Análisis de Competencia -->
+        <div class="glass-morphism rounded-2xl shadow-xl p-8 mb-8 animate-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-users-cog text-red-600 mr-3"></i>
+                Análisis de Competencia
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center p-6 bg-green-50 rounded-xl">
+                    <h3 class="text-4xl font-bold text-green-600 mb-2">' . $competition['low'] . '</h3>
+                    <p class="font-semibold text-gray-900 mb-1">Competencia Baja</p>
+                    <small class="text-gray-600">< 10K resultados</small>
+                </div>
+                <div class="text-center p-6 bg-amber-50 rounded-xl">
+                    <h3 class="text-4xl font-bold text-amber-600 mb-2">' . $competition['medium'] . '</h3>
+                    <p class="font-semibold text-gray-900 mb-1">Competencia Media</p>
+                    <small class="text-gray-600">10K - 100K</small>
+                </div>
+                <div class="text-center p-6 bg-orange-50 rounded-xl">
+                    <h3 class="text-4xl font-bold text-orange-600 mb-2">' . $competition['high'] . '</h3>
+                    <p class="font-semibold text-gray-900 mb-1">Competencia Alta</p>
+                    <small class="text-gray-600">100K - 1M</small>
+                </div>
+                <div class="text-center p-6 bg-red-50 rounded-xl">
+                    <h3 class="text-4xl font-bold text-red-700 mb-2">' . $competition['very_high'] . '</h3>
+                    <p class="font-semibold text-gray-900 mb-1">Competencia Muy Alta</p>
+                    <small class="text-gray-600">> 1M resultados</small>
                 </div>
             </div>
         </div>';
@@ -951,38 +957,35 @@ class AutoseoAdvancedReports extends Controller
     private function generatePeopleAlsoAskSection($peopleAlsoAsk)
     {
         $html = '
-        <div class="mb-4">
-            <div class="chart-container">
-                <h5 class="section-title">
-                    <i class="fas fa-question-circle text-info"></i>
-                    Preguntas Frecuentes (People Also Ask)
-                </h5>
-                <div class="row">';
+        <!-- Preguntas Frecuentes -->
+        <div class="glass-morphism rounded-2xl shadow-xl p-8 mb-8 animate-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-question-circle text-blue-600 mr-3"></i>
+                Preguntas Frecuentes (People Also Ask)
+            </h2>
+            <div class="grid md:grid-cols-2 gap-4">';
 
         foreach (array_slice($peopleAlsoAsk, 0, 12) as $index => $paa) {
             $html .= '
-                    <div class="col-md-6 mb-3">
-                        <div class="paa-card">
-                            <div class="d-flex align-items-start">
-                                <div class="me-3">
-                                    <span class="badge bg-info rounded-circle" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
-                                        ' . ($index + 1) . '
-                                    </span>
-                                </div>
-                                <div>
-                                    <strong>' . htmlspecialchars($paa['question']) . '</strong>
-                                    <br>
-                                    <small class="text-muted">
-                                        <i class="fas fa-search me-1"></i>' . number_format($paa['total_results']) . ' resultados
-                                    </small>
-                                </div>
-                            </div>
+                <div class="bg-white border-l-4 border-blue-500 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mr-3">
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm font-medium">
+                                ' . ($index + 1) . '
+                            </span>
                         </div>
-                    </div>';
+                        <div>
+                            <p class="font-semibold text-gray-900 mb-1">' . htmlspecialchars($paa['question']) . '</p>
+                            <p class="text-sm text-gray-500 flex items-center">
+                                <i class="fas fa-search mr-1"></i>
+                                ' . (isset($paa['total_results']) ? number_format($paa['total_results']) : '0') . ' resultados
+                            </p>
+                        </div>
+                    </div>
+                </div>';
         }
 
         $html .= '
-                </div>
             </div>
         </div>';
 
@@ -992,19 +995,11 @@ class AutoseoAdvancedReports extends Controller
     private function generateFooterSection($autoseo)
     {
         return '
-        <div class="text-center mt-5 mb-4">
-            <div class="card border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div class="card-body text-white py-4">
-                    <h5 class="mb-3"><i class="fas fa-chart-line me-2"></i>Informe Generado Automáticamente</h5>
-                    <p class="mb-2">Cliente: ' . htmlspecialchars($autoseo->client_name) . '</p>
-                    <p class="mb-0"><small>Sistema AutoSEO - ' . config('app.name') . '</small></p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="no-print text-center">
-            <button onclick="window.print()" class="btn btn-lg btn-primary">
-                <i class="fas fa-print me-2"></i>Imprimir / Guardar PDF
+        <!-- Botón Imprimir -->
+        <div class="no-print text-center mb-8">
+            <button onclick="window.print()" class="inline-flex items-center px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200">
+                <i class="fas fa-print mr-2"></i>
+                Imprimir / Guardar PDF
             </button>
         </div>';
     }
@@ -1016,6 +1011,18 @@ class AutoseoAdvancedReports extends Controller
             return $kw['current_position'] !== null && $kw['current_position'] <= 20;
         }), 0, 10);
 
+        // Si no hay keywords con posición, usar las mejores disponibles
+        if (empty($top10Keywords)) {
+            $top10Keywords = array_slice(array_filter($keywords, function($kw) {
+                return $kw['current_position'] !== null;
+            }), 0, 10);
+        }
+
+        // Si aún no hay datos, usar todas las keywords disponibles
+        if (empty($top10Keywords)) {
+            $top10Keywords = array_slice($keywords, 0, 10);
+        }
+
         // Extraer fechas y posiciones
         $dates = [];
         $datasets = [];
@@ -1025,9 +1032,14 @@ class AutoseoAdvancedReports extends Controller
             '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef'
         ];
 
-        // Obtener todas las fechas únicas
-        foreach ($monthlyData as $month => $data) {
-            $dates[] = date('M Y', strtotime($data['date']));
+        // Obtener todas las fechas únicas de los datos históricos
+        if (!empty($monthlyData)) {
+            foreach ($monthlyData as $month => $data) {
+                $dates[] = date('M Y', strtotime($data['date']));
+            }
+        } else {
+            // Si no hay datos históricos, crear una fecha actual
+            $dates[] = date('M Y');
         }
 
         // Crear datasets para cada keyword
@@ -1035,16 +1047,21 @@ class AutoseoAdvancedReports extends Controller
         foreach ($top10Keywords as $kw) {
             $keywordData = [];
             
-            foreach (array_keys($monthlyData) as $month) {
-                // Buscar posición de esta keyword en este mes
-                $position = null;
-                foreach ($kw['positions'] as $pos) {
-                    if (date('Y-m', strtotime($pos['date'])) == $month) {
-                        $position = $pos['position'];
-                        break;
+            if (!empty($monthlyData)) {
+                // Si hay datos históricos, buscar posición de esta keyword en cada mes
+                foreach (array_keys($monthlyData) as $month) {
+                    $position = null;
+                    foreach ($kw['positions'] as $pos) {
+                        if (date('Y-m', strtotime($pos['date'])) == $month) {
+                            $position = $pos['position'];
+                            break;
+                        }
                     }
+                    $keywordData[] = $position;
                 }
-                $keywordData[] = $position;
+            } else {
+                // Si no hay datos históricos, usar solo la posición actual
+                $keywordData[] = $kw['current_position'];
             }
 
             $datasets[] = [
@@ -1054,6 +1071,11 @@ class AutoseoAdvancedReports extends Controller
                 'backgroundColor' => $colors[$colorIndex % count($colors)] . '33',
                 'tension' => 0.4,
                 'fill' => false,
+                'pointRadius' => 6,
+                'pointHoverRadius' => 8,
+                'pointBackgroundColor' => $colors[$colorIndex % count($colors)],
+                'pointBorderColor' => '#ffffff',
+                'pointBorderWidth' => 2,
             ];
             $colorIndex++;
         }
@@ -1062,6 +1084,7 @@ class AutoseoAdvancedReports extends Controller
             'dates' => $dates,
             'datasets' => $datasets,
             'keywords' => $top10Keywords,
+            'hasHistoricalData' => !empty($monthlyData)
         ];
     }
 
@@ -1069,10 +1092,12 @@ class AutoseoAdvancedReports extends Controller
     {
         $datesJson = json_encode($chartData['dates']);
         $datasetsJson = json_encode($chartData['datasets']);
+        $hasHistoricalData = $chartData['hasHistoricalData'] ?? false;
 
         return "
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Inicializando gráficos...');
+            console.log('Datos históricos disponibles:', " . ($hasHistoricalData ? 'true' : 'false') . ");
             
             // Gráfico de evolución de posiciones
             const positionsCanvas = document.getElementById('positionsChart');
@@ -1081,73 +1106,77 @@ class AutoseoAdvancedReports extends Controller
                 return;
             }
             const positionsCtx = positionsCanvas.getContext('2d');
-        new Chart(positionsCtx, {
-            type: 'line',
-            data: {
-                labels: {$datesJson},
-                datasets: {$datasetsJson}
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 15
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 12,
-                        titleFont: { size: 14, weight: 'bold' },
-                        bodyFont: { size: 13 },
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (context.parsed.y !== null) {
-                                    label += ': Posición ' + context.parsed.y;
-                                } else {
-                                    label += ': Sin posición';
-                                }
-                                return label;
-                            }
-                        }
-                    }
+            
+            new Chart(positionsCtx, {
+                type: 'line',
+                data: {
+                    labels: {$datesJson},
+                    datasets: {$datasetsJson}
                 },
-                scales: {
-                    y: {
-                        reverse: true,
-                        beginAtZero: false,
-                        title: {
-                            display: true,
-                            text: 'Posición en Google',
-                            font: { size: 14, weight: 'bold' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: { size: 12 }
+                            }
                         },
-                        ticks: {
-                            callback: function(value) {
-                                return '#' + value;
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (context.parsed.y !== null) {
+                                        label += ': Posición ' + context.parsed.y;
+                                    } else {
+                                        label += ': Sin posición';
+                                    }
+                                    return label;
+                                }
                             }
                         }
                     },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Período',
-                            font: { size: 14, weight: 'bold' }
+                    scales: {
+                        y: {
+                            reverse: true,
+                            beginAtZero: false,
+                            min: 1,
+                            max: " . ($hasHistoricalData ? '100' : '50') . ",
+                            title: {
+                                display: true,
+                                text: 'Posición en Google',
+                                font: { size: 14, weight: 'bold' }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '#' + value;
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: " . ($hasHistoricalData ? "'Período'" : "'Estado Actual'") . ",
+                                font: { size: 14, weight: 'bold' }
+                            }
                         }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
                     }
-                },
-                interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: false
                 }
-            }
-        });
+            });
 
         // Gráfico de tendencias (pie chart)
         const trendsCtx = document.getElementById('trendsChart').getContext('2d');
