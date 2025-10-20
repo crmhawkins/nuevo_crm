@@ -15,7 +15,18 @@ class SeoProgramacion extends Model
         'autoseo_id',
         'fecha_programada',
         'estado',
+        'priority',
     ];
+    /**
+     * Set the priority attribute, default to 0 if null.
+     *
+     * @param  int|null  $value
+     * @return void
+     */
+    public function setPriorityAttribute($value)
+    {
+        $this->attributes['priority'] = $value ?? 0;
+    }
 
     protected $casts = [
         'fecha_programada' => 'date',
@@ -43,6 +54,30 @@ class SeoProgramacion extends Model
     public function scopePendientes($query)
     {
         return $query->where('estado', 'pendiente');
+    }
+
+    /**
+     * Scope para obtener solo en procesando
+     */
+    public function scopeProcesando($query)
+    {
+        return $query->where('estado', 'procesando');
+    }
+
+    /**
+     * Scope para obtener solo completados
+     */
+    public function scopeCompletados($query)
+    {
+        return $query->where('estado', 'completado');
+    }
+
+    /**
+     * Scope para obtener solo con error
+     */
+    public function scopeConError($query)
+    {
+        return $query->where('estado', 'error');
     }
 }
 

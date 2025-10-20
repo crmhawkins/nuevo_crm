@@ -38,6 +38,74 @@
             background-color: #f8f9fa;
             border-radius: 0.25rem;
         }
+
+        /* Estilos para estados de SEO */
+        .seo-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .seo-status-pendiente {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border: 1px solid #fbbf24;
+        }
+
+        .seo-status-procesando {
+            background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+            animation: pulse-processing 2s ease-in-out infinite;
+        }
+
+        .seo-status-completado {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .seo-status-error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        /* Animación para el estado procesando */
+        @keyframes pulse-processing {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+        }
+
+        /* Spinner animado */
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Iconos animados */
+        .icon-bounce {
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
     </style>
 @endsection
 
@@ -68,6 +136,7 @@
                                         <th>Cliente</th>
                                         <th>Email</th>
                                         <th>URL</th>
+                                        <th>SEO Hoy</th>
                                         <th>Próximo SEO</th>
                                         <th>Creado</th>
                                         <th>Acciones</th>
@@ -75,7 +144,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($clients as $client)
-                                        <tr class="@if($client->alert_info['is_overdue']) table-danger @elseif($client->alert_info['is_expiring_soon']) table-warning @elseif($client->alert_info['is_expiring_in_one_month']) table-info @endif">
+                                        <tr data-client-id="{{ $client->id }}" class="@if($client->alert_info['is_overdue']) table-danger @elseif($client->alert_info['is_expiring_soon']) table-warning @elseif($client->alert_info['is_expiring_in_one_month']) table-info @endif">
                                             <td>
                                                 {{ $client->client_name }}
                                                 @if($client->alert_info['is_overdue'])
@@ -88,6 +157,33 @@
                                             </td>
                                             <td>{{ $client->client_email }}</td>
                                             <td>{{ $client->url }}</td>
+                                            <td>
+                                                @if($client->seo_hoy)
+                                                    @php
+                                                        $estado = $client->seo_hoy->estado;
+                                                        $iconos = [
+                                                            'pendiente' => 'fa-clock',
+                                                            'procesando' => 'fa-spinner',
+                                                            'completado' => 'fa-check-circle',
+                                                            'error' => 'fa-exclamation-triangle'
+                                                        ];
+                                                        $textos = [
+                                                            'pendiente' => 'Pendiente',
+                                                            'procesando' => 'Procesando',
+                                                            'completado' => 'Completado',
+                                                            'error' => 'Error'
+                                                        ];
+                                                    @endphp
+                                                    <div class="seo-status-badge seo-status-{{ $estado }}">
+                                                        <i class="fas {{ $iconos[$estado] ?? 'fa-question' }} @if($estado === 'procesando') spinner @endif"></i>
+                                                        <span>{{ $textos[$estado] ?? 'Desconocido' }}</span>
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted small">
+                                                        <i class="fas fa-minus-circle"></i> Sin programación hoy
+                                                    </span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 @if($client->alert_info['next_date'])
                                                     <div class="d-flex flex-column">
@@ -603,7 +699,7 @@
                     @csrf
                     <div class="modal-header bg-success text-white">
                         <h5 class="modal-title" id="createPuntualSeoModalLabel">
-                            <i class="fas fa-bolt"></i> Crear SEO Puntual para Hoy
+                            <i class="fas fa-bolt"></i> Ejecutar SEO Inmediatamente
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                             aria-label="Close"></button>
@@ -951,6 +1047,62 @@
             
             select.addEventListener('change', toggleEditFrequencyFields);
             toggleEditFrequencyFields(); // Ejecutar al cargar
+        });
+
+        // Auto-actualizar estados de SEO cada 10 segundos
+        function actualizarEstadosSeo() {
+            fetch('/api/autoseo/programacion/listar?fecha=' + new Date().toISOString().split('T')[0])
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        data.data.forEach(prog => {
+                            updateSeoStatus(prog.autoseo_id, prog.estado);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error actualizando estados SEO:', error));
+        }
+
+        function updateSeoStatus(autoseoId, estado) {
+            // Buscar la fila del cliente
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const clientId = row.getAttribute('data-client-id');
+                if (clientId == autoseoId) {
+                    const seoCell = row.cells[3]; // Columna "SEO Hoy"
+                    
+                    const iconos = {
+                        'pendiente': 'fa-clock',
+                        'procesando': 'fa-spinner',
+                        'completado': 'fa-check-circle',
+                        'error': 'fa-exclamation-triangle'
+                    };
+                    
+                    const textos = {
+                        'pendiente': 'Pendiente',
+                        'procesando': 'Procesando',
+                        'completado': 'Completado',
+                        'error': 'Error'
+                    };
+                    
+                    const spinnerClass = estado === 'procesando' ? 'spinner' : '';
+                    
+                    seoCell.innerHTML = `
+                        <div class="seo-status-badge seo-status-${estado}">
+                            <i class="fas ${iconos[estado]} ${spinnerClass}"></i>
+                            <span>${textos[estado]}</span>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // Iniciar actualización automática cada 10 segundos
+        setInterval(actualizarEstadosSeo, 10000);
+        
+        // Actualizar una vez al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            actualizarEstadosSeo();
         });
     </script>
 @endsection

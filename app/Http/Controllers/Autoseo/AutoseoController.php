@@ -20,9 +20,21 @@ class AutoseoController extends Controller
                   ->orderBy('fecha_programada');
         }])->get();
 
+        // Obtener todas las programaciones de hoy (cualquier estado)
+        $hoy = Carbon::today()->format('Y-m-d');
+        
         // Calcular alertas para cada cliente
-        $clients->each(function($client) {
+        $clients->each(function($client) use ($hoy) {
             $nextProgramacion = $client->programaciones->first();
+            
+            // Buscar programaciones de hoy en cualquier estado
+            $programacionesHoy = SeoProgramacion::where('autoseo_id', $client->id)
+                ->whereDate('fecha_programada', $hoy)
+                ->orderBy('updated_at', 'desc')
+                ->get();
+            
+            $client->seo_hoy = $programacionesHoy->first(); // La más reciente de hoy
+            
             if ($nextProgramacion) {
                 $nextDate = Carbon::parse($nextProgramacion->fecha_programada);
                 $daysUntil = Carbon::now()->diffInDays($nextDate, false);
@@ -174,19 +186,21 @@ class AutoseoController extends Controller
         ]);
 
         $client = Autoseo::findOrFail($validated['client_id']);
-        $hora = $validated['hora'] ?? '09:00';
-        $fechaHoy = Carbon::today()->format('Y-m-d') . ' ' . $hora;
+        
+        // Usar hora actual para ejecución inmediata
+        $fechaHoy = Carbon::now()->format('Y-m-d H:i:s');
 
-        // Crear la programación puntual para hoy
+        // Crear la programación puntual para hoy con prioridad alta
         SeoProgramacion::create([
             'autoseo_id' => $client->id,
             'fecha_programada' => $fechaHoy,
             'estado' => 'pendiente',
+            'priority' => 1, // Prioridad alta para SEO manual
         ]);
 
-        Log::info("⚡ SEO Puntual creado para cliente ID {$client->id} ({$client->client_name}) - Fecha: {$fechaHoy}");
+        Log::info("⚡ SEO Manual creado para cliente ID {$client->id} ({$client->client_name}) - Fecha: {$fechaHoy} - Priority: 1");
 
-        return redirect()->route('autoseo.index')->with('success', "SEO puntual creado para {$client->client_name} hoy a las {$hora}");
+        return redirect()->route('autoseo.index')->with('success', "SEO manual creado para {$client->client_name} - Se ejecutará inmediatamente");
     }
 
     /**

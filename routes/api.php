@@ -87,6 +87,10 @@ Route::post('/autoseo/programar', [AutoseoScheduleController::class, 'programarC
 Route::post('/autoseo/actualizar-estado', [AutoseoScheduleController::class, 'actualizarEstado'])->name('autoseo.actualizar.estado');
 Route::post('/autoseo/guardar-servicios', [AutoseoScheduleController::class, 'guardarServicios'])->name('autoseo.guardar.servicios');
 
+// Endpoints para gestión de estado de programaciones SEO
+Route::post('/autoseo/programacion/cambiar-estado', [\App\Http\Controllers\Api\SeoProgramacionController::class, 'cambiarEstado'])->name('autoseo.programacion.cambiar.estado');
+Route::get('/autoseo/programacion/listar', [\App\Http\Controllers\Api\SeoProgramacionController::class, 'listar'])->name('autoseo.programacion.listar');
+
 
 
 // TOOLS
