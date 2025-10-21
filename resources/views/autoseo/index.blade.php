@@ -450,6 +450,136 @@
                                                     <i class="fas fa-edit"></i> Editar
                                                 </button>
 
+                                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#testClientModal{{ $client->id }}">
+                                                    <i class="fas fa-vial"></i> Test
+                                                </button>
+
+                                                <!-- Modal Test Cliente -->
+                                                <div class="modal fade" id="testClientModal{{ $client->id }}"
+                                                    tabindex="-1"
+                                                    aria-labelledby="testClientModalLabel{{ $client->id }}"
+                                                    aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header bg-info text-white">
+                                                                <h5 class="modal-title" id="testClientModalLabel{{ $client->id }}">
+                                                                    <i class="fas fa-vial"></i> Test de Conexión - {{ $client->client_name }}
+                                                                </h5>
+                                                                <button type="button" class="btn-close btn-close-white"
+                                                                    data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="alert alert-info">
+                                                                    <i class="fas fa-info-circle"></i> 
+                                                                    Se verificará que WordPress esté correctamente configurado para AutoSEO
+                                                                </div>
+                                                                
+                                                                <div id="test-progress-{{ $client->id }}">
+                                                                    <!-- 1. Credenciales normales -->
+                                                                    <div class="test-step mb-3">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="spinner-border spinner-border-sm text-secondary me-2 test-spinner" role="status">
+                                                                                <span class="visually-hidden">Loading...</span>
+                                                                            </div>
+                                                                            <i class="fas fa-circle text-secondary test-icon me-2" style="display:none;"></i>
+                                                                            <strong>1. Verificando credenciales WordPress (username:password)</strong>
+                                                                        </div>
+                                                                        <div class="test-result ms-4 mt-1 text-muted"></div>
+                                                                    </div>
+
+                                                                    <!-- 2. Credenciales de aplicación -->
+                                                                    <div class="test-step mb-3">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="spinner-border spinner-border-sm text-secondary me-2 test-spinner" role="status" style="display:none;">
+                                                                                <span class="visually-hidden">Loading...</span>
+                                                                            </div>
+                                                                            <i class="fas fa-circle text-secondary test-icon me-2" style="display:none;"></i>
+                                                                            <strong>2. Verificando Application Password (user_app:password_app)</strong>
+                                                                        </div>
+                                                                        <div class="test-result ms-4 mt-1 text-muted"></div>
+                                                                    </div>
+
+                                                                    <!-- 3. Shortcodes sin imágenes -->
+                                                                    <div class="test-step mb-3">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="spinner-border spinner-border-sm text-secondary me-2 test-spinner" role="status" style="display:none;">
+                                                                                <span class="visually-hidden">Loading...</span>
+                                                                            </div>
+                                                                            <i class="fas fa-circle text-secondary test-icon me-2" style="display:none;"></i>
+                                                                            <strong>3. Endpoint: /wp-json/superindex/v1/shortcodes</strong>
+                                                                        </div>
+                                                                        <div class="test-result ms-4 mt-1 text-muted"></div>
+                                                                    </div>
+
+                                                                    <!-- 4. Shortcodes completos -->
+                                                                    <div class="test-step mb-3">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="spinner-border spinner-border-sm text-secondary me-2 test-spinner" role="status" style="display:none;">
+                                                                                <span class="visually-hidden">Loading...</span>
+                                                                            </div>
+                                                                            <i class="fas fa-circle text-secondary test-icon me-2" style="display:none;"></i>
+                                                                            <strong>4. Endpoint: /wp-json/superindex/v1/shortcodes/completo</strong>
+                                                                        </div>
+                                                                        <div class="test-result ms-4 mt-1 text-muted"></div>
+                                                                    </div>
+
+                                                                    <!-- 5. Actualizar shortcode -->
+                                                                    <div class="test-step mb-3">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="spinner-border spinner-border-sm text-secondary me-2 test-spinner" role="status" style="display:none;">
+                                                                                <span class="visually-hidden">Loading...</span>
+                                                                            </div>
+                                                                            <i class="fas fa-circle text-secondary test-icon me-2" style="display:none;"></i>
+                                                                            <strong>5. Endpoint: /wp-json/custom/v1/update-power-shortcode/</strong>
+                                                                        </div>
+                                                                        <div class="test-result ms-4 mt-1 text-muted"></div>
+                                                                    </div>
+
+                                                                    <!-- 6. Media upload -->
+                                                                    <div class="test-step mb-3">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="spinner-border spinner-border-sm text-secondary me-2 test-spinner" role="status" style="display:none;">
+                                                                                <span class="visually-hidden">Loading...</span>
+                                                                            </div>
+                                                                            <i class="fas fa-circle text-secondary test-icon me-2" style="display:none;"></i>
+                                                                            <strong>6. Endpoint: /wp-json/wp/v2/media (solo verificación)</strong>
+                                                                        </div>
+                                                                        <div class="test-result ms-4 mt-1 text-muted"></div>
+                                                                    </div>
+
+                                                                    <!-- 7. Posts creation -->
+                                                                    <div class="test-step mb-3">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="spinner-border spinner-border-sm text-secondary me-2 test-spinner" role="status" style="display:none;">
+                                                                                <span class="visually-hidden">Loading...</span>
+                                                                            </div>
+                                                                            <i class="fas fa-circle text-secondary test-icon me-2" style="display:none;"></i>
+                                                                            <strong>7. Endpoint: /wp-json/wp/v2/posts (solo verificación)</strong>
+                                                                        </div>
+                                                                        <div class="test-result ms-4 mt-1 text-muted"></div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="mt-4" id="test-summary-{{ $client->id }}" style="display:none;">
+                                                                    <hr>
+                                                                    <div class="alert alert-success" id="test-success-{{ $client->id }}" style="display:none;">
+                                                                        <i class="fas fa-check-circle"></i> <strong>¡Configuración correcta!</strong> WordPress está listo para AutoSEO.
+                                                                    </div>
+                                                                    <div class="alert alert-danger" id="test-error-{{ $client->id }}" style="display:none;">
+                                                                        <i class="fas fa-exclamation-triangle"></i> <strong>Configuración incompleta</strong> - Revisa los errores arriba.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                                    <i class="fas fa-times"></i> Cerrar
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 <!-- Modal Editar Cliente -->
                                                 <div class="modal fade" id="editClientModal{{ $client->id }}"
                                                     tabindex="-1"
@@ -1104,5 +1234,257 @@
         document.addEventListener('DOMContentLoaded', function() {
             actualizarEstadosSeo();
         });
+
+        // ===== FUNCIONES DE TEST DE CONEXIÓN =====
+        @foreach($clients as $client)
+        // Auto-iniciar test al abrir modal
+        document.getElementById('testClientModal{{ $client->id }}').addEventListener('shown.bs.modal', function() {
+            runTest{{ $client->id }}();
+        });
+        
+        function runTest{{ $client->id }}() {
+            const clientId = {{ $client->id }};
+            const url = '{{ $client->url }}';
+            const username = '{{ $client->username }}';
+            const password = '{{ $client->password }}';
+            const userApp = '{{ $client->user_app }}';
+            const passwordApp = '{{ $client->password_app }}';
+            
+            // Resetear UI
+            const steps = document.querySelectorAll('#test-progress-' + clientId + ' .test-step');
+            steps.forEach((step, index) => {
+                const spinner = step.querySelector('.test-spinner');
+                const icon = step.querySelector('.test-icon');
+                const result = step.querySelector('.test-result');
+                
+                spinner.style.display = 'none';
+                icon.style.display = 'none';
+                icon.className = 'fas fa-circle text-secondary test-icon me-2';
+                result.textContent = '';
+                result.className = 'test-result ms-4 mt-1 text-muted';
+            });
+            
+            document.getElementById('test-summary-' + clientId).style.display = 'none';
+            document.getElementById('test-success-' + clientId).style.display = 'none';
+            document.getElementById('test-error-' + clientId).style.display = 'none';
+            
+            // Ejecutar tests en secuencia
+            runTestSequence{{ $client->id }}(clientId, url, username, password, userApp, passwordApp, 0);
+        }
+        
+        async function runTestSequence{{ $client->id }}(clientId, url, username, password, userApp, passwordApp, stepIndex) {
+            const steps = document.querySelectorAll('#test-progress-' + clientId + ' .test-step');
+            
+            if (stepIndex >= steps.length) {
+                // Todos los tests completados
+                finishTest{{ $client->id }}(clientId);
+                return;
+            }
+            
+            const step = steps[stepIndex];
+            const spinner = step.querySelector('.test-spinner');
+            const icon = step.querySelector('.test-icon');
+            const result = step.querySelector('.test-result');
+            
+            // Mostrar spinner
+            spinner.style.display = 'inline-block';
+            icon.style.display = 'none';
+            
+            try {
+                let success = false;
+                let message = '';
+                
+                switch(stepIndex) {
+                    case 0: // Credenciales normales
+                        const test1 = await testWordPressAuth(url, username, password);
+                        success = test1.success;
+                        message = test1.message;
+                        break;
+                        
+                    case 1: // Credenciales de aplicación
+                        const test2 = await testWordPressAuth(url, userApp, passwordApp);
+                        success = test2.success;
+                        message = test2.message;
+                        break;
+                        
+                    case 2: // Shortcodes sin imágenes
+                        const test3 = await testEndpoint(url, '/wp-json/superindex/v1/shortcodes', userApp, passwordApp, 'GET');
+                        success = test3.success;
+                        message = test3.message;
+                        break;
+                        
+                    case 3: // Shortcodes completos
+                        const test4 = await testEndpoint(url, '/wp-json/superindex/v1/shortcodes/completo', userApp, passwordApp, 'GET');
+                        success = test4.success;
+                        message = test4.message;
+                        break;
+                        
+                    case 4: // Actualizar shortcode (solo verificar que el endpoint existe)
+                        const test5 = await testEndpoint(url, '/wp-json/custom/v1/update-power-shortcode/', userApp, passwordApp, 'OPTIONS');
+                        success = test5.success;
+                        message = test5.message;
+                        break;
+                        
+                    case 5: // Media (solo verificar acceso)
+                        const test6 = await testEndpoint(url, '/wp-json/wp/v2/media', userApp, passwordApp, 'OPTIONS');
+                        success = test6.success;
+                        message = test6.message;
+                        break;
+                        
+                    case 6: // Posts (solo verificar acceso)
+                        const test7 = await testEndpoint(url, '/wp-json/wp/v2/posts', userApp, passwordApp, 'OPTIONS');
+                        success = test7.success;
+                        message = test7.message;
+                        break;
+                }
+                
+                // Ocultar spinner, mostrar resultado
+                spinner.style.display = 'none';
+                icon.style.display = 'inline-block';
+                
+                if (success) {
+                    icon.className = 'fas fa-check-circle text-success test-icon me-2';
+                    result.className = 'test-result ms-4 mt-1 text-success';
+                    result.innerHTML = '<i class="fas fa-check"></i> ' + message;
+                } else {
+                    icon.className = 'fas fa-times-circle text-danger test-icon me-2';
+                    result.className = 'test-result ms-4 mt-1 text-danger';
+                    result.innerHTML = '<i class="fas fa-times"></i> ' + message;
+                }
+                
+                // Continuar con el siguiente test después de un pequeño delay
+                setTimeout(() => {
+                    runTestSequence{{ $client->id }}(clientId, url, username, password, userApp, passwordApp, stepIndex + 1);
+                }, 500);
+                
+            } catch (error) {
+                spinner.style.display = 'none';
+                icon.style.display = 'inline-block';
+                icon.className = 'fas fa-times-circle text-danger test-icon me-2';
+                result.className = 'test-result ms-4 mt-1 text-danger';
+                result.innerHTML = '<i class="fas fa-times"></i> Error: ' + error.message;
+                
+                // Continuar a pesar del error
+                setTimeout(() => {
+                    runTestSequence{{ $client->id }}(clientId, url, username, password, userApp, passwordApp, stepIndex + 1);
+                }, 500);
+            }
+        }
+        
+        function finishTest{{ $client->id }}(clientId) {
+            const steps = document.querySelectorAll('#test-progress-' + clientId + ' .test-step');
+            let allSuccess = true;
+            
+            steps.forEach(step => {
+                const icon = step.querySelector('.test-icon');
+                if (icon.classList.contains('text-danger')) {
+                    allSuccess = false;
+                }
+            });
+            
+            document.getElementById('test-summary-' + clientId).style.display = 'block';
+            
+            if (allSuccess) {
+                document.getElementById('test-success-' + clientId).style.display = 'block';
+            } else {
+                document.getElementById('test-error-' + clientId).style.display = 'block';
+            }
+        }
+        @endforeach
+        
+        // Funciones auxiliares de test
+        async function testWordPressAuth(baseUrl, username, password) {
+            try {
+                const response = await fetch('/autoseo/test-wp-auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        url: baseUrl,
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                if (!response.ok) {
+                    // Intentar leer el error como JSON
+                    let errorMsg = 'Error del servidor (HTTP ' + response.status + ')';
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.message || errorMsg;
+                    } catch (e) {
+                        // No es JSON, probablemente HTML
+                        const text = await response.text();
+                        if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                            errorMsg = 'El servidor devolvió HTML en lugar de JSON. Verifica los logs del servidor.';
+                        }
+                    }
+                    return {
+                        success: false,
+                        message: errorMsg
+                    };
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error en testWordPressAuth:', error);
+                return {
+                    success: false,
+                    message: 'Error de red: ' + error.message
+                };
+            }
+        }
+        
+        async function testEndpoint(baseUrl, endpoint, username, password, method = 'GET') {
+            try {
+                const response = await fetch('/autoseo/test-endpoint', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        url: baseUrl,
+                        endpoint: endpoint,
+                        username: username,
+                        password: password,
+                        method: method
+                    })
+                });
+                
+                if (!response.ok) {
+                    let errorMsg = 'Error del servidor (HTTP ' + response.status + ')';
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.message || errorMsg;
+                    } catch (e) {
+                        const text = await response.text();
+                        if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                            errorMsg = 'El servidor devolvió HTML en lugar de JSON. Verifica los logs del servidor.';
+                        }
+                    }
+                    return {
+                        success: false,
+                        message: errorMsg
+                    };
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error en testEndpoint:', error);
+                return {
+                    success: false,
+                    message: 'Error de red: ' + error.message
+                };
+            }
+        }
     </script>
 @endsection

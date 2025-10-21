@@ -847,6 +847,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/create', [AutoseoController::class, 'store'])->name('autoseo.store');
         Route::post('/delete', [AutoseoController::class, 'delete'])->name('autoseo.delete');
         Route::post('/create-puntual-seo', [AutoseoController::class, 'createPuntualSeo'])->name('autoseo.createPuntualSeo');
+        
+        // Test de conexión WordPress
+        Route::post('/test-wp-auth', [\App\Http\Controllers\Api\AutoseoTestController::class, 'testWordPressAuth'])->name('autoseo.test.wp.auth');
+        Route::post('/test-endpoint', [\App\Http\Controllers\Api\AutoseoTestController::class, 'testEndpoint'])->name('autoseo.test.endpoint');
     });
 });
 Route::redirect('/autoseo/reports', '/seo/reports');

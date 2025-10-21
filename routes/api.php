@@ -94,6 +94,7 @@ Route::get('/autoseo/priority', [\App\Http\Controllers\Api\SeoProgramacionContro
 
 
 
+
 // TOOLS
 Route::get('/get-clientes', action: [ApiController::class, 'getClientes']);
 Route::get('/get-clientes-contactos', action: [ApiController::class, 'getClientesContactos']);
