@@ -68,6 +68,12 @@
         function createChart(elementId, dates, totalResults, positions) {
             const ctx = document.getElementById(elementId)?.getContext('2d');
             if (!ctx) return;
+            
+            console.log('Creando gráfica:', elementId, {
+                dates: dates,
+                totalResults: totalResults,
+                positions: positions
+            });
 
             new Chart(ctx, {
                 type: 'line',
@@ -81,7 +87,14 @@
                             backgroundColor: `${colors.blue}20`,
                             fill: true,
                             yAxisID: 'y',
-                            tension: 0.4
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: colors.blue,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            spanGaps: true
                         },
                         {
                             label: 'Posición',
@@ -90,7 +103,14 @@
                             backgroundColor: 'transparent',
                             borderDash: [5, 5],
                             yAxisID: 'y1',
-                            tension: 0.4
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: colors.red,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            spanGaps: true
                         }
                     ]
                 },
@@ -103,7 +123,38 @@
                     },
                     plugins: {
                         legend: {
-                            position: 'top'
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat().format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
                         }
                     },
                     scales: {
@@ -113,10 +164,18 @@
                             position: 'left',
                             title: {
                                 display: true,
-                                text: 'Resultados'
+                                text: 'Resultados de Búsqueda',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
                             },
                             ticks: {
                                 callback: value => new Intl.NumberFormat().format(value)
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.05)'
                             }
                         },
                         y1: {
@@ -126,10 +185,18 @@
                             reverse: true,
                             title: {
                                 display: true,
-                                text: 'Posición'
+                                text: 'Posición en Google',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
                             },
+                            beginAtZero: false,
+                            min: 1,
+                            max: 100,
                             grid: {
-                                drawOnChartArea: false
+                                drawOnChartArea: false,
+                                color: 'rgba(0, 0, 0, 0.05)'
                             }
                         }
                     }

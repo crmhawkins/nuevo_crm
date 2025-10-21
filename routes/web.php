@@ -969,4 +969,13 @@ Route::middleware(['auth'])->group(function () {
         });
 });
 
-
+// Rutas de Eleven Labs - Monitoreo de Llamadas
+Route::middleware(['auth'])->prefix('elevenlabs')->name('elevenlabs.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\ElevenDashboard::class, 'index'])->name('dashboard');
+    Route::get('/conversations', [\App\Http\Controllers\ElevenDashboard::class, 'conversations'])->name('conversations');
+    Route::get('/conversations/{id}', [\App\Http\Controllers\ElevenDashboard::class, 'show'])->name('conversation.show');
+    Route::post('/sync', [\App\Http\Controllers\ElevenDashboard::class, 'sync'])->name('sync');
+    Route::post('/conversations/{id}/reprocess', [\App\Http\Controllers\ElevenDashboard::class, 'reprocess'])->name('reprocess');
+    Route::get('/stats', [\App\Http\Controllers\ElevenDashboard::class, 'stats'])->name('stats');
+    Route::get('/export', [\App\Http\Controllers\ElevenDashboard::class, 'export'])->name('export');
+});

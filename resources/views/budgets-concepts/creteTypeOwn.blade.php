@@ -5,6 +5,20 @@
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+    
+    .modal-xl {
+        max-width: 1200px;
+    }
+    
+    #autoseoModal .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+</style>
 @endsection
 
 @section('content')
@@ -127,7 +141,7 @@
 
                         {{-- Boton --}}
                         <div class="form-group mt-5">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
                                 {{ __('Registrar') }}
                             </button>
                         </div>
@@ -135,6 +149,155 @@
                 </div>
             </div>
         </section>
+    </div>
+
+    <!-- Modal AutoSEO (obligatorio para servicio 485) -->
+    <div class="modal fade" id="autoseoModal" tabindex="-1" aria-labelledby="autoseoModalLabel" 
+         aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="autoseoModalLabel">
+                        <i class="fas fa-robot"></i> Configuración de Cliente AutoSEO
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Servicio AutoSEO detectado.</strong> Por favor, completa la información del cliente para configurar el sistema automático de SEO.
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Información básica -->
+                        <div class="col-12"><h6 class="border-bottom pb-2">Información Básica</h6></div>
+                        
+                        <div class="col-md-6">
+                            <label for="autoseo_client_name" class="form-label">Nombre del Cliente <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="autoseo_client_name" name="autoseo_client_name" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="autoseo_client_email" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="autoseo_client_email" name="autoseo_client_email" required>
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <label for="autoseo_url" class="form-label">URL del Sitio <span class="text-danger">*</span></label>
+                            <input type="url" class="form-control" id="autoseo_url" name="autoseo_url" required>
+                        </div>
+
+                        <!-- Credenciales WordPress -->
+                        <div class="col-12"><h6 class="border-bottom pb-2 mt-3">Credenciales de WordPress</h6></div>
+                        
+                        <div class="col-md-6">
+                            <label for="autoseo_username" class="form-label">Usuario WordPress <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="autoseo_username" name="autoseo_username" required autocomplete="off">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="autoseo_password" class="form-label">Contraseña WordPress <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="autoseo_password" name="autoseo_password" required autocomplete="off">
+                        </div>
+
+                        <!-- Dirección de la Empresa -->
+                        <div class="col-12"><h6 class="border-bottom pb-2 mt-3">Dirección de la Empresa</h6></div>
+                        
+                        <div class="col-md-12">
+                            <label for="autoseo_company_name" class="form-label">Nombre de la Empresa</label>
+                            <input type="text" class="form-control" id="autoseo_company_name" name="autoseo_company_name">
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <label for="autoseo_address_line1" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="autoseo_address_line1" name="autoseo_address_line1" placeholder="Calle y número">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="autoseo_locality" class="form-label">Ciudad</label>
+                            <input type="text" class="form-control" id="autoseo_locality" name="autoseo_locality">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="autoseo_admin_district" class="form-label">Provincia/Región</label>
+                            <input type="text" class="form-control" id="autoseo_admin_district" name="autoseo_admin_district">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="autoseo_postal_code" class="form-label">Código Postal</label>
+                            <input type="text" class="form-control" id="autoseo_postal_code" name="autoseo_postal_code">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="autoseo_country_region" class="form-label">País</label>
+                            <input type="text" class="form-control" id="autoseo_country_region" name="autoseo_country_region" placeholder="ES" maxlength="2">
+                        </div>
+
+                        <!-- Contexto Empresarial -->
+                        <div class="col-12"><h6 class="border-bottom pb-2 mt-3">Contexto Empresarial</h6></div>
+                        
+                        <div class="col-md-12">
+                            <label for="autoseo_company_context" class="form-label">Descripción de la Empresa</label>
+                            <textarea class="form-control" id="autoseo_company_context" name="autoseo_company_context" rows="4" 
+                                maxlength="2000" placeholder="Describe brevemente qué hace la empresa, a qué se dedica, qué servicios o productos ofrece..."></textarea>
+                            <small class="form-text text-muted">
+                                <span id="autoseo_context_counter">0 / 2000 caracteres</span>
+                            </small>
+                        </div>
+
+                        <!-- Configuración Periódica SEO -->
+                        <div class="col-12"><h6 class="border-bottom pb-2 mt-3">📅 Configuración Periódica SEO</h6></div>
+                        
+                        <div class="col-md-6">
+                            <label for="autoseo_seo_frequency" class="form-label">Frecuencia</label>
+                            <select class="form-control" id="autoseo_seo_frequency" name="autoseo_seo_frequency">
+                                <option value="manual" selected>Manual</option>
+                                <option value="weekly">Semanal</option>
+                                <option value="biweekly">Quincenal</option>
+                                <option value="monthly">Mensual</option>
+                                <option value="bimonthly">Bimensual</option>
+                                <option value="quarterly">Trimestral</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="autoseo_seo_time" class="form-label">Hora</label>
+                            <input type="time" class="form-control" id="autoseo_seo_time" name="autoseo_seo_time" value="09:00">
+                        </div>
+                        
+                        <div class="col-md-6" id="autoseo_day_of_month_div" style="display: none;">
+                            <label for="autoseo_seo_day_of_month" class="form-label">Día del Mes</label>
+                            <select class="form-control" id="autoseo_seo_day_of_month" name="autoseo_seo_day_of_month">
+                                <option value="1">1</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="15" selected>15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="last">Último día</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6" id="autoseo_day_of_week_div" style="display: none;">
+                            <label for="autoseo_seo_day_of_week" class="form-label">Día de la Semana</label>
+                            <select class="form-control" id="autoseo_seo_day_of_week" name="autoseo_seo_day_of_week">
+                                <option value="monday">Lunes</option>
+                                <option value="tuesday">Martes</option>
+                                <option value="wednesday">Miércoles</option>
+                                <option value="thursday">Jueves</option>
+                                <option value="friday" selected>Viernes</option>
+                                <option value="saturday">Sábado</option>
+                                <option value="sunday">Domingo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="confirmAutoseo">
+                        <i class="fas fa-check"></i> Confirmar y Continuar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
 @endsection
@@ -224,7 +387,116 @@
     }
 
 
+    let autoseoModalShown = false;
+    let formCanSubmit = false;
+
     $(document).ready(function() {
+        // Contador de caracteres para contexto empresarial
+        $('#autoseo_company_context').on('input keyup', function() {
+            const length = $(this).val().length;
+            $('#autoseo_context_counter').text(length + ' / 2000 caracteres');
+        });
+
+        // Control de campos de frecuencia SEO
+        $('#autoseo_seo_frequency').on('change', function() {
+            const frequency = $(this).val();
+            
+            if (frequency === 'manual') {
+                $('#autoseo_day_of_month_div').hide();
+                $('#autoseo_day_of_week_div').hide();
+            } else if (frequency === 'weekly' || frequency === 'biweekly') {
+                $('#autoseo_day_of_month_div').hide();
+                $('#autoseo_day_of_week_div').show();
+            } else { // monthly, bimonthly, quarterly
+                $('#autoseo_day_of_month_div').show();
+                $('#autoseo_day_of_week_div').hide();
+            }
+        });
+
+        // Interceptar envío del formulario
+        $('form').on('submit', function(e) {
+            const serviceId = $('select[name="service_id"]').val();
+            
+            // Si es servicio 485 o 471 y aún no se mostró el modal
+            if (serviceId == 485 || serviceId == 471 || serviceId == 486 && !formCanSubmit) {
+                e.preventDefault();
+                
+                // Mostrar modal solo una vez
+                if (!autoseoModalShown) {
+                    const autoseoModal = new bootstrap.Modal(document.getElementById('autoseoModal'));
+                    autoseoModal.show();
+                    autoseoModalShown = true;
+                }
+                
+                return false;
+            }
+        });
+
+        // Confirmar modal AutoSEO
+        $('#confirmAutoseo').click(function() {
+            // Validar campos requeridos
+            const requiredFields = [
+                'autoseo_client_name',
+                'autoseo_client_email',
+                'autoseo_url',
+                'autoseo_username',
+                'autoseo_password'
+            ];
+            
+            let allValid = true;
+            requiredFields.forEach(field => {
+                const input = $('#' + field);
+                if (!input.val() || input.val().trim() === '') {
+                    input.addClass('is-invalid');
+                    allValid = false;
+                } else {
+                    input.removeClass('is-invalid');
+                }
+            });
+            
+            if (!allValid) {
+                alert('Por favor, completa todos los campos obligatorios marcados con *');
+                return;
+            }
+            
+            // Agregar campos al formulario principal
+            const form = $('form');
+            requiredFields.forEach(field => {
+                const value = $('#' + field).val();
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: field,
+                    value: value
+                }).appendTo(form);
+            });
+            
+            // Campos opcionales
+            const optionalFields = [
+                'autoseo_company_name', 'autoseo_address_line1', 'autoseo_locality',
+                'autoseo_admin_district', 'autoseo_postal_code', 'autoseo_country_region',
+                'autoseo_company_context', 'autoseo_seo_frequency', 'autoseo_seo_day_of_month',
+                'autoseo_seo_day_of_week', 'autoseo_seo_time'
+            ];
+            
+            optionalFields.forEach(field => {
+                const value = $('#' + field).val();
+                if (value) {
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: field,
+                        value: value
+                    }).appendTo(form);
+                }
+            });
+            
+            // Cerrar modal y permitir envío
+            bootstrap.Modal.getInstance(document.getElementById('autoseoModal')).hide();
+            formCanSubmit = true;
+            
+            // Enviar formulario
+            form.submit();
+        });
+
         // Boton añadir campaña
         $('#newCampania').click(function(){
             var clientId = $('select[name="client_id"]').val();
