@@ -226,6 +226,7 @@
                             <a target="_blank" href="{{ route('kitDigital.indexWhatsapp') }}" class="btn btn-outline-secondary"> Whatsapp Enviados</a>
                             <a target="_blank" href="{{ route('dominios_iban') }}" class="btn btn-outline-secondary"> Dominios</a>
                             <a target="_blank" href="{{ route('suite') }}" class="btn btn-outline-secondary"> Suite IA</a>
+                            <a target="_blank" href="{{ route('autoseo.index') }}" class="btn btn-outline-primary"> <i class="fas fa-robot"></i> AutoSEO</a>
                         </div>
                     </div>
                 </div>

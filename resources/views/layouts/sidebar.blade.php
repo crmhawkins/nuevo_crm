@@ -871,6 +871,15 @@
                         </ul>
                     </li>
                 @endif
+                
+                {{-- AutoSEO - Accesible para todos --}}
+                <li class="sidebar-title">Herramientas IA</li>
+                <li class="sidebar-item {{ request()->routeIs('autoseo.*') ? 'active' : '' }}">
+                    <a href="{{ route('autoseo.index') }}" class='sidebar-link'>
+                        <i class="fas fa-robot fs-5"></i>
+                        <span>AutoSEO</span>
+                    </a>
+                </li>
             </ul>
         </div>
         {{-- <button class="sidebar-toggler btn x"><i data-feather="x fs-5"></i></button> --}}

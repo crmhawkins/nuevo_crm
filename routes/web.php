@@ -839,14 +839,14 @@ Route::prefix('tesoreria')->group(function () {
     Route::get('/asociar-gasto', [TesoreriaController::class, 'asociarGasto'])->name('tesoreria.asociar-gasto');
 });
 
-Route::middleware(['access.level:6'])->group(function () {
+// AutoSEO - Accesible para todos los niveles de acceso
+Route::middleware(['auth'])->group(function () {
     Route::prefix('autoseo')->group(function () {
         Route::get('/', [AutoseoController::class, 'index'])->name('autoseo.index');
         Route::put('/update', [AutoseoController::class, 'update'])->name('autoseo.update');
         Route::post('/create', [AutoseoController::class, 'store'])->name('autoseo.store');
         Route::post('/delete', [AutoseoController::class, 'delete'])->name('autoseo.delete');
         Route::post('/create-puntual-seo', [AutoseoController::class, 'createPuntualSeo'])->name('autoseo.createPuntualSeo');
-
     });
 });
 Route::get('/autoseo/reports', [AutoseoReports::class, 'show'])->name('autoseo.reports.show');

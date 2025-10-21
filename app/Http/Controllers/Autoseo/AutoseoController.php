@@ -117,6 +117,10 @@ class AutoseoController extends Controller
 
     public function update(Request $request)
     {
+        Log::info("🚀 UPDATE AUTOSEO - Request recibido", [
+            'todos_los_datos' => $request->all()
+        ]);
+        
         $validated = $request->validate([
             'id' => 'required|exists:autoseo,id',
             'client_name' => 'required|string|max:255',
@@ -131,8 +135,8 @@ class AutoseoController extends Controller
             'Locality' => 'nullable|string|max:255',
             'AdminDistrict' => 'nullable|string|max:255',
             'PostalCode' => 'nullable|string|max:20',
-            'CountryRegion' => 'nullable|string|size:2',
-            'company_context' => 'required|string|min:100|max:2000',
+            'CountryRegion' => 'nullable|string|max:2',
+            'company_context' => 'nullable|string|min:20|max:2000',
             // Campos de configuración periódica
             'seo_frequency' => 'nullable|in:manual,weekly,biweekly,monthly,bimonthly,quarterly',
             'seo_day_of_month' => 'nullable|in:1,5,10,15,20,25,last',
@@ -148,15 +152,29 @@ class AutoseoController extends Controller
         $client->fill($validated);
         $client->save();
 
+        Log::info("🔄 Actualizando cliente AutoSEO", [
+            'client_id' => $client->id,
+            'seo_frequency' => $validated['seo_frequency'] ?? 'no-enviado',
+            'seo_day_of_month' => $validated['seo_day_of_month'] ?? 'no-enviado',
+            'seo_day_of_week' => $validated['seo_day_of_week'] ?? 'no-enviado',
+            'seo_time' => $validated['seo_time'] ?? 'no-enviado',
+        ]);
+
         // Reprogramar SEO si se cambió la configuración periódica
         if (isset($validated['seo_frequency']) && $validated['seo_frequency'] !== 'manual') {
+            Log::info("🗓️ Creando programaciones para frecuencia: {$validated['seo_frequency']}");
+            
             // Eliminar programaciones existentes pendientes
-            SeoProgramacion::where('autoseo_id', $client->id)
+            $deleted = SeoProgramacion::where('autoseo_id', $client->id)
                 ->where('estado', 'pendiente')
                 ->delete();
             
+            Log::info("🗑️ Programaciones pendientes eliminadas: {$deleted}");
+            
             // Crear nuevas programaciones
             $this->createSeoSchedule($client, $validated);
+        } else {
+            Log::info("⏸️ No se crearán programaciones (frecuencia: " . ($validated['seo_frequency'] ?? 'no-definida') . ")");
         }
 
         // Procesar el contexto empresarial con IA en segundo plano si existe y ha cambiado
@@ -215,14 +233,17 @@ class AutoseoController extends Controller
         $dates = $this->calculateScheduleDates($frequency, $config);
         
         foreach ($dates as $date) {
+            // Combinar fecha con hora configurada
+            $fechaCompleta = $date . ' ' . $time;
+            
             SeoProgramacion::create([
                 'autoseo_id' => $client->id,
-                'fecha_programada' => $date,
+                'fecha_programada' => $fechaCompleta,
                 'estado' => 'pendiente',
             ]);
         }
         
-        Log::info("📅 Programaciones SEO creadas para cliente ID {$client->id}: " . count($dates) . " fechas");
+        Log::info("📅 Programaciones SEO creadas para cliente ID {$client->id}: " . count($dates) . " fechas con hora {$time}");
     }
 
     /**
@@ -256,31 +277,31 @@ class AutoseoController extends Controller
                 
             case 'monthly':
                 $dayOfMonth = $config['seo_day_of_month'] ?? '15';
-                $startDate = $this->getNextMonthlyDate($now, $dayOfMonth);
                 
                 // Crear programaciones para los próximos 12 meses
                 for ($i = 0; $i < 12; $i++) {
-                    $dates[] = $startDate->copy()->addMonths($i)->format('Y-m-d');
+                    $date = $this->getMonthlyDateAtOffset($now, $dayOfMonth, $i);
+                    $dates[] = $date->format('Y-m-d');
                 }
                 break;
                 
             case 'bimonthly':
                 $dayOfMonth = $config['seo_day_of_month'] ?? '15';
-                $startDate = $this->getNextMonthlyDate($now, $dayOfMonth);
                 
-                // Crear programaciones para los próximos 12 meses
+                // Crear programaciones para los próximos 12 meses (6 bimestrales)
                 for ($i = 0; $i < 6; $i++) {
-                    $dates[] = $startDate->copy()->addMonths($i * 2)->format('Y-m-d');
+                    $date = $this->getMonthlyDateAtOffset($now, $dayOfMonth, $i * 2);
+                    $dates[] = $date->format('Y-m-d');
                 }
                 break;
                 
             case 'quarterly':
                 $dayOfMonth = $config['seo_day_of_month'] ?? '15';
-                $startDate = $this->getNextMonthlyDate($now, $dayOfMonth);
                 
-                // Crear programaciones para los próximos 12 meses
+                // Crear programaciones para los próximos 12 meses (4 trimestrales)
                 for ($i = 0; $i < 4; $i++) {
-                    $dates[] = $startDate->copy()->addMonths($i * 3)->format('Y-m-d');
+                    $date = $this->getMonthlyDateAtOffset($now, $dayOfMonth, $i * 3);
+                    $dates[] = $date->format('Y-m-d');
                 }
                 break;
         }
@@ -299,18 +320,60 @@ class AutoseoController extends Controller
         }
         
         $day = (int) $dayOfMonth;
-        $nextDate = $now->copy()->day($day);
+        $nextDate = $now->copy();
         
-        // Si ya pasó este mes, ir al próximo mes
-        if ($nextDate->isPast()) {
-            $nextDate->addMonth();
-        }
-        
-        // Ajustar si el día no existe en el mes (ej: 31 en febrero)
-        if (!$nextDate->isValid()) {
+        // Intentar establecer el día del mes
+        try {
+            $nextDate->day($day);
+            
+            // Si ya pasó este mes, ir al próximo mes
+            if ($nextDate->isPast()) {
+                $nextDate->addMonth()->day($day);
+            }
+        } catch (\Exception $e) {
+            // Si el día no existe en el mes (ej: 31 en febrero), usar el último día del mes
             $nextDate->endOfMonth();
         }
         
         return $nextDate;
+    }
+
+    /**
+     * Calcula una fecha mensual con offset de meses
+     * Maneja correctamente los días que no existen en ciertos meses
+     */
+    private function getMonthlyDateAtOffset($now, $dayOfMonth, $monthOffset)
+    {
+        $targetDate = $now->copy()->addMonths($monthOffset);
+        
+        if ($dayOfMonth === 'last') {
+            return $targetDate->endOfMonth();
+        }
+        
+        $day = (int) $dayOfMonth;
+        $daysInMonth = $targetDate->daysInMonth;
+        
+        // Si el día solicitado es mayor que los días del mes, usar el último día
+        if ($day > $daysInMonth) {
+            return $targetDate->endOfMonth();
+        }
+        
+        // Establecer el día
+        $targetDate->day($day);
+        
+        // Si la primera fecha (offset 0) ya pasó, empezar desde el mes siguiente
+        if ($monthOffset === 0 && $targetDate->isPast()) {
+            $targetDate->addMonth();
+            
+            // Volver a verificar si el día existe en el nuevo mes
+            $daysInMonth = $targetDate->daysInMonth;
+            if ($day > $daysInMonth) {
+                return $targetDate->endOfMonth();
+            }
+            
+            $targetDate->day($day);
+        }
+        
+        return $targetDate;
     }
 }

@@ -456,7 +456,7 @@
                                                     aria-labelledby="editClientModalLabel{{ $client->id }}"
                                                     aria-hidden="true">
                                                     <div class="modal-dialog modal-lg">
-                                                        <form action="{{ route('autoseo.update', $client->id) }}"
+                                                        <form action="{{ route('autoseo.update') }}"
                                                             method="POST" enctype="multipart/form-data"
                                                             class="modal-content">
                                                             @csrf
