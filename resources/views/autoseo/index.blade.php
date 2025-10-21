@@ -6,6 +6,273 @@
     <link rel="stylesheet" href="{{ asset('assets/vendors/choices.js/choices.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}" />
     <style>
+        /* === LAYOUT PRINCIPAL === */
+        .css-96uzu9 {
+            z-index: -1 !important;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .autoseo-wrapper {
+            padding: 2rem 0;
+        }
+
+        .autoseo-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            color: white;
+        }
+
+        .autoseo-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .autoseo-header .subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* === TARJETAS DE CLIENTES === */
+        .client-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .client-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border-color: #667eea;
+        }
+
+        .client-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .client-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .client-info {
+            flex: 1;
+        }
+
+        .client-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .client-url {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin: 0.25rem 0 0 0;
+        }
+
+        .client-url a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .client-url a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .client-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .meta-item i {
+            color: #667eea;
+        }
+
+        /* === ESTADOS SEO === */
+        .seo-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .seo-status-pendiente {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border: 2px solid #fbbf24;
+        }
+
+        .seo-status-procesando {
+            background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+            color: #1e40af;
+            border: 2px solid #3b82f6;
+            animation: pulse-processing 2s ease-in-out infinite;
+        }
+
+        .seo-status-completado {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+
+        .seo-status-error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border: 2px solid #ef4444;
+        }
+
+        /* === ALERTAS === */
+        .alert-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            animation: pulse-alert 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-alert {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+            }
+        }
+
+        .card-warning {
+            border-left: 4px solid #fbbf24 !important;
+            background: linear-gradient(to right, #fef3c7 0%, white 10%);
+        }
+
+        .card-danger {
+            border-left: 4px solid #ef4444 !important;
+            background: linear-gradient(to right, #fee2e2 0%, white 10%);
+        }
+
+        .card-info {
+            border-left: 4px solid #3b82f6 !important;
+            background: linear-gradient(to right, #dbeafe 0%, white 10%);
+        }
+
+        /* === BOTONES === */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-modern {
+            border-radius: 10px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-modern i {
+            margin-right: 0.5rem;
+        }
+
+        /* === ANIMACIONES === */
+        @keyframes pulse-processing {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 16px rgba(59, 130, 246, 0.6);
+            }
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .icon-bounce {
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* === MODALES === */
         .modal-backdrop {
             z-index: 1040 !important;
         }
@@ -19,7 +286,10 @@
             position: relative;
         }
 
-        /* Estilos para el modal de visualización mejorado */
+        .modal-xl {
+            max-width: 1200px;
+        }
+
         .icon-box {
             width: 50px;
             height: 50px;
@@ -27,11 +297,7 @@
             align-items: center;
             justify-content: center;
         }
-        
-        .modal-xl {
-            max-width: 1200px;
-        }
-        
+
         code {
             font-size: 0.9rem;
             padding: 0.2rem 0.5rem;
@@ -39,125 +305,347 @@
             border-radius: 0.25rem;
         }
 
-        /* Estilos para estados de SEO */
-        .seo-status-badge {
-            display: inline-flex;
+        /* === ESTADÍSTICAS === */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.purple {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-icon.green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .stat-icon.yellow {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+
+        .stat-icon.red {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .stat-info h3 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .stat-info p {
+            margin: 0;
+            color: #6b7280;
             font-size: 0.875rem;
         }
 
-        .seo-status-pendiente {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            color: #92400e;
-            border: 1px solid #fbbf24;
+        /* === BUSCADOR === */
+        .search-container {
+            position: relative;
         }
 
-        .seo-status-procesando {
-            background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
-            color: #1e40af;
-            border: 1px solid #3b82f6;
-            animation: pulse-processing 2s ease-in-out infinite;
+        .search-box {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
         }
 
-        .seo-status-completado {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            color: #065f46;
-            border: 1px solid #10b981;
+        .search-box:focus-within {
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
         }
 
-        .seo-status-error {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #991b1b;
-            border: 1px solid #ef4444;
+        .search-icon {
+            color: #667eea;
+            font-size: 1.25rem;
         }
 
-        /* Animación para el estado procesando */
-        @keyframes pulse-processing {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            color: #1f2937;
+            background: transparent;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-results-count {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 8px;
+        }
+
+        .client-card.hidden {
+            display: none;
+        }
+
+        .no-results {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .no-results.show {
+            display: block;
+        }
+
+        .no-results i {
+            font-size: 4rem;
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+
+        .no-results h3 {
+            color: #6b7280;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-results p {
+            color: #9ca3af;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .autoseo-header h1 {
+                font-size: 1.75rem;
             }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+
+            .client-card-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
-        }
 
-        /* Spinner animado */
-        .spinner {
-            animation: spin 1s linear infinite;
-        }
+            .action-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
 
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+            .search-box {
+                padding: 1rem;
+            }
 
-        /* Iconos animados */
-        .icon-bounce {
-            animation: bounce 1s ease-in-out infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            .search-results-count {
+                display: none;
+            }
         }
     </style>
 @endsection
 
 @section('content')
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-12">
-                <div class="card bg-white shadow position-relative">
-                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                        <div class="fw-bold">Clientes</div>
+    <div class="container autoseo-wrapper">
+        <div class="row">
+            <div class="col-12">
+                <!-- Header Principal -->
+                <div class="autoseo-header">
+                    <h1>
+                        <i class="fas fa-robot"></i>
+                        AutoSEO
+                    </h1>
+                    <p class="subtitle mb-3">Gestión automática de SEO y contenido para WordPress</p>
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-light btn-modern" data-bs-toggle="modal"
                                 data-bs-target="#createPuntualSeoModal">
                                 <i class="fas fa-bolt"></i> SEO Manual
                             </button>
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-warning btn-modern" data-bs-toggle="modal"
                                 data-bs-target="#createClientModal">
-                                <i class="fas fa-plus"></i> Crear cliente
+                            <i class="fas fa-plus"></i> Nuevo Cliente
                             </button>
                         </div>
                     </div>
 
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Cliente</th>
-                                        <th>Email</th>
-                                        <th>URL</th>
-                                        <th>SEO Hoy</th>
-                                        <th>Próximo SEO</th>
-                                        <th>Creado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                <!-- Estadísticas -->
+                @php
+                    $totalClients = $clients->count();
+                    $seoHoy = $clients->filter(fn($c) => $c->seo_hoy)->count();
+                    $completados = $clients->filter(fn($c) => $c->seo_hoy && $c->seo_hoy->estado === 'completado')->count();
+                    $pendientes = $clients->filter(fn($c) => $c->seo_hoy && $c->seo_hoy->estado === 'pendiente')->count();
+                @endphp
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ $totalClients }}</h3>
+                            <p>Clientes Totales</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ $completados }}</h3>
+                            <p>SEOs Completados Hoy</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon yellow">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ $pendientes }}</h3>
+                            <p>SEOs Pendientes</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ $seoHoy }}</h3>
+                            <p>Programados Hoy</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buscador -->
+                <div class="search-container mb-4">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" 
+                               id="clientSearch" 
+                               class="search-input" 
+                               placeholder="Buscar clientes por nombre, email, URL..."
+                               autocomplete="off">
+                        <span class="search-results-count" id="searchResultsCount"></span>
+                    </div>
+                </div>
+
+                <!-- Mensaje sin resultados -->
+                <div class="no-results" id="noResults">
+                    <i class="fas fa-search"></i>
+                    <h3>No se encontraron resultados</h3>
+                    <p>Intenta con otros términos de búsqueda</p>
+                </div>
+
+                <!-- Lista de Clientes -->
+                <div id="clientsList">
                                     @foreach ($clients as $client)
-                                        <tr data-client-id="{{ $client->id }}" class="@if($client->alert_info['is_overdue']) table-danger @elseif($client->alert_info['is_expiring_soon']) table-warning @elseif($client->alert_info['is_expiring_in_one_month']) table-info @endif">
-                                            <td>
+                    <div class="client-card @if($client->alert_info['is_overdue']) card-danger @elseif($client->alert_info['is_expiring_soon']) card-warning @elseif($client->alert_info['is_expiring_in_one_month']) card-info @endif" 
+                         data-client-id="{{ $client->id }}"
+                         data-search-text="{{ strtolower($client->client_name . ' ' . $client->client_email . ' ' . $client->url) }}">
+                        
+                        <div class="client-card-header">
+                            <div class="d-flex align-items-center flex-1">
+                                <div class="client-avatar">
+                                    {{ strtoupper(substr($client->client_name, 0, 2)) }}
+                                </div>
+                                <div class="client-info">
+                                    <h2 class="client-name">
                                                 {{ $client->client_name }}
                                                 @if($client->alert_info['is_overdue'])
-                                                    <span class="badge bg-danger ms-1">⚠️ Vencido</span>
+                                            <span class="badge bg-danger">⚠️ Vencido</span>
                                                 @elseif($client->alert_info['is_expiring_soon'])
-                                                    <span class="badge bg-warning ms-1">⏰ Pronto</span>
+                                            <span class="badge bg-warning">⏰ Pronto</span>
                                                 @elseif($client->alert_info['is_expiring_in_one_month'])
-                                                    <span class="badge bg-info ms-1">📅 Expira en 1 mes</span>
+                                            <span class="badge bg-info">📅 Expira</span>
                                                 @endif
-                                            </td>
-                                            <td>{{ $client->client_email }}</td>
-                                            <td>{{ $client->url }}</td>
-                                            <td>
+                                    </h2>
+                                    <p class="client-url">
+                                        <a href="{{ $client->url }}" target="_blank">
+                                            <i class="fas fa-globe"></i> {{ $client->url }}
+                                        </a>
+                                    </p>
+                                    <p class="client-url mb-0">
+                                        <i class="fas fa-envelope"></i> {{ $client->client_email }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button type="button" class="btn btn-info btn-sm btn-modern" data-bs-toggle="modal"
+                                    data-bs-target="#testClientModal{{ $client->id }}">
+                                    <i class="fas fa-vial"></i> Test
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm btn-modern" data-bs-toggle="modal"
+                                    data-bs-target="#editClientModal{{ $client->id }}">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm btn-modern" data-bs-toggle="modal"
+                                    data-bs-target="#clientModal{{ $client->id }}">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
+                                <form action="{{ route('autoseo.delete') }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <input type="hidden" name="id" value="{{ $client->id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm btn-modern"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?')">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Meta información -->
+                        <div class="client-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar-check"></i>
+                                <span><strong>Creado:</strong> {{ $client->created_at->format('d/m/Y') }}</span>
+                            </div>
+                            @if($client->alert_info['next_date'])
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>
+                                        <strong>Próximo SEO:</strong> 
+                                        {{ $client->alert_info['next_date']->format('d/m/Y') }}
+                                        @if($client->alert_info['days_until'] < 0)
+                                            (Hace {{ abs($client->alert_info['days_until']) }} días)
+                                        @elseif($client->alert_info['days_until'] == 0)
+                                            (Hoy)
+                                        @else
+                                            (En {{ $client->alert_info['days_until'] }} días)
+                                        @endif
+                                    </span>
+                                </div>
+                            @endif
+                            @if($client->alert_info['total_pending'] > 0)
+                                <div class="meta-item">
+                                    <i class="fas fa-tasks"></i>
+                                    <span><strong>Programaciones:</strong> {{ $client->alert_info['total_pending'] }}</span>
+                                </div>
+                            @endif
                                                 @if($client->seo_hoy)
                                                     @php
                                                         $estado = $client->seo_hoy->estado;
@@ -176,45 +664,17 @@
                                                     @endphp
                                                     <div class="seo-status-badge seo-status-{{ $estado }}">
                                                         <i class="fas {{ $iconos[$estado] ?? 'fa-question' }} @if($estado === 'procesando') spinner @endif"></i>
-                                                        <span>{{ $textos[$estado] ?? 'Desconocido' }}</span>
+                                    <span><strong>Hoy:</strong> {{ $textos[$estado] ?? 'Desconocido' }}</span>
                                                     </div>
                                                 @else
-                                                    <span class="text-muted small">
-                                                        <i class="fas fa-minus-circle"></i> Sin programación hoy
+                                <span class="text-muted">
+                                    <i class="fas fa-minus-circle"></i> Sin SEO programado hoy
                                                     </span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if($client->alert_info['next_date'])
-                                                    <div class="d-flex flex-column">
-                                                        <span class="fw-bold">{{ $client->alert_info['next_date']->format('d/m/Y') }}</span>
-                                                        <small class="text-muted">
-                                                            @if($client->alert_info['days_until'] < 0)
-                                                                Hace {{ abs($client->alert_info['days_until']) }} días
-                                                            @elseif($client->alert_info['days_until'] == 0)
-                                                                Hoy
-                                                            @else
-                                                                En {{ $client->alert_info['days_until'] }} días
-                                                            @endif
-                                                        </small>
-                                                        @if($client->alert_info['total_pending'] > 1)
-                                                            <small class="text-info">{{ $client->alert_info['total_pending'] }} programaciones</small>
-                                                        @endif
-                                                        @if($client->alert_info['is_expiring_in_one_month'])
-                                                            <small class="text-warning">⚠️ Solo {{ $client->alert_info['months_until_expiration'] }} mes(es) restante(s)</small>
                                                         @endif
                                                     </div>
-                                                @else
-                                                    <span class="text-muted">Sin programar</span>
-                                                @endif
-                                            </td>
-                                            <td>{{ $client->created_at->format('d/m/Y') }}</td>
-                                            <td>
-                                                <!-- Botón Ver -->
-                                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                                    data-bs-target="#clientModal{{ $client->id }}">
-                                                    <i class="fas fa-eye"></i> Ver
-                                                </button>
+                    </div>
+                   
+                    <!-- Modales -->
 
                                                 <!-- Modal Ver Cliente - Versión Mejorada -->
                                                 <div class="modal fade" id="clientModal{{ $client->id }}" tabindex="-1"
@@ -445,16 +905,6 @@
                                                     </div>
                                                 </div>
 
-                                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                                    data-bs-target="#editClientModal{{ $client->id }}">
-                                                    <i class="fas fa-edit"></i> Editar
-                                                </button>
-
-                                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
-                                                    data-bs-target="#testClientModal{{ $client->id }}">
-                                                    <i class="fas fa-vial"></i> Test
-                                                </button>
-
                                                 <!-- Modal Test Cliente -->
                                                 <div class="modal fade" id="testClientModal{{ $client->id }}"
                                                     tabindex="-1"
@@ -576,7 +1026,7 @@
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                                                     <i class="fas fa-times"></i> Cerrar
-                                                                </button>
+                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -801,22 +1251,7 @@
                                                         </form>
                                                     </div>
                                                 </div>
-
-                                                <form action="{{ route('autoseo.delete') }}" method="POST"
-                                                    style="display: inline;">
-                                                    @csrf
-                                                    <input type="hidden" name="id" value="{{ $client->id }}">
-                                                    <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?')">
-                                                        <i class="fas fa-trash"></i> Eliminar
-                                                    </button>
-                                                </form>
-                                        </tr>
                                     @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1236,6 +1671,55 @@
         document.addEventListener('DOMContentLoaded', function() {
             actualizarEstadosSeo();
         });
+
+        // ===== BUSCADOR DE CLIENTES =====
+        const searchInput = document.getElementById('clientSearch');
+        const clientCards = document.querySelectorAll('.client-card');
+        const noResultsMsg = document.getElementById('noResults');
+        const resultsCount = document.getElementById('searchResultsCount');
+        const totalClients = clientCards.length;
+
+        function filterClients() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            if (searchTerm === '') {
+                // Mostrar todos
+                clientCards.forEach(card => {
+                    card.classList.remove('hidden');
+                });
+                visibleCount = totalClients;
+                resultsCount.textContent = '';
+                noResultsMsg.classList.remove('show');
+            } else {
+                // Filtrar
+                clientCards.forEach(card => {
+                    const searchText = card.getAttribute('data-search-text');
+                    
+                    if (searchText && searchText.includes(searchTerm)) {
+                        card.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+
+                // Actualizar contador
+                resultsCount.textContent = `${visibleCount} de ${totalClients}`;
+
+                // Mostrar mensaje si no hay resultados
+                if (visibleCount === 0) {
+                    noResultsMsg.classList.add('show');
+                } else {
+                    noResultsMsg.classList.remove('show');
+                }
+            }
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', filterClients);
+            searchInput.addEventListener('keyup', filterClients);
+        }
 
         // ===== FUNCIONES DE TEST DE CONEXIÓN =====
         @foreach($clients as $client)
