@@ -135,13 +135,3 @@ Route::post('/buscar-producto', action: [AIController::class, 'buscarProducto'])
         Route::post('/enviar-presupuesto-pdf', [\App\Http\Controllers\Api\ElevenLabsController::class, 'enviarPresupuestoPDF']);
     });
 
-// API de Monitoreo de Conversaciones Eleven Labs
-Route::prefix('elevenlabs')->middleware('auth:sanctum')->group(function () {
-    Route::get('/stats/overview', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'statsOverview']);
-    Route::get('/stats/categories', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'statsCategories']);
-    Route::get('/stats/timeline', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'statsTimeline']);
-    Route::get('/conversations', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'index']);
-    Route::get('/conversations/{id}', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'show']);
-    Route::post('/sync', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'sync']);
-    Route::post('/conversations/{id}/process', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'process']);
-});
