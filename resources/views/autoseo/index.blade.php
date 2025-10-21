@@ -484,6 +484,7 @@
                                                                             </div>
                                                                             <i class="fas fa-circle text-secondary test-icon me-2" style="display:none;"></i>
                                                                             <strong>1. Verificando credenciales WordPress (username:password)</strong>
+                                                                            <small class="text-muted ms-2">(Opcional - deprecado por WordPress)</small>
                                                                         </div>
                                                                         <div class="test-result ms-4 mt-1 text-muted"></div>
                                                                     </div>
@@ -532,6 +533,7 @@
                                                                             </div>
                                                                             <i class="fas fa-circle text-secondary test-icon me-2" style="display:none;"></i>
                                                                             <strong>5. Endpoint: /wp-json/custom/v1/update-power-shortcode/</strong>
+                                                                            <small class="text-muted ms-2">(Requiere código en functions.php)</small>
                                                                         </div>
                                                                         <div class="test-result ms-4 mt-1 text-muted"></div>
                                                                     </div>
@@ -1295,10 +1297,16 @@
                 let message = '';
                 
                 switch(stepIndex) {
-                    case 0: // Credenciales normales
+                    case 0: // Credenciales normales (opcional, puede fallar)
                         const test1 = await testWordPressAuth(url, username, password);
-                        success = test1.success;
-                        message = test1.message;
+                        // 401 es aceptable para credenciales normales (WordPress deprecó esto)
+                        if (!test1.success && test1.message.includes('401')) {
+                            success = true;
+                            message = 'No funciona (WordPress deprecó este método) - Usar Application Password';
+                        } else {
+                            success = test1.success;
+                            message = test1.message;
+                        }
                         break;
                         
                     case 1: // Credenciales de aplicación
@@ -1321,8 +1329,14 @@
                         
                     case 4: // Actualizar shortcode (solo verificar que el endpoint existe)
                         const test5 = await testEndpoint(url, '/wp-json/custom/v1/update-power-shortcode/', userApp, passwordApp, 'OPTIONS');
-                        success = test5.success;
-                        message = test5.message;
+                        // 404 es aceptable si no está instalado el código custom
+                        if (!test5.success && test5.message.includes('404')) {
+                            success = true;
+                            message = 'Endpoint no instalado (opcional) - Agregar código a functions.php si es necesario';
+                        } else {
+                            success = test5.success;
+                            message = test5.message;
+                        }
                         break;
                         
                     case 5: // Media (solo verificar acceso)
@@ -1347,9 +1361,17 @@
                     result.className = 'test-result ms-4 mt-1 text-success';
                     result.innerHTML = '<i class="fas fa-check"></i> ' + message;
                 } else {
-                    icon.className = 'fas fa-times-circle text-danger test-icon me-2';
-                    result.className = 'test-result ms-4 mt-1 text-danger';
-                    result.innerHTML = '<i class="fas fa-times"></i> ' + message;
+                    // Diferenciar entre errores críticos y advertencias
+                    const isCritical = stepIndex !== 0 && stepIndex !== 4; // Solo críticos si no son paso 0 ni 4
+                    if (isCritical) {
+                        icon.className = 'fas fa-times-circle text-danger test-icon me-2';
+                        result.className = 'test-result ms-4 mt-1 text-danger';
+                        result.innerHTML = '<i class="fas fa-times"></i> ' + message;
+                    } else {
+                        icon.className = 'fas fa-exclamation-triangle text-warning test-icon me-2';
+                        result.className = 'test-result ms-4 mt-1 text-warning';
+                        result.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + message;
+                    }
                 }
                 
                 // Continuar con el siguiente test después de un pequeño delay
@@ -1373,19 +1395,28 @@
         
         function finishTest{{ $client->id }}(clientId) {
             const steps = document.querySelectorAll('#test-progress-' + clientId + ' .test-step');
-            let allSuccess = true;
+            let hasCriticalErrors = false;
+            let hasWarnings = false;
             
             steps.forEach(step => {
                 const icon = step.querySelector('.test-icon');
                 if (icon.classList.contains('text-danger')) {
-                    allSuccess = false;
+                    hasCriticalErrors = true;
+                }
+                if (icon.classList.contains('text-warning')) {
+                    hasWarnings = true;
                 }
             });
             
             document.getElementById('test-summary-' + clientId).style.display = 'block';
             
-            if (allSuccess) {
+            if (!hasCriticalErrors) {
                 document.getElementById('test-success-' + clientId).style.display = 'block';
+                // Si solo hay warnings, agregar nota
+                if (hasWarnings) {
+                    const successAlert = document.getElementById('test-success-' + clientId);
+                    successAlert.innerHTML = '<i class="fas fa-check-circle"></i> <strong>¡WordPress está listo para AutoSEO!</strong><br><small class="text-muted">Nota: Algunos endpoints opcionales no están configurados (no son críticos)</small>';
+                }
             } else {
                 document.getElementById('test-error-' + clientId).style.display = 'block';
             }
