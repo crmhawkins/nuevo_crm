@@ -849,7 +849,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/create-puntual-seo', [AutoseoController::class, 'createPuntualSeo'])->name('autoseo.createPuntualSeo');
     });
 });
-Route::get('/autoseo/reports', [AutoseoReports::class, 'show'])->name('autoseo.reports.show');
+Route::redirect('/autoseo/reports', '/seo/reports');
+Route::get('/seo/reports', [AutoseoReports::class, 'show'])->name('autoseo.reports.show');
 Route::get('/autoseo/reports/{userid}/{id}', [AutoseoReports::class, 'showReport'])->name('autoseo.reports.showReport');
 
 // Generación de informes SEO
