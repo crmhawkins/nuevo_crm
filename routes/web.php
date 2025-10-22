@@ -974,6 +974,8 @@ Route::middleware(['auth'])->prefix('elevenlabs')->name('elevenlabs.')->group(fu
     Route::get('/dashboard', [\App\Http\Controllers\ElevenDashboard::class, 'index'])->name('dashboard');
     Route::get('/conversations', [\App\Http\Controllers\ElevenDashboard::class, 'conversations'])->name('conversations');
     Route::get('/conversations/{id}', [\App\Http\Controllers\ElevenDashboard::class, 'show'])->name('conversation.show');
+    Route::post('/conversations/{id}/mark-attended', [\App\Http\Controllers\ElevenDashboard::class, 'markAsAttended'])->name('conversation.mark-attended');
+    Route::post('/conversations/{id}/unmark-attended', [\App\Http\Controllers\ElevenDashboard::class, 'unmarkAsAttended'])->name('conversation.unmark-attended');
     Route::post('/sync', [\App\Http\Controllers\ElevenDashboard::class, 'sync'])->name('sync');
     Route::post('/conversations/{id}/reprocess', [\App\Http\Controllers\ElevenDashboard::class, 'reprocess'])->name('reprocess');
     Route::get('/stats', [\App\Http\Controllers\ElevenDashboard::class, 'stats'])->name('stats');

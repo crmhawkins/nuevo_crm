@@ -357,5 +357,44 @@ class ElevenDashboard extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    /**
+     * Marcar conversación como atendida
+     */
+    public function markAsAttended(Request $request, $id)
+    {
+        $conversation = ElevenlabsConversation::findOrFail($id);
+        
+        $conversation->attended = true;
+        $conversation->attended_at = now();
+        $conversation->attended_by = auth()->id();
+        $conversation->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Conversación marcada como atendida',
+            'attended' => true,
+            'attended_at' => $conversation->attended_at->format('d/m/Y H:i'),
+        ]);
+    }
+
+    /**
+     * Desmarcar conversación como atendida
+     */
+    public function unmarkAsAttended(Request $request, $id)
+    {
+        $conversation = ElevenlabsConversation::findOrFail($id);
+        
+        $conversation->attended = false;
+        $conversation->attended_at = null;
+        $conversation->attended_by = null;
+        $conversation->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Conversación desmarcada como atendida',
+            'attended' => false,
+        ]);
+    }
 }
 

@@ -185,9 +185,14 @@
                         </thead>
                         <tbody>
                             @forelse($conversations as $conv)
-                            <tr>
+                            <tr class="{{ $conv->attended ? 'table-success' : '' }}" style="{{ $conv->attended ? 'opacity: 0.7; font-weight: 500;' : '' }}">
                                 <td><small>{{ substr($conv->conversation_id, 0, 12) }}...</small></td>
-                                <td>{{ $conv->conversation_date->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    @if($conv->attended)
+                                        <i class="fas fa-check-circle text-success" title="Atendida"></i>
+                                    @endif
+                                    {{ $conv->conversation_date->format('d/m/Y H:i') }}
+                                </td>
                                 <td><small class="text-muted">{{ $conv->agent_name ?? 'N/A' }}</small></td>
                                 <td>{{ $conv->client->name ?? 'N/A' }}</td>
                                 <td>{{ $conv->duration_formatted }}</td>
@@ -258,6 +263,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnAtendido" onclick="toggleAttendedModal()">
+                    <i class="fas fa-check"></i> <span id="btnAtendidoText">Marcar como Atendido</span>
+                </button>
                 <button type="button" class="btn btn-warning" id="btnReprocesarModal" onclick="reprocesarModal()">
                     <i class="fas fa-redo"></i> Reprocesar con IA
                 </button>
@@ -287,6 +295,7 @@ function formatDateWithoutTimezone(dateString) {
 }
 
 let currentConversationId = null;
+let currentConversationAttended = false;
 
 function verConversacion(id) {
     currentConversationId = id;
@@ -309,6 +318,11 @@ function verConversacion(id) {
     .then(r => r.json())
     .then(conv => {
         currentConversationData = conv; // Guardar datos para edición
+        currentConversationAttended = conv.attended || false;
+        
+        // Actualizar botón de atendido
+        updateAttendedButton(currentConversationAttended);
+        
         document.getElementById('conversationContent').innerHTML = `
             <div class="row">
                 <div class="col-md-6">
@@ -596,6 +610,60 @@ function reprocesar(id) {
 function exportar() {
     const params = new URLSearchParams(window.location.search);
     window.location.href = '{{ route("elevenlabs.export") }}?' + params.toString();
+}
+
+// Funciones para marcar como atendido
+function updateAttendedButton(attended) {
+    const btn = document.getElementById('btnAtendido');
+    const text = document.getElementById('btnAtendidoText');
+    
+    if (attended) {
+        btn.className = 'btn btn-outline-success';
+        text.textContent = 'Atendida ✓';
+    } else {
+        btn.className = 'btn btn-success';
+        text.textContent = 'Marcar como Atendido';
+    }
+}
+
+function toggleAttendedModal() {
+    if (!currentConversationId) return;
+    
+    const btn = document.getElementById('btnAtendido');
+    const text = document.getElementById('btnAtendidoText');
+    const wasAttended = currentConversationAttended;
+    
+    btn.disabled = true;
+    text.textContent = wasAttended ? 'Desmarcando...' : 'Marcando...';
+    
+    const url = wasAttended 
+        ? `/elevenlabs/conversations/${currentConversationId}/unmark-attended`
+        : `/elevenlabs/conversations/${currentConversationId}/mark-attended`;
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            currentConversationAttended = data.attended;
+            updateAttendedButton(data.attended);
+            
+            // Recargar la página para actualizar la tabla
+            setTimeout(() => location.reload(), 500);
+        }
+    })
+    .catch(e => {
+        alert('Error: ' + e.message);
+    })
+    .finally(() => {
+        btn.disabled = false;
+    });
 }
 </script>
 @endsection

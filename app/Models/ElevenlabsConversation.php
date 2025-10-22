@@ -30,15 +30,20 @@ class ElevenlabsConversation extends Model
         'metadata',
         'processing_status',
         'processed_at',
+        'attended',
+        'attended_at',
+        'attended_by',
     ];
 
     protected $casts = [
         'conversation_date' => 'datetime',
         'processed_at' => 'datetime',
+        'attended_at' => 'datetime',
         // NO usar datetime para scheduled_call_datetime - evita conversión de timezone
         'metadata' => 'array',
         'confidence_score' => 'decimal:4',
         'duration_seconds' => 'integer',
+        'attended' => 'boolean',
     ];
     
     /**

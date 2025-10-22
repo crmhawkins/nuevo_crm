@@ -121,6 +121,8 @@ class ElevenlabsApiController extends Controller
         $data['status_label'] = $conversation->status_label;
         $data['duration_formatted'] = $conversation->duration_formatted;
         $data['scheduled_call_datetime'] = $conversation->scheduled_call_datetime ? $conversation->scheduled_call_datetime->toIso8601String() : null;
+        $data['attended'] = $conversation->attended;
+        $data['attended_at'] = $conversation->attended_at ? $conversation->attended_at->format('d/m/Y H:i') : null;
         
         return response()->json($data);
     }
