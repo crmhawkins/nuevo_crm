@@ -60,6 +60,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('Whatsapp:GenerarMensajeCampania')->everyTenSeconds();
         $schedule->command('Whatsapp:Enviar')->everyTenMinutes();
         $schedule->command('seo:generate-monthly-reports')->dailyAt('09:00');
+        
+        // Sincronización automática de conversaciones de Eleven Labs cada 10 minutos
+        $schedule->command('elevenlabs:auto-sync')->everyTenMinutes();
 
 
         // $schedule->call(function () {

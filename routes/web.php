@@ -969,4 +969,38 @@ Route::middleware(['auth'])->group(function () {
         });
 });
 
+// Rutas de Eleven Labs - Monitoreo de Llamadas
+Route::middleware(['auth'])->prefix('elevenlabs')->name('elevenlabs.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\ElevenDashboard::class, 'index'])->name('dashboard');
+    Route::get('/conversations', [\App\Http\Controllers\ElevenDashboard::class, 'conversations'])->name('conversations');
+    Route::get('/conversations/{id}', [\App\Http\Controllers\ElevenDashboard::class, 'show'])->name('conversation.show');
+    Route::post('/sync', [\App\Http\Controllers\ElevenDashboard::class, 'sync'])->name('sync');
+    Route::post('/conversations/{id}/reprocess', [\App\Http\Controllers\ElevenDashboard::class, 'reprocess'])->name('reprocess');
+    Route::get('/stats', [\App\Http\Controllers\ElevenDashboard::class, 'stats'])->name('stats');
+    Route::get('/export', [\App\Http\Controllers\ElevenDashboard::class, 'export'])->name('export');
+    
+    // Gestión de Agentes
+    Route::get('/agents', [\App\Http\Controllers\ElevenAgentsController::class, 'index'])->name('agents');
+    Route::post('/agents/{agentId}/description', [\App\Http\Controllers\ElevenAgentsController::class, 'updateDescription'])->name('agents.description');
+    Route::post('/agents/{agentId}/generate-categories', [\App\Http\Controllers\ElevenAgentsController::class, 'generateCategories'])->name('agents.generate');
+    Route::post('/agents/{agentId}/categories', [\App\Http\Controllers\ElevenAgentsController::class, 'saveCategories'])->name('agents.categories');
+});
+
+// API AJAX para Eleven Labs Monitoring (usa autenticación web)
+Route::middleware(['auth'])->prefix('api/elevenlabs-monitoring')->group(function () {
+    Route::get('/stats/overview', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'statsOverview']);
+    Route::get('/stats/categories', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'statsCategories']);
+    Route::get('/conversations', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'index']);
+    Route::get('/conversations/{id}', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'show']);
+    Route::post('/sync', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'sync']);
+    Route::post('/conversations/{id}/process', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'process']);
+    
+    // Agentes
+    Route::get('/agents/{agentId}/categories', [\App\Http\Controllers\ElevenAgentsController::class, 'getCategories']);
+    Route::get('/agents/{agentId}/available-categories', [\App\Http\Controllers\Api\ElevenlabsCategoryController::class, 'getAvailableCategories']);
+    
+    // Actualizar categorías manualmente
+    Route::post('/conversations/{id}/update-categories', [\App\Http\Controllers\Api\ElevenlabsCategoryController::class, 'updateCategories']);
+});
+
 

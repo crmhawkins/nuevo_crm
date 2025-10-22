@@ -135,3 +135,4 @@ Route::post('/buscar-producto', action: [AIController::class, 'buscarProducto'])
         Route::post('/enviar-presupuesto-pdf', [\App\Http\Controllers\Api\ElevenLabsController::class, 'enviarPresupuestoPDF']);
     });
 
+
