@@ -70,7 +70,7 @@
                                     </div>
                                 </div>
                                 <a target="_blank" href="{{ route('elevenlabs.dashboard') }}" class="btn btn-outline-primary mb-2">
-                                    <i class="fas fa-phone-alt"></i> Monitoreo de Llamadas (Eleven Labs)
+                                    <i class="fas fa-phone-alt"></i> Registro de llamadas
                                 </a>
                                 <a href="{{ route('presupuesto.create') }}" class="btn btn-outline-primary mb-2">Nuevo
                                     Presupuesto</a>

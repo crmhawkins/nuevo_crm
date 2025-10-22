@@ -219,7 +219,7 @@
                     <div class="card2 mt-4">
                         <div class="card-body">
                             <a target="_blank" href="{{ route('elevenlabs.dashboard') }}" class="btn btn-outline-primary mb-2">
-                                <i class="fas fa-phone-alt"></i> Monitoreo de Llamadas (Eleven Labs)
+                                <i class="fas fa-phone-alt"></i> Registro de llamadas
                             </a>
                             <a target="_blank" href="{{ route('presupuestos.status') }}" class="btn btn-outline-secondary mb-2">Ver Status Proyectos</a>
                             <a target="_blank" href="{{ route('kitDigital.index') }}" class="btn btn-outline-secondary"> Kit Digital</a>
