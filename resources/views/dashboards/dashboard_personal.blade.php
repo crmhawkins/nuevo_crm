@@ -766,6 +766,9 @@
                                                 href="{{route('holiday.index')}}">Vacaciones</a>
                                                 <a class="btn btn-outline-secondary"
                                                 href="{{route('passwords.index')}}">Contraseñas</a>
+                                                <button class="btn btn-success" onclick="showJustificacionesModal()">
+                                                    <i class="fas fa-file-upload"></i> Justificaciones
+                                                </button>
                                                 @if($user->id == 157)
                                                     <a class="btn btn-outline-secondary"
                                                     href="{{route('suite.index.justificaciones')}}">Suite Justificaciones</a>
@@ -1914,4 +1917,7 @@
             }
 
     </script>
+
+    @include('components.justificaciones.modal')
+    @include('components.justificaciones.script')
 @endsection
