@@ -30,6 +30,12 @@ class AutoSyncElevenlabsConversations extends Command
         Log::info('AutoSync: Iniciando sincronización automática');
 
         try {
+            // PRIMERO: Sincronizar agentes para tener el caché local actualizado
+            $this->info('👥 Sincronizando agentes primero...');
+            $agentsCount = $this->elevenlabsService->syncAgents();
+            $this->info("✅ {$agentsCount} agentes sincronizados en BD local");
+            $this->newLine();
+            
             // Obtener conversaciones de los últimos 15 minutos (margen de seguridad)
             $fifteenMinutesAgo = now()->subMinutes(15)->timestamp;
             
@@ -203,10 +209,27 @@ class AutoSyncElevenlabsConversations extends Command
                 }
             }
 
+            // Obtener nombre del agente desde la tabla local
+            $agentId = $data['agent_id'] ?? null;
+            $agentName = null;
+            if ($agentId) {
+                $agentName = ElevenlabsAgent::getNameByAgentId($agentId);
+                if ($agentName) {
+                    Log::debug('AutoSync: Agente encontrado en BD local', [
+                        'agent_id' => $agentId,
+                        'agent_name' => $agentName
+                    ]);
+                } else {
+                    Log::warning('AutoSync: Agente no encontrado en BD local', [
+                        'agent_id' => $agentId
+                    ]);
+                }
+            }
+
             $conversation = ElevenlabsConversation::create([
                 'conversation_id' => $data['conversation_id'],
-                'agent_id' => $data['agent_id'],
-                'agent_name' => $data['agent_name'] ?? null, // Guardar nombre del agente
+                'agent_id' => $agentId,
+                'agent_name' => $agentName, // Guardar nombre del agente desde BD local
                 'client_id' => $clientId,
                 'conversation_date' => isset($data['metadata']['start_time_unix_secs']) 
                     ? \Carbon\Carbon::createFromTimestamp($data['metadata']['start_time_unix_secs'])

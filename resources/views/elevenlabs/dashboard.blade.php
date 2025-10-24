@@ -273,7 +273,7 @@
                             @if($conversation->attended)
                                 <i class="fas fa-check-circle text-success" title="Atendida"></i>
                             @endif
-                            {{ $conversation->conversation_date->format('d/m/Y H:i') }}
+                            {{ $conversation->conversation_date->copy()->addHours(2)->format('d/m/Y H:i') }}
                         </td>
                         <td><small class="text-muted">{{ $conversation->agent_name ?? 'N/A' }}</small></td>
                         <td>{{ $conversation->client->name ?? 'N/A' }}</td>
