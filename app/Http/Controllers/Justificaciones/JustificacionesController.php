@@ -91,47 +91,80 @@ class JustificacionesController extends Controller
      */
     public function receiveFiles(Request $request, $id)
     {
-        $justificacion = Justificacion::findOrFail($id);
+        try {
+            \Log::info("📥 Recibiendo archivos para justificación #{$id}");
+            \Log::info("Archivos en request: " . json_encode($request->allFiles()));
+            
+            $justificacion = Justificacion::findOrFail($id);
 
-        $request->validate([
-            'archivo_just' => 'required|file|max:10240',
-            'archivo_titularidad' => 'required|file|max:10240',
-            'archivo_publicidad' => 'required|file|max:10240',
-        ]);
+            // Validación más flexible - verificar que lleguen archivos
+            $archivos = [];
+            $userId = $justificacion->admin_user_id;
+            
+            \Log::info("Usuario ID: {$userId}");
 
-        $archivos = [];
-        $userId = $justificacion->admin_user_id;
+            // Guardar archivos recibidos
+            if ($request->hasFile('archivo_just')) {
+                $path = $request->file('archivo_just')->store('justificaciones/' . $userId, 'public');
+                $archivos['just'] = $path;
+                \Log::info("✅ Archivo justificación guardado: {$path}");
+            } else {
+                \Log::warning("⚠️ No se recibió archivo_just");
+            }
 
-        // Guardar archivos recibidos
-        if ($request->hasFile('archivo_just')) {
-            $path = $request->file('archivo_just')->store('justificaciones/' . $userId, 'public');
-            $archivos['just'] = $path;
+            if ($request->hasFile('archivo_titularidad')) {
+                $path = $request->file('archivo_titularidad')->store('justificaciones/' . $userId, 'public');
+                $archivos['titularidad'] = $path;
+                \Log::info("✅ Archivo titularidad guardado: {$path}");
+            } else {
+                \Log::warning("⚠️ No se recibió archivo_titularidad");
+            }
+
+            if ($request->hasFile('archivo_publicidad')) {
+                $path = $request->file('archivo_publicidad')->store('justificaciones/' . $userId, 'public');
+                $archivos['publicidad'] = $path;
+                \Log::info("✅ Archivo publicidad guardado: {$path}");
+            } else {
+                \Log::warning("⚠️ No se recibió archivo_publicidad");
+            }
+
+            if (empty($archivos)) {
+                \Log::error("❌ No se recibió ningún archivo");
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se recibieron archivos'
+                ], 400);
+            }
+
+            // Actualizar justificación con los archivos
+            $metadata = json_decode($justificacion->metadata, true) ?? [];
+            $metadata['estado'] = 'completado';
+            $metadata['fecha_completado'] = now()->toDateTimeString();
+            $metadata['archivos_recibidos'] = count($archivos);
+
+            $justificacion->update([
+                'archivos' => json_encode($archivos),
+                'metadata' => json_encode($metadata)
+            ]);
+
+            \Log::info("✅ Justificación actualizada con " . count($archivos) . " archivos");
+            \Log::info("Metadata final: " . json_encode($metadata));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Archivos recibidos correctamente',
+                'archivos_guardados' => count($archivos)
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error("❌ Error recibiendo archivos: " . $e->getMessage());
+            \Log::error("Trace: " . $e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error procesando archivos: ' . $e->getMessage()
+            ], 500);
         }
-
-        if ($request->hasFile('archivo_titularidad')) {
-            $path = $request->file('archivo_titularidad')->store('justificaciones/' . $userId, 'public');
-            $archivos['titularidad'] = $path;
-        }
-
-        if ($request->hasFile('archivo_publicidad')) {
-            $path = $request->file('archivo_publicidad')->store('justificaciones/' . $userId, 'public');
-            $archivos['publicidad'] = $path;
-        }
-
-        // Actualizar justificación con los archivos
-        $metadata = json_decode($justificacion->metadata, true);
-        $metadata['estado'] = 'completado';
-        $metadata['fecha_completado'] = now()->toDateTimeString();
-
-        $justificacion->update([
-            'archivos' => json_encode($archivos),
-            'metadata' => json_encode($metadata)
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Archivos recibidos correctamente'
-        ]);
     }
 
     /**
