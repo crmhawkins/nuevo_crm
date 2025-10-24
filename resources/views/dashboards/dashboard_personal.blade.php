@@ -767,8 +767,11 @@
                                                 <a class="btn btn-outline-secondary"
                                                 href="{{route('passwords.index')}}">Contraseñas</a>
                                                 <button class="btn btn-success" onclick="showJustificacionesModal()">
-                                                    <i class="fas fa-file-upload"></i> Justificaciones
+                                                    <i class="fas fa-file-upload"></i> Nueva Justificación
                                                 </button>
+                                                <a class="btn btn-outline-success" href="{{route('justificaciones.index')}}">
+                                                    <i class="fas fa-download"></i> Mis Justificaciones
+                                                </a>
                                                 @if($user->id == 157)
                                                     <a class="btn btn-outline-secondary"
                                                     href="{{route('suite.index.justificaciones')}}">Suite Justificaciones</a>

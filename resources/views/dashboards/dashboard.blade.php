@@ -392,7 +392,9 @@
                                     <button class="btn btn-primary mx-2">Enviar Archivos</button>
                                     <button class="btn btn-secondary mx-2">Correo</button>
                                     <button class="btn btn-primary mx-2" onclick="showLlamadaModal()">Iniciar LLamada</button>
-                                    <button class="btn btn-success mx-2" onclick="showJustificacionesModal()">Justificaciones</button>
+                                    <button class="btn btn-success mx-2" onclick="showJustificacionesModal()">
+                                        <i class="fas fa-file-upload"></i> Nueva Justificación
+                                    </button>
                                 </div>
                             </div>
                         </div>

@@ -73,8 +73,11 @@
                                     <i class="fas fa-phone-alt"></i> Registro de llamadas
                                 </a>
                                 <button class="btn btn-success mb-2" onclick="showJustificacionesModal()">
-                                    <i class="fas fa-file-upload"></i> Justificaciones
+                                    <i class="fas fa-file-upload"></i> Nueva Justificación
                                 </button>
+                                <a href="{{route('justificaciones.index')}}" class="btn btn-outline-success mb-2">
+                                    <i class="fas fa-download"></i> Mis Justificaciones
+                                </a>
                                 <a href="{{ route('presupuesto.create') }}" class="btn btn-outline-primary mb-2">Nuevo
                                     Presupuesto</a>
                                 <a href="{{ route('presupuestos.indexUser') }}" class="btn btn-outline-secondary mb-2">Ver

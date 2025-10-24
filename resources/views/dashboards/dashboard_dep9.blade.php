@@ -283,6 +283,12 @@
                 <a class="quick-action-btn" href="{{ route('holiday.index') }}">
                     <i class="fas fa-calendar-alt me-2"></i>Vacaciones
                 </a>
+                <button class="quick-action-btn" onclick="showJustificacionesModal()" style="background: linear-gradient(135deg, #48bb78, #38a169); color: white; border: none;">
+                    <i class="fas fa-file-upload me-2"></i>Nueva Justificación
+                </button>
+                <a class="quick-action-btn" href="{{ route('justificaciones.index') }}" style="background: linear-gradient(135deg, #e6f7ee, #d4f4dd); color: #2f855a; border: 2px solid #48bb78;">
+                    <i class="fas fa-download me-2"></i>Mis Justificaciones
+                </a>
             </div>
         </div>
     </div>
