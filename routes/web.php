@@ -585,6 +585,18 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     Route::get('/justificaciones/download/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'download'])->name('justificaciones.download');
     Route::delete('/justificaciones/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'destroy'])->name('justificaciones.destroy');
     
+    // Test endpoint para justificaciones
+    Route::any('/justificaciones/test-receive/{id}', function($id) {
+        file_put_contents(storage_path('logs/test_receive.log'), 
+            "[" . now() . "] TEST: Petición recibida para ID: {$id}\n" .
+            "Method: " . request()->method() . "\n" .
+            "Files: " . json_encode(request()->allFiles()) . "\n" .
+            "All: " . json_encode(request()->all()) . "\n\n",
+            FILE_APPEND
+        );
+        return response()->json(['success' => true, 'id' => $id, 'message' => 'Test OK']);
+    });
+    
     // Visitas Comerciales
     Route::get('/visitas-comerciales', [\App\Http\Controllers\VisitaComercialController::class, 'index'])->name('visitas.index');
     Route::post('/visitas/store', [\App\Http\Controllers\VisitaComercialController::class, 'store'])->name('visitas.store');

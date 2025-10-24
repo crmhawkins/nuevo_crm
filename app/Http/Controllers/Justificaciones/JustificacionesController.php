@@ -91,8 +91,17 @@ class JustificacionesController extends Controller
      */
     public function receiveFiles(Request $request, $id)
     {
+        // Log ANTES de todo para ver si llega la petición
+        file_put_contents(storage_path('logs/justificaciones_receive.log'), 
+            "[" . now() . "] Petición recibida para ID: {$id}\n", 
+            FILE_APPEND
+        );
+        
         try {
             \Log::info("📥 Recibiendo archivos para justificación #{$id}");
+            \Log::info("Request method: " . $request->method());
+            \Log::info("Request URL: " . $request->fullUrl());
+            \Log::info("Todos los inputs: " . json_encode($request->all()));
             \Log::info("Archivos en request: " . json_encode($request->allFiles()));
             
             $justificacion = Justificacion::findOrFail($id);
