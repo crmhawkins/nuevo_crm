@@ -1914,4 +1914,386 @@ class DashboardController extends Controller
             $alert = Alert::create($data);
         }
     }
+
+    /**
+     * Mostrar la vista de análisis y estadísticas
+     */
+    public function analisisEstadisticas(Request $request)
+    {
+        $user = Auth::user();
+
+        // Obtener fechas por defecto (último mes)
+        $fechaInicio = $request->input('fecha_inicio') ?? Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d');
+        $fechaFin = $request->input('fecha_fin') ?? Carbon::now()->format('Y-m-d');
+
+        // Obtener filtros dinámicos
+        $tipoAnalisis = $request->input('tipo_analisis', 'top_clientes');
+        $filtroId = $request->input('filtro_id');
+        $montoMinimo = $request->input('monto_minimo', 0);
+        $limite = $request->input('limite', 50); // Límite por defecto más alto
+        
+        // Limpiar parámetros según el tipo de análisis
+        if ($tipoAnalisis === 'por_facturacion') {
+            $filtroId = null; // No usar filtro_id para facturación
+        } elseif ($tipoAnalisis === 'top_clientes') {
+            $filtroId = null;
+            $montoMinimo = 0;
+        }
+
+        // Obtener datos para filtros
+        $categoriasServicios = $this->obtenerCategoriasServicios();
+        $serviciosDisponibles = $this->obtenerServiciosDisponibles();
+
+        // Obtener análisis dinámico
+        $filtroParaAnalisis = ($tipoAnalisis == 'por_facturacion') ? $montoMinimo : $filtroId;
+        $resultados = $this->obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroParaAnalisis, $limite);
+
+        return view('dashboards.analisis_estadisticas', compact(
+            'user',
+            'resultados',
+            'categoriasServicios',
+            'serviciosDisponibles',
+            'fechaInicio',
+            'fechaFin',
+            'tipoAnalisis',
+            'filtroId',
+            'montoMinimo',
+            'limite'
+        ));
+    }
+
+    /**
+     * Obtener estadísticas generales del sistema
+     */
+    private function obtenerEstadisticasGenerales($fechaInicio, $fechaFin)
+    {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
+
+        return [
+            'total_clientes' => Client::where('is_client', true)->count(),
+            'total_usuarios' => User::where('inactive', false)->count(),
+            'total_presupuestos' => Budget::whereBetween('created_at', [$fechaInicio, $fechaFin])->count(),
+            'total_facturas' => Invoice::whereBetween('created_at', [$fechaInicio, $fechaFin])->count(),
+            'total_proyectos' => Project::whereBetween('created_at', [$fechaInicio, $fechaFin])->count(),
+            'total_tareas' => Task::whereBetween('created_at', [$fechaInicio, $fechaFin])->count(),
+            'total_llamadas' => Llamada::whereBetween('created_at', [$fechaInicio, $fechaFin])->count(),
+            'total_ingresos' => Invoice::whereBetween('created_at', [$fechaInicio, $fechaFin])
+                ->whereIn('invoice_status_id', [1, 3, 4])
+                ->sum('total'),
+            'total_gastos' => Gasto::whereBetween('received_date', [$fechaInicio, $fechaFin])
+                ->where(function ($query) {
+                    $query->where('transfer_movement', 0)->orWhereNull('transfer_movement');
+                })
+                ->sum('quantity'),
+        ];
+    }
+
+    /**
+     * Obtener clientes que más han facturado en un período
+     */
+    private function obtenerClientesTopFacturacion($fechaInicio, $fechaFin, $limite = 20)
+    {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
+
+        return Client::select('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
+            ->selectRaw('SUM(invoices.total) as total_facturado')
+            ->selectRaw('COUNT(invoices.id) as num_facturas')
+            ->join('invoices', 'clients.id', '=', 'invoices.client_id')
+            ->where('clients.is_client', true)
+            ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
+            ->whereIn('invoices.invoice_status_id', [3, 4]) // Solo facturas cobradas
+            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
+            ->orderBy('total_facturado', 'desc')
+            ->limit($limite)
+            ->get();
+    }
+
+    /**
+     * Obtener clientes que más han facturado por categoría de servicio
+     */
+    private function obtenerClientesPorCategoria($fechaInicio, $fechaFin, $categoriaId = null, $limite = null)
+    {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
+
+        $query = Client::select('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
+            ->selectRaw('services_categories.name as categoria_servicio')
+            ->selectRaw('SUM(invoice_concepts.total) as total_por_categoria')
+            ->selectRaw('COUNT(DISTINCT invoices.id) as facturas_con_categoria')
+            ->join('invoices', 'clients.id', '=', 'invoices.client_id')
+            ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+            ->join('services', 'invoice_concepts.service_id', '=', 'services.id')
+            ->join('services_categories', 'services.services_categories_id', '=', 'services_categories.id')
+            ->where('clients.is_client', true)
+            ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
+            ->whereIn('invoices.invoice_status_id', [3, 4]) // Solo facturas cobradas
+            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'services_categories.id', 'services_categories.name');
+
+        if ($categoriaId) {
+            $query->where('services_categories.id', $categoriaId);
+        }
+
+        $query->orderBy('total_por_categoria', 'desc');
+        
+        if ($limite) {
+            $query->limit($limite);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Obtener categorías de servicios disponibles
+     */
+    private function obtenerCategoriasServicios()
+    {
+        return \App\Models\Services\ServiceCategories::select('id', 'name')
+            ->where('inactive', false)
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
+     * Obtener clientes con servicios específicos más facturados
+     */
+    private function obtenerClientesPorServicio($fechaInicio, $fechaFin, $servicioId = null, $limite = null)
+    {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
+
+        $query = Client::select('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
+            ->selectRaw('services.title as servicio')
+            ->selectRaw('SUM(invoice_concepts.total) as total_por_servicio')
+            ->selectRaw('COUNT(DISTINCT invoices.id) as facturas_con_servicio')
+            ->join('invoices', 'clients.id', '=', 'invoices.client_id')
+            ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+            ->join('services', 'invoice_concepts.service_id', '=', 'services.id')
+            ->where('clients.is_client', true)
+            ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
+            ->whereIn('invoices.invoice_status_id', [3, 4]) // Solo facturas cobradas
+            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'services.id', 'services.title');
+
+        if ($servicioId) {
+            $query->where('services.id', $servicioId);
+        }
+
+        $query->orderBy('total_por_servicio', 'desc');
+        
+        if ($limite) {
+            $query->limit($limite);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Obtener servicios disponibles desde conceptos de factura
+     */
+    private function obtenerServiciosDisponibles()
+    {
+        return \App\Models\Services\Service::select('services.id', 'services.title', 'services_categories.name as categoria')
+            ->join('services_categories', 'services.services_categories_id', '=', 'services_categories.id')
+            ->join('invoice_concepts', 'services.id', '=', 'invoice_concepts.service_id')
+            ->join('invoices', 'invoice_concepts.invoice_id', '=', 'invoices.id')
+            ->whereIn('invoices.invoice_status_id', [3, 4]) // Solo facturas cobradas
+            ->where('services.inactive', false)
+            ->where('services_categories.inactive', false)
+            ->groupBy('services.id', 'services.title', 'services_categories.name')
+            ->orderBy('services_categories.name')
+            ->orderBy('services.title')
+            ->get();
+    }
+
+    /**
+     * Obtener clientes que han facturado más de un monto específico
+     */
+    private function obtenerClientesPorMontoFacturado($fechaInicio, $fechaFin, $montoMinimo = 0, $limite = null)
+    {
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
+
+        $query = Client::select('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
+            ->selectRaw('SUM(invoices.total) as total_facturado')
+            ->selectRaw('COUNT(invoices.id) as num_facturas')
+            ->join('invoices', 'clients.id', '=', 'invoices.client_id')
+            ->where('clients.is_client', true)
+            ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
+            ->whereIn('invoices.invoice_status_id', [3, 4]) // Solo facturas cobradas
+            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
+            ->having('total_facturado', '>=', $montoMinimo)
+            ->orderBy('total_facturado', 'desc');
+
+        if ($limite) {
+            $query->limit($limite);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Obtener análisis dinámico según tipo seleccionado
+     */
+    private function obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroId = null, $limite = null)
+    {
+        switch ($tipoAnalisis) {
+            case 'top_clientes':
+                return $this->obtenerClientesTopFacturacion($fechaInicio, $fechaFin, $limite);
+            case 'por_categoria':
+                return $this->obtenerClientesPorCategoria($fechaInicio, $fechaFin, $filtroId, $limite);
+            case 'por_servicio':
+                return $this->obtenerClientesPorServicio($fechaInicio, $fechaFin, $filtroId, $limite);
+            case 'por_facturacion':
+                return $this->obtenerClientesPorMontoFacturado($fechaInicio, $fechaFin, $filtroId, $limite);
+            default:
+                return collect();
+        }
+    }
+
+    /**
+     * Obtener detalles completos de un cliente para el modal
+     */
+    public function obtenerDetallesCliente(Request $request, $id)
+    {
+        $fechaInicio = $request->input('fecha_inicio', Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d'));
+        $fechaFin = $request->input('fecha_fin', Carbon::now()->format('Y-m-d'));
+        $tipoAnalisis = $request->input('tipo_analisis', 'top_clientes');
+        $filtroId = $request->input('filtro_id');
+
+        $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
+        $fechaFin = Carbon::parse($fechaFin)->endOfDay();
+
+        // Obtener información básica del cliente
+        $cliente = Client::select('id', 'name', 'primerApellido', 'segundoApellido', 'company', 'phone', 'email')
+            ->where('id', $id)
+            ->where('is_client', true)
+            ->first();
+
+        if (!$cliente) {
+            return response()->json(['error' => 'Cliente no encontrado'], 404);
+        }
+
+        // Obtener facturas del cliente en el rango de fechas
+        $query = \App\Models\Invoices\Invoice::select(
+                'invoices.id',
+                'invoices.reference as numero_factura',
+                'invoices.created_at as fecha_emision',
+                'invoices.total',
+                \DB::raw('CASE 
+                    WHEN invoices.invoice_status_id = 3 THEN "Cobrada"
+                    WHEN invoices.invoice_status_id = 4 THEN "Cobrada Parcialmente"
+                    ELSE "Otro"
+                END as estado')
+            )
+            ->where('invoices.client_id', $id)
+            ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
+            ->whereIn('invoices.invoice_status_id', [3, 4]); // Solo facturas cobradas
+
+        // Obtener todas las facturas del cliente (sin filtros de categoría/servicio)
+        $facturas = $query->orderBy('invoices.created_at', 'desc')->get();
+
+        // Si hay filtros específicos, obtener también las facturas filtradas para comparación
+        $facturasFiltradas = collect();
+        if ($tipoAnalisis === 'por_categoria' && $filtroId) {
+            $queryFiltrada = \App\Models\Invoices\Invoice::select(
+                    'invoices.id',
+                    'invoices.reference as numero_factura',
+                    'invoices.created_at as fecha_emision',
+                    'invoices.total',
+                    \DB::raw('CASE 
+                        WHEN invoices.invoice_status_id = 3 THEN "Cobrada"
+                        WHEN invoices.invoice_status_id = 4 THEN "Cobrada Parcialmente"
+                        ELSE "Otro"
+                    END as estado')
+                )
+                ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                ->join('services', 'invoice_concepts.service_id', '=', 'services.id')
+                ->where('invoices.client_id', $id)
+                ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
+                ->whereIn('invoices.invoice_status_id', [3, 4])
+                ->where('services.services_categories_id', $filtroId);
+            
+            $facturasFiltradas = $queryFiltrada->orderBy('invoices.created_at', 'desc')->get();
+        } elseif ($tipoAnalisis === 'por_servicio' && $filtroId) {
+            $queryFiltrada = \App\Models\Invoices\Invoice::select(
+                    'invoices.id',
+                    'invoices.reference as numero_factura',
+                    'invoices.created_at as fecha_emision',
+                    'invoices.total',
+                    \DB::raw('CASE 
+                        WHEN invoices.invoice_status_id = 3 THEN "Cobrada"
+                        WHEN invoices.invoice_status_id = 4 THEN "Cobrada Parcialmente"
+                        ELSE "Otro"
+                    END as estado')
+                )
+                ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                ->where('invoices.client_id', $id)
+                ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
+                ->whereIn('invoices.invoice_status_id', [3, 4])
+                ->where('invoice_concepts.service_id', $filtroId);
+            
+            $facturasFiltradas = $queryFiltrada->orderBy('invoices.created_at', 'desc')->get();
+        }
+
+        // Calcular resumen total
+        $totalCobrado = $facturas->sum('total');
+        $numFacturas = $facturas->count();
+        $promedioFactura = $numFacturas > 0 ? $totalCobrado / $numFacturas : 0;
+
+        // Calcular resumen filtrado si aplica
+        $totalCobradoFiltrado = $facturasFiltradas->sum('total');
+        $numFacturasFiltradas = $facturasFiltradas->count();
+        $promedioFacturaFiltrado = $numFacturasFiltradas > 0 ? $totalCobradoFiltrado / $numFacturasFiltradas : 0;
+
+        // Obtener servicios de cada factura y formatear
+        $facturas->each(function($factura) {
+            $servicios = \App\Models\Invoices\InvoiceConcepts::select('services.title')
+                ->join('services', 'invoice_concepts.service_id', '=', 'services.id')
+                ->where('invoice_concepts.invoice_id', $factura->id)
+                ->pluck('services.title')
+                ->toArray();
+            
+            $factura->servicios = implode(', ', $servicios);
+            $factura->total = number_format($factura->total, 2, ',', '.');
+            $factura->fecha_emision = Carbon::parse($factura->fecha_emision)->format('d/m/Y');
+        });
+
+        // Formatear facturas filtradas si existen
+        if ($facturasFiltradas->isNotEmpty()) {
+            $facturasFiltradas->each(function($factura) {
+                $servicios = \App\Models\Invoices\InvoiceConcepts::select('services.title')
+                    ->join('services', 'invoice_concepts.service_id', '=', 'services.id')
+                    ->where('invoice_concepts.invoice_id', $factura->id)
+                    ->pluck('services.title')
+                    ->toArray();
+                
+                $factura->servicios = implode(', ', $servicios);
+                $factura->total = number_format($factura->total, 2, ',', '.');
+                $factura->fecha_emision = Carbon::parse($factura->fecha_emision)->format('d/m/Y');
+            });
+        }
+        
+        $primeraFactura = $facturas->isNotEmpty() ? $facturas->last()->fecha_emision : null;
+        $ultimaFactura = $facturas->isNotEmpty() ? $facturas->first()->fecha_emision : null;
+
+        $resumen = [
+            'total_cobrado' => number_format($totalCobrado, 2, ',', '.'),
+            'num_facturas' => $numFacturas,
+            'promedio_factura' => number_format($promedioFactura, 2, ',', '.'),
+            'primera_factura' => $primeraFactura,
+            'ultima_factura' => $ultimaFactura,
+            'total_cobrado_filtrado' => number_format($totalCobradoFiltrado, 2, ',', '.'),
+            'num_facturas_filtradas' => $numFacturasFiltradas,
+            'promedio_factura_filtrado' => number_format($promedioFacturaFiltrado, 2, ',', '.'),
+            'tiene_filtros' => $facturasFiltradas->isNotEmpty()
+        ];
+
+        return response()->json([
+            'cliente' => $cliente,
+            'facturas' => $facturas,
+            'facturas_filtradas' => $facturasFiltradas,
+            'resumen' => $resumen
+        ]);
+    }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\AIController;
 use App\Http\Controllers\Api\SalvineitorController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Autoseo\AutoseoJsonController;
 use App\Http\Controllers\Autoseo\AutoseoReports;
 use App\Http\Controllers\Autoseo\AutoseoAdvancedReports;
@@ -33,6 +34,9 @@ use App\Http\Controllers\DonDominio\DonDominioController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Ruta para obtener detalles del cliente en análisis
+Route::get('/cliente-detalles/{id}', [DashboardController::class, 'obtenerDetallesCliente'])->name('api.cliente.detalles');
 Route::prefix('tesoreria')->group(function () {
     Route::post('/gastos', [TesoreriaController::class, 'storeUnclassifiedExpensese']);
 });

@@ -575,6 +575,9 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     //Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
+    // Análisis y Estadísticas
+    Route::get('/analisis-estadisticas', [DashboardController::class, 'analisisEstadisticas'])->name('analisis.estadisticas');
+    
     // Visitas Comerciales
     Route::get('/visitas-comerciales', [\App\Http\Controllers\VisitaComercialController::class, 'index'])->name('visitas.index');
     Route::post('/visitas/store', [\App\Http\Controllers\VisitaComercialController::class, 'store'])->name('visitas.store');

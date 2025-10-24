@@ -677,6 +677,12 @@
                                     <span>Visitas Comerciales</span>
                                 </a>
                             </li>
+                            <li class="sidebar-item is_sub {{ request()->routeIs('analisis.estadisticas') ? 'active' : '' }}">
+                                <a href="{{route('analisis.estadisticas')}}" class='sidebar-link hasnt_sub'>
+                                    <i class="fa-solid fa-chart-pie  fs-5"></i>
+                                    <span>Análisis y Estadísticas</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="sidebar-item has-sub">
