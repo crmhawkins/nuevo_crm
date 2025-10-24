@@ -230,6 +230,7 @@
                             <a target="_blank" href="{{ route('dominios_iban') }}" class="btn btn-outline-secondary"> Dominios</a>
                             <a target="_blank" href="{{ route('suite') }}" class="btn btn-outline-secondary"> Suite IA</a>
                             <a target="_blank" href="{{ route('autoseo.index') }}" class="btn btn-outline-primary"> <i class="fas fa-robot"></i> AutoSEO</a>
+                            <a href="{{ route('justificaciones.index') }}" class="btn btn-outline-success mb-2"> <i class="fas fa-download"></i> Mis Justificaciones</a>
                         </div>
                     </div>
                 </div>
@@ -391,6 +392,7 @@
                                     <button class="btn btn-primary mx-2">Enviar Archivos</button>
                                     <button class="btn btn-secondary mx-2">Correo</button>
                                     <button class="btn btn-primary mx-2" onclick="showLlamadaModal()">Iniciar LLamada</button>
+                                    <button class="btn btn-success mx-2" onclick="showJustificacionesModal()">Justificaciones</button>
                                 </div>
                             </div>
                         </div>
@@ -441,6 +443,47 @@
             </div>
         </div>
     </div>
+    <!-- Modal de Justificaciones -->
+    <div class="modal fade" id="justificacionesModal" tabindex="-1" aria-labelledby="justificacionesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="justificacionesModalLabel">Nueva Justificación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="justificacionesForm" action="{{ route('justificaciones.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="tipo_justificacion" class="form-label">Tipo de Justificación</label>
+                                <select class="form-select" id="tipo_justificacion" name="tipo_justificacion" required>
+                                    <option value="">Seleccione una opción</option>
+                                    <option value="segunda_justificacion_presencia_basica">Segunda Justificacion Presencia Basica</option>
+                                </select>
+                            </div>
+
+                            <!-- Campos dinámicos que aparecen según selección -->
+                            <div id="campos_dinamicos" style="display: none;">
+                                <div class="col-md-12 mb-3">
+                                    <label for="url_campo" class="form-label">URL <span class="text-danger">*</span></label>
+                                    <input type="url" class="form-control" id="url_campo" name="url_campo" placeholder="https://ejemplo.com" required>
+                                    <small class="text-muted">Los archivos serán generados automáticamente por el servidor</small>
+                                </div>
+                            </div>
+
+                            <input type="hidden" id="nombre_justificacion" name="nombre_justificacion">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-success" id="enviarJustificacion">Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="todoModal" tabindex="-1" aria-labelledby="todoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg"> <!-- Cambio a modal-lg para mayor ancho -->
             <div class="modal-content">
@@ -695,6 +738,11 @@
     function showLlamadaModal() {
         var llamadaModal = new bootstrap.Modal(document.getElementById('llamadaModal'));
         llamadaModal.show();
+    }
+
+    function showJustificacionesModal() {
+        var justificacionesModal = new bootstrap.Modal(document.getElementById('justificacionesModal'));
+        justificacionesModal.show();
     }
     document.addEventListener('DOMContentLoaded', function() {
         const progressCircles = document.querySelectorAll('.progress-circle');
@@ -1210,6 +1258,98 @@
         }
     });
 
+</script>
+
+<script>
+    // Manejo del modal de justificaciones
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoSelect = document.getElementById('tipo_justificacion');
+        const camposDinamicos = document.getElementById('campos_dinamicos');
+        const nombreJustificacion = document.getElementById('nombre_justificacion');
+        const enviarBtn = document.getElementById('enviarJustificacion');
+        const justificacionesForm = document.getElementById('justificacionesForm');
+
+        // Mostrar/ocultar campos según el tipo seleccionado
+        tipoSelect.addEventListener('change', function() {
+            const valor = this.value;
+            
+            if (valor === 'segunda_justificacion_presencia_basica') {
+                camposDinamicos.style.display = 'block';
+                nombreJustificacion.value = 'Segunda Justificacion Presencia Basica';
+            } else {
+                camposDinamicos.style.display = 'none';
+                nombreJustificacion.value = '';
+            }
+        });
+
+        // Enviar formulario
+        enviarBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(justificacionesForm);
+            
+            // Validar que se haya ingresado la URL
+            const urlCampo = document.getElementById('url_campo').value;
+            
+            if (!urlCampo) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Debe ingresar la URL'
+                });
+                return;
+            }
+            
+            // Mostrar loader
+            Swal.fire({
+                title: 'Enviando justificación...',
+                text: 'Por favor espere',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            fetch('{{ route("justificaciones.store") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: data.message,
+                        timer: 3000
+                    }).then(() => {
+                        // Cerrar modal y limpiar formulario
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('justificacionesModal'));
+                        modal.hide();
+                        justificacionesForm.reset();
+                        camposDinamicos.style.display = 'none';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Hubo un error al enviar la justificación'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un error al enviar la justificación'
+                });
+            });
+        });
+    });
 </script>
 @endsection
 

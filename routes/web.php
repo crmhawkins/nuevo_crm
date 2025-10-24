@@ -575,8 +575,17 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     //Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
+<<<<<<< Updated upstream
     // Análisis y Estadísticas
     Route::get('/analisis-estadisticas', [DashboardController::class, 'analisisEstadisticas'])->name('analisis.estadisticas');
+=======
+    // Justificaciones
+    Route::get('/justificaciones', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'index'])->name('justificaciones.index');
+    Route::post('/justificaciones/store', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'store'])->name('justificaciones.store');
+    Route::post('/justificaciones/receive/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'receiveFiles'])->name('justificaciones.receive');
+    Route::get('/justificaciones/download/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'download'])->name('justificaciones.download');
+    Route::delete('/justificaciones/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'destroy'])->name('justificaciones.destroy');
+>>>>>>> Stashed changes
     
     // Visitas Comerciales
     Route::get('/visitas-comerciales', [\App\Http\Controllers\VisitaComercialController::class, 'index'])->name('visitas.index');
