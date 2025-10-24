@@ -581,6 +581,7 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     Route::get('/justificaciones', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'index'])->name('justificaciones.index');
     Route::post('/justificaciones/store', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'store'])->name('justificaciones.store');
     Route::post('/justificaciones/receive/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'receiveFiles'])->name('justificaciones.receive');
+    Route::post('/justificaciones/update-estado/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'updateEstado'])->name('justificaciones.updateEstado');
     Route::get('/justificaciones/download/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'download'])->name('justificaciones.download');
     Route::delete('/justificaciones/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'destroy'])->name('justificaciones.destroy');
     

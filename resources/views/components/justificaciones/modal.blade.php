@@ -20,6 +20,25 @@
 
                         <!-- Campos dinámicos que aparecen según selección -->
                         <div id="campos_dinamicos" style="display: none;">
+                            <div class="col-md-12 mb-4">
+                                <label class="form-label d-block">Tipo de Análisis <span class="text-danger">*</span></label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="tipo_analisis" id="tipo_web" value="web" checked>
+                                    <label class="btn btn-outline-primary" for="tipo_web">
+                                        <i class="fas fa-globe"></i> WEB Normal
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="tipo_analisis" id="tipo_ecommerce" value="ecommerce">
+                                    <label class="btn btn-outline-success" for="tipo_ecommerce">
+                                        <i class="fas fa-shopping-cart"></i> ECOMMERCE
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    <strong>WEB:</strong> Análisis estándar sin competidores<br>
+                                    <strong>ECOMMERCE:</strong> Incluye análisis de competencia automático
+                                </small>
+                            </div>
+                            
                             <div class="col-md-12 mb-3">
                                 <label for="url_campo" class="form-label">URL <span class="text-danger">*</span></label>
                                 <input type="url" class="form-control" id="url_campo" name="url_campo" placeholder="https://ejemplo.com" required>

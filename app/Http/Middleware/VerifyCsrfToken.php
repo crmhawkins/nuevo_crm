@@ -17,6 +17,7 @@ class VerifyCsrfToken extends Middleware
         '/api/updateAyudas/{id}',
         '/api/updateMensajes',
         '/api/eleven-labs/*',
-        '/justificaciones/receive/*'
+        '/justificaciones/receive/*',
+        '/justificaciones/update-estado/*'
     ];
 }

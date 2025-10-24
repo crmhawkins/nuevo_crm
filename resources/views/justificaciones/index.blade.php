@@ -80,12 +80,32 @@
                                         <span class="badge bg-success">✓ Completado</span>
                                     @elseif($estado == 'procesando')
                                         <span class="badge bg-warning">⏳ Procesando...</span>
+                                    @elseif($estado == 'en_cola')
+                                        <span class="badge bg-info">📋 En Cola</span>
                                     @elseif($estado == 'error')
                                         <span class="badge bg-danger">✗ Error</span>
                                     @else
                                         <span class="badge bg-secondary">⏸ Pendiente</span>
                                     @endif
+                                    
+                                    @if(isset($metadata['tipo_analisis']))
+                                        <span class="badge bg-{{ $metadata['tipo_analisis'] == 'ecommerce' ? 'success' : 'primary' }} ms-2">
+                                            @if($metadata['tipo_analisis'] == 'ecommerce')
+                                                <i class="fas fa-shopping-cart"></i> ECOMMERCE
+                                            @else
+                                                <i class="fas fa-globe"></i> WEB
+                                            @endif
+                                        </span>
+                                    @endif
                                 </div>
+                                
+                                @if(isset($metadata['ultimo_mensaje']) && $metadata['ultimo_mensaje'])
+                                    <div class="mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle"></i> {{ $metadata['ultimo_mensaje'] }}
+                                        </small>
+                                    </div>
+                                @endif
 
                                 @if(!empty($archivos))
                                     <div class="mb-3">
@@ -140,6 +160,17 @@
 @section('scripts')
 @include('partials.toast')
 <script>
+    // Auto-refresh cada 10 segundos si hay justificaciones en proceso
+    document.addEventListener('DOMContentLoaded', function() {
+        const hayEnProceso = document.querySelectorAll('.badge.bg-warning, .badge.bg-info').length > 0;
+        
+        if (hayEnProceso) {
+            setInterval(function() {
+                location.reload();
+            }, 10000); // Recargar cada 10 segundos
+        }
+    });
+
     function eliminarJustificacion(id) {
         Swal.fire({
             title: '¿Estás seguro?',

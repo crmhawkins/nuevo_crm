@@ -34,12 +34,14 @@ class JustificacionesController extends Controller
             'tipo_justificacion' => 'required|string',
             'nombre_justificacion' => 'required|string',
             'url_campo' => 'required|url',
+            'tipo_analisis' => 'required|in:web,ecommerce',
         ]);
 
         $user = Auth::user();
         $metadata = [
             'url' => $request->input('url_campo'),
-            'estado' => 'pendiente' // Estado: pendiente, procesando, completado, error
+            'tipo_analisis' => $request->input('tipo_analisis'),
+            'estado' => 'pendiente' // Estados: pendiente, en_cola, procesando, completado, error
         ];
 
         // Crear la justificación sin archivos (llegarán del servidor externo)
@@ -60,12 +62,14 @@ class JustificacionesController extends Controller
                 'user_name' => $user->name,
                 'nombre_justificacion' => $request->nombre_justificacion,
                 'tipo_justificacion' => $request->tipo_justificacion,
+                'tipo_analisis' => $request->input('tipo_analisis'), // 'web' o 'ecommerce'
                 'callback_url' => route('justificaciones.receive', $justificacion->id),
                 'timestamp' => now()->toDateTimeString()
             ]);
 
             if ($response->successful()) {
-                $metadata['estado'] = 'procesando';
+                $metadata['estado'] = 'en_cola';
+                $metadata['mensaje'] = 'Solicitud enviada al servidor de procesamiento';
                 $justificacion->update(['metadata' => json_encode($metadata)]);
             }
         } catch (\Exception $e) {
@@ -179,6 +183,32 @@ class JustificacionesController extends Controller
         }
 
         return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Actualizar estado de una justificación desde el servidor externo
+     */
+    public function updateEstado(Request $request, $id)
+    {
+        $justificacion = Justificacion::findOrFail($id);
+
+        $estado = $request->input('estado');
+        $mensaje = $request->input('mensaje', '');
+
+        $metadata = json_decode($justificacion->metadata, true) ?? [];
+        $metadata['estado'] = $estado;
+        $metadata['ultimo_mensaje'] = $mensaje;
+        $metadata['ultima_actualizacion'] = now()->toDateTimeString();
+
+        $justificacion->update([
+            'metadata' => json_encode($metadata)
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado actualizado correctamente',
+            'estado' => $estado
+        ]);
     }
 
     /**
