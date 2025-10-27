@@ -32,7 +32,7 @@ class ProcessJustificacion implements ShouldQueue
      */
     private const API_URLS = [
         'segunda_justificacion_presencia_basica' => 'https://aiapi.hawkins.es/sgbasc',
-        'puesto_trabajo_seguro' => 'https://aiapi.hawkins.es/sgpseg/generate-pdf',
+        'puesto_trabajo_seguro' => 'https://aiapi.hawkins.es/sgpseg',
         // Agregar más tipos aquí según sea necesario
     ];
 

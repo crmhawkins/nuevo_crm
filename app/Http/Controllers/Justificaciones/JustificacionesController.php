@@ -83,15 +83,29 @@ class JustificacionesController extends Controller
 
         \Log::info('✅ Justificación creada, encolando Job', [
             'justificacion_id' => $justificacion->id,
-            'tipo' => $request->tipo_justificacion
+            'tipo' => $request->tipo_justificacion,
+            'metadata' => $metadata
         ]);
         
-        // Encolar Job genérico para TODOS los tipos de justificación
-        ProcessJustificacion::dispatch($justificacion->id);
-        
-        \Log::info('📋 Job encolado exitosamente', [
-            'justificacion_id' => $justificacion->id
-        ]);
+        try {
+            // Encolar Job genérico para TODOS los tipos de justificación
+            $job = ProcessJustificacion::dispatch($justificacion->id);
+            
+            \Log::info('📋 Job encolado exitosamente', [
+                'justificacion_id' => $justificacion->id,
+                'queue_connection' => config('queue.default'),
+                'job_dispatched' => true
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('❌ Error al encolar Job', [
+                'justificacion_id' => $justificacion->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Continuar de todas formas y retornar éxito
+            // El usuario verá la justificación en estado pendiente
+        }
         
         return response()->json([
             'success' => true,
