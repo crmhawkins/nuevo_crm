@@ -101,6 +101,13 @@ Auth::routes();
 Route::post('/invoice/generate-pdf', [InvoiceController::class, 'generatePDF'])->name('factura.generarPDF');
 Route::post('/budget/generate-pdf', [BudgetController::class, 'generatePDF'])->name('presupuesto.generarPDF');
 
+// ========================================
+// RUTAS PÚBLICAS PARA API EXTERNA
+// ========================================
+// Endpoints para recibir datos del servidor Python externo (sin autenticación)
+Route::post('/justificaciones/receive/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'receiveFiles'])->name('justificaciones.receive.public');
+Route::post('/justificaciones/update-estado/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'updateEstado'])->name('justificaciones.updateEstado.public');
+
 Route::group(['middleware' => 'auth'], function () {
 
     Route::middleware(['access.level:4'])->group(function () {
@@ -577,11 +584,9 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     
     // Análisis y Estadísticas
     Route::get('/analisis-estadisticas', [DashboardController::class, 'analisisEstadisticas'])->name('analisis.estadisticas');
-    // Justificaciones
+    // Justificaciones (rutas que SÍ requieren autenticación)
     Route::get('/justificaciones', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'index'])->name('justificaciones.index');
     Route::post('/justificaciones/store', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'store'])->name('justificaciones.store');
-    Route::post('/justificaciones/receive/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'receiveFiles'])->name('justificaciones.receive');
-    Route::post('/justificaciones/update-estado/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'updateEstado'])->name('justificaciones.updateEstado');
     Route::get('/justificaciones/download/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'download'])->name('justificaciones.download');
     Route::delete('/justificaciones/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'destroy'])->name('justificaciones.destroy');
     
