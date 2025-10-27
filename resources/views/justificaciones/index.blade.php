@@ -69,7 +69,8 @@
                                 @endif
 
                                 @php
-                                    $archivos = json_decode($justificacion->archivos, true) ?? [];
+                                    // Laravel convierte automáticamente por el cast 'array'
+                                    $archivos = $justificacion->archivos ?? [];
                                     $metadata = $justificacion->metadata ?? [];
                                     $estado = $metadata['estado'] ?? 'pendiente';
                                 @endphp
