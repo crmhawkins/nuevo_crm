@@ -733,6 +733,7 @@ class BudgetController extends Controller
         $budgetAutoRefCreate = BudgetReferenceAutoincrement::create($dataAutoReference);
         $newBudget->reference_autoincrement_id = $budgetAutoRefCreate->id;
         $newBudget->creation_date = Carbon::now()->format('Y-m-d');
+        $newBudget->admin_user_id = Auth::id(); // Asignar el usuario actual como gestor
         $budgetDuplicated = $newBudget->save();
 
         if($budgetDuplicated){
