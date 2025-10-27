@@ -146,8 +146,12 @@ class JustificacionesController extends Controller
             }
 
             // Actualizar justificación con los archivos
-            // Laravel convierte automáticamente el cast 'array' desde/hacia JSON
-            $metadata = $justificacion->metadata ?? [];
+            // Manejar datos antiguos (string JSON) y nuevos (array)
+            $metadata = $justificacion->metadata;
+            if (is_string($metadata)) {
+                $metadata = json_decode($metadata, true) ?? [];
+            }
+            $metadata = $metadata ?? [];
             $metadata['estado'] = 'completado';
             $metadata['fecha_completado'] = now()->toDateTimeString();
             $metadata['archivos_recibidos'] = count($archivos);
@@ -187,8 +191,11 @@ class JustificacionesController extends Controller
             ->where('admin_user_id', $user->id)
             ->firstOrFail();
 
-        // Laravel convierte automáticamente por el cast 'array'
+        // Manejar datos antiguos (string JSON) y nuevos (array)
         $archivos = $justificacion->archivos;
+        if (is_string($archivos)) {
+            $archivos = json_decode($archivos, true) ?? [];
+        }
 
         if (empty($archivos)) {
             return back()->with('error', 'No hay archivos para descargar');
@@ -214,8 +221,11 @@ class JustificacionesController extends Controller
             }
 
             // Añadir metadata como txt si existe
-            // Laravel convierte automáticamente por el cast 'array'
+            // Manejar datos antiguos (string JSON) y nuevos (array)
             $metadata = $justificacion->metadata;
+            if (is_string($metadata)) {
+                $metadata = json_decode($metadata, true) ?? [];
+            }
             if (!empty($metadata)) {
                 $metadataContent = "INFORMACIÓN ADICIONAL\n\n";
                 foreach ($metadata as $key => $value) {
@@ -240,8 +250,12 @@ class JustificacionesController extends Controller
         $estado = $request->input('estado');
         $mensaje = $request->input('mensaje', '');
 
-        // Laravel convierte automáticamente el cast 'array' desde/hacia JSON
-        $metadata = $justificacion->metadata ?? [];
+        // Manejar datos antiguos (string JSON) y nuevos (array)
+        $metadata = $justificacion->metadata;
+        if (is_string($metadata)) {
+            $metadata = json_decode($metadata, true) ?? [];
+        }
+        $metadata = $metadata ?? [];
         $metadata['estado'] = $estado;
         $metadata['ultimo_mensaje'] = $mensaje;
         $metadata['ultima_actualizacion'] = now()->toDateTimeString();
@@ -268,8 +282,11 @@ class JustificacionesController extends Controller
             ->firstOrFail();
 
         // Eliminar archivos físicos
-        // Laravel convierte automáticamente por el cast 'array'
+        // Manejar datos antiguos (string JSON) y nuevos (array)
         $archivos = $justificacion->archivos;
+        if (is_string($archivos)) {
+            $archivos = json_decode($archivos, true) ?? [];
+        }
         if (!empty($archivos)) {
             foreach ($archivos as $path) {
                 if (Storage::disk('public')->exists($path)) {

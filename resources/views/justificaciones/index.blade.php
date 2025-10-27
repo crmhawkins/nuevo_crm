@@ -69,9 +69,19 @@
                                 @endif
 
                                 @php
-                                    // Laravel convierte automáticamente por el cast 'array'
-                                    $archivos = $justificacion->archivos ?? [];
-                                    $metadata = $justificacion->metadata ?? [];
+                                    // Manejar datos antiguos (string JSON) y nuevos (array)
+                                    $archivos = $justificacion->archivos;
+                                    if (is_string($archivos)) {
+                                        $archivos = json_decode($archivos, true) ?? [];
+                                    }
+                                    $archivos = $archivos ?? [];
+                                    
+                                    $metadata = $justificacion->metadata;
+                                    if (is_string($metadata)) {
+                                        $metadata = json_decode($metadata, true) ?? [];
+                                    }
+                                    $metadata = $metadata ?? [];
+                                    
                                     $estado = $metadata['estado'] ?? 'pendiente';
                                 @endphp
 
