@@ -30,14 +30,20 @@ class JustificacionesController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'tipo_justificacion' => 'required|string',
-            'nombre_justificacion' => 'required|string',
-            'url_campo' => 'required|url',
-            'tipo_analisis' => 'required|in:web,ecommerce',
-        ]);
+        try {
+            \Log::info('📝 Inicio store justificación', [
+                'request_all' => $request->all()
+            ]);
+            
+            $request->validate([
+                'tipo_justificacion' => 'required|string',
+                'nombre_justificacion' => 'required|string',
+                'url_campo' => 'required|url',
+                'tipo_analisis' => 'required|in:web,ecommerce',
+            ]);
 
-        $user = Auth::user();
+            $user = Auth::user();
+            \Log::info('✅ Usuario autenticado', ['user_id' => $user->id]);
         $metadata = [
             'url' => $request->input('url_campo'),
             'tipo_analisis' => $request->input('tipo_analisis'),
@@ -53,37 +59,87 @@ class JustificacionesController extends Controller
             'metadata' => $metadata // Laravel lo convierte a JSON automáticamente
         ]);
 
-        // Enviar POST a aiapi.hawkins.es/sgbasc
+        // Enviar POST a la API Python
+        $apiUrl = 'https://aiapi.hawkins.es/sgbasc';
+        $payload = [
+            'url' => $request->input('url_campo'),
+            'justificacion_id' => $justificacion->id,
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'nombre_justificacion' => $request->nombre_justificacion,
+            'tipo_justificacion' => $request->tipo_justificacion,
+            'tipo_analisis' => $request->input('tipo_analisis'), // 'web' o 'ecommerce'
+            'callback_url' => route('justificaciones.receive.public', $justificacion->id),
+            'timestamp' => now()->toDateTimeString()
+        ];
+        
+        \Log::info('📤 Enviando petición a Python API', [
+            'url' => $apiUrl,
+            'payload' => $payload
+        ]);
+        
         try {
-            $response = Http::post('https://aiapi.hawkins.es/sgbasc', [
-                'url' => $request->input('url_campo'),
-                'justificacion_id' => $justificacion->id,
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-                'nombre_justificacion' => $request->nombre_justificacion,
-                'tipo_justificacion' => $request->tipo_justificacion,
-                'tipo_analisis' => $request->input('tipo_analisis'), // 'web' o 'ecommerce'
-                'callback_url' => route('justificaciones.receive', $justificacion->id),
-                'timestamp' => now()->toDateTimeString()
+            $response = Http::timeout(10)->post($apiUrl, $payload);
+            
+            \Log::info('📥 Respuesta de Python API', [
+                'status' => $response->status(),
+                'body' => $response->body()
             ]);
 
             if ($response->successful()) {
+                \Log::info('✅ Petición exitosa a Python API');
                 $metadata['estado'] = 'en_cola';
                 $metadata['mensaje'] = 'Solicitud enviada al servidor de procesamiento';
-                $justificacion->update(['metadata' => $metadata]); // Laravel lo convierte automáticamente
+                $justificacion->update(['metadata' => $metadata]);
+            } else {
+                \Log::warning('⚠️ Python API respondió con error', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                $metadata['estado'] = 'error';
+                $metadata['mensaje'] = 'El servidor respondió con error';
+                $justificacion->update(['metadata' => $metadata]);
             }
         } catch (\Exception $e) {
-            \Log::error('Error al enviar a aiapi.hawkins.es: ' . $e->getMessage());
+            \Log::error('❌ Error al enviar a Python API', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             $metadata['estado'] = 'error';
             $metadata['error'] = $e->getMessage();
-            $justificacion->update(['metadata' => $metadata]); // Laravel lo convierte automáticamente
+            $justificacion->update(['metadata' => $metadata]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Justificación creada. Los archivos serán procesados en breve.',
-            'id' => $justificacion->id
-        ]);
+            \Log::info('✅ Justificación creada exitosamente', [
+                'justificacion_id' => $justificacion->id
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Justificación creada. Los archivos serán procesados en breve.',
+                'id' => $justificacion->id
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('❌ Error de validación', [
+                'errors' => $e->errors()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+            
+        } catch (\Exception $e) {
+            \Log::error('❌ Error general en store', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear justificación: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

@@ -64,8 +64,13 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
+                
                 if (data.success) {
                     Swal.fire({
                         icon: 'success',
@@ -78,21 +83,26 @@
                         modal.hide();
                         justificacionesForm.reset();
                         camposDinamicos.style.display = 'none';
+                        
+                        // Redirigir al panel de justificaciones
+                        window.location.href = '{{ route("justificaciones.index") }}';
                     });
                 } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Hubo un error al enviar la justificación'
+                        text: data.message || 'Hubo un error al enviar la justificación',
+                        html: data.errors ? '<pre>' + JSON.stringify(data.errors, null, 2) + '</pre>' : undefined
                     });
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Error completo:', error);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Hubo un error al enviar la justificación'
+                    title: 'Error de Red',
+                    text: 'No se pudo conectar con el servidor. Por favor revisa tu conexión.',
+                    footer: error.message
                 });
             });
         });
