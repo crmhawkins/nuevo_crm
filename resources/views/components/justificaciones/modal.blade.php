@@ -70,12 +70,12 @@
                         <div id="campos_presencia_avanzada" style="display: none;">
                             <div class="col-md-6 mb-3">
                                 <label for="kd_campo" class="form-label">KD <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="kd_campo" name="kd_campo" placeholder="Keyword Difficulty">
+                                <input type="text" class="form-control" id="kd_campo" name="kd_campo" placeholder="KD">
                             </div>
                             
                             <div class="col-md-6 mb-3">
                                 <label for="nombre_presencia_campo" class="form-label">Nombre <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="nombre_presencia_campo" name="nombre_presencia_campo" placeholder="Ej: LAURA ESAIN BARROS">
+                                <input type="text" class="form-control" id="nombre_presencia_campo" name="nombre_presencia_campo" placeholder="">
                             </div>
                             
                             <div class="col-md-6 mb-3">
@@ -85,12 +85,12 @@
                             
                             <div class="col-md-6 mb-3">
                                 <label for="keyword_campo" class="form-label">Keyword Principal <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="keyword_campo" name="keyword_campo" placeholder="Ej: lámparas diseño artesanal">
+                                <input type="text" class="form-control" id="keyword_campo" name="keyword_campo" placeholder="Ej: interiorismo">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label for="phone_campo" class="form-label">Teléfono <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="phone_campo" name="phone_campo" placeholder="+34 910 123 456">
+                                <input type="text" class="form-control" id="phone_campo" name="phone_campo" placeholder="+34 900 00 00 00">
                             </div>
 
                             <div class="col-md-6 mb-3">
