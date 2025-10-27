@@ -182,13 +182,38 @@ class ElevenLabsBatchCallController extends Controller
 
     /**
      * Parsear teléfonos con IA local
+     * Maneja casos complejos como:
+     * - "956 661 515/ 956 632 764" (múltiples números)
+     * - "+34 689 27 42 67" (con espacios)
+     * - "956 76 37 86" (sin prefijo)
+     * - "647821293" (sin espacios)
      */
     private function parsearTelefonoConIA($telefono)
     {
         try {
             Log::info('Parseando teléfono con IA:', ['telefono' => $telefono]);
 
-            $prompt = "Extrae y formatea el número de teléfono español en formato internacional (+34XXXXXXXXX). Si el número ya tiene +34, déjalo tal cual. Si no tiene +34 pero es un número español válido de 9 dígitos, añade +34 al principio. Responde SOLO con el número formateado, sin explicaciones adicionales.\n\nNúmero: {$telefono}";
+            $prompt = "Eres un experto en parseo de números de teléfono españoles. Tu tarea es convertir números de teléfono al formato internacional correcto.
+
+## REGLAS IMPORTANTES:
+1. Si hay MÚLTIPLES números separados por /, coma, o cualquier delimitador: devuelve SOLO el PRIMER número válido
+2. Formato de salida: +34XXXXXXXXX (sin espacios, sin guiones)
+3. Si el número ya tiene +34, úsalo tal cual (quitando espacios)
+4. Si NO tiene +34 pero es un número español válido de 9 dígitos, añade +34
+5. Los números españoles válidos empiezan con: 6, 7, 8, o 9
+
+## EJEMPLOS:
+- '956 661 515/ 956 632 764' → '+34956661515' (solo el primero)
+- '+34 689 27 42 67' → '+34689274267'
+- '956 76 37 86' → '+34956763786'
+- '647821293' → '+34647821293'
+- '34 956 661 515' → '+34956661515'
+
+## NÚMERO A PARSEAR:
+{$telefono}
+
+## RESPUESTA:
+Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, sin explicaciones.";
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->aiApiKey,
@@ -200,32 +225,89 @@ class ElevenLabsBatchCallController extends Controller
 
             if ($response->successful()) {
                 $data = $response->json();
-                $telefonoParsed = trim($data['response'] ?? $telefono);
+                $telefonoParsed = trim($data['response'] ?? '');
                 
                 // Limpiar cualquier texto adicional y extraer solo el número
                 $telefonoParsed = preg_replace('/[^0-9+]/', '', $telefonoParsed);
                 
-                Log::info('Teléfono parseado:', [
-                    'original' => $telefono,
-                    'parseado' => $telefonoParsed
+                // Validación adicional: debe empezar con +34 y tener 12 caracteres totales
+                if (preg_match('/^\+34[6-9]\d{8}$/', $telefonoParsed)) {
+                    Log::info('Teléfono parseado correctamente:', [
+                        'original' => $telefono,
+                        'parseado' => $telefonoParsed
+                    ]);
+                    return $telefonoParsed;
+                }
+                
+                // Si la IA no devolvió formato válido, intentar parseo manual
+                Log::warning('IA devolvió formato inválido, intentando parseo manual:', [
+                    'telefono' => $telefono,
+                    'respuesta_ia' => $telefonoParsed
                 ]);
-
-                return $telefonoParsed;
+                
+                return $this->parseoManualFallback($telefono);
             }
 
-            Log::warning('Error al parsear teléfono con IA, usando original:', [
+            Log::warning('Error en respuesta de IA, usando parseo manual:', [
                 'telefono' => $telefono,
                 'status' => $response->status()
             ]);
 
-            return $telefono;
+            return $this->parseoManualFallback($telefono);
 
         } catch (\Exception $e) {
-            Log::error('Error al parsear teléfono con IA:', [
+            Log::error('Error al parsear teléfono con IA, usando parseo manual:', [
                 'telefono' => $telefono,
                 'error' => $e->getMessage()
             ]);
-            return $telefono;
+            return $this->parseoManualFallback($telefono);
+        }
+    }
+
+    /**
+     * Parseo manual de fallback cuando la IA falla
+     */
+    private function parseoManualFallback($telefono)
+    {
+        try {
+            // Si hay múltiples números separados, tomar solo el primero
+            if (strpos($telefono, '/') !== false) {
+                $telefono = explode('/', $telefono)[0];
+            } elseif (strpos($telefono, ',') !== false) {
+                $telefono = explode(',', $telefono)[0];
+            }
+            
+            // Limpiar espacios, guiones, paréntesis
+            $telefonoLimpio = preg_replace('/[^0-9+]/', '', trim($telefono));
+            
+            // Si ya tiene +34, validar y devolver
+            if (strpos($telefonoLimpio, '+34') === 0) {
+                if (preg_match('/^\+34[6-9]\d{8}$/', $telefonoLimpio)) {
+                    return $telefonoLimpio;
+                }
+                // Quitar el +34 para procesarlo
+                $telefonoLimpio = substr($telefonoLimpio, 3);
+            }
+            
+            // Si empieza con 34 (sin +), quitarlo
+            if (strpos($telefonoLimpio, '34') === 0 && strlen($telefonoLimpio) === 11) {
+                $telefonoLimpio = substr($telefonoLimpio, 2);
+            }
+            
+            // Validar que sea un número español válido (9 dígitos, empieza con 6,7,8,9)
+            if (preg_match('/^[6-9]\d{8}$/', $telefonoLimpio)) {
+                return '+34' . $telefonoLimpio;
+            }
+            
+            Log::warning('No se pudo parsear el teléfono:', ['telefono' => $telefono]);
+            return null;
+            
+        } catch (\Exception $e) {
+            Log::error('Error en parseo manual fallback:', [
+                'telefono' => $telefono,
+                'error' => $e->getMessage()
+            ]);
+            return null;
         }
     }
 
