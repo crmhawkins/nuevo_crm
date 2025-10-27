@@ -35,20 +35,41 @@ class JustificacionesController extends Controller
                 'request_all' => $request->all()
             ]);
             
-            $request->validate([
-                'tipo_justificacion' => 'required|string',
-                'nombre_justificacion' => 'required|string',
-                'url_campo' => 'required|url',
-                'tipo_analisis' => 'required|in:web,ecommerce',
-            ]);
+            // Validación diferente para puesto_trabajo_seguro
+            if ($request->tipo_justificacion === 'puesto_trabajo_seguro') {
+                $request->validate([
+                    'tipo_justificacion' => 'required|string',
+                    'nombre_justificacion' => 'required|string',
+                    'nombre_campo' => 'required|string',
+                    'email_campo' => 'required|email',
+                    'empresa_campo' => 'required|string',
+                ]);
+            } else {
+                $request->validate([
+                    'tipo_justificacion' => 'required|string',
+                    'nombre_justificacion' => 'required|string',
+                    'url_campo' => 'required|url',
+                    'tipo_analisis' => 'required|in:web,ecommerce',
+                ]);
+            }
 
             $user = Auth::user();
             \Log::info('✅ Usuario autenticado', ['user_id' => $user->id]);
-        $metadata = [
-            'url' => $request->input('url_campo'),
-            'tipo_analisis' => $request->input('tipo_analisis'),
-            'estado' => 'pendiente' // Estados: pendiente, en_cola, procesando, completado, error
-        ];
+        // Metadata diferente según el tipo de justificación
+        if ($request->tipo_justificacion === 'puesto_trabajo_seguro') {
+            $metadata = [
+                'nombre' => $request->input('nombre_campo'),
+                'email' => $request->input('email_campo'),
+                'empresa' => $request->input('empresa_campo'),
+                'estado' => 'pendiente'
+            ];
+        } else {
+            $metadata = [
+                'url' => $request->input('url_campo'),
+                'tipo_analisis' => $request->input('tipo_analisis'),
+                'estado' => 'pendiente'
+            ];
+        }
 
         // Crear la justificación sin archivos (llegarán del servidor externo)
         $justificacion = Justificacion::create([
@@ -59,7 +80,17 @@ class JustificacionesController extends Controller
             'metadata' => $metadata // Laravel lo convierte a JSON automáticamente
         ]);
 
-        // Enviar POST a la API Python
+        // No enviar a API para puesto_trabajo_seguro (se hace desde JavaScript)
+        if ($request->tipo_justificacion === 'puesto_trabajo_seguro') {
+            \Log::info('✅ Justificación de puesto_trabajo_seguro creada (envío desde JavaScript)');
+            return response()->json([
+                'success' => true,
+                'message' => 'Justificación creada. El puesto de trabajo seguro se está generando.',
+                'id' => $justificacion->id
+            ]);
+        }
+
+        // Enviar POST a la API Python (solo para otros tipos)
         $apiUrl = 'https://aiapi.hawkins.es/sgbasc';
         $payload = [
             'url' => $request->input('url_campo'),

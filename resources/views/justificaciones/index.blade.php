@@ -85,6 +85,17 @@
                                     </div>
                                 @endif
 
+                                @if($justificacion->tipo_justificacion === 'puesto_trabajo_seguro')
+                                    <div class="mb-3">
+                                        <strong><i class="fas fa-user text-primary"></i> Datos del puesto:</strong><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-user"></i> {{ $metadata['nombre'] ?? 'N/A' }}<br>
+                                            <i class="fas fa-envelope"></i> {{ $metadata['email'] ?? 'N/A' }}<br>
+                                            <i class="fas fa-building"></i> {{ $metadata['empresa'] ?? 'N/A' }}
+                                        </small>
+                                    </div>
+                                @endif
+
                                 <div class="mb-3">
                                     <strong>Estado:</strong>
                                     @if($estado == 'completado')

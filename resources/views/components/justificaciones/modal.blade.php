@@ -15,6 +15,7 @@
                             <select class="form-select" id="tipo_justificacion" name="tipo_justificacion" required>
                                 <option value="">Seleccione una opción</option>
                                 <option value="segunda_justificacion_presencia_basica">Segunda Justificacion Presencia Basica</option>
+                                <option value="puesto_trabajo_seguro">Puesto de trabajo seguro</option>
                             </select>
                         </div>
 
@@ -43,6 +44,24 @@
                                 <label for="url_campo" class="form-label">URL <span class="text-danger">*</span></label>
                                 <input type="url" class="form-control" id="url_campo" name="url_campo" placeholder="https://ejemplo.com" required>
                                 <small class="text-muted">Los archivos serán generados automáticamente por el servidor</small>
+                            </div>
+                        </div>
+
+                        <!-- Campos para Puesto de Trabajo Seguro -->
+                        <div id="campos_puesto_seguro" style="display: none;">
+                            <div class="col-md-12 mb-3">
+                                <label for="nombre_campo" class="form-label">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nombre_campo" name="nombre_campo" placeholder="Nombre completo">
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="email_campo" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email_campo" name="email_campo" placeholder="email@ejemplo.com">
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="empresa_campo" class="form-label">Empresa <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="empresa_campo" name="empresa_campo" placeholder="Nombre de la empresa">
                             </div>
                         </div>
 
