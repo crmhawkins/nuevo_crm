@@ -278,6 +278,10 @@ class JustificacionesController extends Controller
             if (!empty($metadata)) {
                 $metadataContent = "INFORMACIÓN ADICIONAL\n\n";
                 foreach ($metadata as $key => $value) {
+                    // Convertir arrays/objetos a JSON, otros valores a string
+                    if (is_array($value) || is_object($value)) {
+                        $value = json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                    }
                     $metadataContent .= strtoupper($key) . ": " . $value . "\n";
                 }
                 $zip->addFromString('info.txt', $metadataContent);
