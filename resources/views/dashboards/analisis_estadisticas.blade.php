@@ -548,22 +548,30 @@
                         if (Array.isArray(data.data) && data.data.length > 0) {
                             data.data.forEach(phoneNumber => {
                                 const option = document.createElement('option');
-                                // Adaptarse a diferentes formatos de respuesta
-                                if (typeof phoneNumber === 'string') {
-                                    option.value = phoneNumber;
-                                    option.textContent = phoneNumber;
-                                } else if (phoneNumber.phone_number_id || phoneNumber.id) {
-                                    option.value = phoneNumber.phone_number_id || phoneNumber.id;
-                                    option.textContent = phoneNumber.number || phoneNumber.phone_number || phoneNumber.display_name || option.value;
+                                // Formato según API de ElevenLabs
+                                option.value = phoneNumber.phone_number_id;
+                                
+                                // Texto descriptivo: label + número + provider
+                                let displayText = phoneNumber.label || phoneNumber.phone_number;
+                                if (phoneNumber.provider) {
+                                    displayText += ` (${phoneNumber.provider})`;
                                 }
+                                
+                                // Añadir indicador de outbound si está disponible
+                                if (phoneNumber.supports_outbound) {
+                                    displayText += ' ✓';
+                                }
+                                
+                                option.textContent = displayText;
                                 selectPhoneNumber.appendChild(option);
                             });
                             selectPhoneNumber.disabled = false;
+                            
+                            console.log('Phone numbers cargados:', data.data.length);
                         } else {
-                            selectPhoneNumber.innerHTML = '<option value="">No hay números disponibles</option>';
+                            selectPhoneNumber.innerHTML = '<option value="">No hay números asignados a este agente</option>';
+                            console.warn('El agente no tiene números de teléfono asignados');
                         }
-                        
-                        console.log('Phone numbers cargados:', data.data.length);
                     } else {
                         selectPhoneNumber.innerHTML = '<option value="">Error al cargar números</option>';
                         console.error('Error al cargar phone numbers:', data.message);

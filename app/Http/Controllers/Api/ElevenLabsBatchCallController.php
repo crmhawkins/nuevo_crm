@@ -418,6 +418,7 @@ class ElevenLabsBatchCallController extends Controller
 
     /**
      * Obtener phone numbers de un agente desde la API de ElevenLabs
+     * Documentación: https://elevenlabs.io/docs/api-reference/phone-numbers/list
      */
     public function obtenerPhoneNumbers(Request $request, $agentId)
     {
@@ -433,42 +434,53 @@ class ElevenLabsBatchCallController extends Controller
                 ], 500);
             }
 
-            // Llamar a la API de ElevenLabs para obtener los phone numbers del agente
-            // Endpoint: GET /v1/convai/agents/{agent_id}/phone-numbers
+            // Llamar a la API de ElevenLabs para obtener TODOS los phone numbers
+            // Endpoint correcto según documentación: GET /v1/convai/phone-numbers
             $response = Http::withHeaders([
                 'xi-api-key' => $this->apiKey,
                 'Content-Type' => 'application/json'
-            ])->timeout(30)->get($this->apiUrl . '/v1/convai/agents/' . $agentId . '/phone-numbers');
+            ])->timeout(30)->get($this->apiUrl . '/v1/convai/phone-numbers');
 
             Log::info('Respuesta de ElevenLabs al obtener phone numbers:', [
                 'status' => $response->status(),
-                'body' => $response->body()
+                'body_preview' => substr($response->body(), 0, 500)
             ]);
 
             if ($response->successful()) {
-                $data = $response->json();
+                $allPhoneNumbers = $response->json();
                 
-                // La API puede devolver los números en diferentes formatos
-                // Adaptamos para que sea consistente
-                $phoneNumbers = [];
+                // Filtrar solo los números asignados al agente solicitado
+                $phoneNumbersFiltrados = [];
                 
-                if (isset($data['phone_numbers']) && is_array($data['phone_numbers'])) {
-                    $phoneNumbers = $data['phone_numbers'];
-                } elseif (isset($data['numbers']) && is_array($data['numbers'])) {
-                    $phoneNumbers = $data['numbers'];
-                } elseif (is_array($data)) {
-                    // Si la respuesta es directamente un array
-                    $phoneNumbers = $data;
+                if (is_array($allPhoneNumbers)) {
+                    foreach ($allPhoneNumbers as $phoneData) {
+                        // Verificar si está asignado al agente
+                        $assignedAgentId = $phoneData['assigned_agent']['agent_id'] ?? null;
+                        
+                        if ($assignedAgentId === $agentId) {
+                            // Formatear para el frontend
+                            $phoneNumbersFiltrados[] = [
+                                'phone_number_id' => $phoneData['phone_number_id'],
+                                'phone_number' => $phoneData['phone_number'],
+                                'label' => $phoneData['label'] ?? $phoneData['phone_number'],
+                                'provider' => $phoneData['provider'] ?? 'unknown',
+                                'supports_inbound' => $phoneData['supports_inbound'] ?? false,
+                                'supports_outbound' => $phoneData['supports_outbound'] ?? false
+                            ];
+                        }
+                    }
                 }
 
-                Log::info('Phone numbers procesados:', [
-                    'total' => count($phoneNumbers),
-                    'phone_numbers' => $phoneNumbers
+                Log::info('Phone numbers filtrados para el agente:', [
+                    'agent_id' => $agentId,
+                    'total' => count($phoneNumbersFiltrados),
+                    'phone_numbers' => $phoneNumbersFiltrados
                 ]);
 
                 return response()->json([
                     'success' => true,
-                    'data' => $phoneNumbers
+                    'data' => $phoneNumbersFiltrados,
+                    'total' => count($phoneNumbersFiltrados)
                 ]);
             } else {
                 Log::error('Error en la respuesta de ElevenLabs al obtener phone numbers:', [
