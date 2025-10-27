@@ -36,7 +36,7 @@ class JustificacionesController extends Controller
                 'request_all' => $request->all()
             ]);
             
-            // Validación diferente para puesto_trabajo_seguro
+            // Validación diferente para cada tipo
             if ($request->tipo_justificacion === 'puesto_trabajo_seguro') {
                 $request->validate([
                     'tipo_justificacion' => 'required|string',
@@ -44,6 +44,19 @@ class JustificacionesController extends Controller
                     'nombre_campo' => 'required|string',
                     'email_campo' => 'required|email',
                     'empresa_campo' => 'required|string',
+                ]);
+            } elseif ($request->tipo_justificacion === 'presencia_avanzada_2') {
+                $request->validate([
+                    'tipo_justificacion' => 'required|string',
+                    'nombre_justificacion' => 'required|string',
+                    'kd_campo' => 'required|string',
+                    'nombre_presencia_campo' => 'required|string',
+                    'url_presencia_campo' => 'required|url',
+                    'keyword_campo' => 'required|string',
+                    'phone_campo' => 'required|string',
+                    'email_presencia_campo' => 'required|email',
+                    'address_campo' => 'required|string',
+                    'descripcion_campo' => 'required|string',
                 ]);
             } else {
                 $request->validate([
@@ -62,6 +75,18 @@ class JustificacionesController extends Controller
                 'nombre' => $request->input('nombre_campo'),
                 'email' => $request->input('email_campo'),
                 'empresa' => $request->input('empresa_campo'),
+                'estado' => 'pendiente'
+            ];
+        } elseif ($request->tipo_justificacion === 'presencia_avanzada_2') {
+            $metadata = [
+                'kd' => $request->input('kd_campo'),
+                'nombre' => $request->input('nombre_presencia_campo'),
+                'url' => $request->input('url_presencia_campo'),
+                'keyword_principal' => $request->input('keyword_campo'),
+                'phone' => $request->input('phone_campo'),
+                'email' => $request->input('email_presencia_campo'),
+                'address' => $request->input('address_campo'),
+                'descripcion' => $request->input('descripcion_campo'),
                 'estado' => 'pendiente'
             ];
         } else {

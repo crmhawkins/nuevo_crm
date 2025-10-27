@@ -9,6 +9,7 @@
         const tipoSelect = document.getElementById('tipo_justificacion');
         const camposDinamicos = document.getElementById('campos_dinamicos');
         const camposPuestoSeguro = document.getElementById('campos_puesto_seguro');
+        const camposPresenciaAvanzada = document.getElementById('campos_presencia_avanzada');
         const nombreJustificacion = document.getElementById('nombre_justificacion');
         const enviarBtn = document.getElementById('enviarJustificacion');
         const justificacionesForm = document.getElementById('justificacionesForm');
@@ -24,14 +25,22 @@
             if (valor === 'segunda_justificacion_presencia_basica') {
                 camposDinamicos.style.display = 'block';
                 if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
+                if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'none';
                 nombreJustificacion.value = 'Segunda Justificacion Presencia Basica';
             } else if (valor === 'puesto_trabajo_seguro') {
                 if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'block';
                 camposDinamicos.style.display = 'none';
+                if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'none';
                 nombreJustificacion.value = 'Puesto de trabajo seguro';
+            } else if (valor === 'presencia_avanzada_2') {
+                if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'block';
+                camposDinamicos.style.display = 'none';
+                if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
+                nombreJustificacion.value = 'Presencia Avanzada (2ª)';
             } else {
                 camposDinamicos.style.display = 'none';
                 if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
+                if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'none';
                 nombreJustificacion.value = '';
             }
         });
@@ -65,6 +74,24 @@
                         icon: 'error',
                         title: 'Error',
                         text: 'Debe ingresar la URL'
+                    });
+                    return;
+                }
+            } else if (tipoJustificacion === 'presencia_avanzada_2') {
+                const kd = document.getElementById('kd_campo').value;
+                const nombre = document.getElementById('nombre_presencia_campo').value;
+                const url = document.getElementById('url_presencia_campo').value;
+                const keyword = document.getElementById('keyword_campo').value;
+                const phone = document.getElementById('phone_campo').value;
+                const email = document.getElementById('email_presencia_campo').value;
+                const address = document.getElementById('address_campo').value;
+                const descripcion = document.getElementById('descripcion_campo').value;
+                
+                if (!kd || !nombre || !url || !keyword || !phone || !email || !address || !descripcion) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Debe completar todos los campos obligatorios'
                     });
                     return;
                 }
@@ -110,6 +137,7 @@
                         justificacionesForm.reset();
                         camposDinamicos.style.display = 'none';
                         if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
+                        if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'none';
                         
                         // Redirigir a justificaciones
                         if (result.isConfirmed) {

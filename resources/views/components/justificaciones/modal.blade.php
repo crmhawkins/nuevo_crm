@@ -15,6 +15,7 @@
                             <select class="form-select" id="tipo_justificacion" name="tipo_justificacion" required>
                                 <option value="">Seleccione una opción</option>
                                 <option value="segunda_justificacion_presencia_basica">Segunda Justificacion Presencia Basica</option>
+                                <option value="presencia_avanzada_2">Presencia Avanzada (2ª)</option>
                                 <option value="puesto_trabajo_seguro">Puesto de trabajo seguro</option>
                             </select>
                         </div>
@@ -62,6 +63,50 @@
                             <div class="col-md-12 mb-3">
                                 <label for="empresa_campo" class="form-label">Empresa <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="empresa_campo" name="empresa_campo" placeholder="Nombre de la empresa">
+                            </div>
+                        </div>
+
+                        <!-- Campos para Presencia Avanzada (2ª) -->
+                        <div id="campos_presencia_avanzada" style="display: none;">
+                            <div class="col-md-6 mb-3">
+                                <label for="kd_campo" class="form-label">KD <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="kd_campo" name="kd_campo" placeholder="Keyword Difficulty">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre_presencia_campo" class="form-label">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nombre_presencia_campo" name="nombre_presencia_campo" placeholder="Ej: LAURA ESAIN BARROS">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="url_presencia_campo" class="form-label">URL <span class="text-danger">*</span></label>
+                                <input type="url" class="form-control" id="url_presencia_campo" name="url_presencia_campo" placeholder="https://ejemplo.com">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="keyword_campo" class="form-label">Keyword Principal <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="keyword_campo" name="keyword_campo" placeholder="Ej: lámparas diseño artesanal">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="phone_campo" class="form-label">Teléfono <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="phone_campo" name="phone_campo" placeholder="+34 910 123 456">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="email_presencia_campo" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email_presencia_campo" name="email_presencia_campo" placeholder="info@ejemplo.com">
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="address_campo" class="form-label">Dirección <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="address_campo" name="address_campo" placeholder="Calle Ejemplo 123, Madrid">
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="descripcion_campo" class="form-label">Descripción <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="descripcion_campo" name="descripcion_campo" rows="3" placeholder="Descripción de la empresa o proyecto"></textarea>
+                                <small class="text-muted">Los archivos serán generados automáticamente por el servidor</small>
                             </div>
                         </div>
 

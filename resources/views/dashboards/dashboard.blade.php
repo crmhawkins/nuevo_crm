@@ -1281,6 +1281,7 @@
 
 </script>
 
+@include('components.justificaciones.modal')
 @include('components.justificaciones.script')
 @endsection
             this.queue.push(requestData);

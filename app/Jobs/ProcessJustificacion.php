@@ -33,6 +33,7 @@ class ProcessJustificacion implements ShouldQueue
     private const API_URLS = [
         'segunda_justificacion_presencia_basica' => 'https://aiapi.hawkins.es/sgbasc',
         'puesto_trabajo_seguro' => 'https://aiapi.hawkins.es/sgpseg',
+        'presencia_avanzada_2' => 'https://aiapi.hawkins.es/sgpavz2',
         // Agregar más tipos aquí según sea necesario
     ];
 
@@ -185,6 +186,18 @@ class ProcessJustificacion implements ShouldQueue
                 return array_merge($basePayload, [
                     'url' => $metadata['url'] ?? '',
                     'tipo_analisis' => $metadata['tipo_analisis'] ?? 'web'
+                ]);
+
+            case 'presencia_avanzada_2':
+                return array_merge($basePayload, [
+                    'kd' => $metadata['kd'] ?? '',
+                    'nombre' => $metadata['nombre'] ?? '',
+                    'url' => $metadata['url'] ?? '',
+                    'keyword_principal' => $metadata['keyword_principal'] ?? '',
+                    'phone' => $metadata['phone'] ?? '',
+                    'email' => $metadata['email'] ?? '',
+                    'address' => $metadata['address'] ?? '',
+                    'descripcion' => $metadata['descripcion'] ?? ''
                 ]);
 
             default:
