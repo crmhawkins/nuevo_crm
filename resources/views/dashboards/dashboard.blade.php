@@ -1281,14 +1281,8 @@
 
 </script>
 
-<script>
-    // Sistema de cola para peticiones de Puesto de Trabajo Seguro
-    const puestoTrabajoQueue = {
-        isProcessing: false,
-        queue: [],
-        
-        // Agregar petición a la cola
-        add: function(requestData) {
+@include('components.justificaciones.script')
+@endsection
             this.queue.push(requestData);
             console.log(`Petición añadida a la cola. Total en cola: ${this.queue.length}`);
             

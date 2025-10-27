@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 use Illuminate\Support\Facades\Http;
+use App\Jobs\ProcessJustificacion;
 
 class JustificacionesController extends Controller
 {
@@ -80,78 +81,25 @@ class JustificacionesController extends Controller
             'metadata' => $metadata // Laravel lo convierte a JSON automáticamente
         ]);
 
-        // No enviar a API para puesto_trabajo_seguro (se hace desde JavaScript)
-        if ($request->tipo_justificacion === 'puesto_trabajo_seguro') {
-            \Log::info('✅ Justificación de puesto_trabajo_seguro creada (envío desde JavaScript)');
-            return response()->json([
-                'success' => true,
-                'message' => 'Justificación creada. El puesto de trabajo seguro se está generando.',
-                'id' => $justificacion->id
-            ]);
-        }
-
-        // Enviar POST a la API Python (solo para otros tipos)
-        $apiUrl = 'https://aiapi.hawkins.es/sgbasc';
-        $payload = [
-            'url' => $request->input('url_campo'),
+        \Log::info('✅ Justificación creada, encolando Job', [
             'justificacion_id' => $justificacion->id,
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'nombre_justificacion' => $request->nombre_justificacion,
-            'tipo_justificacion' => $request->tipo_justificacion,
-            'tipo_analisis' => $request->input('tipo_analisis'), // 'web' o 'ecommerce'
-            'callback_url' => route('justificaciones.receive.public', $justificacion->id),
-            'timestamp' => now()->toDateTimeString()
-        ];
-        
-        \Log::info('📤 Enviando petición a Python API', [
-            'url' => $apiUrl,
-            'payload' => $payload
+            'tipo' => $request->tipo_justificacion
         ]);
         
-        try {
-            $response = Http::timeout(10)->post($apiUrl, $payload);
-            
-            \Log::info('📥 Respuesta de Python API', [
-                'status' => $response->status(),
-                'body' => $response->body()
-            ]);
-
-            if ($response->successful()) {
-                \Log::info('✅ Petición exitosa a Python API');
-                $metadata['estado'] = 'en_cola';
-                $metadata['mensaje'] = 'Solicitud enviada al servidor de procesamiento';
-                $justificacion->update(['metadata' => $metadata]);
-            } else {
-                \Log::warning('⚠️ Python API respondió con error', [
-                    'status' => $response->status(),
-                    'body' => $response->body()
-                ]);
-                $metadata['estado'] = 'error';
-                $metadata['mensaje'] = 'El servidor respondió con error';
-                $justificacion->update(['metadata' => $metadata]);
-            }
-        } catch (\Exception $e) {
-            \Log::error('❌ Error al enviar a Python API', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            $metadata['estado'] = 'error';
-            $metadata['error'] = $e->getMessage();
-            $justificacion->update(['metadata' => $metadata]);
-        }
-
-            \Log::info('✅ Justificación creada exitosamente', [
-                'justificacion_id' => $justificacion->id
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Justificación creada. Los archivos serán procesados en breve.',
-                'id' => $justificacion->id
-            ]);
-            
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        // Encolar Job genérico para TODOS los tipos de justificación
+        ProcessJustificacion::dispatch($justificacion->id);
+        
+        \Log::info('📋 Job encolado exitosamente', [
+            'justificacion_id' => $justificacion->id
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Solicitud encolada correctamente. Se procesará en breve.',
+            'id' => $justificacion->id
+        ]);
+        
+    } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('❌ Error de validación', [
                 'errors' => $e->errors()
             ]);
