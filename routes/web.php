@@ -1030,6 +1030,16 @@ Route::middleware(['auth'])->prefix('api/elevenlabs-monitoring')->group(function
     
     // Actualizar categorías manualmente
     Route::post('/conversations/{id}/update-categories', [\App\Http\Controllers\Api\ElevenlabsCategoryController::class, 'updateCategories']);
+    
+    // Batch Calls de ElevenLabs
+    Route::get('/batch-calls/agentes', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'obtenerAgentes']);
+    Route::get('/batch-calls/agentes/{agentId}/phone-numbers', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'obtenerPhoneNumbers']);
+    Route::post('/batch-calls/submit', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'submitBatchCall']);
+    Route::post('/batch-calls/submit-from-view', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'submitBatchCallFromView']);
+    Route::post('/batch-calls/submit-clientes-filtrados', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'submitBatchCallConClientesFiltrados']);
 });
+
+// Ruta para obtener teléfonos de clientes filtrados
+Route::middleware(['auth'])->get('/api/telefonos-clientes-filtrados', [DashboardController::class, 'obtenerTelefonosClientesFiltrados'])->name('api.telefonos.filtrados');
 
 

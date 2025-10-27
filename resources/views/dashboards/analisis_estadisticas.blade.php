@@ -91,8 +91,16 @@
                 @endswitch
             </h5>
             
-            
-            
+            <!-- Botón para Batch Calls -->
+            @if($resultados->count() > 0)
+                <div class="mt-3 mb-3">
+                    <button type="button" class="btn btn-success" id="btnBatchCall" onclick="abrirModalBatchCall()">
+                        <i class="bi bi-telephone-outbound"></i> Enviar Batch Call a Clientes Filtrados
+                        <span class="badge bg-light text-dark ms-2" id="totalClientesConTelefono">0</span>
+                    </button>
+                    <small class="text-muted ms-2">Se enviarán llamadas automáticas a todos los clientes con teléfono</small>
+                </div>
+            @endif
             
             @if($resultados->count() > 0)
                 <div class="table-responsive">
@@ -193,6 +201,72 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Batch Call -->
+<div class="modal fade" id="batchCallModal" tabindex="-1" aria-labelledby="batchCallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="batchCallModalLabel">
+                    <i class="bi bi-telephone-outbound"></i> Configurar Batch Call a ElevenLabs
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formBatchCall">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>Información:</strong> Se enviarán llamadas automáticas a <span id="totalLlamadas" class="fw-bold">0</span> clientes con teléfono válido.
+                        Los números serán procesados y validados automáticamente con IA.
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="callName" class="form-label">Nombre de la Campaña <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="callName" name="call_name" required 
+                               placeholder="Ej: Campaña Marzo 2024">
+                        <small class="text-muted">Identificador de esta campaña de llamadas</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="agentId" class="form-label">Agente <span class="text-danger">*</span></label>
+                        <select class="form-select" id="agentId" name="agent_id" required onchange="cargarPhoneNumbers()">
+                            <option value="">Selecciona un agente...</option>
+                        </select>
+                        <small class="text-muted">Selecciona el agente que realizará las llamadas</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="agentPhoneNumberId" class="form-label">Número de Teléfono <span class="text-danger">*</span></label>
+                        <select class="form-select" id="agentPhoneNumberId" name="agent_phone_number_id" required disabled>
+                            <option value="">Primero selecciona un agente...</option>
+                        </select>
+                        <small class="text-muted">Número de teléfono desde el cual se realizarán las llamadas</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Clientes a Llamar</label>
+                        <div id="listaClientesBatchCall" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                            <div class="text-center text-muted">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p class="mt-2 mb-0">Cargando clientes...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="alertaBatchCall"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnEnviarBatchCall" onclick="enviarBatchCall()">
+                    <i class="bi bi-send"></i> Enviar Batch Call
+                </button>
             </div>
         </div>
     </div>
@@ -404,6 +478,303 @@
 
             document.getElementById('clienteInfo').innerHTML = html;
         }
+
+        // ==================== BATCH CALL FUNCTIONALITY ====================
+        
+        let clientesParaBatchCall = [];
+
+        // Función para abrir el modal y cargar los clientes
+        window.abrirModalBatchCall = function() {
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('batchCallModal'));
+            modal.show();
+
+            // Cargar los agentes
+            cargarAgentes();
+
+            // Cargar los clientes filtrados
+            cargarClientesParaBatchCall();
+        }
+
+        // Función para cargar la lista de agentes
+        function cargarAgentes() {
+            fetch('/api/elevenlabs-monitoring/batch-calls/agentes')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        const selectAgente = document.getElementById('agentId');
+                        selectAgente.innerHTML = '<option value="">Selecciona un agente...</option>';
+                        
+                        data.data.forEach(agente => {
+                            const option = document.createElement('option');
+                            option.value = agente.agent_id;
+                            option.textContent = agente.name;
+                            selectAgente.appendChild(option);
+                        });
+                        
+                        console.log('Agentes cargados:', data.data.length);
+                    } else {
+                        console.error('Error al cargar agentes:', data.message);
+                        mostrarAlertaBatchCall('warning', 'No se pudieron cargar los agentes. Verifica la configuración.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarAlertaBatchCall('warning', 'Error al cargar la lista de agentes.');
+                });
+        }
+
+        // Función para cargar phone numbers cuando se selecciona un agente
+        window.cargarPhoneNumbers = function() {
+            const agentId = document.getElementById('agentId').value;
+            const selectPhoneNumber = document.getElementById('agentPhoneNumberId');
+            
+            if (!agentId) {
+                selectPhoneNumber.disabled = true;
+                selectPhoneNumber.innerHTML = '<option value="">Primero selecciona un agente...</option>';
+                return;
+            }
+
+            // Mostrar loading
+            selectPhoneNumber.disabled = true;
+            selectPhoneNumber.innerHTML = '<option value="">Cargando números...</option>';
+
+            fetch(`/api/elevenlabs-monitoring/batch-calls/agentes/${agentId}/phone-numbers`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        selectPhoneNumber.innerHTML = '<option value="">Selecciona un número...</option>';
+                        
+                        if (Array.isArray(data.data) && data.data.length > 0) {
+                            data.data.forEach(phoneNumber => {
+                                const option = document.createElement('option');
+                                // Adaptarse a diferentes formatos de respuesta
+                                if (typeof phoneNumber === 'string') {
+                                    option.value = phoneNumber;
+                                    option.textContent = phoneNumber;
+                                } else if (phoneNumber.phone_number_id || phoneNumber.id) {
+                                    option.value = phoneNumber.phone_number_id || phoneNumber.id;
+                                    option.textContent = phoneNumber.number || phoneNumber.phone_number || phoneNumber.display_name || option.value;
+                                }
+                                selectPhoneNumber.appendChild(option);
+                            });
+                            selectPhoneNumber.disabled = false;
+                        } else {
+                            selectPhoneNumber.innerHTML = '<option value="">No hay números disponibles</option>';
+                        }
+                        
+                        console.log('Phone numbers cargados:', data.data.length);
+                    } else {
+                        selectPhoneNumber.innerHTML = '<option value="">Error al cargar números</option>';
+                        console.error('Error al cargar phone numbers:', data.message);
+                        mostrarAlertaBatchCall('warning', 'No se pudieron cargar los números de teléfono del agente.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    selectPhoneNumber.innerHTML = '<option value="">Error al cargar números</option>';
+                    mostrarAlertaBatchCall('warning', 'Error al cargar los números de teléfono.');
+                });
+        }
+
+        // Función para cargar los clientes con los filtros actuales
+        function cargarClientesParaBatchCall() {
+            const fechaInicio = document.querySelector('input[name="fecha_inicio"]').value;
+            const fechaFin = document.querySelector('input[name="fecha_fin"]').value;
+            const tipoAnalisis = document.querySelector('select[name="tipo_analisis"]').value;
+            const filtroId = document.querySelector('select[name="filtro_id"]').value;
+            const montoMinimo = document.querySelector('input[name="monto_minimo"]').value;
+            const limite = document.querySelector('input[name="limite"]').value;
+
+            const url = new URL('{{ route("api.telefonos.filtrados") }}');
+            url.searchParams.append('fecha_inicio', fechaInicio);
+            url.searchParams.append('fecha_fin', fechaFin);
+            url.searchParams.append('tipo_analisis', tipoAnalisis);
+            if (filtroId) url.searchParams.append('filtro_id', filtroId);
+            if (montoMinimo) url.searchParams.append('monto_minimo', montoMinimo);
+            if (limite) url.searchParams.append('limite', limite);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        clientesParaBatchCall = data.clientes;
+                        mostrarClientesBatchCall(data.clientes);
+                        document.getElementById('totalLlamadas').textContent = data.total;
+                        document.getElementById('totalClientesConTelefono').textContent = data.total;
+                    } else {
+                        mostrarErrorBatchCall('Error al cargar los clientes: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarErrorBatchCall('Error al cargar los clientes. Por favor, inténtalo de nuevo.');
+                });
+        }
+
+        // Función para mostrar la lista de clientes
+        function mostrarClientesBatchCall(clientes) {
+            const lista = document.getElementById('listaClientesBatchCall');
+            
+            if (clientes.length === 0) {
+                lista.innerHTML = `
+                    <div class="alert alert-warning mb-0">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        No hay clientes con teléfono válido en los resultados filtrados.
+                    </div>
+                `;
+                document.getElementById('btnEnviarBatchCall').disabled = true;
+                return;
+            }
+
+            document.getElementById('btnEnviarBatchCall').disabled = false;
+
+            let html = '<div class="list-group">';
+            clientes.forEach((cliente, index) => {
+                html += `
+                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${cliente.nombre}</strong>
+                            <br>
+                            <small class="text-muted">
+                                <i class="bi bi-telephone"></i> ${cliente.telefono}
+                            </small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">${index + 1}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            lista.innerHTML = html;
+        }
+
+        // Función para enviar el batch call
+        window.enviarBatchCall = function() {
+            // Validar formulario
+            const callName = document.getElementById('callName').value.trim();
+            const agentId = document.getElementById('agentId').value.trim();
+            const agentPhoneNumberId = document.getElementById('agentPhoneNumberId').value.trim();
+
+            if (!callName || !agentId || !agentPhoneNumberId) {
+                mostrarAlertaBatchCall('danger', 'Por favor, completa todos los campos obligatorios.');
+                return;
+            }
+
+            if (clientesParaBatchCall.length === 0) {
+                mostrarAlertaBatchCall('danger', 'No hay clientes para enviar el batch call.');
+                return;
+            }
+
+            // Deshabilitar botón y mostrar loading
+            const btnEnviar = document.getElementById('btnEnviarBatchCall');
+            btnEnviar.disabled = true;
+            btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Enviando...';
+
+            // Preparar datos
+            const datos = {
+                call_name: callName,
+                agent_id: agentId,
+                agent_phone_number_id: agentPhoneNumberId,
+                clientes: clientesParaBatchCall
+            };
+
+            // Enviar petición
+            fetch('/api/elevenlabs-monitoring/batch-calls/submit-clientes-filtrados', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarAlertaBatchCall('success', 
+                        `¡Batch call enviado exitosamente! <br>
+                        <strong>Estadísticas:</strong><br>
+                        - Total clientes: ${data.estadisticas.total_clientes}<br>
+                        - Llamadas programadas: ${data.estadisticas.llamadas_programadas}<br>
+                        - Errores: ${data.estadisticas.errores}
+                    `);
+                    
+                    // Cerrar modal después de 3 segundos
+                    setTimeout(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('batchCallModal')).hide();
+                        // Limpiar formulario
+                        document.getElementById('formBatchCall').reset();
+                        // Resetear selects
+                        document.getElementById('agentPhoneNumberId').disabled = true;
+                        document.getElementById('agentPhoneNumberId').innerHTML = '<option value="">Primero selecciona un agente...</option>';
+                        document.getElementById('alertaBatchCall').innerHTML = '';
+                    }, 3000);
+                } else {
+                    mostrarAlertaBatchCall('danger', 'Error al enviar batch call: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarAlertaBatchCall('danger', 'Error al enviar batch call. Por favor, inténtalo de nuevo.');
+            })
+            .finally(() => {
+                // Rehabilitar botón
+                btnEnviar.disabled = false;
+                btnEnviar.innerHTML = '<i class="bi bi-send"></i> Enviar Batch Call';
+            });
+        }
+
+        // Función para mostrar alertas en el modal
+        function mostrarAlertaBatchCall(tipo, mensaje) {
+            const alerta = document.getElementById('alertaBatchCall');
+            alerta.innerHTML = `
+                <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                    ${mensaje}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+
+        // Función para mostrar errores al cargar clientes
+        function mostrarErrorBatchCall(mensaje) {
+            const lista = document.getElementById('listaClientesBatchCall');
+            lista.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> ${mensaje}
+                </div>
+            `;
+            document.getElementById('btnEnviarBatchCall').disabled = true;
+        }
+
+        // Actualizar el badge del botón al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar el número de clientes con teléfono
+            const fechaInicio = document.querySelector('input[name="fecha_inicio"]').value;
+            const fechaFin = document.querySelector('input[name="fecha_fin"]').value;
+            const tipoAnalisis = document.querySelector('select[name="tipo_analisis"]').value;
+            const filtroId = document.querySelector('select[name="filtro_id"]').value;
+            const montoMinimo = document.querySelector('input[name="monto_minimo"]').value;
+            const limite = document.querySelector('input[name="limite"]').value;
+
+            const url = new URL('{{ route("api.telefonos.filtrados") }}');
+            url.searchParams.append('fecha_inicio', fechaInicio);
+            url.searchParams.append('fecha_fin', fechaFin);
+            url.searchParams.append('tipo_analisis', tipoAnalisis);
+            if (filtroId) url.searchParams.append('filtro_id', filtroId);
+            if (montoMinimo) url.searchParams.append('monto_minimo', montoMinimo);
+            if (limite) url.searchParams.append('limite', limite);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('totalClientesConTelefono').textContent = data.total;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar total de clientes:', error);
+                });
+        });
     });
 </script>
 @endsection

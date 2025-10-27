@@ -2296,4 +2296,63 @@ class DashboardController extends Controller
             'resumen' => $resumen
         ]);
     }
+
+    /**
+     * Obtener teléfonos de clientes filtrados para batch calls
+     */
+    public function obtenerTelefonosClientesFiltrados(Request $request)
+    {
+        try {
+            Log::info('=== INICIO obtenerTelefonosClientesFiltrados ===');
+            Log::info('Datos recibidos:', $request->all());
+
+            // Obtener los mismos parámetros que usa la vista
+            $fechaInicio = $request->input('fecha_inicio') ?? Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d');
+            $fechaFin = $request->input('fecha_fin') ?? Carbon::now()->format('Y-m-d');
+            $tipoAnalisis = $request->input('tipo_analisis', 'top_clientes');
+            $filtroId = $request->input('filtro_id');
+            $montoMinimo = $request->input('monto_minimo', 0);
+            $limite = $request->input('limite', 50);
+
+            // Obtener los mismos resultados que la vista
+            $filtroParaAnalisis = ($tipoAnalisis == 'por_facturacion') ? $montoMinimo : $filtroId;
+            $resultados = $this->obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroParaAnalisis, $limite);
+
+            // Extraer solo los teléfonos no nulos
+            $clientes = $resultados->map(function($cliente) {
+                return [
+                    'id' => $cliente->id,
+                    'nombre' => trim($cliente->name . ' ' . ($cliente->primerApellido ?? '') . ' ' . ($cliente->segundoApellido ?? '')),
+                    'telefono' => $cliente->phone
+                ];
+            })->filter(function($cliente) {
+                return !empty($cliente['telefono']);
+            })->values();
+
+            Log::info('Clientes con teléfono encontrados:', [
+                'total' => $clientes->count(),
+                'primeros_3' => $clientes->take(3)->toArray()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'total' => $clientes->count(),
+                'clientes' => $clientes
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error en obtenerTelefonosClientesFiltrados:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error interno del servidor',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
