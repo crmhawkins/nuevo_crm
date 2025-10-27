@@ -59,15 +59,6 @@
                                     </small>
                                 </div>
 
-                                @if($justificacion->metadata && isset($justificacion->metadata['url']))
-                                    <div class="mb-3">
-                                        <strong>URL:</strong><br>
-                                        <a href="{{ $justificacion->metadata['url'] }}" target="_blank" class="text-break">
-                                            {{ $justificacion->metadata['url'] }}
-                                        </a>
-                                    </div>
-                                @endif
-
                                 @php
                                     // Manejar datos antiguos (string JSON) y nuevos (array)
                                     $archivos = $justificacion->archivos;
@@ -84,6 +75,15 @@
                                     
                                     $estado = $metadata['estado'] ?? 'pendiente';
                                 @endphp
+
+                                @if(isset($metadata['url']))
+                                    <div class="mb-3">
+                                        <strong><i class="fas fa-link text-primary"></i> URL Analizada:</strong><br>
+                                        <a href="{{ $metadata['url'] }}" target="_blank" class="text-primary text-decoration-none" style="font-size: 0.9rem;">
+                                            <i class="fas fa-external-link-alt"></i> {{ Str::limit($metadata['url'], 40) }}
+                                        </a>
+                                    </div>
+                                @endif
 
                                 <div class="mb-3">
                                     <strong>Estado:</strong>
