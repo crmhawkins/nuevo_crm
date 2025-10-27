@@ -528,7 +528,7 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
 
             // Agentes excluidos (no mostrar en el select)
             $agentesExcluidos = [
-                'agent_8901k83mr4wre3zt8xxveem9739z',
+                'agent_2101k4x2e965f3psb4bzgmptv8wd',
                 'agent_5501k6fbcv09er2sf6gjzc8zqz9x'
             ];
 
