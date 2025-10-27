@@ -161,29 +161,35 @@ class JustificacionesController extends Controller
             
             \Log::info("Usuario ID: {$userId}");
 
-            // Guardar archivos recibidos
-            if ($request->hasFile('archivo_just')) {
-                $path = $request->file('archivo_just')->store('justificaciones/' . $userId, 'public');
-                $archivos['just'] = $path;
-                \Log::info("✅ Archivo justificación guardado: {$path}");
-            } else {
-                \Log::warning("⚠️ No se recibió archivo_just");
-            }
+            // Guardar archivos recibidos (acepta cualquier archivo con nombre archivo_*)
+            // Mapeo de nombres amigables
+            $archivoMap = [
+                'archivo_just' => 'just',
+                'archivo_titularidad' => 'titularidad',
+                'archivo_publicidad' => 'publicidad',
+                'archivo_competencia' => 'competencia',
+                'archivo_analytics' => 'analytics',
+                'archivo_datos' => 'datos',
+                'archivo_excel' => 'excel',
+                'archivo_extra' => 'extra',
+            ];
 
-            if ($request->hasFile('archivo_titularidad')) {
-                $path = $request->file('archivo_titularidad')->store('justificaciones/' . $userId, 'public');
-                $archivos['titularidad'] = $path;
-                \Log::info("✅ Archivo titularidad guardado: {$path}");
-            } else {
-                \Log::warning("⚠️ No se recibió archivo_titularidad");
-            }
-
-            if ($request->hasFile('archivo_publicidad')) {
-                $path = $request->file('archivo_publicidad')->store('justificaciones/' . $userId, 'public');
-                $archivos['publicidad'] = $path;
-                \Log::info("✅ Archivo publicidad guardado: {$path}");
-            } else {
-                \Log::warning("⚠️ No se recibió archivo_publicidad");
+            // Procesar todos los archivos que empiecen con 'archivo_'
+            foreach ($request->allFiles() as $fieldName => $file) {
+                if (str_starts_with($fieldName, 'archivo_')) {
+                    // Usar nombre del mapeo o el nombre del campo
+                    $nombreArchivo = $archivoMap[$fieldName] ?? str_replace('archivo_', '', $fieldName);
+                    
+                    // Guardar archivo
+                    $path = $file->store('justificaciones/' . $userId, 'public');
+                    $archivos[$nombreArchivo] = $path;
+                    
+                    \Log::info("✅ Archivo '{$nombreArchivo}' guardado: {$path}", [
+                        'extension' => $file->getClientOriginalExtension(),
+                        'size' => $file->getSize(),
+                        'original_name' => $file->getClientOriginalName()
+                    ]);
+                }
             }
 
             if (empty($archivos)) {

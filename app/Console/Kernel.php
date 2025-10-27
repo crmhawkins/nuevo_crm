@@ -63,6 +63,14 @@ class Kernel extends ConsoleKernel
         // Descarga todas las conversaciones de hoy automáticamente
         $schedule->command('elevenlabs:sync-all', ['--from-date' => now()->format('Y-m-d')])->everyTenMinutes();
 
+        // Procesar cola de justificaciones - ejecuta cada minuto sin overlapping
+        // Procesa todos los jobs disponibles en la cola 'justificaciones' y se detiene
+        $schedule->command('queue:work', [
+            '--queue' => 'justificaciones',
+            '--stop-when-empty',
+            '--tries' => 3,
+            '--timeout' => 600
+        ])->everyMinute()->withoutOverlapping();
 
         // $schedule->call(function () {
         //     $users = User::where('inactive', 0)->where('id', '!=', 101)->get();
