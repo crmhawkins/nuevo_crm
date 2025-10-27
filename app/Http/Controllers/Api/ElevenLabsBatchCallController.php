@@ -312,6 +312,47 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
     }
 
     /**
+     * Actualizar first_message de un agente
+     * Documentación: https://elevenlabs.io/docs/api-reference/agents/update
+     */
+    private function actualizarFirstMessage($agentId, $firstMessage)
+    {
+        try {
+            Log::info('Actualizando first_message del agente:', [
+                'agent_id' => $agentId,
+                'first_message' => substr($firstMessage, 0, 100) . '...'
+            ]);
+
+            $response = Http::withHeaders([
+                'xi-api-key' => $this->apiKey,
+                'Content-Type' => 'application/json'
+            ])->timeout(30)->patch($this->apiUrl . '/v1/convai/agents/' . $agentId, [
+                'conversation_config' => [
+                    'agent' => [
+                        'first_message' => $firstMessage
+                    ]
+                ]
+            ]);
+
+            if ($response->successful()) {
+                Log::info('First message actualizado correctamente');
+                return true;
+            } else {
+                Log::error('Error al actualizar first_message:', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                return false;
+            }
+        } catch (\Exception $e) {
+            Log::error('Excepción al actualizar first_message:', [
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
      * Enviar batch call con clientes filtrados (procesa teléfonos con IA)
      */
     public function submitBatchCallConClientesFiltrados(Request $request)
@@ -325,6 +366,7 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 'call_name' => 'required|string|max:255',
                 'agent_id' => 'required|string',
                 'agent_phone_number_id' => 'required|string',
+                'first_message' => 'nullable|string|max:1000',
                 'clientes' => 'required|array|min:1',
                 'clientes.*.id' => 'required|integer',
                 'clientes.*.telefono' => 'required|string'
@@ -337,6 +379,22 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                     'message' => 'Datos de entrada inválidos',
                     'errors' => $validator->errors()
                 ], 400);
+            }
+
+            // Si se proporciona first_message, actualizar el agente primero
+            if ($request->filled('first_message')) {
+                Log::info('Actualizando first_message del agente antes de enviar batch call');
+                $actualizado = $this->actualizarFirstMessage($request->agent_id, $request->first_message);
+                
+                if (!$actualizado) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Error al actualizar el mensaje inicial del agente. No se enviará el batch call.',
+                        'error' => 'No se pudo actualizar first_message'
+                    ], 500);
+                }
+                
+                Log::info('First message actualizado correctamente, procediendo con batch call');
             }
 
             // Parsear teléfonos con IA
@@ -468,14 +526,22 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
         try {
             Log::info('=== INICIO obtenerAgentes ===');
 
+            // Agentes excluidos (no mostrar en el select)
+            $agentesExcluidos = [
+                'agent_8901k83mr4wre3zt8xxveem9739z',
+                'agent_5501k6fbcv09er2sf6gjzc8zqz9x'
+            ];
+
             // Obtener agentes activos desde la base de datos local
             $agentes = \App\Models\ElevenlabsAgent::active()
+                ->whereNotIn('agent_id', $agentesExcluidos)
                 ->select('agent_id', 'name')
                 ->orderBy('name')
                 ->get();
 
-            Log::info('Agentes obtenidos:', [
-                'total' => $agentes->count()
+            Log::info('Agentes obtenidos (excluyendo agentes específicos):', [
+                'total' => $agentes->count(),
+                'excluidos' => count($agentesExcluidos)
             ]);
 
             return response()->json([

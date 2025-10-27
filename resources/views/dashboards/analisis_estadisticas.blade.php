@@ -248,6 +248,13 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="firstMessage" class="form-label">Mensaje Inicial (Opcional)</label>
+                        <textarea class="form-control" id="firstMessage" name="first_message" rows="3" 
+                                  placeholder="Ej: Hola, llamo de Hawkins para informarte sobre..."></textarea>
+                        <small class="text-muted">El agente dirá este mensaje al inicio de cada llamada. Si lo dejas vacío, usará el mensaje configurado por defecto.</small>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label">Clientes a Llamar</label>
                         <div id="listaClientesBatchCall" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
                             <div class="text-center text-muted">
@@ -663,6 +670,7 @@
             const callName = document.getElementById('callName').value.trim();
             const agentId = document.getElementById('agentId').value.trim();
             const agentPhoneNumberId = document.getElementById('agentPhoneNumberId').value.trim();
+            const firstMessage = document.getElementById('firstMessage').value.trim();
 
             if (!callName || !agentId || !agentPhoneNumberId) {
                 mostrarAlertaBatchCall('danger', 'Por favor, completa todos los campos obligatorios.');
@@ -677,7 +685,13 @@
             // Deshabilitar botón y mostrar loading
             const btnEnviar = document.getElementById('btnEnviarBatchCall');
             btnEnviar.disabled = true;
-            btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Enviando...';
+            
+            // Mensaje de loading diferente si hay first_message
+            if (firstMessage) {
+                btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Actualizando agente y enviando...';
+            } else {
+                btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Enviando...';
+            }
 
             // Preparar datos
             const datos = {
@@ -686,6 +700,11 @@
                 agent_phone_number_id: agentPhoneNumberId,
                 clientes: clientesParaBatchCall
             };
+
+            // Agregar first_message si está presente
+            if (firstMessage) {
+                datos.first_message = firstMessage;
+            }
 
             // Enviar petición
             fetch('/api/elevenlabs-monitoring/batch-calls/submit-clientes-filtrados', {
@@ -715,6 +734,7 @@
                         // Resetear selects
                         document.getElementById('agentPhoneNumberId').disabled = true;
                         document.getElementById('agentPhoneNumberId').innerHTML = '<option value="">Primero selecciona un agente...</option>';
+                        document.getElementById('firstMessage').value = '';
                         document.getElementById('alertaBatchCall').innerHTML = '';
                     }, 3000);
                 } else {
