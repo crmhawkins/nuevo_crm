@@ -34,6 +34,7 @@ class ProcessJustificacion implements ShouldQueue
         'segunda_justificacion_presencia_basica' => 'https://aiapi.hawkins.es/sgbasc',
         'puesto_trabajo_seguro' => 'https://aiapi.hawkins.es/sgpseg',
         'presencia_avanzada_2' => 'https://aiapi.hawkins.es/sgpavz2',
+        'crm_erp_factura' => 'https://aiapi.hawkins.es/sgcrmerpfac',
         // Agregar más tipos aquí según sea necesario
     ];
 
@@ -198,6 +199,14 @@ class ProcessJustificacion implements ShouldQueue
                     'email' => $metadata['email'] ?? '',
                     'address' => $metadata['address'] ?? '',
                     'descripcion' => $metadata['descripcion'] ?? ''
+                ]);
+
+            case 'crm_erp_factura':
+                return array_merge($basePayload, [
+                    'tipo_sistema' => $metadata['tipo_sistema'] ?? '',
+                    'url' => $metadata['url'] ?? '',
+                    'username' => $metadata['username'] ?? 'admin',
+                    'password' => $metadata['password'] ?? '12345678'
                 ]);
 
             default:

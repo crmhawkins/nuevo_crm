@@ -10,6 +10,7 @@
         const camposDinamicos = document.getElementById('campos_dinamicos');
         const camposPuestoSeguro = document.getElementById('campos_puesto_seguro');
         const camposPresenciaAvanzada = document.getElementById('campos_presencia_avanzada');
+        const camposCrmErpFactura = document.getElementById('campos_crm_erp_factura');
         const nombreJustificacion = document.getElementById('nombre_justificacion');
         const enviarBtn = document.getElementById('enviarJustificacion');
         const justificacionesForm = document.getElementById('justificacionesForm');
@@ -26,21 +27,31 @@
                 camposDinamicos.style.display = 'block';
                 if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
                 if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'none';
+                if (camposCrmErpFactura) camposCrmErpFactura.style.display = 'none';
                 nombreJustificacion.value = 'Segunda Justificacion Presencia Basica';
             } else if (valor === 'puesto_trabajo_seguro') {
                 if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'block';
                 camposDinamicos.style.display = 'none';
                 if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'none';
+                if (camposCrmErpFactura) camposCrmErpFactura.style.display = 'none';
                 nombreJustificacion.value = 'Puesto de trabajo seguro';
             } else if (valor === 'presencia_avanzada_2') {
                 if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'block';
                 camposDinamicos.style.display = 'none';
                 if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
+                if (camposCrmErpFactura) camposCrmErpFactura.style.display = 'none';
                 nombreJustificacion.value = 'Presencia Avanzada (2ª)';
+            } else if (valor === 'crm_erp_factura') {
+                if (camposCrmErpFactura) camposCrmErpFactura.style.display = 'block';
+                camposDinamicos.style.display = 'none';
+                if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
+                if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'none';
+                nombreJustificacion.value = 'CRM/ERP/Factura';
             } else {
                 camposDinamicos.style.display = 'none';
                 if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
                 if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'none';
+                if (camposCrmErpFactura) camposCrmErpFactura.style.display = 'none';
                 nombreJustificacion.value = '';
             }
         });
@@ -95,6 +106,18 @@
                     });
                     return;
                 }
+            } else if (tipoJustificacion === 'crm_erp_factura') {
+                const tipoSistema = document.getElementById('tipo_sistema_campo').value;
+                const urlCrm = document.getElementById('url_crm_campo').value;
+                
+                if (!tipoSistema || !urlCrm) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Debe seleccionar el tipo de sistema e ingresar la URL'
+                    });
+                    return;
+                }
             }
             
             // Mostrar loader
@@ -138,6 +161,7 @@
                         camposDinamicos.style.display = 'none';
                         if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
                         if (camposPresenciaAvanzada) camposPresenciaAvanzada.style.display = 'none';
+                        if (camposCrmErpFactura) camposCrmErpFactura.style.display = 'none';
                         
                         // Redirigir a justificaciones
                         if (result.isConfirmed) {

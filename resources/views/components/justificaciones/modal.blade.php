@@ -17,6 +17,7 @@
                                 <option value="segunda_justificacion_presencia_basica">Segunda Justificacion Presencia Basica</option>
                                 <option value="presencia_avanzada_2">Presencia Avanzada (2ª)</option>
                                 <option value="puesto_trabajo_seguro">Puesto de trabajo seguro</option>
+                                <option value="crm_erp_factura">CRM/ERP/Factura</option>
                             </select>
                         </div>
 
@@ -107,6 +108,36 @@
                                 <label for="descripcion_campo" class="form-label">Descripción <span class="text-danger">*</span></label>
                                 <textarea class="form-control" id="descripcion_campo" name="descripcion_campo" rows="3" placeholder="Descripción de la empresa o proyecto"></textarea>
                                 <small class="text-muted">Los archivos serán generados automáticamente por el servidor</small>
+                            </div>
+                        </div>
+
+                        <!-- Campos para CRM/ERP/Factura -->
+                        <div id="campos_crm_erp_factura" style="display: none;">
+                            <div class="col-md-12 mb-3">
+                                <label for="tipo_sistema_campo" class="form-label">Tipo de Sistema <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tipo_sistema_campo" name="tipo_sistema_campo">
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="crm">CRM</option>
+                                    <option value="erp">ERP</option>
+                                    <option value="factura">Factura</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="url_crm_campo" class="form-label">URL <span class="text-danger">*</span></label>
+                                <input type="url" class="form-control" id="url_crm_campo" name="url_crm_campo" placeholder="https://ejemplo.com">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="username_campo" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username_campo" name="username_campo" placeholder="Usuario" value="admin">
+                                <small class="text-muted">Opcional</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="password_campo" class="form-label">Password</label>
+                                <input type="text" class="form-control" id="password_campo" name="password_campo" placeholder="Contraseña" value="12345678">
+                                <small class="text-muted">Opcional - Los archivos serán generados automáticamente</small>
                             </div>
                         </div>
 

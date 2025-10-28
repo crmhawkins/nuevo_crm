@@ -58,6 +58,15 @@ class JustificacionesController extends Controller
                     'address_campo' => 'required|string',
                     'descripcion_campo' => 'required|string',
                 ]);
+            } elseif ($request->tipo_justificacion === 'crm_erp_factura') {
+                $request->validate([
+                    'tipo_justificacion' => 'required|string',
+                    'nombre_justificacion' => 'required|string',
+                    'tipo_sistema_campo' => 'required|in:crm,erp,factura',
+                    'url_crm_campo' => 'required|url',
+                    'username_campo' => 'nullable|string',
+                    'password_campo' => 'nullable|string',
+                ]);
             } else {
                 $request->validate([
                     'tipo_justificacion' => 'required|string',
@@ -87,6 +96,14 @@ class JustificacionesController extends Controller
                 'email' => $request->input('email_presencia_campo'),
                 'address' => $request->input('address_campo'),
                 'descripcion' => $request->input('descripcion_campo'),
+                'estado' => 'pendiente'
+            ];
+        } elseif ($request->tipo_justificacion === 'crm_erp_factura') {
+            $metadata = [
+                'tipo_sistema' => $request->input('tipo_sistema_campo'),
+                'url' => $request->input('url_crm_campo'),
+                'username' => $request->input('username_campo', 'admin'),
+                'password' => $request->input('password_campo', '12345678'),
                 'estado' => 'pendiente'
             ];
         } else {
