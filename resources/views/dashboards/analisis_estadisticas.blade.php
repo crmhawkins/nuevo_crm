@@ -570,9 +570,15 @@
                                 const option = document.createElement('option');
                                 option.value = phoneNumber.phone_number_id;
                                 
-                                // Mostrar: label + provider
+                                // Mostrar: label + agente asignado + provider
                                 let displayText = phoneNumber.label || phoneNumber.phone_number;
                                 
+                                // Añadir nombre del agente asignado
+                                if (phoneNumber.assigned_agent_name) {
+                                    displayText += ` → ${phoneNumber.assigned_agent_name}`;
+                                }
+                                
+                                // Añadir provider
                                 if (phoneNumber.provider) {
                                     displayText += ` (${phoneNumber.provider})`;
                                 }
@@ -587,10 +593,10 @@
                             });
                             selectPhoneNumber.disabled = false;
                             
-                            console.log('Phone numbers cargados para Hera Saliente:', data.data.length);
+                            console.log('Phone numbers cargados (todos):', data.data.length);
                         } else {
-                            selectPhoneNumber.innerHTML = '<option value="">No hay números asignados a este agente</option>';
-                            console.warn('El agente no tiene números de teléfono asignados');
+                            selectPhoneNumber.innerHTML = '<option value="">No hay números de teléfono disponibles</option>';
+                            console.warn('No hay números de teléfono en la cuenta');
                         }
                     } else {
                         selectPhoneNumber.innerHTML = '<option value="">Error al cargar números</option>';

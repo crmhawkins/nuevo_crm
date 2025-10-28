@@ -594,35 +594,32 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
 
             if ($response->successful()) {
                 $allPhoneNumbers = $response->json();
-                $phoneNumbersFiltrados = [];
+                $phoneNumbersFormateados = [];
                 
                 if (is_array($allPhoneNumbers)) {
                     foreach ($allPhoneNumbers as $phoneData) {
-                        // Filtrar solo los números asignados al agente solicitado
-                        $assignedAgentId = $phoneData['assigned_agent']['agent_id'] ?? null;
-                        
-                        if ($assignedAgentId === $agentId) {
-                            $phoneNumbersFiltrados[] = [
-                                'phone_number_id' => $phoneData['phone_number_id'],
-                                'phone_number' => $phoneData['phone_number'],
-                                'label' => $phoneData['label'] ?? $phoneData['phone_number'],
-                                'provider' => $phoneData['provider'] ?? 'unknown',
-                                'supports_inbound' => $phoneData['supports_inbound'] ?? false,
-                                'supports_outbound' => $phoneData['supports_outbound'] ?? false
-                            ];
-                        }
+                        // Devolver TODOS los números sin filtrar
+                        $phoneNumbersFormateados[] = [
+                            'phone_number_id' => $phoneData['phone_number_id'],
+                            'phone_number' => $phoneData['phone_number'],
+                            'label' => $phoneData['label'] ?? $phoneData['phone_number'],
+                            'provider' => $phoneData['provider'] ?? 'unknown',
+                            'supports_inbound' => $phoneData['supports_inbound'] ?? false,
+                            'supports_outbound' => $phoneData['supports_outbound'] ?? false,
+                            'assigned_agent_id' => $phoneData['assigned_agent']['agent_id'] ?? null,
+                            'assigned_agent_name' => $phoneData['assigned_agent']['agent_name'] ?? null
+                        ];
                     }
                 }
 
-                Log::info('Phone numbers filtrados para el agente:', [
-                    'agent_id' => $agentId,
-                    'total' => count($phoneNumbersFiltrados)
+                Log::info('TODOS los phone numbers obtenidos (sin filtros):', [
+                    'total' => count($phoneNumbersFormateados)
                 ]);
 
                 return response()->json([
                     'success' => true,
-                    'data' => $phoneNumbersFiltrados,
-                    'total' => count($phoneNumbersFiltrados)
+                    'data' => $phoneNumbersFormateados,
+                    'total' => count($phoneNumbersFormateados)
                 ]);
             } else {
                 Log::error('Error en la respuesta de ElevenLabs al obtener phone numbers:', [
