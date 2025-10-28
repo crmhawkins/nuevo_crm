@@ -9,13 +9,16 @@
 <style>
     .cliente-row:hover {
         background-color: #f8f9fa !important;
-        transform: scale(1.01);
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: background-color 0.2s ease;
     }
     
     .cliente-row {
-        transition: all 0.2s ease;
+        transition: background-color 0.2s ease;
+    }
+    
+    .cliente-checkbox {
+        cursor: pointer;
+        transform: scale(1.2);
     }
 </style>
 @endsection
@@ -94,12 +97,20 @@
             
             <!-- Botón para Batch Calls -->
             @if($resultados->count() > 0)
-                <div class="mt-3 mb-3">
+                <div class="mt-3 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="seleccionarTodos()">
+                            <i class="bi bi-check-all"></i> Seleccionar Todos
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="deseleccionarTodos()">
+                            <i class="bi bi-x-lg"></i> Deseleccionar Todos
+                        </button>
+                        <span class="badge bg-info" id="totalSeleccionados">0 seleccionados</span>
+                    </div>
                     <button type="button" class="btn btn-success" id="btnBatchCall" onclick="abrirModalBatchCall()">
-                        <i class="bi bi-telephone-outbound"></i> Enviar Batch Call a Clientes Filtrados
+                        <i class="bi bi-telephone-outbound"></i> Enviar Batch Call a Seleccionados
                         <span class="badge bg-light text-dark ms-2" id="totalClientesConTelefono">0</span>
                     </button>
-                    <small class="text-muted ms-2">Se enviarán llamadas automáticas a todos los clientes con teléfono</small>
                 </div>
             @endif
             
@@ -108,6 +119,9 @@
                     <table class="table table-striped table-hover">
                         <thead class="table-dark">
                             <tr>
+                                <th width="40">
+                                    <input type="checkbox" class="form-check-input" id="checkboxSelectAll" onclick="toggleSelectAll(this)" checked>
+                                </th>
                                 <th>ID</th>
                                 <th>Cliente</th>
                                 <th>Teléfono</th>
@@ -122,25 +136,35 @@
                         </thead>
                         <tbody>
                             @foreach($resultados as $cliente)
-                            <tr class="cliente-row" data-cliente-id="{{ $cliente->id }}" style="cursor: pointer;">
-                                <td>{{ $cliente->id }}</td>
+                            <tr class="cliente-row" data-cliente-id="{{ $cliente->id }}">
                                 <td>
+                                    @if($cliente->phone)
+                                        <input type="checkbox" class="form-check-input cliente-checkbox" 
+                                               data-cliente-id="{{ $cliente->id }}"
+                                               data-cliente-nombre="{{ $cliente->name }} {{ $cliente->primerApellido }} {{ $cliente->segundoApellido }}"
+                                               data-cliente-telefono="{{ $cliente->phone }}"
+                                               onchange="actualizarContador()"
+                                               checked>
+                                    @endif
+                                </td>
+                                <td style="cursor: pointer;" onclick="verDetallesCliente({{ $cliente->id }})">{{ $cliente->id }}</td>
+                                <td style="cursor: pointer;" onclick="verDetallesCliente({{ $cliente->id }})">
                                     {{ $cliente->name }} {{ $cliente->primerApellido }} {{ $cliente->segundoApellido }}
                                     @if($cliente->company)
                                         <br><small class="text-muted">{{ $cliente->company }}</small>
                                     @endif
                                 </td>
-                                <td>{{ $cliente->phone ?? 'N/A' }}</td>
+                                <td style="cursor: pointer;" onclick="verDetallesCliente({{ $cliente->id }})">{{ $cliente->phone ?? 'N/A' }}</td>
                                 @if($tipoAnalisis == 'por_categoria')
-                                    <td>
+                                    <td style="cursor: pointer;" onclick="verDetallesCliente({{ $cliente->id }})">
                                         <span class="badge bg-info">{{ $cliente->categoria_servicio }}</span>
                                     </td>
                                 @elseif($tipoAnalisis == 'por_servicio')
-                                    <td>
+                                    <td style="cursor: pointer;" onclick="verDetallesCliente({{ $cliente->id }})">
                                         <span class="badge bg-success">{{ $cliente->servicio }}</span>
                                     </td>
                                 @endif
-                                <td class="text-success fw-bold">
+                                <td class="text-success fw-bold" style="cursor: pointer;" onclick="verDetallesCliente({{ $cliente->id }})">
                                     @if($tipoAnalisis == 'por_categoria')
                                         {{ number_format($cliente->total_por_categoria, 2, ',', '.') }} €
                                     @elseif($tipoAnalisis == 'por_servicio')
@@ -149,7 +173,7 @@
                                         {{ number_format($cliente->total_facturado, 2, ',', '.') }} €
                                     @endif
                                 </td>
-                                <td>
+                                <td style="cursor: pointer;" onclick="verDetallesCliente({{ $cliente->id }})">
                                     @if($tipoAnalisis == 'por_categoria')
                                         {{ $cliente->facturas_con_categoria }}
                                     @elseif($tipoAnalisis == 'por_servicio')
@@ -490,12 +514,96 @@
             document.getElementById('clienteInfo').innerHTML = html;
         }
 
+        // ==================== FUNCIONES DE SELECCIÓN DE CHECKBOXES ====================
+        
+        // Actualizar contador de seleccionados
+        function actualizarContador() {
+            const checkboxes = document.querySelectorAll('.cliente-checkbox:checked');
+            const total = checkboxes.length;
+            document.getElementById('totalSeleccionados').textContent = `${total} seleccionados`;
+            document.getElementById('totalClientesConTelefono').textContent = total;
+            
+            // Actualizar checkbox del header
+            const checkboxAll = document.getElementById('checkboxSelectAll');
+            const todosLosCheckboxes = document.querySelectorAll('.cliente-checkbox');
+            checkboxAll.checked = (checkboxes.length === todosLosCheckboxes.length && todosLosCheckboxes.length > 0);
+        }
+        
+        // Toggle seleccionar/deseleccionar todos
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.cliente-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+            actualizarContador();
+        }
+        
+        // Seleccionar todos
+        function seleccionarTodos() {
+            const checkboxes = document.querySelectorAll('.cliente-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = true;
+            });
+            document.getElementById('checkboxSelectAll').checked = true;
+            actualizarContador();
+        }
+        
+        // Deseleccionar todos
+        function deseleccionarTodos() {
+            const checkboxes = document.querySelectorAll('.cliente-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+            });
+            document.getElementById('checkboxSelectAll').checked = false;
+            actualizarContador();
+        }
+        
+        // Inicializar contador al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            actualizarContador();
+            
+            // Si hay búsqueda de cliente, deseleccionar todos y solo seleccionar el buscado
+            const buscarCliente = '{{ request("buscar_cliente") }}';
+            if (buscarCliente && buscarCliente.trim() !== '') {
+                // Deseleccionar todos primero
+                deseleccionarTodos();
+                
+                // Seleccionar solo el primer resultado (el buscado)
+                const primerCheckbox = document.querySelector('.cliente-checkbox');
+                if (primerCheckbox) {
+                    primerCheckbox.checked = true;
+                    actualizarContador();
+                }
+            }
+        });
+        
         // ==================== BATCH CALL FUNCTIONALITY ====================
         
         let clientesParaBatchCall = [];
 
-        // Función para abrir el modal y cargar los clientes
+        // Función para abrir el modal y cargar los clientes seleccionados
         window.abrirModalBatchCall = function() {
+            // Obtener clientes seleccionados con checkbox
+            const checkboxesSeleccionados = document.querySelectorAll('.cliente-checkbox:checked');
+            
+            if (checkboxesSeleccionados.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Sin Clientes',
+                    text: 'Debes seleccionar al menos un cliente con teléfono para enviar batch calls.'
+                });
+                return;
+            }
+            
+            // Preparar array de clientes desde los checkboxes
+            clientesParaBatchCall = Array.from(checkboxesSeleccionados).map(checkbox => ({
+                id: parseInt(checkbox.dataset.clienteId),
+                nombre: checkbox.dataset.clienteNombre,
+                telefono: checkbox.dataset.clienteTelefono
+            }));
+            
+            console.log('Clientes seleccionados para batch call:', clientesParaBatchCall.length);
+            
             // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById('batchCallModal'));
             modal.show();
@@ -503,8 +611,8 @@
             // Cargar los agentes (automáticamente seleccionará Hera Saliente y sus números)
             cargarAgentes();
 
-            // Cargar los clientes filtrados
-            cargarClientesParaBatchCall();
+            // Mostrar clientes en el modal
+            mostrarClientesBatchCall(clientesParaBatchCall);
         }
 
         // Función para cargar la lista de agentes y seleccionar automáticamente "Hera Saliente"
@@ -614,62 +722,29 @@
                 });
         }
 
-        // Función para cargar los clientes con los filtros actuales
-        function cargarClientesParaBatchCall() {
-            const fechaInicio = document.querySelector('input[name="fecha_inicio"]').value;
-            const fechaFin = document.querySelector('input[name="fecha_fin"]').value;
-            const tipoAnalisis = document.querySelector('select[name="tipo_analisis"]').value;
-            const filtroId = document.querySelector('select[name="filtro_id"]').value;
-            const montoMinimo = document.querySelector('input[name="monto_minimo"]').value;
-            const limite = document.querySelector('input[name="limite"]').value;
-
-            const url = new URL('{{ route("api.telefonos.filtrados") }}');
-            url.searchParams.append('fecha_inicio', fechaInicio);
-            url.searchParams.append('fecha_fin', fechaFin);
-            url.searchParams.append('tipo_analisis', tipoAnalisis);
-            if (filtroId) url.searchParams.append('filtro_id', filtroId);
-            if (montoMinimo) url.searchParams.append('monto_minimo', montoMinimo);
-            if (limite) url.searchParams.append('limite', limite);
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        clientesParaBatchCall = data.clientes;
-                        mostrarClientesBatchCall(data.clientes);
-                        document.getElementById('totalLlamadas').textContent = data.total;
-                        document.getElementById('totalClientesConTelefono').textContent = data.total;
-                    } else {
-                        mostrarErrorBatchCall('Error al cargar los clientes: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    mostrarErrorBatchCall('Error al cargar los clientes. Por favor, inténtalo de nuevo.');
-                });
-        }
-
-        // Función para mostrar la lista de clientes
+        // Función para mostrar la lista de clientes seleccionados en el modal
         function mostrarClientesBatchCall(clientes) {
             const lista = document.getElementById('listaClientesBatchCall');
+            const totalLlamadas = document.getElementById('totalLlamadas');
             
             if (clientes.length === 0) {
                 lista.innerHTML = `
                     <div class="alert alert-warning mb-0">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        No hay clientes con teléfono válido en los resultados filtrados.
+                        <i class="bi bi-exclamation-triangle"></i> No hay clientes seleccionados
                     </div>
                 `;
+                totalLlamadas.textContent = '0';
                 document.getElementById('btnEnviarBatchCall').disabled = true;
                 return;
             }
 
             document.getElementById('btnEnviarBatchCall').disabled = false;
+            totalLlamadas.textContent = clientes.length;
 
             let html = '<div class="list-group">';
             clientes.forEach((cliente, index) => {
                 html += `
-                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
                             <strong>${cliente.nombre}</strong>
                             <br>
@@ -707,13 +782,7 @@
             // Deshabilitar botón y mostrar loading
             const btnEnviar = document.getElementById('btnEnviarBatchCall');
             btnEnviar.disabled = true;
-            
-            // Mensaje de loading diferente si hay first_message
-            if (firstMessage) {
-                btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Actualizando agente y enviando...';
-            } else {
-                btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Enviando...';
-            }
+            btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Enviando llamadas...';
 
             // Preparar datos
             const datos = {
