@@ -378,8 +378,15 @@
         // Ejecutar al cargar
         inicializarFiltros();
 
-        // Manejar clic en filas de clientes
+        // Manejar clic en filas de clientes (excepto checkboxes)
         document.addEventListener('click', function(e) {
+            // Ignorar clicks en checkboxes y sus labels
+            if (e.target.classList.contains('cliente-checkbox') || 
+                e.target.classList.contains('form-check-input') ||
+                e.target.type === 'checkbox') {
+                return;
+            }
+            
             const row = e.target.closest('.cliente-row');
             if (row) {
                 const clienteId = row.getAttribute('data-cliente-id');

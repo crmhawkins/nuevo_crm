@@ -83,8 +83,8 @@ class ProcessJustificacion implements ShouldQueue
             
             Log::info('📦 Payload construido', ['payload' => $payload]);
 
-            // Enviar petición a la API externa
-            $response = Http::timeout(120)->post($apiUrl, $payload);
+            // Enviar petición a la API externa con timeout extendido
+            $response = Http::timeout(300)->post($apiUrl, $payload);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -161,8 +161,10 @@ class ProcessJustificacion implements ShouldQueue
         $tipo = $justificacion->tipo_justificacion;
         $user = $justificacion->user;
         
-        // Callback URL común para todos
+        // Callback URL común para todos - forzar HTTPS
         $callbackUrl = route('justificaciones.receive.public', $justificacion->id);
+        // Asegurar que siempre use HTTPS
+        $callbackUrl = str_replace('http://', 'https://', $callbackUrl);
 
         $basePayload = [
             'justificacion_id' => $justificacion->id,
