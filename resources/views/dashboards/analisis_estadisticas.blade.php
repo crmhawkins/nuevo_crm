@@ -517,20 +517,25 @@
         // ==================== FUNCIONES DE SELECCIÓN DE CHECKBOXES ====================
         
         // Actualizar contador de seleccionados
-        function actualizarContador() {
+        window.actualizarContador = function() {
             const checkboxes = document.querySelectorAll('.cliente-checkbox:checked');
             const total = checkboxes.length;
-            document.getElementById('totalSeleccionados').textContent = `${total} seleccionados`;
-            document.getElementById('totalClientesConTelefono').textContent = total;
+            const totalSeleccionadosEl = document.getElementById('totalSeleccionados');
+            const totalConTelefonoEl = document.getElementById('totalClientesConTelefono');
+            
+            if (totalSeleccionadosEl) totalSeleccionadosEl.textContent = `${total} seleccionados`;
+            if (totalConTelefonoEl) totalConTelefonoEl.textContent = total;
             
             // Actualizar checkbox del header
             const checkboxAll = document.getElementById('checkboxSelectAll');
             const todosLosCheckboxes = document.querySelectorAll('.cliente-checkbox');
-            checkboxAll.checked = (checkboxes.length === todosLosCheckboxes.length && todosLosCheckboxes.length > 0);
+            if (checkboxAll) {
+                checkboxAll.checked = (checkboxes.length === todosLosCheckboxes.length && todosLosCheckboxes.length > 0);
+            }
         }
         
         // Toggle seleccionar/deseleccionar todos
-        function toggleSelectAll(checkbox) {
+        window.toggleSelectAll = function(checkbox) {
             const checkboxes = document.querySelectorAll('.cliente-checkbox');
             checkboxes.forEach(cb => {
                 cb.checked = checkbox.checked;
@@ -539,42 +544,47 @@
         }
         
         // Seleccionar todos
-        function seleccionarTodos() {
+        window.seleccionarTodos = function() {
             const checkboxes = document.querySelectorAll('.cliente-checkbox');
             checkboxes.forEach(cb => {
                 cb.checked = true;
             });
-            document.getElementById('checkboxSelectAll').checked = true;
+            const checkboxAll = document.getElementById('checkboxSelectAll');
+            if (checkboxAll) checkboxAll.checked = true;
             actualizarContador();
         }
         
         // Deseleccionar todos
-        function deseleccionarTodos() {
+        window.deseleccionarTodos = function() {
             const checkboxes = document.querySelectorAll('.cliente-checkbox');
             checkboxes.forEach(cb => {
                 cb.checked = false;
             });
-            document.getElementById('checkboxSelectAll').checked = false;
+            const checkboxAll = document.getElementById('checkboxSelectAll');
+            if (checkboxAll) checkboxAll.checked = false;
             actualizarContador();
         }
         
         // Inicializar contador al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
-            actualizarContador();
-            
-            // Si hay búsqueda de cliente, deseleccionar todos y solo seleccionar el buscado
-            const buscarCliente = '{{ request("buscar_cliente") }}';
-            if (buscarCliente && buscarCliente.trim() !== '') {
-                // Deseleccionar todos primero
-                deseleccionarTodos();
+            // Esperar un momento para que los elementos estén disponibles
+            setTimeout(function() {
+                actualizarContador();
                 
-                // Seleccionar solo el primer resultado (el buscado)
-                const primerCheckbox = document.querySelector('.cliente-checkbox');
-                if (primerCheckbox) {
-                    primerCheckbox.checked = true;
-                    actualizarContador();
+                // Si hay búsqueda de cliente, deseleccionar todos y solo seleccionar el buscado
+                const buscarCliente = '{{ request("buscar_cliente") }}';
+                if (buscarCliente && buscarCliente.trim() !== '') {
+                    // Deseleccionar todos primero
+                    deseleccionarTodos();
+                    
+                    // Seleccionar solo el primer resultado (el buscado)
+                    const primerCheckbox = document.querySelector('.cliente-checkbox');
+                    if (primerCheckbox) {
+                        primerCheckbox.checked = true;
+                        actualizarContador();
+                    }
                 }
-            }
+            }, 100);
         });
         
         // ==================== BATCH CALL FUNCTIONALITY ====================
