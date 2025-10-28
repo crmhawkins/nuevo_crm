@@ -1932,6 +1932,7 @@ class DashboardController extends Controller
         $filtroId = $request->input('filtro_id');
         $montoMinimo = $request->input('monto_minimo', 0);
         $limite = $request->input('limite', 50); // Límite por defecto más alto
+        $buscarCliente = $request->input('buscar_cliente'); // Búsqueda por nombre
         
         // Limpiar parámetros según el tipo de análisis
         if ($tipoAnalisis === 'por_facturacion') {
@@ -1947,7 +1948,7 @@ class DashboardController extends Controller
 
         // Obtener análisis dinámico
         $filtroParaAnalisis = ($tipoAnalisis == 'por_facturacion') ? $montoMinimo : $filtroId;
-        $resultados = $this->obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroParaAnalisis, $limite);
+        $resultados = $this->obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroParaAnalisis, $limite, $buscarCliente);
 
         return view('dashboards.analisis_estadisticas', compact(
             'user',
@@ -1993,19 +1994,30 @@ class DashboardController extends Controller
     /**
      * Obtener clientes que más han facturado en un período
      */
-    private function obtenerClientesTopFacturacion($fechaInicio, $fechaFin, $limite = 20)
+    private function obtenerClientesTopFacturacion($fechaInicio, $fechaFin, $limite = 20, $buscarCliente = null)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
 
-        return Client::select('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
+        $query = Client::select('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
             ->selectRaw('SUM(invoices.total) as total_facturado')
             ->selectRaw('COUNT(invoices.id) as num_facturas')
             ->join('invoices', 'clients.id', '=', 'invoices.client_id')
             ->where('clients.is_client', true)
             ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
-            ->whereIn('invoices.invoice_status_id', [3, 4]) // Solo facturas cobradas
-            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
+            ->whereIn('invoices.invoice_status_id', [3, 4]); // Solo facturas cobradas
+        
+        // Filtro de búsqueda por nombre
+        if ($buscarCliente) {
+            $query->where(function($q) use ($buscarCliente) {
+                $q->where('clients.name', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.primerApellido', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.segundoApellido', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.company', 'LIKE', "%{$buscarCliente}%");
+            });
+        }
+        
+        return $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
             ->orderBy('total_facturado', 'desc')
             ->limit($limite)
             ->get();
@@ -2014,7 +2026,7 @@ class DashboardController extends Controller
     /**
      * Obtener clientes que más han facturado por categoría de servicio
      */
-    private function obtenerClientesPorCategoria($fechaInicio, $fechaFin, $categoriaId = null, $limite = null)
+    private function obtenerClientesPorCategoria($fechaInicio, $fechaFin, $categoriaId = null, $limite = null, $buscarCliente = null)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
@@ -2029,14 +2041,24 @@ class DashboardController extends Controller
             ->join('services_categories', 'services.services_categories_id', '=', 'services_categories.id')
             ->where('clients.is_client', true)
             ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
-            ->whereIn('invoices.invoice_status_id', [3, 4]) // Solo facturas cobradas
-            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'services_categories.id', 'services_categories.name');
+            ->whereIn('invoices.invoice_status_id', [3, 4]); // Solo facturas cobradas
 
         if ($categoriaId) {
             $query->where('services_categories.id', $categoriaId);
         }
 
-        $query->orderBy('total_por_categoria', 'desc');
+        // Filtro de búsqueda por nombre
+        if ($buscarCliente) {
+            $query->where(function($q) use ($buscarCliente) {
+                $q->where('clients.name', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.primerApellido', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.segundoApellido', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.company', 'LIKE', "%{$buscarCliente}%");
+            });
+        }
+
+        $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'services_categories.id', 'services_categories.name')
+              ->orderBy('total_por_categoria', 'desc');
         
         if ($limite) {
             $query->limit($limite);
@@ -2059,7 +2081,7 @@ class DashboardController extends Controller
     /**
      * Obtener clientes con servicios específicos más facturados
      */
-    private function obtenerClientesPorServicio($fechaInicio, $fechaFin, $servicioId = null, $limite = null)
+    private function obtenerClientesPorServicio($fechaInicio, $fechaFin, $servicioId = null, $limite = null, $buscarCliente = null)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
@@ -2073,14 +2095,24 @@ class DashboardController extends Controller
             ->join('services', 'invoice_concepts.service_id', '=', 'services.id')
             ->where('clients.is_client', true)
             ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
-            ->whereIn('invoices.invoice_status_id', [3, 4]) // Solo facturas cobradas
-            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'services.id', 'services.title');
+            ->whereIn('invoices.invoice_status_id', [3, 4]); // Solo facturas cobradas
 
         if ($servicioId) {
             $query->where('services.id', $servicioId);
         }
 
-        $query->orderBy('total_por_servicio', 'desc');
+        // Filtro de búsqueda por nombre
+        if ($buscarCliente) {
+            $query->where(function($q) use ($buscarCliente) {
+                $q->where('clients.name', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.primerApellido', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.segundoApellido', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.company', 'LIKE', "%{$buscarCliente}%");
+            });
+        }
+
+        $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'services.id', 'services.title')
+              ->orderBy('total_por_servicio', 'desc');
         
         if ($limite) {
             $query->limit($limite);
@@ -2110,7 +2142,7 @@ class DashboardController extends Controller
     /**
      * Obtener clientes que han facturado más de un monto específico
      */
-    private function obtenerClientesPorMontoFacturado($fechaInicio, $fechaFin, $montoMinimo = 0, $limite = null)
+    private function obtenerClientesPorMontoFacturado($fechaInicio, $fechaFin, $montoMinimo = 0, $limite = null, $buscarCliente = null)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
@@ -2121,10 +2153,21 @@ class DashboardController extends Controller
             ->join('invoices', 'clients.id', '=', 'invoices.client_id')
             ->where('clients.is_client', true)
             ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
-            ->whereIn('invoices.invoice_status_id', [3, 4]) // Solo facturas cobradas
-            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
-            ->having('total_facturado', '>=', $montoMinimo)
-            ->orderBy('total_facturado', 'desc');
+            ->whereIn('invoices.invoice_status_id', [3, 4]); // Solo facturas cobradas
+
+        // Filtro de búsqueda por nombre
+        if ($buscarCliente) {
+            $query->where(function($q) use ($buscarCliente) {
+                $q->where('clients.name', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.primerApellido', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.segundoApellido', 'LIKE', "%{$buscarCliente}%")
+                  ->orWhere('clients.company', 'LIKE', "%{$buscarCliente}%");
+            });
+        }
+
+        $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
+              ->having('total_facturado', '>=', $montoMinimo)
+              ->orderBy('total_facturado', 'desc');
 
         if ($limite) {
             $query->limit($limite);
@@ -2136,17 +2179,17 @@ class DashboardController extends Controller
     /**
      * Obtener análisis dinámico según tipo seleccionado
      */
-    private function obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroId = null, $limite = null)
+    private function obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroId = null, $limite = null, $buscarCliente = null)
     {
         switch ($tipoAnalisis) {
             case 'top_clientes':
-                return $this->obtenerClientesTopFacturacion($fechaInicio, $fechaFin, $limite);
+                return $this->obtenerClientesTopFacturacion($fechaInicio, $fechaFin, $limite, $buscarCliente);
             case 'por_categoria':
-                return $this->obtenerClientesPorCategoria($fechaInicio, $fechaFin, $filtroId, $limite);
+                return $this->obtenerClientesPorCategoria($fechaInicio, $fechaFin, $filtroId, $limite, $buscarCliente);
             case 'por_servicio':
-                return $this->obtenerClientesPorServicio($fechaInicio, $fechaFin, $filtroId, $limite);
+                return $this->obtenerClientesPorServicio($fechaInicio, $fechaFin, $filtroId, $limite, $buscarCliente);
             case 'por_facturacion':
-                return $this->obtenerClientesPorMontoFacturado($fechaInicio, $fechaFin, $filtroId, $limite);
+                return $this->obtenerClientesPorMontoFacturado($fechaInicio, $fechaFin, $filtroId, $limite, $buscarCliente);
             default:
                 return collect();
         }

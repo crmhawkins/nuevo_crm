@@ -528,8 +528,6 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
 
             // Agentes excluidos (no mostrar en el select)
             $agentesExcluidos = [
-                'agent_2101k4x2e965f3psb4bzgmptv8wd',
-                'agent_5501k6fbcv09er2sf6gjzc8zqz9x'
             ];
 
             // Obtener agentes activos desde la base de datos local

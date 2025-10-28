@@ -63,6 +63,7 @@
                     </select>
                     <input type="number" name="monto_minimo" class="form-control" style="max-width: 150px;" placeholder="Monto mínimo (€)" value="{{ $montoMinimo }}" min="0" step="0.01" id="montoMinimoInput">
                     <input type="number" name="limite" class="form-control" style="max-width: 100px;" placeholder="Límite" value="{{ $limite }}" min="1" max="1000">
+                    <input type="text" name="buscar_cliente" class="form-control" style="max-width: 200px;" placeholder="Buscar por nombre..." value="{{ request('buscar_cliente') }}">
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-search"></i> Analizar
                     </button>
