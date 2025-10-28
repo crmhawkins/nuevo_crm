@@ -137,13 +137,14 @@
                         <tbody>
                             @foreach($resultados as $cliente)
                             <tr class="cliente-row" data-cliente-id="{{ $cliente->id }}">
-                                <td>
+                                <td onclick="event.stopPropagation()">
                                     @if($cliente->phone)
                                         <input type="checkbox" class="form-check-input cliente-checkbox" 
                                                data-cliente-id="{{ $cliente->id }}"
                                                data-cliente-nombre="{{ $cliente->name }} {{ $cliente->primerApellido }} {{ $cliente->segundoApellido }}"
                                                data-cliente-telefono="{{ $cliente->phone }}"
                                                onchange="actualizarContador()"
+                                               onclick="event.stopPropagation()"
                                                checked>
                                     @endif
                                 </td>
