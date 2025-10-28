@@ -254,8 +254,7 @@
                                   placeholder="Ej: Hola {nombre}, llamo de Hawkins para informarte sobre..."></textarea>
                         <small class="text-muted">
                             <strong>Usa {nombre} para personalizar:</strong> Se reemplazará con el nombre de cada cliente.<br>
-                            Ejemplo: "Hola {nombre}, te llamo de Hawkins..." → "Hola Juan Pérez, te llamo de Hawkins..."<br>
-                            Si no incluyes {nombre}, se añadirá automáticamente al inicio.
+                            Ejemplo: "Hola {nombre}, te llamo de Hawkins..." → "Hola Juan Pérez, te llamo de Hawkins..."
                         </small>
                     </div>
 

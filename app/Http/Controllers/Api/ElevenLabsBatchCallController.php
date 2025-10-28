@@ -362,12 +362,8 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                         
                         // Si hay first_message, personalizarlo con el nombre del cliente
                         if (!empty($firstMessageBase)) {
+                            // Reemplazar {nombre} con el nombre del cliente
                             $mensajePersonalizado = str_replace('{nombre}', $nombreCliente, $firstMessageBase);
-                            
-                            // Si el mensaje base no tiene {nombre}, añadirlo al inicio
-                            if ($firstMessageBase === $mensajePersonalizado) {
-                                $mensajePersonalizado = "Hola {$nombreCliente}, " . $firstMessageBase;
-                            }
                             
                             $recipient['conversation_initiation_client_data'] = [
                                 'conversation_config_override' => [
