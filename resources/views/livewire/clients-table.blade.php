@@ -45,6 +45,14 @@
                                 @endif
                             </a>
                         </th>
+                        <th>
+                            <a href="#" wire:click.prevent="sortBy('id')">
+                                ID
+                                @if ($sortColumn == 'id')
+                                    <span>{!! $sortDirection == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                @endif
+                            </a>
+                        </th>
                         <th class="px-3">
                             <a href="#" wire:click.prevent="sortBy('name')">
                                 NOMBRE
@@ -92,6 +100,7 @@
                     @foreach ($clients as $client)
                     <tr class="clickable-row" data-href="{{route('clientes.edit', $client->id)}}">
                             <td class="px-3">{{ $client->company }}</td>
+                            <td>{{ $client->id }}</td>
                             <td >{{ $client->name }}</td>
                             <td>{{ $client->cif }}</td>
                             <td>{{ $client->identifier }}</td>
