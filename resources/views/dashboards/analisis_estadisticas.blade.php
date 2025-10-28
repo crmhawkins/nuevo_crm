@@ -234,10 +234,10 @@
 
                     <div class="mb-3">
                         <label for="agentId" class="form-label">Agente <span class="text-danger">*</span></label>
-                        <select class="form-select" id="agentId" name="agent_id" required onchange="cargarPhoneNumbers()">
-                            <option value="">Selecciona un agente...</option>
+                        <select class="form-select" id="agentId" name="agent_id" required disabled>
+                            <option value="">Cargando agente...</option>
                         </select>
-                        <small class="text-muted">Selecciona el agente que realizará las llamadas</small>
+                        <small class="text-muted">Agente predeterminado: Hera Saliente (bloqueado)</small>
                     </div>
 
                     <div class="mb-3">
@@ -497,30 +497,42 @@
             const modal = new bootstrap.Modal(document.getElementById('batchCallModal'));
             modal.show();
 
-            // Cargar los agentes
+            // Cargar los agentes (automáticamente seleccionará Hera Saliente y sus números)
             cargarAgentes();
 
             // Cargar los clientes filtrados
             cargarClientesParaBatchCall();
         }
 
-        // Función para cargar la lista de agentes
+        // Función para cargar la lista de agentes y seleccionar automáticamente "Hera Saliente"
         function cargarAgentes() {
             fetch('/api/elevenlabs-monitoring/batch-calls/agentes')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.data) {
                         const selectAgente = document.getElementById('agentId');
-                        selectAgente.innerHTML = '<option value="">Selecciona un agente...</option>';
                         
-                        data.data.forEach(agente => {
-                            const option = document.createElement('option');
-                            option.value = agente.agent_id;
-                            option.textContent = agente.name;
-                            selectAgente.appendChild(option);
-                        });
+                        // Buscar el agente "Hera Saliente"
+                        const heraSaliente = data.data.find(agente => 
+                            agente.name.toLowerCase().includes('hera') && 
+                            agente.name.toLowerCase().includes('saliente')
+                        );
                         
-                        console.log('Agentes cargados:', data.data.length);
+                        if (heraSaliente) {
+                            // Seleccionar automáticamente Hera Saliente
+                            selectAgente.innerHTML = `<option value="${heraSaliente.agent_id}" selected>${heraSaliente.name}</option>`;
+                            selectAgente.disabled = true; // Mantener bloqueado
+                            
+                            console.log('Agente Hera Saliente seleccionado automáticamente:', heraSaliente);
+                            
+                            // Cargar números de teléfono automáticamente
+                            cargarPhoneNumbers();
+                        } else {
+                            // Si no se encuentra Hera Saliente, cargar todos los agentes
+                            selectAgente.innerHTML = '<option value="">Agente Hera Saliente no encontrado</option>';
+                            console.warn('Agente Hera Saliente no encontrado');
+                            mostrarAlertaBatchCall('warning', 'No se encontró el agente Hera Saliente.');
+                        }
                     } else {
                         console.error('Error al cargar agentes:', data.message);
                         mostrarAlertaBatchCall('warning', 'No se pudieron cargar los agentes. Verifica la configuración.');
@@ -532,21 +544,21 @@
                 });
         }
 
-        // Función para cargar phone numbers cuando se selecciona un agente
+        // Función para cargar phone numbers del agente Hera Saliente
         window.cargarPhoneNumbers = function() {
             const agentId = document.getElementById('agentId').value;
             const selectPhoneNumber = document.getElementById('agentPhoneNumberId');
             
             if (!agentId) {
-                selectPhoneNumber.disabled = true;
-                selectPhoneNumber.innerHTML = '<option value="">Primero selecciona un agente...</option>';
+                selectPhoneNumber.innerHTML = '<option value="">Agente no seleccionado</option>';
                 return;
             }
-
+            
             // Mostrar loading
             selectPhoneNumber.disabled = true;
             selectPhoneNumber.innerHTML = '<option value="">Cargando números...</option>';
 
+            // Obtener números del agente seleccionado (Hera Saliente)
             fetch(`/api/elevenlabs-monitoring/batch-calls/agentes/${agentId}/phone-numbers`)
                 .then(response => response.json())
                 .then(data => {
@@ -556,16 +568,16 @@
                         if (Array.isArray(data.data) && data.data.length > 0) {
                             data.data.forEach(phoneNumber => {
                                 const option = document.createElement('option');
-                                // Formato según API de ElevenLabs
                                 option.value = phoneNumber.phone_number_id;
                                 
-                                // Texto descriptivo: label + número + provider
+                                // Mostrar: label + provider
                                 let displayText = phoneNumber.label || phoneNumber.phone_number;
+                                
                                 if (phoneNumber.provider) {
                                     displayText += ` (${phoneNumber.provider})`;
                                 }
                                 
-                                // Añadir indicador de outbound si está disponible
+                                // Añadir indicador de outbound
                                 if (phoneNumber.supports_outbound) {
                                     displayText += ' ✓';
                                 }
@@ -575,7 +587,7 @@
                             });
                             selectPhoneNumber.disabled = false;
                             
-                            console.log('Phone numbers cargados:', data.data.length);
+                            console.log('Phone numbers cargados para Hera Saliente:', data.data.length);
                         } else {
                             selectPhoneNumber.innerHTML = '<option value="">No hay números asignados a este agente</option>';
                             console.warn('El agente no tiene números de teléfono asignados');

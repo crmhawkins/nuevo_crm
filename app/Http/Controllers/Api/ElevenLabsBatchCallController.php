@@ -563,7 +563,7 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
     }
 
     /**
-     * Obtener phone numbers de un agente desde la API de ElevenLabs
+     * Obtener phone numbers de un agente específico desde la API de ElevenLabs
      * Documentación: https://elevenlabs.io/docs/api-reference/phone-numbers/list
      */
     public function obtenerPhoneNumbers(Request $request, $agentId)
@@ -581,7 +581,7 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
             }
 
             // Llamar a la API de ElevenLabs para obtener TODOS los phone numbers
-            // Endpoint correcto según documentación: GET /v1/convai/phone-numbers
+            // Endpoint: GET /v1/convai/phone-numbers
             $response = Http::withHeaders([
                 'xi-api-key' => $this->apiKey,
                 'Content-Type' => 'application/json'
@@ -594,17 +594,14 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
 
             if ($response->successful()) {
                 $allPhoneNumbers = $response->json();
-                
-                // Filtrar solo los números asignados al agente solicitado
                 $phoneNumbersFiltrados = [];
                 
                 if (is_array($allPhoneNumbers)) {
                     foreach ($allPhoneNumbers as $phoneData) {
-                        // Verificar si está asignado al agente
+                        // Filtrar solo los números asignados al agente solicitado
                         $assignedAgentId = $phoneData['assigned_agent']['agent_id'] ?? null;
                         
                         if ($assignedAgentId === $agentId) {
-                            // Formatear para el frontend
                             $phoneNumbersFiltrados[] = [
                                 'phone_number_id' => $phoneData['phone_number_id'],
                                 'phone_number' => $phoneData['phone_number'],
@@ -619,8 +616,7 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
 
                 Log::info('Phone numbers filtrados para el agente:', [
                     'agent_id' => $agentId,
-                    'total' => count($phoneNumbersFiltrados),
-                    'phone_numbers' => $phoneNumbersFiltrados
+                    'total' => count($phoneNumbersFiltrados)
                 ]);
 
                 return response()->json([
