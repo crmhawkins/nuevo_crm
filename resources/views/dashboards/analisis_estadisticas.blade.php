@@ -251,8 +251,12 @@
                     <div class="mb-3">
                         <label for="firstMessage" class="form-label">Mensaje Inicial (Opcional)</label>
                         <textarea class="form-control" id="firstMessage" name="first_message" rows="3" 
-                                  placeholder="Ej: Hola, llamo de Hawkins para informarte sobre..."></textarea>
-                        <small class="text-muted">El agente dirá este mensaje al inicio de cada llamada. Si lo dejas vacío, usará el mensaje configurado por defecto.</small>
+                                  placeholder="Ej: Hola {nombre}, llamo de Hawkins para informarte sobre..."></textarea>
+                        <small class="text-muted">
+                            <strong>Usa {nombre} para personalizar:</strong> Se reemplazará con el nombre de cada cliente.<br>
+                            Ejemplo: "Hola {nombre}, te llamo de Hawkins..." → "Hola Juan Pérez, te llamo de Hawkins..."<br>
+                            Si no incluyes {nombre}, se añadirá automáticamente al inicio.
+                        </small>
                     </div>
 
                     <div class="mb-3">
@@ -737,13 +741,18 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    mostrarAlertaBatchCall('success', 
-                        `¡Batch call enviado exitosamente! <br>
+                    let mensaje = `¡Batch call enviado exitosamente! <br>
                         <strong>Estadísticas:</strong><br>
                         - Total clientes: ${data.estadisticas.total_clientes}<br>
-                        - Llamadas programadas: ${data.estadisticas.llamadas_programadas}<br>
-                        - Errores: ${data.estadisticas.errores}
-                    `);
+                        - Llamadas programadas: ${data.estadisticas.llamadas_programadas}<br>`;
+                    
+                    if (data.estadisticas.con_mensaje_personalizado > 0) {
+                        mensaje += `- Con mensaje personalizado: ${data.estadisticas.con_mensaje_personalizado}<br>`;
+                    }
+                    
+                    mensaje += `- Errores: ${data.estadisticas.errores}`;
+                    
+                    mostrarAlertaBatchCall('success', mensaje);
                     
                     // Cerrar modal después de 3 segundos
                     setTimeout(() => {

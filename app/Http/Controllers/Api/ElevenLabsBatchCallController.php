@@ -311,46 +311,6 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
         }
     }
 
-    /**
-     * Actualizar first_message de un agente
-     * Documentación: https://elevenlabs.io/docs/api-reference/agents/update
-     */
-    private function actualizarFirstMessage($agentId, $firstMessage)
-    {
-        try {
-            Log::info('Actualizando first_message del agente:', [
-                'agent_id' => $agentId,
-                'first_message' => substr($firstMessage, 0, 100) . '...'
-            ]);
-
-            $response = Http::withHeaders([
-                'xi-api-key' => $this->apiKey,
-                'Content-Type' => 'application/json'
-            ])->timeout(30)->patch($this->apiUrl . '/v1/convai/agents/' . $agentId, [
-                'conversation_config' => [
-                    'agent' => [
-                        'first_message' => $firstMessage
-                    ]
-                ]
-            ]);
-
-            if ($response->successful()) {
-                Log::info('First message actualizado correctamente');
-                return true;
-            } else {
-                Log::error('Error al actualizar first_message:', [
-                    'status' => $response->status(),
-                    'body' => $response->body()
-                ]);
-                return false;
-            }
-        } catch (\Exception $e) {
-            Log::error('Excepción al actualizar first_message:', [
-                'error' => $e->getMessage()
-            ]);
-            return false;
-        }
-    }
 
     /**
      * Enviar batch call con clientes filtrados (procesa teléfonos con IA)
@@ -369,7 +329,8 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 'first_message' => 'nullable|string|max:1000',
                 'clientes' => 'required|array|min:1',
                 'clientes.*.id' => 'required|integer',
-                'clientes.*.telefono' => 'required|string'
+                'clientes.*.telefono' => 'required|string',
+                'clientes.*.nombre' => 'required|string'
             ]);
 
             if ($validator->fails()) {
@@ -381,25 +342,10 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 ], 400);
             }
 
-            // Si se proporciona first_message, actualizar el agente primero
-            if ($request->filled('first_message')) {
-                Log::info('Actualizando first_message del agente antes de enviar batch call');
-                $actualizado = $this->actualizarFirstMessage($request->agent_id, $request->first_message);
-                
-                if (!$actualizado) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Error al actualizar el mensaje inicial del agente. No se enviará el batch call.',
-                        'error' => 'No se pudo actualizar first_message'
-                    ], 500);
-                }
-                
-                Log::info('First message actualizado correctamente, procediendo con batch call');
-            }
-
-            // Parsear teléfonos con IA
+            // Parsear teléfonos con IA y preparar recipients con first_message personalizado
             $telefonosParseados = [];
             $errores = [];
+            $firstMessageBase = $request->input('first_message', '');
 
             foreach ($request->clientes as $cliente) {
                 try {
@@ -407,10 +353,36 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                     
                     // Validar que el teléfono parseado tenga el formato correcto
                     if (preg_match('/^\+34[0-9]{9}$/', $telefonoParsed)) {
-                        $telefonosParseados[] = [
+                        $nombreCliente = $cliente['nombre'] ?? 'Cliente';
+                        
+                        // Construir recipient con mensaje personalizado
+                        $recipient = [
                             'phone_number' => $telefonoParsed,
+                        ];
+                        
+                        // Si hay first_message, personalizarlo con el nombre del cliente
+                        if (!empty($firstMessageBase)) {
+                            $mensajePersonalizado = str_replace('{nombre}', $nombreCliente, $firstMessageBase);
+                            
+                            // Si el mensaje base no tiene {nombre}, añadirlo al inicio
+                            if ($firstMessageBase === $mensajePersonalizado) {
+                                $mensajePersonalizado = "Hola {$nombreCliente}, " . $firstMessageBase;
+                            }
+                            
+                            $recipient['conversation_initiation_client_data'] = [
+                                'conversation_config_override' => [
+                                    'agent' => [
+                                        'first_message' => $mensajePersonalizado
+                                    ]
+                                ]
+                            ];
+                        }
+                        
+                        $telefonosParseados[] = [
+                            'recipient' => $recipient,
                             'cliente_id' => $cliente['id'],
-                            'nombre' => $cliente['nombre'] ?? 'N/A'
+                            'nombre' => $nombreCliente,
+                            'telefono' => $telefonoParsed
                         ];
                     } else {
                         $errores[] = [
@@ -442,9 +414,9 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 ], 400);
             }
 
-            // Preparar recipients solo con phone_number para la API
+            // Preparar recipients con mensaje personalizado por cliente
             $recipients = array_map(function($item) {
-                return ['phone_number' => $item['phone_number']];
+                return $item['recipient']; // Ya incluye phone_number y conversation_config_override
             }, $telefonosParseados);
 
             // Preparar los datos para enviar a ElevenLabs
@@ -457,7 +429,8 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
 
             Log::info('Payload preparado para ElevenLabs:', [
                 'call_name' => $payload['call_name'],
-                'total_recipients' => count($recipients)
+                'total_recipients' => count($recipients),
+                'ejemplo_recipient' => $recipients[0] ?? null
             ]);
 
             // Hacer la petición POST a la API de ElevenLabs
@@ -474,16 +447,29 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
             if ($response->successful()) {
                 $responseData = $response->json();
 
+                // Formatear telefonos_procesados para la respuesta
+                $telefonosInfo = array_map(function($item) {
+                    return [
+                        'cliente_id' => $item['cliente_id'],
+                        'nombre' => $item['nombre'],
+                        'phone_number' => $item['telefono'],
+                        'tiene_mensaje_personalizado' => isset($item['recipient']['conversation_initiation_client_data'])
+                    ];
+                }, $telefonosParseados);
+
                 return response()->json([
                     'success' => true,
-                    'message' => 'Batch call enviado exitosamente a ElevenLabs',
+                    'message' => 'Batch call enviado exitosamente a ElevenLabs con mensajes personalizados',
                     'data' => $responseData,
                     'estadisticas' => [
                         'total_clientes' => count($request->clientes),
                         'llamadas_programadas' => count($telefonosParseados),
+                        'con_mensaje_personalizado' => count(array_filter($telefonosParseados, function($item) {
+                            return isset($item['recipient']['conversation_initiation_client_data']);
+                        })),
                         'errores' => count($errores)
                     ],
-                    'telefonos_procesados' => $telefonosParseados,
+                    'telefonos_procesados' => $telefonosInfo,
                     'errores' => $errores
                 ]);
             } else {
@@ -497,7 +483,6 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                     'message' => 'Error al enviar batch call a ElevenLabs',
                     'error' => $response->body(),
                     'status_code' => $response->status(),
-                    'telefonos_procesados' => $telefonosParseados,
                     'errores' => $errores
                 ], $response->status());
             }
