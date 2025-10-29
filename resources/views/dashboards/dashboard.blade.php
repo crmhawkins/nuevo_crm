@@ -481,12 +481,12 @@
                                     <label for="nombre_campo" class="form-label">Nombre <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="nombre_campo" name="nombre_campo" placeholder="Nombre completo">
                                 </div>
-                                
+
                                 <div class="col-md-12 mb-3">
                                     <label for="email_campo" class="form-label">Email <span class="text-danger">*</span></label>
                                     <input type="email" class="form-control" id="email_campo" name="email_campo" placeholder="email@ejemplo.com">
                                 </div>
-                                
+
                                 <div class="col-md-12 mb-3">
                                     <label for="empresa_campo" class="form-label">Empresa <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="empresa_campo" name="empresa_campo" placeholder="Nombre de la empresa">
@@ -1281,12 +1281,9 @@
 
 </script>
 
-@include('components.justificaciones.modal')
-@include('components.justificaciones.script')
-@endsection
             this.queue.push(requestData);
             console.log(`Petición añadida a la cola. Total en cola: ${this.queue.length}`);
-            
+
             // Mostrar notificación si hay más de una en cola
             if (this.queue.length > 1) {
                 Swal.fire({
@@ -1297,13 +1294,13 @@
                     showConfirmButton: false
                 });
             }
-            
+
             // Si no está procesando, iniciar el procesamiento
             if (!this.isProcessing) {
                 this.processNext();
             }
         },
-        
+
         // Procesar siguiente petición de la cola
         processNext: function() {
             if (this.queue.length === 0) {
@@ -1311,12 +1308,12 @@
                 console.log('Cola vacía. Esperando nuevas peticiones.');
                 return;
             }
-            
+
             this.isProcessing = true;
             const requestData = this.queue[0]; // Obtener el primero sin removerlo aún
-            
+
             console.log(`Procesando petición: ${requestData.nombre} - ${requestData.email}`);
-            
+
             // Mostrar loader
             Swal.fire({
                 title: 'Generando puesto de trabajo seguro...',
@@ -1327,7 +1324,7 @@
                     Swal.showLoading();
                 }
             });
-            
+
             // Paso 1: Crear registro en base de datos
             const formData = new FormData();
             formData.append('tipo_justificacion', 'puesto_trabajo_seguro');
@@ -1337,7 +1334,7 @@
             formData.append('nombre_campo', requestData.nombre);
             formData.append('email_campo', requestData.email);
             formData.append('empresa_campo', requestData.empresa);
-            
+
             // Crear justificación en base de datos
             fetch('{{ route("justificaciones.store") }}', {
                 method: 'POST',
@@ -1351,10 +1348,10 @@
                 if (!data.success) {
                     throw new Error(data.message || 'Error al crear justificación');
                 }
-                
+
                 const justificacionId = data.id;
                 console.log('Justificación creada con ID:', justificacionId);
-                
+
                 // Paso 2: Enviar a API externa con el ID de la justificación
                 return fetch('https://aiapi.hawkins.es/sgpseg/generate-pdf', {
                     method: 'POST',
@@ -1374,7 +1371,7 @@
             .then(data => {
                 // Remover de la cola solo si fue exitoso
                 this.queue.shift();
-                
+
                 if (data.success) {
                     const redirectUrl = '{{ route("justificaciones.index") }}';
                     Swal.fire({
@@ -1395,7 +1392,7 @@
                             const camposPuestoSeguro = document.getElementById('campos_puesto_seguro');
                             if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
                         }
-                        
+
                         // Si no hay más en cola y el usuario hace clic en el botón, redirigir
                         if (this.queue.length === 0 && result.isConfirmed) {
                             window.location.href = redirectUrl;
@@ -1419,7 +1416,7 @@
             .catch(error => {
                 // Remover de la cola en caso de error
                 this.queue.shift();
-                
+
                 console.error('Error:', error);
                 Swal.fire({
                     icon: 'error',
@@ -1433,7 +1430,7 @@
                 });
             });
         },
-        
+
         // Obtener estado de la cola
         getStatus: function() {
             return {
@@ -1455,7 +1452,7 @@
         // Mostrar/ocultar campos según el tipo seleccionado
         tipoSelect.addEventListener('change', function() {
             const valor = this.value;
-            
+
             if (valor === 'segunda_justificacion_presencia_basica') {
                 camposDinamicos.style.display = 'block';
                 if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
@@ -1474,15 +1471,15 @@
         // Enviar formulario
         enviarBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             const tipoJustificacion = tipoSelect.value;
-            
+
             // Si es Puesto de trabajo seguro, añadir a la cola
             if (tipoJustificacion === 'puesto_trabajo_seguro') {
                 const nombre = document.getElementById('nombre_campo').value;
                 const email = document.getElementById('email_campo').value;
                 const empresa = document.getElementById('empresa_campo').value;
-                
+
                 // Validar campos
                 if (!nombre || !email || !empresa) {
                     Swal.fire({
@@ -1492,7 +1489,7 @@
                     });
                     return;
                 }
-                
+
                 // Añadir a la cola
                 puestoTrabajoQueue.add({
                     nombre: nombre,
@@ -1500,20 +1497,20 @@
                     empresa: empresa,
                     shouldCloseModal: true
                 });
-                
+
                 // Limpiar formulario inmediatamente
                 justificacionesForm.reset();
                 if (camposPuestoSeguro) camposPuestoSeguro.style.display = 'none';
-                
+
                 return;
             }
-            
+
             // Flujo normal para otros tipos de justificación
             const formData = new FormData(justificacionesForm);
-            
+
             // Validar que se haya ingresado la URL
             const urlCampo = document.getElementById('url_campo').value;
-            
+
             if (!urlCampo) {
                 Swal.fire({
                     icon: 'error',
@@ -1522,7 +1519,7 @@
                 });
                 return;
             }
-            
+
             // Mostrar loader
             Swal.fire({
                 title: 'Enviando justificación...',
@@ -1532,7 +1529,7 @@
                     Swal.showLoading();
                 }
             });
-            
+
             fetch('{{ route("justificaciones.store") }}', {
                 method: 'POST',
                 body: formData,
