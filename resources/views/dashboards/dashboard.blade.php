@@ -636,7 +636,7 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 @include('partials.toast')
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
@@ -1574,5 +1574,5 @@
 
 @include('components.justificaciones.modal')
 @include('components.justificaciones.script')
-@endsection
+@endpush
 
