@@ -1571,5 +1571,8 @@
         });
     });
 </script>
+
+@include('components.justificaciones.modal')
+@include('components.justificaciones.script')
 @endsection
 
