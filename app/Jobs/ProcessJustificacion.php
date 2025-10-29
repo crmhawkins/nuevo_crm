@@ -194,6 +194,7 @@ class ProcessJustificacion implements ShouldQueue
             case 'presencia_avanzada_2':
                 return array_merge($basePayload, [
                     'kd' => $metadata['kd'] ?? '',
+                    'fecha' => $metadata['fecha'] ?? '',
                     'nombre' => $metadata['nombre'] ?? '',
                     'url' => $metadata['url'] ?? '',
                     'keyword_principal' => $metadata['keyword_principal'] ?? '',

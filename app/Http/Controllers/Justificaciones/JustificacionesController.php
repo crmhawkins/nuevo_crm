@@ -50,6 +50,7 @@ class JustificacionesController extends Controller
                     'tipo_justificacion' => 'required|string',
                     'nombre_justificacion' => 'required|string',
                     'kd_campo' => 'required|string',
+                    'fecha_campo' => 'required|date',
                     'nombre_presencia_campo' => 'required|string',
                     'url_presencia_campo' => 'required|url',
                     'keyword_campo' => 'required|string',
@@ -89,6 +90,7 @@ class JustificacionesController extends Controller
         } elseif ($request->tipo_justificacion === 'presencia_avanzada_2') {
             $metadata = [
                 'kd' => $request->input('kd_campo'),
+                'fecha' => $request->input('fecha_campo'),
                 'nombre' => $request->input('nombre_presencia_campo'),
                 'url' => $request->input('url_presencia_campo'),
                 'keyword_principal' => $request->input('keyword_campo'),

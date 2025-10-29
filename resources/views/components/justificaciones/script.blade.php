@@ -90,6 +90,7 @@
                 }
             } else if (tipoJustificacion === 'presencia_avanzada_2') {
                 const kd = document.getElementById('kd_campo').value;
+                const fecha = document.getElementById('fecha_campo').value;
                 const nombre = document.getElementById('nombre_presencia_campo').value;
                 const url = document.getElementById('url_presencia_campo').value;
                 const keyword = document.getElementById('keyword_campo').value;
@@ -98,7 +99,7 @@
                 const address = document.getElementById('address_campo').value;
                 const descripcion = document.getElementById('descripcion_campo').value;
                 
-                if (!kd || !nombre || !url || !keyword || !phone || !email || !address || !descripcion) {
+                if (!kd || !fecha || !nombre || !url || !keyword || !phone || !email || !address || !descripcion) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',

@@ -75,6 +75,11 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
+                                <label for="fecha_campo" class="form-label">Fecha <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="fecha_campo" name="fecha_campo">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
                                 <label for="nombre_presencia_campo" class="form-label">Nombre <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="nombre_presencia_campo" name="nombre_presencia_campo" placeholder="">
                             </div>
