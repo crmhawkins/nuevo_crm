@@ -11,11 +11,11 @@
         background-color: #f8f9fa !important;
         transition: background-color 0.2s ease;
     }
-    
+
     .cliente-row {
         transition: background-color 0.2s ease;
     }
-    
+
     .cliente-checkbox {
         cursor: pointer;
         transform: scale(1.2);
@@ -74,7 +74,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Análisis Dinámico de Clientes -->
     <div class="card2 mt-4">
         <div class="card-body2">
@@ -94,7 +94,7 @@
                         @break
                 @endswitch
             </h5>
-            
+
             <!-- Botón para Batch Calls -->
             @if($resultados->count() > 0)
                 <div class="mt-3 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -113,8 +113,30 @@
                     </button>
                 </div>
             @endif
-            
+
             @if($resultados->count() > 0)
+                <!-- Selector de resultados por página -->
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <label class="me-2 mb-0" style="white-space: nowrap;">Mostrar:</label>
+                            <select id="perPageSelect" class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
+                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15</option>
+                                <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                                <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
+                            </select>
+                            <span class="ms-2 text-muted" style="white-space: nowrap;">por página</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <small class="text-muted">
+                            Mostrando {{ $resultados->firstItem() ?? 0 }} a {{ $resultados->lastItem() ?? 0 }} de {{ $resultados->total() }} clientes
+                        </small>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead class="table-dark">
@@ -139,7 +161,7 @@
                             <tr class="cliente-row" data-cliente-id="{{ $cliente->id }}">
                                 <td onclick="event.stopPropagation()">
                                     @if($cliente->phone)
-                                        <input type="checkbox" class="form-check-input cliente-checkbox" 
+                                        <input type="checkbox" class="form-check-input cliente-checkbox"
                                                data-cliente-id="{{ $cliente->id }}"
                                                data-cliente-nombre="{{ $cliente->name }} {{ $cliente->primerApellido }} {{ $cliente->segundoApellido }}"
                                                data-cliente-telefono="{{ $cliente->phone }}"
@@ -188,16 +210,19 @@
                         </tbody>
                     </table>
                 </div>
-                
-                <div class="mt-3">
-                    <small class="text-muted">
-                        Mostrando {{ $resultados->count() }} 
-                        @if($limite && $resultados->count() == $limite)
-                            de {{ $limite }} resultados
-                        @else
-                            resultados
-                        @endif
-                    </small>
+
+                <!-- Paginación -->
+                <div class="mt-4 mb-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            {{ $resultados->links() }}
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <small class="text-muted">
+                                Total de resultados: {{ $resultados->total() }}
+                            </small>
+                        </div>
+                    </div>
                 </div>
             @else
                 <div class="text-center py-5">
@@ -245,14 +270,14 @@
             <div class="modal-body">
                 <form id="formBatchCall">
                     <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> 
+                        <i class="bi bi-info-circle"></i>
                         <strong>Información:</strong> Se enviarán llamadas automáticas a <span id="totalLlamadas" class="fw-bold">0</span> clientes con teléfono válido.
                         Los números serán procesados y validados automáticamente con IA.
                     </div>
 
                     <div class="mb-3">
                         <label for="callName" class="form-label">Nombre de la Campaña <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="callName" name="call_name" required 
+                        <input type="text" class="form-control" id="callName" name="call_name" required
                                placeholder="Ej: Campaña Marzo 2024">
                         <small class="text-muted">Identificador de esta campaña de llamadas</small>
                     </div>
@@ -275,7 +300,7 @@
 
                     <div class="mb-3">
                         <label for="firstMessage" class="form-label">Mensaje Inicial (Opcional)</label>
-                        <textarea class="form-control" id="firstMessage" name="first_message" rows="3" 
+                        <textarea class="form-control" id="firstMessage" name="first_message" rows="3"
                                   placeholder="Ej: Hola {nombre}, llamo de Hawkins para informarte sobre..."></textarea>
                         <small class="text-muted">
                             <strong>Usa {nombre} para personalizar:</strong> Se reemplazará con el nombre de cada cliente.<br>
@@ -325,11 +350,11 @@
                 if (selectedDates.length === 2) {
                     const startDate = selectedDates[0].toISOString().split('T')[0];
                     const endDate = selectedDates[1].toISOString().split('T')[0];
-                    
+
                     // Actualizar los campos hidden
                     document.querySelector('input[name="fecha_inicio"]').value = startDate;
                     document.querySelector('input[name="fecha_fin"]').value = endDate;
-                    
+
                     // Enviar el formulario
                     const form = instance.element.closest('form');
                     form.submit();
@@ -340,19 +365,19 @@
         // Manejar cambio de tipo de análisis
         document.getElementById('tipoAnalisis').addEventListener('change', function() {
             const tipoAnalisis = this.value;
-            
+
             // Construir URL limpia con solo los parámetros necesarios
             const fechaInicio = document.querySelector('input[name="fecha_inicio"]').value;
             const fechaFin = document.querySelector('input[name="fecha_fin"]').value;
             const limite = document.querySelector('input[name="limite"]').value;
-            
+
             let url = `{{ route('analisis.estadisticas') }}?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}&tipo_analisis=${tipoAnalisis}&limite=${limite}`;
-            
+
             // Solo añadir parámetros específicos según el tipo
             if (tipoAnalisis === 'por_facturacion') {
                 url += `&monto_minimo=0`;
             }
-            
+
             // Redirigir inmediatamente para recargar la página con los nuevos datos
             window.location.href = url;
         });
@@ -362,7 +387,7 @@
             const tipoAnalisis = document.getElementById('tipoAnalisis').value;
             const filtroSelect = document.getElementById('filtroSelect');
             const montoMinimoInput = document.getElementById('montoMinimoInput');
-            
+
             if (tipoAnalisis === 'por_facturacion') {
                 filtroSelect.style.display = 'none';
                 montoMinimoInput.style.display = 'block';
@@ -381,12 +406,12 @@
         // Manejar clic en filas de clientes (excepto checkboxes)
         document.addEventListener('click', function(e) {
             // Ignorar clicks en checkboxes y sus labels
-            if (e.target.classList.contains('cliente-checkbox') || 
+            if (e.target.classList.contains('cliente-checkbox') ||
                 e.target.classList.contains('form-check-input') ||
                 e.target.type === 'checkbox') {
                 return;
             }
-            
+
             const row = e.target.closest('.cliente-row');
             if (row) {
                 const clienteId = row.getAttribute('data-cliente-id');
@@ -495,7 +520,7 @@
                                             </thead>
                                             <tbody>
                 `;
-                
+
                 facturas.forEach(factura => {
                     html += `
                         <tr>
@@ -507,7 +532,7 @@
                         </tr>
                     `;
                 });
-                
+
                 html += `
                                             </tbody>
                                         </table>
@@ -522,18 +547,28 @@
             document.getElementById('clienteInfo').innerHTML = html;
         }
 
+        // ==================== PAGINACIÓN ====================
+
+        // Cambiar resultados por página
+        window.changePerPage = function(perPage) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('per_page', perPage);
+            url.searchParams.set('page', 1); // Resetear a primera página
+            window.location.href = url.toString();
+        }
+
         // ==================== FUNCIONES DE SELECCIÓN DE CHECKBOXES ====================
-        
+
         // Actualizar contador de seleccionados
         window.actualizarContador = function() {
             const checkboxes = document.querySelectorAll('.cliente-checkbox:checked');
             const total = checkboxes.length;
             const totalSeleccionadosEl = document.getElementById('totalSeleccionados');
             const totalConTelefonoEl = document.getElementById('totalClientesConTelefono');
-            
+
             if (totalSeleccionadosEl) totalSeleccionadosEl.textContent = `${total} seleccionados`;
             if (totalConTelefonoEl) totalConTelefonoEl.textContent = total;
-            
+
             // Actualizar checkbox del header
             const checkboxAll = document.getElementById('checkboxSelectAll');
             const todosLosCheckboxes = document.querySelectorAll('.cliente-checkbox');
@@ -541,7 +576,7 @@
                 checkboxAll.checked = (checkboxes.length === todosLosCheckboxes.length && todosLosCheckboxes.length > 0);
             }
         }
-        
+
         // Toggle seleccionar/deseleccionar todos
         window.toggleSelectAll = function(checkbox) {
             const checkboxes = document.querySelectorAll('.cliente-checkbox');
@@ -550,7 +585,7 @@
             });
             actualizarContador();
         }
-        
+
         // Seleccionar todos
         window.seleccionarTodos = function() {
             const checkboxes = document.querySelectorAll('.cliente-checkbox');
@@ -561,7 +596,7 @@
             if (checkboxAll) checkboxAll.checked = true;
             actualizarContador();
         }
-        
+
         // Deseleccionar todos
         window.deseleccionarTodos = function() {
             const checkboxes = document.querySelectorAll('.cliente-checkbox');
@@ -572,19 +607,19 @@
             if (checkboxAll) checkboxAll.checked = false;
             actualizarContador();
         }
-        
+
         // Inicializar contador al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
             // Esperar un momento para que los elementos estén disponibles
             setTimeout(function() {
                 actualizarContador();
-                
+
                 // Si hay búsqueda de cliente, deseleccionar todos y solo seleccionar el buscado
                 const buscarCliente = '{{ request("buscar_cliente") }}';
                 if (buscarCliente && buscarCliente.trim() !== '') {
                     // Deseleccionar todos primero
                     deseleccionarTodos();
-                    
+
                     // Seleccionar solo el primer resultado (el buscado)
                     const primerCheckbox = document.querySelector('.cliente-checkbox');
                     if (primerCheckbox) {
@@ -594,16 +629,16 @@
                 }
             }, 100);
         });
-        
+
         // ==================== BATCH CALL FUNCTIONALITY ====================
-        
+
         let clientesParaBatchCall = [];
 
         // Función para abrir el modal y cargar los clientes seleccionados
         window.abrirModalBatchCall = function() {
             // Obtener clientes seleccionados con checkbox
             const checkboxesSeleccionados = document.querySelectorAll('.cliente-checkbox:checked');
-            
+
             if (checkboxesSeleccionados.length === 0) {
                 Swal.fire({
                     icon: 'warning',
@@ -612,16 +647,16 @@
                 });
                 return;
             }
-            
+
             // Preparar array de clientes desde los checkboxes
             clientesParaBatchCall = Array.from(checkboxesSeleccionados).map(checkbox => ({
                 id: parseInt(checkbox.dataset.clienteId),
                 nombre: checkbox.dataset.clienteNombre,
                 telefono: checkbox.dataset.clienteTelefono
             }));
-            
+
             console.log('Clientes seleccionados para batch call:', clientesParaBatchCall.length);
-            
+
             // Mostrar el modal
             const modal = new bootstrap.Modal(document.getElementById('batchCallModal'));
             modal.show();
@@ -640,20 +675,20 @@
                 .then(data => {
                     if (data.success && data.data) {
                         const selectAgente = document.getElementById('agentId');
-                        
+
                         // Buscar el agente "Hera Saliente"
-                        const heraSaliente = data.data.find(agente => 
-                            agente.name.toLowerCase().includes('hera') && 
+                        const heraSaliente = data.data.find(agente =>
+                            agente.name.toLowerCase().includes('hera') &&
                             agente.name.toLowerCase().includes('saliente')
                         );
-                        
+
                         if (heraSaliente) {
                             // Seleccionar automáticamente Hera Saliente
                             selectAgente.innerHTML = `<option value="${heraSaliente.agent_id}" selected>${heraSaliente.name}</option>`;
                             selectAgente.disabled = true; // Mantener bloqueado
-                            
+
                             console.log('Agente Hera Saliente seleccionado automáticamente:', heraSaliente);
-                            
+
                             // Cargar números de teléfono automáticamente
                             cargarPhoneNumbers();
                         } else {
@@ -677,12 +712,12 @@
         window.cargarPhoneNumbers = function() {
             const agentId = document.getElementById('agentId').value;
             const selectPhoneNumber = document.getElementById('agentPhoneNumberId');
-            
+
             if (!agentId) {
                 selectPhoneNumber.innerHTML = '<option value="">Agente no seleccionado</option>';
                 return;
             }
-            
+
             // Mostrar loading
             selectPhoneNumber.disabled = true;
             selectPhoneNumber.innerHTML = '<option value="">Cargando números...</option>';
@@ -693,35 +728,35 @@
                 .then(data => {
                     if (data.success && data.data) {
                         selectPhoneNumber.innerHTML = '<option value="">Selecciona un número...</option>';
-                        
+
                         if (Array.isArray(data.data) && data.data.length > 0) {
                             data.data.forEach(phoneNumber => {
                                 const option = document.createElement('option');
                                 option.value = phoneNumber.phone_number_id;
-                                
+
                                 // Mostrar: label + agente asignado + provider
                                 let displayText = phoneNumber.label || phoneNumber.phone_number;
-                                
+
                                 // Añadir nombre del agente asignado
                                 if (phoneNumber.assigned_agent_name) {
                                     displayText += ` → ${phoneNumber.assigned_agent_name}`;
                                 }
-                                
+
                                 // Añadir provider
                                 if (phoneNumber.provider) {
                                     displayText += ` (${phoneNumber.provider})`;
                                 }
-                                
+
                                 // Añadir indicador de outbound
                                 if (phoneNumber.supports_outbound) {
                                     displayText += ' ✓';
                                 }
-                                
+
                                 option.textContent = displayText;
                                 selectPhoneNumber.appendChild(option);
                             });
                             selectPhoneNumber.disabled = false;
-                            
+
                             console.log('Phone numbers cargados (todos):', data.data.length);
                         } else {
                             selectPhoneNumber.innerHTML = '<option value="">No hay números de teléfono disponibles</option>';
@@ -744,7 +779,7 @@
         function mostrarClientesBatchCall(clientes) {
             const lista = document.getElementById('listaClientesBatchCall');
             const totalLlamadas = document.getElementById('totalLlamadas');
-            
+
             if (clientes.length === 0) {
                 lista.innerHTML = `
                     <div class="alert alert-warning mb-0">
@@ -831,15 +866,15 @@
                         <strong>Estadísticas:</strong><br>
                         - Total clientes: ${data.estadisticas.total_clientes}<br>
                         - Llamadas programadas: ${data.estadisticas.llamadas_programadas}<br>`;
-                    
+
                     if (data.estadisticas.con_mensaje_personalizado > 0) {
                         mensaje += `- Con mensaje personalizado: ${data.estadisticas.con_mensaje_personalizado}<br>`;
                     }
-                    
+
                     mensaje += `- Errores: ${data.estadisticas.errores}`;
-                    
+
                     mostrarAlertaBatchCall('success', mensaje);
-                    
+
                     // Cerrar modal después de 3 segundos
                     setTimeout(() => {
                         bootstrap.Modal.getInstance(document.getElementById('batchCallModal')).hide();

@@ -295,14 +295,116 @@
         </div>
 
         <!-- Paginación -->
-        <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-            <div class="text-muted">
-                <small>
-                    Mostrando {{ $recentConversations->firstItem() ?? 0 }} a {{ $recentConversations->lastItem() ?? 0 }} de {{ $recentConversations->total() }} conversaciones
-                </small>
-            </div>
-            <div>
-                {{ $recentConversations->links('pagination::bootstrap-4') }}
+        <div class="mt-4 mb-3">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-start mb-2 mb-md-0">
+                    <small class="text-muted">
+                        Mostrando {{ $recentConversations->firstItem() ?? 0 }} a {{ $recentConversations->lastItem() ?? 0 }} de {{ $recentConversations->total() }} conversaciones
+                    </small>
+                </div>
+                <div class="col-md-6">
+                    <nav aria-label="Paginación de conversaciones">
+                        <ul class="pagination justify-content-end mb-0">
+                            {{-- Botón Primera Página --}}
+                            @if ($recentConversations->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">«</span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $recentConversations->url(1) }}" rel="prev">«</a>
+                                </li>
+                            @endif
+
+                            {{-- Botón Anterior --}}
+                            @if ($recentConversations->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">‹</span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $recentConversations->previousPageUrl() }}" rel="prev">‹</a>
+                                </li>
+                            @endif
+
+                            {{-- Elementos de Paginación --}}
+                            @php
+                                $currentPage = $recentConversations->currentPage();
+                                $lastPage = $recentConversations->lastPage();
+                                $start = max(1, $currentPage - 2);
+                                $end = min($lastPage, $currentPage + 2);
+
+                                // Ajustar para mostrar siempre 5 páginas si es posible
+                                if ($end - $start < 4) {
+                                    if ($start == 1) {
+                                        $end = min($lastPage, $start + 4);
+                                    } else {
+                                        $start = max(1, $end - 4);
+                                    }
+                                }
+                            @endphp
+
+                            {{-- Primera página si no está en el rango --}}
+                            @if ($start > 1)
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $recentConversations->url(1) }}">1</a>
+                                </li>
+                                @if ($start > 2)
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                @endif
+                            @endif
+
+                            {{-- Páginas del rango --}}
+                            @for ($page = $start; $page <= $end; $page++)
+                                @if ($page == $currentPage)
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $recentConversations->url($page) }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endfor
+
+                            {{-- Última página si no está en el rango --}}
+                            @if ($end < $lastPage)
+                                @if ($end < $lastPage - 1)
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                @endif
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $recentConversations->url($lastPage) }}">{{ $lastPage }}</a>
+                                </li>
+                            @endif
+
+                            {{-- Botón Siguiente --}}
+                            @if ($recentConversations->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $recentConversations->nextPageUrl() }}" rel="next">›</a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">›</span>
+                                </li>
+                            @endif
+
+                            {{-- Botón Última Página --}}
+                            @if ($recentConversations->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $recentConversations->url($lastPage) }}" rel="next">»</a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">»</span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
     </div>

@@ -365,15 +365,15 @@ class DashboardController extends Controller
                     ->orderBy('created_at', 'desc')
                     ->limit(20)
                     ->get();
-                    
+
                 $clientes = Client::where('is_client', 1)->get();
-                
+
                 // Obtener objetivos del comercial
                 $objetivo = ObjetivoComercial::delComercial($user->id)
                     ->activos()
                     ->vigentes()
                     ->first();
-                
+
                 // Calcular progreso si hay objetivo
                 $progreso = null;
                 if ($objetivo) {
@@ -385,7 +385,7 @@ class DashboardController extends Controller
                     ->activos()
                     ->vigentes()
                     ->first();
-                
+
                 // Calcular incentivos si hay incentivo
                 $progresoIncentivos = null;
                 if ($incentivo) {
@@ -688,38 +688,38 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $time = $request->input('time', 0);
-        
+
         // Guardar el tiempo en la sesión
         session(['current_work_time_' . $user->id => $time]);
-        
+
         // También guardar en la base de datos si hay una jornada activa
         $jornadaActiva = $user->activeJornada();
         if ($jornadaActiva) {
             // Actualizar el tiempo en la jornada activa
             $jornadaActiva->update(['current_time' => $time]);
         }
-        
+
         return response()->json(['success' => true, 'time' => $time]);
     }
 
     public function getCurrentTime(Request $request)
     {
         $user = Auth::user();
-        
+
         // Primero intentar obtener de la jornada activa
         $jornadaActiva = $user->activeJornada();
         if ($jornadaActiva && $jornadaActiva->current_time) {
             return response()->json(['success' => true, 'time' => $jornadaActiva->current_time]);
         }
-        
+
         // Si no hay jornada activa, obtener de la sesión
         $savedTime = session('current_work_time_' . $user->id, 0);
-        
+
         // Si no hay tiempo guardado, calcular el tiempo trabajado hoy
         if ($savedTime == 0) {
             $savedTime = $this->calculateTimeWorkedToday($user);
         }
-        
+
         return response()->json(['success' => true, 'time' => $savedTime]);
     }
 
@@ -1673,32 +1673,32 @@ class DashboardController extends Controller
         $ventasEuros = $ventasRealizadas->sum('total');
 
         // Calcular porcentajes
-        $progresoVisitasPresenciales = $objetivo->visitas_presenciales_diarias > 0 
-            ? ($visitasPresenciales / $objetivo->visitas_presenciales_diarias) * 100 
+        $progresoVisitasPresenciales = $objetivo->visitas_presenciales_diarias > 0
+            ? ($visitasPresenciales / $objetivo->visitas_presenciales_diarias) * 100
             : 0;
 
-        $progresoVisitasTelefonicas = $objetivo->visitas_telefonicas_diarias > 0 
-            ? ($visitasTelefonicas / $objetivo->visitas_telefonicas_diarias) * 100 
+        $progresoVisitasTelefonicas = $objetivo->visitas_telefonicas_diarias > 0
+            ? ($visitasTelefonicas / $objetivo->visitas_telefonicas_diarias) * 100
             : 0;
 
-        $progresoVisitasMixtas = $objetivo->visitas_mixtas_diarias > 0 
-            ? ($visitasMixtas / $objetivo->visitas_mixtas_diarias) * 100 
+        $progresoVisitasMixtas = $objetivo->visitas_mixtas_diarias > 0
+            ? ($visitasMixtas / $objetivo->visitas_mixtas_diarias) * 100
             : 0;
 
-        $progresoPlanesEsenciales = $objetivo->planes_esenciales_mensuales > 0 
-            ? ($planesEsenciales / $objetivo->planes_esenciales_mensuales) * 100 
+        $progresoPlanesEsenciales = $objetivo->planes_esenciales_mensuales > 0
+            ? ($planesEsenciales / $objetivo->planes_esenciales_mensuales) * 100
             : 0;
 
-        $progresoPlanesProfesionales = $objetivo->planes_profesionales_mensuales > 0 
-            ? ($planesProfesionales / $objetivo->planes_profesionales_mensuales) * 100 
+        $progresoPlanesProfesionales = $objetivo->planes_profesionales_mensuales > 0
+            ? ($planesProfesionales / $objetivo->planes_profesionales_mensuales) * 100
             : 0;
 
-        $progresoPlanesAvanzados = $objetivo->planes_avanzados_mensuales > 0 
-            ? ($planesAvanzados / $objetivo->planes_avanzados_mensuales) * 100 
+        $progresoPlanesAvanzados = $objetivo->planes_avanzados_mensuales > 0
+            ? ($planesAvanzados / $objetivo->planes_avanzados_mensuales) * 100
             : 0;
 
-        $progresoVentasEuros = $objetivo->ventas_euros_mensuales > 0 
-            ? ($ventasEuros / $objetivo->ventas_euros_mensuales) * 100 
+        $progresoVentasEuros = $objetivo->ventas_euros_mensuales > 0
+            ? ($ventasEuros / $objetivo->ventas_euros_mensuales) * 100
             : 0;
 
         return [
@@ -1933,7 +1933,11 @@ class DashboardController extends Controller
         $montoMinimo = $request->input('monto_minimo', 0);
         $limite = $request->input('limite', 50); // Límite por defecto más alto
         $buscarCliente = $request->input('buscar_cliente'); // Búsqueda por nombre
-        
+
+        // Paginación
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50, 100]) ? $perPage : 15;
+
         // Limpiar parámetros según el tipo de análisis
         if ($tipoAnalisis === 'por_facturacion') {
             $filtroId = null; // No usar filtro_id para facturación
@@ -1946,9 +1950,9 @@ class DashboardController extends Controller
         $categoriasServicios = $this->obtenerCategoriasServicios();
         $serviciosDisponibles = $this->obtenerServiciosDisponibles();
 
-        // Obtener análisis dinámico
+        // Obtener análisis dinámico con paginación
         $filtroParaAnalisis = ($tipoAnalisis == 'por_facturacion') ? $montoMinimo : $filtroId;
-        $resultados = $this->obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroParaAnalisis, $limite, $buscarCliente);
+        $resultados = $this->obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroParaAnalisis, $limite, $buscarCliente, $perPage);
 
         return view('dashboards.analisis_estadisticas', compact(
             'user',
@@ -1960,7 +1964,8 @@ class DashboardController extends Controller
             'tipoAnalisis',
             'filtroId',
             'montoMinimo',
-            'limite'
+            'limite',
+            'perPage'
         ));
     }
 
@@ -1994,7 +1999,7 @@ class DashboardController extends Controller
     /**
      * Obtener clientes que más han facturado en un período
      */
-    private function obtenerClientesTopFacturacion($fechaInicio, $fechaFin, $limite = 20, $buscarCliente = null)
+    private function obtenerClientesTopFacturacion($fechaInicio, $fechaFin, $limite = 20, $buscarCliente = null, $perPage = 15)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
@@ -2006,7 +2011,7 @@ class DashboardController extends Controller
             ->where('clients.is_client', true)
             ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
             ->whereIn('invoices.invoice_status_id', [3, 4]); // Solo facturas cobradas
-        
+
         // Filtro de búsqueda por nombre
         if ($buscarCliente) {
             $query->where(function($q) use ($buscarCliente) {
@@ -2016,17 +2021,17 @@ class DashboardController extends Controller
                   ->orWhere('clients.company', 'LIKE', "%{$buscarCliente}%");
             });
         }
-        
+
         return $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
             ->orderBy('total_facturado', 'desc')
-            ->limit($limite)
-            ->get();
+            ->paginate($perPage)
+            ->appends(request()->query());
     }
 
     /**
      * Obtener clientes que más han facturado por categoría de servicio
      */
-    private function obtenerClientesPorCategoria($fechaInicio, $fechaFin, $categoriaId = null, $limite = null, $buscarCliente = null)
+    private function obtenerClientesPorCategoria($fechaInicio, $fechaFin, $categoriaId = null, $limite = null, $buscarCliente = null, $perPage = 15)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
@@ -2057,14 +2062,10 @@ class DashboardController extends Controller
             });
         }
 
-        $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'services_categories.id', 'services_categories.name')
-              ->orderBy('total_por_categoria', 'desc');
-        
-        if ($limite) {
-            $query->limit($limite);
-        }
-
-        return $query->get();
+        return $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'services_categories.id', 'services_categories.name')
+              ->orderBy('total_por_categoria', 'desc')
+              ->paginate($perPage)
+              ->appends(request()->query());
     }
 
     /**
@@ -2081,7 +2082,7 @@ class DashboardController extends Controller
     /**
      * Obtener clientes con servicios específicos más facturados
      */
-    private function obtenerClientesPorServicio($fechaInicio, $fechaFin, $servicioId = null, $limite = null, $buscarCliente = null)
+    private function obtenerClientesPorServicio($fechaInicio, $fechaFin, $servicioId = null, $limite = null, $buscarCliente = null, $perPage = 15)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
@@ -2111,14 +2112,10 @@ class DashboardController extends Controller
             });
         }
 
-        $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'services.id', 'services.title')
-              ->orderBy('total_por_servicio', 'desc');
-        
-        if ($limite) {
-            $query->limit($limite);
-        }
-
-        return $query->get();
+        return $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'services.id', 'services.title')
+              ->orderBy('total_por_servicio', 'desc')
+              ->paginate($perPage)
+              ->appends(request()->query());
     }
 
     /**
@@ -2142,7 +2139,7 @@ class DashboardController extends Controller
     /**
      * Obtener clientes que han facturado más de un monto específico
      */
-    private function obtenerClientesPorMontoFacturado($fechaInicio, $fechaFin, $montoMinimo = 0, $limite = null, $buscarCliente = null)
+    private function obtenerClientesPorMontoFacturado($fechaInicio, $fechaFin, $montoMinimo = 0, $limite = null, $buscarCliente = null, $perPage = 15)
     {
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
@@ -2165,33 +2162,29 @@ class DashboardController extends Controller
             });
         }
 
-        $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
+        return $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
               ->having('total_facturado', '>=', $montoMinimo)
-              ->orderBy('total_facturado', 'desc');
-
-        if ($limite) {
-            $query->limit($limite);
-        }
-
-        return $query->get();
+              ->orderBy('total_facturado', 'desc')
+              ->paginate($perPage)
+              ->appends(request()->query());
     }
 
     /**
      * Obtener análisis dinámico según tipo seleccionado
      */
-    private function obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroId = null, $limite = null, $buscarCliente = null)
+    private function obtenerAnalisisDinamico($tipoAnalisis, $fechaInicio, $fechaFin, $filtroId = null, $limite = null, $buscarCliente = null, $perPage = 15)
     {
         switch ($tipoAnalisis) {
             case 'top_clientes':
-                return $this->obtenerClientesTopFacturacion($fechaInicio, $fechaFin, $limite, $buscarCliente);
+                return $this->obtenerClientesTopFacturacion($fechaInicio, $fechaFin, $limite, $buscarCliente, $perPage);
             case 'por_categoria':
-                return $this->obtenerClientesPorCategoria($fechaInicio, $fechaFin, $filtroId, $limite, $buscarCliente);
+                return $this->obtenerClientesPorCategoria($fechaInicio, $fechaFin, $filtroId, $limite, $buscarCliente, $perPage);
             case 'por_servicio':
-                return $this->obtenerClientesPorServicio($fechaInicio, $fechaFin, $filtroId, $limite, $buscarCliente);
+                return $this->obtenerClientesPorServicio($fechaInicio, $fechaFin, $filtroId, $limite, $buscarCliente, $perPage);
             case 'por_facturacion':
-                return $this->obtenerClientesPorMontoFacturado($fechaInicio, $fechaFin, $filtroId, $limite, $buscarCliente);
+                return $this->obtenerClientesPorMontoFacturado($fechaInicio, $fechaFin, $filtroId, $limite, $buscarCliente, $perPage);
             default:
-                return collect();
+                return new \Illuminate\Pagination\LengthAwarePaginator([], 0, $perPage);
         }
     }
 
@@ -2224,7 +2217,7 @@ class DashboardController extends Controller
                 'invoices.reference as numero_factura',
                 'invoices.created_at as fecha_emision',
                 'invoices.total',
-                \DB::raw('CASE 
+                \DB::raw('CASE
                     WHEN invoices.invoice_status_id = 3 THEN "Cobrada"
                     WHEN invoices.invoice_status_id = 4 THEN "Cobrada Parcialmente"
                     ELSE "Otro"
@@ -2245,7 +2238,7 @@ class DashboardController extends Controller
                     'invoices.reference as numero_factura',
                     'invoices.created_at as fecha_emision',
                     'invoices.total',
-                    \DB::raw('CASE 
+                    \DB::raw('CASE
                         WHEN invoices.invoice_status_id = 3 THEN "Cobrada"
                         WHEN invoices.invoice_status_id = 4 THEN "Cobrada Parcialmente"
                         ELSE "Otro"
@@ -2257,7 +2250,7 @@ class DashboardController extends Controller
                 ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
                 ->whereIn('invoices.invoice_status_id', [3, 4])
                 ->where('services.services_categories_id', $filtroId);
-            
+
             $facturasFiltradas = $queryFiltrada->orderBy('invoices.created_at', 'desc')->get();
         } elseif ($tipoAnalisis === 'por_servicio' && $filtroId) {
             $queryFiltrada = \App\Models\Invoices\Invoice::select(
@@ -2265,7 +2258,7 @@ class DashboardController extends Controller
                     'invoices.reference as numero_factura',
                     'invoices.created_at as fecha_emision',
                     'invoices.total',
-                    \DB::raw('CASE 
+                    \DB::raw('CASE
                         WHEN invoices.invoice_status_id = 3 THEN "Cobrada"
                         WHEN invoices.invoice_status_id = 4 THEN "Cobrada Parcialmente"
                         ELSE "Otro"
@@ -2276,7 +2269,7 @@ class DashboardController extends Controller
                 ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
                 ->whereIn('invoices.invoice_status_id', [3, 4])
                 ->where('invoice_concepts.service_id', $filtroId);
-            
+
             $facturasFiltradas = $queryFiltrada->orderBy('invoices.created_at', 'desc')->get();
         }
 
@@ -2297,7 +2290,7 @@ class DashboardController extends Controller
                 ->where('invoice_concepts.invoice_id', $factura->id)
                 ->pluck('services.title')
                 ->toArray();
-            
+
             $factura->servicios = implode(', ', $servicios);
             $factura->total = number_format($factura->total, 2, ',', '.');
             $factura->fecha_emision = Carbon::parse($factura->fecha_emision)->format('d/m/Y');
@@ -2311,13 +2304,13 @@ class DashboardController extends Controller
                     ->where('invoice_concepts.invoice_id', $factura->id)
                     ->pluck('services.title')
                     ->toArray();
-                
+
                 $factura->servicios = implode(', ', $servicios);
                 $factura->total = number_format($factura->total, 2, ',', '.');
                 $factura->fecha_emision = Carbon::parse($factura->fecha_emision)->format('d/m/Y');
             });
         }
-        
+
         $primeraFactura = $facturas->isNotEmpty() ? $facturas->last()->fecha_emision : null;
         $ultimaFactura = $facturas->isNotEmpty() ? $facturas->first()->fecha_emision : null;
 
