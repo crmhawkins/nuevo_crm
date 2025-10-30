@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\ElevenlabsConversation;
 use App\Models\ElevenlabsAgent;
-use Illuminate\Support\Facades\Http;
+use App\Services\ElevenlabsService;
 use Illuminate\Support\Facades\Log;
 
 class UpdateElevenlabsPhoneNumbers extends Command
@@ -27,11 +27,9 @@ class UpdateElevenlabsPhoneNumbers extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(ElevenlabsService $elevenlabsService)
     {
-        $apiKey = config('elevenlabs.api_key');
-
-        if (!$apiKey) {
+        if (!config('elevenlabs.api_key')) {
             $this->error('API Key de ElevenLabs no configurada');
             Log::error('UpdateElevenlabsPhoneNumbers: API Key no configurada');
             return 1;
@@ -74,32 +72,21 @@ class UpdateElevenlabsPhoneNumbers extends Command
 
         foreach ($conversaciones as $conversacion) {
             try {
-                // Hacer petición GET a la API de ElevenLabs
-                $response = Http::withHeaders([
-                    'xi-api-key' => $apiKey,
-                ])
-                ->timeout(10)
-                ->get("https://api.elevenlabs.io/v1/convai/conversations/{$conversacion->conversation_id}");
-
-                if ($response->successful()) {
-                    $data = $response->json();
-
-                    // Extraer el número externo
-                    $externalNumber = $data['metadata']['phone_call']['external_number'] ?? null;
-
-                    if ($externalNumber) {
-                        // Actualizar la conversación con el número
-                        $conversacion->numero = $externalNumber;
-                        $conversacion->save();
-
-                        $procesadas++;
-                    } else {
-                        $sinNumero++;
-                        Log::info("UpdateElevenlabsPhoneNumbers: Sin número en conversation_id {$conversacion->conversation_id}");
-                    }
+                // Usar el servicio de ElevenLabs que ya maneja SSL correctamente
+                $data = $elevenlabsService->getConversation($conversacion->conversation_id);
+                
+                // Extraer el número externo
+                $externalNumber = $data['metadata']['phone_call']['external_number'] ?? null;
+                
+                if ($externalNumber) {
+                    // Actualizar la conversación con el número
+                    $conversacion->numero = $externalNumber;
+                    $conversacion->save();
+                    
+                    $procesadas++;
                 } else {
-                    $errores++;
-                    Log::error("UpdateElevenlabsPhoneNumbers: Error API para {$conversacion->conversation_id}: " . $response->status());
+                    $sinNumero++;
+                    Log::info("UpdateElevenlabsPhoneNumbers: Sin número en conversation_id {$conversacion->conversation_id}");
                 }
             } catch (\Exception $e) {
                 $errores++;
@@ -107,9 +94,9 @@ class UpdateElevenlabsPhoneNumbers extends Command
             }
 
             $bar->advance();
-
+            
             // Pequeña pausa para no sobrecargar la API
-            usleep(100000); // 100ms
+            usleep(200000); // 200ms
         }
 
         $bar->finish();

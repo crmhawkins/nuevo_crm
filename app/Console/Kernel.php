@@ -63,9 +63,9 @@ class Kernel extends ConsoleKernel
         // Descarga todas las conversaciones de hoy automáticamente
         $schedule->command('elevenlabs:sync-all', ['--from-date' => now()->format('Y-m-d')])->everyTenMinutes();
 
-        // Actualizar números de teléfono de conversaciones de Hera Saliente cada hora
+        // Actualizar números de teléfono de conversaciones de Hera Saliente cada minuto
         // Procesa hasta 50 conversaciones sin número en cada ejecución
-        $schedule->command('elevenlabs:update-phone-numbers', ['--limit' => 50])->hourly();
+        $schedule->command('elevenlabs:update-phone-numbers', ['--limit' => 100])->everyMinute();
 
         // Procesar cola de justificaciones - ejecuta cada minuto sin overlapping
         // Procesa todos los jobs disponibles en la cola 'justificaciones' y se detiene

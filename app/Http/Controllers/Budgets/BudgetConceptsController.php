@@ -484,9 +484,11 @@ class BudgetConceptsController extends Controller
         $budgetConceptActualizado = BudgetConcept::where('id', $budget)->first();
 
         if($conceptoactualizado){
-            // Proveedor 1
+            // Obtener radioOpt del request, por defecto 1 si no existe
+            $radioOpt = $data['radioOpt'] ?? 1;
 
-            if( $data['radioOpt'] == 1){
+            // Proveedor 1
+            if( $radioOpt == 1){
                 $selected = 1;
             }else{
                 $selected = 0;
@@ -500,7 +502,7 @@ class BudgetConceptsController extends Controller
             );
             BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConceptActualizado->id)->where('option_number', 1 )->update($newSupplierOpt1);
             // Proveedor 2
-            if( $data['radioOpt'] == 2){
+            if( $radioOpt == 2){
                 $selected = 1;
             }else{
                 $selected = 0;
@@ -515,7 +517,7 @@ class BudgetConceptsController extends Controller
             BudgetConceptSupplierRequest::where('budget_concept_id', $budgetConceptActualizado->id)->where('option_number', 2 )->update($newSupplierOpt2);
 
             // Proveedor 3
-            if( $data['radioOpt'] == 3){
+            if( $radioOpt == 3){
                 $selected = 1;
             }else{
                 $selected = 0;
