@@ -165,10 +165,39 @@
             <input type="hidden" name="sort_order" value="{{ $sortOrder }}">
         </form>
 
+        <!-- Selector de resultados por página y acciones -->
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                    <label class="me-2 mb-0" style="white-space: nowrap;">Mostrar:</label>
+                    <select id="perPageSelect" class="form-select form-select-sm" onchange="changePerPage(this.value)">
+                        <option value="10" {{ request('per_page', 15) == 10 ? 'selected' : '' }}>10</option>
+                        <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
+                        <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                    <span class="ms-2 text-muted" style="white-space: nowrap;">por página</span>
+                </div>
+            </div>
+            <div class="col-md-9 text-end">
+                <span id="selectedCount" class="badge bg-primary me-2" style="display: none;">0 seleccionadas</span>
+                <button id="bulkAttendedBtn" class="btn btn-sm btn-success me-2" style="display: none;" onclick="markSelectedAsAttended()">
+                    <i class="fas fa-check"></i> Marcar como atendidas
+                </button>
+                <button id="clearSelectionBtn" class="btn btn-sm btn-secondary" style="display: none;" onclick="clearSelection()">
+                    <i class="fas fa-times"></i> Limpiar selección
+                </button>
+            </div>
+        </div>
+
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" id="conversationsTable">
                 <thead>
                     <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" class="form-check-input" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+                        </th>
                         <th>Fecha</th>
                         <th>Agente</th>
                         <th>Cliente</th>
@@ -180,7 +209,13 @@
                 </thead>
                 <tbody>
                     @forelse($recentConversations as $conversation)
-                    <tr class="{{ $conversation->attended ? 'table-success' : '' }}" style="{{ $conversation->attended ? 'opacity: 0.7; font-weight: 500;' : '' }}">
+                    <tr class="{{ $conversation->attended ? 'table-success' : '' }}" style="{{ $conversation->attended ? 'opacity: 0.7; font-weight: 500;' : '' }}" data-conversation-id="{{ $conversation->id }}">
+                        <td>
+                            <input type="checkbox" class="form-check-input conversation-checkbox"
+                                   value="{{ $conversation->id }}"
+                                   onchange="updateSelectionCount()"
+                                   {{ $conversation->attended ? 'disabled' : '' }}>
+                        </td>
                         <td>
                             @if($conversation->attended)
                                 <i class="fas fa-check-circle text-success" title="Atendida"></i>
@@ -220,7 +255,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-4">
+                        <td colspan="8" class="text-center py-4">
                             <i class="fas fa-inbox text-muted" style="font-size: 3rem;"></i>
                             <p class="text-muted mt-2">No hay conversaciones {{ $categoryFilter ? 'con esta categoría' : '' }}</p>
                         </td>
@@ -892,6 +927,131 @@ function toggleAttendedModal() {
 }
 
 // La sincronización ahora es automática cada 10 minutos
+
+// ============================================
+// FUNCIONES DE PAGINACIÓN Y SELECCIÓN MÚLTIPLE
+// ============================================
+
+// Cambiar resultados por página
+function changePerPage(perPage) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', perPage);
+    url.searchParams.set('page', 1); // Resetear a primera página
+    window.location.href = url.toString();
+}
+
+// Seleccionar/deseleccionar todos (solo página actual)
+function toggleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.conversation-checkbox:not([disabled])');
+    checkboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
+    });
+    updateSelectionCount();
+}
+
+// Actualizar contador de selección y visibilidad de botones
+function updateSelectionCount() {
+    const selectedCheckboxes = document.querySelectorAll('.conversation-checkbox:checked');
+    const count = selectedCheckboxes.length;
+    const totalCheckboxes = document.querySelectorAll('.conversation-checkbox:not([disabled])').length;
+
+    // Actualizar badge contador
+    const countBadge = document.getElementById('selectedCount');
+    const bulkBtn = document.getElementById('bulkAttendedBtn');
+    const clearBtn = document.getElementById('clearSelectionBtn');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+    if (count > 0) {
+        countBadge.textContent = count + ' seleccionada' + (count > 1 ? 's' : '');
+        countBadge.style.display = 'inline-block';
+        bulkBtn.style.display = 'inline-block';
+        clearBtn.style.display = 'inline-block';
+    } else {
+        countBadge.style.display = 'none';
+        bulkBtn.style.display = 'none';
+        clearBtn.style.display = 'none';
+    }
+
+    // Actualizar estado del checkbox "Seleccionar todos"
+    if (count === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    } else if (count === totalCheckboxes) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+    } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+    }
+}
+
+// Limpiar selección
+function clearSelection() {
+    document.querySelectorAll('.conversation-checkbox').forEach(cb => {
+        cb.checked = false;
+    });
+    document.getElementById('selectAllCheckbox').checked = false;
+    updateSelectionCount();
+}
+
+// Marcar seleccionadas como atendidas
+function markSelectedAsAttended() {
+    const selectedCheckboxes = document.querySelectorAll('.conversation-checkbox:checked');
+    const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+    if (selectedIds.length === 0) {
+        alert('Por favor selecciona al menos una conversación');
+        return;
+    }
+
+    if (!confirm(`¿Marcar ${selectedIds.length} conversación(es) como atendida(s)?`)) {
+        return;
+    }
+
+    const btn = document.getElementById('bulkAttendedBtn');
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+    btn.disabled = true;
+
+    // Procesar en lote
+    Promise.all(selectedIds.map(id =>
+        fetch(`/elevenlabs/conversations/${id}/mark-attended`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        }).then(r => r.json())
+    ))
+    .then(results => {
+        const successful = results.filter(r => r.success).length;
+        const failed = results.length - successful;
+
+        let message = `✅ ${successful} conversación(es) marcada(s) como atendida(s)`;
+        if (failed > 0) {
+            message += `\n❌ ${failed} fallaron`;
+        }
+
+        alert(message);
+
+        // Recargar página para ver cambios
+        setTimeout(() => location.reload(), 500);
+    })
+    .catch(error => {
+        alert('Error al procesar las conversaciones: ' + error.message);
+    })
+    .finally(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+    });
+}
+
+// Inicializar contador al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    updateSelectionCount();
+});
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

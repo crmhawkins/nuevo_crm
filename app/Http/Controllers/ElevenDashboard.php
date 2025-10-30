@@ -88,7 +88,11 @@ class ElevenDashboard extends Controller
         // Ordenamiento
         $query->orderBy($sortBy, $sortOrder);
 
-        $recentConversations = $query->paginate(15)->appends($request->query());
+        // Paginación configurable
+        $perPage = $request->get('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50, 100]) ? $perPage : 15; // Validar valores permitidos
+        
+        $recentConversations = $query->paginate($perPage)->appends($request->query());
 
         $alerts = [
             'contentos' => ElevenlabsConversation::bySentiment('contento')->where('conversation_date', '>=', $startDate)->count(),
