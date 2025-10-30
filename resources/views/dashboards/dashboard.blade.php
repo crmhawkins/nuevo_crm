@@ -221,6 +221,9 @@
                             <a target="_blank" href="{{ route('elevenlabs.dashboard') }}" class="btn btn-outline-primary mb-2">
                                 <i class="fas fa-phone-alt"></i> Registro de llamadas
                             </a>
+                            <a target="_blank" href="{{ route('analisis.estadisticas') }}" class="btn btn-outline-primary mb-2">
+                                <i class="fas fa-chart-line"></i> Campañas de llamadas
+                            </a>
                             <a target="_blank" href="{{ route('presupuestos.status') }}" class="btn btn-outline-secondary mb-2">Ver Status Proyectos</a>
                             <a target="_blank" href="{{ route('kitDigital.index') }}" class="btn btn-outline-secondary"> Kit Digital</a>
                             <a target="_blank" href="{{ route('logs.kitdigital') }}" class="btn btn-outline-secondary"> Kit Digital Por Estado</a>

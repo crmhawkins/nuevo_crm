@@ -72,6 +72,9 @@
                                 <a target="_blank" href="{{ route('elevenlabs.dashboard') }}" class="btn btn-outline-primary mb-2">
                                     <i class="fas fa-phone-alt"></i> Registro de llamadas
                                 </a>
+                                <a target="_blank" href="{{ route('analisis.estadisticas') }}" class="btn btn-outline-primary mb-2">
+                                    <i class="fas fa-chart-line"></i> Campañas de llamadas
+                                </a>
                                 <button class="btn btn-success mb-2" onclick="showJustificacionesModal()">
                                     <i class="fas fa-file-upload"></i> Nueva Justificación
                                 </button>
