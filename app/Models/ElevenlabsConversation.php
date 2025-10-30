@@ -33,6 +33,7 @@ class ElevenlabsConversation extends Model
         'attended',
         'attended_at',
         'attended_by',
+        'numero',
     ];
 
     protected $casts = [
@@ -45,7 +46,7 @@ class ElevenlabsConversation extends Model
         'duration_seconds' => 'integer',
         'attended' => 'boolean',
     ];
-    
+
     /**
      * Accessors para scheduled_call_datetime sin conversión de timezone
      */
@@ -54,7 +55,7 @@ class ElevenlabsConversation extends Model
         // Devolver como Carbon sin conversión de timezone
         return $value ? \Carbon\Carbon::parse($value) : null;
     }
-    
+
     public function setScheduledCallDatetimeAttribute($value)
     {
         // Guardar directamente sin conversión de timezone
@@ -76,12 +77,12 @@ class ElevenlabsConversation extends Model
               ->orWhere('specific_category', $category);
         });
     }
-    
+
     public function scopeBySentiment($query, $sentiment)
     {
         return $query->where('sentiment_category', $sentiment);
     }
-    
+
     public function scopeBySpecific($query, $specific)
     {
         return $query->where('specific_category', $specific);
@@ -163,7 +164,7 @@ class ElevenlabsConversation extends Model
         $agentCategory = ElevenlabsAgentCategory::where('agent_id', $this->agent_id)
             ->where('category_key', $this->specific_category)
             ->first();
-        
+
         return $agentCategory ? $agentCategory->category_label : ucfirst(str_replace('_', ' ', $this->specific_category));
     }
 
@@ -176,7 +177,7 @@ class ElevenlabsConversation extends Model
         $agentCategory = ElevenlabsAgentCategory::where('agent_id', $this->agent_id)
             ->where('category_key', $this->specific_category)
             ->first();
-        
+
         return $agentCategory ? $agentCategory->color : '#6B7280';
     }
 
@@ -190,7 +191,7 @@ class ElevenlabsConversation extends Model
     {
         return $this->specific_color;
     }
-    
+
     public function getCategoryColorBootstrapAttribute(): string
     {
         $colors = [
@@ -260,7 +261,7 @@ class ElevenlabsConversation extends Model
             ->groupBy('specific_category')
             ->get();
     }
-    
+
     // Estadísticas por sentimiento
     public static function getStatsBySentiment($startDate = null, $endDate = null)
     {
@@ -289,7 +290,7 @@ class ElevenlabsConversation extends Model
         }
 
         $happy = (clone $query)->where('sentiment_category', 'contento')->count();
-        
+
         return round(($happy / $total) * 100, 2);
     }
 

@@ -229,6 +229,7 @@
                         </th>
                         <th>Fecha</th>
                         <th>Agente</th>
+                        <th>Número</th>
                         <th>Cliente</th>
                         <th>Duración</th>
                         <th>Categoría</th>
@@ -252,6 +253,15 @@
                             {{ $conversation->conversation_date->copy()->addHours(2)->format('d/m/Y H:i') }}
                         </td>
                         <td><small class="text-muted">{{ $conversation->agent_name ?? 'N/A' }}</small></td>
+                        <td>
+                            @if($conversation->numero)
+                                <a href="tel:{{ $conversation->numero }}" class="text-primary">
+                                    <i class="fas fa-phone"></i> {{ $conversation->numero }}
+                                </a>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
                         <td>{{ $conversation->client->name ?? 'N/A' }}</td>
                         <td>{{ $conversation->duration_formatted }}</td>
                         <td>
@@ -284,7 +294,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center py-4">
+                        <td colspan="9" class="text-center py-4">
                             <i class="fas fa-inbox text-muted" style="font-size: 3rem;"></i>
                             <p class="text-muted mt-2">No hay conversaciones {{ $categoryFilter ? 'con esta categoría' : '' }}</p>
                         </td>

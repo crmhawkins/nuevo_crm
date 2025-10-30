@@ -47,7 +47,7 @@ class Kernel extends ConsoleKernel
          $schedule->command('Alertas:presupuestoFinalizado')->dailyAt('03:00');
          $schedule->command('Alertas:HorasTrabajadas')->weeklyOn(4, '07:30');
          $schedule->command('tareas:finalizar-maestras')->everyFiveMinutes();
-         
+
          // Mantenimiento diario SEO - ejecuta SEO programado y renueva programaciones
          $schedule->command('autoseo:daily-maintenance')->dailyAt('09:00');
          $schedule->command('Ordenes:Alerta')->dailyAt('07:00')->when(function () {
@@ -62,6 +62,10 @@ class Kernel extends ConsoleKernel
         // Sincronización automática de conversaciones de Eleven Labs cada 10 minutos
         // Descarga todas las conversaciones de hoy automáticamente
         $schedule->command('elevenlabs:sync-all', ['--from-date' => now()->format('Y-m-d')])->everyTenMinutes();
+
+        // Actualizar números de teléfono de conversaciones de Hera Saliente cada hora
+        // Procesa hasta 50 conversaciones sin número en cada ejecución
+        $schedule->command('elevenlabs:update-phone-numbers', ['--limit' => 50])->hourly();
 
         // Procesar cola de justificaciones - ejecuta cada minuto sin overlapping
         // Procesa todos los jobs disponibles en la cola 'justificaciones' y se detiene
