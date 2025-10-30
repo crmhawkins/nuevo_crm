@@ -20,6 +20,18 @@ class ElevenDashboard extends Controller
         $startDate = now()->subDays(30);
         $endDate = now();
 
+        // Filtro por rango de fechas (si existe)
+        $dateRange = $request->get('date_range');
+        $filterStartDate = null;
+        $filterEndDate = null;
+
+        if ($dateRange && str_contains($dateRange, ' a ')) {
+            // Flatpickr con formato "YYYY-MM-DD a YYYY-MM-DD"
+            $dates = explode(' a ', $dateRange);
+            $filterStartDate = Carbon::parse($dates[0])->startOfDay();
+            $filterEndDate = Carbon::parse($dates[1])->endOfDay();
+        }
+
         $stats = [
             'total_conversations' => ElevenlabsConversation::count(),
             'processed_conversations' => ElevenlabsConversation::completed()->count(),
@@ -30,7 +42,7 @@ class ElevenDashboard extends Controller
         ];
 
         $categoryStats = ElevenlabsConversation::getStatsByCategory($startDate, $endDate);
-        
+
         // Obtener categorías de agentes para colores dinámicos
         $agentCategories = ElevenlabsAgentCategory::all()->pluck('category_label', 'category_key')->toArray();
         $agentCategoryColors = ElevenlabsAgentCategory::all()->pluck('color', 'category_key')->toArray();
@@ -40,15 +52,25 @@ class ElevenDashboard extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
         $categoryFilter = $request->get('category');
         $agentFilter = $request->get('agent_id');
-        $hideNoResponse = $request->get('hide_no_response', '1'); // Por defecto ocultar
+
+        // Checkbox: si tiene valor '1' está marcado, si no existe (null) está desmarcado
+        // Por defecto ocultar si no se ha enviado el formulario aún
+        $hideNoResponse = $request->has('hide_no_response')
+            ? $request->get('hide_no_response') === '1'
+            : (!$request->has('agent_id') && !$request->has('category') && !$request->has('date_range')); // Si no hay filtros aplicados, ocultar por defecto
 
         $query = ElevenlabsConversation::with('client');
-        
+
+        // Filtro por rango de fechas
+        if ($filterStartDate && $filterEndDate) {
+            $query->whereBetween('conversation_date', [$filterStartDate, $filterEndDate]);
+        }
+
         // Filtro por agente
         if ($agentFilter) {
             $query->where('agent_id', $agentFilter);
         }
-        
+
         // Filtro por categoría (sentimiento o específica)
         if ($categoryFilter) {
             $query->where(function($q) use ($categoryFilter) {
@@ -56,10 +78,10 @@ class ElevenDashboard extends Controller
                   ->orWhere('specific_category', $categoryFilter);
             });
         }
-        
-        // Ocultar conversaciones sin respuesta si el checkbox está marcado (por defecto)
+
+        // Ocultar conversaciones sin respuesta si el checkbox está marcado
         // Solo aplicar si no hay filtro de categoría específico
-        if ($hideNoResponse === '1' && !$categoryFilter) {
+        if ($hideNoResponse && !$categoryFilter) {
             $query->where('sentiment_category', '!=', 'sin_respuesta');
         }
 
@@ -261,7 +283,7 @@ class ElevenDashboard extends Controller
         }
 
         $categoryStats = ElevenlabsConversation::getStatsByCategory($startDate, $endDate);
-        
+
         $categories = [];
         $counts = [];
         foreach ($categoryStats as $stat) {
@@ -343,15 +365,15 @@ class ElevenDashboard extends Controller
         $callback = function() use ($export) {
             $file = fopen('php://output', 'w');
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+
             if (!empty($export)) {
                 fputcsv($file, array_keys($export[0]));
             }
-            
+
             foreach ($export as $row) {
                 fputcsv($file, $row);
             }
-            
+
             fclose($file);
         };
 
@@ -364,7 +386,7 @@ class ElevenDashboard extends Controller
     public function markAsAttended(Request $request, $id)
     {
         $conversation = ElevenlabsConversation::findOrFail($id);
-        
+
         $conversation->attended = true;
         $conversation->attended_at = now();
         $conversation->attended_by = auth()->id();
@@ -384,7 +406,7 @@ class ElevenDashboard extends Controller
     public function unmarkAsAttended(Request $request, $id)
     {
         $conversation = ElevenlabsConversation::findOrFail($id);
-        
+
         $conversation->attended = false;
         $conversation->attended_at = null;
         $conversation->attended_by = null;

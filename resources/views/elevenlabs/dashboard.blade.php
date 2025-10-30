@@ -3,6 +3,7 @@
 @section('titulo', 'Dashboard - Monitoreo de Llamadas')
 
 @section('css')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
     .stat-card {
         border-radius: 10px;
@@ -71,127 +72,33 @@
         </div>
     </div>
 
-    <!-- Información del período -->
-    <div class="card-body">
-        <div class="row align-items-center">
-            <div class="col-md-12 text-end">
-                <span class="badge bg-secondary">Últimos 30 días</span>
-                <small class="text-muted ms-2">
-                    <i class="fas fa-sync-alt"></i> Sincronización automática cada 10 minutos
-                </small>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Estadísticas -->
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Total Conversaciones</div>
-                    <div class="stat-value">{{ $stats['total_conversations'] }}</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
-                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Últimos 30 días</div>
-                    <div class="stat-value">{{ $stats['last_30_days'] }}</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
-                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Duración Media</div>
-                    <div class="stat-value">{{ gmdate('i:s', $stats['average_duration']) }}</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
-                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Satisfacción</div>
-                    <div class="stat-value">{{ number_format($stats['satisfaction_rate'], 1) }}%</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Resumen de Sentimientos -->
-    <div class="card-body">
-        <h5><i class="fas fa-chart-pie"></i> Distribución de Sentimientos (Últimos 30 días)</h5>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="alert-box" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white;">
-                    <i class="fas fa-smile"></i> <strong>{{ $alerts['contentos'] }}</strong> Contentos
-                    <small class="d-block mt-1">{{ $stats['total_conversations'] > 0 ? round(($alerts['contentos'] / $stats['last_30_days']) * 100, 1) : 0 }}%</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="alert-box" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: white;">
-                    <i class="fas fa-frown"></i> <strong>{{ $alerts['descontentos'] }}</strong> Descontentos
-                    <small class="d-block mt-1">{{ $stats['total_conversations'] > 0 ? round(($alerts['descontentos'] / $stats['last_30_days']) * 100, 1) : 0 }}%</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="alert-box" style="background: #e2e8f0; color: #64748b;">
-                    <i class="fas fa-phone-slash"></i> <strong>{{ $alerts['sin_respuesta'] }}</strong> Sin respuesta
-                    <small class="d-block mt-1">{{ $stats['total_conversations'] > 0 ? round(($alerts['sin_respuesta'] / $stats['last_30_days']) * 100, 1) : 0 }}%</small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gráficas -->
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Distribución por Categorías</h5>
-                        <div class="chart-container">
-                            <canvas id="categoryChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Tendencia de Conversaciones</h5>
-                        <div class="chart-container">
-                            <canvas id="trendChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Conversaciones Recientes -->
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0"><i class="fas fa-list"></i> Conversaciones Recientes</h5>
             <div class="btn-group btn-group-sm" role="group">
-                <a href="{{ route('elevenlabs.dashboard', array_merge(request()->except(['sort_by', 'sort_order', 'page']), ['sort_by' => 'conversation_date', 'sort_order' => $sortBy === 'conversation_date' && $sortOrder === 'desc' ? 'asc' : 'desc'])) }}" 
+                <a href="{{ route('elevenlabs.dashboard', array_merge(request()->except(['sort_by', 'sort_order', 'page']), ['sort_by' => 'conversation_date', 'sort_order' => $sortBy === 'conversation_date' && $sortOrder === 'desc' ? 'asc' : 'desc'])) }}"
                    class="btn btn-outline-primary {{ $sortBy === 'conversation_date' ? 'active' : '' }}">
-                    <i class="fas fa-calendar"></i> Fecha 
+                    <i class="fas fa-calendar"></i> Fecha
                     @if($sortBy === 'conversation_date')
                         <i class="fas fa-sort-{{ $sortOrder === 'desc' ? 'down' : 'up' }}"></i>
                     @endif
                 </a>
-                <a href="{{ route('elevenlabs.dashboard', array_merge(request()->except(['sort_by', 'sort_order', 'page']), ['sort_by' => 'sentiment_category', 'sort_order' => $sortBy === 'sentiment_category' && $sortOrder === 'desc' ? 'asc' : 'desc'])) }}" 
+                <a href="{{ route('elevenlabs.dashboard', array_merge(request()->except(['sort_by', 'sort_order', 'page']), ['sort_by' => 'sentiment_category', 'sort_order' => $sortBy === 'sentiment_category' && $sortOrder === 'desc' ? 'asc' : 'desc'])) }}"
                    class="btn btn-outline-primary {{ $sortBy === 'sentiment_category' ? 'active' : '' }}">
                     <i class="fas fa-smile"></i> Sentimiento
                     @if($sortBy === 'sentiment_category')
                         <i class="fas fa-sort-{{ $sortOrder === 'desc' ? 'down' : 'up' }}"></i>
                     @endif
                 </a>
-                <a href="{{ route('elevenlabs.dashboard', array_merge(request()->except(['sort_by', 'sort_order', 'page']), ['sort_by' => 'specific_category', 'sort_order' => $sortBy === 'specific_category' && $sortOrder === 'desc' ? 'asc' : 'desc'])) }}" 
+                <a href="{{ route('elevenlabs.dashboard', array_merge(request()->except(['sort_by', 'sort_order', 'page']), ['sort_by' => 'specific_category', 'sort_order' => $sortBy === 'specific_category' && $sortOrder === 'desc' ? 'asc' : 'desc'])) }}"
                    class="btn btn-outline-primary {{ $sortBy === 'specific_category' ? 'active' : '' }}">
                     <i class="fas fa-tags"></i> Categoría
                     @if($sortBy === 'specific_category')
                         <i class="fas fa-sort-{{ $sortOrder === 'desc' ? 'down' : 'up' }}"></i>
                     @endif
                 </a>
-                <a href="{{ route('elevenlabs.dashboard', array_merge(request()->except(['sort_by', 'sort_order', 'page']), ['sort_by' => 'duration_seconds', 'sort_order' => $sortBy === 'duration_seconds' && $sortOrder === 'desc' ? 'asc' : 'desc'])) }}" 
+                <a href="{{ route('elevenlabs.dashboard', array_merge(request()->except(['sort_by', 'sort_order', 'page']), ['sort_by' => 'duration_seconds', 'sort_order' => $sortBy === 'duration_seconds' && $sortOrder === 'desc' ? 'asc' : 'desc'])) }}"
                    class="btn btn-outline-primary {{ $sortBy === 'duration_seconds' ? 'active' : '' }}">
                     <i class="fas fa-clock"></i> Duración
                     @if($sortBy === 'duration_seconds')
@@ -204,6 +111,11 @@
         <!-- Filtros Avanzados -->
         <form method="GET" class="row g-3 mb-3">
             <div class="col-md-3">
+                <label class="form-label">Rango de Fechas</label>
+                <input type="text" name="date_range" id="dateRangeFilter" class="form-control form-control-sm"
+                       value="{{ request('date_range') }}" placeholder="Seleccionar rango">
+            </div>
+            <div class="col-md-2">
                 <label class="form-label">Agente</label>
                 <select name="agent_id" id="agentFilter" class="form-select form-select-sm" onchange="loadAgentCategories(this.value)">
                     <option value="">Todos los agentes</option>
@@ -229,25 +141,25 @@
                     <option value="respuesta_ia" {{ request('category') === 'respuesta_ia' ? 'selected' : '' }}>🤖 Respuesta IA/Contestador</option>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label">Opciones</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="hide_no_response" id="hideNoResponse" 
-                           value="1" {{ request('hide_no_response', '1') === '1' ? 'checked' : '' }}>
+                    <input class="form-check-input" type="checkbox" name="hide_no_response" id="hideNoResponse"
+                           value="1" {{ $hideNoResponse ? 'checked' : '' }}>
                     <label class="form-check-label" for="hideNoResponse">
                         <small>Ocultar "Sin Respuesta"</small>
                     </label>
                 </div>
             </div>
-            <div class="col-md-3 d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-primary btn-sm">
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100">
                     <i class="fas fa-filter"></i> Filtrar
                 </button>
-                <a href="{{ route('elevenlabs.dashboard') }}" class="btn btn-secondary btn-sm">
+                <a href="{{ route('elevenlabs.dashboard') }}" class="btn btn-secondary btn-sm w-100">
                     <i class="fas fa-times"></i> Limpiar
                 </a>
             </div>
-            
+
             <!-- Mantener ordenamiento -->
             <input type="hidden" name="sort_by" value="{{ $sortBy }}">
             <input type="hidden" name="sort_order" value="{{ $sortOrder }}">
@@ -330,6 +242,100 @@
         </div>
         @endif
     </div>
+
+    <!-- Información del período -->
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-12 text-center">
+                <h4 class="mb-3"><i class="fas fa-chart-line"></i> Estadísticas y Análisis</h4>
+                <span class="badge bg-secondary">Últimos 30 días</span>
+                <small class="text-muted ms-2">
+                    <i class="fas fa-sync-alt"></i> Sincronización automática cada 10 minutos
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Total Conversaciones</div>
+                    <div class="stat-value">{{ $stats['total_conversations'] }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Últimos 30 días</div>
+                    <div class="stat-value">{{ $stats['last_30_days'] }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Duración Media</div>
+                    <div class="stat-value">{{ gmdate('i:s', $stats['average_duration']) }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Satisfacción</div>
+                    <div class="stat-value">{{ number_format($stats['satisfaction_rate'], 1) }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen de Sentimientos -->
+    <div class="card-body">
+        <h5><i class="fas fa-chart-pie"></i> Distribución de Sentimientos (Últimos 30 días)</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="alert-box" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white;">
+                    <i class="fas fa-smile"></i> <strong>{{ $alerts['contentos'] }}</strong> Contentos
+                    <small class="d-block mt-1">{{ $stats['total_conversations'] > 0 ? round(($alerts['contentos'] / $stats['last_30_days']) * 100, 1) : 0 }}%</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert-box" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: white;">
+                    <i class="fas fa-frown"></i> <strong>{{ $alerts['descontentos'] }}</strong> Descontentos
+                    <small class="d-block mt-1">{{ $stats['total_conversations'] > 0 ? round(($alerts['descontentos'] / $stats['last_30_days']) * 100, 1) : 0 }}%</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert-box" style="background: #e2e8f0; color: #64748b;">
+                    <i class="fas fa-phone-slash"></i> <strong>{{ $alerts['sin_respuesta'] }}</strong> Sin respuesta
+                    <small class="d-block mt-1">{{ $stats['total_conversations'] > 0 ? round(($alerts['sin_respuesta'] / $stats['last_30_days']) * 100, 1) : 0 }}%</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficas -->
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Distribución por Categorías</h5>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Tendencia de Conversaciones</h5>
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal para ver conversación -->
@@ -366,7 +372,7 @@
 // Función para formatear fechas sin conversión de timezone
 function formatDateWithoutTimezone(dateString) {
     if (!dateString) return '';
-    
+
     // Parsear directamente desde el string sin crear objeto Date
     // Formato esperado: "YYYY-MM-DD HH:MM:SS" o "YYYY-MM-DD HH:MM"
     const parts = dateString.split(/[-: T]/);
@@ -375,7 +381,7 @@ function formatDateWithoutTimezone(dateString) {
     const day = parts[2];
     const hour = parts[3] || '00';
     const minute = parts[4] || '00';
-    
+
     // Formatear directamente sin conversiones
     return `${day}/${month}/${year}, ${hour}:${minute}`;
 }
@@ -392,17 +398,17 @@ console.log('Config Categories:', configCategories);
 
 const categoryLabels = categoryData.map(item => {
     const categoryKey = item.category;
-    
+
     // Buscar en categorías de agentes primero
     if (agentCategories[categoryKey]) {
         return agentCategories[categoryKey];
     }
-    
+
     // Fallback a configuración general
     if (configCategories[categoryKey]) {
         return configCategories[categoryKey].label;
     }
-    
+
     // Último fallback: mostrar la key tal cual
     return categoryKey;
 });
@@ -411,17 +417,17 @@ const categoryCounts = categoryData.map(item => item.count);
 
 const categoryColors = categoryData.map(item => {
     const categoryKey = item.category;
-    
+
     // Buscar en categorías de agentes primero
     if (agentCategoryColors[categoryKey]) {
         return agentCategoryColors[categoryKey];
     }
-    
+
     // Fallback a configuración general
     if (configCategories[categoryKey]) {
         return configCategories[categoryKey].color;
     }
-    
+
     // Último fallback: color por defecto
     return '#6B7280';
 });
@@ -459,10 +465,10 @@ function loadTrendData() {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 365);
-    
+
     const startDateStr = startDate.toISOString().split('T')[0];
     const endDateStr = endDate.toISOString().split('T')[0];
-    
+
     fetch(`{{ route("elevenlabs.stats") }}?start_date=${startDateStr}&end_date=${endDateStr}`)
         .then(response => response.json())
         .then(data => {
@@ -497,7 +503,7 @@ function verConversacion(id) {
     currentConversationId = id;
     const modal = new bootstrap.Modal(document.getElementById('conversationModal'));
     modal.show();
-    
+
     document.getElementById('conversationContent').innerHTML = `
         <div class="text-center py-5">
             <div class="spinner-border text-primary"></div>
@@ -515,10 +521,10 @@ function verConversacion(id) {
     .then(conv => {
         currentConversationData = conv; // Guardar datos para edición
         currentConversationAttended = conv.attended || false;
-        
+
         // Actualizar botón de atendido
         updateAttendedButton(currentConversationAttended);
-        
+
         document.getElementById('conversationContent').innerHTML = `
             <div class="row">
                 <div class="col-md-6">
@@ -537,18 +543,18 @@ function verConversacion(id) {
                     <div class="card mb-3">
                         <div class="card-body">
                             <h6><i class="fas fa-brain"></i> Análisis IA</h6>
-                            
+
                             <!-- Categorías actuales con opción de editar -->
                             <div id="currentCategories">
                                 ${['baja', 'llamada_agendada'].includes(conv.sentiment_category) ? `
-                                    <p><strong>Acción:</strong> 
+                                    <p><strong>Acción:</strong>
                                         <span class="category-badge" style="background-color: ${conv.sentiment_color || '#6B7280'}">${conv.sentiment_label || conv.sentiment_category}</span>
                                     </p>
                                 ` : `
-                                    <p><strong>Sentimiento:</strong> 
+                                    <p><strong>Sentimiento:</strong>
                                         ${conv.sentiment_category ? `<span class="category-badge" style="background-color: ${conv.sentiment_color || '#6B7280'}">${conv.sentiment_label || conv.sentiment_category}</span>` : '<span class="text-muted">-</span>'}
                                     </p>
-                                    <p><strong>Categoría Específica:</strong> 
+                                    <p><strong>Categoría Específica:</strong>
                                         ${conv.specific_category ? `<span class="category-badge" style="background-color: ${conv.specific_color || '#6B7280'}">${conv.specific_label || conv.specific_category}</span>` : '<span class="text-muted">-</span>'}
                                     </p>
                                 `}
@@ -557,7 +563,7 @@ function verConversacion(id) {
                                     <i class="fas fa-edit"></i> Cambiar Categorías
                                 </button>
                             </div>
-                            
+
                             <!-- Editor de categorías (oculto por defecto) -->
                             <div id="editCategories" style="display: none;">
                                 <div class="alert alert-warning">
@@ -583,7 +589,7 @@ function verConversacion(id) {
                                     <i class="fas fa-times"></i> Cancelar
                                 </button>
                             </div>
-                            
+
                             ${conv.scheduled_call_datetime ? `
                                 <div class="alert alert-info mt-3">
                                     <i class="fas fa-calendar-check"></i> <strong>Llamada Agendada:</strong><br>
@@ -634,7 +640,7 @@ let currentConversationData = null;
 function toggleEditCategories() {
     const currentDiv = document.getElementById('currentCategories');
     const editDiv = document.getElementById('editCategories');
-    
+
     if (editDiv.style.display === 'none') {
         // Mostrar editor
         loadCategoriesForEdit();
@@ -652,9 +658,9 @@ function loadCategoriesForEdit() {
         console.error('No hay datos de conversación o agent_id');
         return;
     }
-    
+
     console.log('Cargando categorías para agente:', currentConversationData.agent_id);
-    
+
     fetch(`/api/elevenlabs-monitoring/agents/${currentConversationData.agent_id}/available-categories`)
         .then(r => r.json())
         .then(data => {
@@ -672,14 +678,14 @@ function loadCategoriesForEdit() {
 function populateCategorySelects() {
     const sentimentSelect = document.getElementById('sentimentSelect');
     const specificSelect = document.getElementById('specificSelect');
-    
+
     if (!sentimentSelect || !specificSelect) {
         console.error('Selectores no encontrados');
         return;
     }
-    
+
     console.log('Poblando selectores con:', availableCategories);
-    
+
     // Poblar sentimientos
     sentimentSelect.innerHTML = '<option value="">Seleccionar...</option>';
     if (availableCategories.sentiment_categories) {
@@ -688,7 +694,7 @@ function populateCategorySelects() {
             sentimentSelect.innerHTML += `<option value="${cat.category_key}" ${selected}>${cat.category_label}</option>`;
         });
     }
-    
+
     // Poblar específicas
     specificSelect.innerHTML = '<option value="">Sin categoría específica</option>';
     if (availableCategories.specific_categories) {
@@ -697,7 +703,7 @@ function populateCategorySelects() {
             specificSelect.innerHTML += `<option value="${cat.category_key}" ${selected}>${cat.category_label}</option>`;
         });
     }
-    
+
     // Listener para deshabilitar específica si es baja o sin_respuesta
     sentimentSelect.addEventListener('change', function() {
         const specificContainer = document.getElementById('specificContainer');
@@ -708,7 +714,7 @@ function populateCategorySelects() {
             specificContainer.style.display = 'block';
         }
     });
-    
+
     // Verificar estado inicial
     if (['baja', 'sin_respuesta', 'llamada_agendada'].includes(currentConversationData.sentiment_category)) {
         document.getElementById('specificContainer').style.display = 'none';
@@ -718,12 +724,12 @@ function populateCategorySelects() {
 function saveCategories() {
     const sentiment = document.getElementById('sentimentSelect').value;
     const specific = document.getElementById('specificSelect').value;
-    
+
     const btn = event.target;
     const html = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
     btn.disabled = true;
-    
+
     fetch(`/api/elevenlabs-monitoring/conversations/${currentConversationId}/update-categories`, {
         method: 'POST',
         headers: {
@@ -785,7 +791,7 @@ function reprocesarModal() {
 // Cargar categorías del agente seleccionado
 function loadAgentCategories(agentId) {
     const categorySelect = document.getElementById('categoryFilter');
-    
+
     if (!agentId) {
         // Resetear a categorías generales
         categorySelect.innerHTML = `
@@ -799,19 +805,19 @@ function loadAgentCategories(agentId) {
         `;
         return;
     }
-    
+
     // Cargar categorías del agente
     fetch(`/api/elevenlabs-monitoring/agents/${agentId}/available-categories`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
                 categorySelect.innerHTML = '<option value="">Todas las categorías</option>';
-                
+
                 // Agregar sentimientos/acciones
                 data.sentiment_categories.forEach(cat => {
                     categorySelect.innerHTML += `<option value="${cat.category_key}">${cat.category_label}</option>`;
                 });
-                
+
                 // Agregar categorías específicas del agente
                 if (data.specific_categories.length > 0) {
                     categorySelect.innerHTML += '<option disabled>───────────</option>';
@@ -835,7 +841,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function updateAttendedButton(attended) {
     const btn = document.getElementById('btnAtendido');
     const text = document.getElementById('btnAtendidoText');
-    
+
     if (attended) {
         btn.className = 'btn btn-outline-success';
         text.textContent = 'Atendida ✓';
@@ -847,18 +853,18 @@ function updateAttendedButton(attended) {
 
 function toggleAttendedModal() {
     if (!currentConversationId) return;
-    
+
     const btn = document.getElementById('btnAtendido');
     const text = document.getElementById('btnAtendidoText');
     const wasAttended = currentConversationAttended;
-    
+
     btn.disabled = true;
     text.textContent = wasAttended ? 'Desmarcando...' : 'Marcando...';
-    
-    const url = wasAttended 
+
+    const url = wasAttended
         ? `/elevenlabs/conversations/${currentConversationId}/unmark-attended`
         : `/elevenlabs/conversations/${currentConversationId}/mark-attended`;
-    
+
     fetch(url, {
         method: 'POST',
         headers: {
@@ -872,7 +878,7 @@ function toggleAttendedModal() {
         if (data.success) {
             currentConversationAttended = data.attended;
             updateAttendedButton(data.attended);
-            
+
             // Recargar la página para actualizar la tabla
             setTimeout(() => location.reload(), 500);
         }
@@ -886,6 +892,25 @@ function toggleAttendedModal() {
 }
 
 // La sincronización ahora es automática cada 10 minutos
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    flatpickr("#dateRangeFilter", {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        locale: "es",
+        maxDate: "today",
+        onChange: function(selectedDates, dateStr, instance) {
+            // Auto-submit cuando se selecciona el rango completo
+            if (selectedDates.length === 2) {
+                // instance.element.form.submit();
+            }
+        }
+    });
+});
 </script>
 @endsection
 
