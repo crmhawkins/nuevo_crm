@@ -48,6 +48,35 @@
         height: 300px;
         margin-bottom: 30px;
     }
+
+    /* Estilos de paginación */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .pagination .page-link {
+        color: #667eea;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem 0.75rem;
+        margin: 0 2px;
+        border-radius: 5px;
+        transition: all 0.3s;
+    }
+    .pagination .page-link:hover {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: white;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: white;
+        font-weight: bold;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
 </style>
 @endsection
 
@@ -266,16 +295,16 @@
         </div>
 
         <!-- Paginación -->
-        @if($recentConversations->hasPages())
-        <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
             <div class="text-muted">
-                Mostrando {{ $recentConversations->firstItem() ?? 0 }} a {{ $recentConversations->lastItem() ?? 0 }} de {{ $recentConversations->total() }} conversaciones
+                <small>
+                    Mostrando {{ $recentConversations->firstItem() ?? 0 }} a {{ $recentConversations->lastItem() ?? 0 }} de {{ $recentConversations->total() }} conversaciones
+                </small>
             </div>
             <div>
-                {{ $recentConversations->links() }}
+                {{ $recentConversations->links('pagination::bootstrap-4') }}
             </div>
         </div>
-        @endif
     </div>
 
     <!-- Información del período -->

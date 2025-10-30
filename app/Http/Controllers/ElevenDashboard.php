@@ -91,7 +91,7 @@ class ElevenDashboard extends Controller
         // Paginación configurable
         $perPage = $request->get('per_page', 15);
         $perPage = in_array($perPage, [10, 15, 25, 50, 100]) ? $perPage : 15; // Validar valores permitidos
-        
+
         $recentConversations = $query->paginate($perPage)->appends($request->query());
 
         $alerts = [
