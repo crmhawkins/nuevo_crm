@@ -1,5 +1,20 @@
 @section('css')
 <link rel="stylesheet" href="{{asset('assets/vendors/choices.js/choices.min.css')}}" />
+<style>
+    .dominio-row:hover {
+        background-color: #f8f9fa !important;
+        transition: background-color 0.2s ease;
+    }
+
+    .dominio-row {
+        transition: background-color 0.2s ease;
+    }
+
+    .dominio-checkbox {
+        cursor: pointer;
+        transform: scale(1.2);
+    }
+</style>
 @endsection
 <div>
     <div class="filtros row mb-4">
@@ -182,12 +197,23 @@
                     <span class="badge bg-light text-dark" id="totalDominiosConTelefono">0 con teléfono</span>
                 </div>
                 <div class="card-body">
-                    <button type="button" class="btn btn-success" onclick="abrirModalBatchCallDominios()">
-                        <i class="bi bi-telephone-outbound"></i> Enviar Batch Call a Clientes Filtrados
-                    </button>
-                    <small class="text-muted ms-2">
-                        Se enviarán llamadas automáticas a los clientes de los dominios filtrados que tengan teléfono válido
-                    </small>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-warning me-2" onclick="seleccionarSoloPendientesDominios()">
+                                <i class="bi bi-exclamation-triangle"></i> Solo Pendientes
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="seleccionarTodosDominios()">
+                                <i class="bi bi-check-all"></i> Todos
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="deseleccionarTodosDominios()">
+                                <i class="bi bi-x-lg"></i> Ninguno
+                            </button>
+                            <span class="badge bg-info" id="totalSeleccionadosDominios">0 seleccionados</span>
+                        </div>
+                        <button type="button" class="btn btn-success" onclick="abrirModalBatchCallDominios()">
+                            <i class="bi bi-telephone-outbound"></i> Enviar Batch Call a Seleccionados
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -249,6 +275,9 @@
              <table class="table table-hover">
                 <thead class="header-table">
                     <tr>
+                        <th width="40" class="px-3">
+                            <input type="checkbox" class="form-check-input" id="checkboxSelectAllDominios" onclick="toggleSelectAllDominios(this)" checked>
+                        </th>
                         @foreach ([
                             'dominio' => 'DOMINIO',
                             'client_id' => 'CLIENTE',
@@ -276,7 +305,44 @@
                 </thead>
                 <tbody>
                     @foreach ( $dominios as $dominio )
-                        <tr>
+                        @php
+                            $añoActualCheck = date('Y');
+                            // Verificar si tiene factura del año actual (igual que el badge)
+                            $tieneFacturaCheck = \DB::table('invoices')
+                                ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                                ->where('invoices.client_id', $dominio->client_id)
+                                ->where(function($query) use ($añoActualCheck) {
+                                    $query->where('invoice_concepts.title', 'like', '%' . $añoActualCheck . '%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%' . $añoActualCheck . '%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%renovación%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%renovacion%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%renovación%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%renovacion%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%dominio%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%Dominio%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%DOMINIO%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%anual%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%dominio%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%Dominio%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
+                                })
+                                ->exists();
+
+                            // Solo marcar por defecto si NO tiene factura (PENDIENTE)
+                            $checkedPorDefecto = !$tieneFacturaCheck;
+                        @endphp
+                        <tr class="dominio-row">
+                            <td onclick="event.stopPropagation()">
+                                @if($dominio->cliente && $dominio->cliente->phone)
+                                    <input type="checkbox" class="form-check-input dominio-checkbox"
+                                           data-cliente-id="{{ $dominio->cliente->id }}"
+                                           data-cliente-nombre="{{ $dominio->cliente->name }} {{ $dominio->cliente->primerApellido ?? '' }} {{ $dominio->cliente->segundoApellido ?? '' }}"
+                                           data-cliente-telefono="{{ $dominio->cliente->phone }}"
+                                           onchange="actualizarContadorDominios()"
+                                           onclick="event.stopPropagation()"
+                                           {{ $checkedPorDefecto ? 'checked' : '' }}>
+                                @endif
+                            </td>
                             <td>{{$dominio->dominio}}</td>
                             <td>{{$dominio->cliente->name ?? 'Cliente no asociado'}}</td>
                             <td>{{ \Carbon\Carbon::parse($dominio->created_at)->format('d/m/Y H:i') }}</td>
@@ -921,8 +987,38 @@
 
        let clientesParaBatchCallDominios = [];
 
-       // Función para abrir el modal y cargar los clientes de dominios filtrados
+       // Función para abrir el modal y cargar los clientes seleccionados con checkboxes
        window.abrirModalBatchCallDominios = function() {
+           // Obtener clientes seleccionados con checkbox
+           const checkboxesSeleccionados = document.querySelectorAll('.dominio-checkbox:checked');
+
+           if (checkboxesSeleccionados.length === 0) {
+               Swal.fire({
+                   icon: 'warning',
+                   title: 'Sin Clientes',
+                   text: 'Debes seleccionar al menos un cliente con teléfono para enviar batch calls.'
+               });
+               return;
+           }
+
+           // Preparar array de clientes únicos desde los checkboxes
+           const clientesMap = {};
+           checkboxesSeleccionados.forEach(checkbox => {
+               const clienteId = checkbox.dataset.clienteId;
+               // Evitar duplicados (mismo cliente puede tener múltiples dominios)
+               if (!clientesMap[clienteId]) {
+                   clientesMap[clienteId] = {
+                       id: parseInt(clienteId),
+                       nombre: checkbox.dataset.clienteNombre.trim(),
+                       telefono: checkbox.dataset.clienteTelefono
+                   };
+               }
+           });
+
+           clientesParaBatchCallDominios = Object.values(clientesMap);
+
+           console.log('Clientes únicos seleccionados para batch call:', clientesParaBatchCallDominios.length);
+
            // Mostrar el modal
            const modal = new bootstrap.Modal(document.getElementById('batchCallDominiosModal'));
            modal.show();
@@ -930,8 +1026,93 @@
            // Cargar los agentes (automáticamente seleccionará Hera Saliente)
            cargarAgentesDominios();
 
-           // Cargar los clientes de dominios filtrados
-           cargarClientesDominiosFiltrados();
+           // Mostrar clientes en el modal
+           mostrarClientesBatchCallDominios(clientesParaBatchCallDominios);
+       }
+
+       // ==================== FUNCIONES DE SELECCIÓN DE CHECKBOXES DOMINIOS ====================
+
+       // Actualizar contador de seleccionados en dominios
+       window.actualizarContadorDominios = function() {
+           const checkboxes = document.querySelectorAll('.dominio-checkbox:checked');
+
+           // Contar clientes únicos (mismo cliente puede aparecer en múltiples dominios)
+           const clientesUnicos = new Set();
+           checkboxes.forEach(cb => {
+               clientesUnicos.add(cb.dataset.clienteId);
+           });
+
+           const total = clientesUnicos.size;
+           const totalSeleccionadosEl = document.getElementById('totalSeleccionadosDominios');
+
+           if (totalSeleccionadosEl) {
+               totalSeleccionadosEl.textContent = `${total} seleccionados`;
+           }
+
+           // Actualizar checkbox del header
+           const checkboxAll = document.getElementById('checkboxSelectAllDominios');
+           const todosLosCheckboxes = document.querySelectorAll('.dominio-checkbox');
+           if (checkboxAll) {
+               // Marcar el header solo si todos los checkboxes están marcados
+               checkboxAll.checked = (checkboxes.length === todosLosCheckboxes.length && todosLosCheckboxes.length > 0);
+               // Indeterminate si algunos están marcados pero no todos
+               checkboxAll.indeterminate = (checkboxes.length > 0 && checkboxes.length < todosLosCheckboxes.length);
+           }
+       }
+
+       // Toggle seleccionar/deseleccionar todos en dominios
+       window.toggleSelectAllDominios = function(checkbox) {
+           const checkboxes = document.querySelectorAll('.dominio-checkbox');
+           checkboxes.forEach(cb => {
+               cb.checked = checkbox.checked;
+           });
+           actualizarContadorDominios();
+       }
+
+       // Seleccionar todos en dominios
+       window.seleccionarTodosDominios = function() {
+           const checkboxes = document.querySelectorAll('.dominio-checkbox');
+           checkboxes.forEach(cb => {
+               cb.checked = true;
+           });
+           const checkboxAll = document.getElementById('checkboxSelectAllDominios');
+           if (checkboxAll) checkboxAll.checked = true;
+           actualizarContadorDominios();
+       }
+
+       // Deseleccionar todos en dominios
+       window.deseleccionarTodosDominios = function() {
+           const checkboxes = document.querySelectorAll('.dominio-checkbox');
+           checkboxes.forEach(cb => {
+               cb.checked = false;
+           });
+           const checkboxAll = document.getElementById('checkboxSelectAllDominios');
+           if (checkboxAll) {
+               checkboxAll.checked = false;
+               checkboxAll.indeterminate = false;
+           }
+           actualizarContadorDominios();
+       }
+
+       // Seleccionar solo pendientes en dominios
+       window.seleccionarSoloPendientesDominios = function() {
+           // Primero deseleccionar todos
+           deseleccionarTodosDominios();
+
+           // Luego recorrer la tabla y seleccionar solo los que tienen badge PENDIENTE
+           const filas = document.querySelectorAll('.dominio-row');
+           filas.forEach(fila => {
+               // Buscar el badge de facturación en la fila
+               const badgePendiente = fila.querySelector('.badge.bg-warning.text-dark');
+               const checkbox = fila.querySelector('.dominio-checkbox');
+
+               // Si tiene badge PENDIENTE y tiene checkbox, marcarlo
+               if (badgePendiente && checkbox && badgePendiente.textContent.includes('PENDIENTE')) {
+                   checkbox.checked = true;
+               }
+           });
+
+           actualizarContadorDominios();
        }
 
        // Función para cargar la lista de agentes y seleccionar automáticamente "Hera Saliente"
@@ -1041,51 +1222,6 @@
                });
        }
 
-       // Función para cargar los clientes de dominios con los filtros de Livewire actuales
-       async function cargarClientesDominiosFiltrados() {
-           try {
-               // Obtener los filtros actuales de Livewire
-               const filtros = await @this.call('getFiltrosActuales');
-
-               console.log('Filtros obtenidos de Livewire:', filtros);
-
-               const params = new URLSearchParams({
-                   buscar: filtros.buscar || '',
-                   selectedCliente: filtros.selectedCliente || '',
-                   selectedEstado: filtros.selectedEstado || '',
-                   fechaInicio: filtros.fechaInicio || '',
-                   fechaFin: filtros.fechaFin || '',
-                   filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
-                   añoSinFacturas: filtros.añoSinFacturas || '',
-                   filtroFacturacion: filtros.filtroFacturacion || ''
-               });
-
-               console.log('Parámetros para API:', params.toString());
-
-               fetch(`/api/telefonos-clientes-dominios?${params.toString()}`)
-                   .then(response => response.json())
-                   .then(data => {
-                       console.log('Respuesta de API telefonos-clientes-dominios:', data);
-                       if (data.success) {
-                           clientesParaBatchCallDominios = data.clientes;
-                           mostrarClientesBatchCallDominios(data.clientes);
-                           document.getElementById('totalLlamadasDominios').textContent = data.total;
-                           if (document.getElementById('totalDominiosConTelefono')) {
-                               document.getElementById('totalDominiosConTelefono').textContent = data.total + ' con teléfono';
-                           }
-                       } else {
-                           mostrarErrorBatchCallDominios('Error al cargar los clientes: ' + data.message);
-                       }
-                   })
-                   .catch(error => {
-                       console.error('Error al cargar clientes de dominios:', error);
-                       mostrarErrorBatchCallDominios('Error al cargar los clientes. Por favor, inténtalo de nuevo.');
-                   });
-           } catch (error) {
-               console.error('Error en cargarClientesDominiosFiltrados:', error);
-               mostrarErrorBatchCallDominios('Error al obtener los filtros. Por favor, inténtalo de nuevo.');
-           }
-       }
 
        // Función para mostrar la lista de clientes en el modal
        function mostrarClientesBatchCallDominios(clientes) {
@@ -1238,14 +1374,15 @@
 
        // Actualizar el badge del botón cuando cambian los filtros de Livewire
        Livewire.hook('message.processed', (message, component) => {
-           // Recargar el contador de clientes con teléfono después de que Livewire actualice
+           // Recargar el badge y los checkboxes después de que Livewire actualice
            setTimeout(() => {
-               actualizarContadorDominios();
+               actualizarBadgeTotalDominios();
+               actualizarContadorDominios(); // Actualizar contador de checkboxes
            }, 100);
        });
 
-       // Función para actualizar el contador de clientes con teléfono
-       async function actualizarContadorDominios() {
+       // Función para actualizar el badge con el total de clientes con teléfono
+       async function actualizarBadgeTotalDominios() {
            try {
                // Obtener los filtros actuales de Livewire
                const filtros = await @this.call('getFiltrosActuales');
@@ -1275,15 +1412,23 @@
                        console.error('Error al cargar total de clientes:', error);
                    });
            } catch (error) {
-               console.error('Error en actualizarContadorDominios:', error);
+               console.error('Error en actualizarBadgeTotalDominios:', error);
            }
        }
 
-       // Cargar contador al iniciar
+       // Cargar contadores al iniciar
        document.addEventListener('DOMContentLoaded', function() {
            setTimeout(() => {
-               actualizarContadorDominios();
+               actualizarBadgeTotalDominios();
+               actualizarContadorDominios(); // Actualiza el contador de seleccionados
            }, 500);
+       });
+
+       // También actualizar al renderizar Livewire
+       document.addEventListener('livewire:load', function() {
+           setTimeout(() => {
+               actualizarContadorDominios();
+           }, 200);
        });
     </script>
 @endsection
