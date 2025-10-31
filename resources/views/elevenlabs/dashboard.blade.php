@@ -262,7 +262,15 @@
                                 <span class="text-muted">-</span>
                             @endif
                         </td>
-                        <td>{{ $conversation->client->name ?? 'N/A' }}</td>
+                        <td>
+                            @if($conversation->client)
+                                <span class="text-success" title="Cliente vinculado automáticamente">
+                                    <i class="bi bi-link-45deg"></i> {{ $conversation->client->name }}
+                                </span>
+                            @else
+                                <span class="text-muted">N/A</span>
+                            @endif
+                        </td>
                         <td>{{ $conversation->duration_formatted }}</td>
                         <td>
                             @if($conversation->sentiment_category)

@@ -50,8 +50,8 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-12">
                             <label class="form-label"><i class="fas fa-search"></i> Búsqueda General</label>
-                            <input type="text" name="search" class="form-control form-control-lg" 
-                                   placeholder="Buscar por ID de conversación, agente, palabras clave en transcripción..." 
+                            <input type="text" name="search" class="form-control form-control-lg"
+                                   placeholder="Buscar por ID de conversación, agente, palabras clave en transcripción..."
                                    value="{{ request('search') }}">
                             <small class="text-muted">Busca en: ID de conversación, nombre de agente, transcripción y resumen</small>
                         </div>
@@ -152,7 +152,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <small class="text-muted">
-                                <i class="fas fa-info-circle"></i> 
+                                <i class="fas fa-info-circle"></i>
                                 Mostrando <strong>{{ $conversations->total() }}</strong> conversaciones
                                 @if(request()->hasAny(['search', 'agent_id', 'category', 'status', 'satisfaction', 'has_transcript', 'has_summary', 'start_date', 'end_date']))
                                     (con filtros aplicados)
@@ -194,7 +194,15 @@
                                     {{ $conv->conversation_date->copy()->addHours(2)->format('d/m/Y H:i') }}
                                 </td>
                                 <td><small class="text-muted">{{ $conv->agent_name ?? 'N/A' }}</small></td>
-                                <td>{{ $conv->client->name ?? 'N/A' }}</td>
+                                <td>
+                                    @if($conv->client)
+                                        <span class="text-success" title="Cliente vinculado automáticamente">
+                                            <i class="bi bi-link-45deg"></i> {{ $conv->client->name }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted">N/A</span>
+                                    @endif
+                                </td>
                                 <td>{{ $conv->duration_formatted }}</td>
                                 <td>
                                     @if($conv->sentiment_category)
@@ -280,7 +288,7 @@
 // Función para formatear fechas sin conversión de timezone
 function formatDateWithoutTimezone(dateString) {
     if (!dateString) return '';
-    
+
     // Parsear directamente desde el string sin crear objeto Date
     // Formato esperado: "YYYY-MM-DD HH:MM:SS" o "YYYY-MM-DD HH:MM"
     const parts = dateString.split(/[-: T]/);
@@ -289,7 +297,7 @@ function formatDateWithoutTimezone(dateString) {
     const day = parts[2];
     const hour = parts[3] || '00';
     const minute = parts[4] || '00';
-    
+
     // Formatear directamente sin conversiones
     return `${day}/${month}/${year}, ${hour}:${minute}`;
 }
@@ -301,7 +309,7 @@ function verConversacion(id) {
     currentConversationId = id;
     const modal = new bootstrap.Modal(document.getElementById('conversationModal'));
     modal.show();
-    
+
     document.getElementById('conversationContent').innerHTML = `
         <div class="text-center py-5">
             <div class="spinner-border text-primary"></div>
@@ -319,10 +327,10 @@ function verConversacion(id) {
     .then(conv => {
         currentConversationData = conv; // Guardar datos para edición
         currentConversationAttended = conv.attended || false;
-        
+
         // Actualizar botón de atendido
         updateAttendedButton(currentConversationAttended);
-        
+
         document.getElementById('conversationContent').innerHTML = `
             <div class="row">
                 <div class="col-md-6">
@@ -334,7 +342,7 @@ function verConversacion(id) {
                             ${conv.agent_name ? `<p><strong>Agente:</strong> <i class="fas fa-robot"></i> ${conv.agent_name}</p>` : ''}
                             <p><strong>Duración:</strong> ${conv.duration_formatted || '0:00'}</p>
                             ${conv.client ? `<p><strong>Cliente:</strong> ${conv.client.name || 'N/A'}</p>` : ''}
-                            <p><strong>Estado:</strong> 
+                            <p><strong>Estado:</strong>
                                 <span class="badge bg-${conv.processing_status == 'completed' ? 'success' : 'warning'}">
                                     ${conv.status_label}
                                 </span>
@@ -346,18 +354,18 @@ function verConversacion(id) {
                     <div class="card mb-3">
                         <div class="card-body">
                             <h6><i class="fas fa-brain"></i> Análisis IA</h6>
-                            
+
                             <!-- Categorías actuales con opción de editar -->
                             <div id="currentCategories">
                                 ${['baja', 'llamada_agendada'].includes(conv.sentiment_category) ? `
-                                    <p><strong>Acción:</strong> 
+                                    <p><strong>Acción:</strong>
                                         <span class="category-badge" style="background-color: ${conv.sentiment_color || '#6B7280'}">${conv.sentiment_label || conv.sentiment_category}</span>
                                     </p>
                                 ` : `
-                                    <p><strong>Sentimiento:</strong> 
+                                    <p><strong>Sentimiento:</strong>
                                         ${conv.sentiment_category ? `<span class="category-badge" style="background-color: ${conv.sentiment_color || '#6B7280'}">${conv.sentiment_label || conv.sentiment_category}</span>` : '<span class="text-muted">-</span>'}
                                     </p>
-                                    <p><strong>Categoría Específica:</strong> 
+                                    <p><strong>Categoría Específica:</strong>
                                         ${conv.specific_category ? `<span class="category-badge" style="background-color: ${conv.specific_color || '#6B7280'}">${conv.specific_label || conv.specific_category}</span>` : '<span class="text-muted">-</span>'}
                                     </p>
                                 `}
@@ -366,7 +374,7 @@ function verConversacion(id) {
                                     <i class="fas fa-edit"></i> Cambiar Categorías
                                 </button>
                             </div>
-                            
+
                             <!-- Editor de categorías (oculto por defecto) -->
                             <div id="editCategories" style="display: none;">
                                 <div class="alert alert-warning">
@@ -392,7 +400,7 @@ function verConversacion(id) {
                                     <i class="fas fa-times"></i> Cancelar
                                 </button>
                             </div>
-                            
+
                             ${conv.scheduled_call_datetime ? `
                                 <div class="alert alert-info mt-3">
                                     <i class="fas fa-calendar-check"></i> <strong>Llamada Agendada:</strong><br>
@@ -443,7 +451,7 @@ let currentConversationData = null;
 function toggleEditCategories() {
     const currentDiv = document.getElementById('currentCategories');
     const editDiv = document.getElementById('editCategories');
-    
+
     if (editDiv.style.display === 'none') {
         loadCategoriesForEdit();
         currentDiv.style.display = 'none';
@@ -459,9 +467,9 @@ function loadCategoriesForEdit() {
         console.error('No hay datos de conversación o agent_id');
         return;
     }
-    
+
     console.log('Cargando categorías para agente:', currentConversationData.agent_id);
-    
+
     fetch(`/api/elevenlabs-monitoring/agents/${currentConversationData.agent_id}/available-categories`)
         .then(r => r.json())
         .then(data => {
@@ -479,14 +487,14 @@ function loadCategoriesForEdit() {
 function populateCategorySelects() {
     const sentimentSelect = document.getElementById('sentimentSelect');
     const specificSelect = document.getElementById('specificSelect');
-    
+
     if (!sentimentSelect || !specificSelect) {
         console.error('Selectores no encontrados');
         return;
     }
-    
+
     console.log('Poblando selectores con:', availableCategories);
-    
+
     // Poblar sentimientos
     sentimentSelect.innerHTML = '<option value="">Seleccionar...</option>';
     if (availableCategories.sentiment_categories) {
@@ -495,7 +503,7 @@ function populateCategorySelects() {
             sentimentSelect.innerHTML += `<option value="${cat.category_key}" ${selected}>${cat.category_label}</option>`;
         });
     }
-    
+
     // Poblar específicas
     specificSelect.innerHTML = '<option value="">Sin categoría específica</option>';
     if (availableCategories.specific_categories) {
@@ -504,7 +512,7 @@ function populateCategorySelects() {
             specificSelect.innerHTML += `<option value="${cat.category_key}" ${selected}>${cat.category_label}</option>`;
         });
     }
-    
+
     // Listener para deshabilitar específica si es baja, sin_respuesta o llamada_agendada
     sentimentSelect.addEventListener('change', function() {
         const specificContainer = document.getElementById('specificContainer');
@@ -515,7 +523,7 @@ function populateCategorySelects() {
             specificContainer.style.display = 'block';
         }
     });
-    
+
     // Verificar estado inicial
     if (['baja', 'sin_respuesta', 'llamada_agendada'].includes(currentConversationData.sentiment_category)) {
         document.getElementById('specificContainer').style.display = 'none';
@@ -525,12 +533,12 @@ function populateCategorySelects() {
 function saveCategories() {
     const sentiment = document.getElementById('sentimentSelect').value;
     const specific = document.getElementById('specificSelect').value;
-    
+
     const btn = event.target;
     const html = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
     btn.disabled = true;
-    
+
     fetch(`/api/elevenlabs-monitoring/conversations/${currentConversationId}/update-categories`, {
         method: 'POST',
         headers: {
@@ -616,7 +624,7 @@ function exportar() {
 function updateAttendedButton(attended) {
     const btn = document.getElementById('btnAtendido');
     const text = document.getElementById('btnAtendidoText');
-    
+
     if (attended) {
         btn.className = 'btn btn-outline-success';
         text.textContent = 'Atendida ✓';
@@ -628,18 +636,18 @@ function updateAttendedButton(attended) {
 
 function toggleAttendedModal() {
     if (!currentConversationId) return;
-    
+
     const btn = document.getElementById('btnAtendido');
     const text = document.getElementById('btnAtendidoText');
     const wasAttended = currentConversationAttended;
-    
+
     btn.disabled = true;
     text.textContent = wasAttended ? 'Desmarcando...' : 'Marcando...';
-    
-    const url = wasAttended 
+
+    const url = wasAttended
         ? `/elevenlabs/conversations/${currentConversationId}/unmark-attended`
         : `/elevenlabs/conversations/${currentConversationId}/mark-attended`;
-    
+
     fetch(url, {
         method: 'POST',
         headers: {
@@ -653,7 +661,7 @@ function toggleAttendedModal() {
         if (data.success) {
             currentConversationAttended = data.attended;
             updateAttendedButton(data.attended);
-            
+
             // Recargar la página para actualizar la tabla
             setTimeout(() => location.reload(), 500);
         }

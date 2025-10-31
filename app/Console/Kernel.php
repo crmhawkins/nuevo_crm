@@ -67,6 +67,10 @@ class Kernel extends ConsoleKernel
         // Procesa hasta 100 conversaciones sin número en cada ejecución
         $schedule->command('elevenlabs:update-phone-numbers', ['--limit' => 100])->everyMinute();
 
+        // Vincular conversaciones con clientes basándose en números de teléfono
+        // Procesa hasta 100 conversaciones sin client_id en cada ejecución (cada 5 minutos)
+        $schedule->command('elevenlabs:vincular-clientes', ['--limit' => 100])->everyFiveMinutes();
+
         // Procesar cola de justificaciones - ejecuta cada minuto sin overlapping
         // Procesa todos los jobs disponibles en la cola 'justificaciones' y se detiene
         $schedule->command('queue:work --queue=justificaciones --stop-when-empty --tries=3 --timeout=600')
