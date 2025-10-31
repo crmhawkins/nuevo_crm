@@ -522,14 +522,14 @@
                         <div class="alert alert-info mb-0">
                             <strong><i class="bi bi-chat-quote"></i> Mensaje que se enviará:</strong><br><br>
                             <div class="p-2 bg-white rounded">
-                                <em>"Hola, soy Carolina de la Agencia Hawkins, te llamo porque próximamente caduca tu dominio <span class="text-primary fw-bold">{dominio}</span> y, antes de nada, te recuerdo que esta llamada está siendo grabada para fines de calidad y gestión administrativa. ¿Deseas renovar el dominio y mantener la web activa, o prefieres cancelarlo?"</em>
+                                <em>"Hola, soy Carolina de la Agencia Hawkins. Te llamo porque próximamente caduca tu dominio <span class="text-primary fw-bold">{dominio}</span> y, antes de nada, te recuerdo que esta llamada está siendo grabada para fines de calidad y gestión administrativa. ¿Deseas renovar el dominio y mantener la web activa, o prefieres cancelarlo?"</em>
                             </div>
                         </div>
                         <small class="text-muted mt-2 d-block">
                             <i class="bi bi-info-circle-fill text-primary"></i> <strong>Variable automática:</strong><br>
                             - <code class="bg-light p-1 rounded">{dominio}</code> → se reemplazará con el dominio pendiente que caduca este mes (del cliente seleccionado)
                         </small>
-                        <input type="hidden" id="firstMessageDominios" name="first_message" value="Hola, soy Carolina de la Agencia Hawkins, te llamo porque próximamente caduca tu dominio {dominio} y, antes de nada, te recuerdo que esta llamada está siendo grabada para fines de calidad y gestión administrativa. ¿Deseas renovar el dominio y mantener la web activa, o prefieres cancelarlo?">
+                        <input type="hidden" id="firstMessageDominios" name="first_message" value="Hola, soy Carolina de la Agencia Hawkins. Te llamo porque próximamente caduca tu dominio {dominio} y, antes de nada, te recuerdo que esta llamada está siendo grabada. ¿Deseas renovar el dominio y mantener la web activa, o prefieres cancelarlo?">
                     </div>
 
                     <div class="mb-3">
