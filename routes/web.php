@@ -581,7 +581,7 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
 
     //Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Análisis y Estadísticas
     Route::get('/analisis-estadisticas', [DashboardController::class, 'analisisEstadisticas'])->name('analisis.estadisticas');
     // Justificaciones (rutas que SÍ requieren autenticación)
@@ -589,10 +589,10 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     Route::post('/justificaciones/store', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'store'])->name('justificaciones.store');
     Route::get('/justificaciones/download/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'download'])->name('justificaciones.download');
     Route::delete('/justificaciones/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'destroy'])->name('justificaciones.destroy');
-    
+
     // Test endpoint para justificaciones
     Route::any('/justificaciones/test-receive/{id}', function($id) {
-        file_put_contents(storage_path('logs/test_receive.log'), 
+        file_put_contents(storage_path('logs/test_receive.log'),
             "[" . now() . "] TEST: Petición recibida para ID: {$id}\n" .
             "Method: " . request()->method() . "\n" .
             "Files: " . json_encode(request()->allFiles()) . "\n" .
@@ -601,13 +601,13 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
         );
         return response()->json(['success' => true, 'id' => $id, 'message' => 'Test OK']);
     });
-    
+
     // Visitas Comerciales
     Route::get('/visitas-comerciales', [\App\Http\Controllers\VisitaComercialController::class, 'index'])->name('visitas.index');
     Route::post('/visitas/store', [\App\Http\Controllers\VisitaComercialController::class, 'store'])->name('visitas.store');
     Route::post('/visitas/store-lead', [\App\Http\Controllers\VisitaComercialController::class, 'storeLead'])->name('visitas.storeLead');
     Route::get('/visitas/get', [\App\Http\Controllers\VisitaComercialController::class, 'getVisitas'])->name('visitas.get');
-    
+
     // Audio de Visitas Comerciales
     Route::post('/visitas/audio/upload', [\App\Http\Controllers\VisitaAudioController::class, 'uploadAudio'])->name('visitas.audio.upload');
     Route::get('/visitas/{visitaId}/audio', [\App\Http\Controllers\VisitaAudioController::class, 'getAudioUrl'])->name('visitas.audio.get');
@@ -874,7 +874,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/create', [AutoseoController::class, 'store'])->name('autoseo.store');
         Route::post('/delete', [AutoseoController::class, 'delete'])->name('autoseo.delete');
         Route::post('/create-puntual-seo', [AutoseoController::class, 'createPuntualSeo'])->name('autoseo.createPuntualSeo');
-        
+
         // Test de conexión WordPress
         Route::post('/test-wp-auth', [\App\Http\Controllers\Api\AutoseoTestController::class, 'testWordPressAuth'])->name('autoseo.test.wp.auth');
         Route::post('/test-endpoint', [\App\Http\Controllers\Api\AutoseoTestController::class, 'testEndpoint'])->name('autoseo.test.endpoint');
@@ -929,7 +929,7 @@ Route::get('/citas-funcionando', function() {
         // Intentar obtener datos reales de la base de datos
         $gestores = \App\Models\Users\User::where('access_level_id', 4)->where('inactive', false)->get();
         $clientes = \App\Models\Clients\Client::where('is_client', 1)->get();
-        
+
         // Si no hay datos reales, usar datos de prueba
         if ($gestores->isEmpty()) {
             $gestores = collect([
@@ -938,7 +938,7 @@ Route::get('/citas-funcionando', function() {
                 (object)['id' => 3, 'name' => 'Gestor Senior']
             ]);
         }
-        
+
         if ($clientes->isEmpty()) {
             $clientes = collect([
                 (object)['id' => 1, 'name' => 'Cliente Corporativo'],
@@ -946,9 +946,9 @@ Route::get('/citas-funcionando', function() {
                 (object)['id' => 3, 'name' => 'Cliente de Prueba']
             ]);
         }
-        
+
         return view('citas.fixed', compact('gestores', 'clientes'));
-        
+
     } catch (\Exception $e) {
         // Si hay error con la base de datos, usar datos de prueba
         $gestores = collect([
@@ -978,7 +978,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/citas/{cita}/estado', [CitasController::class, 'updateEstado'])->name('citas.update.estado');
     Route::get('/citas/estadisticas', [CitasController::class, 'estadisticas'])->name('citas.estadisticas');
     Route::get('/citas/proximas', [CitasController::class, 'proximas'])->name('citas.proximas');
-    
+
         // Objetivos Comerciales (Solo para administradores)
         Route::middleware(['admin'])->prefix('admin')->group(function () {
             Route::get('/objetivos-comerciales', [\App\Http\Controllers\ObjetivoComercialController::class, 'index'])->name('objetivos.index');
@@ -986,7 +986,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/objetivos-comerciales/progreso/{comercialId}', [\App\Http\Controllers\ObjetivoComercialController::class, 'getProgreso'])->name('objetivos.progreso');
             Route::put('/objetivos-comerciales/{id}', [\App\Http\Controllers\ObjetivoComercialController::class, 'update'])->name('objetivos.update');
             Route::delete('/objetivos-comerciales/{id}', [\App\Http\Controllers\ObjetivoComercialController::class, 'destroy'])->name('objetivos.destroy');
-            
+
             // Incentivos Comerciales
             Route::get('/incentivos-comerciales', [\App\Http\Controllers\IncentivoComercialController::class, 'index'])->name('incentivos.index');
             Route::post('/incentivos-comerciales', [\App\Http\Controllers\IncentivoComercialController::class, 'store'])->name('incentivos.store');
@@ -1007,7 +1007,7 @@ Route::middleware(['auth'])->prefix('elevenlabs')->name('elevenlabs.')->group(fu
     Route::post('/conversations/{id}/reprocess', [\App\Http\Controllers\ElevenDashboard::class, 'reprocess'])->name('reprocess');
     Route::get('/stats', [\App\Http\Controllers\ElevenDashboard::class, 'stats'])->name('stats');
     Route::get('/export', [\App\Http\Controllers\ElevenDashboard::class, 'export'])->name('export');
-    
+
     // Gestión de Agentes
     Route::get('/agents', [\App\Http\Controllers\ElevenAgentsController::class, 'index'])->name('agents');
     Route::post('/agents/{agentId}/description', [\App\Http\Controllers\ElevenAgentsController::class, 'updateDescription'])->name('agents.description');
@@ -1023,14 +1023,14 @@ Route::middleware(['auth'])->prefix('api/elevenlabs-monitoring')->group(function
     Route::get('/conversations/{id}', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'show']);
     Route::post('/sync', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'sync']);
     Route::post('/conversations/{id}/process', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'process']);
-    
+
     // Agentes
     Route::get('/agents/{agentId}/categories', [\App\Http\Controllers\ElevenAgentsController::class, 'getCategories']);
     Route::get('/agents/{agentId}/available-categories', [\App\Http\Controllers\Api\ElevenlabsCategoryController::class, 'getAvailableCategories']);
-    
+
     // Actualizar categorías manualmente
     Route::post('/conversations/{id}/update-categories', [\App\Http\Controllers\Api\ElevenlabsCategoryController::class, 'updateCategories']);
-    
+
     // Batch Calls de ElevenLabs
     Route::get('/batch-calls/agentes', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'obtenerAgentes']);
     Route::get('/batch-calls/agentes/{agentId}/phone-numbers', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'obtenerPhoneNumbers']);
@@ -1039,7 +1039,8 @@ Route::middleware(['auth'])->prefix('api/elevenlabs-monitoring')->group(function
     Route::post('/batch-calls/submit-clientes-filtrados', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'submitBatchCallConClientesFiltrados']);
 });
 
-// Ruta para obtener teléfonos de clientes filtrados
+// Rutas para obtener teléfonos de clientes filtrados
 Route::middleware(['auth'])->get('/api/telefonos-clientes-filtrados', [DashboardController::class, 'obtenerTelefonosClientesFiltrados'])->name('api.telefonos.filtrados');
+Route::middleware(['auth'])->get('/api/telefonos-clientes-dominios', [\App\Http\Controllers\Dominios\DominiosController::class, 'obtenerTelefonosClientesDominios'])->name('api.telefonos.dominios');
 
 

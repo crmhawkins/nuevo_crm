@@ -11,6 +11,7 @@ use App\Models\Invoices\Invoice;
 use App\Services\IonosApiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DominiosController extends Controller
 {
@@ -23,7 +24,7 @@ class DominiosController extends Controller
     public function show($id)
     {
         $dominio = Dominio::with(['cliente', 'estadoName'])->find($id);
-        
+
         if (!$dominio) {
             return redirect()->route('dominios.index')->with('toast', [
                 'icon' => 'error',
@@ -169,7 +170,7 @@ class DominiosController extends Controller
     {
         // Normalizar el dominio para búsqueda
         $normalizedDomain = $this->normalizeDomain($domainName);
-        
+
         // Buscar en conceptos de facturas del mismo cliente
         $conceptos = InvoiceConcepts::with(['invoice.budget.cliente', 'invoice.invoiceStatus'])
             ->whereHas('invoice.budget', function($query) use ($clienteId) {
@@ -189,10 +190,10 @@ class DominiosController extends Controller
             ->get();
 
         $facturas = collect();
-        
+
         foreach ($conceptos as $concepto) {
-            if ($concepto->invoice && 
-                $concepto->invoice->budget && 
+            if ($concepto->invoice &&
+                $concepto->invoice->budget &&
                 $concepto->invoice->budget->cliente &&
                 $concepto->invoice->budget->client_id == $clienteId &&
                 !$facturas->contains('id', $concepto->invoice->id)) {
@@ -222,7 +223,7 @@ class DominiosController extends Controller
     {
         try {
             $dominio = Dominio::find($id);
-            
+
             if (!$dominio) {
                 return response()->json([
                     'success' => false,
@@ -253,7 +254,7 @@ class DominiosController extends Controller
     {
         try {
             $dominio = Dominio::find($id);
-            
+
             if (!$dominio) {
                 return response()->json([
                     'success' => false,
@@ -287,12 +288,12 @@ class DominiosController extends Controller
     private function normalizarUrl($dominio)
     {
         $dominio = trim($dominio);
-        
+
         // Si no tiene protocolo, agregar https://
         if (!preg_match('/^https?:\/\//', $dominio)) {
             $dominio = 'https://' . $dominio;
         }
-        
+
         return $dominio;
     }
 
@@ -302,7 +303,7 @@ class DominiosController extends Controller
     private function verificarEstadoHttp($url)
     {
         $inicio = microtime(true);
-        
+
         try {
             $context = stream_context_create([
                 'http' => [
@@ -418,7 +419,7 @@ class DominiosController extends Controller
     {
         try {
             $dominio = Dominio::find($id);
-            
+
             if (!$dominio) {
                 return response()->json([
                     'success' => false,
@@ -468,7 +469,7 @@ class DominiosController extends Controller
     {
         try {
             $dominio = Dominio::find($id);
-            
+
             if (!$dominio) {
                 return response()->json([
                     'success' => false,
@@ -512,7 +513,7 @@ class DominiosController extends Controller
     {
         try {
             $comando = $request->input('comando');
-            
+
             if (!$comando) {
                 return response()->json([
                     'success' => false,
@@ -523,7 +524,7 @@ class DominiosController extends Controller
             // Validar que el comando sea uno de los permitidos
             $comandosPermitidos = [
                 'ionos:sync-missing-dates',
-                'ionos:sync-all-missing', 
+                'ionos:sync-all-missing',
                 'ionos:analyze-missing',
                 'ionos:sync-all',
                 'ionos:update-all-dates',
@@ -540,14 +541,14 @@ class DominiosController extends Controller
             // Ejecutar el comando
             $output = [];
             $returnCode = 0;
-            
+
             // Usar la ruta completa del directorio del proyecto
             $projectPath = base_path();
             $command = "cd {$projectPath} && php artisan {$comando} --limit=10";
             exec($command . ' 2>&1', $output, $returnCode);
-            
+
             $outputString = implode("\n", $output);
-            
+
             if ($returnCode === 0) {
                 return response()->json([
                     'success' => true,
@@ -575,7 +576,7 @@ class DominiosController extends Controller
     {
         try {
             $dominio = Dominio::find($id);
-            
+
             if (!$dominio) {
                 return response()->json([
                     'success' => false,
@@ -613,6 +614,153 @@ class DominiosController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al calcular fecha de registro: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener teléfonos de clientes de dominios filtrados para batch calls
+     */
+    public function obtenerTelefonosClientesDominios(Request $request)
+    {
+        try {
+            \Illuminate\Support\Facades\Log::info('=== INICIO obtenerTelefonosClientesDominios ===');
+            \Illuminate\Support\Facades\Log::info('Datos recibidos:', $request->all());
+
+            $añoActual = date('Y');
+
+            // Aplicar los mismos filtros que usa el componente Livewire
+            $query = Dominio::with(['cliente'])
+                    ->where('estado_id', '!=', 2) // Excluir dominios cancelados
+                    ->when($request->buscar, function ($query) use ($request) {
+                        $query->where('dominio', 'like', '%' . $request->buscar . '%');
+                    })
+                    ->when($request->selectedCliente, function ($query) use ($request) {
+                        $query->where('client_id', $request->selectedCliente);
+                    })
+                    ->when($request->selectedEstado, function ($query) use ($request) {
+                        $query->where('estado_id', $request->selectedEstado);
+                    })
+                    ->when($request->fechaInicio, function ($query) use ($request) {
+                        $query->where('fecha_renovacion_ionos', '>=', $request->fechaInicio);
+                    })
+                    ->when($request->fechaFin, function ($query) use ($request) {
+                        $query->where('fecha_renovacion_ionos', '<=', $request->fechaFin);
+                    })
+                    ->when($request->filtroSinFacturas == '1' && $request->añoSinFacturas, function ($query) use ($request) {
+                        $query->whereNull('fecha_registro_calculada')
+                              ->whereNotExists(function ($subQuery) use ($request) {
+                                  $subQuery->select(DB::raw(1))
+                                          ->from('budgets')
+                                          ->join('invoices', 'budgets.id', '=', 'invoices.budget_id')
+                                          ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                                          ->whereColumn('budgets.client_id', 'dominios.client_id')
+                                          ->whereYear('invoice_concepts.created_at', $request->añoSinFacturas)
+                                          ->where(function ($q) {
+                                              $q->where('invoice_concepts.title', 'like', '%dominio%')
+                                                ->orWhere('invoice_concepts.concept', 'like', '%dominio%')
+                                                ->orWhere('invoice_concepts.title', 'like', '%Dominio%')
+                                                ->orWhere('invoice_concepts.concept', 'like', '%Dominio%')
+                                                ->orWhere('invoice_concepts.title', 'like', '%DOMINIO%')
+                                                ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
+                                          });
+                              });
+                    })
+                    ->when($request->filtroFacturacion === 'facturado', function ($query) use ($añoActual) {
+                        $query->whereExists(function ($subQuery) use ($añoActual) {
+                            $subQuery->select(DB::raw(1))
+                                    ->from('invoices')
+                                    ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                                    ->whereColumn('invoices.client_id', 'dominios.client_id')
+                                    ->where(function($q) use ($añoActual) {
+                                        $q->where('invoice_concepts.title', 'like', '%' . $añoActual . '%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%' . $añoActual . '%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%renovación%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%renovacion%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%renovación%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%renovacion%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%dominio%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%Dominio%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%DOMINIO%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%anual%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%dominio%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%Dominio%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
+                                    });
+                        });
+                    })
+                    ->when($request->filtroFacturacion === 'pendiente', function ($query) use ($añoActual) {
+                        $query->whereNotExists(function ($subQuery) use ($añoActual) {
+                            $subQuery->select(DB::raw(1))
+                                    ->from('invoices')
+                                    ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
+                                    ->whereColumn('invoices.client_id', 'dominios.client_id')
+                                    ->where(function($q) use ($añoActual) {
+                                        $q->where('invoice_concepts.title', 'like', '%' . $añoActual . '%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%' . $añoActual . '%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%renovación%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%renovacion%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%renovación%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%renovacion%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%dominio%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%Dominio%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%DOMINIO%')
+                                          ->orWhere('invoice_concepts.title', 'like', '%anual%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%dominio%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%Dominio%')
+                                          ->orWhere('invoice_concepts.concept', 'like', '%DOMINIO%');
+                                    });
+                        });
+                    });
+
+            // Obtener dominios filtrados
+            $dominios = $query->get();
+
+            // Extraer clientes únicos con teléfono
+            $clientesMap = [];
+
+            foreach ($dominios as $dominio) {
+                if ($dominio->cliente && !empty($dominio->cliente->phone)) {
+                    $clienteId = $dominio->cliente->id;
+
+                    // Evitar duplicados
+                    if (!isset($clientesMap[$clienteId])) {
+                        $clientesMap[$clienteId] = [
+                            'id' => $clienteId,
+                            'nombre' => trim($dominio->cliente->name . ' ' .
+                                          ($dominio->cliente->primerApellido ?? '') . ' ' .
+                                          ($dominio->cliente->segundoApellido ?? '')),
+                            'telefono' => $dominio->cliente->phone
+                        ];
+                    }
+                }
+            }
+
+            $clientes = array_values($clientesMap);
+
+            \Illuminate\Support\Facades\Log::info('Clientes de dominios con teléfono encontrados:', [
+                'total_dominios' => $dominios->count(),
+                'clientes_unicos' => count($clientes)
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'total' => count($clientes),
+                'clientes' => $clientes
+            ]);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error en obtenerTelefonosClientesDominios:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error interno del servidor',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

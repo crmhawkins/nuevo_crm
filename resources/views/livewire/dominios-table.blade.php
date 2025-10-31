@@ -51,7 +51,7 @@
             </div>
         </div>
     </div>
-    
+
     {{-- Filtros de Fecha --}}
     <div class="filtros-fecha row mb-4">
         <div class="col-12">
@@ -92,7 +92,7 @@
                             @endif
                         </div>
                     </div>
-                    
+
                     {{-- Botones de filtros rápidos --}}
                     <div class="row mt-3">
                         <div class="col-12">
@@ -129,7 +129,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label for="añoSinFacturas" class="form-label fw-bold">Año para filtrar:</label>
-                            <input wire:model="añoSinFacturas" type="number" class="form-control" id="añoSinFacturas" 
+                            <input wire:model="añoSinFacturas" type="number" class="form-control" id="añoSinFacturas"
                                    placeholder="Ej: 2024" min="2020" max="{{ now()->year + 1 }}">
                         </div>
                         <div class="col-md-6 d-flex align-items-end">
@@ -171,6 +171,28 @@
             </div>
         </div>
     </div>
+
+    {{-- Botón de Batch Calls --}}
+    @if($dominios->count() > 0)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">📞 Llamadas Automáticas (Batch Calls)</h5>
+                    <span class="badge bg-light text-dark" id="totalDominiosConTelefono">0 con teléfono</span>
+                </div>
+                <div class="card-body">
+                    <button type="button" class="btn btn-success" onclick="abrirModalBatchCallDominios()">
+                        <i class="bi bi-telephone-outbound"></i> Enviar Batch Call a Clientes Filtrados
+                    </button>
+                    <small class="text-muted ms-2">
+                        Se enviarán llamadas automáticas a los clientes de los dominios filtrados que tengan teléfono válido
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     {{-- Botones de sincronización IONOS --}}
     <div class="row mb-4">
@@ -384,6 +406,83 @@
         </div>
     @endif
 </div>
+
+<!-- Modal de Batch Call para Dominios -->
+<div class="modal fade" id="batchCallDominiosModal" tabindex="-1" aria-labelledby="batchCallDominiosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="batchCallDominiosModalLabel">
+                    <i class="bi bi-telephone-outbound"></i> Configurar Batch Call a ElevenLabs
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formBatchCallDominios">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Información:</strong> Se enviarán llamadas automáticas a <span id="totalLlamadasDominios" class="fw-bold">0</span> clientes con teléfono válido.
+                        Los números serán procesados y validados automáticamente con IA.
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="callNameDominios" class="form-label">Nombre de la Campaña <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="callNameDominios" name="call_name" required
+                               placeholder="Ej: Renovación Dominios 2025">
+                        <small class="text-muted">Identificador de esta campaña de llamadas</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="agentIdDominios" class="form-label">Agente <span class="text-danger">*</span></label>
+                        <select class="form-select" id="agentIdDominios" name="agent_id" required disabled>
+                            <option value="">Cargando agente...</option>
+                        </select>
+                        <small class="text-muted">Agente predeterminado: Hera Saliente (bloqueado)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="agentPhoneNumberIdDominios" class="form-label">Número de Teléfono <span class="text-danger">*</span></label>
+                        <select class="form-select" id="agentPhoneNumberIdDominios" name="agent_phone_number_id" required disabled>
+                            <option value="">Primero selecciona un agente...</option>
+                        </select>
+                        <small class="text-muted">Número de teléfono desde el cual se realizarán las llamadas</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="firstMessageDominios" class="form-label">Mensaje Inicial (Opcional)</label>
+                        <textarea class="form-control" id="firstMessageDominios" name="first_message" rows="3"
+                                  placeholder="Ej: Hola {nombre}, llamo de Hawkins para informarte sobre la renovación de tu dominio..."></textarea>
+                        <small class="text-muted">
+                            <strong>Usa {nombre} para personalizar:</strong> Se reemplazará con el nombre de cada cliente.<br>
+                            Ejemplo: "Hola {nombre}, te llamo de Hawkins..." → "Hola Juan Pérez, te llamo de Hawkins..."
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Clientes a Llamar</label>
+                        <div id="listaClientesBatchCallDominios" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                            <div class="text-center text-muted">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p class="mt-2 mb-0">Cargando clientes...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="alertaBatchCallDominios"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnEnviarBatchCallDominios" onclick="enviarBatchCallDominios()">
+                    <i class="bi bi-send"></i> Enviar Batch Call
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section('scripts')
 
 
@@ -391,7 +490,7 @@
     <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 
     <script>
-        
+
         $(document).ready(() => {
             $('.delete').on('click', function(e) {
                 e.preventDefault();
@@ -459,13 +558,13 @@
             e.preventDefault();
             const id = $(this).data('id');
             console.log('Botón cancelar clickeado en index, ID:', id);
-            
+
             // Verificar que SweetAlert2 esté disponible
             if (typeof Swal === 'undefined') {
                 alert('SweetAlert2 no está cargado en index. ID del dominio: ' + id);
                 return;
             }
-            
+
             Swal.fire({
                 title: '¿Cancelar Dominio?',
                 text: '¿Estás seguro de que deseas cancelar este dominio? Esta acción cambiará el estado a "Cancelado".',
@@ -529,18 +628,18 @@
             });
         });
 
-       
+
 
        // Función global para calcular fecha de registro
        window.calcularFechaRegistro = function(id) {
            console.log('Función calcularFechaRegistro llamada con ID:', id);
-           
+
            // Verificar que SweetAlert2 esté disponible
            if (typeof Swal === 'undefined') {
                alert('SweetAlert2 no está cargado. ID del dominio: ' + id);
                return;
            }
-           
+
            Swal.fire({
                title: '¿Calcular Fecha de Registro?',
                text: 'Se calculará la fecha de registro basándose en la fecha de renovación IONOS menos 1 año.',
@@ -610,7 +709,7 @@
                alert('SweetAlert2 no está cargado');
                return;
            }
-           
+
            Swal.fire({
                title: '¿Actualizar TODAS las Fechas IONOS?',
                text: 'Esto actualizará las fechas de IONOS para TODOS los dominios que no las tengan. Puede tomar varios minutos. ¿Continuar?',
@@ -632,7 +731,7 @@
                alert('SweetAlert2 no está cargado');
                return;
            }
-           
+
            Swal.fire({
                title: '¿Sincronizar Fechas IONOS?',
                text: 'Esto sincronizará las fechas de IONOS para dominios existentes. ¿Continuar?',
@@ -654,7 +753,7 @@
                alert('SweetAlert2 no está cargado');
                return;
            }
-           
+
            Swal.fire({
                title: '¿Sincronizar Dominios Faltantes?',
                text: 'Esto añadirá dominios nuevos de IONOS a la base de datos. ¿Continuar?',
@@ -676,7 +775,7 @@
                alert('SweetAlert2 no está cargado');
                return;
            }
-           
+
            Swal.fire({
                title: 'Probando conexión...',
                text: 'Verificando conexión con IONOS',
@@ -727,7 +826,7 @@
                alert('SweetAlert2 no está cargado');
                return;
            }
-           
+
            Swal.fire({
                title: '¿Probar Comando Web?',
                text: 'Esto ejecutará un comando de prueba para verificar que la ejecución desde la web funciona correctamente.',
@@ -749,7 +848,7 @@
                alert('SweetAlert2 no está cargado');
                return;
            }
-           
+
            Swal.fire({
                title: '¿Analizar Dominios Faltantes?',
                text: 'Esto analizará qué dominios de IONOS no existen en la base de datos. ¿Continuar?',
@@ -817,5 +916,354 @@
                });
            });
        }
+
+       // ==================== BATCH CALL FUNCTIONALITY PARA DOMINIOS ====================
+
+       let clientesParaBatchCallDominios = [];
+
+       // Función para abrir el modal y cargar los clientes de dominios filtrados
+       window.abrirModalBatchCallDominios = function() {
+           // Mostrar el modal
+           const modal = new bootstrap.Modal(document.getElementById('batchCallDominiosModal'));
+           modal.show();
+
+           // Cargar los agentes (automáticamente seleccionará Hera Saliente)
+           cargarAgentesDominios();
+
+           // Cargar los clientes de dominios filtrados
+           cargarClientesDominiosFiltrados();
+       }
+
+       // Función para cargar la lista de agentes y seleccionar automáticamente "Hera Saliente"
+       function cargarAgentesDominios() {
+           fetch('/api/elevenlabs-monitoring/batch-calls/agentes')
+               .then(response => response.json())
+               .then(data => {
+                   if (data.success && data.data) {
+                       const selectAgente = document.getElementById('agentIdDominios');
+
+                       // Buscar el agente "Hera Saliente"
+                       const heraSaliente = data.data.find(agente =>
+                           agente.name.toLowerCase().includes('hera') &&
+                           agente.name.toLowerCase().includes('saliente')
+                       );
+
+                       if (heraSaliente) {
+                           // Seleccionar automáticamente Hera Saliente
+                           selectAgente.innerHTML = `<option value="${heraSaliente.agent_id}" selected>${heraSaliente.name}</option>`;
+                           selectAgente.disabled = true; // Mantener bloqueado
+
+                           console.log('Agente Hera Saliente seleccionado automáticamente:', heraSaliente);
+
+                           // Cargar números de teléfono automáticamente
+                           cargarPhoneNumbersDominios();
+                       } else {
+                           // Si no se encuentra Hera Saliente, cargar todos los agentes
+                           selectAgente.innerHTML = '<option value="">Agente Hera Saliente no encontrado</option>';
+                           console.warn('Agente Hera Saliente no encontrado');
+                           mostrarAlertaBatchCallDominios('warning', 'No se encontró el agente Hera Saliente.');
+                       }
+                   } else {
+                       console.error('Error al cargar agentes:', data.message);
+                       mostrarAlertaBatchCallDominios('warning', 'No se pudieron cargar los agentes. Verifica la configuración.');
+                   }
+               })
+               .catch(error => {
+                   console.error('Error:', error);
+                   mostrarAlertaBatchCallDominios('warning', 'Error al cargar la lista de agentes.');
+               });
+       }
+
+       // Función para cargar phone numbers del agente Hera Saliente
+       function cargarPhoneNumbersDominios() {
+           const agentId = document.getElementById('agentIdDominios').value;
+           const selectPhoneNumber = document.getElementById('agentPhoneNumberIdDominios');
+
+           if (!agentId) {
+               selectPhoneNumber.innerHTML = '<option value="">Agente no seleccionado</option>';
+               return;
+           }
+
+           // Mostrar loading
+           selectPhoneNumber.disabled = true;
+           selectPhoneNumber.innerHTML = '<option value="">Cargando números...</option>';
+
+           // Obtener números del agente seleccionado (Hera Saliente)
+           fetch(`/api/elevenlabs-monitoring/batch-calls/agentes/${agentId}/phone-numbers`)
+               .then(response => response.json())
+               .then(data => {
+                   if (data.success && data.data) {
+                       selectPhoneNumber.innerHTML = '<option value="">Selecciona un número...</option>';
+
+                       if (Array.isArray(data.data) && data.data.length > 0) {
+                           data.data.forEach(phoneNumber => {
+                               const option = document.createElement('option');
+                               option.value = phoneNumber.phone_number_id;
+
+                               // Mostrar: label + agente asignado + provider
+                               let displayText = phoneNumber.label || phoneNumber.phone_number;
+
+                               // Añadir nombre del agente asignado
+                               if (phoneNumber.assigned_agent_name) {
+                                   displayText += ` → ${phoneNumber.assigned_agent_name}`;
+                               }
+
+                               // Añadir provider
+                               if (phoneNumber.provider) {
+                                   displayText += ` (${phoneNumber.provider})`;
+                               }
+
+                               // Añadir indicador de outbound
+                               if (phoneNumber.supports_outbound) {
+                                   displayText += ' ✓';
+                               }
+
+                               option.textContent = displayText;
+                               selectPhoneNumber.appendChild(option);
+                           });
+                           selectPhoneNumber.disabled = false;
+
+                           console.log('Phone numbers cargados (todos):', data.data.length);
+                       } else {
+                           selectPhoneNumber.innerHTML = '<option value="">No hay números de teléfono disponibles</option>';
+                           console.warn('No hay números de teléfono en la cuenta');
+                       }
+                   } else {
+                       selectPhoneNumber.innerHTML = '<option value="">Error al cargar números</option>';
+                       console.error('Error al cargar phone numbers:', data.message);
+                       mostrarAlertaBatchCallDominios('warning', 'No se pudieron cargar los números de teléfono del agente.');
+                   }
+               })
+               .catch(error => {
+                   console.error('Error:', error);
+                   selectPhoneNumber.innerHTML = '<option value="">Error al cargar números</option>';
+                   mostrarAlertaBatchCallDominios('warning', 'Error al cargar los números de teléfono.');
+               });
+       }
+
+       // Función para cargar los clientes de dominios con los filtros de Livewire actuales
+       function cargarClientesDominiosFiltrados() {
+           // Obtener los filtros actuales de Livewire
+           const filtros = @this.get();
+
+           const params = new URLSearchParams({
+               buscar: filtros.buscar || '',
+               selectedCliente: filtros.selectedCliente || '',
+               selectedEstado: filtros.selectedEstado || '',
+               fechaInicio: filtros.fechaInicio || '',
+               fechaFin: filtros.fechaFin || '',
+               filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
+               añoSinFacturas: filtros.añoSinFacturas || '',
+               filtroFacturacion: filtros.filtroFacturacion || ''
+           });
+
+           fetch(`/api/telefonos-clientes-dominios?${params.toString()}`)
+               .then(response => response.json())
+               .then(data => {
+                   if (data.success) {
+                       clientesParaBatchCallDominios = data.clientes;
+                       mostrarClientesBatchCallDominios(data.clientes);
+                       document.getElementById('totalLlamadasDominios').textContent = data.total;
+                       document.getElementById('totalDominiosConTelefono').textContent = data.total + ' con teléfono';
+                   } else {
+                       mostrarErrorBatchCallDominios('Error al cargar los clientes: ' + data.message);
+                   }
+               })
+               .catch(error => {
+                   console.error('Error:', error);
+                   mostrarErrorBatchCallDominios('Error al cargar los clientes. Por favor, inténtalo de nuevo.');
+               });
+       }
+
+       // Función para mostrar la lista de clientes en el modal
+       function mostrarClientesBatchCallDominios(clientes) {
+           const lista = document.getElementById('listaClientesBatchCallDominios');
+           const totalLlamadas = document.getElementById('totalLlamadasDominios');
+
+           if (clientes.length === 0) {
+               lista.innerHTML = `
+                   <div class="alert alert-warning mb-0">
+                       <i class="bi bi-exclamation-triangle"></i>
+                       No hay clientes con teléfono válido en los dominios filtrados.
+                   </div>
+               `;
+               totalLlamadas.textContent = '0';
+               document.getElementById('btnEnviarBatchCallDominios').disabled = true;
+               return;
+           }
+
+           document.getElementById('btnEnviarBatchCallDominios').disabled = false;
+           totalLlamadas.textContent = clientes.length;
+
+           let html = '<div class="list-group">';
+           clientes.forEach((cliente, index) => {
+               html += `
+                   <div class="list-group-item d-flex justify-content-between align-items-center">
+                       <div>
+                           <strong>${cliente.nombre}</strong>
+                           <br>
+                           <small class="text-muted">
+                               <i class="bi bi-telephone"></i> ${cliente.telefono}
+                           </small>
+                       </div>
+                       <span class="badge bg-primary rounded-pill">${index + 1}</span>
+                   </div>
+               `;
+           });
+           html += '</div>';
+
+           lista.innerHTML = html;
+       }
+
+       // Función para enviar el batch call de dominios
+       window.enviarBatchCallDominios = function() {
+           // Validar formulario
+           const callName = document.getElementById('callNameDominios').value.trim();
+           const agentId = document.getElementById('agentIdDominios').value.trim();
+           const agentPhoneNumberId = document.getElementById('agentPhoneNumberIdDominios').value.trim();
+           const firstMessage = document.getElementById('firstMessageDominios').value.trim();
+
+           if (!callName || !agentId || !agentPhoneNumberId) {
+               mostrarAlertaBatchCallDominios('danger', 'Por favor, completa todos los campos obligatorios.');
+               return;
+           }
+
+           if (clientesParaBatchCallDominios.length === 0) {
+               mostrarAlertaBatchCallDominios('danger', 'No hay clientes para enviar el batch call.');
+               return;
+           }
+
+           // Deshabilitar botón y mostrar loading
+           const btnEnviar = document.getElementById('btnEnviarBatchCallDominios');
+           btnEnviar.disabled = true;
+           btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Enviando llamadas...';
+
+           // Preparar datos
+           const datos = {
+               call_name: callName,
+               agent_id: agentId,
+               agent_phone_number_id: agentPhoneNumberId,
+               clientes: clientesParaBatchCallDominios
+           };
+
+           // Agregar first_message si está presente
+           if (firstMessage) {
+               datos.first_message = firstMessage;
+           }
+
+           // Enviar petición
+           fetch('/api/elevenlabs-monitoring/batch-calls/submit-clientes-filtrados', {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+                   'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+               },
+               body: JSON.stringify(datos)
+           })
+           .then(response => response.json())
+           .then(data => {
+               if (data.success) {
+                   let mensaje = `¡Batch call enviado exitosamente! <br>
+                       <strong>Estadísticas:</strong><br>
+                       - Total clientes: ${data.estadisticas.total_clientes}<br>
+                       - Llamadas programadas: ${data.estadisticas.llamadas_programadas}<br>`;
+
+                   if (data.estadisticas.con_mensaje_personalizado > 0) {
+                       mensaje += `- Con mensaje personalizado: ${data.estadisticas.con_mensaje_personalizado}<br>`;
+                   }
+
+                   mensaje += `- Errores: ${data.estadisticas.errores}`;
+
+                   mostrarAlertaBatchCallDominios('success', mensaje);
+
+                   // Cerrar modal después de 3 segundos
+                   setTimeout(() => {
+                       bootstrap.Modal.getInstance(document.getElementById('batchCallDominiosModal')).hide();
+                       // Limpiar formulario
+                       document.getElementById('formBatchCallDominios').reset();
+                       // Resetear selects
+                       document.getElementById('agentPhoneNumberIdDominios').disabled = true;
+                       document.getElementById('agentPhoneNumberIdDominios').innerHTML = '<option value="">Primero selecciona un agente...</option>';
+                       document.getElementById('firstMessageDominios').value = '';
+                       document.getElementById('alertaBatchCallDominios').innerHTML = '';
+                   }, 3000);
+               } else {
+                   mostrarAlertaBatchCallDominios('danger', 'Error al enviar batch call: ' + data.message);
+               }
+           })
+           .catch(error => {
+               console.error('Error:', error);
+               mostrarAlertaBatchCallDominios('danger', 'Error al enviar batch call. Por favor, inténtalo de nuevo.');
+           })
+           .finally(() => {
+               // Rehabilitar botón
+               btnEnviar.disabled = false;
+               btnEnviar.innerHTML = '<i class="bi bi-send"></i> Enviar Batch Call';
+           });
+       }
+
+       // Función para mostrar alertas en el modal de dominios
+       function mostrarAlertaBatchCallDominios(tipo, mensaje) {
+           const alerta = document.getElementById('alertaBatchCallDominios');
+           alerta.innerHTML = `
+               <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                   ${mensaje}
+                   <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+               </div>
+           `;
+       }
+
+       // Función para mostrar errores al cargar clientes de dominios
+       function mostrarErrorBatchCallDominios(mensaje) {
+           const lista = document.getElementById('listaClientesBatchCallDominios');
+           lista.innerHTML = `
+               <div class="alert alert-danger mb-0">
+                   <i class="bi bi-exclamation-triangle"></i> ${mensaje}
+               </div>
+           `;
+           document.getElementById('btnEnviarBatchCallDominios').disabled = true;
+       }
+
+       // Actualizar el badge del botón cuando cambian los filtros de Livewire
+       Livewire.hook('message.processed', (message, component) => {
+           // Recargar el contador de clientes con teléfono después de que Livewire actualice
+           setTimeout(() => {
+               actualizarContadorDominios();
+           }, 100);
+       });
+
+       // Función para actualizar el contador de clientes con teléfono
+       function actualizarContadorDominios() {
+           const filtros = @this.get();
+
+           const params = new URLSearchParams({
+               buscar: filtros.buscar || '',
+               selectedCliente: filtros.selectedCliente || '',
+               selectedEstado: filtros.selectedEstado || '',
+               fechaInicio: filtros.fechaInicio || '',
+               fechaFin: filtros.fechaFin || '',
+               filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
+               añoSinFacturas: filtros.añoSinFacturas || '',
+               filtroFacturacion: filtros.filtroFacturacion || ''
+           });
+
+           fetch(`/api/telefonos-clientes-dominios?${params.toString()}`)
+               .then(response => response.json())
+               .then(data => {
+                   if (data.success) {
+                       document.getElementById('totalDominiosConTelefono').textContent = data.total + ' con teléfono';
+                   }
+               })
+               .catch(error => {
+                   console.error('Error al cargar total de clientes:', error);
+               });
+       }
+
+       // Cargar contador al iniciar
+       document.addEventListener('DOMContentLoaded', function() {
+           setTimeout(() => {
+               actualizarContadorDominios();
+           }, 500);
+       });
     </script>
 @endsection
