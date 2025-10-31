@@ -338,6 +338,7 @@
                                            data-cliente-id="{{ $dominio->cliente->id }}"
                                            data-cliente-nombre="{{ $dominio->cliente->name }} {{ $dominio->cliente->primerApellido ?? '' }} {{ $dominio->cliente->segundoApellido ?? '' }}"
                                            data-cliente-telefono="{{ $dominio->cliente->phone }}"
+                                           data-dominio="{{ $dominio->dominio }}"
                                            onchange="actualizarContadorDominios()"
                                            onclick="event.stopPropagation()"
                                            {{ $checkedPorDefecto ? 'checked' : '' }}>
@@ -515,13 +516,20 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="firstMessageDominios" class="form-label">Mensaje Inicial (Opcional)</label>
-                        <textarea class="form-control" id="firstMessageDominios" name="first_message" rows="3"
-                                  placeholder="Ej: Hola {nombre}, llamo de Hawkins para informarte sobre la renovación de tu dominio..."></textarea>
-                        <small class="text-muted">
-                            <strong>Usa {nombre} para personalizar:</strong> Se reemplazará con el nombre de cada cliente.<br>
-                            Ejemplo: "Hola {nombre}, te llamo de Hawkins..." → "Hola Juan Pérez, te llamo de Hawkins..."
+                        <label class="form-label">
+                            <i class="bi bi-megaphone"></i> Mensaje Inicial (Configuración Fija)
+                        </label>
+                        <div class="alert alert-info mb-0">
+                            <strong><i class="bi bi-chat-quote"></i> Mensaje que se enviará:</strong><br><br>
+                            <div class="p-2 bg-white rounded">
+                                <em>"Hola, soy Carolina de la Agencia Hawkins, te llamo porque próximamente caduca tu dominio <span class="text-primary fw-bold">{dominio}</span> y, antes de nada, te recuerdo que esta llamada está siendo grabada para fines de calidad y gestión administrativa. ¿Deseas renovar el dominio y mantener la web activa, o prefieres cancelarlo?"</em>
+                            </div>
+                        </div>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-info-circle-fill text-primary"></i> <strong>Variable automática:</strong><br>
+                            - <code class="bg-light p-1 rounded">{dominio}</code> → se reemplazará con el dominio pendiente que caduca este mes (del cliente seleccionado)
                         </small>
+                        <input type="hidden" id="firstMessageDominios" name="first_message" value="Hola, soy Carolina de la Agencia Hawkins, te llamo porque próximamente caduca tu dominio {dominio} y, antes de nada, te recuerdo que esta llamada está siendo grabada para fines de calidad y gestión administrativa. ¿Deseas renovar el dominio y mantener la web activa, o prefieres cancelarlo?">
                     </div>
 
                     <div class="mb-3">
@@ -1003,21 +1011,39 @@
 
            // Preparar array de clientes únicos desde los checkboxes
            const clientesMap = {};
+           const dominiosPorCliente = {}; // Para agrupar dominios por cliente
+
            checkboxesSeleccionados.forEach(checkbox => {
                const clienteId = checkbox.dataset.clienteId;
+               const dominio = checkbox.dataset.dominio;
+
+               // Agrupar dominios por cliente
+               if (!dominiosPorCliente[clienteId]) {
+                   dominiosPorCliente[clienteId] = [];
+               }
+               dominiosPorCliente[clienteId].push(dominio);
+
                // Evitar duplicados (mismo cliente puede tener múltiples dominios)
                if (!clientesMap[clienteId]) {
                    clientesMap[clienteId] = {
                        id: parseInt(clienteId),
                        nombre: checkbox.dataset.clienteNombre.trim(),
-                       telefono: checkbox.dataset.clienteTelefono
+                       telefono: checkbox.dataset.clienteTelefono,
+                       dominio: dominio, // Primer dominio encontrado
+                       dominios: []
                    };
                }
            });
 
+           // Asignar todos los dominios a cada cliente
+           Object.keys(clientesMap).forEach(clienteId => {
+               clientesMap[clienteId].dominios = dominiosPorCliente[clienteId];
+               clientesMap[clienteId].total_dominios = dominiosPorCliente[clienteId].length;
+           });
+
            clientesParaBatchCallDominios = Object.values(clientesMap);
 
-           console.log('Clientes únicos seleccionados para batch call:', clientesParaBatchCallDominios.length);
+           console.log('Clientes únicos seleccionados para batch call:', clientesParaBatchCallDominios);
 
            // Mostrar el modal
            const modal = new bootstrap.Modal(document.getElementById('batchCallDominiosModal'));
@@ -1258,13 +1284,23 @@
 
            let html = '<div class="list-group">';
            clientes.forEach((cliente, index) => {
+               // Mostrar el primer dominio y total si tiene más
+               let dominioTexto = cliente.dominio;
+               if (cliente.total_dominios > 1) {
+                   dominioTexto += ` <span class="badge bg-info">+${cliente.total_dominios - 1} más</span>`;
+               }
+
                html += `
-                   <div class="list-group-item d-flex justify-content-between align-items-center">
-                       <div>
+                   <div class="list-group-item d-flex justify-content-between align-items-start">
+                       <div class="flex-grow-1">
                            <strong>${cliente.nombre}</strong>
                            <br>
                            <small class="text-muted">
                                <i class="bi bi-telephone"></i> ${cliente.telefono}
+                           </small>
+                           <br>
+                           <small class="text-primary">
+                               <i class="bi bi-globe"></i> ${dominioTexto}
                            </small>
                        </div>
                        <span class="badge bg-primary rounded-pill">${index + 1}</span>
@@ -1340,12 +1376,12 @@
                    // Cerrar modal después de 3 segundos
                    setTimeout(() => {
                        bootstrap.Modal.getInstance(document.getElementById('batchCallDominiosModal')).hide();
-                       // Limpiar formulario
-                       document.getElementById('formBatchCallDominios').reset();
+                       // Limpiar solo el nombre de la campaña (el mensaje es fijo)
+                       document.getElementById('callNameDominios').value = '';
                        // Resetear selects
                        document.getElementById('agentPhoneNumberIdDominios').disabled = true;
                        document.getElementById('agentPhoneNumberIdDominios').innerHTML = '<option value="">Primero selecciona un agente...</option>';
-                       document.getElementById('firstMessageDominios').value = '';
+                       // NO limpiar firstMessageDominios porque es estático
                        document.getElementById('alertaBatchCallDominios').innerHTML = '';
                    }, 3000);
                } else {

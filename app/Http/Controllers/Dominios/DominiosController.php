@@ -716,27 +716,36 @@ class DominiosController extends Controller
             // Obtener dominios filtrados
             $dominios = $query->get();
 
-            // Extraer clientes únicos con teléfono
+            // Agrupar dominios por cliente (un cliente puede tener múltiples dominios)
             $clientesMap = [];
 
             foreach ($dominios as $dominio) {
                 if ($dominio->cliente && !empty($dominio->cliente->phone)) {
                     $clienteId = $dominio->cliente->id;
 
-                    // Evitar duplicados
+                    // Si el cliente no existe en el map, crearlo
                     if (!isset($clientesMap[$clienteId])) {
                         $clientesMap[$clienteId] = [
                             'id' => $clienteId,
                             'nombre' => trim($dominio->cliente->name . ' ' .
                                           ($dominio->cliente->primerApellido ?? '') . ' ' .
                                           ($dominio->cliente->segundoApellido ?? '')),
-                            'telefono' => $dominio->cliente->phone
+                            'telefono' => $dominio->cliente->phone,
+                            'dominios' => [] // Array de dominios del cliente
                         ];
                     }
+
+                    // Agregar el dominio al array del cliente
+                    $clientesMap[$clienteId]['dominios'][] = $dominio->dominio;
                 }
             }
 
-            $clientes = array_values($clientesMap);
+            // Convertir a array y agregar el primer dominio como variable principal
+            $clientes = array_map(function($cliente) {
+                $cliente['dominio'] = $cliente['dominios'][0] ?? ''; // Primer dominio
+                $cliente['total_dominios'] = count($cliente['dominios']);
+                return $cliente;
+            }, array_values($clientesMap));
 
             \Illuminate\Support\Facades\Log::info('Clientes de dominios con teléfono encontrados:', [
                 'total_dominios' => $dominios->count(),

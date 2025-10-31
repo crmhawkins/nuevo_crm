@@ -330,7 +330,8 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 'clientes' => 'required|array|min:1',
                 'clientes.*.id' => 'required|integer',
                 'clientes.*.telefono' => 'required|string',
-                'clientes.*.nombre' => 'required|string'
+                'clientes.*.nombre' => 'required|string',
+                'clientes.*.dominio' => 'nullable|string'
             ]);
 
             if ($validator->fails()) {
@@ -354,16 +355,21 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                     // Validar que el teléfono parseado tenga el formato correcto
                     if (preg_match('/^\+34[0-9]{9}$/', $telefonoParsed)) {
                         $nombreCliente = $cliente['nombre'] ?? 'Cliente';
+                        $dominioCliente = $cliente['dominio'] ?? '';
 
                         // Construir recipient con mensaje personalizado
                         $recipient = [
                             'phone_number' => $telefonoParsed,
                         ];
 
-                        // Si hay first_message, personalizarlo con el nombre del cliente
+                        // Si hay first_message, personalizarlo con el nombre del cliente y dominio
                         if (!empty($firstMessageBase)) {
-                            // Reemplazar {nombre} con el nombre del cliente
-                            $mensajePersonalizado = str_replace('{nombre}', $nombreCliente, $firstMessageBase);
+                            // Reemplazar variables en el mensaje
+                            $mensajePersonalizado = str_replace(
+                                ['{nombre}', '{nombre_cliente}', '{dominio}'],
+                                [$nombreCliente, $nombreCliente, $dominioCliente],
+                                $firstMessageBase
+                            );
 
                             $recipient['conversation_initiation_client_data'] = [
                                 'conversation_config_override' => [
@@ -378,7 +384,8 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                             'recipient' => $recipient,
                             'cliente_id' => $cliente['id'],
                             'nombre' => $nombreCliente,
-                            'telefono' => $telefonoParsed
+                            'telefono' => $telefonoParsed,
+                            'dominio' => $dominioCliente
                         ];
                     } else {
                         $errores[] = [
