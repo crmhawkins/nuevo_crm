@@ -1042,37 +1042,49 @@
        }
 
        // Función para cargar los clientes de dominios con los filtros de Livewire actuales
-       function cargarClientesDominiosFiltrados() {
-           // Obtener los filtros actuales de Livewire
-           const filtros = @this.get();
+       async function cargarClientesDominiosFiltrados() {
+           try {
+               // Obtener los filtros actuales de Livewire
+               const filtros = await @this.call('getFiltrosActuales');
 
-           const params = new URLSearchParams({
-               buscar: filtros.buscar || '',
-               selectedCliente: filtros.selectedCliente || '',
-               selectedEstado: filtros.selectedEstado || '',
-               fechaInicio: filtros.fechaInicio || '',
-               fechaFin: filtros.fechaFin || '',
-               filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
-               añoSinFacturas: filtros.añoSinFacturas || '',
-               filtroFacturacion: filtros.filtroFacturacion || ''
-           });
+               console.log('Filtros obtenidos de Livewire:', filtros);
 
-           fetch(`/api/telefonos-clientes-dominios?${params.toString()}`)
-               .then(response => response.json())
-               .then(data => {
-                   if (data.success) {
-                       clientesParaBatchCallDominios = data.clientes;
-                       mostrarClientesBatchCallDominios(data.clientes);
-                       document.getElementById('totalLlamadasDominios').textContent = data.total;
-                       document.getElementById('totalDominiosConTelefono').textContent = data.total + ' con teléfono';
-                   } else {
-                       mostrarErrorBatchCallDominios('Error al cargar los clientes: ' + data.message);
-                   }
-               })
-               .catch(error => {
-                   console.error('Error:', error);
-                   mostrarErrorBatchCallDominios('Error al cargar los clientes. Por favor, inténtalo de nuevo.');
+               const params = new URLSearchParams({
+                   buscar: filtros.buscar || '',
+                   selectedCliente: filtros.selectedCliente || '',
+                   selectedEstado: filtros.selectedEstado || '',
+                   fechaInicio: filtros.fechaInicio || '',
+                   fechaFin: filtros.fechaFin || '',
+                   filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
+                   añoSinFacturas: filtros.añoSinFacturas || '',
+                   filtroFacturacion: filtros.filtroFacturacion || ''
                });
+
+               console.log('Parámetros para API:', params.toString());
+
+               fetch(`/api/telefonos-clientes-dominios?${params.toString()}`)
+                   .then(response => response.json())
+                   .then(data => {
+                       console.log('Respuesta de API telefonos-clientes-dominios:', data);
+                       if (data.success) {
+                           clientesParaBatchCallDominios = data.clientes;
+                           mostrarClientesBatchCallDominios(data.clientes);
+                           document.getElementById('totalLlamadasDominios').textContent = data.total;
+                           if (document.getElementById('totalDominiosConTelefono')) {
+                               document.getElementById('totalDominiosConTelefono').textContent = data.total + ' con teléfono';
+                           }
+                       } else {
+                           mostrarErrorBatchCallDominios('Error al cargar los clientes: ' + data.message);
+                       }
+                   })
+                   .catch(error => {
+                       console.error('Error al cargar clientes de dominios:', error);
+                       mostrarErrorBatchCallDominios('Error al cargar los clientes. Por favor, inténtalo de nuevo.');
+                   });
+           } catch (error) {
+               console.error('Error en cargarClientesDominiosFiltrados:', error);
+               mostrarErrorBatchCallDominios('Error al obtener los filtros. Por favor, inténtalo de nuevo.');
+           }
        }
 
        // Función para mostrar la lista de clientes en el modal
@@ -1233,30 +1245,38 @@
        });
 
        // Función para actualizar el contador de clientes con teléfono
-       function actualizarContadorDominios() {
-           const filtros = @this.get();
+       async function actualizarContadorDominios() {
+           try {
+               // Obtener los filtros actuales de Livewire
+               const filtros = await @this.call('getFiltrosActuales');
 
-           const params = new URLSearchParams({
-               buscar: filtros.buscar || '',
-               selectedCliente: filtros.selectedCliente || '',
-               selectedEstado: filtros.selectedEstado || '',
-               fechaInicio: filtros.fechaInicio || '',
-               fechaFin: filtros.fechaFin || '',
-               filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
-               añoSinFacturas: filtros.añoSinFacturas || '',
-               filtroFacturacion: filtros.filtroFacturacion || ''
-           });
-
-           fetch(`/api/telefonos-clientes-dominios?${params.toString()}`)
-               .then(response => response.json())
-               .then(data => {
-                   if (data.success) {
-                       document.getElementById('totalDominiosConTelefono').textContent = data.total + ' con teléfono';
-                   }
-               })
-               .catch(error => {
-                   console.error('Error al cargar total de clientes:', error);
+               const params = new URLSearchParams({
+                   buscar: filtros.buscar || '',
+                   selectedCliente: filtros.selectedCliente || '',
+                   selectedEstado: filtros.selectedEstado || '',
+                   fechaInicio: filtros.fechaInicio || '',
+                   fechaFin: filtros.fechaFin || '',
+                   filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
+                   añoSinFacturas: filtros.añoSinFacturas || '',
+                   filtroFacturacion: filtros.filtroFacturacion || ''
                });
+
+               fetch(`/api/telefonos-clientes-dominios?${params.toString()}`)
+                   .then(response => response.json())
+                   .then(data => {
+                       if (data.success) {
+                           const badge = document.getElementById('totalDominiosConTelefono');
+                           if (badge) {
+                               badge.textContent = data.total + ' con teléfono';
+                           }
+                       }
+                   })
+                   .catch(error => {
+                       console.error('Error al cargar total de clientes:', error);
+                   });
+           } catch (error) {
+               console.error('Error en actualizarContadorDominios:', error);
+           }
        }
 
        // Cargar contador al iniciar

@@ -10,6 +10,7 @@ use App\Models\Dominios\estadosDominios;
 use App\Models\Users\User;
 use App\Models\Users\UserAccessLevel;
 use App\Models\Users\UserDepartament;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -51,7 +52,7 @@ class DominiosTable extends Component
     public function actualizarDominios()
     {
         $añoActual = date('Y');
-        
+
         $query = Dominio::with(['cliente', 'estadoName'])
                 ->where('estado_id', '!=', 2) // Excluir dominios cancelados
                 ->when($this->buscar, function ($query) {
@@ -93,7 +94,7 @@ class DominiosTable extends Component
                 ->when($this->filtroFacturacion === 'facturado', function ($query) use ($añoActual) {
                     // Filtrar dominios facturados del año actual
                     $query->whereExists(function ($subQuery) use ($añoActual) {
-                        $subQuery->select(\DB::raw(1))
+                        $subQuery->select(DB::raw(1))
                                 ->from('invoices')
                                 ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
                                 ->whereColumn('invoices.client_id', 'dominios.client_id')
@@ -117,7 +118,7 @@ class DominiosTable extends Component
                 ->when($this->filtroFacturacion === 'pendiente', function ($query) use ($añoActual) {
                     // Filtrar dominios pendientes de facturar del año actual
                     $query->whereNotExists(function ($subQuery) use ($añoActual) {
-                        $subQuery->select(\DB::raw(1))
+                        $subQuery->select(DB::raw(1))
                                 ->from('invoices')
                                 ->join('invoice_concepts', 'invoices.id', '=', 'invoice_concepts.invoice_id')
                                 ->whereColumn('invoices.client_id', 'dominios.client_id')
@@ -291,11 +292,28 @@ class DominiosTable extends Component
             'añoSinFacturas' => $this->añoSinFacturas,
             'totalDominios' => $this->dominios->count()
         ]);
-        
+
         // Mostrar alerta con información
         $this->dispatch('mostrar-alerta', [
             'tipo' => 'info',
             'mensaje' => 'Filtros aplicados: ' . $this->dominios->count() . ' dominios encontrados'
         ]);
+    }
+
+    /**
+     * Método público para obtener filtros desde JavaScript
+     */
+    public function getFiltrosActuales()
+    {
+        return [
+            'buscar' => $this->buscar,
+            'selectedCliente' => $this->selectedCliente,
+            'selectedEstado' => $this->selectedEstado,
+            'fechaInicio' => $this->fechaInicio,
+            'fechaFin' => $this->fechaFin,
+            'filtroSinFacturas' => $this->filtroSinFacturas,
+            'añoSinFacturas' => $this->añoSinFacturas,
+            'filtroFacturacion' => $this->filtroFacturacion
+        ];
     }
 }
