@@ -503,7 +503,7 @@
                         <select class="form-select" id="agentIdDominios" name="agent_id" required disabled>
                             <option value="">Cargando agente...</option>
                         </select>
-                        <small class="text-muted">Agente predeterminado: Hera Saliente (bloqueado)</small>
+                        <small class="text-muted">Agente predeterminado: Hera Dominios (bloqueado)</small>
                     </div>
 
                     <div class="mb-3">
@@ -1115,43 +1115,56 @@
            actualizarContadorDominios();
        }
 
-       // Función para cargar la lista de agentes y seleccionar automáticamente "Hera Saliente"
+       // Función para cargar el agente "Hera Dominios" automáticamente
        function cargarAgentesDominios() {
+           const selectAgente = document.getElementById('agentIdDominios');
+
+           // Agent ID fijo para Hera Dominios
+           const HERA_DOMINIOS_AGENT_ID = 'agent_2101k6g86xpmf9vvcshs353mc7ft';
+
+           // Obtener el nombre del agente desde la API
            fetch('/api/elevenlabs-monitoring/batch-calls/agentes')
                .then(response => response.json())
                .then(data => {
                    if (data.success && data.data) {
-                       const selectAgente = document.getElementById('agentIdDominios');
-
-                       // Buscar el agente "Hera Saliente"
-                       const heraSaliente = data.data.find(agente =>
-                           agente.name.toLowerCase().includes('hera') &&
-                           agente.name.toLowerCase().includes('saliente')
+                       // Buscar el agente Hera Dominios por su agent_id específico
+                       const heraDominios = data.data.find(agente =>
+                           agente.agent_id === HERA_DOMINIOS_AGENT_ID
                        );
 
-                       if (heraSaliente) {
-                           // Seleccionar automáticamente Hera Saliente
-                           selectAgente.innerHTML = `<option value="${heraSaliente.agent_id}" selected>${heraSaliente.name}</option>`;
+                       if (heraDominios) {
+                           // Seleccionar automáticamente Hera Dominios
+                           selectAgente.innerHTML = `<option value="${heraDominios.agent_id}" selected>${heraDominios.name}</option>`;
                            selectAgente.disabled = true; // Mantener bloqueado
 
-                           console.log('Agente Hera Saliente seleccionado automáticamente:', heraSaliente);
+                           console.log('Agente Hera Dominios seleccionado automáticamente:', heraDominios);
 
                            // Cargar números de teléfono automáticamente
                            cargarPhoneNumbersDominios();
                        } else {
-                           // Si no se encuentra Hera Saliente, cargar todos los agentes
-                           selectAgente.innerHTML = '<option value="">Agente Hera Saliente no encontrado</option>';
-                           console.warn('Agente Hera Saliente no encontrado');
-                           mostrarAlertaBatchCallDominios('warning', 'No se encontró el agente Hera Saliente.');
+                           // Si no se encuentra en la lista de agentes activos, usar el ID directamente
+                           selectAgente.innerHTML = `<option value="${HERA_DOMINIOS_AGENT_ID}" selected>Hera Dominios</option>`;
+                           selectAgente.disabled = true;
+
+                           console.warn('Agente Hera Dominios no encontrado en lista, usando ID directo');
+
+                           // Intentar cargar números de teléfono de todas formas
+                           cargarPhoneNumbersDominios();
                        }
                    } else {
                        console.error('Error al cargar agentes:', data.message);
-                       mostrarAlertaBatchCallDominios('warning', 'No se pudieron cargar los agentes. Verifica la configuración.');
+                       // Usar el ID fijo de todas formas
+                       selectAgente.innerHTML = `<option value="${HERA_DOMINIOS_AGENT_ID}" selected>Hera Dominios</option>`;
+                       selectAgente.disabled = true;
+                       cargarPhoneNumbersDominios();
                    }
                })
                .catch(error => {
                    console.error('Error:', error);
-                   mostrarAlertaBatchCallDominios('warning', 'Error al cargar la lista de agentes.');
+                   // Usar el ID fijo como fallback
+                   selectAgente.innerHTML = `<option value="${HERA_DOMINIOS_AGENT_ID}" selected>Hera Dominios</option>`;
+                   selectAgente.disabled = true;
+                   cargarPhoneNumbersDominios();
                });
        }
 

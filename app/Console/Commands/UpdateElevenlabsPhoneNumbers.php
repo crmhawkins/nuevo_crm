@@ -22,7 +22,7 @@ class UpdateElevenlabsPhoneNumbers extends Command
      *
      * @var string
      */
-    protected $description = 'Actualiza los números de teléfono de las conversaciones de Hera Saliente desde la API de ElevenLabs';
+    protected $description = 'Actualiza los números de teléfono de las conversaciones de Hera Saliente y Hera Dominios desde la API de ElevenLabs';
 
     /**
      * Execute the console command.
@@ -35,22 +35,39 @@ class UpdateElevenlabsPhoneNumbers extends Command
             return 1;
         }
 
-        // Buscar el agente "Hera Saliente"
+        // IDs de los agentes a procesar
+        $agentesAProcesar = [
+            'agent_2101k6g86xpmf9vvcshs353mc7ft', // Hera Dominios
+            // También buscar Hera Saliente por nombre
+        ];
+
+        // Buscar el agente "Hera Saliente" por nombre
         $heraSaliente = ElevenlabsAgent::where('name', 'LIKE', '%Hera%')
             ->where('name', 'LIKE', '%Saliente%')
             ->first();
 
-        if (!$heraSaliente) {
-            $this->warn('No se encontró el agente "Hera Saliente"');
-            Log::warning('UpdateElevenlabsPhoneNumbers: Agente Hera Saliente no encontrado');
+        if ($heraSaliente) {
+            $agentesAProcesar[] = $heraSaliente->agent_id;
+            $this->info("Agente Hera Saliente encontrado: {$heraSaliente->name} (ID: {$heraSaliente->agent_id})");
+        }
+
+        // Buscar el agente "Hera Dominios" por ID
+        $heraDominios = ElevenlabsAgent::where('agent_id', 'agent_2101k6g86xpmf9vvcshs353mc7ft')->first();
+        if ($heraDominios) {
+            $this->info("Agente Hera Dominios encontrado: {$heraDominios->name} (ID: {$heraDominios->agent_id})");
+        }
+
+        if (empty($agentesAProcesar)) {
+            $this->warn('No se encontraron agentes para procesar');
+            Log::warning('UpdateElevenlabsPhoneNumbers: No se encontraron agentes');
             return 1;
         }
 
-        $this->info("Agente encontrado: {$heraSaliente->name} (ID: {$heraSaliente->agent_id})");
+        $this->info("Procesando conversaciones de " . count($agentesAProcesar) . " agente(s)");
 
-        // Obtener conversaciones de Hera Saliente sin número asignado
+        // Obtener conversaciones de ambos agentes sin número asignado
         $limit = $this->option('limit');
-        $conversaciones = ElevenlabsConversation::where('agent_id', $heraSaliente->agent_id)
+        $conversaciones = ElevenlabsConversation::whereIn('agent_id', $agentesAProcesar)
             ->whereNull('numero')
             ->whereNotNull('conversation_id')
             ->orderBy('conversation_date', 'desc')
@@ -74,15 +91,15 @@ class UpdateElevenlabsPhoneNumbers extends Command
             try {
                 // Usar el servicio de ElevenLabs que ya maneja SSL correctamente
                 $data = $elevenlabsService->getConversation($conversacion->conversation_id);
-                
+
                 // Extraer el número externo
                 $externalNumber = $data['metadata']['phone_call']['external_number'] ?? null;
-                
+
                 if ($externalNumber) {
                     // Actualizar la conversación con el número
                     $conversacion->numero = $externalNumber;
                     $conversacion->save();
-                    
+
                     $procesadas++;
                 } else {
                     $sinNumero++;
@@ -94,7 +111,7 @@ class UpdateElevenlabsPhoneNumbers extends Command
             }
 
             $bar->advance();
-            
+
             // Pequeña pausa para no sobrecargar la API
             usleep(200000); // 200ms
         }

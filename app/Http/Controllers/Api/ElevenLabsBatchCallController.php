@@ -226,10 +226,10 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
             if ($response->successful()) {
                 $data = $response->json();
                 $telefonoParsed = trim($data['response'] ?? '');
-                
+
                 // Limpiar cualquier texto adicional y extraer solo el número
                 $telefonoParsed = preg_replace('/[^0-9+]/', '', $telefonoParsed);
-                
+
                 // Validación adicional: debe empezar con +34 y tener 12 caracteres totales
                 if (preg_match('/^\+34[6-9]\d{8}$/', $telefonoParsed)) {
                     Log::info('Teléfono parseado correctamente:', [
@@ -238,13 +238,13 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                     ]);
                     return $telefonoParsed;
                 }
-                
+
                 // Si la IA no devolvió formato válido, intentar parseo manual
                 Log::warning('IA devolvió formato inválido, intentando parseo manual:', [
                     'telefono' => $telefono,
                     'respuesta_ia' => $telefonoParsed
                 ]);
-                
+
                 return $this->parseoManualFallback($telefono);
             }
 
@@ -276,10 +276,10 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
             } elseif (strpos($telefono, ',') !== false) {
                 $telefono = explode(',', $telefono)[0];
             }
-            
+
             // Limpiar espacios, guiones, paréntesis
             $telefonoLimpio = preg_replace('/[^0-9+]/', '', trim($telefono));
-            
+
             // Si ya tiene +34, validar y devolver
             if (strpos($telefonoLimpio, '+34') === 0) {
                 if (preg_match('/^\+34[6-9]\d{8}$/', $telefonoLimpio)) {
@@ -288,20 +288,20 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 // Quitar el +34 para procesarlo
                 $telefonoLimpio = substr($telefonoLimpio, 3);
             }
-            
+
             // Si empieza con 34 (sin +), quitarlo
             if (strpos($telefonoLimpio, '34') === 0 && strlen($telefonoLimpio) === 11) {
                 $telefonoLimpio = substr($telefonoLimpio, 2);
             }
-            
+
             // Validar que sea un número español válido (9 dígitos, empieza con 6,7,8,9)
             if (preg_match('/^[6-9]\d{8}$/', $telefonoLimpio)) {
                 return '+34' . $telefonoLimpio;
             }
-            
+
             Log::warning('No se pudo parsear el teléfono:', ['telefono' => $telefono]);
             return null;
-            
+
         } catch (\Exception $e) {
             Log::error('Error en parseo manual fallback:', [
                 'telefono' => $telefono,
@@ -350,21 +350,21 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
             foreach ($request->clientes as $cliente) {
                 try {
                     $telefonoParsed = $this->parsearTelefonoConIA($cliente['telefono']);
-                    
+
                     // Validar que el teléfono parseado tenga el formato correcto
                     if (preg_match('/^\+34[0-9]{9}$/', $telefonoParsed)) {
                         $nombreCliente = $cliente['nombre'] ?? 'Cliente';
-                        
+
                         // Construir recipient con mensaje personalizado
                         $recipient = [
                             'phone_number' => $telefonoParsed,
                         ];
-                        
+
                         // Si hay first_message, personalizarlo con el nombre del cliente
                         if (!empty($firstMessageBase)) {
                             // Reemplazar {nombre} con el nombre del cliente
                             $mensajePersonalizado = str_replace('{nombre}', $nombreCliente, $firstMessageBase);
-                            
+
                             $recipient['conversation_initiation_client_data'] = [
                                 'conversation_config_override' => [
                                     'agent' => [
@@ -373,7 +373,7 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                                 ]
                             ];
                         }
-                        
+
                         $telefonosParseados[] = [
                             'recipient' => $recipient,
                             'cliente_id' => $cliente['id'],
@@ -508,7 +508,9 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
             Log::info('=== INICIO obtenerAgentes ===');
 
             // Agentes excluidos (no mostrar en el select)
+            // Hera Dominios se usa automáticamente en /dominios
             $agentesExcluidos = [
+                'agent_2101k6g86xpmf9vvcshs353mc7ft', // Hera Dominios (solo para batch calls de dominios)
             ];
 
             // Obtener agentes activos desde la base de datos local
@@ -576,7 +578,7 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
             if ($response->successful()) {
                 $allPhoneNumbers = $response->json();
                 $phoneNumbersFormateados = [];
-                
+
                 if (is_array($allPhoneNumbers)) {
                     foreach ($allPhoneNumbers as $phoneData) {
                         // Devolver TODOS los números sin filtrar
