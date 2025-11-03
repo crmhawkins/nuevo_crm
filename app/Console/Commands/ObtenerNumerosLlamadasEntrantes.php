@@ -57,11 +57,13 @@ class ObtenerNumerosLlamadasEntrantes extends Command
         }
 
         // Obtener conversaciones de OTROS agentes (llamadas entrantes) sin número
+        // Ordenadas por más recientes primero (conversation_date DESC, id DESC)
         $limit = $this->option('limit');
         $conversaciones = ElevenlabsConversation::whereNotIn('agent_id', $agentesExcluir)
             ->whereNull('numero')
             ->whereNotNull('conversation_id')
             ->orderBy('conversation_date', 'desc')
+            ->orderBy('id', 'desc')
             ->limit($limit)
             ->get();
 
@@ -70,7 +72,12 @@ class ObtenerNumerosLlamadasEntrantes extends Command
             return 0;
         }
 
-        $this->info("📞 Procesando {$conversaciones->count()} llamadas entrantes...");
+        // Mostrar rango de fechas de las conversaciones a procesar
+        $primeraFecha = $conversaciones->first()->conversation_date ?? 'N/A';
+        $ultimaFecha = $conversaciones->last()->conversation_date ?? 'N/A';
+        $this->info("📅 Rango de fechas: {$primeraFecha} → {$ultimaFecha}");
+        $this->info("📞 Procesando {$conversaciones->count()} llamadas entrantes (más recientes primero)...");
+
         $bar = $this->output->createProgressBar($conversaciones->count());
         $bar->start();
 
@@ -78,12 +85,12 @@ class ObtenerNumerosLlamadasEntrantes extends Command
         $errores = 0;
         $sinNumero = 0;
         $primerError = null;
+        $primerNumeroEjemplo = null;
+        $ultimoNumeroEjemplo = null;
 
         foreach ($conversaciones as $conversacion) {
             try {
                 // Hacer petición GET a la app Flask
-                $urlCompleta = $appUrl . '?conv_id=' . urlencode($conversacion->conversation_id);
-
                 $response = Http::timeout(10)
                     ->withoutVerifying() // Desactivar verificación SSL si hay problemas
                     ->get($appUrl, [
@@ -100,6 +107,21 @@ class ObtenerNumerosLlamadasEntrantes extends Command
                         $conversacion->save();
 
                         $procesadas++;
+
+                        // Guardar ejemplos para mostrar
+                        if ($primerNumeroEjemplo === null) {
+                            $primerNumeroEjemplo = [
+                                'conv_id' => $conversacion->conversation_id,
+                                'phone' => $phone,
+                                'agent' => $conversacion->agent_name ?? 'N/A',
+                                'fecha' => $conversacion->conversation_date
+                            ];
+                        }
+                        $ultimoNumeroEjemplo = [
+                            'conv_id' => $conversacion->conversation_id,
+                            'phone' => $phone
+                        ];
+
                         Log::info("Número obtenido para conversación entrante {$conversacion->conversation_id}: {$phone}");
                     } else {
                         $sinNumero++;
@@ -107,7 +129,7 @@ class ObtenerNumerosLlamadasEntrantes extends Command
                     }
                 } else {
                     $errores++;
-                    $errorMsg = "HTTP {$response->status()} - " . $response->body();
+                    $errorMsg = "HTTP {$response->status()} - " . substr($response->body(), 0, 100);
                     if ($primerError === null) {
                         $primerError = "Conv {$conversacion->conversation_id}: {$errorMsg}";
                     }
@@ -132,7 +154,7 @@ class ObtenerNumerosLlamadasEntrantes extends Command
             $bar->advance();
 
             // Pequeña pausa para no sobrecargar
-            usleep(100000); // 100ms
+            usleep(50000); // 50ms (reducido de 100ms para mayor velocidad)
         }
 
         $bar->finish();
