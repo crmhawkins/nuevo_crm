@@ -69,7 +69,7 @@ class Kernel extends ConsoleKernel
 
         // Obtener números de llamadas entrantes (otros agentes) desde app Flask cada minuto
         // Procesa hasta 50 conversaciones sin número en cada ejecución
-        $schedule->command('elevenlabs:obtener-numeros-entrantes', ['--limit' => 50])->everyMinute();
+        $schedule->command('elevenlabs:obtener-numeros-entrantes', ['--limit' => 10])->everyMinute();
 
         // Vincular conversaciones con clientes basándose en números de teléfono
         // Procesa hasta 100 conversaciones sin client_id en cada ejecución (cada 5 minutos)

@@ -77,19 +77,24 @@ class ObtenerNumerosLlamadasEntrantes extends Command
         $procesadas = 0;
         $errores = 0;
         $sinNumero = 0;
+        $primerError = null;
 
         foreach ($conversaciones as $conversacion) {
             try {
                 // Hacer petición GET a la app Flask
-                $response = Http::timeout(5)->get($appUrl, [
-                    'conv_id' => $conversacion->conversation_id
-                ]);
+                $urlCompleta = $appUrl . '?conv_id=' . urlencode($conversacion->conversation_id);
+
+                $response = Http::timeout(10)
+                    ->withoutVerifying() // Desactivar verificación SSL si hay problemas
+                    ->get($appUrl, [
+                        'conv_id' => $conversacion->conversation_id
+                    ]);
 
                 if ($response->successful()) {
                     $data = $response->json();
                     $phone = $data['phone'] ?? false;
 
-                    if ($phone && $phone !== false) {
+                    if ($phone && $phone !== false && $phone !== 'false' && !empty($phone)) {
                         // Actualizar la conversación con el número
                         $conversacion->numero = $phone;
                         $conversacion->save();
@@ -102,11 +107,26 @@ class ObtenerNumerosLlamadasEntrantes extends Command
                     }
                 } else {
                     $errores++;
-                    Log::warning("Error al consultar Flask para {$conversacion->conversation_id}: HTTP {$response->status()}");
+                    $errorMsg = "HTTP {$response->status()} - " . $response->body();
+                    if ($primerError === null) {
+                        $primerError = "Conv {$conversacion->conversation_id}: {$errorMsg}";
+                    }
+                    Log::warning("Error al consultar Flask para {$conversacion->conversation_id}: {$errorMsg}");
                 }
+            } catch (\Illuminate\Http\Client\ConnectionException $e) {
+                $errores++;
+                $errorMsg = "Timeout/Connection: " . $e->getMessage();
+                if ($primerError === null) {
+                    $primerError = "Conv {$conversacion->conversation_id}: {$errorMsg}";
+                }
+                Log::error("Error de conexión para conversación entrante {$conversacion->conversation_id}: {$errorMsg}");
             } catch (\Exception $e) {
                 $errores++;
-                Log::error("Error obteniendo número para conversación entrante {$conversacion->conversation_id}: " . $e->getMessage());
+                $errorMsg = $e->getMessage();
+                if ($primerError === null) {
+                    $primerError = "Conv {$conversacion->conversation_id}: {$errorMsg}";
+                }
+                Log::error("Error obteniendo número para conversación entrante {$conversacion->conversation_id}: {$errorMsg}");
             }
 
             $bar->advance();
@@ -125,6 +145,12 @@ class ObtenerNumerosLlamadasEntrantes extends Command
         }
         if ($errores > 0) {
             $this->error("❌ Errores: {$errores}");
+            if ($primerError) {
+                $this->line("   🔍 Primer error de ejemplo:");
+                $this->line("   {$primerError}");
+            }
+            $this->line("");
+            $this->warn("💡 Revisa los logs para más detalles: storage/logs/laravel.log");
         }
 
         Log::info("ObtenerNumerosLlamadasEntrantes: Procesadas={$procesadas}, SinNumero={$sinNumero}, Errores={$errores}");
