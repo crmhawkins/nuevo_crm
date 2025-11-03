@@ -60,6 +60,9 @@ class BudgetConceptsController extends Controller
 
         // Construimos la DATA
         $data = $request->all();
+        if(isset($data['service_id']) && ($data['service_id'] == 'null' || $data['service_id'] === 'null' || empty($data['service_id']))){
+            $data['service_id'] = null;
+        }
         $data['budget_id'] = $budget;
         // Establecemos el tipo (PROVEEDOR) al concepto
         $data['concept_type_id'] = 2;
@@ -164,6 +167,9 @@ class BudgetConceptsController extends Controller
 
         // Construimos la DATA
         $data = $request->all();
+        if(isset($data['service_id']) && ($data['service_id'] == 'null' || $data['service_id'] === 'null' || empty($data['service_id']))){
+            $data['service_id'] = null;
+        }
 
         // Actualizamos el concepto
         $conceptoActualizado = BudgetConcept::where('id', $budgetConcept)->first();
