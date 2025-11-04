@@ -84,6 +84,12 @@
                                         </div>
                                     @endif
 
+                                    @if($errors->has('delete_error'))
+                                        <div class="alert alert-danger mt-2">
+                                            <strong>❌ Error:</strong> {{ $errors->first('delete_error') }}
+                                        </div>
+                                    @endif
+
                                     <div class="alert alert-info mt-2">
                                         <strong>Tiempo total del presupuesto:</strong> {{ $task->total_time_budget ?? $task->estimated_time }}
                                         <br>
@@ -127,8 +133,13 @@
                                                         </select>
                                                     </td>
                                                     <td >
-                                                        <button type="button" name="remove" id="{{$item['num']}}" class="btn btn-danger btn_remove_mail">X</button>
+                                                        @php
+                                                            $hasRealHours = !empty($item['horas_reales']) && $item['horas_reales'] != '00:00:00' && $item['horas_reales'] != '0:0:0';
+                                                            $disabledAttr = $hasRealHours ? 'disabled title="No se puede eliminar una subtarea con horas reales consumidas"' : '';
+                                                        @endphp
+                                                        <button type="button" name="remove" id="{{$item['num']}}" class="btn btn-danger btn_remove_mail" {{$disabledAttr}}>X</button>
                                                         <input type="hidden" name="taskId{{$item['num']}}" value="{{$item['task_id']}}">
+                                                        <input type="hidden" name="hasRealHours{{$item['num']}}" value="{{$hasRealHours ? '1' : '0'}}">
                                                     </td>
                                                 </tr>
                                                 @endforeach
@@ -347,14 +358,44 @@
         // Actualizar indicadores de tiempo al cargar la página
         updateTimeIndicators();
 
+        // Función para actualizar el estado del botón de eliminar según las horas reales
+        function updateDeleteButtonState($row) {
+            var realTimeInput = $row.find('input[name^="realTime"]').val();
+            var $deleteButton = $row.find('.btn_remove_mail');
+            var $hasRealHoursInput = $row.find('input[name^="hasRealHours"]');
+            
+            var hasRealHours = realTimeInput && realTimeInput !== '00:00:00' && realTimeInput !== '0:0:0' && realTimeInput.trim() !== '';
+            
+            if (hasRealHours) {
+                $deleteButton.prop('disabled', true);
+                $deleteButton.attr('title', 'No se puede eliminar una subtarea con horas reales consumidas');
+                $deleteButton.css('opacity', '0.5');
+                $hasRealHoursInput.val('1');
+            } else {
+                $deleteButton.prop('disabled', false);
+                $deleteButton.removeAttr('title');
+                $deleteButton.css('opacity', '1');
+                $hasRealHoursInput.val('0');
+            }
+        }
+
         // Actualizar indicadores cuando cambie el tiempo estimado o real
         $(document).on('input', '.estimated-time-input', function() {
             updateTimeIndicators();
         });
         
-        // Actualizar indicadores cuando cambie el tiempo real
+        // Actualizar indicadores y estado del botón cuando cambie el tiempo real
         $(document).on('input', 'input[name^="realTime"]', function() {
+            var $row = $(this).closest('tr');
+            updateDeleteButtonState($row);
             updateTimeIndicators();
+        });
+        
+        // Actualizar el estado de los botones al cargar la página
+        $(document).ready(function() {
+            $('.table-employees tbody tr').each(function() {
+                updateDeleteButtonState($(this));
+            });
         });
 
         $('#actualizarTarea').click(function(e) {
@@ -417,6 +458,7 @@
                         <td >
                             <button type="button" name="remove" id="${i}" class="btn btn-danger btn_remove_mail">X</button>
                             <input type="hidden" name="taskId${i}" value="temp">
+                            <input type="hidden" name="hasRealHours${i}" value="0">
                         </td>
                     </tr>
                 `);
@@ -427,7 +469,33 @@
 
         $(document).on('click', '.btn_remove_mail', function() {
             var button_id = $(this).attr("id");
-            $('#rowEmployee' + button_id).remove();
+            var $row = $('#rowEmployee' + button_id);
+            var hasRealHours = $row.find('input[name^="hasRealHours"]').val() === '1';
+            
+            // Si no tiene horas reales, verificar si hay horas reales en el input
+            if (!hasRealHours) {
+                var realTimeInput = $row.find('input[name^="realTime"]').val();
+                if (realTimeInput && realTimeInput !== '00:00:00' && realTimeInput !== '0:0:0') {
+                    hasRealHours = true;
+                }
+            }
+            
+            if (hasRealHours) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No se puede eliminar',
+                    text: 'Esta subtarea tiene horas reales consumidas y no se puede eliminar directamente.',
+                    confirmButtonText: 'Entendido'
+                });
+                return false;
+            }
+            
+            // Si el botón está deshabilitado, no hacer nada
+            if ($(this).prop('disabled')) {
+                return false;
+            }
+            
+            $row.remove();
             i--;
             $('#numEmployee').val(i);
             updateTimeIndicators();

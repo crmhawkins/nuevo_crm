@@ -207,6 +207,33 @@ class TasksController extends Controller
             }
         }
 
+        // Verificar si hay subtareas que se intentan eliminar y tienen horas reales
+        if ($esMaestra) {
+            $existingSubtasks = Task::where('split_master_task_id', $loadTask->id)->get();
+            $subtasksInRequest = [];
+            
+            // Recolectar IDs de subtareas que están en el request
+            for ($i = 1; $i <= $request['numEmployee']; $i++) {
+                $taskId = $request['taskId' . $i];
+                if ($taskId && $taskId != 'temp') {
+                    $subtasksInRequest[] = $taskId;
+                }
+            }
+            
+            // Verificar subtareas que existen pero no están en el request (fueron eliminadas)
+            foreach ($existingSubtasks as $subtask) {
+                if (!in_array($subtask->id, $subtasksInRequest)) {
+                    // Esta subtarea fue eliminada, verificar si tiene horas reales
+                    $realSeconds = time_to_seconds($subtask->real_time ?? '00:00:00');
+                    if ($realSeconds > 0) {
+                        return redirect()->back()->withErrors([
+                            'delete_error' => 'No se puede eliminar la subtarea "' . $subtask->title . '" porque tiene horas reales consumidas (' . $subtask->real_time . ').'
+                        ])->withInput();
+                    }
+                }
+            }
+        }
+
         // Guardar cambios en subtareas si corresponde
         for ($i = 1; $i <= $request['numEmployee']; $i++) {
             $exist = Task::find($request['taskId' . $i]);
@@ -234,6 +261,31 @@ class TasksController extends Controller
                     $data['real_time'] = $request['realTime' . $i] ?? '00:00:00';
                     $newtask = Task::create($data);
                     $taskSaved = $newtask->save();
+                }
+            }
+        }
+
+        // Eliminar subtareas que no están en el request y no tienen horas reales
+        if ($esMaestra) {
+            $existingSubtasks = Task::where('split_master_task_id', $loadTask->id)->get();
+            $subtasksInRequest = [];
+            
+            // Recolectar IDs de subtareas que están en el request
+            for ($i = 1; $i <= $request['numEmployee']; $i++) {
+                $taskId = $request['taskId' . $i];
+                if ($taskId && $taskId != 'temp') {
+                    $subtasksInRequest[] = $taskId;
+                }
+            }
+            
+            // Eliminar subtareas que no están en el request y no tienen horas reales
+            foreach ($existingSubtasks as $subtask) {
+                if (!in_array($subtask->id, $subtasksInRequest)) {
+                    $realSeconds = time_to_seconds($subtask->real_time ?? '00:00:00');
+                    // Solo eliminar si no tiene horas reales (la validación anterior ya previno las que tienen)
+                    if ($realSeconds == 0) {
+                        $subtask->delete();
+                    }
                 }
             }
         }
