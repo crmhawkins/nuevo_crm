@@ -197,6 +197,8 @@ class TasksController extends Controller
         }
 
         // Guardar cambios en subtareas si corresponde
+        $newlyCreatedSubtaskIds = []; // IDs de subtareas recién creadas
+        
         for ($i = 1; $i <= $request['numEmployee']; $i++) {
             $taskId = $request['taskId' . $i] ?? null;
             
@@ -244,6 +246,8 @@ class TasksController extends Controller
                     
                     try {
                         $newtask = Task::create($data);
+                        // Guardar el ID de la subtarea recién creada para evitar que se elimine
+                        $newlyCreatedSubtaskIds[] = $newtask->id;
                         \Log::info('Subtarea creada exitosamente', ['id' => $newtask->id, 'title' => $newtask->title]);
                     } catch (\Exception $e) {
                         \Log::error('Error al crear subtarea: ' . $e->getMessage());
@@ -265,10 +269,13 @@ class TasksController extends Controller
             // Recolectar IDs de subtareas que están en el request
             for ($i = 1; $i <= $request['numEmployee']; $i++) {
                 $taskId = $request['taskId' . $i];
-                if ($taskId && $taskId != 'temp') {
-                    $subtasksInRequest[] = $taskId;
+                if ($taskId && $taskId != 'temp' && is_numeric($taskId)) {
+                    $subtasksInRequest[] = (int)$taskId;
                 }
             }
+            
+            // Añadir los IDs de las subtareas recién creadas para evitar que se eliminen
+            $subtasksInRequest = array_merge($subtasksInRequest, $newlyCreatedSubtaskIds);
             
             // Eliminar subtareas que no están en el request y no tienen horas reales
             foreach ($existingSubtasks as $subtask) {
