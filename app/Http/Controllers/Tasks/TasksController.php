@@ -198,31 +198,61 @@ class TasksController extends Controller
 
         // Guardar cambios en subtareas si corresponde
         for ($i = 1; $i <= $request['numEmployee']; $i++) {
-            $exist = Task::find($request['taskId' . $i]);
-            if ($exist) {
-                $exist->admin_user_id = $request['employeeId' . $i];
-                $exist->estimated_time = $request['estimatedTime' . $i];
-                $exist->real_time = $request['realTime' . $i];
-                $exist->priority_id = $request['priority'];
-                $exist->task_status_id = $request['status' . $i];
-                $exist->save();
+            $taskId = $request['taskId' . $i] ?? null;
+            
+            // Si taskId es "temp" o no es numérico, es una nueva subtarea
+            if ($taskId && $taskId != 'temp' && is_numeric($taskId)) {
+                // Actualizar subtarea existente
+                $exist = Task::find($taskId);
+                if ($exist) {
+                    $exist->admin_user_id = $request['employeeId' . $i];
+                    $exist->estimated_time = $request['estimatedTime' . $i];
+                    $exist->real_time = $request['realTime' . $i];
+                    $exist->priority_id = $request['priority'];
+                    $exist->task_status_id = $request['status' . $i];
+                    $exist->save();
+                }
             } else {
-                if ($request['employeeId' . $i]) {
+                // Crear nueva subtarea (taskId es "temp" o no existe)
+                // Solo crear si hay un empleado seleccionado
+                if (!empty($request['employeeId' . $i])) {
+                    $data = [];
                     $data['admin_user_id'] = $request['employeeId' . $i];
                     $data['gestor_id'] = $loadTask->gestor_id;
-                    $data['priority_id'] = $request['priority'];
+                    $data['priority_id'] = $request['priority'] ?? $loadTask->priority_id;
                     $data['project_id'] = $loadTask->project_id;
                     $data['budget_id'] = $loadTask->budget_id;
                     $data['budget_concept_id'] = $loadTask->budget_concept_id;
                     $data['task_status_id'] = $request['status' . $i] ?? 2;
                     $data['split_master_task_id'] = $loadTask->id;
                     $data['duplicated'] = 0;
-                    $data['description'] = $request['description'];
-                    $data['title'] = $request['title'];
-                    $data['estimated_time'] = $request['estimatedTime' . $i];
+                    $data['description'] = $request['description'] ?? $loadTask->description;
+                    $data['title'] = $request['title'] ?? $loadTask->title;
+                    $data['estimated_time'] = $request['estimatedTime' . $i] ?? '00:00:00';
                     $data['real_time'] = $request['realTime' . $i] ?? '00:00:00';
-                    $newtask = Task::create($data);
-                    $taskSaved = $newtask->save();
+                    
+                    // Validar campos requeridos antes de crear
+                    if (empty($data['title'])) {
+                        $data['title'] = $loadTask->title;
+                    }
+                    if (empty($data['project_id'])) {
+                        \Log::error('Error: project_id es null al crear subtarea');
+                    }
+                    if (empty($data['budget_id'])) {
+                        \Log::error('Error: budget_id es null al crear subtarea');
+                    }
+                    
+                    try {
+                        $newtask = Task::create($data);
+                        \Log::info('Subtarea creada exitosamente', ['id' => $newtask->id, 'title' => $newtask->title]);
+                    } catch (\Exception $e) {
+                        \Log::error('Error al crear subtarea: ' . $e->getMessage());
+                        \Log::error('Datos intentados: ' . json_encode($data));
+                        \Log::error('Stack trace: ' . $e->getTraceAsString());
+                        return redirect()->back()->withErrors([
+                            'create_error' => 'Error al crear la subtarea: ' . $e->getMessage()
+                        ])->withInput();
+                    }
                 }
             }
         }

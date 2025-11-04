@@ -90,6 +90,12 @@
                                         </div>
                                     @endif
 
+                                    @if($errors->has('create_error'))
+                                        <div class="alert alert-danger mt-2">
+                                            <strong>❌ Error al crear subtarea:</strong> {{ $errors->first('create_error') }}
+                                        </div>
+                                    @endif
+
                                     @if(session('warning'))
                                         <div class="alert alert-warning mt-2">
                                             <strong>⚠️ Advertencia:</strong> {{ session('warning') }}
