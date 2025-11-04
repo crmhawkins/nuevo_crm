@@ -90,6 +90,12 @@
                                         </div>
                                     @endif
 
+                                    @if(session('warning'))
+                                        <div class="alert alert-warning mt-2">
+                                            <strong>⚠️ Advertencia:</strong> {{ session('warning') }}
+                                        </div>
+                                    @endif
+
                                     @php
                                         $isMaster = is_null($task->split_master_task_id);
                                         if ($isMaster) {
@@ -425,21 +431,32 @@
         $('#actualizarTarea').click(function(e) {
             e.preventDefault();
 
-            // Validar que no se supere el tiempo del presupuesto (considerando horas reales)
+            // Verificar si se supera el tiempo del presupuesto (solo advertencia, no bloqueo)
             var totalAssignedSeconds = calculateTotalAssignedTime();
             var totalBudgetSeconds = timeToSeconds('{{ $budgetTime }}');
 
             if (totalAssignedSeconds > totalBudgetSeconds) {
+                // Mostrar advertencia pero permitir continuar
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error de validación',
-                    text: 'El tiempo total asignado (considerando horas reales: ' + secondsToTime(totalAssignedSeconds) + ') supera el tiempo del presupuesto (' + '{{ $budgetTime }}' + ')',
-                    confirmButtonText: 'Entendido'
+                    icon: 'warning',
+                    title: 'Advertencia: Tiempo excedido',
+                    text: 'El tiempo total asignado (considerando horas reales: ' + secondsToTime(totalAssignedSeconds) + ') supera el tiempo del presupuesto (' + '{{ $budgetTime }}' + '). ¿Deseas continuar de todas formas?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, continuar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Si confirma, enviar el formulario
+                        $('form').submit();
+                    }
+                    // Si cancela, no hacer nada (permanece en la página)
                 });
-                return false;
+            } else {
+                // Si no excede, enviar directamente
+                $('form').submit();
             }
-
-            $('form').submit();
         });
 
         $('#addExtraEmployee').click(function() {
