@@ -65,8 +65,8 @@ class TasksController extends Controller
             $totalAssignedTime += time_to_seconds($existingTask->estimated_time);
         }
         
-        // Usar estimated_time como presupuesto
-        $totalBudgetTime = time_to_seconds($task->estimated_time);
+        // Usar total_time_budget como presupuesto para tareas maestras
+        $totalBudgetTime = time_to_seconds($task->total_time_budget ?? $task->estimated_time);
         $timeExceeded = $totalAssignedTime > $totalBudgetTime;
 
         if ($task->duplicated == 0) {
@@ -189,9 +189,10 @@ class TasksController extends Controller
                 $totalEstimatedSubtareas += time_to_seconds($sub->estimated_time);
             }
             // Si la suma de los estimados de las subtareas supera el estimado de la maestra, error
-            if ($totalEstimatedSubtareas > time_to_seconds($loadTask->estimated_time)) {
+            $budgetTime = $loadTask->total_time_budget ?? $loadTask->estimated_time;
+            if ($totalEstimatedSubtareas > time_to_seconds($budgetTime)) {
                 return redirect()->back()->withErrors([
-                    'time_exceeded' => 'La suma de los tiempos estimados de las subtareas (' . seconds_to_time($totalEstimatedSubtareas) . ') supera el estimado de la tarea maestra (' . $loadTask->estimated_time . ')'
+                    'time_exceeded' => 'La suma de los tiempos estimados de las subtareas (' . seconds_to_time($totalEstimatedSubtareas) . ') supera el estimado de la tarea maestra (' . $budgetTime . ')'
                 ])->withInput();
             }
         }

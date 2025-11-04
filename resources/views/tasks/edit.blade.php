@@ -85,7 +85,7 @@
                                     @endif
 
                                     <div class="alert alert-info mt-2">
-                                        <strong>Tiempo total del presupuesto:</strong> {{ $task->estimated_time }}
+                                        <strong>Tiempo total del presupuesto:</strong> {{ $task->total_time_budget ?? $task->estimated_time }}
                                         <br>
                                         <strong>Tiempo asignado actual:</strong> <span id="totalAssignedTime">{{ $totalAssignedTime ? seconds_to_time($totalAssignedTime) : '00:00:00' }}</span>
                                         <br>
@@ -226,7 +226,7 @@
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script>
     $(document).ready(function() {
-        var totalTimeBudgethourformat = '{{ $task->estimated_time }}'; // Tiempo total estimado de la tarea
+        var totalTimeBudgethourformat = '{{ $task->total_time_budget ?? $task->estimated_time }}'; // Tiempo total estimado de la tarea
         if(totalTimeBudgethourformat != null && totalTimeBudgethourformat != '' && totalTimeBudgethourformat != '0'){
             var totalTimeParts = totalTimeBudgethourformat.split(':');
             var totalTimeBudget = parseInt(totalTimeParts[0]) + (parseInt(totalTimeParts[1]) / 60) + (parseInt(totalTimeParts[2]) / 3600);
@@ -287,7 +287,7 @@
         // Función para actualizar los indicadores de tiempo
         function updateTimeIndicators() {
             var totalAssignedSeconds = calculateTotalAssignedTime();
-            var totalBudgetSeconds = timeToSeconds('{{ $task->estimated_time }}');
+            var totalBudgetSeconds = timeToSeconds('{{ $task->total_time_budget ?? $task->estimated_time }}');
             var remainingSeconds = totalBudgetSeconds - totalAssignedSeconds;
 
             $('#totalAssignedTime').text(secondsToTime(totalAssignedSeconds));
@@ -334,13 +334,13 @@
 
             // Validar que no se supere el tiempo del presupuesto
             var totalAssignedSeconds = calculateTotalAssignedTime();
-            var totalBudgetSeconds = timeToSeconds('{{ $task->estimated_time }}');
+            var totalBudgetSeconds = timeToSeconds('{{ $task->total_time_budget ?? $task->estimated_time }}');
 
             if (totalAssignedSeconds > totalBudgetSeconds) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error de validación',
-                    text: 'El tiempo total asignado (' + secondsToTime(totalAssignedSeconds) + ') supera el tiempo del presupuesto (' + '{{ $task->estimated_time }}' + ')',
+                    text: 'El tiempo total asignado (' + secondsToTime(totalAssignedSeconds) + ') supera el tiempo del presupuesto (' + '{{ $task->total_time_budget ?? $task->estimated_time }}' + ')',
                     confirmButtonText: 'Entendido'
                 });
                 return false;
