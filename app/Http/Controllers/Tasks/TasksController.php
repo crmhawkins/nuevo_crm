@@ -58,11 +58,18 @@ class TasksController extends Controller
         $status = TaskStatus::all();
         $data = [];
 
-                // Calcular el tiempo total ya asignado
+                // Calcular el tiempo total ya asignado (usar real_time si está disponible, sino estimated_time)
         $totalAssignedTime = 0;
+        $totalConsumedTime = 0; // Suma de todas las horas reales
         $existingTasks = Task::where('split_master_task_id', $task->id)->get();
         foreach ($existingTasks as $existingTask) {
-            $totalAssignedTime += time_to_seconds($existingTask->estimated_time);
+            // Usar el máximo entre estimado y real, o real si está disponible
+            $estimatedSeconds = time_to_seconds($existingTask->estimated_time);
+            $realSeconds = time_to_seconds($existingTask->real_time ?? '00:00:00');
+            // Usar el mayor entre estimado y real para considerar tareas sobrepasadas
+            $totalAssignedTime += max($estimatedSeconds, $realSeconds);
+            // Sumar solo las horas reales para el tiempo consumido
+            $totalConsumedTime += $realSeconds;
         }
         
         // Usar total_time_budget como presupuesto para tareas maestras
@@ -134,7 +141,7 @@ class TasksController extends Controller
                 }
             }
         }
-        return view('tasks.edit', compact('task', 'prioritys', 'employees', 'data', 'status', 'timeExceeded', 'totalAssignedTime', 'totalBudgetTime'));
+        return view('tasks.edit', compact('task', 'prioritys', 'employees', 'data', 'status', 'timeExceeded', 'totalAssignedTime', 'totalBudgetTime', 'totalConsumedTime'));
     }
 
     public function update(Request $request)
@@ -184,15 +191,18 @@ class TasksController extends Controller
         // Solo validar tiempo si es maestra y se editan empleados/tiempos
         if ($esMaestra && $editaEmpleados) {
             $subtareas = Task::where('split_master_task_id', $loadTask->id)->get();
-            $totalEstimatedSubtareas = 0;
+            $totalTimeSubtareas = 0;
             foreach ($subtareas as $sub) {
-                $totalEstimatedSubtareas += time_to_seconds($sub->estimated_time);
+                // Usar el máximo entre estimado y real para considerar tareas sobrepasadas
+                $estimatedSeconds = time_to_seconds($sub->estimated_time);
+                $realSeconds = time_to_seconds($sub->real_time ?? '00:00:00');
+                $totalTimeSubtareas += max($estimatedSeconds, $realSeconds);
             }
-            // Si la suma de los estimados de las subtareas supera el estimado de la maestra, error
+            // Si la suma de los tiempos de las subtareas supera el presupuesto de la maestra, error
             $budgetTime = $loadTask->total_time_budget ?? $loadTask->estimated_time;
-            if ($totalEstimatedSubtareas > time_to_seconds($budgetTime)) {
+            if ($totalTimeSubtareas > time_to_seconds($budgetTime)) {
                 return redirect()->back()->withErrors([
-                    'time_exceeded' => 'La suma de los tiempos estimados de las subtareas (' . seconds_to_time($totalEstimatedSubtareas) . ') supera el estimado de la tarea maestra (' . $budgetTime . ')'
+                    'time_exceeded' => 'La suma de los tiempos de las subtareas (' . seconds_to_time($totalTimeSubtareas) . ') supera el presupuesto de la tarea maestra (' . $budgetTime . ')'
                 ])->withInput();
             }
         }

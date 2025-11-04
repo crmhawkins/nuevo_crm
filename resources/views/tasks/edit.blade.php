@@ -89,6 +89,8 @@
                                         <br>
                                         <strong>Tiempo asignado actual:</strong> <span id="totalAssignedTime">{{ $totalAssignedTime ? seconds_to_time($totalAssignedTime) : '00:00:00' }}</span>
                                         <br>
+                                        <strong>Tiempo consumido:</strong> <span id="totalConsumedTime">{{ $totalConsumedTime ? seconds_to_time($totalConsumedTime) : '00:00:00' }}</span>
+                                        <br>
                                         <strong>Tiempo restante:</strong> <span id="remainingTime">{{ $totalBudgetTime > $totalAssignedTime ? seconds_to_time($totalBudgetTime - $totalAssignedTime) : '00:00:00' }}</span>
                                     </div>
                                     <div id="dynamic_field_employee" class="mt-3">
@@ -272,13 +274,29 @@
                    String(secs).padStart(2, '0');
         }
 
-        // Función para calcular el tiempo total asignado
+        // Función para calcular el tiempo total asignado (usar el máximo entre estimado y real)
         function calculateTotalAssignedTime() {
             var totalSeconds = 0;
             $('.table-employees tbody tr').each(function() {
                 var estimatedTime = $(this).find('input[name^="estimatedTime"]').val();
-                if (estimatedTime) {
-                    totalSeconds += timeToSeconds(estimatedTime);
+                var realTime = $(this).find('input[name^="realTime"]').val();
+                
+                var estimatedSeconds = estimatedTime ? timeToSeconds(estimatedTime) : 0;
+                var realSeconds = realTime ? timeToSeconds(realTime) : 0;
+                
+                // Usar el máximo entre estimado y real para considerar tareas sobrepasadas
+                totalSeconds += Math.max(estimatedSeconds, realSeconds);
+            });
+            return totalSeconds;
+        }
+
+        // Función para calcular el tiempo consumido (suma de horas reales)
+        function calculateTotalConsumedTime() {
+            var totalSeconds = 0;
+            $('.table-employees tbody tr').each(function() {
+                var realTime = $(this).find('input[name^="realTime"]').val();
+                if (realTime) {
+                    totalSeconds += timeToSeconds(realTime);
                 }
             });
             return totalSeconds;
@@ -287,10 +305,12 @@
         // Función para actualizar los indicadores de tiempo
         function updateTimeIndicators() {
             var totalAssignedSeconds = calculateTotalAssignedTime();
+            var totalConsumedSeconds = calculateTotalConsumedTime();
             var totalBudgetSeconds = timeToSeconds('{{ $task->total_time_budget ?? $task->estimated_time }}');
             var remainingSeconds = totalBudgetSeconds - totalAssignedSeconds;
 
             $('#totalAssignedTime').text(secondsToTime(totalAssignedSeconds));
+            $('#totalConsumedTime').text(secondsToTime(totalConsumedSeconds));
             $('#remainingTime').text(secondsToTime(remainingSeconds > 0 ? remainingSeconds : 0));
 
             // Cambiar color del tiempo restante si es negativo
@@ -301,19 +321,22 @@
             }
         }
 
-        // Función para calcular el tiempo restante
+        // Función para calcular el tiempo restante (considerando horas reales)
         function calculateRemainingTime() {
             var totalAssignedTime = 0;
 
-            // Sumar las horas estimadas ya asignadas a otros empleados
+            // Sumar las horas (usando el máximo entre estimado y real) ya asignadas a otros empleados
             $('.table-employees tbody tr').each(function() {
                 var estimatedTime = $(this).find('input[name^="estimatedTime"]').val();
-                if (estimatedTime) {
-                    // Convertir el valor de horas en formato 00:00:00 a decimal para la suma
-                    var timeParts = estimatedTime.split(':');
-                    var timeInHours = parseInt(timeParts[0]) + (parseInt(timeParts[1]) / 60) + (parseInt(timeParts[2]) / 3600);
-                    totalAssignedTime += timeInHours || 0;
-                }
+                var realTime = $(this).find('input[name^="realTime"]').val();
+                
+                var estimatedSeconds = estimatedTime ? timeToSeconds(estimatedTime) : 0;
+                var realSeconds = realTime ? timeToSeconds(realTime) : 0;
+                var maxSeconds = Math.max(estimatedSeconds, realSeconds);
+                
+                // Convertir a horas decimales
+                var timeInHours = maxSeconds / 3600;
+                totalAssignedTime += timeInHours || 0;
             });
 
             // Restar el tiempo asignado del tiempo total disponible
@@ -324,15 +347,20 @@
         // Actualizar indicadores de tiempo al cargar la página
         updateTimeIndicators();
 
-        // Actualizar indicadores cuando cambie el tiempo estimado
+        // Actualizar indicadores cuando cambie el tiempo estimado o real
         $(document).on('input', '.estimated-time-input', function() {
+            updateTimeIndicators();
+        });
+        
+        // Actualizar indicadores cuando cambie el tiempo real
+        $(document).on('input', 'input[name^="realTime"]', function() {
             updateTimeIndicators();
         });
 
         $('#actualizarTarea').click(function(e) {
             e.preventDefault();
 
-            // Validar que no se supere el tiempo del presupuesto
+            // Validar que no se supere el tiempo del presupuesto (considerando horas reales)
             var totalAssignedSeconds = calculateTotalAssignedTime();
             var totalBudgetSeconds = timeToSeconds('{{ $task->total_time_budget ?? $task->estimated_time }}');
 
@@ -340,7 +368,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Error de validación',
-                    text: 'El tiempo total asignado (' + secondsToTime(totalAssignedSeconds) + ') supera el tiempo del presupuesto (' + '{{ $task->total_time_budget ?? $task->estimated_time }}' + ')',
+                    text: 'El tiempo total asignado (considerando horas reales: ' + secondsToTime(totalAssignedSeconds) + ') supera el tiempo del presupuesto (' + '{{ $task->total_time_budget ?? $task->estimated_time }}' + ')',
                     confirmButtonText: 'Entendido'
                 });
                 return false;
