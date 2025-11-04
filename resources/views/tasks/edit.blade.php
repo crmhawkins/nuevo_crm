@@ -90,8 +90,18 @@
                                         </div>
                                     @endif
 
+                                    @php
+                                        $isMaster = is_null($task->split_master_task_id);
+                                        if ($isMaster) {
+                                            $displayBudget = (!empty($task->total_time_budget) && $task->total_time_budget != '00:00:00') 
+                                                ? $task->total_time_budget 
+                                                : ($task->estimated_time ?? '00:00:00');
+                                        } else {
+                                            $displayBudget = $task->estimated_time ?? '00:00:00';
+                                        }
+                                    @endphp
                                     <div class="alert alert-info mt-2">
-                                        <strong>Tiempo total del presupuesto:</strong> {{ $task->total_time_budget ?? $task->estimated_time }}
+                                        <strong>Tiempo total del presupuesto:</strong> {{ $displayBudget }}
                                         <br>
                                         <strong>Tiempo asignado actual:</strong> <span id="totalAssignedTime">{{ $totalAssignedTime ? seconds_to_time($totalAssignedTime) : '00:00:00' }}</span>
                                         <br>
@@ -239,7 +249,21 @@
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script>
     $(document).ready(function() {
-        var totalTimeBudgethourformat = '{{ $task->total_time_budget ?? $task->estimated_time }}'; // Tiempo total estimado de la tarea
+        // Determinar el presupuesto correcto: si es maestra usa total_time_budget (si no es 00:00:00), sino estimated_time
+        // Si es subtarea, siempre usa estimated_time
+        @php
+            $isMaster = is_null($task->split_master_task_id);
+            if ($isMaster) {
+                // Para tareas maestras: usar total_time_budget si existe y no es '00:00:00', sino estimated_time
+                $budgetTime = (!empty($task->total_time_budget) && $task->total_time_budget != '00:00:00') 
+                    ? $task->total_time_budget 
+                    : ($task->estimated_time ?? '00:00:00');
+            } else {
+                // Para subtareas: siempre usar estimated_time
+                $budgetTime = $task->estimated_time ?? '00:00:00';
+            }
+        @endphp
+        var totalTimeBudgethourformat = '{{ $budgetTime }}'; // Tiempo total estimado de la tarea
         if(totalTimeBudgethourformat != null && totalTimeBudgethourformat != '' && totalTimeBudgethourformat != '0'){
             var totalTimeParts = totalTimeBudgethourformat.split(':');
             var totalTimeBudget = parseInt(totalTimeParts[0]) + (parseInt(totalTimeParts[1]) / 60) + (parseInt(totalTimeParts[2]) / 3600);
@@ -317,7 +341,7 @@
         function updateTimeIndicators() {
             var totalAssignedSeconds = calculateTotalAssignedTime();
             var totalConsumedSeconds = calculateTotalConsumedTime();
-            var totalBudgetSeconds = timeToSeconds('{{ $task->total_time_budget ?? $task->estimated_time }}');
+            var totalBudgetSeconds = timeToSeconds('{{ $budgetTime }}');
             var remainingSeconds = totalBudgetSeconds - totalAssignedSeconds;
 
             $('#totalAssignedTime').text(secondsToTime(totalAssignedSeconds));
@@ -403,13 +427,13 @@
 
             // Validar que no se supere el tiempo del presupuesto (considerando horas reales)
             var totalAssignedSeconds = calculateTotalAssignedTime();
-            var totalBudgetSeconds = timeToSeconds('{{ $task->total_time_budget ?? $task->estimated_time }}');
+            var totalBudgetSeconds = timeToSeconds('{{ $budgetTime }}');
 
             if (totalAssignedSeconds > totalBudgetSeconds) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error de validación',
-                    text: 'El tiempo total asignado (considerando horas reales: ' + secondsToTime(totalAssignedSeconds) + ') supera el tiempo del presupuesto (' + '{{ $task->total_time_budget ?? $task->estimated_time }}' + ')',
+                    text: 'El tiempo total asignado (considerando horas reales: ' + secondsToTime(totalAssignedSeconds) + ') supera el tiempo del presupuesto (' + '{{ $budgetTime }}' + ')',
                     confirmButtonText: 'Entendido'
                 });
                 return false;
