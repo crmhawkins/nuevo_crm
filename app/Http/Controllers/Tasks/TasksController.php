@@ -166,45 +166,6 @@ class TasksController extends Controller
 
         // Si la tarea es maestra (no tiene split_master_task_id)
         $esMaestra = is_null($loadTask->split_master_task_id);
-        $editaEmpleados = false;
-        // Comprobar si realmente hubo cambios en empleados o tiempos
-        for ($i = 1; $i <= $request['numEmployee']; $i++) {
-            $exist = Task::find($request['taskId' . $i]);
-            if ($exist) {
-                if (
-                    $exist->admin_user_id != $request['employeeId' . $i] ||
-                    $exist->estimated_time != $request['estimatedTime' . $i] ||
-                    $exist->real_time != $request['realTime' . $i]
-                ) {
-                    $editaEmpleados = true;
-                    break;
-                }
-            } else {
-                // Si no existe, es un nuevo empleado asignado
-                if ($request['employeeId' . $i]) {
-                    $editaEmpleados = true;
-                    break;
-                }
-            }
-        }
-
-        // Solo mostrar advertencia si es maestra y se editan empleados/tiempos (pero permitir siempre finalizar)
-        if ($esMaestra && $editaEmpleados) {
-            $subtareas = Task::where('split_master_task_id', $loadTask->id)->get();
-            $totalTimeSubtareas = 0;
-            foreach ($subtareas as $sub) {
-                // Usar el máximo entre estimado y real para considerar tareas sobrepasadas
-                $estimatedSeconds = time_to_seconds($sub->estimated_time);
-                $realSeconds = time_to_seconds($sub->real_time ?? '00:00:00');
-                $totalTimeSubtareas += max($estimatedSeconds, $realSeconds);
-            }
-            // Si la suma de los tiempos de las subtareas supera el presupuesto de la maestra, advertencia (no bloqueo)
-            $budgetTime = $loadTask->total_time_budget ?? $loadTask->estimated_time;
-            if ($totalTimeSubtareas > time_to_seconds($budgetTime)) {
-                // Solo mostrar advertencia en la sesión, pero permitir continuar
-                return redirect()->back()->with('warning', 'El tiempo total asignado (' . seconds_to_time($totalTimeSubtareas) . ') supera el presupuesto de la tarea maestra (' . $budgetTime . '). La tarea se ha guardado correctamente.')->withInput();
-            }
-        }
 
         // Verificar si hay subtareas que se intentan eliminar y tienen horas reales
         if ($esMaestra) {
@@ -307,6 +268,24 @@ class TasksController extends Controller
             }
             $loadTask->real_time = seconds_to_time($totalRealTime);
             $loadTask->save();
+
+            // Validar tiempo DESPUÉS de crear/actualizar todas las subtareas (solo advertencia, no bloqueo)
+            $totalTimeSubtareas = 0;
+            foreach ($subtareas as $sub) {
+                // Usar el máximo entre estimado y real para considerar tareas sobrepasadas
+                $estimatedSeconds = time_to_seconds($sub->estimated_time);
+                $realSeconds = time_to_seconds($sub->real_time ?? '00:00:00');
+                $totalTimeSubtareas += max($estimatedSeconds, $realSeconds);
+            }
+            // Si la suma de los tiempos de las subtareas supera el presupuesto de la maestra, advertencia (no bloqueo)
+            $budgetTime = $loadTask->total_time_budget ?? $loadTask->estimated_time;
+            if ($totalTimeSubtareas > time_to_seconds($budgetTime)) {
+                // Solo mostrar advertencia en la sesión, pero permitir continuar
+                return redirect()->route('tarea.edit',$loadTask->id)->with('toast',[
+                    'icon' => 'success',
+                    'mensaje' => 'Tarea actualizada'
+                ])->with('warning', 'El tiempo total asignado (' . seconds_to_time($totalTimeSubtareas) . ') supera el presupuesto de la tarea maestra (' . $budgetTime . ').');
+            }
         }
 
         return redirect()->route('tarea.edit',$loadTask->id)->with('toast',[
