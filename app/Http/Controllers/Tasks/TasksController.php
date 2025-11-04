@@ -116,29 +116,29 @@ class TasksController extends Controller
             }
 
             foreach ($tareasDuplicadas as $tarea) {
+                // Incluir TODAS las subtareas, incluso si no tienen admin_user_id
+                $data[$count]['num'] = $count + 1;
+                $data[$count]['task_id'] = $tarea->id;
+                $data[$count]['horas_estimadas'] = $tarea->estimated_time;
+                $data[$count]['horas_reales'] = $tarea->real_time;
+                $data[$count]['status'] = $tarea->task_status_id;
+                
                 if ($tarea->admin_user_id) {
-
                     $trabajador = User::find($tarea->admin_user_id);
-                    if ($trabajador == null ) {
-                        $data[$count]['num'] = $count + 1;
-                        $data[$count]['id'] = 1 ;
+                    if ($trabajador == null) {
+                        $data[$count]['id'] = 1;
                         $data[$count]['trabajador'] = 'No existe';
-                        $data[$count]['horas_estimadas'] = $tarea->estimated_time;
-                        $data[$count]['horas_reales'] = $tarea->real_time;
-                        $data[$count]['status'] = $tarea->task_status_id;
-                        $data[$count]['task_id'] = $tarea->id;
-                        $count++;
                     } else {
-                        $data[$count]['num'] = $count + 1;
-                        $data[$count]['id'] = $trabajador->id ;
+                        $data[$count]['id'] = $trabajador->id;
                         $data[$count]['trabajador'] = $trabajador->name;
-                        $data[$count]['horas_estimadas'] = $tarea->estimated_time;
-                        $data[$count]['horas_reales'] = $tarea->real_time;
-                        $data[$count]['status'] = $tarea->task_status_id;
-                        $data[$count]['task_id'] = $tarea->id;
-                        $count++;
                     }
+                } else {
+                    // Si no tiene admin_user_id, poner valores por defecto
+                    $data[$count]['id'] = null;
+                    $data[$count]['trabajador'] = 'Sin asignar';
                 }
+                
+                $count++;
             }
         }
         return view('tasks.edit', compact('task', 'prioritys', 'employees', 'data', 'status', 'timeExceeded', 'totalAssignedTime', 'totalBudgetTime', 'totalConsumedTime'));
@@ -212,11 +212,13 @@ class TasksController extends Controller
             $existingSubtasks = Task::where('split_master_task_id', $loadTask->id)->get();
             $subtasksInRequest = [];
             
-            // Recolectar IDs de subtareas que están en el request
+            // Recolectar IDs de subtareas que están en el request (todos los taskId presentes)
+            // Recorrer todos los posibles índices desde 1 hasta numEmployee
             for ($i = 1; $i <= $request['numEmployee']; $i++) {
-                $taskId = $request['taskId' . $i];
-                if ($taskId && $taskId != 'temp') {
-                    $subtasksInRequest[] = $taskId;
+                $taskId = $request['taskId' . $i] ?? null;
+                // Solo añadir si existe, no es "temp" y es numérico (ID válido)
+                if ($taskId && $taskId != 'temp' && is_numeric($taskId)) {
+                    $subtasksInRequest[] = (int)$taskId;
                 }
             }
             
