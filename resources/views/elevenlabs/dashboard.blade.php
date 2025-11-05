@@ -591,15 +591,19 @@
                         <select class="form-select" id="agenteRellamada" name="agente_rellamada" required onchange="cambiarAgenteRellamada(this.value)">
                             <option value="">-- Selecciona un agente --</option>
                             @php
-                                $agents = \App\Models\ElevenlabsAgent::orderBy('name')->get();
+                                // Filtrar solo Hera Saliente y Hera Dominios
+                                $agentsRellamada = \App\Models\ElevenlabsAgent::orderBy('name')->get()->filter(function($agent) {
+                                    return stripos($agent->name, 'Hera Saliente') !== false ||
+                                           stripos($agent->name, 'Hera Dominios') !== false;
+                                });
                             @endphp
-                            @foreach($agents as $agent)
+                            @foreach($agentsRellamada as $agent)
                                 <option value="{{ $agent->agent_id }}" data-agent-name="{{ $agent->name }}">
                                     {{ $agent->name }}
                                 </option>
                             @endforeach
                         </select>
-                        <small class="text-muted">Selecciona el agente que realizará las llamadas (Hera Dominios o Hera Saliente)</small>
+                        <small class="text-muted">Solo disponibles: Hera Dominios y Hera Saliente</small>
                     </div>
 
                     <!-- Información del agente seleccionado -->
