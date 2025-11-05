@@ -35,7 +35,7 @@ class JustificacionesController extends Controller
             \Log::info('📝 Inicio store justificación', [
                 'request_all' => $request->all()
             ]);
-            
+
             // Validación diferente para cada tipo
             if ($request->tipo_justificacion === 'puesto_trabajo_seguro') {
                 $request->validate([
@@ -53,7 +53,7 @@ class JustificacionesController extends Controller
                     'fecha_campo' => 'required|date',
                     'nombre_presencia_campo' => 'required|string',
                     'url_presencia_campo' => 'required|url',
-                    'keyword_campo' => 'required|string',
+                    'keyword_campo' => 'nullable|string',
                     'phone_campo' => 'required|string',
                     'email_presencia_campo' => 'required|email',
                     'address_campo' => 'required|string',
@@ -130,11 +130,11 @@ class JustificacionesController extends Controller
             'tipo' => $request->tipo_justificacion,
             'metadata' => $metadata
         ]);
-        
+
         try {
             // Encolar Job genérico para TODOS los tipos de justificación
             $job = ProcessJustificacion::dispatch($justificacion->id);
-            
+
             \Log::info('📋 Job encolado exitosamente', [
                 'justificacion_id' => $justificacion->id,
                 'queue_connection' => config('queue.default'),
@@ -146,17 +146,17 @@ class JustificacionesController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Continuar de todas formas y retornar éxito
             // El usuario verá la justificación en estado pendiente
         }
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Solicitud encolada correctamente. Se procesará en breve.',
             'id' => $justificacion->id
         ]);
-        
+
     } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('❌ Error de validación', [
                 'errors' => $e->errors()
@@ -166,7 +166,7 @@ class JustificacionesController extends Controller
                 'message' => 'Error de validación',
                 'errors' => $e->errors()
             ], 422);
-            
+
         } catch (\Exception $e) {
             \Log::error('❌ Error general en store', [
                 'message' => $e->getMessage(),
@@ -185,24 +185,24 @@ class JustificacionesController extends Controller
     public function receiveFiles(Request $request, $id)
     {
         // Log ANTES de todo para ver si llega la petición
-        file_put_contents(storage_path('logs/justificaciones_receive.log'), 
-            "[" . now() . "] Petición recibida para ID: {$id}\n", 
+        file_put_contents(storage_path('logs/justificaciones_receive.log'),
+            "[" . now() . "] Petición recibida para ID: {$id}\n",
             FILE_APPEND
         );
-        
+
         try {
             \Log::info("📥 Recibiendo archivos para justificación #{$id}");
             \Log::info("Request method: " . $request->method());
             \Log::info("Request URL: " . $request->fullUrl());
             \Log::info("Todos los inputs: " . json_encode($request->all()));
             \Log::info("Archivos en request: " . json_encode($request->allFiles()));
-            
+
             $justificacion = Justificacion::findOrFail($id);
 
             // Validación más flexible - verificar que lleguen archivos
             $archivos = [];
             $userId = $justificacion->admin_user_id;
-            
+
             \Log::info("Usuario ID: {$userId}");
 
             // Guardar archivos recibidos (acepta cualquier archivo con nombre archivo_*)
@@ -223,11 +223,11 @@ class JustificacionesController extends Controller
                 if (str_starts_with($fieldName, 'archivo_')) {
                     // Usar nombre del mapeo o el nombre del campo
                     $nombreArchivo = $archivoMap[$fieldName] ?? str_replace('archivo_', '', $fieldName);
-                    
+
                     // Guardar archivo
                     $path = $file->store('justificaciones/' . $userId, 'public');
                     $archivos[$nombreArchivo] = $path;
-                    
+
                     \Log::info("✅ Archivo '{$nombreArchivo}' guardado: {$path}", [
                         'extension' => $file->getClientOriginalExtension(),
                         'size' => $file->getSize(),
@@ -268,11 +268,11 @@ class JustificacionesController extends Controller
                 'message' => 'Archivos recibidos correctamente',
                 'archivos_guardados' => count($archivos)
             ]);
-            
+
         } catch (\Exception $e) {
             \Log::error("❌ Error recibiendo archivos: " . $e->getMessage());
             \Log::error("Trace: " . $e->getTraceAsString());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error procesando archivos: ' . $e->getMessage()

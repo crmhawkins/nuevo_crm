@@ -30,7 +30,7 @@
                                     <label class="btn btn-outline-primary" for="tipo_web">
                                         <i class="fas fa-globe"></i> WEB Normal
                                     </label>
-                                    
+
                                     <input type="radio" class="btn-check" name="tipo_analisis" id="tipo_ecommerce" value="ecommerce">
                                     <label class="btn btn-outline-success" for="tipo_ecommerce">
                                         <i class="fas fa-shopping-cart"></i> ECOMMERCE
@@ -41,7 +41,7 @@
                                     <strong>ECOMMERCE:</strong> Incluye análisis de competencia automático
                                 </small>
                             </div>
-                            
+
                             <div class="col-md-12 mb-3">
                                 <label for="url_campo" class="form-label">URL <span class="text-danger">*</span></label>
                                 <input type="url" class="form-control" id="url_campo" name="url_campo" placeholder="https://ejemplo.com" required>
@@ -55,12 +55,12 @@
                                 <label for="nombre_campo" class="form-label">Nombre <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="nombre_campo" name="nombre_campo" placeholder="Nombre completo">
                             </div>
-                            
+
                             <div class="col-md-12 mb-3">
                                 <label for="email_campo" class="form-label">Email <span class="text-danger">*</span></label>
                                 <input type="email" class="form-control" id="email_campo" name="email_campo" placeholder="email@ejemplo.com">
                             </div>
-                            
+
                             <div class="col-md-12 mb-3">
                                 <label for="empresa_campo" class="form-label">Empresa <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="empresa_campo" name="empresa_campo" placeholder="Nombre de la empresa">
@@ -73,25 +73,26 @@
                                 <label for="kd_campo" class="form-label">KD <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="kd_campo" name="kd_campo" placeholder="KD">
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="fecha_campo" class="form-label">Fecha <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control" id="fecha_campo" name="fecha_campo">
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="nombre_presencia_campo" class="form-label">Nombre <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="nombre_presencia_campo" name="nombre_presencia_campo" placeholder="">
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="url_presencia_campo" class="form-label">URL <span class="text-danger">*</span></label>
                                 <input type="url" class="form-control" id="url_presencia_campo" name="url_presencia_campo" placeholder="https://ejemplo.com">
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
-                                <label for="keyword_campo" class="form-label">Keyword Principal <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="keyword_campo" name="keyword_campo" placeholder="Ej: interiorismo">
+                                <label for="keyword_campo" class="form-label">Keyword Principal</label>
+                                <input type="text" class="form-control" id="keyword_campo" name="keyword_campo" placeholder="Ej: interiorismo (opcional)">
+                                <small class="text-muted">Opcional</small>
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -110,9 +111,16 @@
                             </div>
 
                             <div class="col-md-12 mb-3">
-                                <label for="descripcion_campo" class="form-label">Descripción <span class="text-danger">*</span></label>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label for="descripcion_campo" class="form-label mb-0">Descripción <span class="text-danger">*</span></label>
+                                    <button type="button" class="btn btn-sm btn-primary" id="btnGenerarDescripcion" onclick="generarDescripcionIA()">
+                                        <i class="fas fa-magic"></i> Generar con IA
+                                    </button>
+                                </div>
                                 <textarea class="form-control" id="descripcion_campo" name="descripcion_campo" rows="3" placeholder="Descripción de la empresa o proyecto"></textarea>
-                                <small class="text-muted">Los archivos serán generados automáticamente por el servidor</small>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle"></i> Click en "Generar con IA" para crear una descripción automática basada en los datos del formulario
+                                </small>
                             </div>
                         </div>
 
@@ -132,7 +140,7 @@
                                 <label for="url_crm_campo" class="form-label">URL <span class="text-danger">*</span></label>
                                 <input type="url" class="form-control" id="url_crm_campo" name="url_crm_campo" placeholder="https://ejemplo.com">
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="username_campo" class="form-label">Username</label>
                                 <input type="text" class="form-control" id="username_campo" name="username_campo" placeholder="Usuario" value="admin">
