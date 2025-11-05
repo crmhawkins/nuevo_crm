@@ -181,23 +181,25 @@ class ElevenlabsApiController extends Controller
     }
 
     /**
-     * Obtener contactos sin respuesta filtrados por agente
+     * Obtener contactos sin respuesta o con respuesta de IA/contestador filtrados por agente
      */
     public function getSinRespuestaByAgent($agentId)
     {
         try {
             \Illuminate\Support\Facades\Log::info('=== INICIO getSinRespuestaByAgent ===', ['agent_id' => $agentId]);
 
-            // Obtener conversaciones "sin_respuesta" del agente con cliente y teléfono válidos
+            // Obtener conversaciones "sin_respuesta" Y "respuesta_ia" del agente con cliente y teléfono válidos
             $conversaciones = ElevenlabsConversation::where('agent_id', $agentId)
-                ->where('sentiment_category', 'sin_respuesta')
+                ->whereIn('sentiment_category', ['sin_respuesta', 'respuesta_ia'])
                 ->whereNotNull('client_id')
                 ->whereNotNull('numero')
                 ->with(['client.dominios']) // Cargar relación de dominios
                 ->get();
 
-            \Illuminate\Support\Facades\Log::info('Conversaciones sin respuesta encontradas:', [
-                'total' => $conversaciones->count()
+            \Illuminate\Support\Facades\Log::info('Conversaciones sin respuesta o respuesta IA encontradas:', [
+                'total' => $conversaciones->count(),
+                'sin_respuesta' => $conversaciones->where('sentiment_category', 'sin_respuesta')->count(),
+                'respuesta_ia' => $conversaciones->where('sentiment_category', 'respuesta_ia')->count()
             ]);
 
             // Agrupar por client_id para evitar duplicados

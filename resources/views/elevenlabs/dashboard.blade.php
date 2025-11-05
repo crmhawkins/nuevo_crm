@@ -210,7 +210,7 @@
                 </div>
             </div>
             <div class="col-md-9 text-end">
-                <button class="btn btn-sm btn-warning me-2" onclick="abrirModalRellamadaSinRespuesta()">
+                <button class="btn btn-sm btn-warning me-2" onclick="abrirModalRellamadaSinRespuesta()" title="Rellamar a contactos sin respuesta o con respuesta de IA/contestador">
                     <i class="fas fa-phone-volume"></i> Rellamar Sin Respuesta
                 </button>
                 <span id="selectedCount" class="badge bg-primary me-2" style="display: none;">0 seleccionadas</span>
@@ -558,7 +558,7 @@
         <div class="modal-content">
             <div class="modal-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
                 <h5 class="modal-title" id="rellamadaSinRespuestaModalLabel">
-                    <i class="fas fa-phone-volume"></i> Rellamar a Contactos Sin Respuesta
+                    <i class="fas fa-phone-volume"></i> Rellamar a Contactos No Atendidos
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -566,7 +566,11 @@
                 <form id="formRellamadaSinRespuesta">
                     <div class="alert alert-warning">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Información:</strong> Esta función rellamará automáticamente a los contactos que no respondieron en llamadas anteriores.
+                        <strong>Información:</strong> Esta función rellamará automáticamente a los contactos que:
+                        <ul class="mb-0 mt-2">
+                            <li>No respondieron en llamadas anteriores</li>
+                            <li>Respondieron con IA o contestador automático</li>
+                        </ul>
                         La configuración del mensaje se ajustará según el agente seleccionado.
                     </div>
 
@@ -635,17 +639,18 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Contactos a Rellamar (Sin Respuesta)</label>
+                        <label class="form-label">Contactos a Rellamar</label>
                         <div id="listaContactosSinRespuesta" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
                             <div class="text-center text-muted">
                                 <div class="spinner-border spinner-border-sm" role="status">
                                     <span class="visually-hidden">Cargando...</span>
                                 </div>
-                                <p class="mt-2 mb-0">Selecciona un agente para cargar contactos sin respuesta...</p>
+                                <p class="mt-2 mb-0">Selecciona un agente para cargar contactos...</p>
                             </div>
                         </div>
                         <small class="text-muted">
-                            <i class="fas fa-info-circle"></i> Se mostrarán solo los contactos con teléfono válido que no respondieron en llamadas anteriores
+                            <i class="fas fa-info-circle"></i> Se mostrarán contactos con teléfono válido que:
+                            <strong>no respondieron</strong> o <strong>respondieron con IA/contestador</strong>
                         </small>
                     </div>
 
@@ -1463,11 +1468,11 @@ function cargarContactosSinRespuesta(agentId) {
             <div class="spinner-border spinner-border-sm text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
-            <p class="mt-2 mb-0">Cargando contactos sin respuesta...</p>
+            <p class="mt-2 mb-0">Cargando contactos no atendidos...</p>
         </div>
     `;
 
-    // Llamar al endpoint para obtener contactos sin respuesta por agente
+    // Llamar al endpoint para obtener contactos sin respuesta o con respuesta de IA/contestador por agente
     fetch(`/api/elevenlabs-monitoring/sin-respuesta/${agentId}`)
         .then(response => response.json())
         .then(data => {
@@ -1479,7 +1484,8 @@ function cargarContactosSinRespuesta(agentId) {
             } else {
                 lista.innerHTML = `
                     <div class="alert alert-warning mb-0">
-                        <i class="fas fa-info-circle"></i> No hay contactos sin respuesta para este agente
+                        <i class="fas fa-info-circle"></i> No hay contactos para rellamar con este agente
+                        <br><small class="mt-1 d-block">No se encontraron contactos sin respuesta o con respuesta de IA/contestador</small>
                     </div>
                 `;
                 document.getElementById('totalRellamadas').textContent = '0';
@@ -1503,7 +1509,8 @@ function mostrarContactosSinRespuesta(contactos) {
     if (contactos.length === 0) {
         lista.innerHTML = `
             <div class="alert alert-warning mb-0">
-                <i class="fas fa-info-circle"></i> No hay contactos sin respuesta para este agente
+                <i class="fas fa-info-circle"></i> No hay contactos para rellamar con este agente
+                <br><small class="mt-1 d-block">No se encontraron contactos sin respuesta o con respuesta de IA/contestador</small>
             </div>
         `;
         return;
