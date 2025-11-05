@@ -224,21 +224,14 @@ class ElevenlabsAIService
 Clasifica en UNA de estas 6 opciones:
 1. **contento** - Cliente satisfecho, acepta, agradece, tono positivo, o responde de forma educada aunque sea breve
 2. **descontento** - Cliente rechaza, no interesado, tono negativo o borde
-3. **sin_respuesta** - Cliente NO responde EN ABSOLUTO. Solo hay silencio, \"...\", o el agente habla solo sin NINGUNA respuesta del cliente. NO usar si el cliente dijo aunque sea UNA palabra.
+3. **sin_respuesta** - Cliente NO responde EN ABSOLUTO. Solo hay silencio, \"...\", o el agente habla solo sin NINGUNA respuesta del cliente.
 4. **baja** - Cliente solicita EXPLÍCITAMENTE darse de baja del servicio
 5. **llamada_agendada** - Se agenda una cita, llamada o follow-up con el cliente
 6. **respuesta_ia** - Contestó un CONTESTADOR AUTOMÁTICO, buzón de voz, asistente virtual o sistema de respuesta automática
 
-REGLAS CRÍTICAS PARA \"sin_respuesta\":
-- ❌ NO usar \"sin_respuesta\" si el cliente dijo CUALQUIER palabra (\"hola\", \"no\", \"adiós\", etc.)
-- ❌ NO usar \"sin_respuesta\" si hubo CUALQUIER tipo de interacción, aunque fuera negativa
-- ✅ SOLO usar \"sin_respuesta\" si LITERALMENTE no hubo respuesta, solo silencio o puntos suspensivos
-- ✅ Si el cliente dijo \"no\" o \"no me interesa\" → usar \"descontento\", NO \"sin_respuesta\"
-- ✅ Si el cliente colgó después de responder algo → usar \"descontento\", NO \"sin_respuesta\"
-
 IMPORTANTE:
 - Si responde un contestador/buzón de voz/máquina → usa \"respuesta_ia\"
-- Si cliente dice \"darme de baja\" o similar → usa \"baja\"
+- Si cliente dice \"darme de baja\", no renovar o similar → usa \"baja\"
 - Si se agenda una cita/llamada para después → usa \"llamada_agendada\"
 - Si el cliente responde algo, aunque sea negativo → usa \"descontento\" si rechaza o \"contento\" si acepta
 - Si solo pide info sin agendar → usa \"contento\" si acepta o \"descontento\" si rechaza
