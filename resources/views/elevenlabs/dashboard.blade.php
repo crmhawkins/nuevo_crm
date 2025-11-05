@@ -77,6 +77,17 @@
         background-color: #f8f9fa;
         border-color: #dee2e6;
     }
+
+    /* Estilos para los checkboxes de rellamadas */
+    .contacto-checkbox {
+        cursor: pointer;
+        transform: scale(1.2);
+    }
+
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease;
+    }
 </style>
 @endsection
 
@@ -639,7 +650,18 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Contactos a Rellamar</label>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0">Contactos a Rellamar</label>
+                            <div id="botonesSeleccion" style="display: none;">
+                                <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="seleccionarTodosContactos()">
+                                    <i class="fas fa-check-square"></i> Todos
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deseleccionarTodosContactos()">
+                                    <i class="fas fa-square"></i> Ninguno
+                                </button>
+                                <span class="badge bg-info ms-2" id="contadorSeleccionados">0 seleccionados</span>
+                            </div>
+                        </div>
                         <div id="listaContactosSinRespuesta" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
                             <div class="text-center text-muted">
                                 <div class="spinner-border spinner-border-sm" role="status">
@@ -1341,6 +1363,9 @@ function abrirModalRellamadaSinRespuesta() {
     document.getElementById('firstMessageRellamada').parentElement.style.display = 'block';
     document.getElementById('mensajeFijoDominios').style.display = 'none';
 
+    // Ocultar botones de selección
+    document.getElementById('botonesSeleccion').style.display = 'none';
+
     document.getElementById('listaContactosSinRespuesta').innerHTML = `
         <div class="text-center text-muted">
             <p class="mt-2 mb-0">Selecciona un agente para cargar contactos sin respuesta...</p>
@@ -1353,6 +1378,7 @@ function cambiarAgenteRellamada(agentId) {
         document.getElementById('infoAgenteSeleccionado').style.display = 'none';
         document.getElementById('agentPhoneNumberIdRellamada').disabled = true;
         document.getElementById('btnEnviarRellamada').disabled = true;
+        document.getElementById('botonesSeleccion').style.display = 'none';
 
         // Resetear visualización de campos de mensaje
         document.getElementById('firstMessageRellamada').parentElement.style.display = 'block';
@@ -1479,8 +1505,7 @@ function cargarContactosSinRespuesta(agentId) {
             if (data.success && data.contactos && data.contactos.length > 0) {
                 contactosSinRespuesta = data.contactos;
                 mostrarContactosSinRespuesta(data.contactos);
-                document.getElementById('totalRellamadas').textContent = data.contactos.length;
-                document.getElementById('btnEnviarRellamada').disabled = false;
+                // El contador se actualiza automáticamente en mostrarContactosSinRespuesta
             } else {
                 lista.innerHTML = `
                     <div class="alert alert-warning mb-0">
@@ -1488,6 +1513,7 @@ function cargarContactosSinRespuesta(agentId) {
                         <br><small class="mt-1 d-block">No se encontraron contactos sin respuesta o con respuesta de IA/contestador</small>
                     </div>
                 `;
+                document.getElementById('botonesSeleccion').style.display = 'none';
                 document.getElementById('totalRellamadas').textContent = '0';
                 document.getElementById('btnEnviarRellamada').disabled = true;
             }
@@ -1505,6 +1531,7 @@ function cargarContactosSinRespuesta(agentId) {
 
 function mostrarContactosSinRespuesta(contactos) {
     const lista = document.getElementById('listaContactosSinRespuesta');
+    const botonesSeleccion = document.getElementById('botonesSeleccion');
 
     if (contactos.length === 0) {
         lista.innerHTML = `
@@ -1513,20 +1540,37 @@ function mostrarContactosSinRespuesta(contactos) {
                 <br><small class="mt-1 d-block">No se encontraron contactos sin respuesta o con respuesta de IA/contestador</small>
             </div>
         `;
+        botonesSeleccion.style.display = 'none';
         return;
     }
+
+    // Mostrar botones de selección
+    botonesSeleccion.style.display = 'block';
 
     let html = '<div class="list-group">';
     contactos.forEach((contacto, index) => {
         html += `
-            <div class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="list-group-item d-flex align-items-center">
+                <div class="form-check me-3">
+                    <input class="form-check-input contacto-checkbox" type="checkbox"
+                           id="contacto_${index}"
+                           data-index="${index}"
+                           data-id="${contacto.id}"
+                           data-nombre="${contacto.nombre}"
+                           data-telefono="${contacto.telefono}"
+                           data-dominio="${contacto.dominio || ''}"
+                           onchange="actualizarContadorContactos()"
+                           checked>
+                </div>
                 <div class="flex-grow-1">
-                    <strong>${contacto.nombre}</strong>
-                    <br>
-                    <small class="text-muted">
-                        <i class="fas fa-phone"></i> ${contacto.telefono}
-                        ${contacto.dominio ? `<br><i class="fas fa-globe"></i> Dominio: ${contacto.dominio}` : ''}
-                    </small>
+                    <label for="contacto_${index}" class="mb-0" style="cursor: pointer;">
+                        <strong>${contacto.nombre}</strong>
+                        <br>
+                        <small class="text-muted">
+                            <i class="fas fa-phone"></i> ${contacto.telefono}
+                            ${contacto.dominio ? `<br><i class="fas fa-globe"></i> Dominio: ${contacto.dominio}` : ''}
+                        </small>
+                    </label>
                 </div>
                 <span class="badge bg-warning rounded-pill">${index + 1}</span>
             </div>
@@ -1535,6 +1579,44 @@ function mostrarContactosSinRespuesta(contactos) {
     html += '</div>';
 
     lista.innerHTML = html;
+
+    // Actualizar contador inicial
+    actualizarContadorContactos();
+}
+
+// Funciones de selección de contactos
+function seleccionarTodosContactos() {
+    const checkboxes = document.querySelectorAll('.contacto-checkbox');
+    checkboxes.forEach(cb => cb.checked = true);
+    actualizarContadorContactos();
+}
+
+function deseleccionarTodosContactos() {
+    const checkboxes = document.querySelectorAll('.contacto-checkbox');
+    checkboxes.forEach(cb => cb.checked = false);
+    actualizarContadorContactos();
+}
+
+function actualizarContadorContactos() {
+    const checkboxes = document.querySelectorAll('.contacto-checkbox:checked');
+    const contador = document.getElementById('contadorSeleccionados');
+    const totalRellamadas = document.getElementById('totalRellamadas');
+    const btnEnviar = document.getElementById('btnEnviarRellamada');
+
+    const total = checkboxes.length;
+
+    if (contador) {
+        contador.textContent = `${total} seleccionado${total !== 1 ? 's' : ''}`;
+    }
+
+    if (totalRellamadas) {
+        totalRellamadas.textContent = total;
+    }
+
+    // Habilitar/deshabilitar botón de envío
+    if (btnEnviar) {
+        btnEnviar.disabled = (total === 0);
+    }
 }
 
 function enviarRellamadaSinRespuesta() {
@@ -1563,22 +1645,33 @@ function enviarRellamadaSinRespuesta() {
         return;
     }
 
-    if (contactosSinRespuesta.length === 0) {
-        mostrarAlertaRellamada('danger', 'No hay contactos para rellamar.');
+    // Obtener solo los contactos seleccionados
+    const checkboxesSeleccionados = document.querySelectorAll('.contacto-checkbox:checked');
+
+    if (checkboxesSeleccionados.length === 0) {
+        mostrarAlertaRellamada('danger', 'Debes seleccionar al menos un contacto para rellamar.');
         return;
     }
+
+    // Construir array de contactos seleccionados desde los checkboxes
+    const contactosSeleccionados = Array.from(checkboxesSeleccionados).map(checkbox => ({
+        id: parseInt(checkbox.dataset.id),
+        nombre: checkbox.dataset.nombre,
+        telefono: checkbox.dataset.telefono,
+        dominio: checkbox.dataset.dominio || null
+    }));
 
     // Deshabilitar botón
     const btnEnviar = document.getElementById('btnEnviarRellamada');
     btnEnviar.disabled = true;
     btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Enviando rellamadas...';
 
-    // Preparar datos
+    // Preparar datos con los contactos seleccionados
     const datos = {
         call_name: callName,
         agent_id: agentId,
         agent_phone_number_id: agentPhoneNumberId,
-        clientes: contactosSinRespuesta
+        clientes: contactosSeleccionados
     };
 
     // Agregar first_message (siempre, puede estar vacío para agentes no-dominios)
@@ -1627,7 +1720,8 @@ function enviarRellamadaSinRespuesta() {
     })
     .finally(() => {
         btnEnviar.disabled = false;
-        btnEnviar.innerHTML = '<i class="fas fa-phone-volume"></i> Enviar Rellamadas <span class="badge bg-light text-dark ms-2" id="totalRellamadas">' + contactosSinRespuesta.length + '</span>';
+        const totalSeleccionados = document.querySelectorAll('.contacto-checkbox:checked').length;
+        btnEnviar.innerHTML = '<i class="fas fa-phone-volume"></i> Enviar Rellamadas <span class="badge bg-light text-dark ms-2" id="totalRellamadas">' + totalSeleccionados + '</span>';
     });
 }
 
