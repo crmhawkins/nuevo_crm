@@ -210,6 +210,9 @@
                 </div>
             </div>
             <div class="col-md-9 text-end">
+                <button class="btn btn-sm btn-warning me-2" onclick="abrirModalRellamadaSinRespuesta()">
+                    <i class="fas fa-phone-volume"></i> Rellamar Sin Respuesta
+                </button>
                 <span id="selectedCount" class="badge bg-primary me-2" style="display: none;">0 seleccionadas</span>
                 <button id="bulkAttendedBtn" class="btn btn-sm btn-success me-2" style="display: none;" onclick="markSelectedAsAttended()">
                     <i class="fas fa-check"></i> Marcar como atendidas
@@ -543,6 +546,117 @@
                 </button>
                 <button type="button" class="btn btn-warning" id="btnReprocesar" onclick="reprocesarModal()">
                     <i class="fas fa-redo"></i> Reprocesar con IA
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Rellamada Sin Respuesta -->
+<div class="modal fade" id="rellamadaSinRespuestaModal" tabindex="-1" aria-labelledby="rellamadaSinRespuestaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <h5 class="modal-title" id="rellamadaSinRespuestaModalLabel">
+                    <i class="fas fa-phone-volume"></i> Rellamar a Contactos Sin Respuesta
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRellamadaSinRespuesta">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Información:</strong> Esta función rellamará automáticamente a los contactos que no respondieron en llamadas anteriores.
+                        La configuración del mensaje se ajustará según el agente seleccionado.
+                    </div>
+
+                    <!-- Selección de Agente -->
+                    <div class="mb-3">
+                        <label for="agenteRellamada" class="form-label">Seleccionar Agente <span class="text-danger">*</span></label>
+                        <select class="form-select" id="agenteRellamada" name="agente_rellamada" required onchange="cambiarAgenteRellamada(this.value)">
+                            <option value="">-- Selecciona un agente --</option>
+                            @php
+                                $agents = \App\Models\ElevenlabsAgent::orderBy('name')->get();
+                            @endphp
+                            @foreach($agents as $agent)
+                                <option value="{{ $agent->agent_id }}" data-agent-name="{{ $agent->name }}">
+                                    {{ $agent->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Selecciona el agente que realizará las llamadas (Hera Dominios o Hera Saliente)</small>
+                    </div>
+
+                    <!-- Información del agente seleccionado -->
+                    <div id="infoAgenteSeleccionado" style="display: none;" class="mb-3">
+                        <div class="alert alert-info">
+                            <strong><i class="fas fa-robot"></i> <span id="nombreAgenteInfo"></span></strong>
+                            <p class="mb-0 mt-2" id="descripcionLogica"></p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="callNameRellamada" class="form-label">Nombre de la Campaña <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="callNameRellamada" name="call_name" required
+                               placeholder="Ej: Rellamada Sin Respuesta - Noviembre 2024">
+                        <small class="text-muted">Identificador de esta campaña de rellamadas</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="agentPhoneNumberIdRellamada" class="form-label">Número de Teléfono <span class="text-danger">*</span></label>
+                        <select class="form-select" id="agentPhoneNumberIdRellamada" name="agent_phone_number_id" required disabled>
+                            <option value="">Primero selecciona un agente...</option>
+                        </select>
+                        <small class="text-muted">Número de teléfono desde el cual se realizarán las llamadas</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="firstMessageRellamada" class="form-label">Mensaje Inicial</label>
+                        <textarea class="form-control" id="firstMessageRellamada" name="first_message" rows="3"
+                                  placeholder=""></textarea>
+                        <small class="text-muted" id="helpTextMensaje"></small>
+                    </div>
+
+                    <!-- Mensaje fijo para Hera Dominios (oculto inicialmente) -->
+                    <div class="mb-3" id="mensajeFijoDominios" style="display: none;">
+                        <label class="form-label">
+                            <i class="fas fa-lock"></i> Mensaje Inicial (Configuración Fija)
+                        </label>
+                        <div class="alert alert-info mb-0">
+                            <strong><i class="fas fa-comment-dots"></i> Mensaje que se enviará:</strong><br><br>
+                            <div class="p-2 bg-white rounded">
+                                <em>"Hola, soy Carolina de la Agencia Hawkins. Te llamo porque próximamente caduca tu dominio <span class="text-primary fw-bold">{dominio}</span> y, antes de nada, te recuerdo que esta llamada está siendo grabada para fines de calidad y gestión administrativa. ¿Deseas renovar el dominio y mantener la web activa, o prefieres cancelarlo?"</em>
+                            </div>
+                        </div>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="fas fa-info-circle text-primary"></i> <strong>Variable automática:</strong><br>
+                            - <code class="bg-light p-1 rounded">{dominio}</code> → se reemplazará con el dominio del cliente
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Contactos a Rellamar (Sin Respuesta)</label>
+                        <div id="listaContactosSinRespuesta" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                            <div class="text-center text-muted">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p class="mt-2 mb-0">Selecciona un agente para cargar contactos sin respuesta...</p>
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> Se mostrarán solo los contactos con teléfono válido que no respondieron en llamadas anteriores
+                        </small>
+                    </div>
+
+                    <div id="alertaRellamada"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" id="btnEnviarRellamada" onclick="enviarRellamadaSinRespuesta()" disabled>
+                    <i class="fas fa-phone-volume"></i> Enviar Rellamadas
+                    <span class="badge bg-light text-dark ms-2" id="totalRellamadas">0</span>
                 </button>
             </div>
         </div>
@@ -1200,6 +1314,325 @@ function markSelectedAsAttended() {
 document.addEventListener('DOMContentLoaded', function() {
     updateSelectionCount();
 });
+
+// ============================================
+// FUNCIONES DE RELLAMADA SIN RESPUESTA
+// ============================================
+
+let contactosSinRespuesta = [];
+let agenteSeleccionado = null;
+
+function abrirModalRellamadaSinRespuesta() {
+    const modal = new bootstrap.Modal(document.getElementById('rellamadaSinRespuestaModal'));
+    modal.show();
+
+    // Resetear formulario
+    document.getElementById('formRellamadaSinRespuesta').reset();
+    document.getElementById('agentPhoneNumberIdRellamada').disabled = true;
+    document.getElementById('infoAgenteSeleccionado').style.display = 'none';
+    document.getElementById('btnEnviarRellamada').disabled = true;
+
+    // Resetear visualización de campos de mensaje
+    document.getElementById('firstMessageRellamada').parentElement.style.display = 'block';
+    document.getElementById('mensajeFijoDominios').style.display = 'none';
+
+    document.getElementById('listaContactosSinRespuesta').innerHTML = `
+        <div class="text-center text-muted">
+            <p class="mt-2 mb-0">Selecciona un agente para cargar contactos sin respuesta...</p>
+        </div>
+    `;
+}
+
+function cambiarAgenteRellamada(agentId) {
+    if (!agentId) {
+        document.getElementById('infoAgenteSeleccionado').style.display = 'none';
+        document.getElementById('agentPhoneNumberIdRellamada').disabled = true;
+        document.getElementById('btnEnviarRellamada').disabled = true;
+
+        // Resetear visualización de campos de mensaje
+        document.getElementById('firstMessageRellamada').parentElement.style.display = 'block';
+        document.getElementById('mensajeFijoDominios').style.display = 'none';
+        return;
+    }
+
+    agenteSeleccionado = agentId;
+    const selectElement = document.getElementById('agenteRellamada');
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const agentName = selectedOption.getAttribute('data-agent-name');
+
+    // Mostrar información del agente
+    document.getElementById('nombreAgenteInfo').textContent = agentName;
+    document.getElementById('infoAgenteSeleccionado').style.display = 'block';
+
+    // Configurar mensaje según el agente
+    if (agentName.toLowerCase().includes('dominios')) {
+        // Hera Dominios: Mensaje fijo, no editable
+        document.getElementById('descripcionLogica').innerHTML = `
+            <strong>Lógica de Hera Dominios:</strong><br>
+            • Se incluirá automáticamente el nombre del dominio del cliente en el mensaje<br>
+            • El mensaje es fijo y no puede ser editado (configuración establecida)<br>
+            • Se usa el mismo mensaje que en el apartado de dominios
+        `;
+
+        // Ocultar campo editable y mostrar mensaje fijo
+        document.getElementById('firstMessageRellamada').parentElement.style.display = 'none';
+        document.getElementById('mensajeFijoDominios').style.display = 'block';
+    } else if (agentName.toLowerCase().includes('saliente')) {
+        // Hera Saliente: Mensaje editable
+        document.getElementById('descripcionLogica').innerHTML = `
+            <strong>Lógica de Hera Saliente:</strong><br>
+            • Se incluirá automáticamente el nombre del cliente en el mensaje<br>
+            • Usa <code>{nombre}</code> en el mensaje para personalizarlo<br>
+            • Ejemplo: "Hola {nombre}, llamo de Hawkins para..."
+        `;
+
+        // Mostrar campo editable y ocultar mensaje fijo
+        document.getElementById('firstMessageRellamada').parentElement.style.display = 'block';
+        document.getElementById('mensajeFijoDominios').style.display = 'none';
+        document.getElementById('firstMessageRellamada').placeholder = 'Ej: Hola {nombre}, llamo de Hawkins para...';
+        document.getElementById('helpTextMensaje').innerHTML = 'Usa <strong>{nombre}</strong> para personalizar el mensaje con el nombre del cliente.';
+    } else {
+        // Agente genérico: Mensaje editable
+        document.getElementById('descripcionLogica').innerHTML = `
+            <strong>Agente genérico:</strong><br>
+            • Personaliza el mensaje según tus necesidades
+        `;
+
+        // Mostrar campo editable y ocultar mensaje fijo
+        document.getElementById('firstMessageRellamada').parentElement.style.display = 'block';
+        document.getElementById('mensajeFijoDominios').style.display = 'none';
+        document.getElementById('firstMessageRellamada').placeholder = 'Mensaje personalizado...';
+        document.getElementById('helpTextMensaje').innerHTML = 'Escribe un mensaje personalizado para las llamadas.';
+    }
+
+    // Cargar números de teléfono del agente
+    cargarPhoneNumbersRellamada(agentId);
+
+    // Cargar contactos sin respuesta del agente
+    cargarContactosSinRespuesta(agentId);
+}
+
+function cargarPhoneNumbersRellamada(agentId) {
+    const selectPhoneNumber = document.getElementById('agentPhoneNumberIdRellamada');
+    selectPhoneNumber.disabled = true;
+    selectPhoneNumber.innerHTML = '<option value="">Cargando números...</option>';
+
+    fetch(`/api/elevenlabs-monitoring/batch-calls/agentes/${agentId}/phone-numbers`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data) {
+                selectPhoneNumber.innerHTML = '<option value="">Selecciona un número...</option>';
+
+                if (Array.isArray(data.data) && data.data.length > 0) {
+                    data.data.forEach(phoneNumber => {
+                        const option = document.createElement('option');
+                        option.value = phoneNumber.phone_number_id;
+
+                        let displayText = phoneNumber.label || phoneNumber.phone_number;
+                        if (phoneNumber.assigned_agent_name) {
+                            displayText += ` → ${phoneNumber.assigned_agent_name}`;
+                        }
+                        if (phoneNumber.provider) {
+                            displayText += ` (${phoneNumber.provider})`;
+                        }
+                        if (phoneNumber.supports_outbound) {
+                            displayText += ' ✓';
+                        }
+
+                        option.textContent = displayText;
+                        selectPhoneNumber.appendChild(option);
+                    });
+                    selectPhoneNumber.disabled = false;
+                } else {
+                    selectPhoneNumber.innerHTML = '<option value="">No hay números disponibles</option>';
+                }
+            } else {
+                selectPhoneNumber.innerHTML = '<option value="">Error al cargar números</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            selectPhoneNumber.innerHTML = '<option value="">Error al cargar números</option>';
+        });
+}
+
+function cargarContactosSinRespuesta(agentId) {
+    const lista = document.getElementById('listaContactosSinRespuesta');
+    lista.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2 mb-0">Cargando contactos sin respuesta...</p>
+        </div>
+    `;
+
+    // Llamar al endpoint para obtener contactos sin respuesta por agente
+    fetch(`/api/elevenlabs-monitoring/sin-respuesta/${agentId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.contactos && data.contactos.length > 0) {
+                contactosSinRespuesta = data.contactos;
+                mostrarContactosSinRespuesta(data.contactos);
+                document.getElementById('totalRellamadas').textContent = data.contactos.length;
+                document.getElementById('btnEnviarRellamada').disabled = false;
+            } else {
+                lista.innerHTML = `
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-info-circle"></i> No hay contactos sin respuesta para este agente
+                    </div>
+                `;
+                document.getElementById('totalRellamadas').textContent = '0';
+                document.getElementById('btnEnviarRellamada').disabled = true;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            lista.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Error al cargar contactos: ${error.message}
+                </div>
+            `;
+            document.getElementById('btnEnviarRellamada').disabled = true;
+        });
+}
+
+function mostrarContactosSinRespuesta(contactos) {
+    const lista = document.getElementById('listaContactosSinRespuesta');
+
+    if (contactos.length === 0) {
+        lista.innerHTML = `
+            <div class="alert alert-warning mb-0">
+                <i class="fas fa-info-circle"></i> No hay contactos sin respuesta para este agente
+            </div>
+        `;
+        return;
+    }
+
+    let html = '<div class="list-group">';
+    contactos.forEach((contacto, index) => {
+        html += `
+            <div class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <strong>${contacto.nombre}</strong>
+                    <br>
+                    <small class="text-muted">
+                        <i class="fas fa-phone"></i> ${contacto.telefono}
+                        ${contacto.dominio ? `<br><i class="fas fa-globe"></i> Dominio: ${contacto.dominio}` : ''}
+                    </small>
+                </div>
+                <span class="badge bg-warning rounded-pill">${index + 1}</span>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    lista.innerHTML = html;
+}
+
+function enviarRellamadaSinRespuesta() {
+    // Validar formulario
+    const callName = document.getElementById('callNameRellamada').value.trim();
+    const agentId = document.getElementById('agenteRellamada').value.trim();
+    const agentPhoneNumberId = document.getElementById('agentPhoneNumberIdRellamada').value.trim();
+
+    // Obtener el nombre del agente seleccionado
+    const selectElement = document.getElementById('agenteRellamada');
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const agentName = selectedOption.getAttribute('data-agent-name');
+
+    // Determinar el mensaje según el agente
+    let firstMessage;
+    if (agentName && agentName.toLowerCase().includes('dominios')) {
+        // Para Hera Dominios: Usar mensaje fijo
+        firstMessage = 'Hola, soy Carolina de la Agencia Hawkins. Te llamo porque próximamente caduca tu dominio {dominio} y, antes de nada, te recuerdo que esta llamada está siendo grabada. ¿Deseas renovar el dominio y mantener la web activa, o prefieres cancelarlo?';
+    } else {
+        // Para otros agentes: Usar mensaje del textarea (puede estar vacío)
+        firstMessage = document.getElementById('firstMessageRellamada').value.trim();
+    }
+
+    if (!callName || !agentId || !agentPhoneNumberId) {
+        mostrarAlertaRellamada('danger', 'Por favor, completa todos los campos obligatorios.');
+        return;
+    }
+
+    if (contactosSinRespuesta.length === 0) {
+        mostrarAlertaRellamada('danger', 'No hay contactos para rellamar.');
+        return;
+    }
+
+    // Deshabilitar botón
+    const btnEnviar = document.getElementById('btnEnviarRellamada');
+    btnEnviar.disabled = true;
+    btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Enviando rellamadas...';
+
+    // Preparar datos
+    const datos = {
+        call_name: callName,
+        agent_id: agentId,
+        agent_phone_number_id: agentPhoneNumberId,
+        clientes: contactosSinRespuesta
+    };
+
+    // Agregar first_message (siempre, puede estar vacío para agentes no-dominios)
+    if (firstMessage) {
+        datos.first_message = firstMessage;
+    }
+
+    // Enviar petición
+    fetch('/api/elevenlabs-monitoring/batch-calls/submit-clientes-filtrados', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(datos)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let mensaje = `¡Rellamadas enviadas exitosamente! <br>
+                <strong>Estadísticas:</strong><br>
+                - Total contactos: ${data.estadisticas.total_clientes}<br>
+                - Llamadas programadas: ${data.estadisticas.llamadas_programadas}<br>`;
+
+            if (data.estadisticas.con_mensaje_personalizado > 0) {
+                mensaje += `- Con mensaje personalizado: ${data.estadisticas.con_mensaje_personalizado}<br>`;
+            }
+
+            mensaje += `- Errores: ${data.estadisticas.errores}`;
+
+            mostrarAlertaRellamada('success', mensaje);
+
+            // Cerrar modal después de 3 segundos
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('rellamadaSinRespuestaModal')).hide();
+                document.getElementById('formRellamadaSinRespuesta').reset();
+                document.getElementById('alertaRellamada').innerHTML = '';
+            }, 3000);
+        } else {
+            mostrarAlertaRellamada('danger', 'Error al enviar rellamadas: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarAlertaRellamada('danger', 'Error al enviar rellamadas. Por favor, inténtalo de nuevo.');
+    })
+    .finally(() => {
+        btnEnviar.disabled = false;
+        btnEnviar.innerHTML = '<i class="fas fa-phone-volume"></i> Enviar Rellamadas <span class="badge bg-light text-dark ms-2" id="totalRellamadas">' + contactosSinRespuesta.length + '</span>';
+    });
+}
+
+function mostrarAlertaRellamada(tipo, mensaje) {
+    const alerta = document.getElementById('alertaRellamada');
+    alerta.innerHTML = `
+        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+            ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+}
 
 </script>
 

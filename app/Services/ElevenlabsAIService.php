@@ -36,7 +36,7 @@ class ElevenlabsAIService
 
             // Primera pasada: Categorización de sentimiento (contento/descontento/sin_respuesta)
             $sentimentResult = $this->categorizeSentiment($conversation->transcript);
-            
+
             if ($sentimentResult) {
                 $conversation->sentiment_category = $sentimentResult['category'] ?? null;
                 Log::info('✅ Sentimiento categorizado', [
@@ -47,7 +47,7 @@ class ElevenlabsAIService
 
             // Segunda pasada: Categorización específica (SOLO si NO es sin_respuesta, baja o respuesta_ia)
             $skipCategories = ['sin_respuesta', 'baja', 'respuesta_ia'];
-            
+
             if (in_array($conversation->sentiment_category, $skipCategories)) {
                 Log::info('ℹ️ Categoría de sentimiento no requiere categorización específica', [
                     'conversation_id' => $conversation->conversation_id,
@@ -63,7 +63,7 @@ class ElevenlabsAIService
                     $conversation->transcript,
                     $conversation->agent_id
                 );
-                
+
                 if (!$specificResult) {
                     Log::error('❌ No se pudo categorizar específicamente', [
                         'conversation_id' => $conversation->conversation_id,
@@ -98,11 +98,11 @@ class ElevenlabsAIService
                     ]);
                 }
             }
-            
+
             // Cuarta pasada: Resumen (solo si hubo interacción real)
             if (!in_array($conversation->sentiment_category, ['sin_respuesta'])) {
                 $summary = $this->summarizeConversation($conversation->transcript);
-                
+
                 if ($summary) {
                     $conversation->summary_es = $summary;
                     $conversation->save();
@@ -117,6 +117,10 @@ class ElevenlabsAIService
             }
 
             $conversation->markAsCompleted();
+
+            // Verificar si debe crear alerta para incidencias de Maria Apartamentos
+            $this->checkAndCreateIncidenciaAlert($conversation);
+
             return true;
 
         } catch (Exception $e) {
@@ -124,12 +128,92 @@ class ElevenlabsAIService
                 'conversation_id' => $conversation->conversation_id,
                 'error' => $e->getMessage(),
             ]);
-            
+
             $conversation->markAsFailed();
             return false;
         }
     }
-    
+
+    /**
+     * Verificar y crear alerta si es una incidencia de Maria Apartamentos
+     */
+    protected function checkAndCreateIncidenciaAlert(ElevenlabsConversation $conversation): void
+    {
+        try {
+            // Verificar si tiene categoría específica
+            if (empty($conversation->specific_category)) {
+                return;
+            }
+
+            // Categorías de incidencias que deben generar alerta
+            $incidenciaCategories = [
+                'incidencia_general',
+                'incidencia_limpieza',
+                'incidencia_mantenimiento',
+                'incidencia_de_limpieza',
+                'incidencia_de_mantenimiento',
+            ];
+
+            // Verificar si la categoría es una incidencia
+            if (!in_array($conversation->specific_category, $incidenciaCategories)) {
+                return;
+            }
+
+            // Obtener el agente
+            $agent = \App\Models\ElevenlabsAgent::findByAgentId($conversation->agent_id);
+
+            // Verificar si el agente es Maria Apartamentos
+            if (!$agent || stripos($agent->name, 'Maria Apartamentos') === false) {
+                return;
+            }
+
+            // Crear alerta para el usuario ID 8
+            $this->createIncidenciaAlert($conversation, $agent);
+
+            Log::info('✅ Alerta de incidencia creada', [
+                'conversation_id' => $conversation->conversation_id,
+                'agent_name' => $agent->name,
+                'category' => $conversation->specific_category,
+            ]);
+
+        } catch (Exception $e) {
+            Log::error('❌ Error al crear alerta de incidencia', [
+                'conversation_id' => $conversation->conversation_id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Crear alerta de incidencia para usuario específico
+     */
+    protected function createIncidenciaAlert(ElevenlabsConversation $conversation, \App\Models\ElevenlabsAgent $agent): void
+    {
+        $categoryLabels = [
+            'incidencia_general' => 'Incidencia General',
+            'incidencia_limpieza' => 'Incidencia de Limpieza',
+            'incidencia_mantenimiento' => 'Incidencia de Mantenimiento',
+            'incidencia_de_limpieza' => 'Incidencia de Limpieza',
+            'incidencia_de_mantenimiento' => 'Incidencia de Mantenimiento',
+        ];
+
+        $categoryLabel = $categoryLabels[$conversation->specific_category] ?? 'Incidencia';
+        $phoneNumber = $conversation->numero ? ' (' . $conversation->numero . ')' : '';
+
+        $description = "[{$agent->name}] {$categoryLabel}{$phoneNumber} - " .
+                       ($conversation->summary_es ? substr($conversation->summary_es, 0, 150) : 'Revisar llamada');
+
+        \App\Models\Alerts\Alert::create([
+            'reference_id' => $conversation->id,
+            'admin_user_id' => 8, // Usuario que debe recibir la alerta
+            'stage_id' => 15, // Stage para alertas de ElevenLabs
+            'status_id' => 1, // Alerta activa
+            'activation_datetime' => \Carbon\Carbon::now(),
+            'cont_postpone' => 0,
+            'description' => $description,
+        ]);
+    }
+
     /**
      * Categorizar sentimiento (contento/descontento/sin_respuesta)
      */
@@ -189,7 +273,7 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
         $prompt = config('elevenlabs.prompts.categorization');
         $prompt = str_replace('{categories_list}', $categoriesList, $prompt);
         $prompt = str_replace('{transcript}', $transcript, $prompt);
-        
+
         $response = $this->sendChatRequest($prompt);
 
         if (!$response) {
@@ -197,12 +281,12 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
         }
 
         $result = $this->parseCategorizationResponse($response);
-        
+
         Log::info('🔍 Resultado parseado de IA', [
             'category' => $result['category'] ?? 'null',
             'confidence' => $result['confidence'] ?? 'null',
         ]);
-        
+
         // VALIDAR que la categoría esté en la lista permitida
         if ($result && isset($result['category'])) {
             // Rechazar automáticamente si es una categoría de sentimiento (fijas)
@@ -211,7 +295,7 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
                     'categoria_devuelta' => $result['category'],
                     'categorias_permitidas' => $allowedCategories,
                 ]);
-                
+
                 // Intentar inferir categoría correcta del texto
                 if (count($allowedCategories) > 0) {
                     // Usar la primera categoría como fallback con baja confianza
@@ -219,29 +303,29 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
                     Log::warning('⚠️ Usando categoría fallback', [
                         'fallback' => $fallback,
                     ]);
-                    
+
                     $result['category'] = $fallback;
                     $result['confidence'] = 0.4; // Baja confianza
                 } else {
                     return null;
                 }
             }
-            
+
             $isValid = in_array($result['category'], $allowedCategories);
-            
+
             Log::info('✅ Validando categoría', [
                 'categoria_recibida' => $result['category'],
                 'es_valida' => $isValid ? 'SÍ' : 'NO',
                 'categorias_permitidas' => $allowedCategories,
             ]);
-            
+
             if (!$isValid) {
                 Log::warning('⚠️ IA devolvió categoría NO PERMITIDA', [
                     'categoria_devuelta' => $result['category'],
                     'categorias_permitidas' => $allowedCategories,
                     'agent_id' => $agentId,
                 ]);
-                
+
                 // Intentar mapear a una categoría válida
                 $mapped = $this->mapToValidCategory($result['category'], $allowedCategories);
                 if ($mapped) {
@@ -272,7 +356,7 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
 
         return $result;
     }
-    
+
     /**
      * Obtener categorías permitidas para un agente (solo específicas, sin sentimiento)
      */
@@ -291,7 +375,7 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
         // Categorías por defecto (sin las de sentimiento)
         return ['consulta_informacion', 'solicitud_servicio', 'problema_tecnico', 'seguimiento'];
     }
-    
+
     /**
      * Mapear categoría inválida a una válida
      */
@@ -301,7 +385,7 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
         if (in_array($invalidCategory, $allowedCategories)) {
             return $invalidCategory;
         }
-        
+
         // Mapeos de categorías genéricas a específicas
         $mappings = [
             'pregunta' => ['consulta_informacion', 'solicita_informacion', 'solicita_info'],
@@ -311,7 +395,7 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
             'mantenimiento' => ['incidencia_mantenimiento', 'incidencia_de_mantenimiento'],
             'problema' => ['incidencia_mantenimiento', 'necesita_asistencia'],
         ];
-        
+
         // Buscar en los mapeos si hay una categoría válida
         foreach ($mappings as $invalid => $possibleValid) {
             if (stripos($invalidCategory, $invalid) !== false) {
@@ -322,20 +406,20 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
                 }
             }
         }
-        
+
         // Si no hay mapeo, intentar buscar categoría similar por texto
         foreach ($allowedCategories as $allowed) {
             if (stripos($allowed, $invalidCategory) !== false || stripos($invalidCategory, $allowed) !== false) {
                 return $allowed;
             }
         }
-        
+
         // Si no encuentra nada, loguear y devolver null
         Log::error('❌ No se pudo mapear categoría', [
             'categoria_invalida' => $invalidCategory,
             'categorias_disponibles' => $allowedCategories,
         ]);
-        
+
         return null;
     }
 
@@ -348,7 +432,7 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
             $agent = \App\Models\ElevenlabsAgent::findByAgentId($agentId);
             if ($agent) {
                 $categories = $agent->getCategories();
-                
+
                 if (!empty($categories)) {
                     $list = '';
                     foreach ($categories as $index => $cat) {
@@ -377,13 +461,13 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
      */
     protected function extractScheduledCallInfo(string $transcript, $conversationDate): ?array
     {
-        $callDateTime = $conversationDate instanceof \Carbon\Carbon 
-            ? $conversationDate 
+        $callDateTime = $conversationDate instanceof \Carbon\Carbon
+            ? $conversationDate
             : \Carbon\Carbon::parse($conversationDate);
-            
+
         $callDateFormatted = $callDateTime->format('d/m/Y H:i:s');
         $dayOfWeek = $callDateTime->locale('es')->dayName;
-        
+
         $prompt = "Extrae la información de la LLAMADA AGENDADA de esta conversación.
 
 CONTEXTO IMPORTANTE:
@@ -457,7 +541,7 @@ Si no hay información clara de fecha/hora:
         try {
             $cleaned = preg_replace('/```json\s*|\s*```/', '', $response);
             $data = json_decode(trim($cleaned), true);
-            
+
             if (json_last_error() === JSON_ERROR_NONE) {
                 return [
                     'datetime' => $data['datetime'] ?? null,
@@ -538,15 +622,15 @@ Si no hay información clara de fecha/hora:
 
                 if ($response->successful()) {
                     $data = $response->json();
-                    
+
                     Log::debug("📊 Datos JSON recibidos", [
                         'keys' => is_array($data) ? array_keys($data) : 'not_array',
                         'data_type' => gettype($data),
                     ]);
-                    
+
                     // Extraer respuesta según diferentes formatos posibles
                     $result = $data['respuesta'] ?? $data['response'] ?? $data['text'] ?? $data['message'] ?? $data['content'] ?? null;
-                    
+
                     if ($result) {
                         Log::info('✅ Respuesta de IA extraída correctamente', [
                             'length' => strlen($result),
@@ -594,32 +678,32 @@ Si no hay información clara de fecha/hora:
             // Limpiar markdown code blocks (```json ... ```)
             $cleaned = preg_replace('/```json\s*|\s*```/', '', $response);
             $cleaned = trim($cleaned);
-            
+
             Log::debug('🧹 Limpiando respuesta', [
                 'original_length' => strlen($response),
                 'cleaned_length' => strlen($cleaned),
                 'cleaned_preview' => substr($cleaned, 0, 200),
             ]);
-            
+
             // Intentar parsear JSON
             $data = json_decode($cleaned, true);
 
             if (json_last_error() === JSON_ERROR_NONE && isset($data['category'])) {
                 $category = $this->normalizeCategory($data['category']);
-                
+
                 Log::info('✅ JSON parseado correctamente', [
                     'category_raw' => $data['category'],
                     'category_normalized' => $category,
                     'confidence' => $data['confidence'] ?? 0.5,
                 ]);
-                
+
                 return [
                     'category' => $category,
                     'confidence' => $data['confidence'] ?? 0.5,
                     'reason' => $data['reason'] ?? null,
                 ];
             }
-            
+
             Log::warning('⚠️ JSON inválido o sin campo category', [
                 'json_error' => json_last_error_msg(),
                 'has_category' => isset($data['category']),
@@ -630,18 +714,18 @@ Si no hay información clara de fecha/hora:
             // Buscar "category": "valor" o category: "valor" (con o sin comillas en la clave)
             if (preg_match('/["\']?category["\']?\s*:\s*["\']([^"\']+)["\']/', $cleaned, $matches)) {
                 $category = $this->normalizeCategory($matches[1]);
-                
+
                 // Buscar confidence: 0.96 o "confidence": 0.96
                 $confidence = 0.5;
                 if (preg_match('/["\']?confidence["\']?\s*:\s*([0-9.]+)/', $cleaned, $confMatches)) {
                     $confidence = (float) $confMatches[1];
                 }
-                
+
                 Log::info('🔧 JSON extraído manualmente con regex', [
                     'category' => $category,
                     'confidence' => $confidence,
                 ]);
-                
+
                 return [
                     'category' => $category,
                     'confidence' => $confidence,

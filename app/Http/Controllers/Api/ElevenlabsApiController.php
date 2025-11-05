@@ -57,7 +57,7 @@ class ElevenlabsApiController extends Controller
             // Buscar en la BD de categorías de agente
             $label = $stat->category;
             $color = '#6B7280';
-            
+
             // Intentar obtener de cualquier agente (porque puede ser compartida)
             $agentCat = \App\Models\ElevenlabsAgentCategory::where('category_key', $stat->category)->first();
             if ($agentCat) {
@@ -69,7 +69,7 @@ class ElevenlabsApiController extends Controller
                 $label = $categoryConfig['label'] ?? ucfirst(str_replace('_', ' ', $stat->category));
                 $color = $categoryConfig['color'] ?? '#6B7280';
             }
-            
+
             $data['labels'][] = $label;
             $data['counts'][] = $stat->count;
             $data['colors'][] = $color;
@@ -109,7 +109,7 @@ class ElevenlabsApiController extends Controller
     public function show($id)
     {
         $conversation = ElevenlabsConversation::with('client')->findOrFail($id);
-        
+
         // Incluir atributos calculados
         $data = $conversation->toArray();
         $data['sentiment_label'] = $conversation->sentiment_label;
@@ -123,7 +123,7 @@ class ElevenlabsApiController extends Controller
         $data['scheduled_call_datetime'] = $conversation->scheduled_call_datetime ? $conversation->scheduled_call_datetime->toIso8601String() : null;
         $data['attended'] = $conversation->attended;
         $data['attended_at'] = $conversation->attended_at ? $conversation->attended_at->format('d/m/Y H:i') : null;
-        
+
         return response()->json($data);
     }
 
@@ -176,6 +176,89 @@ class ElevenlabsApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener contactos sin respuesta filtrados por agente
+     */
+    public function getSinRespuestaByAgent($agentId)
+    {
+        try {
+            \Illuminate\Support\Facades\Log::info('=== INICIO getSinRespuestaByAgent ===', ['agent_id' => $agentId]);
+
+            // Obtener conversaciones "sin_respuesta" del agente con cliente y teléfono válidos
+            $conversaciones = ElevenlabsConversation::where('agent_id', $agentId)
+                ->where('sentiment_category', 'sin_respuesta')
+                ->whereNotNull('client_id')
+                ->whereNotNull('numero')
+                ->with(['client.dominios']) // Cargar relación de dominios
+                ->get();
+
+            \Illuminate\Support\Facades\Log::info('Conversaciones sin respuesta encontradas:', [
+                'total' => $conversaciones->count()
+            ]);
+
+            // Agrupar por client_id para evitar duplicados
+            $contactosAgrupados = [];
+            $clientesYaProcesados = [];
+
+            foreach ($conversaciones as $conversacion) {
+                $clienteId = $conversacion->client_id;
+
+                // Si ya procesamos este cliente, skip
+                if (in_array($clienteId, $clientesYaProcesados)) {
+                    continue;
+                }
+
+                $clientesYaProcesados[] = $clienteId;
+
+                if ($conversacion->client && $conversacion->numero) {
+                    $contacto = [
+                        'id' => $conversacion->client->id,
+                        'nombre' => trim($conversacion->client->name . ' ' . ($conversacion->client->primerApellido ?? '') . ' ' . ($conversacion->client->segundoApellido ?? '')),
+                        'telefono' => $conversacion->numero,
+                        'dominio' => null
+                    ];
+
+                    // Si el agente es Hera Dominios, obtener el dominio principal del cliente
+                    $agent = \App\Models\ElevenlabsAgent::where('agent_id', $agentId)->first();
+                    if ($agent && stripos($agent->name, 'dominios') !== false) {
+                        // Obtener el primer dominio activo del cliente
+                        $dominio = $conversacion->client->dominios()->first();
+                        if ($dominio) {
+                            $contacto['dominio'] = $dominio->dominio;
+                        }
+                    }
+
+                    $contactosAgrupados[] = $contacto;
+                }
+            }
+
+            \Illuminate\Support\Facades\Log::info('Contactos procesados:', [
+                'total_contactos' => count($contactosAgrupados)
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'contactos' => $contactosAgrupados,
+                'total' => count($contactosAgrupados)
+            ]);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error en getSinRespuestaByAgent:', [
+                'agent_id' => $agentId,
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener contactos sin respuesta: ' . $e->getMessage(),
+                'contactos' => []
             ], 500);
         }
     }

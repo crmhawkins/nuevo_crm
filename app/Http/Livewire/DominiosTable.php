@@ -216,8 +216,13 @@ class DominiosTable extends Component
 
     public function filtroRango30Dias()
     {
-        $this->fechaInicio = now()->format('Y-m-d');
-        $this->fechaFin = now()->addDays(30)->format('Y-m-d');
+        // Calcular el mes completo siguiente
+        // Ejemplo: Si estamos en noviembre, mostrar del 1 al 31 de diciembre
+        $primerDiaMesSiguiente = now()->addMonth()->startOfMonth();
+        $ultimoDiaMesSiguiente = now()->addMonth()->endOfMonth();
+
+        $this->fechaInicio = $primerDiaMesSiguiente->format('Y-m-d');
+        $this->fechaFin = $ultimoDiaMesSiguiente->format('Y-m-d');
         $this->resetPage();
         $this->actualizarDominios();
     }
