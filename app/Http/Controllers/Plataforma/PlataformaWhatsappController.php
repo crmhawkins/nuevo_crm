@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use App\Models\Plataforma\WhatsappContacts;
 use App\Models\Plataforma\CampaniasWhatsapp;
 use App\Http\Controllers\Plataforma\PlataformaWhatsappApi;
+use Illuminate\Support\Facades\Http as FacadesHttp;
 
 class PlataformaWhatsappController extends Controller
 {
@@ -213,12 +214,15 @@ class PlataformaWhatsappController extends Controller
         }
 
         $user = Auth::user();
-        $url = 'https://graph.facebook.com/v22.0/262465576940163/message_templates?fields=name,status';
+        $businessId = env('BUSINESS_ID', '113437731696576');
+        $url = 'https://graph.facebook.com/v22.0/' . $businessId . '/message_templates?fields=name,status';
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . env('WHATSAPP_TOKEN'), 'Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -558,7 +562,7 @@ class PlataformaWhatsappController extends Controller
 
     public function getMessages(Request $request)
     {
-        $response = Http::get('http://whatsapp-api.hawkins.es:4688/get-chat', [
+        $response = FacadesHttp::get('http://whatsapp-api.hawkins.es:4688/get-chat', [
             'chatId' => $request->chatId,
         ]);
 
@@ -567,7 +571,7 @@ class PlataformaWhatsappController extends Controller
 
     public function getChats()
     {
-        $response = Http::get('http://whatsapp-api.hawkins.es:4688/get-chats');
+        $response = FacadesHttp::get('http://whatsapp-api.hawkins.es:4688/get-chats');
 
         return response()->json($response->json());
     }
@@ -604,7 +608,7 @@ class PlataformaWhatsappController extends Controller
             $message = $validated['message'];
         }
 
-        $response = Http::post('http://whatsapp-api.hawkins.es:4688/send-message', [
+        $response = FacadesHttp::post('http://whatsapp-api.hawkins.es:4688/send-message', [
             'message' => $message,
             'chatId' => $validated['chatId'],
         ]);

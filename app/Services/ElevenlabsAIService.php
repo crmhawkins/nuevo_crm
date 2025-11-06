@@ -170,7 +170,10 @@ class ElevenlabsAIService
             // Crear alerta para el usuario ID 8
             $this->createIncidenciaAlert($conversation, $agent);
 
-            Log::info('✅ Alerta de incidencia creada', [
+            // Enviar WhatsApp automático a Nico
+            $this->enviarWhatsAppIncidencia($conversation, $agent);
+
+            Log::info('✅ Alerta de incidencia creada y WhatsApp enviado', [
                 'conversation_id' => $conversation->conversation_id,
                 'agent_name' => $agent->name,
                 'category' => $conversation->specific_category,
@@ -212,6 +215,116 @@ class ElevenlabsAIService
             'cont_postpone' => 0,
             'description' => $description,
         ]);
+    }
+
+    /**
+     * Enviar WhatsApp automático de incidencia a Nico
+     */
+    protected function enviarWhatsAppIncidencia(ElevenlabsConversation $conversation, \App\Models\ElevenlabsAgent $agent): void
+    {
+        try {
+            // Mapeo de categorías a texto legible
+            $categoryLabels = [
+                'incidencia_general' => 'Incidencia General',
+                'incidencia_limpieza' => 'Incidencia de Limpieza',
+                'incidencia_mantenimiento' => 'Incidencia de Mantenimiento',
+                'incidencia_de_limpieza' => 'Incidencia de Limpieza',
+                'incidencia_de_mantenimiento' => 'Incidencia de Mantenimiento',
+            ];
+
+            $tipoIncidencia = $categoryLabels[$conversation->specific_category] ?? $conversation->specific_category;
+
+            // Obtener número del cliente de la conversación
+            $numeroCliente = $conversation->numero ?? 'No disponible';
+
+            // Si no hay número, intentar obtenerlo del cliente asociado
+            if ($numeroCliente === 'No disponible' && $conversation->client_id) {
+                $cliente = \App\Models\Clients\Client::find($conversation->client_id);
+                if ($cliente && $cliente->phone) {
+                    $numeroCliente = $cliente->phone;
+                }
+            }
+
+            // Preparar datos para el template
+            $phoneDestino = '+34634261382'; // Nico
+            $token = env('TOKEN_WHATSAPP');
+            $phoneNumberId = '102360642838173';
+            $urlMensajes = 'https://graph.facebook.com/v18.0/' . $phoneNumberId . '/messages';
+
+            $payload = [
+                "messaging_product" => "whatsapp",
+                "recipient_type" => "individual",
+                "to" => $phoneDestino,
+                "type" => "template",
+                "template" => [
+                    "name" => "reparaciones",
+                    "language" => [
+                        "code" => "es"
+                    ],
+                    "components" => [
+                        [
+                            "type" => "body",
+                            "parameters" => [
+                                ["type" => "text", "text" => "Nico"], // {{1}} Nombre del operario
+                                ["type" => "text", "text" => "sin identificar"], // {{2}} Apartamento
+                                ["type" => "text", "text" => "no identificado"], // {{3}} Edificio
+                                ["type" => "text", "text" => $tipoIncidencia], // {{4}} Tipo de incidencia
+                                ["type" => "text", "text" => $numeroCliente], // {{5}} Teléfono del cliente
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+
+            // Enviar el mensaje usando cURL
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $urlMensajes,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Authorization: Bearer ' . $token
+                ],
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+            ]);
+
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+
+            $resultado = json_decode($response, true);
+
+            if ($httpCode === 200 && isset($resultado['messages'])) {
+                Log::info('✅ WhatsApp de incidencia enviado exitosamente', [
+                    'conversation_id' => $conversation->conversation_id,
+                    'destino' => $phoneDestino,
+                    'tipo_incidencia' => $tipoIncidencia,
+                    'numero_cliente' => $numeroCliente,
+                    'message_id' => $resultado['messages'][0]['id'] ?? 'N/A'
+                ]);
+            } else {
+                Log::error('❌ Error al enviar WhatsApp de incidencia', [
+                    'conversation_id' => $conversation->conversation_id,
+                    'http_code' => $httpCode,
+                    'response' => $resultado
+                ]);
+            }
+
+        } catch (Exception $e) {
+            Log::error('❌ Excepción al enviar WhatsApp de incidencia', [
+                'conversation_id' => $conversation->conversation_id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 
     /**

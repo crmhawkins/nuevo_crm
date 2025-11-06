@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 class PlataformaWhatsappApi extends Controller
 {
     public function getTemplateStatus() {
-        $url = 'https://graph.facebook.com/v22.0/262465576940163/message_templates?fields=name,status';
+        $businessId = env('BUSINESS_ID', '113437731696576');
+        $url = 'https://graph.facebook.com/v22.0/' . $businessId . '/message_templates?fields=name,status';
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -17,6 +18,8 @@ class PlataformaWhatsappApi extends Controller
             'Authorization: Bearer ' . env('WHATSAPP_TOKEN'),
             'Content-Type: application/json'
         ]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

@@ -283,7 +283,7 @@ class AccionesController extends Controller
     public function autoMensajeWhatsappTemplate($phone, $template)
     {
         $token = env('TOKEN_WHATSAPP', 'valorPorDefecto');
-        $urlMensajes = 'https://graph.facebook.com/v18.0/254315494430032/messages';
+        $urlMensajes = 'https://graph.facebook.com/v18.0/102360642838173/messages';
 
         $mensajePersonalizado = [
             "messaging_product" => "whatsapp",
@@ -323,6 +323,8 @@ class AccionesController extends Controller
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $token
             ],
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
         ]);
 
         $response = curl_exec($curl);

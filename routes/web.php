@@ -753,6 +753,13 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     Route::post('/whatsapp', [WhatsappController::class, 'processHookWhatsapp'])->name('whatsapp.processHookWhatsapp');
     Route::get('/chatgpt/{texto}', [WhatsappController::class, 'chatGptPruebas'])->name('whatsapp.chatGptPruebas');
 
+    // Prueba de envío de mensaje simple sin template
+Route::get('/whatsapp/prueba', function() {
+    return view('whatsapp.prueba');
+})->name('whatsapp.prueba');
+Route::post('/whatsapp/enviar-prueba', [WhatsappController::class, 'enviarMensajePrueba'])->name('whatsapp.enviarPrueba');
+Route::post('/whatsapp/enviar-template', [WhatsappController::class, 'enviarTemplatePrueba'])->name('whatsapp.enviarTemplate');
+
     Route::get('/mensajes-whatsapp', [WhatsappController::class, 'whatsapp'])->name('whatsapp.mensajes');
     Route::get('/acciones', [AccionesController::class, 'index'])->name('acciones.index');
     Route::get('/acciones/enviar', [AccionesController::class, 'enviar'])->name('acciones.enviar');

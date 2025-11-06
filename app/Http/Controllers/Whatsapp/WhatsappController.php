@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Models\KitDigital;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class WhatsappController extends Controller
 {
@@ -604,10 +605,232 @@ class WhatsappController extends Controller
         }
     }
 
+    /**
+     * Función de prueba para enviar template "reparaciones" con parámetros
+     */
+    public function enviarTemplatePrueba(Request $request)
+    {
+        try {
+            Log::info('=== INICIO enviarTemplatePrueba ===', [
+                'request_all' => $request->all()
+            ]);
+
+            $request->validate([
+                'phone' => 'required|string',
+                'nombre' => 'required|string',
+                'apartamento' => 'required|string',
+                'tipo_incidencia' => 'required|string',
+                'numero_cliente' => 'required|string',
+            ]);
+
+            $phone = $request->phone;
+
+            // Limpiar número de teléfono
+            $phone = preg_replace('/[^0-9+]/', '', $phone);
+            if (!str_starts_with($phone, '+')) {
+                if (str_starts_with($phone, '34')) {
+                    $phone = '+' . $phone;
+                } elseif (strlen($phone) === 9) {
+                    $phone = '+34' . $phone;
+                }
+            }
+
+            $token = env('TOKEN_WHATSAPP');
+            $phoneNumberId = '102360642838173';
+            $urlMensajes = 'https://graph.facebook.com/v18.0/' . $phoneNumberId . '/messages';
+
+            // Construir el payload del template
+            $payload = [
+                "messaging_product" => "whatsapp",
+                "recipient_type" => "individual",
+                "to" => $phone,
+                "type" => "template",
+                "template" => [
+                    "name" => "reparaciones",
+                    "language" => [
+                        "code" => "es"
+                    ],
+                    "components" => [
+                        [
+                            "type" => "body",
+                            "parameters" => [
+                                ["type" => "text", "text" => $request->nombre],
+                                ["type" => "text", "text" => $request->apartamento],
+                                ["type" => "text", "text" => "no identificado"], // Edificio
+                                ["type" => "text", "text" => $request->tipo_incidencia],
+                                ["type" => "text", "text" => $request->numero_cliente],
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+
+            Log::info('Payload del template:', $payload);
+
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $urlMensajes,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Authorization: Bearer ' . $token
+                ],
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+            ]);
+
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+
+            $resultado = json_decode($response, true);
+
+            Log::info('Respuesta de WhatsApp API:', [
+                'http_code' => $httpCode,
+                'response' => $resultado
+            ]);
+
+            if ($httpCode !== 200 || isset($resultado['error'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al enviar template',
+                    'error' => $resultado['error'] ?? 'Error desconocido',
+                    'http_code' => $httpCode,
+                    'phone_usado' => $phone
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Template enviado exitosamente',
+                'data' => $resultado,
+                'phone_usado' => $phone
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Error de validación:', $e->errors());
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos inválidos',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Excepción en enviarTemplatePrueba:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar template',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Función de prueba simple para enviar mensaje de WhatsApp sin template
+     */
+    public function enviarMensajePrueba(Request $request)
+    {
+        try {
+            Log::info('=== INICIO enviarMensajePrueba ===', [
+                'request_all' => $request->all()
+            ]);
+
+            $request->validate([
+                'phone' => 'required|string',
+                'mensaje' => 'required|string|max:4096'
+            ]);
+
+            $phone = $request->phone;
+            $texto = $request->mensaje;
+
+            Log::info('Datos recibidos:', [
+                'phone_original' => $phone,
+                'mensaje' => $texto
+            ]);
+
+            // Limpiar número de teléfono (quitar espacios, guiones, etc.)
+            $phone = preg_replace('/[^0-9+]/', '', $phone);
+
+            // Asegurarse de que tenga formato internacional
+            if (!str_starts_with($phone, '+')) {
+                if (str_starts_with($phone, '34')) {
+                    $phone = '+' . $phone;
+                } elseif (strlen($phone) === 9) {
+                    $phone = '+34' . $phone;
+                }
+            }
+
+            Log::info('Teléfono procesado:', ['phone' => $phone]);
+
+            $resultado = $this->contestarWhatsapp($phone, $texto);
+
+            Log::info('Resultado de contestarWhatsapp:', $resultado);
+
+            if (isset($resultado['error'])) {
+                Log::error('Error en resultado:', ['error' => $resultado['error']]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al enviar mensaje',
+                    'error' => $resultado['error'],
+                    'phone_usado' => $phone
+                ], 500);
+            }
+
+            // Verificar si la respuesta de WhatsApp contiene error
+            if (isset($resultado['error']) || (isset($resultado['messages']) && empty($resultado['messages']))) {
+                Log::error('Error en respuesta de WhatsApp:', $resultado);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error de WhatsApp API',
+                    'error' => $resultado['error']['message'] ?? 'Respuesta inválida de WhatsApp',
+                    'error_details' => $resultado,
+                    'phone_usado' => $phone
+                ], 500);
+            }
+
+            Log::info('✅ Mensaje enviado exitosamente');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Mensaje enviado exitosamente',
+                'data' => $resultado,
+                'phone_usado' => $phone
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Error de validación:', $e->errors());
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos inválidos',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error general:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar mensaje de prueba',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+        }
+    }
+
     public function contestarWhatsapp($phone, $texto)
     {
         $token = env('TOKEN_WHATSAPP', 'valorPorDefecto');
-        $urlMensajes = 'https://graph.facebook.com/v18.0/254315494430032/messages';
+        $urlMensajes = 'https://graph.facebook.com/v18.0/102360642838173/messages';
 
         $mensajePersonalizado = [
             "messaging_product" => "whatsapp",
@@ -636,6 +859,8 @@ class WhatsappController extends Controller
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $token
             ],
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
         ]);
 
         $response = curl_exec($curl);
@@ -660,7 +885,7 @@ class WhatsappController extends Controller
     public function autoMensajeWhatsappTemplate($phone, $client, $template)
     {
         $token = env('TOKEN_WHATSAPP', 'valorPorDefecto');
-        $urlMensajes = 'https://graph.facebook.com/v18.0/254315494430032/messages';
+        $urlMensajes = 'https://graph.facebook.com/v18.0/102360642838173/messages';
 
         $mensajePersonalizado = [
             "messaging_product" => "whatsapp",
@@ -700,6 +925,8 @@ class WhatsappController extends Controller
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $token
             ],
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
         ]);
 
         $response = curl_exec($curl);
