@@ -182,19 +182,32 @@ class ElevenlabsApiController extends Controller
 
     /**
      * Obtener contactos sin respuesta o con respuesta de IA/contestador filtrados por agente
+     * Acepta conversation_ids para filtrar solo conversaciones de la página actual
      */
-    public function getSinRespuestaByAgent($agentId)
+    public function getSinRespuestaByAgent(Request $request, $agentId)
     {
         try {
-            \Illuminate\Support\Facades\Log::info('=== INICIO getSinRespuestaByAgent ===', ['agent_id' => $agentId]);
+            \Illuminate\Support\Facades\Log::info('=== INICIO getSinRespuestaByAgent ===', [
+                'agent_id' => $agentId,
+                'conversation_ids' => $request->input('conversation_ids')
+            ]);
 
-            // Obtener conversaciones "sin_respuesta" Y "respuesta_ia" del agente con cliente y teléfono válidos
-            $conversaciones = ElevenlabsConversation::where('agent_id', $agentId)
+            // Construir query base
+            $query = ElevenlabsConversation::where('agent_id', $agentId)
                 ->whereIn('sentiment_category', ['sin_respuesta', 'respuesta_ia'])
                 ->whereNotNull('client_id')
                 ->whereNotNull('numero')
-                ->with(['client.dominios']) // Cargar relación de dominios
-                ->get();
+                ->with(['client.dominios']); // Cargar relación de dominios
+
+            // Si vienen conversation_ids específicos (desde página actual), filtrar solo por esos
+            if ($request->has('conversation_ids') && is_array($request->conversation_ids)) {
+                $query->whereIn('id', $request->conversation_ids);
+                \Illuminate\Support\Facades\Log::info('Filtrando por conversation_ids de página actual', [
+                    'total_ids' => count($request->conversation_ids)
+                ]);
+            }
+
+            $conversaciones = $query->get();
 
             \Illuminate\Support\Facades\Log::info('Conversaciones sin respuesta o respuesta IA encontradas:', [
                 'total' => $conversaciones->count(),

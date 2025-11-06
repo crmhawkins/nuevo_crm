@@ -1498,12 +1498,42 @@ function cargarContactosSinRespuesta(agentId) {
             <div class="spinner-border spinner-border-sm text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
-            <p class="mt-2 mb-0">Cargando contactos no atendidos...</p>
+            <p class="mt-2 mb-0">Obteniendo contactos de la página actual...</p>
         </div>
     `;
 
-    // Llamar al endpoint para obtener contactos sin respuesta o con respuesta de IA/contestador por agente
-    fetch(`/api/elevenlabs-monitoring/sin-respuesta/${agentId}`)
+    // Obtener solo los conversation IDs visibles en la tabla actual
+    const conversacionesVisibles = [];
+    document.querySelectorAll('tbody tr[data-conversation-id]').forEach(row => {
+        const conversationId = row.getAttribute('data-conversation-id');
+        if (conversationId) {
+            conversacionesVisibles.push(conversationId);
+        }
+    });
+
+    if (conversacionesVisibles.length === 0) {
+        lista.innerHTML = `
+            <div class="alert alert-warning mb-0">
+                <i class="fas fa-info-circle"></i> No hay conversaciones en la página actual
+            </div>
+        `;
+        document.getElementById('botonesSeleccion').style.display = 'none';
+        document.getElementById('totalRellamadas').textContent = '0';
+        document.getElementById('btnEnviarRellamada').disabled = true;
+        return;
+    }
+
+    // Llamar al endpoint para obtener solo los contactos de las conversaciones visibles
+    fetch(`/api/elevenlabs-monitoring/sin-respuesta/${agentId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            conversation_ids: conversacionesVisibles
+        })
+    })
         .then(response => response.json())
         .then(data => {
             if (data.success && data.contactos && data.contactos.length > 0) {
@@ -1513,8 +1543,8 @@ function cargarContactosSinRespuesta(agentId) {
             } else {
                 lista.innerHTML = `
                     <div class="alert alert-warning mb-0">
-                        <i class="fas fa-info-circle"></i> No hay contactos para rellamar con este agente
-                        <br><small class="mt-1 d-block">No se encontraron contactos sin respuesta o con respuesta de IA/contestador</small>
+                        <i class="fas fa-info-circle"></i> No hay contactos para rellamar en la página actual
+                        <br><small class="mt-1 d-block">No se encontraron contactos sin respuesta o con respuesta de IA/contestador en las conversaciones mostradas</small>
                     </div>
                 `;
                 document.getElementById('botonesSeleccion').style.display = 'none';

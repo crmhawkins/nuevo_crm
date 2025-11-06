@@ -1031,8 +1031,8 @@ Route::middleware(['auth'])->prefix('api/elevenlabs-monitoring')->group(function
     Route::post('/sync', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'sync']);
     Route::post('/conversations/{id}/process', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'process']);
 
-    // Obtener contactos sin respuesta por agente
-    Route::get('/sin-respuesta/{agentId}', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'getSinRespuestaByAgent']);
+    // Obtener contactos sin respuesta por agente (GET para todos, POST para filtrar por IDs de página actual)
+    Route::match(['get', 'post'], '/sin-respuesta/{agentId}', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'getSinRespuestaByAgent']);
 
     // Agentes
     Route::get('/agents/{agentId}/categories', [\App\Http\Controllers\ElevenAgentsController::class, 'getCategories']);
