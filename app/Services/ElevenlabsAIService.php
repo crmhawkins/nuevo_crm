@@ -337,7 +337,7 @@ class ElevenlabsAIService
 Clasifica en UNA de estas 6 opciones:
 1. **contento** - Cliente satisfecho, acepta, agradece, tono positivo, o responde de forma educada aunque sea breve
 2. **descontento** - Cliente rechaza, no interesado, tono negativo o borde
-3. **sin_respuesta** - Cliente NO responde EN ABSOLUTO. Solo hay silencio, \"...\", o el agente habla solo sin NINGUNA respuesta del cliente.
+3. **sin_respuesta** - Cliente NO responde EN ABSOLUTO. Solo hay silencio, \"...\", o el agente habla solo sin NINGUNA respuesta del cliente. Esta categoria no es para clientes que no llegan a una conclusion, esta categoria es unicamente para llamadas en las que el cliente no habla absolutamente nada.
 4. **baja** - Cliente solicita EXPLÍCITAMENTE darse de baja del servicio
 5. **llamada_agendada** - Se agenda una cita, llamada o follow-up con el cliente
 6. **respuesta_ia** - Contestó un CONTESTADOR AUTOMÁTICO, buzón de voz, asistente virtual o sistema de respuesta automática
