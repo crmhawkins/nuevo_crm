@@ -108,8 +108,12 @@ class EnviarWhatsAppIncidencias extends Command
 
             $tipoIncidencia = $categoryLabels[$conversation->specific_category] ?? $conversation->specific_category;
 
+            // Normalizar texto para cumplir con las restricciones de WhatsApp
+            $tipoIncidencia = $this->sanitizeWhatsappText($tipoIncidencia, 'Incidencia General');
+
             // Obtener resumen (limitar a 500 caracteres para el template)
             $resumen = $conversation->summary_es ?? 'Sin resumen disponible';
+            $resumen = $this->sanitizeWhatsappText($resumen, 'Sin resumen disponible');
             if (strlen($resumen) > 500) {
                 $resumen = substr($resumen, 0, 497) . '...';
             }
@@ -124,6 +128,8 @@ class EnviarWhatsAppIncidencias extends Command
                     $numeroCliente = $cliente->phone;
                 }
             }
+
+            $numeroCliente = $this->sanitizeWhatsappText($numeroCliente, 'No disponible');
 
             // Preparar datos para el template
             $phoneDestino = '+34634261382'; // Nico
@@ -215,5 +221,28 @@ class EnviarWhatsAppIncidencias extends Command
 
             return false;
         }
+    }
+
+    /**
+     * Normaliza texto para cumplir con restricciones de WhatsApp (sin saltos de línea ni espacios consecutivos)
+     */
+    protected function sanitizeWhatsappText(?string $text, string $fallback = ''): string
+    {
+        if ($text === null) {
+            $text = '';
+        }
+
+        // Reemplazar saltos de línea, tabs y espacios múltiples por un único espacio
+        $text = preg_replace('/[\t\r\n]+/', ' ', $text);
+        $text = preg_replace('/\s{2,}/', ' ', $text);
+
+        // Eliminar espacios al inicio y final
+        $text = trim($text);
+
+        if ($text === '') {
+            return $fallback;
+        }
+
+        return $text;
     }
 }
