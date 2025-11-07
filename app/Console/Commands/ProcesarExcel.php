@@ -135,11 +135,11 @@ class ProcesarExcel extends Command
                 }
 
                 $apiUrl = 'https://api.openai.com/v1/chat/completions';
-                $apiKey = env('OPENAI_API_KEY');
+                $apiKey = env('EXCEL_API');
 
                 if (empty($apiKey)) {
-                    $this->error('No se ha configurado la API key de OpenAI');
-                    throw new \Exception('No se ha configurado la API key de OpenAI');
+                    $this->error('No se ha configurado la API key EXCEL_API');
+                    throw new \Exception('No se ha configurado la API key EXCEL_API');
                 }
 
                 $rows = array_map(function ($row) {
