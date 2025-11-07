@@ -131,86 +131,110 @@ class EnviarWhatsAppIncidencias extends Command
 
             $numeroCliente = $this->sanitizeWhatsappText($numeroCliente, 'No disponible');
 
-            // Preparar datos para el template
-            $phoneDestino = '+34634261382'; // Nico
+            $destinatarios = [
+                ['nombre' => 'Nico', 'telefono' => '+34634261382'],
+                ['nombre' => 'Elena', 'telefono' => '+34664368232'],
+                ['nombre' => 'Limpiadora', 'telefono' => '++34633065237'],
+            ];
+
             $token = env('TOKEN_WHATSAPP');
             $phoneNumberId = '102360642838173';
             $urlMensajes = 'https://graph.facebook.com/v18.0/' . $phoneNumberId . '/messages';
 
-            $payload = [
-                "messaging_product" => "whatsapp",
-                "recipient_type" => "individual",
-                "to" => $phoneDestino,
-                "type" => "template",
-                "template" => [
-                    "name" => "incidencia_apartamentos",
-                    "language" => [
-                        "code" => "es"
-                    ],
-                    "components" => [
-                        [
-                            "type" => "body",
-                            "parameters" => [
-                                ["type" => "text", "text" => $tipoIncidencia], // {{1}} Tipo de incidencia
-                                ["type" => "text", "text" => $resumen], // {{2}} Resumen
-                                ["type" => "text", "text" => $numeroCliente], // {{3}} Número del cliente
+            $enviosExitosos = 0;
+
+            foreach ($destinatarios as $destinatario) {
+                $phoneDestino = $this->sanitizePhoneNumber($destinatario['telefono']);
+
+                if ($phoneDestino === null) {
+                    Log::warning('⚠️ Número inválido para destinatario de incidencias', [
+                        'conversation_id' => $conversation->conversation_id,
+                        'destinatario' => $destinatario['nombre'],
+                        'telefono_original' => $destinatario['telefono']
+                    ]);
+                    continue;
+                }
+
+                $payload = [
+                    "messaging_product" => "whatsapp",
+                    "recipient_type" => "individual",
+                    "to" => $phoneDestino,
+                    "type" => "template",
+                    "template" => [
+                        "name" => "incidencia_apartamentos",
+                        "language" => [
+                            "code" => "es"
+                        ],
+                        "components" => [
+                            [
+                                "type" => "body",
+                                "parameters" => [
+                                    ["type" => "text", "text" => $tipoIncidencia],
+                                    ["type" => "text", "text" => $resumen],
+                                    ["type" => "text", "text" => $numeroCliente],
+                                ]
                             ]
                         ]
                     ]
-                ]
-            ];
+                ];
 
-            // Enviar el mensaje usando cURL
-            $curl = curl_init();
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $urlMensajes,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 10,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => json_encode($payload),
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                    'Authorization: Bearer ' . $token
-                ],
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => false,
-            ]);
+                $curl = curl_init();
+                curl_setopt_array($curl, [
+                    CURLOPT_URL => $urlMensajes,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => '',
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 10,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => 'POST',
+                    CURLOPT_POSTFIELDS => json_encode($payload),
+                    CURLOPT_HTTPHEADER => [
+                        'Content-Type: application/json',
+                        'Authorization: Bearer ' . $token
+                    ],
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
+                ]);
 
-            $response = curl_exec($curl);
-            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            curl_close($curl);
+                $response = curl_exec($curl);
+                $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                curl_close($curl);
 
-            $resultado = json_decode($response, true);
+                $resultado = json_decode($response, true);
 
-            if ($httpCode === 200 && isset($resultado['messages'])) {
-                // Marcar como enviado
+                if ($httpCode === 200 && isset($resultado['messages'])) {
+                    $enviosExitosos++;
+
+                    Log::info('✅ WhatsApp de incidencia enviado', [
+                        'conversation_id' => $conversation->conversation_id,
+                        'destinatario' => $destinatario['nombre'],
+                        'destino' => $phoneDestino,
+                        'tipo_incidencia' => $tipoIncidencia,
+                        'numero_cliente' => $numeroCliente,
+                        'message_id' => $resultado['messages'][0]['id'] ?? 'N/A'
+                    ]);
+                } else {
+                    Log::error('❌ Error al enviar WhatsApp de incidencia', [
+                        'conversation_id' => $conversation->conversation_id,
+                        'destinatario' => $destinatario['nombre'],
+                        'destino' => $phoneDestino,
+                        'http_code' => $httpCode,
+                        'response' => $resultado
+                    ]);
+                }
+            }
+
+            if ($enviosExitosos > 0) {
                 $conversation->update([
                     'whatsapp_incidencia_enviado' => true,
                     'whatsapp_incidencia_enviado_at' => now()
                 ]);
 
-                Log::info('✅ WhatsApp de incidencia enviado', [
-                    'conversation_id' => $conversation->conversation_id,
-                    'destino' => $phoneDestino,
-                    'tipo_incidencia' => $tipoIncidencia,
-                    'numero_cliente' => $numeroCliente,
-                    'message_id' => $resultado['messages'][0]['id'] ?? 'N/A'
-                ]);
-
                 return true;
-            } else {
-                Log::error('❌ Error al enviar WhatsApp de incidencia', [
-                    'conversation_id' => $conversation->conversation_id,
-                    'http_code' => $httpCode,
-                    'response' => $resultado
-                ]);
-
-                return false;
             }
+
+            return false;
 
         } catch (\Exception $e) {
             Log::error('❌ Excepción al enviar WhatsApp de incidencia', [
@@ -244,5 +268,37 @@ class EnviarWhatsAppIncidencias extends Command
         }
 
         return $text;
+    }
+
+    /**
+     * Normaliza números de teléfono a formato internacional con un único prefijo '+'
+     */
+    protected function sanitizePhoneNumber(?string $phone): ?string
+    {
+        if ($phone === null) {
+            return null;
+        }
+
+        $phone = trim($phone);
+        $phone = preg_replace('/\s+/', '', $phone);
+        $phone = preg_replace('/^\++/', '+', $phone); // Asegura un solo + al principio
+
+        if ($phone === '+') {
+            return null;
+        }
+
+        if (!str_starts_with($phone, '+')) {
+            if (str_starts_with($phone, '34')) {
+                $phone = '+' . $phone;
+            } elseif (preg_match('/^\d{9}$/', $phone)) {
+                $phone = '+34' . $phone;
+            }
+        }
+
+        if (!preg_match('/^\+\d{6,15}$/', $phone)) {
+            return null;
+        }
+
+        return $phone;
     }
 }
