@@ -1168,7 +1168,11 @@
     function normalizePhone(number) {
         if (!number) return '';
         let cleaned = number.toString().trim();
-        cleaned = cleaned.replace(/[-()]/g, '').replace(/\s+/g, '');
+        cleaned = cleaned.replace(/[\s\-()]/g, '');
+        cleaned = cleaned.replace(/[^0-9+]/g, '');
+        if (!cleaned) {
+            return '';
+        }
         if (cleaned.startsWith('00')) {
             cleaned = '+' + cleaned.slice(2);
         }
@@ -1184,7 +1188,7 @@
         if (/^[6-9]\d{8}$/.test(cleaned)) {
             return '+34' + cleaned;
         }
-        return cleaned.startsWith('+34') ? cleaned : `+34${cleaned}`;
+        return cleaned.startsWith('+34') && /^\+34[0-9]{9}$/.test(cleaned) ? cleaned : '';
     }
 
     function escapeHtml(str) {

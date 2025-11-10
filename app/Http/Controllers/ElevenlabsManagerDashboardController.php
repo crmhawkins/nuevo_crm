@@ -103,17 +103,19 @@ class ElevenlabsManagerDashboardController extends Controller
             )
             ->leftJoinSub($invoiceTotals, 'invoice_totals', 'invoice_totals.client_id', '=', 'clients.id')
             ->whereNotNull('clients.phone')
-            ->where('clients.phone', '!=', '');
+            ->where('clients.phone', '!=', '')
+            ->whereRaw("LOWER(TRIM(clients.phone)) <> 'x'");
 
         $secondaryPhones = DB::table('clients_phones')
             ->selectRaw(
-                "clients.id as client_id, clients_phones.id as phone_id, clients_phones.number as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, 'Alternativo' as label"
+                "clients.id as client_id, clients_phones.id as phone_id, clients_phones.number as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, COALESCE(clients_phones.label, 'Alternativo') as label"
             )
             ->join('clients', 'clients.id', '=', 'clients_phones.client_id')
             ->leftJoinSub($invoiceTotals, 'invoice_totals', 'invoice_totals.client_id', '=', 'clients.id')
             ->whereNull('clients_phones.deleted_at')
             ->whereNotNull('clients_phones.number')
-            ->where('clients_phones.number', '!=', '');
+            ->where('clients_phones.number', '!=', '')
+            ->whereRaw("LOWER(TRIM(clients_phones.number)) <> 'x'");
 
         $union = $principalPhones->unionAll($secondaryPhones);
         $query = DB::query()->fromSub($union, 'phones');
