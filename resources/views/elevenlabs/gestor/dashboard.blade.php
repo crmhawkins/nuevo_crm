@@ -585,6 +585,9 @@
                     <div class="d-flex gap-2 align-items-center">
                         <button type="button" class="btn btn-outline-secondary btn-sm" id="pickerSelectAllBtn">Seleccionar visibles</button>
                         <button type="button" class="btn btn-outline-secondary btn-sm" id="pickerClearBtn">Limpiar selección</button>
+                        <button type="button" class="btn btn-success btn-sm" id="pickerExportBtn">
+                            <i class="fa-solid fa-file-excel"></i> Exportar visibles
+                        </button>
                     </div>
                 </div>
                 <div class="table-responsive" style="max-height: 420px;">
@@ -622,6 +625,7 @@
 @section('js')
 <script>
     const clientApiUrl = "{{ route('elevenlabs.gestor.clients.data') }}";
+    const clientExportUrl = "{{ route('elevenlabs.gestor.clients.export') }}";
     const callUpdateUrlTemplate = "{{ route('elevenlabs.gestor.call.update', ['call' => '__CALL__']) }}";
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const toggleResolvedBtn = document.getElementById('toggleResolved');
@@ -678,6 +682,7 @@
     const pickerResultsCount = document.getElementById('pickerResultsCount');
     const pickerSelectAllBtn = document.getElementById('pickerSelectAllBtn');
     const pickerClearBtn = document.getElementById('pickerClearBtn');
+    const pickerExportBtn = document.getElementById('pickerExportBtn');
     const pickerApplyBtn = document.getElementById('pickerApplyBtn');
     const pickerToggleAll = document.getElementById('pickerToggleAll');
     const pickerPagination = document.getElementById('pickerPagination');
@@ -800,6 +805,21 @@
             pickerSelection.clear();
             renderClientPicker();
         });
+        if (pickerExportBtn) {
+            pickerExportBtn.addEventListener('click', () => {
+                const params = new URLSearchParams({
+                    page: clientFilters.page,
+                    per_page: clientFilters.per_page,
+                    sort: clientFilters.sort,
+                    search: clientFilters.search || '',
+                    date_from: clientFilters.date_from || '',
+                    date_to: clientFilters.date_to || '',
+                    billing_min: clientFilters.billing_min || '',
+                    billing_max: clientFilters.billing_max || '',
+                });
+                window.open(`${clientExportUrl}?${params.toString()}`, '_blank');
+            });
+        }
         pickerToggleAll.addEventListener('change', event => {
             selectVisibleClients(event.target.checked);
         });

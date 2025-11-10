@@ -6,7 +6,11 @@ use App\Models\ElevenlabsCampaign;
 use App\Models\ElevenlabsCampaignCall;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class ElevenlabsManagerDashboardController extends Controller
 {
@@ -78,6 +82,84 @@ class ElevenlabsManagerDashboardController extends Controller
 
     public function clientsData(Request $request)
     {
+        [$query, $perPage, $page] = $this->buildClientsQuery($request);
+
+        $countQuery = clone $query;
+        $total = $countQuery->count();
+
+        $results = (clone $query)
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage)
+            ->get()
+            ->map(fn ($row) => $this->mapClientRow($row));
+
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $from = $total === 0 ? 0 : (($page - 1) * $perPage) + 1;
+        $to = $total === 0 ? 0 : min($total, $from + $perPage - 1);
+
+        return response()->json([
+            'data' => $results,
+            'pagination' => [
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $page,
+                'last_page' => $lastPage,
+                'from' => $from,
+                'to' => $to,
+            ],
+        ]);
+    }
+
+    public function exportClients(Request $request)
+    {
+        [$query, $perPage, $page] = $this->buildClientsQuery($request);
+
+        $rows = (clone $query)
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage)
+            ->get()
+            ->map(fn ($row) => $this->mapClientRow($row));
+
+        $export = new class($rows) implements FromCollection, WithHeadings {
+            public function __construct(private readonly Collection $rows) {}
+
+            public function collection(): Collection
+            {
+                return $this->rows->map(function ($row) {
+                    return [
+                        'Cliente' => $row['name'] ?? '',
+                        'Empresa' => $row['company'] ?? '',
+                        'Teléfono' => $row['phone'] ?? '',
+                        'Etiqueta' => $row['label'] ?? '',
+                        'Fecha de alta' => $row['created_at'] ?? '',
+                        'Facturación (€)' => $row['billing'],
+                    ];
+                });
+            }
+
+            public function headings(): array
+            {
+                return [
+                    'Cliente',
+                    'Empresa',
+                    'Teléfono',
+                    'Etiqueta',
+                    'Fecha de alta',
+                    'Facturación (€)',
+                ];
+            }
+        };
+
+        $fileName = sprintf('clientes-elevenlabs-%s.xlsx', now()->format('Ymd_His'));
+
+        return Excel::download($export, $fileName);
+    }
+
+    /**
+     * @return array{0:\Illuminate\Database\Query\Builder,1:int,2:int}
+     */
+    protected function buildClientsQuery(Request $request): array
+    {
         $perPageOptions = [15, 50, 100, 150];
         $perPage = $request->integer('per_page', 50);
         if (!in_array($perPage, $perPageOptions, true)) {
@@ -98,18 +180,14 @@ class ElevenlabsManagerDashboardController extends Controller
             ->groupBy('client_id');
 
         $principalPhones = DB::table('clients')
-            ->selectRaw(
-                "clients.id as client_id, NULL as phone_id, clients.phone as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, 'Principal' as label"
-            )
+            ->selectRaw("clients.id as client_id, NULL as phone_id, clients.phone as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, 'Principal' as label")
             ->leftJoinSub($invoiceTotals, 'invoice_totals', 'invoice_totals.client_id', '=', 'clients.id')
             ->whereNotNull('clients.phone')
             ->where('clients.phone', '!=', '')
             ->whereRaw("LOWER(TRIM(clients.phone)) <> 'x'");
 
         $secondaryPhones = DB::table('clients_phones')
-            ->selectRaw(
-                "clients.id as client_id, clients_phones.id as phone_id, clients_phones.number as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, COALESCE(clients_phones.label, 'Alternativo') as label"
-            )
+            ->selectRaw("clients.id as client_id, clients_phones.id as phone_id, clients_phones.number as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, COALESCE(clients_phones.label, 'Alternativo') as label")
             ->join('clients', 'clients.id', '=', 'clients_phones.client_id')
             ->leftJoinSub($invoiceTotals, 'invoice_totals', 'invoice_totals.client_id', '=', 'clients.id')
             ->whereNull('clients_phones.deleted_at')
@@ -145,9 +223,6 @@ class ElevenlabsManagerDashboardController extends Controller
             $query->where('phones.billing', '<=', (float) $billingMax);
         }
 
-        $countQuery = clone $query;
-        $total = $countQuery->count();
-
         switch ($sort) {
             case 'billing_desc':
                 $query->orderByDesc('phones.billing')->orderBy('phones.name');
@@ -167,38 +242,21 @@ class ElevenlabsManagerDashboardController extends Controller
                 break;
         }
 
-        $results = $query
-            ->skip(($page - 1) * $perPage)
-            ->take($perPage)
-            ->get()
-            ->map(function ($row) {
-                return [
-                    'client_id' => (int) $row->client_id,
-                    'phone_id' => $row->phone_id ? (int) $row->phone_id : null,
-                    'phone' => $row->phone,
-                    'name' => $row->name,
-                    'company' => $row->company,
-                    'created_at' => $row->created_at ? Carbon::parse($row->created_at)->toDateString() : null,
-                    'billing' => (float) $row->billing,
-                    'label' => $row->label,
-                ];
-            });
+        return [$query, $perPage, $page];
+    }
 
-        $lastPage = max(1, (int) ceil($total / $perPage));
-        $from = $total === 0 ? 0 : (($page - 1) * $perPage) + 1;
-        $to = $total === 0 ? 0 : min($total, $from + $perPage - 1);
-
-        return response()->json([
-            'data' => $results,
-            'pagination' => [
-                'total' => $total,
-                'per_page' => $perPage,
-                'current_page' => $page,
-                'last_page' => $lastPage,
-                'from' => $from,
-                'to' => $to,
-            ],
-        ]);
+    protected function mapClientRow(object $row): array
+    {
+        return [
+            'client_id' => (int) $row->client_id,
+            'phone_id' => $row->phone_id ? (int) $row->phone_id : null,
+            'phone' => $row->phone,
+            'name' => $row->name,
+            'company' => $row->company,
+            'created_at' => $row->created_at ? Carbon::parse($row->created_at)->toDateString() : null,
+            'billing' => round((float) $row->billing, 2),
+            'label' => $row->label,
+        ];
     }
 
     public function calls(Request $request, ElevenlabsCampaign $campaign)

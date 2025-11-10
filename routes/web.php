@@ -1030,6 +1030,7 @@ Route::middleware(['auth', 'gestor'])
         Route::get('/clientes/listado', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'clientsData'])->name('clients.data');
         Route::get('/campanas/{campaign}/llamadas', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'calls'])->name('campaign.calls');
         Route::post('/llamadas/{call}/estado', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'updateCallStatus'])->name('call.update');
+        Route::get('/clientes/exportar', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'exportClients'])->name('clients.export');
     });
 
 // API AJAX para Eleven Labs Monitoring (usa autenticación web)
