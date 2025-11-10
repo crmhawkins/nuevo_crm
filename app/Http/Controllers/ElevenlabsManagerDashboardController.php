@@ -187,7 +187,7 @@ class ElevenlabsManagerDashboardController extends Controller
             ->whereRaw("LOWER(TRIM(clients.phone)) <> 'x'");
 
         $secondaryPhones = DB::table('clients_phones')
-            ->selectRaw("clients.id as client_id, clients_phones.id as phone_id, clients_phones.number as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, COALESCE(clients_phones.label, 'Alternativo') as label")
+            ->selectRaw("clients.id as client_id, clients_phones.id as phone_id, clients_phones.number as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, 'Alternativo' as label")
             ->join('clients', 'clients.id', '=', 'clients_phones.client_id')
             ->leftJoinSub($invoiceTotals, 'invoice_totals', 'invoice_totals.client_id', '=', 'clients.id')
             ->whereNull('clients_phones.deleted_at')
