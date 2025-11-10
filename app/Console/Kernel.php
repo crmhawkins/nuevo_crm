@@ -281,9 +281,9 @@ class Kernel extends ConsoleKernel
 
         })->monthlyOn(1, '08:00');
 
-        // $schedule->command('queue:work --queue=default,newsletter_automatic,newsletter_manual,newsletter_smart --tries=3')
-        //     ->cron('* * * * *')
-        //     ->withoutOverlapping();
+        $schedule->command('queue:work --queue=justificaciones --stop-when-empty --tries=3 --timeout=600')
+            ->cron('* * * * *')
+            ->withoutOverlapping();
     }
 
     protected function sendEmailHoras(){
@@ -378,6 +378,7 @@ class Kernel extends ConsoleKernel
         return 200;
 
     }
+
     public function tiempoProducidoDia($dia, $id) {
 
         $now = $dia->format('Y-m-d');
