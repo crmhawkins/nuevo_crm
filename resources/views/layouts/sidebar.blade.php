@@ -68,6 +68,7 @@
                     $gerente = $user && $user->access_level_id == 2;
                     $contable = $user && $user->access_level_id == 3;
                     $gestor = $user && $user->access_level_id == 4;
+                    $elevenGestorAccess = $gestor || ($user && $user->id == 81);
                     $personal = $user && $user->access_level_id == 5;
                     $comercial = $user && $user->access_level_id == 6;
                     @endphp
@@ -119,7 +120,7 @@
                                 </li>
                             </ul>
                         </li>
-                        @if($gestor)
+                        @if($elevenGestorAccess)
                         <li class="sidebar-item {{ request()->routeIs('elevenlabs.gestor.*') ? 'active' : '' }}">
                             <a href="{{ route('elevenlabs.gestor.dashboard') }}" class='sidebar-link'>
                                 <i class="fa-solid fa-robot fs-5"></i>
