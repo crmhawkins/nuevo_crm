@@ -14,7 +14,7 @@ class ElevenDashboard extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            $allowedUserIds = [1, 52, 81, 83, 160];
+            $allowedUserIds = [1, 8, 52, 81, 83, 160];
 
             if (!auth()->check() || !in_array(auth()->id(), $allowedUserIds, true)) {
                 abort(403);
