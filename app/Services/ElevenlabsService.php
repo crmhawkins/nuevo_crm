@@ -4,6 +4,8 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\ElevenlabsCampaign;
+use App\Models\ElevenlabsCampaignCall;
 use App\Models\ElevenlabsConversation;
 use App\Models\ElevenlabsAgent;
 use Carbon\Carbon;
@@ -39,14 +41,14 @@ class ElevenlabsService
             if ($fromTimestamp) {
                 $params['call_start_after_unix'] = $fromTimestamp;
             }
-            
+
             // Cursor para paginación
             if ($cursor) {
                 $params['cursor'] = $cursor;
             }
 
             $url = $this->buildUrl('/convai/conversations');
-            
+
             Log::info('🔍 Obteniendo conversaciones de Eleven Labs', [
                 'url' => $url,
                 'params' => $params,
@@ -58,9 +60,9 @@ class ElevenlabsService
                 ->withOptions(['verify' => false])
                 ->timeout((int) $this->timeout)
                 ->get($url, $params);
-            
+
             $data = $response->json();
-            
+
             Log::info('📥 Respuesta recibida', [
                 'status' => $response->status(),
                 'has_conversations' => isset($data['conversations']),
@@ -93,7 +95,7 @@ class ElevenlabsService
     {
         try {
             $url = $this->buildUrl("/convai/conversations/{$conversationId}");
-            
+
             Log::info('🔍 Obteniendo detalles de conversación', [
                 'conversation_id' => $conversationId,
                 'url' => $url,
@@ -114,7 +116,7 @@ class ElevenlabsService
             }
 
             $data = $response->json();
-            
+
             Log::info('✅ Conversación obtenida', [
                 'conversation_id' => $conversationId,
                 'has_transcript' => isset($data['transcript']),
@@ -139,7 +141,7 @@ class ElevenlabsService
     {
         try {
             Log::info('👥 SINCRONIZANDO AGENTES...');
-            
+
             $url = $this->buildUrl('/convai/agents');
             $response = Http::withHeaders($this->getHeaders())
                 ->withOptions(['verify' => false])
@@ -156,7 +158,7 @@ class ElevenlabsService
 
             $data = $response->json();
             $agents = $data['agents'] ?? [];
-            
+
             Log::info("📋 Agentes recibidos: " . count($agents));
 
             $syncedCount = 0;
@@ -221,21 +223,21 @@ class ElevenlabsService
         try {
             do {
                 Log::info("📄 === PÁGINA {$page}/{$maxPages} ===");
-                
+
                 $response = $this->getConversations($page, $limit, $fromTimestamp);
 
                 $conversations = $response['conversations'] ?? [];
-                
+
                 Log::info("📋 Conversaciones en página {$page}: " . count($conversations));
 
                 foreach ($conversations as $index => $convData) {
                     $convId = $convData['conversation_id'] ?? 'unknown';
                     Log::info("  📞 [" . ($index + 1) . "/" . count($conversations) . "] Procesando: {$convId}");
-                    
+
                     try {
                         $result = $this->saveConversation($convData);
                         $stats['total']++;
-                        
+
                         if ($result['created']) {
                             $stats['new']++;
                             Log::info("    ✅ NUEVA conversación guardada");
@@ -249,11 +251,11 @@ class ElevenlabsService
                         ]);
                     }
                 }
-                
+
                 $hasMore = $response['has_more'] ?? false;
                 Log::info("📊 Página {$page} completada. ¿Hay más? " . ($hasMore ? 'SÍ' : 'NO'));
                 Log::info("📈 Stats actuales: Total={$stats['total']}, Nuevas={$stats['new']}, Actualizadas={$stats['updated']}");
-                
+
                 $page++;
 
             } while ($hasMore && count($conversations) > 0 && $page <= $maxPages);
@@ -277,7 +279,7 @@ class ElevenlabsService
     protected function saveConversation(array $conversationData): array
     {
         $conversationId = $conversationData['conversation_id'] ?? null;
-        
+
         if (!$conversationId) {
             throw new Exception('conversation_id no encontrado');
         }
@@ -310,12 +312,12 @@ class ElevenlabsService
 
         // Mapear campos
         $conversation->conversation_id = $conversationId;
-        
+
         // Obtener información del agente desde caché local (BD)
         $agentId = $fullData['agent_id'] ?? $conversationData['agent_id'] ?? null;
         if ($agentId) {
             $conversation->agent_id = $agentId;
-            
+
             // Buscar nombre del agente en la tabla local (sin hacer petición a API)
             $agentName = ElevenlabsAgent::getNameByAgentId($agentId);
             if ($agentName) {
@@ -325,16 +327,22 @@ class ElevenlabsService
                 Log::warning("      ⚠️ Agente {$agentId} no encontrado en BD local");
             }
         }
-        
+
         // Fecha
         $timestamp = $fullData['metadata']['start_time_unix_secs'] ?? $conversationData['start_time_unix_secs'] ?? time();
         $conversation->conversation_date = Carbon::createFromTimestamp($timestamp);
         Log::debug("      📅 Fecha: {$conversation->conversation_date->format('Y-m-d H:i:s')}");
-        
+
         // Duración
         $conversation->duration_seconds = $fullData['metadata']['call_duration_secs'] ?? $conversationData['call_duration_secs'] ?? 0;
         Log::debug("      ⏱️ Duración: {$conversation->duration_seconds} segundos");
-        
+
+        // Número de teléfono asociado (si está disponible)
+        $phoneNumber = $this->extractPhoneNumber($fullData);
+        if ($phoneNumber && empty($conversation->numero)) {
+            $conversation->numero = $phoneNumber;
+        }
+
         // Metadata completa
         $conversation->metadata = $fullData;
 
@@ -360,12 +368,135 @@ class ElevenlabsService
         }
 
         $conversation->save();
+
+        $this->linkConversationToCampaign($conversation, $fullData);
         Log::info("      💾 Conversación guardada en BD (ID: {$conversation->id})");
 
         return [
             'created' => $created,
             'conversation' => $conversation,
         ];
+    }
+
+    protected function extractPhoneNumber(array $data): ?string
+    {
+        $paths = [
+            'customer_phone_number',
+            'phone_number',
+            'metadata.customer_phone_number',
+            'metadata.phone_number',
+            'metadata.customer.phone_number',
+            'metadata.recipient.phone_number',
+            'metadata.call_details.customer_phone_number',
+            'metadata.call_details.phone_number',
+            'metadata.conversation.customer_phone_number',
+            'metadata.conversation.phone_number',
+        ];
+
+        foreach ($paths as $path) {
+            $value = data_get($data, $path);
+            if (is_string($value) && trim($value) !== '') {
+                return trim($value);
+            }
+        }
+
+        return null;
+    }
+
+    protected function linkConversationToCampaign(ElevenlabsConversation $conversation, array $fullData): void
+    {
+        try {
+            [$campaignUid, $callUid] = $this->extractCampaignIdentifiers($fullData);
+
+            if (!$campaignUid && !$callUid) {
+                Log::debug('🔎 Conversación sin metadatos de campaña', [
+                    'conversation_id' => $conversation->conversation_id,
+                ]);
+                return;
+            }
+
+            $campaign = $campaignUid
+                ? ElevenlabsCampaign::where('uid', $campaignUid)->first()
+                : null;
+
+            if (!$campaign && $callUid) {
+                $campaignCall = ElevenlabsCampaignCall::where('uid', $callUid)->first();
+                $campaign = $campaignCall ? $campaignCall->campaign : null;
+            }
+
+            if (!$campaign) {
+                Log::warning('⚠️ No se encontró la campaña vinculada', [
+                    'conversation_id' => $conversation->conversation_id,
+                    'campaign_uid' => $campaignUid,
+                    'call_uid' => $callUid,
+                ]);
+                return;
+            }
+
+            $campaignCall = null;
+
+            if ($callUid) {
+                $campaignCall = $campaign->calls()->where('uid', $callUid)->first();
+            }
+
+            if (!$campaignCall && $conversation->numero) {
+                $campaignCall = $campaign->calls()
+                    ->where('phone_number', $conversation->numero)
+                    ->whereNull('eleven_conversation_internal_id')
+                    ->orderBy('id')
+                    ->first();
+            }
+
+            if (!$campaignCall) {
+                $campaignCall = $campaign->calls()
+                    ->whereNull('eleven_conversation_internal_id')
+                    ->orderBy('id')
+                    ->first();
+            }
+
+            if (!$campaignCall) {
+                Log::warning('⚠️ No se encontró llamada asociada en la campaña', [
+                    'conversation_id' => $conversation->conversation_id,
+                    'campaign_id' => $campaign->id,
+                ]);
+                return;
+            }
+
+            $conversation->campaign_id = $campaign->id;
+            $conversation->campaign_call_id = $campaignCall->id;
+            $conversation->campaign_initial_prompt = $campaignCall->custom_prompt ?? $campaign->initial_prompt;
+            $conversation->save();
+
+            $campaignCall->eleven_conversation_id = $conversation->conversation_id;
+            $campaignCall->eleven_conversation_internal_id = $conversation->id;
+            $campaignCall->save();
+
+            $campaign->refreshCounters();
+
+            Log::info('🔗 Conversación vinculada a campaña', [
+                'conversation_id' => $conversation->conversation_id,
+                'campaign_id' => $campaign->id,
+                'campaign_call_id' => $campaignCall->id,
+            ]);
+        } catch (Exception $e) {
+            Log::error('❌ Error vinculando conversación con campaña', [
+                'conversation_id' => $conversation->conversation_id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    protected function extractCampaignIdentifiers(array $data): array
+    {
+        $campaignUid = data_get($data, 'conversation_initiation_client_data.metadata.crm_campaign_uid');
+        $callUid = data_get($data, 'conversation_initiation_client_data.metadata.crm_call_uid');
+
+        if (!$campaignUid && isset($data['metadata']) && is_array($data['metadata'])) {
+            $campaignUid = data_get($data['metadata'], 'conversation_initiation_client_data.metadata.crm_campaign_uid', $campaignUid);
+            $callUid = data_get($data['metadata'], 'conversation_initiation_client_data.metadata.crm_call_uid', $callUid);
+        }
+
+        return [$campaignUid, $callUid];
     }
 
     /**
@@ -375,12 +506,12 @@ class ElevenlabsService
     protected function formatTranscript(array $messages): string
     {
         $transcript = '';
-        
+
         foreach ($messages as $msg) {
             $role = $msg['role'] ?? 'unknown';
             $message = $msg['message'] ?? '';
             $time = $msg['time_in_call_secs'] ?? null;
-            
+
             // Si el mensaje está vacío, es probable que sea una llamada a herramienta
             if (empty($message)) {
                 if (isset($msg['tool_calls']) && !empty($msg['tool_calls'])) {
@@ -391,7 +522,7 @@ class ElevenlabsService
                     continue; // Omitir mensajes vacíos sin herramientas
                 }
             }
-            
+
             // Formatear con timestamp
             if ($time !== null) {
                 $minutes = floor($time / 60);

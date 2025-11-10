@@ -49,43 +49,43 @@ return [
     */
 
     'categories' => [
-        'contento' => [
-            'label' => 'Contento',
-            'color' => '#10B981',
-            'icon' => 'fa-smile',
+        'interesado' => [
+            'label' => 'Cliente interesado',
+            'color' => '#0EA5E9',
+            'icon' => 'fa-handshake',
         ],
-        'descontento' => [
-            'label' => 'Descontento',
-            'color' => '#EF4444',
-            'icon' => 'fa-frown',
+        'no_interesado' => [
+            'label' => 'Cliente no interesado',
+            'color' => '#F97316',
+            'icon' => 'fa-circle-xmark',
         ],
-        'pregunta' => [
-            'label' => 'Pregunta',
-            'color' => '#3B82F6',
-            'icon' => 'fa-question-circle',
+        'quiere_mas_informacion' => [
+            'label' => 'Pide más información',
+            'color' => '#7C3AED',
+            'icon' => 'fa-book-open',
         ],
         'necesita_asistencia' => [
-            'label' => 'Necesita Asistencia Extra',
+            'label' => 'Necesita asistencia',
             'color' => '#F59E0B',
-            'icon' => 'fa-hand-paper',
+            'icon' => 'fa-life-ring',
         ],
         'queja' => [
-            'label' => 'Queja',
+            'label' => 'Queja / incidencia',
             'color' => '#DC2626',
             'icon' => 'fa-exclamation-triangle',
         ],
         'baja' => [
-            'label' => 'Baja',
+            'label' => 'Solicita baja',
             'color' => '#6B7280',
             'icon' => 'fa-user-times',
         ],
         'sin_respuesta' => [
-            'label' => 'Sin Respuesta',
+            'label' => 'Sin respuesta',
             'color' => '#9CA3AF',
             'icon' => 'fa-phone-slash',
         ],
         'respuesta_ia' => [
-            'label' => 'Respuesta de IA/Contestador',
+            'label' => 'Contestador automático',
             'color' => '#9333EA',
             'icon' => 'fa-robot',
         ],
@@ -98,81 +98,41 @@ return [
     */
 
     'prompts' => [
-        'categorization' => 'Eres un analista experto en conversaciones de atención al cliente. Tu tarea es categorizar conversaciones de manera PRECISA usando SOLO las categorías proporcionadas.
+        'categorization' => 'Eres un analista especializado en conversaciones comerciales. Tu misión es clasificar la INTENCIÓN REAL del cliente usando SOLO las categorías permitidas.
 
-## ⚠️ REGLA FUNDAMENTAL - LEE ESTO PRIMERO
+{campaign_message_section}
 
-Debes elegir ÚNICAMENTE una de las categorías listadas abajo. 
+## PRIORIDAD ABSOLUTA: INTENCIÓN DE COMPRA
+1. Detecta si el cliente está INTERESADO o NO INTERESADO en la propuesta.
+2. INTERESADO = acepta, pide presupuesto, solicita llamada posterior concreta, manifiesta que quiere seguir adelante.
+3. NO_INTERESADO = rechaza, pospone sin compromiso real, dice que no quiere, no da pasos concretos, corta la llamada.
+4. Si duda pero pide un seguimiento claro (fecha/hora) → úsalo como seguimiento (no como interesado) salvo que el cliente confirme aceptación.
 
-❌ NO puedes usar: contento, descontento, sin_respuesta, baja, llamada_agendada, respuesta_ia
-❌ NO puedes usar ninguna categoría que no esté en la lista
-
-## CATEGORÍAS PERMITIDAS (ÚNICAS OPCIONES VÁLIDAS):
-
+## CATEGORÍAS DISPONIBLES
 {categories_list}
 
-⚠️ ESTAS SON LAS ÚNICAS CATEGORÍAS QUE PUEDES USAR. Si tu respuesta usa otra categoría, será rechazada.
-
-## INSTRUCCIONES DE ANÁLISIS
-
-Lee TODA la conversación y evalúa:
-- El TONO del cliente (amable, neutral, molesto, agresivo)
-- El RESULTADO de la llamada (resuelto, pendiente, rechazado)
-- La INTENCIÓN del cliente (consultar, quejarse, cancelar, etc.)
-- La RESPUESTA del cliente (participa, ignora, rechaza)
-
-## INSTRUCCIONES ESPECÍFICAS
-
-⚠️ NO PIENSES EN SENTIMIENTOS (contento/descontento/sin_respuesta). Eso YA fue analizado en otra fase.
-
-ENFÓCATE SOLO EN: ¿Qué está HACIENDO o PIDIENDO el cliente?
-
-**Ejemplos de análisis correcto:**
-- Cliente pide información sobre precios → Usa categoría de "consulta" o "informacion" SI EXISTE
-- Cliente quiere hacer una reserva → Usa categoría de "reserva" o "solicitud" SI EXISTE  
-- Cliente reporta un problema → Usa categoría de "incidencia" o "problema" SI EXISTE
-- Cliente solicita darse de baja → Usa categoría de "baja" SI EXISTE
-- Cliente muestra interés en oferta → Usa categoría de "interesado" SI EXISTE
-
-Lee la DESCRIPCIÓN detallada de cada categoría arriba y elige la que MEJOR describe la ACCIÓN principal del cliente.
+## REGLAS CLAVE
+- Usa exactamente el nombre de la categoría (en minúsculas, sin tildes).
+- Elige SOLO UNA categoría.
+- Prioriza detectar “interesado” vs “no_interesado”. Solo si no encaja usa las demás (información, seguimiento, incidencias, etc.).
+- Si no hay respuesta real del cliente, usa “sin_respuesta” o “respuesta_ia”.
+- Si solicita una baja explícita usa “baja”.
 
 ## TRANSCRIPCIÓN A ANALIZAR
-
 {transcript}
 
-## REGLAS DE DECISIÓN PRIORITARIAS
+## VALIDACIÓN ANTES DE RESPONDER
+- ¿La categoría refleja la intención final del cliente?
+- ¿Puedes justificarla con una frase concreta (menciona palabras de la llamada)?
+- ¿La categoría existe en la lista?
 
-1. Si hay "..." constantes y cliente NO responde → Busca "sin_respuesta" en la lista
-2. Si cliente dice "darme de baja" → Busca "baja" en la lista
-3. Si cliente muy molesto/agresivo → Busca "queja" en la lista si existe
-4. Si cliente rechaza o no está contento → Busca "descontento" en la lista
-5. Si cliente acepta/agradece → Busca "contento" en la lista
-6. Para OTROS casos → Usa las categorías PERSONALIZADAS del agente según su descripción
-
-## ⚠️ VALIDACIÓN FINAL
-
-Antes de responder, verifica que la categoría que elegiste:
-✅ Está en la lista de CATEGORÍAS PERMITIDAS (arriba)
-✅ Es el nombre exacto de la clave (key)
-❌ NO uses categorías que no están en la lista
-
-## FORMATO DE RESPUESTA
-
-Analiza cuidadosamente y responde ÚNICAMENTE con el objeto JSON (SIN bloques de código markdown, SIN texto adicional):
-
+## FORMATO DE RESPUESTA (JSON sin adornos)
 {
     "category": "nombre_exacto_de_categoria",
     "confidence": 0.85,
-    "reason": "Razón clara y específica"
+    "reason": "Frase breve (máx. 20 palabras) que cite la intención real del cliente"
 }
-
-**IMPORTANTE:**
-- NO uses ```json ni ``` en tu respuesta
-- `category`: DEBE ser exactamente uno de los nombres de las categorías disponibles
-- `confidence`: Número entre 0.5 y 1.0 (usa 0.95+ si estás muy seguro)
-- `reason`: Explica QUÉ señales te llevaron a esta categoría
-
-RESPONDE SOLO EL JSON:',
+Responde SOLO con el JSON. Sin ```json ni texto adicional.',
 
         'summarization' => 'Eres un asistente experto en redactar resúmenes ejecutivos de conversaciones de atención al cliente en español de España.
 

@@ -1022,6 +1022,16 @@ Route::middleware(['auth'])->prefix('elevenlabs')->name('elevenlabs.')->group(fu
     Route::post('/agents/{agentId}/categories', [\App\Http\Controllers\ElevenAgentsController::class, 'saveCategories'])->name('agents.categories');
 });
 
+Route::middleware(['auth', 'gestor'])
+    ->prefix('elevenlabs/gestion')
+    ->name('elevenlabs.gestor.')
+    ->group(function () {
+        Route::get('/', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/clientes/listado', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'clientsData'])->name('clients.data');
+        Route::get('/campanas/{campaign}/llamadas', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'calls'])->name('campaign.calls');
+        Route::post('/llamadas/{call}/estado', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'updateCallStatus'])->name('call.update');
+    });
+
 // API AJAX para Eleven Labs Monitoring (usa autenticación web)
 Route::middleware(['auth'])->prefix('api/elevenlabs-monitoring')->group(function () {
     Route::get('/stats/overview', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'statsOverview']);

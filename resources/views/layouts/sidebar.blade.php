@@ -119,6 +119,14 @@
                                 </li>
                             </ul>
                         </li>
+                        @if($gestor)
+                        <li class="sidebar-item {{ request()->routeIs('elevenlabs.gestor.*') ? 'active' : '' }}">
+                            <a href="{{ route('elevenlabs.gestor.dashboard') }}" class='sidebar-link'>
+                                <i class="fa-solid fa-robot fs-5"></i>
+                                <span>ElevenLabs Gestor</span>
+                            </a>
+                        </li>
+                        @endif
                         <li class="sidebar-item is_sub has-sub {{ $peticionesActive ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="fa-solid fa-clipboard  fs-5"></i>
@@ -313,7 +321,7 @@
                                 </li>
                             </ul>
                         </li>
-                        
+
                         @if ($admin || $gerente || $contable)
                         <li class="sidebar-item {{ request()->routeIs('objetivos.*') ? 'active' : '' }}">
                             <a href="{{route('objetivos.index')}}" class='sidebar-link hasnt_sub'>
@@ -877,7 +885,7 @@
                         </ul>
                     </li>
                 @endif
-                
+
                 {{-- AutoSEO - Accesible para todos --}}
                 <li class="sidebar-title">Herramientas IA</li>
                 <li class="sidebar-item {{ request()->routeIs('autoseo.*') ? 'active' : '' }}">

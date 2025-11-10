@@ -61,7 +61,8 @@ class ElevenlabsAIService
                 // Categorizar específicamente solo si hubo interacción
                 $specificResult = $this->categorizeSpecific(
                     $conversation->transcript,
-                    $conversation->agent_id
+                    $conversation->agent_id,
+                    $conversation->campaign_initial_prompt
                 );
 
                 if (!$specificResult) {
@@ -121,6 +122,8 @@ class ElevenlabsAIService
             // Verificar si debe crear alerta para incidencias de Maria Apartamentos
             $this->checkAndCreateIncidenciaAlert($conversation);
 
+            $this->syncCampaignCall($conversation);
+
             return true;
 
         } catch (Exception $e) {
@@ -131,6 +134,39 @@ class ElevenlabsAIService
 
             $conversation->markAsFailed();
             return false;
+        }
+    }
+
+    protected function syncCampaignCall(ElevenlabsConversation $conversation): void
+    {
+        try {
+            $campaignCall = $conversation->campaignCall;
+
+            if (!$campaignCall) {
+                return;
+            }
+
+            $campaignCall->sentiment_category = $conversation->sentiment_category;
+            $campaignCall->specific_category = $conversation->specific_category;
+            $campaignCall->confidence_score = $conversation->confidence_score;
+            $campaignCall->summary = $conversation->summary_es;
+            $campaignCall->save();
+
+            if ($campaignCall->campaign) {
+                $campaignCall->campaign->refreshCounters();
+            }
+
+            Log::info('📊 Campaña actualizada con resultados de llamada', [
+                'campaign_call_id' => $campaignCall->id,
+                'conversation_id' => $conversation->conversation_id,
+                'sentiment' => $conversation->sentiment_category,
+                'specific' => $conversation->specific_category,
+            ]);
+        } catch (Exception $e) {
+            Log::error('❌ Error sincronizando llamada de campaña', [
+                'conversation_id' => $conversation->conversation_id ?? null,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
@@ -256,7 +292,7 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
     /**
      * Categorizar con categoría específica del agente
      */
-    public function categorizeSpecific(string $transcript, ?string $agentId = null): ?array
+    public function categorizeSpecific(string $transcript, ?string $agentId = null, ?string $campaignMessage = null): ?array
     {
         if (empty($transcript)) {
             return null;
@@ -272,6 +308,7 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
         ]);
 
         $prompt = config('elevenlabs.prompts.categorization');
+        $prompt = str_replace('{campaign_message_section}', $this->buildCampaignMessageSection($campaignMessage), $prompt);
         $prompt = str_replace('{categories_list}', $categoriesList, $prompt);
         $prompt = str_replace('{transcript}', $transcript, $prompt);
 
@@ -291,15 +328,13 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
         // VALIDAR que la categoría esté en la lista permitida
         if ($result && isset($result['category'])) {
             // Rechazar automáticamente si es una categoría de sentimiento (fijas)
-            if (in_array($result['category'], ['contento', 'descontento', 'sin_respuesta', 'baja', 'llamada_agendada'])) {
-                Log::error('❌ IA devolvió categoría de SENTIMIENTO en lugar de específica', [
+            if (in_array($result['category'], ['sin_respuesta', 'baja', 'llamada_agendada', 'respuesta_ia'])) {
+                Log::error('❌ IA devolvió categoría de uso reservado', [
                     'categoria_devuelta' => $result['category'],
                     'categorias_permitidas' => $allowedCategories,
                 ]);
 
-                // Intentar inferir categoría correcta del texto
                 if (count($allowedCategories) > 0) {
-                    // Usar la primera categoría como fallback con baja confianza
                     $fallback = $allowedCategories[0];
                     Log::warning('⚠️ Usando categoría fallback', [
                         'fallback' => $fallback,
@@ -358,6 +393,17 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
         return $result;
     }
 
+    protected function buildCampaignMessageSection(?string $campaignMessage): string
+    {
+        if (!$campaignMessage || trim($campaignMessage) === '') {
+            return "## CONTEXTO DE LA CAMPAÑA\nNo se proporcionó un mensaje inicial específico para esta campaña.\n";
+        }
+
+        $cleanedMessage = trim($campaignMessage);
+
+        return "## CONTEXTO DE LA CAMPAÑA\nEste fue el mensaje inicial enviado automáticamente al cliente antes de su respuesta:\n\"{$cleanedMessage}\"\n\nConsidera este contexto para entender la intención original de la llamada.\n";
+    }
+
     /**
      * Obtener categorías permitidas para un agente (solo específicas, sin sentimiento)
      */
@@ -374,7 +420,7 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
         }
 
         // Categorías por defecto (sin las de sentimiento)
-        return ['consulta_informacion', 'solicitud_servicio', 'problema_tecnico', 'seguimiento'];
+        return ['interesado', 'no_interesado', 'quiere_mas_informacion', 'seguimiento_programado', 'necesita_asistencia', 'queja'];
     }
 
     /**
@@ -389,12 +435,35 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
 
         // Mapeos de categorías genéricas a específicas
         $mappings = [
-            'pregunta' => ['consulta_informacion', 'solicita_informacion', 'solicita_info'],
-            'consulta' => ['consulta_informacion', 'solicita_informacion'],
-            'solicita_info' => ['consulta_informacion', 'solicita_informacion'],
-            'reserva' => ['solicita_reserva', 'solicitud_reserva', 'solicitud_de_reserva'],
-            'mantenimiento' => ['incidencia_mantenimiento', 'incidencia_de_mantenimiento'],
-            'problema' => ['incidencia_mantenimiento', 'necesita_asistencia'],
+            'pregunta' => ['quiere_mas_informacion', 'solicita_informacion'],
+            'consulta' => ['quiere_mas_informacion', 'solicita_informacion'],
+            'solicita_info' => ['quiere_mas_informacion', 'solicita_informacion'],
+            'reserva' => ['seguimiento_programado'],
+            'seguimiento' => ['seguimiento_programado'],
+            'mantenimiento' => ['necesita_asistencia'],
+            'problema' => ['necesita_asistencia', 'queja'],
+            'incidencia' => ['queja'],
+            'acepta' => ['interesado'],
+            'contrata' => ['interesado'],
+            'comprar' => ['interesado'],
+            'me interesa' => ['interesado'],
+            'interesado' => ['interesado'],
+            'me encaja' => ['interesado'],
+            'adelante' => ['interesado'],
+            'si me interesa' => ['interesado'],
+            'quiero' => ['interesado'],
+            'enviame' => ['quiere_mas_informacion', 'seguimiento_programado'],
+            'envia' => ['quiere_mas_informacion', 'seguimiento_programado'],
+            'presupuesto' => ['seguimiento_programado'],
+            'desinteres' => ['no_interesado'],
+            'no interesado' => ['no_interesado'],
+            'no me interesa' => ['no_interesado'],
+            'rechaza' => ['no_interesado'],
+            'cancelar' => ['no_interesado'],
+            'llama otro dia' => ['no_interesado'],
+            'no ahora' => ['no_interesado'],
+            'no quiero' => ['no_interesado'],
+            'ya tengo' => ['no_interesado'],
         ];
 
         // Buscar en los mapeos si hay una categoría válida
@@ -448,13 +517,12 @@ Responde ÚNICAMENTE con el objeto JSON (sin bloques de código markdown):
         }
 
         // Categorías por defecto
-        return "1. contento - Cliente satisfecho con el servicio
-2. descontento - Cliente insatisfecho
-3. pregunta - Consulta general
-4. necesita_asistencia - Requiere escalado
-5. queja - Queja formal
-6. baja - Solicita cancelación
-7. sin_respuesta - Sin interacción real";
+        return "1. interesado - Cliente acepta, muestra intención de comprar o pide avanzar (presupuesto, documentación, reunión de cierre).
+2. no_interesado - Cliente rechaza, corta la conversación o pospone sin compromiso real.
+3. quiere_mas_informacion - Pide datos adicionales concretos para evaluar.
+4. seguimiento_programado - Acordaron un seguimiento con fecha/hora o paso claro.
+5. necesita_asistencia - Requiere soporte técnico, incidencia o derivación.
+6. queja - Reclama, manifiesta un problema o disconformidad seria.";
     }
 
     /**

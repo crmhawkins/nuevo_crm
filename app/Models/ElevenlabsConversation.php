@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Clients\Client;
 use App\Models\ElevenlabsAgentCategory;
+use App\Models\ElevenlabsCampaign;
+use App\Models\ElevenlabsCampaignCall;
 use Carbon\Carbon;
 
 class ElevenlabsConversation extends Model
@@ -36,6 +38,9 @@ class ElevenlabsConversation extends Model
         'numero',
         'whatsapp_incidencia_enviado',
         'whatsapp_incidencia_enviado_at',
+        'campaign_id',
+        'campaign_call_id',
+        'campaign_initial_prompt',
     ];
 
     protected $casts = [
@@ -49,6 +54,8 @@ class ElevenlabsConversation extends Model
         'duration_seconds' => 'integer',
         'attended' => 'boolean',
         'whatsapp_incidencia_enviado' => 'boolean',
+        'campaign_id' => 'integer',
+        'campaign_call_id' => 'integer',
     ];
 
     /**
@@ -70,6 +77,16 @@ class ElevenlabsConversation extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(ElevenlabsCampaign::class, 'campaign_id');
+    }
+
+    public function campaignCall(): BelongsTo
+    {
+        return $this->belongsTo(ElevenlabsCampaignCall::class, 'campaign_call_id');
     }
 
     // Scopes

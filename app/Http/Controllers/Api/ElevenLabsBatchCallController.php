@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\ElevenlabsCampaign;
+use App\Models\ElevenlabsCampaignCall;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ElevenLabsBatchCallController extends Controller
 {
@@ -28,6 +32,8 @@ class ElevenLabsBatchCallController extends Controller
      */
     public function submitBatchCall(Request $request)
     {
+        $campaign = null;
+
         try {
             Log::info('=== INICIO submitBatchCall ===');
             Log::info('Datos recibidos:', $request->all());
@@ -59,15 +65,52 @@ class ElevenLabsBatchCallController extends Controller
                 ], 500);
             }
 
-            // Preparar los datos para enviar
-            $payload = [
+            if (!auth()->check()) {
+                Log::error('Intento de envío de campaña sin autenticación válida');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Debes iniciar sesión para enviar campañas'
+                ], 401);
+            }
+
+            $firstMessageBase = $request->input('first_message');
+
+            $normalizedRecipients = [];
+            foreach ($request->recipients as $recipient) {
+                $normalizedRecipients[] = [
+                    'phone_number' => $recipient['phone_number'],
+                    'client_id' => $recipient['client_id'] ?? null,
+                    'custom_prompt' => data_get(
+                        $recipient,
+                        'conversation_initiation_client_data.conversation_config_override.agent.first_message',
+                        $firstMessageBase
+                    ),
+                    'payload' => $recipient,
+                ];
+            }
+
+            [$campaign, $apiCallName, $apiRecipients] = $this->registerCampaign($normalizedRecipients, [
                 'call_name' => $request->call_name,
                 'agent_id' => $request->agent_id,
                 'agent_phone_number_id' => $request->agent_phone_number_id,
-                'recipients' => $request->recipients
+                'agent_phone_number' => $request->input('agent_phone_number'),
+                'initial_prompt' => $firstMessageBase,
+            ]);
+
+            // Preparar los datos para enviar
+            $payload = [
+                'call_name' => $apiCallName,
+                'agent_id' => $request->agent_id,
+                'agent_phone_number_id' => $request->agent_phone_number_id,
+                'recipients' => $apiRecipients,
             ];
 
-            Log::info('Payload preparado:', $payload);
+            Log::info('Payload preparado para ElevenLabs:', [
+                'call_name' => $payload['call_name'],
+                'agent_id' => $payload['agent_id'],
+                'agent_phone_number_id' => $payload['agent_phone_number_id'],
+                'total_recipients' => count($apiRecipients),
+            ]);
 
             // Hacer la petición POST a la API de ElevenLabs
             $response = Http::withHeaders([
@@ -86,24 +129,35 @@ class ElevenLabsBatchCallController extends Controller
 
                 Log::info('Batch call enviado exitosamente:', $responseData);
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Batch call enviado exitosamente a ElevenLabs',
-                    'data' => $responseData
-                ]);
-            } else {
-                Log::error('Error en la respuesta de ElevenLabs:', [
-                    'status' => $response->status(),
-                    'body' => $response->body()
+                $campaign->update([
+                    'status' => 'enviado',
+                    'external_batch_id' => $responseData['batch_id'] ?? $responseData['id'] ?? null,
                 ]);
 
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Error al enviar batch call a ElevenLabs',
-                    'error' => $response->body(),
-                    'status_code' => $response->status()
-                ], $response->status());
+                    'success' => true,
+                    'message' => 'Batch call enviado exitosamente a ElevenLabs',
+                    'data' => $responseData,
+                    'campaign' => [
+                        'id' => $campaign->id,
+                        'uid' => $campaign->uid,
+                    ],
+                ]);
             }
+
+            Log::error('Error en la respuesta de ElevenLabs:', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            $campaign->update(['status' => 'fallido']);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar batch call a ElevenLabs',
+                'error' => $response->body(),
+                'status_code' => $response->status()
+            ], $response->status());
 
         } catch (\Exception $e) {
             Log::error('Error en submitBatchCall:', [
@@ -112,6 +166,10 @@ class ElevenLabsBatchCallController extends Controller
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            if ($campaign) {
+                $campaign->update(['status' => 'fallido']);
+            }
 
             return response()->json([
                 'success' => false,
@@ -317,6 +375,8 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
      */
     public function submitBatchCallConClientesFiltrados(Request $request)
     {
+        $campaign = null;
+
         try {
             Log::info('=== INICIO submitBatchCallConClientesFiltrados ===');
             Log::info('Datos recibidos:', $request->all());
@@ -417,23 +477,39 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 ], 400);
             }
 
-            // Preparar recipients con mensaje personalizado por cliente
-            $recipients = array_map(function($item) {
-                return $item['recipient']; // Ya incluye phone_number y conversation_config_override
+            $normalizedRecipients = array_map(function($item) use ($firstMessageBase) {
+                return [
+                    'phone_number' => $item['telefono'],
+                    'client_id' => $item['cliente_id'],
+                    'custom_prompt' => data_get(
+                        $item['recipient'],
+                        'conversation_initiation_client_data.conversation_config_override.agent.first_message',
+                        $firstMessageBase
+                    ),
+                    'payload' => $item['recipient'],
+                ];
             }, $telefonosParseados);
 
-            // Preparar los datos para enviar a ElevenLabs
-            $payload = [
+            [$campaign, $apiCallName, $apiRecipients] = $this->registerCampaign($normalizedRecipients, [
                 'call_name' => $request->call_name,
                 'agent_id' => $request->agent_id,
                 'agent_phone_number_id' => $request->agent_phone_number_id,
-                'recipients' => $recipients
+                'agent_phone_number' => $request->input('agent_phone_number'),
+                'initial_prompt' => $firstMessageBase,
+            ]);
+
+            // Preparar los datos para enviar a ElevenLabs
+            $payload = [
+                'call_name' => $apiCallName,
+                'agent_id' => $request->agent_id,
+                'agent_phone_number_id' => $request->agent_phone_number_id,
+                'recipients' => $apiRecipients,
             ];
 
             Log::info('Payload preparado para ElevenLabs:', [
                 'call_name' => $payload['call_name'],
-                'total_recipients' => count($recipients),
-                'ejemplo_recipient' => $recipients[0] ?? null
+                'total_recipients' => count($apiRecipients),
+                'ejemplo_recipient' => $apiRecipients[0] ?? null
             ]);
 
             // Hacer la petición POST a la API de ElevenLabs
@@ -449,6 +525,11 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
 
             if ($response->successful()) {
                 $responseData = $response->json();
+
+                $campaign->update([
+                    'status' => 'enviado',
+                    'external_batch_id' => $responseData['batch_id'] ?? $responseData['id'] ?? null,
+                ]);
 
                 // Formatear telefonos_procesados para la respuesta
                 $telefonosInfo = array_map(function($item) {
@@ -473,13 +554,21 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                         'errores' => count($errores)
                     ],
                     'telefonos_procesados' => $telefonosInfo,
-                    'errores' => $errores
+                    'errores' => $errores,
+                    'campaign' => [
+                        'id' => $campaign->id,
+                        'uid' => $campaign->uid,
+                    ],
                 ]);
             } else {
                 Log::error('Error en la respuesta de ElevenLabs:', [
                     'status' => $response->status(),
                     'body' => $response->body()
                 ]);
+
+                if (isset($campaign)) {
+                    $campaign->update(['status' => 'fallido']);
+                }
 
                 return response()->json([
                     'success' => false,
@@ -497,6 +586,10 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            if ($campaign) {
+                $campaign->update(['status' => 'fallido']);
+            }
 
             return response()->json([
                 'success' => false,
@@ -639,6 +732,110 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    protected function registerCampaign(array $normalizedRecipients, array $options): array
+    {
+        if (empty($normalizedRecipients)) {
+            throw new \InvalidArgumentException('Se requiere al menos un destinatario para registrar la campaña.');
+        }
+
+        $userId = auth()->id();
+        if (!$userId) {
+            throw new \RuntimeException('No se pudo determinar el usuario autenticado para la campaña.');
+        }
+
+        $campaignUid = (string) Str::uuid();
+        $apiCallName = $this->buildApiCallName($options['call_name'], $campaignUid);
+
+        $campaign = null;
+        $preparedRecipients = [];
+        $recipientsOverview = [];
+
+        DB::transaction(function () use (
+            &$campaign,
+            &$preparedRecipients,
+            &$recipientsOverview,
+            $normalizedRecipients,
+            $options,
+            $campaignUid,
+            $apiCallName,
+            $userId
+        ) {
+            $campaign = ElevenlabsCampaign::create([
+                'uid' => $campaignUid,
+                'name' => $options['call_name'],
+                'api_call_name' => $apiCallName,
+                'agent_id' => $options['agent_id'],
+                'agent_phone_number_id' => $options['agent_phone_number_id'],
+                'agent_phone_number' => $options['agent_phone_number'] ?? null,
+                'created_by' => $userId,
+                'initial_prompt' => $options['initial_prompt'] ?? null,
+                'status' => 'preparando',
+                'recipients_overview' => [],
+            ]);
+
+            foreach ($normalizedRecipients as $index => $recipient) {
+                $callUid = (string) Str::uuid();
+                $payload = $recipient['payload'];
+
+                $payload['conversation_initiation_client_data'] = $payload['conversation_initiation_client_data'] ?? [];
+                $metadata = $payload['conversation_initiation_client_data']['metadata'] ?? [];
+                $metadata = array_merge($metadata, [
+                    'crm_campaign_uid' => $campaignUid,
+                    'crm_call_uid' => $callUid,
+                    'crm_creator_id' => $userId,
+                    'crm_call_index' => $index,
+                ]);
+
+                if (!empty($recipient['client_id'])) {
+                    $metadata['crm_client_id'] = $recipient['client_id'];
+                }
+
+                $payload['conversation_initiation_client_data']['metadata'] = $metadata;
+
+                $preparedRecipients[] = $payload;
+
+                $recipientsOverview[] = [
+                    'phone_number' => $recipient['phone_number'],
+                    'client_id' => $recipient['client_id'],
+                    'custom_prompt' => $recipient['custom_prompt'],
+                ];
+
+                ElevenlabsCampaignCall::create([
+                    'campaign_id' => $campaign->id,
+                    'uid' => $callUid,
+                    'client_id' => $recipient['client_id'],
+                    'phone_number' => $recipient['phone_number'],
+                    'status' => ElevenlabsCampaignCall::STATUS_PENDIENTE,
+                    'custom_prompt' => $recipient['custom_prompt'],
+                    'metadata' => $payload,
+                ]);
+            }
+
+            $campaign->update([
+                'total_calls' => count($recipientsOverview),
+                'recipients_overview' => $recipientsOverview,
+            ]);
+        });
+
+        Log::info('Campaña ElevenLabs registrada en BD', [
+            'campaign_id' => $campaign->id ?? null,
+            'uid' => $campaignUid,
+            'call_name' => $apiCallName,
+            'total_calls' => $campaign->total_calls ?? 0,
+        ]);
+
+        return [$campaign->fresh(), $apiCallName, $preparedRecipients];
+    }
+
+    protected function buildApiCallName(string $baseName, string $campaignUid): string
+    {
+        $suffix = 'CRM-' . strtoupper(str_replace('-', '', Str::substr($campaignUid, 0, 8)));
+        $availableLength = 240 - (strlen($suffix) + 1);
+        $trimmedBase = mb_strimwidth($baseName, 0, max($availableLength, 10), '');
+
+        return trim($trimmedBase . ' ' . $suffix);
     }
 }
 

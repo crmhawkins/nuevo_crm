@@ -11,6 +11,17 @@ use Illuminate\Support\Facades\Artisan;
 
 class ElevenDashboard extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!auth()->check() || !in_array(auth()->id(), [1, 52])) {
+                abort(403);
+            }
+
+            return $next($request);
+        });
+    }
+
     /**
      * Dashboard principal
      */
