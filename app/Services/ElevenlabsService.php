@@ -378,6 +378,59 @@ class ElevenlabsService
         ];
     }
 
+    public function linkExistingConversation(ElevenlabsConversation $conversation): bool
+    {
+        $beforeCampaign = $conversation->campaign_id;
+        $beforeCall = $conversation->campaign_call_id;
+
+        $metadataPayload = $conversation->metadata;
+
+        if ($metadataPayload && !is_array($metadataPayload)) {
+            $metadataPayload = (array) $metadataPayload;
+        }
+
+        if (!empty($metadataPayload)) {
+            $this->linkConversationToCampaign($conversation, $metadataPayload);
+        }
+
+        /** @var ElevenlabsConversation|null $conversationAfter */
+        $conversationAfter = $conversation->fresh();
+
+        if (!$conversationAfter || !$conversationAfter->campaign_call_id) {
+            try {
+                $fullData = $this->getConversation($conversation->conversation_id);
+                $result = $this->saveConversation($fullData);
+                $conversationAfter = $result['conversation']->fresh();
+            } catch (Exception $e) {
+                Log::warning('No se pudo refrescar conversación para vincularla a campaña', [
+                    'conversation_id' => $conversation->conversation_id,
+                    'error' => $e->getMessage(),
+                ]);
+                return false;
+            }
+        }
+
+        if ($conversationAfter instanceof ElevenlabsConversation && $conversationAfter->campaignCall) {
+            $campaignCall = $conversationAfter->campaignCall;
+            $campaignCall->sentiment_category = $conversationAfter->sentiment_category;
+            $campaignCall->specific_category = $conversationAfter->specific_category;
+            $campaignCall->confidence_score = $conversationAfter->confidence_score;
+            $campaignCall->summary = $conversationAfter->summary_es;
+            $campaignCall->save();
+
+            if ($campaignCall->campaign) {
+                $campaignCall->campaign->refreshCounters();
+            }
+        }
+
+        return $conversationAfter instanceof ElevenlabsConversation
+            && $conversationAfter->campaign_call_id
+            && (
+                $conversationAfter->campaign_call_id !== $beforeCall
+                || $conversationAfter->campaign_id !== $beforeCampaign
+            );
+    }
+
     protected function extractPhoneNumber(array $data): ?string
     {
         $paths = [
@@ -393,6 +446,8 @@ class ElevenlabsService
             'metadata.conversation.phone_number',
             'metadata.crm_phone_number',
             'metadata.conversation_initiation_client_data.metadata.crm_phone_number',
+            'metadata.phone_call.external_number',
+            'metadata.phone_call.customer_phone_number',
         ];
 
         foreach ($paths as $path) {
@@ -408,21 +463,57 @@ class ElevenlabsService
     protected function linkConversationToCampaign(ElevenlabsConversation $conversation, array $fullData): void
     {
         try {
-            [$campaignUid, $callUid] = $this->extractCampaignIdentifiers($fullData);
+            $identifiers = $this->extractCampaignIdentifiers($fullData);
+            $campaignUid = $identifiers['campaign_uid'] ?? null;
+            $callUid = $identifiers['call_uid'] ?? null;
+            $batchCallId = $identifiers['batch_call_id'] ?? null;
+            $batchCallRecipientId = $identifiers['batch_call_recipient_id'] ?? null;
+            $phoneFromData = $conversation->numero ?: $this->extractPhoneNumber($fullData);
+
+            if ($phoneFromData && empty($conversation->numero)) {
+                $conversation->numero = $phoneFromData;
+                $conversation->save();
+            }
 
             if (!$campaignUid && !$callUid) {
-                Log::debug('🔎 Conversación sin metadatos de campaña', [
+                Log::debug('🔎 Conversación sin identificadores directos de campaña', [
                     'conversation_id' => $conversation->conversation_id,
+                    'batch_call_id' => $batchCallId,
+                    'batch_call_recipient_id' => $batchCallRecipientId,
                 ]);
-                return;
             }
 
             $campaign = $campaignUid
                 ? ElevenlabsCampaign::where('uid', $campaignUid)->first()
                 : null;
 
+            if (!$campaign && $batchCallId) {
+                $campaign = ElevenlabsCampaign::where('external_batch_id', $batchCallId)->first();
+            }
+
             if (!$campaign && $callUid) {
                 $campaignCall = ElevenlabsCampaignCall::where('uid', $callUid)->first();
+                $campaign = $campaignCall ? $campaignCall->campaign : null;
+            }
+
+            if (!$campaign && $batchCallId) {
+                $campaignCall = ElevenlabsCampaignCall::where(function ($query) use ($batchCallId) {
+                    $query->where('metadata->metadata->batch_call.batch_call_id', $batchCallId)
+                        ->orWhere('metadata->batch_call.batch_call_id', $batchCallId)
+                        ->orWhere('metadata->batch_call_id', $batchCallId);
+                })
+                    ->orderByDesc('id')
+                    ->first();
+                if ($campaignCall) {
+                    $campaign = $campaignCall->campaign;
+                }
+            }
+
+            if (!$campaign && $phoneFromData) {
+                $campaignCall = ElevenlabsCampaignCall::where('phone_number', $phoneFromData)
+                    ->whereNull('eleven_conversation_internal_id')
+                    ->orderByDesc('id')
+                    ->first();
                 $campaign = $campaignCall ? $campaignCall->campaign : null;
             }
 
@@ -431,6 +522,7 @@ class ElevenlabsService
                     'conversation_id' => $conversation->conversation_id,
                     'campaign_uid' => $campaignUid,
                     'call_uid' => $callUid,
+                    'batch_call_id' => $batchCallId,
                 ]);
                 return;
             }
@@ -492,13 +584,20 @@ class ElevenlabsService
     {
         $campaignUid = data_get($data, 'conversation_initiation_client_data.metadata.crm_campaign_uid');
         $callUid = data_get($data, 'conversation_initiation_client_data.metadata.crm_call_uid');
+        $batchCallId = data_get($data, 'metadata.batch_call.batch_call_id');
+        $batchCallRecipientId = data_get($data, 'metadata.batch_call.batch_call_recipient_id');
 
         if (!$campaignUid && isset($data['metadata']) && is_array($data['metadata'])) {
             $campaignUid = data_get($data['metadata'], 'conversation_initiation_client_data.metadata.crm_campaign_uid', $campaignUid);
             $callUid = data_get($data['metadata'], 'conversation_initiation_client_data.metadata.crm_call_uid', $callUid);
         }
 
-        return [$campaignUid, $callUid];
+        return [
+            'campaign_uid' => $campaignUid,
+            'call_uid' => $callUid,
+            'batch_call_id' => $batchCallId,
+            'batch_call_recipient_id' => $batchCallRecipientId,
+        ];
     }
 
     /**

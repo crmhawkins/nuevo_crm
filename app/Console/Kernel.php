@@ -75,9 +75,8 @@ class Kernel extends ConsoleKernel
         // Procesa hasta 100 conversaciones sin client_id en cada ejecución (cada 5 minutos)
         $schedule->command('elevenlabs:vincular-clientes', ['--limit' => 100])->everyFiveMinutes();
 
-        // Procesar cola de justificaciones - ejecuta cada minuto sin overlapping
-        // Procesa todos los jobs disponibles en la cola 'justificaciones' y se detiene
-        $schedule->command('queue:work --queue=justificaciones --stop-when-empty --tries=3 --timeout=600')
+        // Procesar conversaciones ElevenLabs pendientes directamente (sin cola) cada minuto
+        $schedule->command('elevenlabs:process --limit=75')
             ->everyMinute()
             ->withoutOverlapping();
 

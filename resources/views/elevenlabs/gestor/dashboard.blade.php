@@ -344,6 +344,118 @@
     </div>
 </div>
 
+<div class="modal fade clean" id="callDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <div>
+                    <h5 class="modal-title fw-semibold" id="callDetailsModalTitle">Detalle de llamada</h5>
+                    <small class="text-muted" id="callDetailsCampaign"></small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="callDetailsLoader" class="py-4 text-center text-muted">
+                    <span class="spinner-border spinner-border-sm me-2"></span>Cargando detalles...
+                </div>
+                <div id="callDetailsWrapper" class="d-none">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="text-uppercase text-muted mb-3">Llamada</h6>
+                                    <dl class="row small mb-0">
+                                        <dt class="col-5">Teléfono</dt>
+                                        <dd class="col-7 fw-semibold" id="callDetailsPhone">—</dd>
+                                        <dt class="col-5">Estado</dt>
+                                        <dd class="col-7" id="callDetailsStatus">—</dd>
+                                        <dt class="col-5">Sentimiento</dt>
+                                        <dd class="col-7" id="callDetailsSentiment">—</dd>
+                                        <dt class="col-5">Categoría</dt>
+                                        <dd class="col-7" id="callDetailsCategory">—</dd>
+                                        <dt class="col-5">Confianza</dt>
+                                        <dd class="col-7" id="callDetailsConfidence">—</dd>
+                                        <dt class="col-5">Creada</dt>
+                                        <dd class="col-7" id="callDetailsCreatedAt">—</dd>
+                                        <dt class="col-5">Gestionada</dt>
+                                        <dd class="col-7" id="callDetailsManagedAt">—</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="text-uppercase text-muted mb-3">Notas</h6>
+                                    <div class="mb-3">
+                                        <span class="text-muted text-uppercase small d-block">Resumen</span>
+                                        <div id="callDetailsSummary" class="fw-semibold" style="white-space: pre-wrap;">—</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="text-muted text-uppercase small d-block">Prompt personalizado</span>
+                                        <div id="callDetailsPrompt" style="white-space: pre-wrap;">—</div>
+                                    </div>
+                                    <div>
+                                        <span class="text-muted text-uppercase small d-block">Prompt inicial de campaña</span>
+                                        <div id="callDetailsInitialPrompt" style="white-space: pre-wrap;">—</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mt-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-uppercase text-muted mb-0">Conversación</h6>
+                                <span class="badge text-bg-light" id="callDetailsConversationId">—</span>
+                            </div>
+                            <div id="callDetailsNoConversation" class="alert alert-warning mb-0 d-none">
+                                Todavía no se ha sincronizado la conversación completa para esta llamada.
+                            </div>
+                            <div id="callDetailsConversationSection" class="d-none">
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <dl class="row small mb-0">
+                                            <dt class="col-5">Agente</dt>
+                                            <dd class="col-7 fw-semibold" id="callDetailsConversationAgent">—</dd>
+                                            <dt class="col-5">Fecha</dt>
+                                            <dd class="col-7" id="callDetailsConversationDate">—</dd>
+                                            <dt class="col-5">Duración</dt>
+                                            <dd class="col-7" id="callDetailsConversationDuration">—</dd>
+                                            <dt class="col-5">Sentimiento</dt>
+                                            <dd class="col-7" id="callDetailsConversationSentiment">—</dd>
+                                            <dt class="col-5">Categoría</dt>
+                                            <dd class="col-7" id="callDetailsConversationCategory">—</dd>
+                                            <dt class="col-5">Confianza</dt>
+                                            <dd class="col-7" id="callDetailsConversationConfidence">—</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="text-muted text-uppercase small d-block">Seguimiento</span>
+                                        <div id="callDetailsSchedule" class="fw-semibold">—</div>
+                                        <div id="callDetailsScheduleNotes" class="small text-muted mt-1" style="white-space: pre-wrap;">—</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="text-muted text-uppercase small d-block">Metadata relevante</span>
+                                        <pre id="callDetailsMetadata" class="bg-light border rounded small p-3 mb-0" style="white-space: pre-wrap; max-height: 240px; overflow:auto;">—</pre>
+                                    </div>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="text-uppercase text-muted">Transcripción</h6>
+                                <pre id="callDetailsTranscript" class="bg-light border rounded small p-3" style="white-space: pre-wrap; max-height: 420px; overflow:auto;">—</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade clean" id="newCampaignModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -520,6 +632,36 @@
     const pendingCounter = document.getElementById('pendingCounter');
     const rellamandoCounter = document.getElementById('rellamandoCounter');
     const gestionadasCounter = document.getElementById('gestionadasCounter');
+    const callDetailsModalEl = document.getElementById('callDetailsModal');
+    const callDetailsModalTitle = document.getElementById('callDetailsModalTitle');
+    const callDetailsCampaign = document.getElementById('callDetailsCampaign');
+    const callDetailsLoader = document.getElementById('callDetailsLoader');
+    const callDetailsWrapper = document.getElementById('callDetailsWrapper');
+    const callDetailsPhone = document.getElementById('callDetailsPhone');
+    const callDetailsStatus = document.getElementById('callDetailsStatus');
+    const callDetailsSentiment = document.getElementById('callDetailsSentiment');
+    const callDetailsCategory = document.getElementById('callDetailsCategory');
+    const callDetailsConfidence = document.getElementById('callDetailsConfidence');
+    const callDetailsManagedAt = document.getElementById('callDetailsManagedAt');
+    const callDetailsCreatedAt = document.getElementById('callDetailsCreatedAt');
+    const callDetailsSummary = document.getElementById('callDetailsSummary');
+    const callDetailsPrompt = document.getElementById('callDetailsPrompt');
+    const callDetailsInitialPrompt = document.getElementById('callDetailsInitialPrompt');
+    const callDetailsNoConversation = document.getElementById('callDetailsNoConversation');
+    const callDetailsConversationSection = document.getElementById('callDetailsConversationSection');
+    const callDetailsConversationId = document.getElementById('callDetailsConversationId');
+    const callDetailsConversationAgent = document.getElementById('callDetailsConversationAgent');
+    const callDetailsConversationDate = document.getElementById('callDetailsConversationDate');
+    const callDetailsConversationDuration = document.getElementById('callDetailsConversationDuration');
+    const callDetailsConversationSentiment = document.getElementById('callDetailsConversationSentiment');
+    const callDetailsConversationCategory = document.getElementById('callDetailsConversationCategory');
+    const callDetailsConversationConfidence = document.getElementById('callDetailsConversationConfidence');
+    const callDetailsSchedule = document.getElementById('callDetailsSchedule');
+    const callDetailsScheduleNotes = document.getElementById('callDetailsScheduleNotes');
+    const callDetailsTranscript = document.getElementById('callDetailsTranscript');
+    const callDetailsMetadata = document.getElementById('callDetailsMetadata');
+    const callDetailsModal = callDetailsModalEl ? new bootstrap.Modal(callDetailsModalEl) : null;
+    const callsCache = new Map();
     const openNewCampaignBtn = document.getElementById('openNewCampaignBtn');
     const emptyStateCreateBtn = document.getElementById('emptyStateCreateBtn');
     const openClientPickerBtn = document.getElementById('openClientPickerBtn');
@@ -745,6 +887,12 @@
     });
 
     callsTableBody.addEventListener('click', event => {
+        const detailBtn = event.target.closest('[data-call-details]');
+        if (detailBtn) {
+            const callId = Number(detailBtn.dataset.callId);
+            openCallDetails(callId);
+            return;
+        }
         const actionBtn = event.target.closest('[data-call-action]');
         if (!actionBtn) return;
         const action = actionBtn.dataset.callAction;
@@ -1344,6 +1492,7 @@
     }
 
     function renderCalls(calls) {
+        updateCallsCache(Array.isArray(calls) ? calls : []);
         if (!Array.isArray(calls) || calls.length === 0) {
             callsTableBody.innerHTML = `
                 <tr>
@@ -1365,16 +1514,24 @@
         const sentiment = call.sentiment_label || call.sentiment;
         const category = call.specific_label || call.specific_category;
         const highlightClass = call.status === 'rellamando' ? 'bg-warning-subtle' : call.status === 'gestionada' ? 'table-success' : '';
-        const actions = showingResolved ? '' : `
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-outline-secondary" data-call-action="rellamar" data-call-id="${call.id}">
-                    ${call.status === 'rellamando' ? '<i class="fa-solid fa-rotate-left"></i> Marcar como pendiente' : '<i class="fa-solid fa-phone"></i> Rellamar'}
-                </button>
-                <button type="button" class="btn btn-primary" data-call-action="gestionar" data-call-id="${call.id}">
-                    <i class="fa-solid fa-clipboard-check"></i> Gestionar
-                </button>
-            </div>
+        const viewButton = `
+            <button type="button" class="btn btn-outline-info btn-sm" data-call-details="true" data-call-id="${call.id}">
+                <i class="fa-solid fa-eye"></i> Ver llamada
+            </button>
         `;
+        let manageButtons = '';
+        if (!showingResolved) {
+            manageButtons = `
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" data-call-action="rellamar" data-call-id="${call.id}">
+                        ${call.status === 'rellamando' ? '<i class="fa-solid fa-rotate-left"></i> Marcar como pendiente' : '<i class="fa-solid fa-phone"></i> Rellamar'}
+                    </button>
+                    <button type="button" class="btn btn-primary" data-call-action="gestionar" data-call-id="${call.id}">
+                        <i class="fa-solid fa-clipboard-check"></i> Gestionar
+                    </button>
+                </div>
+            `;
+        }
 
         return `
             <tr class="${highlightClass}">
@@ -1386,7 +1543,12 @@
                 <td>${sentiment ? `<span class="badge text-bg-info">${escapeHtml(sentiment)}</span>` : '<span class="text-muted">—</span>'}</td>
                 <td>${category ? `<span class="badge text-bg-secondary">${escapeHtml(category)}</span>` : '<span class="text-muted">—</span>'}</td>
                 <td>${buildCallSummary(call.summary)}</td>
-                <td class="text-end">${actions}</td>
+                <td class="text-end">
+                    <div class="d-flex justify-content-end flex-wrap gap-2">
+                        ${viewButton}
+                        ${manageButtons}
+                    </div>
+                </td>
             </tr>
         `;
     }
@@ -1499,6 +1661,120 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         `;
+    }
+
+    function updateCallsCache(calls) {
+        callsCache.clear();
+        if (!Array.isArray(calls)) {
+            return;
+        }
+        calls.forEach(call => {
+            if (call && typeof call.id !== 'undefined') {
+                callsCache.set(Number(call.id), call);
+            }
+        });
+    }
+
+    function openCallDetails(callId) {
+        if (!callDetailsModal) {
+            return;
+        }
+        const call = callsCache.get(Number(callId));
+        if (!call) {
+            showToast('warning', 'No se encontró la información de la llamada.');
+            return;
+        }
+
+        callDetailsModalTitle.textContent = call.phone_number ? `Llamada ${call.phone_number}` : 'Detalle de llamada';
+        callDetailsCampaign.textContent = selectedCampaign ? `Campaña: ${selectedCampaign.name}` : '';
+
+        callDetailsLoader.classList.remove('d-none');
+        callDetailsWrapper.classList.add('d-none');
+        callDetailsModal.show();
+
+        setTimeout(() => {
+            populateCallDetails(call);
+            callDetailsLoader.classList.add('d-none');
+            callDetailsWrapper.classList.remove('d-none');
+        }, 50);
+    }
+
+    function populateCallDetails(call) {
+        const conversation = call.conversation || null;
+
+        callDetailsPhone.textContent = call.phone_number || '—';
+        callDetailsStatus.innerHTML = getStatusBadge(call.status);
+        callDetailsSentiment.textContent = call.sentiment_label || call.sentiment || '—';
+        callDetailsCategory.textContent = call.specific_label || call.specific_category || '—';
+        callDetailsConfidence.textContent = formatConfidence(call.confidence ?? call.confidence_score);
+        callDetailsCreatedAt.textContent = formatDateTime(call.created_at_iso, call.created_at) || '—';
+        callDetailsManagedAt.textContent = formatDateTime(call.managed_at_iso, call.managed_at) || '—';
+        callDetailsSummary.textContent = (call.summary || conversation?.summary_es || 'Sin resumen disponible.').trim();
+        callDetailsPrompt.textContent = (call.custom_prompt || 'Sin prompt personalizado.').trim();
+        callDetailsInitialPrompt.textContent = (call.initial_prompt || conversation?.initial_prompt || 'Sin prompt inicial.').trim();
+
+        if (conversation) {
+            callDetailsNoConversation.classList.add('d-none');
+            callDetailsConversationSection.classList.remove('d-none');
+
+            callDetailsConversationId.textContent = conversation.conversation_id || '—';
+            callDetailsConversationAgent.textContent = conversation.agent_name || '—';
+            callDetailsConversationDate.textContent = formatDateTime(conversation.conversation_date_iso, conversation.conversation_date) || '—';
+            callDetailsConversationDuration.textContent = formatDuration(conversation.duration_seconds);
+            callDetailsConversationSentiment.textContent = conversation.sentiment_category || '—';
+            callDetailsConversationCategory.textContent = conversation.specific_category || '—';
+            callDetailsConversationConfidence.textContent = formatConfidence(conversation.confidence_score);
+            callDetailsSchedule.textContent = formatDateTime(conversation.scheduled_call_datetime_iso, conversation.scheduled_call_datetime) || '—';
+            callDetailsScheduleNotes.textContent = (conversation.scheduled_call_notes || 'Sin notas adicionales.').trim();
+            callDetailsTranscript.textContent = (conversation.transcript || 'Sin transcripción disponible.').trim();
+            callDetailsMetadata.textContent = conversation.metadata
+                ? JSON.stringify(conversation.metadata, null, 2)
+                : 'Sin metadata disponible.';
+        } else {
+            callDetailsNoConversation.classList.remove('d-none');
+            callDetailsConversationSection.classList.add('d-none');
+            callDetailsConversationId.textContent = '—';
+            callDetailsTranscript.textContent = 'Sin transcripción disponible.';
+            callDetailsMetadata.textContent = 'Sin metadata disponible.';
+        }
+    }
+
+    function formatDateTime(isoValue, fallback) {
+        if (isoValue) {
+            const date = new Date(isoValue);
+            if (!Number.isNaN(date.getTime())) {
+                return date.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+            }
+        }
+        return fallback || null;
+    }
+
+    function formatConfidence(value) {
+        if (value === null || value === undefined) {
+            return '—';
+        }
+        const numeric = Number(value);
+        if (Number.isNaN(numeric)) {
+            return '—';
+        }
+        const percentage = numeric > 1 ? numeric : numeric * 100;
+        return `${percentage.toFixed(1)}%`;
+    }
+
+    function formatDuration(seconds) {
+        if (seconds === null || seconds === undefined) {
+            return '—';
+        }
+        const total = Number(seconds);
+        if (Number.isNaN(total)) {
+            return '—';
+        }
+        const mins = Math.floor(total / 60);
+        const secs = Math.floor(total % 60);
+        if (mins <= 0) {
+            return `${secs}s`;
+        }
+        return `${mins}m ${secs.toString().padStart(2, '0')}s`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
