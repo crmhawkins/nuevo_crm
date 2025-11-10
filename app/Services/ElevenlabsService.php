@@ -391,6 +391,8 @@ class ElevenlabsService
             'metadata.call_details.phone_number',
             'metadata.conversation.customer_phone_number',
             'metadata.conversation.phone_number',
+            'metadata.crm_phone_number',
+            'metadata.conversation_initiation_client_data.metadata.crm_phone_number',
         ];
 
         foreach ($paths as $path) {

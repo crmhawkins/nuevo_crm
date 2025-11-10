@@ -810,6 +810,7 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                     'crm_call_uid' => $callUid,
                     'crm_creator_id' => $userId,
                     'crm_call_index' => $index,
+                    'crm_phone_number' => $recipient['phone_number'],
                 ]);
 
                 if (!empty($recipient['client_id'])) {
@@ -817,6 +818,20 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 }
 
                 $payload['conversation_initiation_client_data']['metadata'] = $metadata;
+
+                $existingPayloadMetadata = $payload['metadata'] ?? [];
+                if (!is_array($existingPayloadMetadata)) {
+                    $existingPayloadMetadata = (array) $existingPayloadMetadata;
+                }
+
+                $payload['metadata'] = array_merge($existingPayloadMetadata, [
+                    'crm_campaign_uid' => $campaignUid,
+                    'crm_call_uid' => $callUid,
+                    'crm_creator_id' => $userId,
+                    'crm_call_index' => $index,
+                    'crm_phone_number' => $recipient['phone_number'],
+                    'crm_client_id' => $recipient['client_id'],
+                ]);
 
                 $payload['phone_number'] = $recipient['phone_number'];
 
@@ -844,6 +859,10 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                 'recipients_overview' => $recipientsOverview,
             ]);
         });
+
+        if (!$campaign) {
+            throw new \RuntimeException('No se pudo crear la campaña en la base de datos.');
+        }
 
         Log::info('Campaña ElevenLabs registrada en BD', [
             'campaign_id' => $campaign->id ?? null,
