@@ -76,9 +76,21 @@ class ElevenLabsBatchCallController extends Controller
             $firstMessageBase = $request->input('first_message');
 
             $normalizedRecipients = [];
+            $invalidRecipients = [];
+
             foreach ($request->recipients as $recipient) {
+                $originalPhone = $recipient['phone_number'] ?? null;
+                $normalizedPhone = $this->normalizePhoneNumber($originalPhone);
+
+                if (!$normalizedPhone) {
+                    $invalidRecipients[] = $originalPhone;
+                    continue;
+                }
+
+                $recipient['phone_number'] = $normalizedPhone;
+
                 $normalizedRecipients[] = [
-                    'phone_number' => $recipient['phone_number'],
+                    'phone_number' => $normalizedPhone,
                     'client_id' => $recipient['client_id'] ?? null,
                     'custom_prompt' => data_get(
                         $recipient,
@@ -87,6 +99,18 @@ class ElevenLabsBatchCallController extends Controller
                     ),
                     'payload' => $recipient,
                 ];
+            }
+
+            if (!empty($invalidRecipients)) {
+                Log::warning('Algunos teléfonos no se pudieron normalizar a formato +34', [
+                    'telefonos_invalidos' => $invalidRecipients,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hay teléfonos con formato inválido. Asegúrate de usar números españoles válidos.',
+                    'telefonos_invalidos' => $invalidRecipients,
+                ], 422);
             }
 
             [$campaign, $apiCallName, $apiRecipients] = $this->registerCampaign($normalizedRecipients, [
@@ -794,6 +818,8 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
 
                 $payload['conversation_initiation_client_data']['metadata'] = $metadata;
 
+                $payload['phone_number'] = $recipient['phone_number'];
+
                 $preparedRecipients[] = $payload;
 
                 $recipientsOverview[] = [
@@ -836,6 +862,44 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
         $trimmedBase = mb_strimwidth($baseName, 0, max($availableLength, 10), '');
 
         return trim($trimmedBase . ' ' . $suffix);
+    }
+
+    protected function normalizePhoneNumber(?string $phone): ?string
+    {
+        if (!$phone) {
+            return null;
+        }
+
+        $cleaned = preg_replace('/[^0-9+]/', '', $phone);
+
+        if ($cleaned === '' || $cleaned === null) {
+            return null;
+        }
+
+        if (str_starts_with($cleaned, '00')) {
+            $cleaned = '+' . substr($cleaned, 2);
+        }
+
+        $digits = ltrim($cleaned, '+');
+
+        if (str_starts_with($digits, '34')) {
+            $digits = substr($digits, 2);
+        }
+
+        if (preg_match('/^[6-9]\d{8}$/', $digits)) {
+            return '+34' . $digits;
+        }
+
+        $candidate = '+34' . $digits;
+        if (preg_match('/^\+34[6-9]\d{8}$/', $candidate)) {
+            return $candidate;
+        }
+
+        if (preg_match('/^\+34[6-9]\d{8}$/', $cleaned)) {
+            return $cleaned;
+        }
+
+        return null;
     }
 }
 

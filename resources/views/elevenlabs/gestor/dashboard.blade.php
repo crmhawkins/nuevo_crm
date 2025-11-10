@@ -1172,7 +1172,19 @@
         if (cleaned.startsWith('00')) {
             cleaned = '+' + cleaned.slice(2);
         }
-        return cleaned;
+        if (cleaned.startsWith('+34') && cleaned.length === 12) {
+            return cleaned;
+        }
+        if (cleaned.startsWith('+') && !cleaned.startsWith('+34')) {
+            return cleaned;
+        }
+        if (cleaned.startsWith('34') && cleaned.length === 11) {
+            return '+34' + cleaned.slice(2);
+        }
+        if (/^[6-9]\d{8}$/.test(cleaned)) {
+            return '+34' + cleaned;
+        }
+        return cleaned.startsWith('+34') ? cleaned : `+34${cleaned}`;
     }
 
     function escapeHtml(str) {
