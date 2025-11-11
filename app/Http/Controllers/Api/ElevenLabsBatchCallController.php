@@ -843,15 +843,25 @@ Devuelve ÚNICAMENTE el número en formato +34XXXXXXXXX, sin texto adicional, si
                     'custom_prompt' => $recipient['custom_prompt'],
                 ];
 
-                ElevenlabsCampaignCall::create([
-                    'campaign_id' => $campaign->id,
-                    'uid' => $callUid,
-                    'client_id' => $recipient['client_id'],
-                    'phone_number' => $recipient['phone_number'],
-                    'status' => ElevenlabsCampaignCall::STATUS_PENDIENTE,
-                    'custom_prompt' => $recipient['custom_prompt'],
-                    'metadata' => $payload,
-                ]);
+                ElevenlabsCampaignCall::updateOrCreate(
+                    [
+                        'campaign_id' => $campaign->id,
+                        'phone_number' => $recipient['phone_number'],
+                    ],
+                    [
+                        'uid' => $callUid,
+                        'client_id' => $recipient['client_id'],
+                        'status' => ElevenlabsCampaignCall::STATUS_PENDIENTE,
+                        'custom_prompt' => $recipient['custom_prompt'],
+                        'metadata' => $payload,
+                        'eleven_conversation_id' => null,
+                        'eleven_conversation_internal_id' => null,
+                        'sentiment_category' => null,
+                        'specific_category' => null,
+                        'confidence_score' => null,
+                        'summary' => null,
+                    ]
+                );
             }
 
             $campaign->update([

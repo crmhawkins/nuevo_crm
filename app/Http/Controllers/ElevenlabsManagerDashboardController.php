@@ -18,7 +18,7 @@ class ElevenlabsManagerDashboardController extends Controller
     {
         $this->middleware(function ($request, $next) {
             $user = $request->user();
-            $allowedUserIds = [81, 83, 160];
+            $allowedUserIds = [73, 75, 81, 83, 160];
 
             if (
                 !$user
