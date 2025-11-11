@@ -13,7 +13,7 @@ class EnsureGestor
     public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
-        $allowedUserIds = [160];
+        $allowedUserIds = [73, 75, 81, 83, 160];
 
         if (
             !$user
