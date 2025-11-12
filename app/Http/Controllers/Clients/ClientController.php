@@ -480,6 +480,36 @@ class ClientController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+    public function duplicate(Request $request)
+    {
+        $cliente = Client::find($request->id);
+
+        if (!$cliente) {
+            return response()->json([
+                'error' => true,
+                'mensaje' => "Error en el servidor, inténtelo más tarde."
+            ]);
+        }
+
+        if ($cliente->is_client === 0) {
+            return response()->json([
+                'error' => false,
+                'mensaje' => 'El cliente ya estaba marcado como lead.'
+            ]);
+        }
+
+        $cliente->is_client = 0;
+        $cliente->save();
+
+        return response()->json([
+            'error' => false,
+            'mensaje' => 'El cliente se marcó como lead correctamente.'
+        ]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(Request $request)
     {
         $cliente = Client::find($request->id);
