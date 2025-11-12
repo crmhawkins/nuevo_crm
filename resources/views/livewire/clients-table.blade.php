@@ -19,6 +19,13 @@
         </div>
         <div class="col-md-5">
             <div class="flex flex-row justify-end">
+                <div class="mr-3 d-flex flex-column justify-content-end">
+                    <label for="soloClientes" class="form-label mb-1">Mostrar solo clientes</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="soloClientes" wire:model="soloClientes">
+                        <label class="form-check-label" for="soloClientes">{{ $soloClientes ? 'Filtrado activo' : 'Filtrado inactivo' }}</label>
+                    </div>
+                </div>
                 <div class="mr-0 w-75">
                     <label for="">Gestores</label>
                     <select wire:model="selectedGestor" name="" id="" class="form-select ">

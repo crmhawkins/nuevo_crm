@@ -17,6 +17,7 @@ class ClientsTable extends Component
     public $perPage = 10;
     public $sortColumn = 'created_at'; // Columna por defecto
     public $sortDirection = 'desc'; // Dirección por defecto
+    public $soloClientes = true;
     protected $clients;
 
     public function mount(){
@@ -33,7 +34,10 @@ class ClientsTable extends Component
 
     protected function actualizarClientes()
     {
-        $query = Client::where('is_client', 1)
+        $query = Client::query()
+            ->when($this->soloClientes, function ($query) {
+                $query->where('is_client', 1);
+            })
             ->when($this->buscar, function ($query) {
                 $query->where('name', 'like', '%' . $this->buscar . '%')
                       ->orWhere('email', 'like', '%' . $this->buscar . '%')
@@ -65,7 +69,7 @@ class ClientsTable extends Component
 
     public function updating($propertyName)
     {
-        if ($propertyName === 'buscar' || $propertyName === 'selectedGestor') {
+        if (in_array($propertyName, ['buscar', 'selectedGestor', 'soloClientes'])) {
             $this->resetPage();
         }
     }
