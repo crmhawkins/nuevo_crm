@@ -160,7 +160,7 @@ class ElevenlabsManagerDashboardController extends Controller
      */
     protected function buildClientsQuery(Request $request): array
     {
-        $perPageOptions = [15, 50, 100, 150];
+        $perPageOptions = [10, 15, 25, 50, 100, 150];
         $perPage = $request->integer('per_page', 50);
         if (!in_array($perPage, $perPageOptions, true)) {
             $perPage = 50;
@@ -168,93 +168,76 @@ class ElevenlabsManagerDashboardController extends Controller
 
         $page = max($request->integer('page', 1), 1);
         $search = trim((string) $request->get('search', ''));
-        $dateFrom = $request->get('date_from');
-        $dateTo = $request->get('date_to');
-        $billingMin = $request->get('billing_min');
+        $billingMin = $request->get('billing_min', 0);
         $billingMax = $request->get('billing_max');
         $sort = $request->get('sort', 'recent');
 
-        $invoiceTotals = DB::table('invoices')
-            ->selectRaw('invoices.client_id, SUM(invoices.total) as total_facturacion')
-            ->join('clients', 'clients.id', '=', 'invoices.client_id')
+        $timezone = config('app.timezone');
+        $dateFromInput = $request->get('date_from');
+        $dateToInput = $request->get('date_to');
+        $dateFrom = $dateFromInput
+            ? Carbon::parse($dateFromInput, $timezone)->startOfDay()
+            : Carbon::now($timezone)->subMonth()->startOfMonth();
+        $dateTo = $dateToInput
+            ? Carbon::parse($dateToInput, $timezone)->endOfDay()
+            : Carbon::now($timezone)->endOfDay();
+
+        $query = DB::table('clients')
+            ->select([
+                'clients.id as client_id',
+                'clients.name',
+                'clients.primerApellido',
+                'clients.segundoApellido',
+                'clients.company',
+                'clients.phone',
+                'clients.created_at',
+            ])
+            ->selectRaw('SUM(invoices.total) as total_facturado')
+            ->selectRaw('COUNT(invoices.id) as num_facturas')
+            ->join('invoices', 'clients.id', '=', 'invoices.client_id')
             ->where('clients.is_client', true)
             ->whereNull('invoices.deleted_at')
-            ->whereIn('invoices.invoice_status_id', [3, 4]);
-
-        if ($dateFrom) {
-            $invoiceTotals->whereDate('invoices.created_at', '>=', $dateFrom);
-        }
-
-        if ($dateTo) {
-            $invoiceTotals->whereDate('invoices.created_at', '<=', $dateTo);
-        }
-
-        $invoiceTotals->groupBy('client_id');
-
-        $principalPhones = DB::table('clients')
-            ->selectRaw("clients.id as client_id, NULL as phone_id, clients.phone as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, 'Principal' as label")
-            ->leftJoinSub($invoiceTotals, 'invoice_totals', 'invoice_totals.client_id', '=', 'clients.id')
-            ->where('clients.is_client', true)
-            ->whereNotNull('clients.phone')
-            ->where('clients.phone', '!=', '')
-            ->whereRaw("LOWER(TRIM(clients.phone)) <> 'x'");
-
-        $secondaryPhones = DB::table('clients_phones')
-            ->selectRaw("clients.id as client_id, clients_phones.id as phone_id, clients_phones.number as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, 'Alternativo' as label")
-            ->join('clients', 'clients.id', '=', 'clients_phones.client_id')
-            ->leftJoinSub($invoiceTotals, 'invoice_totals', 'invoice_totals.client_id', '=', 'clients.id')
-            ->where('clients.is_client', true)
-            ->whereNull('clients_phones.deleted_at')
-            ->whereNotNull('clients_phones.number')
-            ->where('clients_phones.number', '!=', '')
-            ->whereRaw("LOWER(TRIM(clients_phones.number)) <> 'x'");
-
-        $union = $principalPhones->unionAll($secondaryPhones);
-        $query = DB::query()->fromSub($union, 'phones');
+            ->whereBetween('invoices.created_at', [$dateFrom, $dateTo])
+            ->whereIn('invoices.invoice_status_id', [3, 4])
+            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'clients.created_at');
 
         if ($search !== '') {
             $like = "%{$search}%";
             $query->where(function ($q) use ($like) {
-                $q->where('phones.name', 'like', $like)
-                    ->orWhere('phones.company', 'like', $like)
-                    ->orWhere('phones.phone', 'like', $like);
+                $q->where('clients.name', 'like', $like)
+                    ->orWhere('clients.primerApellido', 'like', $like)
+                    ->orWhere('clients.segundoApellido', 'like', $like)
+                    ->orWhere('clients.company', 'like', $like)
+                    ->orWhere('clients.phone', 'like', $like);
             });
         }
 
-        if ($dateFrom) {
-            $query->whereDate('phones.created_at', '>=', $dateFrom);
-        }
-
-        if ($dateTo) {
-            $query->whereDate('phones.created_at', '<=', $dateTo);
-        }
-
         if ($billingMin !== null && $billingMin !== '') {
-            $query->where('phones.billing', '>=', (float) $billingMin);
+            $query->having('total_facturado', '>=', (float) $billingMin);
+        } else {
+            $query->having('total_facturado', '>=', 0);
         }
 
         if ($billingMax !== null && $billingMax !== '') {
-            $query->where('phones.billing', '<=', (float) $billingMax);
+            $query->having('total_facturado', '<=', (float) $billingMax);
         }
 
         switch ($sort) {
             case 'billing_desc':
-                $query->where('phones.billing', '>', 0);
-                $query->orderByDesc('phones.billing')->orderBy('phones.name');
+                $query->orderByDesc('total_facturado')->orderBy('clients.name');
                 break;
             case 'billing_asc':
-                $query->where('phones.billing', '>', 0);
-                $query->orderBy('phones.billing')->orderBy('phones.name');
+                $query->orderBy('total_facturado')->orderBy('clients.name');
                 break;
             case 'name':
-                $query->orderBy('phones.name');
+                $query->orderBy('clients.name');
                 break;
             case 'oldest':
-                $query->orderBy('phones.created_at');
+                $query->orderBy('clients.created_at');
                 break;
             case 'recent':
             default:
-                $query->orderByDesc('phones.created_at');
+                $query->orderByDesc('clients.created_at');
                 break;
         }
 
@@ -263,15 +246,23 @@ class ElevenlabsManagerDashboardController extends Controller
 
     protected function mapClientRow(object $row): array
     {
+        $fullName = trim(collect([
+            $row->name ?? '',
+            $row->primerApellido ?? '',
+            $row->segundoApellido ?? '',
+        ])->filter()->implode(' '));
+
         return [
             'client_id' => (int) $row->client_id,
-            'phone_id' => $row->phone_id ? (int) $row->phone_id : null,
+            'phone_id' => null,
             'phone' => $row->phone,
-            'name' => $row->name,
+            'name' => $fullName !== '' ? $fullName : ($row->name ?? null),
             'company' => $row->company,
             'created_at' => $row->created_at ? Carbon::parse($row->created_at)->toDateString() : null,
-            'billing' => round((float) $row->billing, 2),
-            'label' => $row->label,
+            'billing' => round((float) $row->total_facturado, 2),
+            'total_facturado' => round((float) $row->total_facturado, 2),
+            'num_facturas' => isset($row->num_facturas) ? (int) $row->num_facturas : null,
+            'label' => null,
         ];
     }
 
