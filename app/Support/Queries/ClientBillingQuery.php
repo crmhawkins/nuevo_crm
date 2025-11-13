@@ -4,6 +4,8 @@ namespace App\Support\Queries;
 
 use App\Models\Clients\Client;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 
 class ClientBillingQuery
@@ -48,6 +50,63 @@ class ClientBillingQuery
             'clients.company',
             'clients.phone',
             'clients.created_at'
+        );
+    }
+
+    /**
+     * Aplica filtros de facturación mínima y máxima.
+     */
+    public static function applyBillingRange(Builder $query, ?float $min, ?float $max): Builder
+    {
+        if ($min !== null) {
+            $query->having('total_facturado', '>=', $min);
+        }
+
+        if ($max !== null) {
+            $query->having('total_facturado', '<=', $max);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Devuelve un paginador manual sobre la consulta agregada.
+     */
+    public static function paginate(
+        Carbon $fechaInicio,
+        Carbon $fechaFin,
+        ?string $buscarCliente,
+        int $page,
+        int $perPage,
+        ?float $minFacturacion = null,
+        ?float $maxFacturacion = null,
+        string $sort = 'billing_desc'
+    ): LengthAwarePaginator {
+        $baseQuery = self::build($fechaInicio, $fechaFin, $buscarCliente);
+        self::applyBillingRange($baseQuery, $minFacturacion, $maxFacturacion);
+
+        $subQuery = DB::query()->fromSub($baseQuery, 'billing');
+
+        $sortedQuery = match ($sort) {
+            'billing_asc' => $subQuery->orderBy('billing.total_facturado')->orderBy('billing.name'),
+            'name' => $subQuery->orderBy('billing.name'),
+            'oldest' => $subQuery->orderBy('billing.created_at'),
+            'recent' => $subQuery->orderByDesc('billing.created_at'),
+            default => $subQuery->orderByDesc('billing.total_facturado')->orderBy('billing.name'),
+        };
+
+        $total = (clone $sortedQuery)->count();
+        $items = (clone $sortedQuery)->forPage($page, $perPage)->get();
+
+        return new LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $page,
+            [
+                'path' => request()->url(),
+                'query' => request()->query(),
+            ]
         );
     }
 }
