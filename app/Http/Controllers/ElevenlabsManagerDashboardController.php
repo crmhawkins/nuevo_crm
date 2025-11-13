@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ElevenlabsCampaign;
 use App\Models\ElevenlabsCampaignCall;
+use App\Support\Queries\ClientBillingQuery;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -162,32 +163,7 @@ class ElevenlabsManagerDashboardController extends Controller
             ? Carbon::parse($dateToInput, $timezone)->endOfDay()
             : Carbon::now($timezone)->endOfDay();
 
-        $query = \App\Models\Clients\Client::select([
-                'clients.id as client_id',
-                'clients.name',
-                'clients.primerApellido',
-                'clients.segundoApellido',
-                'clients.company',
-                'clients.phone',
-                'clients.created_at',
-            ])
-            ->selectRaw('SUM(invoices.total) as total_facturado')
-            ->selectRaw('COUNT(invoices.id) as num_facturas')
-            ->join('invoices', 'clients.id', '=', 'invoices.client_id')
-            ->where('clients.is_client', true)
-            ->whereBetween('invoices.created_at', [$dateFrom, $dateTo])
-            ->whereIn('invoices.invoice_status_id', [3, 4]);
-
-        if ($search !== '') {
-            $like = "%{$search}%";
-            $query->where(function ($q) use ($like) {
-                $q->where('clients.name', 'like', $like)
-                    ->orWhere('clients.primerApellido', 'like', $like)
-                    ->orWhere('clients.segundoApellido', 'like', $like)
-                    ->orWhere('clients.company', 'like', $like)
-                    ->orWhere('clients.phone', 'like', $like);
-            });
-        }
+        $query = ClientBillingQuery::build($dateFrom, $dateTo, $search !== '' ? $search : null);
 
         if ($billingMin !== null && $billingMin !== '') {
             $query->having('total_facturado', '>=', (float) $billingMin);

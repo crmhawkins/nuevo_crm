@@ -12,6 +12,7 @@ use App\Models\Alerts\AlertStatus;
 use App\Models\Bajas\Baja;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
+use App\Support\Queries\ClientBillingQuery;
 use App\Models\VisitaComercial;
 use App\Models\ObjetivoComercial;
 use App\Models\IncentivoComercial;
@@ -2144,29 +2145,12 @@ class DashboardController extends Controller
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
 
-        $query = Client::select('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
-            ->selectRaw('SUM(invoices.total) as total_facturado')
-            ->selectRaw('COUNT(invoices.id) as num_facturas')
-            ->join('invoices', 'clients.id', '=', 'invoices.client_id')
-            ->where('clients.is_client', true)
-            ->whereBetween('invoices.created_at', [$fechaInicio, $fechaFin])
-            ->whereIn('invoices.invoice_status_id', [3, 4]); // Solo facturas cobradas
+        $query = ClientBillingQuery::build($fechaInicio, $fechaFin, $buscarCliente);
 
-        // Filtro de búsqueda por nombre
-        if ($buscarCliente) {
-            $query->where(function($q) use ($buscarCliente) {
-                $q->where('clients.name', 'LIKE', "%{$buscarCliente}%")
-                  ->orWhere('clients.primerApellido', 'LIKE', "%{$buscarCliente}%")
-                  ->orWhere('clients.segundoApellido', 'LIKE', "%{$buscarCliente}%")
-                  ->orWhere('clients.company', 'LIKE', "%{$buscarCliente}%");
-            });
-        }
-
-        return $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone')
-              ->having('total_facturado', '>=', $montoMinimo)
-              ->orderBy('total_facturado', 'desc')
-              ->paginate($perPage)
-              ->appends(request()->query());
+        return $query->having('total_facturado', '>=', $montoMinimo)
+            ->orderByDesc('total_facturado')
+            ->paginate($perPage)
+            ->appends(request()->query());
     }
 
     /**
