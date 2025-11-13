@@ -12,6 +12,7 @@ use App\Models\Alerts\AlertStatus;
 use App\Models\Bajas\Baja;
 use App\Models\Budgets\Budget;
 use App\Models\Clients\Client;
+use App\Support\Queries\ClientBillingQuery;
 use App\Models\VisitaComercial;
 use App\Models\ObjetivoComercial;
 use App\Models\IncentivoComercial;
@@ -2152,9 +2153,7 @@ class DashboardController extends Controller
             $perPage,
             $montoMinimo,
             null,
-            'billing_desc',
-            request()->url(),
-            request()->query()
+            'billing_desc'
         );
     }
 
