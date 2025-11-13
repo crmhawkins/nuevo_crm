@@ -82,43 +82,26 @@ class ElevenlabsManagerDashboardController extends Controller
 
     public function clientsData(Request $request)
     {
-        [$query, $perPage, $page] = $this->buildClientsQuery($request);
-
-        $countQuery = clone $query;
-        $total = $countQuery->count();
-
-        $results = (clone $query)
-            ->skip(($page - 1) * $perPage)
-            ->take($perPage)
-            ->get()
-            ->map(fn ($row) => $this->mapClientRow($row));
-
-        $lastPage = max(1, (int) ceil($total / $perPage));
-        $from = $total === 0 ? 0 : (($page - 1) * $perPage) + 1;
-        $to = $total === 0 ? 0 : min($total, $from + $perPage - 1);
+        $paginator = $this->buildClientsPaginator($request);
+        $results = collect($paginator->items())->map(fn ($row) => $this->mapClientRow($row));
 
         return response()->json([
             'data' => $results,
             'pagination' => [
-                'total' => $total,
-                'per_page' => $perPage,
-                'current_page' => $page,
-                'last_page' => $lastPage,
-                'from' => $from,
-                'to' => $to,
+                'total' => $paginator->total(),
+                'per_page' => $paginator->perPage(),
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'from' => $paginator->firstItem() ?? 0,
+                'to' => $paginator->lastItem() ?? 0,
             ],
         ]);
     }
 
     public function exportClients(Request $request)
     {
-        [$query, $perPage, $page] = $this->buildClientsQuery($request);
-
-        $rows = (clone $query)
-            ->skip(($page - 1) * $perPage)
-            ->take($perPage)
-            ->get()
-            ->map(fn ($row) => $this->mapClientRow($row));
+        $paginator = $this->buildClientsPaginator($request);
+        $rows = collect($paginator->items())->map(fn ($row) => $this->mapClientRow($row));
 
         $export = new class($rows) implements FromCollection, WithHeadings {
             public function __construct(private readonly Collection $rows) {}
@@ -155,10 +138,7 @@ class ElevenlabsManagerDashboardController extends Controller
         return Excel::download($export, $fileName);
     }
 
-    /**
-     * @return array{0:\Illuminate\Database\Query\Builder,1:int,2:int}
-     */
-    protected function buildClientsQuery(Request $request): array
+    protected function buildClientsPaginator(Request $request): \Illuminate\Pagination\LengthAwarePaginator
     {
         $perPageOptions = [10, 15, 25, 50, 100, 150];
         $perPage = $request->integer('per_page', 50);
@@ -241,7 +221,7 @@ class ElevenlabsManagerDashboardController extends Controller
                 break;
         }
 
-        return [$query, $perPage, $page];
+        return $query->paginate($perPage, ['*'], 'page', $page)->appends($request->query());
     }
 
     protected function mapClientRow(object $row): array
