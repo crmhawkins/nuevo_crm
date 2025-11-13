@@ -175,13 +175,26 @@ class ElevenlabsManagerDashboardController extends Controller
         $sort = $request->get('sort', 'recent');
 
         $invoiceTotals = DB::table('invoices')
-            ->selectRaw('client_id, SUM(total) as total_facturacion')
-            ->whereNull('deleted_at')
-            ->groupBy('client_id');
+            ->selectRaw('invoices.client_id, SUM(invoices.total) as total_facturacion')
+            ->join('clients', 'clients.id', '=', 'invoices.client_id')
+            ->where('clients.is_client', true)
+            ->whereNull('invoices.deleted_at')
+            ->whereIn('invoices.invoice_status_id', [3, 4]);
+
+        if ($dateFrom) {
+            $invoiceTotals->whereDate('invoices.created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $invoiceTotals->whereDate('invoices.created_at', '<=', $dateTo);
+        }
+
+        $invoiceTotals->groupBy('client_id');
 
         $principalPhones = DB::table('clients')
             ->selectRaw("clients.id as client_id, NULL as phone_id, clients.phone as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, 'Principal' as label")
             ->leftJoinSub($invoiceTotals, 'invoice_totals', 'invoice_totals.client_id', '=', 'clients.id')
+            ->where('clients.is_client', true)
             ->whereNotNull('clients.phone')
             ->where('clients.phone', '!=', '')
             ->whereRaw("LOWER(TRIM(clients.phone)) <> 'x'");
@@ -190,6 +203,7 @@ class ElevenlabsManagerDashboardController extends Controller
             ->selectRaw("clients.id as client_id, clients_phones.id as phone_id, clients_phones.number as phone, clients.name, clients.company, clients.created_at, COALESCE(invoice_totals.total_facturacion, 0) as billing, 'Alternativo' as label")
             ->join('clients', 'clients.id', '=', 'clients_phones.client_id')
             ->leftJoinSub($invoiceTotals, 'invoice_totals', 'invoice_totals.client_id', '=', 'clients.id')
+            ->where('clients.is_client', true)
             ->whereNull('clients_phones.deleted_at')
             ->whereNotNull('clients_phones.number')
             ->where('clients_phones.number', '!=', '')
@@ -225,9 +239,11 @@ class ElevenlabsManagerDashboardController extends Controller
 
         switch ($sort) {
             case 'billing_desc':
+                $query->where('phones.billing', '>', 0);
                 $query->orderByDesc('phones.billing')->orderBy('phones.name');
                 break;
             case 'billing_asc':
+                $query->where('phones.billing', '>', 0);
                 $query->orderBy('phones.billing')->orderBy('phones.name');
                 break;
             case 'name':
