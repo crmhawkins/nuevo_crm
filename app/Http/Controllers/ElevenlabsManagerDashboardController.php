@@ -162,8 +162,7 @@ class ElevenlabsManagerDashboardController extends Controller
             ? Carbon::parse($dateToInput, $timezone)->endOfDay()
             : Carbon::now($timezone)->endOfDay();
 
-        $query = DB::table('clients')
-            ->select([
+        $query = \App\Models\Clients\Client::select([
                 'clients.id as client_id',
                 'clients.name',
                 'clients.primerApellido',
@@ -176,10 +175,8 @@ class ElevenlabsManagerDashboardController extends Controller
             ->selectRaw('COUNT(invoices.id) as num_facturas')
             ->join('invoices', 'clients.id', '=', 'invoices.client_id')
             ->where('clients.is_client', true)
-            ->whereNull('invoices.deleted_at')
             ->whereBetween('invoices.created_at', [$dateFrom, $dateTo])
-            ->whereIn('invoices.invoice_status_id', [3, 4])
-            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'clients.created_at');
+            ->whereIn('invoices.invoice_status_id', [3, 4]);
 
         if ($search !== '') {
             $like = "%{$search}%";
@@ -201,6 +198,8 @@ class ElevenlabsManagerDashboardController extends Controller
         if ($billingMax !== null && $billingMax !== '') {
             $query->having('total_facturado', '<=', (float) $billingMax);
         }
+
+        $query->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'clients.created_at');
 
         switch ($sort) {
             case 'billing_desc':
