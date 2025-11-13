@@ -141,16 +141,16 @@ class ElevenlabsManagerDashboardController extends Controller
     protected function buildClientsPaginator(Request $request): \Illuminate\Pagination\LengthAwarePaginator
     {
         $perPageOptions = [10, 15, 25, 50, 100, 150];
-        $perPage = $request->integer('per_page', 50);
+        $perPage = $request->integer('per_page', 15);
         if (!in_array($perPage, $perPageOptions, true)) {
-            $perPage = 50;
+            $perPage = 15;
         }
 
         $page = max($request->integer('page', 1), 1);
         $search = trim((string) $request->get('search', ''));
         $billingMin = $request->get('billing_min', 0);
         $billingMax = $request->get('billing_max');
-        $sort = $request->get('sort', 'recent');
+        $sort = $request->get('sort', 'billing_desc');
 
         $timezone = config('app.timezone');
         $dateFromInput = $request->get('date_from');
