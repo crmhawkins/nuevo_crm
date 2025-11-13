@@ -2145,16 +2145,12 @@ class DashboardController extends Controller
         $fechaInicio = Carbon::parse($fechaInicio)->startOfDay();
         $fechaFin = Carbon::parse($fechaFin)->endOfDay();
 
-        return ClientBillingQuery::paginate(
-            $fechaInicio,
-            $fechaFin,
-            $buscarCliente,
-            request()->integer('page', 1),
-            $perPage,
-            $montoMinimo,
-            null,
-            'billing_desc'
-        );
+        $query = ClientBillingQuery::build($fechaInicio, $fechaFin, $buscarCliente);
+
+        return $query->having('total_facturado', '>=', $montoMinimo)
+            ->orderByDesc('total_facturado')
+            ->paginate($perPage)
+            ->appends(request()->query());
     }
 
     /**

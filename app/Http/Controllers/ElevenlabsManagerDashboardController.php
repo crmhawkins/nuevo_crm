@@ -141,13 +141,9 @@ class ElevenlabsManagerDashboardController extends Controller
 
     protected function buildClientsPaginator(Request $request): \Illuminate\Pagination\LengthAwarePaginator
     {
-        $perPageOptions = [10, 15, 25, 50, 100, 150];
-        $perPage = $request->integer('per_page', 15);
-        if (!in_array($perPage, $perPageOptions, true)) {
-            $perPage = 15;
-        }
-
+        $limit = $request->integer('per_page', 15);
         $page = max($request->integer('page', 1), 1);
+        $perPage = in_array($limit, [10, 15, 25, 50, 100, 150], true) ? $limit : 15;
         $search = trim((string) $request->get('search', ''));
         $billingMin = $request->get('billing_min', 0);
         $billingMax = $request->get('billing_max');
@@ -163,18 +159,50 @@ class ElevenlabsManagerDashboardController extends Controller
             ? Carbon::parse($dateToInput, $timezone)->endOfDay()
             : Carbon::now($timezone)->endOfDay();
 
-        $paginator = ClientBillingQuery::paginate(
-            $dateFrom,
-            $dateTo,
-            $search !== '' ? $search : null,
-            $page,
-            $perPage,
-            $billingMin !== null && $billingMin !== '' ? (float) $billingMin : null,
-            $billingMax !== null && $billingMax !== '' ? (float) $billingMax : null,
-            $sort
+        $query = ClientBillingQuery::build($dateFrom, $dateTo, $search !== '' ? $search : null);
+
+        if ($billingMin !== null && $billingMin !== '') {
+            $query->having('total_facturado', '>=', (float) $billingMin);
+        } else {
+            $query->having('total_facturado', '>=', 0);
+        }
+
+        if ($billingMax !== null && $billingMax !== '') {
+            $query->having('total_facturado', '<=', (float) $billingMax);
+        }
+
+        $query->groupBy(
+            'clients.id',
+            'clients.name',
+            'clients.primerApellido',
+            'clients.segundoApellido',
+            'clients.company',
+            'clients.phone',
+            'clients.created_at'
         );
 
-        return $paginator;
+        $results = $query->get();
+
+        $sorted = match ($sort) {
+            'billing_desc' => $results->sortByDesc(fn ($row) => $row->total_facturado)->values(),
+            'billing_asc' => $results->sortBy(fn ($row) => $row->total_facturado)->values(),
+            'name' => $results->sortBy(fn ($row) => $row->name ?? '')->values(),
+            'oldest' => $results->sortBy(fn ($row) => $row->created_at)->values(),
+            default => $results->sortByDesc(fn ($row) => $row->created_at)->values(),
+        };
+
+        $currentPageItems = $sorted->forPage($page, $perPage)->values();
+
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentPageItems,
+            $sorted->count(),
+            $perPage,
+            $page,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
     }
 
     protected function mapClientRow(object $row): array
