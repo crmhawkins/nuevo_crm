@@ -171,7 +171,9 @@ class ElevenlabsManagerDashboardController extends Controller
             $perPage,
             $billingMin !== null && $billingMin !== '' ? (float) $billingMin : null,
             $billingMax !== null && $billingMax !== '' ? (float) $billingMax : null,
-            $sort
+            $sort,
+            $request->url(),
+            $request->query()
         );
 
         return $paginator;

@@ -80,14 +80,16 @@ class ClientBillingQuery
         int $perPage,
         ?float $minFacturacion = null,
         ?float $maxFacturacion = null,
-        string $sort = 'billing_desc'
+        string $sort = 'billing_desc',
+        ?string $path = null,
+        array $queryParams = []
     ): LengthAwarePaginator {
         $baseQuery = self::build($fechaInicio, $fechaFin, $buscarCliente);
         self::applyBillingRange($baseQuery, $minFacturacion, $maxFacturacion);
 
         $subQuery = DB::query()->fromSub($baseQuery, 'billing');
 
-        $sortedQuery = match ($sort) {
+        $orderedQuery = match ($sort) {
             'billing_asc' => $subQuery->orderBy('billing.total_facturado')->orderBy('billing.name'),
             'name' => $subQuery->orderBy('billing.name'),
             'oldest' => $subQuery->orderBy('billing.created_at'),
@@ -95,19 +97,13 @@ class ClientBillingQuery
             default => $subQuery->orderByDesc('billing.total_facturado')->orderBy('billing.name'),
         };
 
-        $total = (clone $sortedQuery)->count();
-        $items = (clone $sortedQuery)->forPage($page, $perPage)->get();
+        $paginator = $orderedQuery->paginate($perPage, ['*'], 'page', $page);
 
-        return new LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $page,
-            [
-                'path' => request()->url(),
-                'query' => request()->query(),
-            ]
-        );
+        if (!empty($queryParams)) {
+            $paginator->appends($queryParams);
+        }
+
+        return $paginator;
     }
 }
 
