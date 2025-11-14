@@ -47,6 +47,12 @@
                                 <input type="url" class="form-control" id="url_campo" name="url_campo" placeholder="https://ejemplo.com" required>
                                 <small class="text-muted">Los archivos serán generados automáticamente por el servidor</small>
                             </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="fecha_periodo_prestacion_campo" class="form-label">Fecha de inicio del periodo de prestación <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="fecha_periodo_prestacion_campo" name="fecha_periodo_prestacion_campo" required>
+                                <small class="text-muted">Indique la fecha desde la que se presta el servicio.</small>
+                            </div>
                         </div>
 
                         <!-- Campos para Puesto de Trabajo Seguro -->

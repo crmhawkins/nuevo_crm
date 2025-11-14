@@ -79,12 +79,13 @@
                 }
             } else if (tipoJustificacion === 'segunda_justificacion_presencia_basica') {
                 const urlCampo = document.getElementById('url_campo').value;
+                const fechaPeriodo = document.getElementById('fecha_periodo_prestacion_campo').value;
 
-                if (!urlCampo) {
+                if (!urlCampo || !fechaPeriodo) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Debe ingresar la URL'
+                        text: 'Debe ingresar la URL y la fecha de inicio del periodo de prestación'
                     });
                     return;
                 }
