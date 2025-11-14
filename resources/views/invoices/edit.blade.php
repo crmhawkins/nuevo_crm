@@ -52,7 +52,7 @@
                                     <div class="col-md-6 col-sm-12">
                                         <div class="form-group mb-3">
                                             <label class="text-left mb-2">Cliente <span id="budgetLinkContainer"></span><a id="budgetAssignedClient" target="_blank" href="{{ route('clientes.edit', $factura->client_id) }}"><i class="fas fa-external-link-alt"></i></a></label>
-                                            <input type="text" class="form-control @error('client_id') is-invalid @enderror" id="client_id" value="{{ $factura->cliente->name ??  ($factura->client_id ? 'Cliente borrado' : 'Sin cliente asignado') }}" name="client_id" disabled>
+                                            <input type="text" class="form-control @error('client_id') is-invalid @enderror" id="client_id" value="{{ ($factura->cliente->company ?? $factura->cliente->name) ??  ($factura->client_id ? 'Cliente borrado' : 'Sin cliente asignado') }}" name="client_id" disabled>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-12">
