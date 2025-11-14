@@ -78,74 +78,13 @@
                     return;
                 }
             } else if (tipoJustificacion === 'segunda_justificacion_presencia_basica') {
-                const urlCampo = document.getElementById('url_campo').value.trim();
-                const periodoCampo = document.getElementById('periodo_campo').value;
-                const keywordsCampo = document.getElementById('keywords_campo').value;
-                const competidoresCampo = document.getElementById('competidores_campo').value;
-
-                const keywordsList = parseListInput(keywordsCampo, 5);
-                const competidoresList = parseListInput(competidoresCampo, 2);
+                const urlCampo = document.getElementById('url_campo').value;
 
                 if (!urlCampo) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
                         text: 'Debe ingresar la URL'
-                    });
-                    return;
-                }
-
-                if (!periodoCampo) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Debe indicar el periodo (fecha de inicio)'
-                    });
-                    return;
-                }
-
-                if (!keywordsList.length) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Debe introducir al menos una keyword (máximo 5)'
-                    });
-                    return;
-                }
-
-                if (keywordsList.length > 5) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Solo se permiten 5 keywords'
-                    });
-                    return;
-                }
-
-                if (!competidoresList.length) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Debe introducir al menos un competidor (máximo 2)'
-                    });
-                    return;
-                }
-
-                if (competidoresList.length > 2) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Solo se permiten 2 competidores'
-                    });
-                    return;
-                }
-
-                const invalidCompetidor = competidoresList.find(url => !isValidUrl(url));
-                if (invalidCompetidor) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: `La URL del competidor no es válida: ${invalidCompetidor}`
                     });
                     return;
                 }
@@ -375,29 +314,5 @@ Responde ÚNICAMENTE con la descripción, sin introducciones ni explicaciones ad
             btnGenerarDescripcion.disabled = false;
             btnGenerarDescripcion.innerHTML = originalHtml;
         });
-    }
-</script>
-
-<script>
-    function parseListInput(value, maxItems) {
-        if (!value) {
-            return [];
-        }
-        const tokens = value
-            .split(/[\n,;]+/)
-            .map(item => item.trim())
-            .filter(item => item.length > 0);
-
-        const uniqueTokens = [...new Set(tokens)];
-        return uniqueTokens.slice(0, maxItems);
-    }
-
-    function isValidUrl(value) {
-        try {
-            new URL(value);
-            return true;
-        } catch (error) {
-            return false;
-        }
     }
 </script>

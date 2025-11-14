@@ -16,12 +16,12 @@ class ProcessJustificacion implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $justificacionId;
-
+    
     /**
      * Número de intentos en caso de fallo
      */
     public $tries = 3;
-
+    
     /**
      * Timeout en segundos (10 minutos)
      */
@@ -44,7 +44,7 @@ class ProcessJustificacion implements ShouldQueue
     public function __construct($justificacionId)
     {
         $this->justificacionId = $justificacionId;
-
+        
         // Usar cola específica 'justificaciones' para serializar (uno a la vez)
         $this->onQueue('justificaciones');
     }
@@ -62,7 +62,7 @@ class ProcessJustificacion implements ShouldQueue
             $justificacion = Justificacion::findOrFail($this->justificacionId);
             $tipo = $justificacion->tipo_justificacion;
             $metadata = $justificacion->metadata ?? [];
-
+            
             Log::info('📋 Tipo de justificación: ' . $tipo);
 
             // Actualizar estado a procesando
@@ -80,7 +80,7 @@ class ProcessJustificacion implements ShouldQueue
 
             // Construir payload según el tipo
             $payload = $this->buildPayload($justificacion);
-
+            
             Log::info('📦 Payload construido', ['payload' => $payload]);
 
             // Enviar petición a la API externa con timeout extendido
@@ -88,7 +88,7 @@ class ProcessJustificacion implements ShouldQueue
 
             if ($response->successful()) {
                 $data = $response->json();
-
+                
                 Log::info('✅ Petición exitosa a API externa', [
                     'justificacion_id' => $this->justificacionId,
                     'response' => $data
@@ -160,7 +160,7 @@ class ProcessJustificacion implements ShouldQueue
         $metadata = $justificacion->metadata ?? [];
         $tipo = $justificacion->tipo_justificacion;
         $user = $justificacion->user;
-
+        
         // Callback URL común para todos - forzar HTTPS
         $callbackUrl = route('justificaciones.receive.public', $justificacion->id);
         // Asegurar que siempre use HTTPS

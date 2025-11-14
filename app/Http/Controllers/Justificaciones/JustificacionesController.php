@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\ProcessJustificacion;
-use Carbon\Carbon;
-use Illuminate\Validation\ValidationException;
 
 class JustificacionesController extends Controller
 {
@@ -70,16 +68,6 @@ class JustificacionesController extends Controller
                     'username_campo' => 'nullable|string',
                     'password_campo' => 'nullable|string',
                 ]);
-            } elseif ($request->tipo_justificacion === 'segunda_justificacion_presencia_basica') {
-                $request->validate([
-                    'tipo_justificacion' => 'required|string',
-                    'nombre_justificacion' => 'required|string',
-                    'url_campo' => 'required|url',
-                    'tipo_analisis' => 'required|in:web,ecommerce',
-                    'periodo_campo' => 'required|date',
-                    'keywords_campo' => 'required|string',
-                    'competidores_campo' => 'required|string',
-                ]);
             } else {
                 $request->validate([
                     'tipo_justificacion' => 'required|string',
@@ -118,42 +106,6 @@ class JustificacionesController extends Controller
                 'url' => $request->input('url_crm_campo'),
                 'username' => $request->input('username_campo', 'admin'),
                 'password' => $request->input('password_campo', '12345678'),
-                'estado' => 'pendiente'
-            ];
-        } elseif ($request->tipo_justificacion === 'segunda_justificacion_presencia_basica') {
-            $periodoDate = Carbon::parse($request->input('periodo_campo'));
-            $periodoFormatted = $periodoDate->format('d/m/Y');
-            $keywords = $this->parseList($request->input('keywords_campo'), 5);
-            $competidores = $this->parseList($request->input('competidores_campo'), 2);
-
-            if (empty($keywords)) {
-                throw ValidationException::withMessages([
-                    'keywords_campo' => 'Debe indicar al menos una keyword (máximo 5).'
-                ]);
-            }
-
-            if (empty($competidores)) {
-                throw ValidationException::withMessages([
-                    'competidores_campo' => 'Debe indicar al menos un competidor (máximo 2).'
-                ]);
-            }
-
-            foreach ($competidores as $competidor) {
-                if (!filter_var($competidor, FILTER_VALIDATE_URL)) {
-                    throw ValidationException::withMessages([
-                        'competidores_campo' => "La URL del competidor no es válida: {$competidor}"
-                    ]);
-                }
-            }
-
-            $metadata = [
-                'url' => $request->input('url_campo'),
-                'tipo_analisis' => $request->input('tipo_analisis'),
-                'periodo' => $periodoFormatted,
-                'periodo_iso' => $periodoDate->toDateString(),
-                'keywords' => $keywords,
-                'competidores' => $competidores,
-                'ecommerce' => $request->input('tipo_analisis') === 'ecommerce',
                 'estado' => 'pendiente'
             ];
         } else {
@@ -452,23 +404,5 @@ class JustificacionesController extends Controller
             'success' => true,
             'message' => 'Justificación eliminada correctamente'
         ]);
-    }
-    /**
-     * Convertir una cadena en una lista limitada de valores únicos.
-     */
-    private function parseList(?string $value, int $maxItems): array
-    {
-        if (!$value) {
-            return [];
-        }
-
-        $items = preg_split('/[\r\n,;]+/', $value);
-        $items = array_map('trim', $items);
-        $items = array_filter($items, function ($item) {
-            return $item !== '';
-        });
-        $items = array_values(array_unique($items));
-
-        return array_slice($items, 0, $maxItems);
     }
 }

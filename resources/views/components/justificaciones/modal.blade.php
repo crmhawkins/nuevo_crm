@@ -47,33 +47,6 @@
                                 <input type="url" class="form-control" id="url_campo" name="url_campo" placeholder="https://ejemplo.com" required>
                                 <small class="text-muted">Los archivos serán generados automáticamente por el servidor</small>
                             </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="periodo_campo" class="form-label">Periodo (fecha de inicio) <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" id="periodo_campo" name="periodo_campo" required>
-                                    <small class="text-muted">Se enviará en formato DD/MM/YYYY y el backend calculará el rango anual.</small>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Resumen del envío a la API</label>
-                                    <div class="alert alert-light border mb-0">
-                                        <p class="mb-1"><small>El CRM enviará un JSON con <code>url</code>, <code>keywords</code>, <code>competidores</code>, <code>periodo</code> y <code>ecommerce</code> a <code>/sgseo</code>.</small></p>
-                                        <p class="mb-0"><small>Los campos se validan en el backend; respeta el número máximo indicado.</small></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12 mb-3">
-                                <label for="keywords_campo" class="form-label">Keywords (máximo 5) <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="keywords_campo" name="keywords_campo" rows="2" placeholder="Escribe una keyword por línea" required></textarea>
-                                <small class="text-muted">Añade entre 1 y 5 keywords relevantes (una por línea o separadas por coma).</small>
-                            </div>
-
-                            <div class="col-md-12 mb-3">
-                                <label for="competidores_campo" class="form-label">Competidores (máximo 2) <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="competidores_campo" name="competidores_campo" rows="2" placeholder="https://competidor1.com&#10;https://competidor2.com" required></textarea>
-                                <small class="text-muted">Incluye hasta 2 URLs completas de competidores (una por línea).</small>
-                            </div>
                         </div>
 
                         <!-- Campos para Puesto de Trabajo Seguro -->
