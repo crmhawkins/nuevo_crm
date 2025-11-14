@@ -4,17 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\ElevenlabsCampaign;
 use App\Models\ElevenlabsCampaignCall;
+use App\Services\ClientAnalyticsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class ElevenlabsManagerDashboardController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly ClientAnalyticsService $clientAnalyticsService)
     {
         $this->middleware(function ($request, $next) {
             $user = $request->user();
@@ -77,7 +77,19 @@ class ElevenlabsManagerDashboardController extends Controller
                 ->count();
         }
 
-        return view('elevenlabs.gestor.dashboard', compact('campaigns', 'stats'));
+        $analysisCategories = $this->clientAnalyticsService->getCategories();
+        $analysisServices = $this->clientAnalyticsService->getServices();
+        $defaultPickerStart = Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d');
+        $defaultPickerEnd = Carbon::now()->format('Y-m-d');
+
+        return view('elevenlabs.gestor.dashboard', compact(
+            'campaigns',
+            'stats',
+            'analysisCategories',
+            'analysisServices',
+            'defaultPickerStart',
+            'defaultPickerEnd'
+        ));
     }
 
     public function clientsData(Request $request)
@@ -146,82 +158,17 @@ class ElevenlabsManagerDashboardController extends Controller
             $perPage = 15;
         }
 
-        $page = max($request->integer('page', 1), 1);
-        $search = trim((string) $request->get('search', ''));
-        $billingMin = $request->get('billing_min', 0);
-        $billingMax = $request->get('billing_max');
-        $sort = $request->get('sort', 'billing_desc');
-
-        $timezone = config('app.timezone');
-        $dateFromInput = $request->get('date_from');
-        $dateToInput = $request->get('date_to');
-        $dateFrom = $dateFromInput
-            ? Carbon::parse($dateFromInput, $timezone)->startOfDay()
-            : Carbon::now($timezone)->subMonth()->startOfMonth();
-        $dateTo = $dateToInput
-            ? Carbon::parse($dateToInput, $timezone)->endOfDay()
-            : Carbon::now($timezone)->endOfDay();
-
-        $query = DB::table('clients')
-            ->select([
-                'clients.id as client_id',
-                'clients.name',
-                'clients.primerApellido',
-                'clients.segundoApellido',
-                'clients.company',
-                'clients.phone',
-                'clients.created_at',
-            ])
-            ->selectRaw('SUM(invoices.total) as total_facturado')
-            ->selectRaw('COUNT(invoices.id) as num_facturas')
-            ->join('invoices', 'clients.id', '=', 'invoices.client_id')
-            ->where('clients.is_client', true)
-            ->whereNull('invoices.deleted_at')
-            ->whereBetween('invoices.created_at', [$dateFrom, $dateTo])
-            ->whereIn('invoices.invoice_status_id', [3, 4])
-            ->groupBy('clients.id', 'clients.name', 'clients.primerApellido', 'clients.segundoApellido', 'clients.company', 'clients.phone', 'clients.created_at');
-
-        if ($search !== '') {
-            $like = "%{$search}%";
-            $query->where(function ($q) use ($like) {
-                $q->where('clients.name', 'like', $like)
-                    ->orWhere('clients.primerApellido', 'like', $like)
-                    ->orWhere('clients.segundoApellido', 'like', $like)
-                    ->orWhere('clients.company', 'like', $like)
-                    ->orWhere('clients.phone', 'like', $like);
-            });
-        }
-
-        if ($billingMin !== null && $billingMin !== '') {
-            $query->having('total_facturado', '>=', (float) $billingMin);
-        } else {
-            $query->having('total_facturado', '>=', 0);
-        }
-
-        if ($billingMax !== null && $billingMax !== '') {
-            $query->having('total_facturado', '<=', (float) $billingMax);
-        }
-
-        switch ($sort) {
-            case 'billing_desc':
-                $query->orderByDesc('total_facturado')->orderBy('clients.name');
-                break;
-            case 'billing_asc':
-                $query->orderBy('total_facturado')->orderBy('clients.name');
-                break;
-            case 'name':
-                $query->orderBy('clients.name');
-                break;
-            case 'oldest':
-                $query->orderBy('clients.created_at');
-                break;
-            case 'recent':
-            default:
-                $query->orderByDesc('clients.created_at');
-                break;
-        }
-
-        return $query->paginate($perPage, ['*'], 'page', $page)->appends($request->query());
+        return $this->clientAnalyticsService->paginateClients([
+            'fecha_inicio' => $request->get('fecha_inicio') ?? $request->get('date_from'),
+            'fecha_fin' => $request->get('fecha_fin') ?? $request->get('date_to'),
+            'tipo_analisis' => $request->get('tipo_analisis', 'top_clientes'),
+            'filtro_id' => $request->get('filtro_id'),
+            'monto_minimo' => $request->get('monto_minimo', $request->get('billing_min')),
+            'buscar_cliente' => $request->get('buscar_cliente', $request->get('search')),
+            'sort' => $request->get('sort', 'billing_desc'),
+            'per_page' => $perPage,
+            'page' => max($request->integer('page', 1), 1),
+        ]);
     }
 
     protected function mapClientRow(object $row): array
@@ -232,17 +179,42 @@ class ElevenlabsManagerDashboardController extends Controller
             $row->segundoApellido ?? '',
         ])->filter()->implode(' '));
 
+        $clientId = $row->client_id ?? $row->id ?? null;
+        $billingValue = $row->total_facturado
+            ?? $row->total_por_categoria
+            ?? $row->total_por_servicio
+            ?? $row->total
+            ?? $row->billing
+            ?? 0;
+        $numFacturas = $row->num_facturas
+            ?? $row->facturas_con_categoria
+            ?? $row->facturas_con_servicio
+            ?? null;
+
+        $labelParts = [];
+        if (!empty($row->categoria_servicio)) {
+            $labelParts[] = 'Categoría: ' . $row->categoria_servicio;
+        }
+        if (!empty($row->servicio)) {
+            $labelParts[] = 'Servicio: ' . $row->servicio;
+        }
+        if ($numFacturas !== null) {
+            $labelParts[] = sprintf('%d facturas', (int) $numFacturas);
+        }
+
         return [
-            'client_id' => (int) $row->client_id,
+            'client_id' => $clientId !== null ? (int) $clientId : null,
             'phone_id' => null,
-            'phone' => $row->phone,
+            'phone' => $row->phone ?? null,
             'name' => $fullName !== '' ? $fullName : ($row->name ?? null),
-            'company' => $row->company,
-            'created_at' => $row->created_at ? Carbon::parse($row->created_at)->toDateString() : null,
-            'billing' => round((float) $row->total_facturado, 2),
-            'total_facturado' => round((float) $row->total_facturado, 2),
-            'num_facturas' => isset($row->num_facturas) ? (int) $row->num_facturas : null,
-            'label' => null,
+            'company' => $row->company ?? null,
+            'created_at' => isset($row->created_at) && $row->created_at
+                ? Carbon::parse($row->created_at)->toDateString()
+                : null,
+            'billing' => round((float) $billingValue, 2),
+            'total_facturado' => round((float) $billingValue, 2),
+            'num_facturas' => $numFacturas !== null ? (int) $numFacturas : null,
+            'label' => $labelParts ? implode(' · ', $labelParts) : null,
         ];
     }
 

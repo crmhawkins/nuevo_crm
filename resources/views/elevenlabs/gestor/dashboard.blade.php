@@ -539,45 +539,54 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="row g-3 mb-3">
-                    <div class="col-lg-3">
+                <div class="row g-3 mb-2">
+                    <div class="col-lg-3 col-md-6">
                         <label class="form-label">Buscar</label>
-                        <input type="text" class="form-control" id="pickerSearch" placeholder="Nombre, empresa o teléfono">
+                        <input type="text" class="form-control" id="pickerBuscarCliente" placeholder="Nombre, empresa o teléfono">
                     </div>
-                    <div class="col-lg-2">
-                        <label class="form-label">Ordenar por</label>
-                        <select class="form-select" id="pickerSort">
-                            <option value="recent">Más recientes</option>
-                            <option value="oldest">Más antiguos</option>
-                            <option value="billing_desc">Facturación (alta a baja)</option>
-                            <option value="billing_asc">Facturación (baja a alta)</option>
-                            <option value="name">Nombre</option>
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Tipo de análisis</label>
+                        <select class="form-select" id="pickerTipoAnalisis">
+                            <option value="top_clientes">Top clientes</option>
+                            <option value="por_categoria">Por categoría</option>
+                            <option value="por_servicio">Por servicio</option>
+                            <option value="por_facturacion">Por facturación</option>
                         </select>
                     </div>
-                    <div class="col-lg-2">
-                        <label class="form-label">Mostrar</label>
-                        <select class="form-select" id="pickerLimit">
+                    <div class="col-lg-3 col-md-6 d-none" id="pickerFiltroWrapper">
+                        <label class="form-label" id="pickerFiltroLabel">Filtro</label>
+                        <select class="form-select" id="pickerFiltro">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-6 d-none" id="pickerMontoWrapper">
+                        <label class="form-label">Monto mínimo (€)</label>
+                        <input type="number" class="form-control" id="pickerMontoMinimo" min="0" step="50" placeholder="0">
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Resultados por página</label>
+                        <select class="form-select" id="pickerPerPage">
+                            <option value="10">10</option>
                             <option value="15">15</option>
+                            <option value="25">25</option>
                             <option value="50">50</option>
                             <option value="100">100</option>
                             <option value="150" selected>150</option>
                         </select>
                     </div>
-                    <div class="col-lg-2">
-                        <label class="form-label">Fecha desde</label>
-                        <input type="date" class="form-control" id="pickerDateFrom">
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Fecha inicio</label>
+                        <input type="date" class="form-control" id="pickerFechaInicio" value="{{ $defaultPickerStart ?? '' }}">
                     </div>
-                    <div class="col-lg-2">
-                        <label class="form-label">Fecha hasta</label>
-                        <input type="date" class="form-control" id="pickerDateTo">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Fecha fin</label>
+                        <input type="date" class="form-control" id="pickerFechaFin" value="{{ $defaultPickerEnd ?? '' }}">
                     </div>
-                    <div class="col-lg-1">
-                        <label class="form-label">Fact. mín.</label>
-                        <input type="number" class="form-control" id="pickerBillingMin" placeholder="0">
-                    </div>
-                    <div class="col-lg-1">
-                        <label class="form-label">Fact. máx.</label>
-                        <input type="number" class="form-control" id="pickerBillingMax" placeholder="">
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Límite total</label>
+                        <input type="number" class="form-control" id="pickerLimite" min="1" value="50">
                     </div>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -627,6 +636,10 @@
     const clientApiUrl = "{{ route('elevenlabs.gestor.clients.data') }}";
     const clientExportUrl = "{{ route('elevenlabs.gestor.clients.export') }}";
     const callUpdateUrlTemplate = "{{ route('elevenlabs.gestor.call.update', ['call' => '__CALL__']) }}";
+    const analysisCategories = @json($analysisCategories ?? []);
+    const analysisServices = @json($analysisServices ?? []);
+    const defaultPickerStart = "{{ $defaultPickerStart ?? '' }}";
+    const defaultPickerEnd = "{{ $defaultPickerEnd ?? '' }}";
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const toggleResolvedBtn = document.getElementById('toggleResolved');
     const callsPanel = document.getElementById('callsPanel');
@@ -672,13 +685,17 @@
     const selectedClientsSummary = document.getElementById('selectedClientsSummary');
     const selectedClientsList = document.getElementById('selectedClientsList');
     const clientPickerModalEl = document.getElementById('clientPickerModal');
-    const pickerSearch = document.getElementById('pickerSearch');
-    const pickerSort = document.getElementById('pickerSort');
-    const pickerLimit = document.getElementById('pickerLimit');
-    const pickerDateFrom = document.getElementById('pickerDateFrom');
-    const pickerDateTo = document.getElementById('pickerDateTo');
-    const pickerBillingMin = document.getElementById('pickerBillingMin');
-    const pickerBillingMax = document.getElementById('pickerBillingMax');
+    const pickerBuscarCliente = document.getElementById('pickerBuscarCliente');
+    const pickerTipoAnalisis = document.getElementById('pickerTipoAnalisis');
+    const pickerFiltroWrapper = document.getElementById('pickerFiltroWrapper');
+    const pickerFiltroLabel = document.getElementById('pickerFiltroLabel');
+    const pickerFiltro = document.getElementById('pickerFiltro');
+    const pickerMontoWrapper = document.getElementById('pickerMontoWrapper');
+    const pickerMontoMinimo = document.getElementById('pickerMontoMinimo');
+    const pickerPerPage = document.getElementById('pickerPerPage');
+    const pickerFechaInicio = document.getElementById('pickerFechaInicio');
+    const pickerFechaFin = document.getElementById('pickerFechaFin');
+    const pickerLimite = document.getElementById('pickerLimite');
     const pickerResultsCount = document.getElementById('pickerResultsCount');
     const pickerSelectAllBtn = document.getElementById('pickerSelectAllBtn');
     const pickerClearBtn = document.getElementById('pickerClearBtn');
@@ -712,18 +729,59 @@
     const clientEntryCache = new Map();
     const pickerSelection = new Set();
     const clientFilters = {
-        search: '',
-        sort: pickerSort ? pickerSort.value : 'recent',
-        per_page: pickerLimit ? parseInt(pickerLimit.value, 10) || 50 : 50,
+        tipo_analisis: pickerTipoAnalisis ? pickerTipoAnalisis.value : 'top_clientes',
+        filtro_id: pickerFiltro ? pickerFiltro.value : '',
+        monto_minimo: pickerMontoMinimo ? pickerMontoMinimo.value : '',
+        buscar_cliente: pickerBuscarCliente ? pickerBuscarCliente.value.trim() : '',
+        per_page: pickerPerPage ? parseInt(pickerPerPage.value, 10) || 15 : 15,
         page: 1,
-        date_from: '',
-        date_to: '',
-        billing_min: '',
-        billing_max: '',
+        fecha_inicio: pickerFechaInicio ? (pickerFechaInicio.value || defaultPickerStart) : defaultPickerStart,
+        fecha_fin: pickerFechaFin ? (pickerFechaFin.value || defaultPickerEnd) : defaultPickerEnd,
+        sort: 'billing_desc',
+        limite: pickerLimite ? pickerLimite.value : '',
     };
     let clientPageData = [];
     let clientPagination = { total: 0, current_page: 1, last_page: 1, from: 0, to: 0 };
     let isFetchingClients = false;
+
+    function refreshPickerFilterOptions() {
+        if (!pickerTipoAnalisis) return;
+        const tipo = clientFilters.tipo_analisis;
+        const showFiltro = tipo === 'por_categoria' || tipo === 'por_servicio';
+
+        if (pickerFiltroWrapper) {
+            pickerFiltroWrapper.classList.toggle('d-none', !showFiltro);
+        }
+        if (pickerFiltroLabel) {
+            pickerFiltroLabel.textContent = tipo === 'por_servicio' ? 'Servicio' : 'Categoría';
+        }
+        if (showFiltro && pickerFiltro) {
+            const source = tipo === 'por_categoria' ? analysisCategories : analysisServices;
+            const options = ['<option value="">Todos</option>'];
+            source.forEach(item => {
+                let label = '';
+                if (tipo === 'por_categoria') {
+                    label = item.name ?? '';
+                } else {
+                    const category = item.categoria ? `${item.categoria} - ` : '';
+                    label = `${category}${item.title ?? ''}`;
+                }
+                options.push(`<option value="${item.id}">${escapeHtml(label)}</option>`);
+            });
+            pickerFiltro.innerHTML = options.join('');
+            pickerFiltro.value = clientFilters.filtro_id || '';
+        } else if (pickerFiltro) {
+            pickerFiltro.innerHTML = '<option value="">Todos</option>';
+            clientFilters.filtro_id = '';
+        }
+
+        if (pickerMontoWrapper) {
+            pickerMontoWrapper.classList.toggle('d-none', tipo !== 'por_facturacion');
+        }
+        if (pickerMontoMinimo && tipo !== 'por_facturacion') {
+            pickerMontoMinimo.value = clientFilters.monto_minimo || '';
+        }
+    }
 
     document.querySelectorAll('.campaign-item').forEach(item => {
         item.addEventListener('click', () => {
@@ -763,41 +821,73 @@
     }
 
     if (clientPickerModal) {
-        pickerSearch.addEventListener('input', () => {
-            clientFilters.search = pickerSearch.value.trim();
-            clientFilters.page = 1;
-            fetchClients();
-        });
-        pickerSort.addEventListener('change', () => {
-            clientFilters.sort = pickerSort.value;
-            clientFilters.page = 1;
-            fetchClients();
-        });
-        pickerLimit.addEventListener('change', () => {
-            clientFilters.per_page = parseInt(pickerLimit.value, 10) || 50;
-            clientFilters.page = 1;
-            fetchClients();
-        });
-        pickerDateFrom.addEventListener('change', () => {
-            clientFilters.date_from = pickerDateFrom.value;
-            clientFilters.page = 1;
-            fetchClients();
-        });
-        pickerDateTo.addEventListener('change', () => {
-            clientFilters.date_to = pickerDateTo.value;
-            clientFilters.page = 1;
-            fetchClients();
-        });
-        pickerBillingMin.addEventListener('input', () => {
-            clientFilters.billing_min = pickerBillingMin.value;
-            clientFilters.page = 1;
-            fetchClients();
-        });
-        pickerBillingMax.addEventListener('input', () => {
-            clientFilters.billing_max = pickerBillingMax.value;
-            clientFilters.page = 1;
-            fetchClients();
-        });
+        if (pickerBuscarCliente) {
+            pickerBuscarCliente.addEventListener('input', () => {
+                clientFilters.buscar_cliente = pickerBuscarCliente.value.trim();
+                clientFilters.page = 1;
+                fetchClients();
+            });
+        }
+        if (pickerTipoAnalisis) {
+            pickerTipoAnalisis.addEventListener('change', () => {
+                clientFilters.tipo_analisis = pickerTipoAnalisis.value;
+                clientFilters.page = 1;
+                if (clientFilters.tipo_analisis !== 'por_facturacion') {
+                    clientFilters.monto_minimo = '';
+                    if (pickerMontoMinimo) pickerMontoMinimo.value = '';
+                }
+                if (clientFilters.tipo_analisis === 'por_facturacion') {
+                    clientFilters.monto_minimo = pickerMontoMinimo ? pickerMontoMinimo.value : '';
+                }
+                if (clientFilters.tipo_analisis !== 'por_categoria' && clientFilters.tipo_analisis !== 'por_servicio') {
+                    clientFilters.filtro_id = '';
+                }
+                refreshPickerFilterOptions();
+                fetchClients();
+            });
+        }
+        if (pickerFiltro) {
+            pickerFiltro.addEventListener('change', () => {
+                clientFilters.filtro_id = pickerFiltro.value;
+                clientFilters.page = 1;
+                fetchClients();
+            });
+        }
+        if (pickerMontoMinimo) {
+            pickerMontoMinimo.addEventListener('input', () => {
+                clientFilters.monto_minimo = pickerMontoMinimo.value;
+                if (clientFilters.tipo_analisis === 'por_facturacion') {
+                    clientFilters.page = 1;
+                    fetchClients();
+                }
+            });
+        }
+        if (pickerPerPage) {
+            pickerPerPage.addEventListener('change', () => {
+                clientFilters.per_page = parseInt(pickerPerPage.value, 10) || 15;
+                clientFilters.page = 1;
+                fetchClients();
+            });
+        }
+        if (pickerFechaInicio) {
+            pickerFechaInicio.addEventListener('change', () => {
+                clientFilters.fecha_inicio = pickerFechaInicio.value || defaultPickerStart;
+                clientFilters.page = 1;
+                fetchClients();
+            });
+        }
+        if (pickerFechaFin) {
+            pickerFechaFin.addEventListener('change', () => {
+                clientFilters.fecha_fin = pickerFechaFin.value || defaultPickerEnd;
+                clientFilters.page = 1;
+                fetchClients();
+            });
+        }
+        if (pickerLimite) {
+            pickerLimite.addEventListener('input', () => {
+                clientFilters.limite = pickerLimite.value;
+            });
+        }
         pickerSelectAllBtn.addEventListener('click', () => {
             selectVisibleClients(true);
         });
@@ -811,11 +901,12 @@
                     page: clientFilters.page,
                     per_page: clientFilters.per_page,
                     sort: clientFilters.sort,
-                    search: clientFilters.search || '',
-                    date_from: clientFilters.date_from || '',
-                    date_to: clientFilters.date_to || '',
-                    billing_min: clientFilters.billing_min || '',
-                    billing_max: clientFilters.billing_max || '',
+                    tipo_analisis: clientFilters.tipo_analisis,
+                    filtro_id: clientFilters.filtro_id || '',
+                    monto_minimo: clientFilters.monto_minimo || '',
+                    fecha_inicio: clientFilters.fecha_inicio || '',
+                    fecha_fin: clientFilters.fecha_fin || '',
+                    buscar_cliente: clientFilters.buscar_cliente || '',
                 });
                 window.open(`${clientExportUrl}?${params.toString()}`, '_blank');
             });
@@ -924,6 +1015,15 @@
     loadAgents();
     syncPhonesFromTextarea();
     refreshSelectedClientsList();
+    if (pickerFechaInicio && !pickerFechaInicio.value && defaultPickerStart) {
+        pickerFechaInicio.value = defaultPickerStart;
+        clientFilters.fecha_inicio = defaultPickerStart;
+    }
+    if (pickerFechaFin && !pickerFechaFin.value && defaultPickerEnd) {
+        pickerFechaFin.value = defaultPickerEnd;
+        clientFilters.fecha_fin = defaultPickerEnd;
+    }
+    refreshPickerFilterOptions();
 
     async function fetchClients() {
         if (!clientPickerModalEl) return;
@@ -937,11 +1037,12 @@
             page: clientFilters.page,
             per_page: clientFilters.per_page,
             sort: clientFilters.sort,
-            search: clientFilters.search,
-            date_from: clientFilters.date_from,
-            date_to: clientFilters.date_to,
-            billing_min: clientFilters.billing_min,
-            billing_max: clientFilters.billing_max,
+            tipo_analisis: clientFilters.tipo_analisis,
+            filtro_id: clientFilters.filtro_id || '',
+            monto_minimo: clientFilters.monto_minimo || '',
+            fecha_inicio: clientFilters.fecha_inicio || '',
+            fecha_fin: clientFilters.fecha_fin || '',
+            buscar_cliente: clientFilters.buscar_cliente || '',
         });
 
         try {
@@ -977,6 +1078,7 @@
 
     function openClientPicker() {
         clientFilters.page = 1;
+        refreshPickerFilterOptions();
         syncPickerSelectionFromState();
         fetchClients();
         clientPickerModal.show();
@@ -1052,18 +1154,9 @@
         };
 
         pickerPagination.appendChild(createItem('&laquo; Anterior', currentPage - 1, currentPage <= 1));
-
-        const windowSize = 5;
-        let start = Math.max(1, currentPage - Math.floor(windowSize / 2));
-        let end = Math.min(lastPage, start + windowSize - 1);
-        if (end - start + 1 < windowSize) {
-            start = Math.max(1, end - windowSize + 1);
-        }
-
-        for (let page = start; page <= end; page++) {
+        for (let page = 1; page <= lastPage; page++) {
             pickerPagination.appendChild(createItem(page, page, false, page === currentPage));
         }
-
         pickerPagination.appendChild(createItem('Siguiente &raquo;', currentPage + 1, currentPage >= lastPage));
     }
 
@@ -1386,21 +1479,25 @@
         refreshPhoneTextarea();
         refreshSelectedClientsList();
         if (clientPickerModalEl) {
-            pickerSearch.value = '';
-            pickerSort.value = 'recent';
-            pickerLimit.value = '150';
-            pickerDateFrom.value = '';
-            pickerDateTo.value = '';
-            pickerBillingMin.value = '';
-            pickerBillingMax.value = '';
-            clientFilters.search = '';
-            clientFilters.sort = 'recent';
+            if (pickerBuscarCliente) pickerBuscarCliente.value = '';
+            if (pickerTipoAnalisis) pickerTipoAnalisis.value = 'top_clientes';
+            if (pickerFiltro) pickerFiltro.value = '';
+            if (pickerMontoMinimo) pickerMontoMinimo.value = '';
+            if (pickerPerPage) pickerPerPage.value = '150';
+            if (pickerFechaInicio) pickerFechaInicio.value = defaultPickerStart || '';
+            if (pickerFechaFin) pickerFechaFin.value = defaultPickerEnd || '';
+            if (pickerLimite) pickerLimite.value = '50';
+            clientFilters.tipo_analisis = 'top_clientes';
+            clientFilters.filtro_id = '';
+            clientFilters.monto_minimo = '';
+            clientFilters.buscar_cliente = '';
             clientFilters.per_page = 150;
             clientFilters.page = 1;
-            clientFilters.date_from = '';
-            clientFilters.date_to = '';
-            clientFilters.billing_min = '';
-            clientFilters.billing_max = '';
+            clientFilters.fecha_inicio = pickerFechaInicio ? pickerFechaInicio.value : defaultPickerStart;
+            clientFilters.fecha_fin = pickerFechaFin ? pickerFechaFin.value : defaultPickerEnd;
+            clientFilters.sort = 'billing_desc';
+            clientFilters.limite = pickerLimite ? pickerLimite.value : clientFilters.limite;
+            refreshPickerFilterOptions();
         }
     }
 
