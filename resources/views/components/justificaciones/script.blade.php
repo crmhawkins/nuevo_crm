@@ -79,7 +79,7 @@
                 }
             } else if (tipoJustificacion === 'segunda_justificacion_presencia_basica') {
                 const urlCampo = document.getElementById('url_campo').value;
-                const fechaPeriodo = document.getElementById('fecha_periodo_prestacion_campo').value;
+                const fechaPeriodo = document.getElementById('periodo_campo').value;
 
                 if (!urlCampo || !fechaPeriodo) {
                     Swal.fire({

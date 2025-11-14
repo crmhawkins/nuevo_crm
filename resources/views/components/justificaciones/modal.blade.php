@@ -49,8 +49,8 @@
                             </div>
 
                             <div class="col-md-12 mb-3">
-                                <label for="fecha_periodo_prestacion_campo" class="form-label">Fecha de inicio del periodo de prestación <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="fecha_periodo_prestacion_campo" name="fecha_periodo_prestacion_campo" required>
+                                <label for="periodo_campo" class="form-label">Fecha de inicio del periodo de prestación <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="periodo_campo" name="periodo" required>
                                 <small class="text-muted">Indique la fecha desde la que se presta el servicio.</small>
                             </div>
                         </div>

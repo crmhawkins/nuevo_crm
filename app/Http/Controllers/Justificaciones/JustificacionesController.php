@@ -75,7 +75,7 @@ class JustificacionesController extends Controller
                     'nombre_justificacion' => 'required|string',
                     'url_campo' => 'required|url',
                     'tipo_analisis' => 'required|in:web,ecommerce',
-                    'fecha_periodo_prestacion_campo' => 'required|date',
+                    'periodo' => 'required|date',
                 ]);
             }
 
@@ -114,7 +114,7 @@ class JustificacionesController extends Controller
             $metadata = [
                 'url' => $request->input('url_campo'),
                 'tipo_analisis' => $request->input('tipo_analisis'),
-                'periodo' => $request->input('fecha_periodo_prestacion_campo'),
+                'periodo' => $request->input('periodo'),
                 'estado' => 'pendiente'
             ];
         }
