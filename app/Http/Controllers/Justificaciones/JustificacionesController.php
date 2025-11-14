@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Justificacion;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use ZipArchive;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\ProcessJustificacion;
@@ -32,7 +33,7 @@ class JustificacionesController extends Controller
     public function store(Request $request)
     {
         try {
-            \Log::info('📝 Inicio store justificación', [
+            Log::info('📝 Inicio store justificación', [
                 'request_all' => $request->all()
             ]);
 
@@ -74,12 +75,12 @@ class JustificacionesController extends Controller
                     'nombre_justificacion' => 'required|string',
                     'url_campo' => 'required|url',
                     'tipo_analisis' => 'required|in:web,ecommerce',
-                    'periodo_prestacion_campo' => 'required|date',
+                    'fecha_periodo_prestacion_campo' => 'required|date',
                 ]);
             }
 
             $user = Auth::user();
-            \Log::info('✅ Usuario autenticado', ['user_id' => $user->id]);
+            Log::info('✅ Usuario autenticado', ['user_id' => $user->id]);
         // Metadata diferente según el tipo de justificación
         if ($request->tipo_justificacion === 'puesto_trabajo_seguro') {
             $metadata = [
@@ -127,7 +128,7 @@ class JustificacionesController extends Controller
             'metadata' => $metadata // Laravel lo convierte a JSON automáticamente
         ]);
 
-        \Log::info('✅ Justificación creada, encolando Job', [
+        Log::info('✅ Justificación creada, encolando Job', [
             'justificacion_id' => $justificacion->id,
             'tipo' => $request->tipo_justificacion,
             'metadata' => $metadata
@@ -137,13 +138,13 @@ class JustificacionesController extends Controller
             // Encolar Job genérico para TODOS los tipos de justificación
             $job = ProcessJustificacion::dispatch($justificacion->id);
 
-            \Log::info('📋 Job encolado exitosamente', [
+            Log::info('📋 Job encolado exitosamente', [
                 'justificacion_id' => $justificacion->id,
                 'queue_connection' => config('queue.default'),
                 'job_dispatched' => true
             ]);
         } catch (\Exception $e) {
-            \Log::error('❌ Error al encolar Job', [
+            Log::error('❌ Error al encolar Job', [
                 'justificacion_id' => $justificacion->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -160,7 +161,7 @@ class JustificacionesController extends Controller
         ]);
 
     } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('❌ Error de validación', [
+            Log::error('❌ Error de validación', [
                 'errors' => $e->errors()
             ]);
             return response()->json([
@@ -170,7 +171,7 @@ class JustificacionesController extends Controller
             ], 422);
 
         } catch (\Exception $e) {
-            \Log::error('❌ Error general en store', [
+            Log::error('❌ Error general en store', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -193,11 +194,11 @@ class JustificacionesController extends Controller
         );
 
         try {
-            \Log::info("📥 Recibiendo archivos para justificación #{$id}");
-            \Log::info("Request method: " . $request->method());
-            \Log::info("Request URL: " . $request->fullUrl());
-            \Log::info("Todos los inputs: " . json_encode($request->all()));
-            \Log::info("Archivos en request: " . json_encode($request->allFiles()));
+            Log::info("📥 Recibiendo archivos para justificación #{$id}");
+            Log::info("Request method: " . $request->method());
+            Log::info("Request URL: " . $request->fullUrl());
+            Log::info("Todos los inputs: " . json_encode($request->all()));
+            Log::info("Archivos en request: " . json_encode($request->allFiles()));
 
             $justificacion = Justificacion::findOrFail($id);
 
@@ -205,7 +206,7 @@ class JustificacionesController extends Controller
             $archivos = [];
             $userId = $justificacion->admin_user_id;
 
-            \Log::info("Usuario ID: {$userId}");
+            Log::info("Usuario ID: {$userId}");
 
             // Guardar archivos recibidos (acepta cualquier archivo con nombre archivo_*)
             // Mapeo de nombres amigables
@@ -230,7 +231,7 @@ class JustificacionesController extends Controller
                     $path = $file->store('justificaciones/' . $userId, 'public');
                     $archivos[$nombreArchivo] = $path;
 
-                    \Log::info("✅ Archivo '{$nombreArchivo}' guardado: {$path}", [
+                    Log::info("✅ Archivo '{$nombreArchivo}' guardado: {$path}", [
                         'extension' => $file->getClientOriginalExtension(),
                         'size' => $file->getSize(),
                         'original_name' => $file->getClientOriginalName()
@@ -239,7 +240,7 @@ class JustificacionesController extends Controller
             }
 
             if (empty($archivos)) {
-                \Log::error("❌ No se recibió ningún archivo");
+                Log::error("❌ No se recibió ningún archivo");
                 return response()->json([
                     'success' => false,
                     'message' => 'No se recibieron archivos'
@@ -262,8 +263,8 @@ class JustificacionesController extends Controller
                 'metadata' => $metadata  // Laravel lo convierte a JSON automáticamente
             ]);
 
-            \Log::info("✅ Justificación actualizada con " . count($archivos) . " archivos");
-            \Log::info("Metadata final: " . json_encode($metadata));
+            Log::info("✅ Justificación actualizada con " . count($archivos) . " archivos");
+            Log::info("Metadata final: " . json_encode($metadata));
 
             return response()->json([
                 'success' => true,
@@ -272,8 +273,8 @@ class JustificacionesController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error("❌ Error recibiendo archivos: " . $e->getMessage());
-            \Log::error("Trace: " . $e->getTraceAsString());
+            Log::error("❌ Error recibiendo archivos: " . $e->getMessage());
+            Log::error("Trace: " . $e->getTraceAsString());
 
             return response()->json([
                 'success' => false,

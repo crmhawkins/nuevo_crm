@@ -189,7 +189,7 @@ class ProcessJustificacion implements ShouldQueue
                 return array_merge($basePayload, [
                     'url' => $metadata['url'] ?? '',
                     'tipo_analisis' => $metadata['tipo_analisis'] ?? 'web',
-                    'fecha_inicio_periodo_prestacion' => $metadata['fecha_inicio_periodo_prestacion'] ?? ''
+                    'periodo' => $metadata['periodo'] ?? ($metadata['fecha_inicio_periodo_prestacion'] ?? '')
                 ]);
 
             case 'presencia_avanzada_2':
