@@ -17,7 +17,7 @@ class ClientAnalyticsService
      */
     public function paginateClients(array $filters): LengthAwarePaginator
     {
-        $perPageOptions = [10, 15, 25, 50, 100, 150];
+        $perPageOptions = [10, 15, 25, 50, 100];
         $perPage = (int) ($filters['per_page'] ?? 15);
         if (!in_array($perPage, $perPageOptions, true)) {
             $perPage = 15;

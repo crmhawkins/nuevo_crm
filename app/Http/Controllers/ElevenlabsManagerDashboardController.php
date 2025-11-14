@@ -152,7 +152,7 @@ class ElevenlabsManagerDashboardController extends Controller
 
     protected function buildClientsPaginator(Request $request): \Illuminate\Pagination\LengthAwarePaginator
     {
-        $perPageOptions = [10, 15, 25, 50, 100, 150];
+        $perPageOptions = [10, 15, 25, 50, 100];
         $perPage = $request->integer('per_page', 15);
         if (!in_array($perPage, $perPageOptions, true)) {
             $perPage = 15;
