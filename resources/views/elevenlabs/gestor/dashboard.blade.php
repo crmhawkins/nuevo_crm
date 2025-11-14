@@ -616,9 +616,21 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <span class="small text-muted" id="pickerPageSummary"></span>
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0" id="pickerPagination"></ul>
-                    </nav>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center">
+                            <label for="pickerPerPageFooter" class="me-2 mb-0 small text-muted">Mostrar</label>
+                            <select class="form-select form-select-sm" id="pickerPerPageFooter" style="width: auto;">
+                                <option value="10">10</option>
+                                <option value="15" selected>15</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="pickerPagination"></ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer border-0">
@@ -692,6 +704,7 @@
     const pickerMontoWrapper = document.getElementById('pickerMontoWrapper');
     const pickerMontoMinimo = document.getElementById('pickerMontoMinimo');
     const pickerPerPage = document.getElementById('pickerPerPage');
+    const pickerPerPageFooter = document.getElementById('pickerPerPageFooter');
     const pickerFechaInicio = document.getElementById('pickerFechaInicio');
     const pickerFechaFin = document.getElementById('pickerFechaFin');
     const pickerLimite = document.getElementById('pickerLimite');
@@ -863,7 +876,22 @@
         }
         if (pickerPerPage) {
             pickerPerPage.addEventListener('change', () => {
-                clientFilters.per_page = parseInt(pickerPerPage.value, 10) || 15;
+                const value = parseInt(pickerPerPage.value, 10) || 15;
+                clientFilters.per_page = value;
+                if (pickerPerPageFooter && pickerPerPageFooter.value !== String(value)) {
+                    pickerPerPageFooter.value = String(value);
+                }
+                clientFilters.page = 1;
+                fetchClients();
+            });
+        }
+        if (pickerPerPageFooter) {
+            pickerPerPageFooter.addEventListener('change', () => {
+                const value = parseInt(pickerPerPageFooter.value, 10) || 15;
+                clientFilters.per_page = value;
+                if (pickerPerPage && pickerPerPage.value !== String(value)) {
+                    pickerPerPage.value = String(value);
+                }
                 clientFilters.page = 1;
                 fetchClients();
             });
@@ -1153,9 +1181,18 @@
         };
 
         pickerPagination.appendChild(createItem('&laquo; Anterior', currentPage - 1, currentPage <= 1));
-        for (let page = 1; page <= lastPage; page++) {
+
+        const windowSize = 5;
+        let start = Math.max(1, currentPage - Math.floor(windowSize / 2));
+        let end = Math.min(lastPage, start + windowSize - 1);
+        if (end - start + 1 < windowSize) {
+            start = Math.max(1, end - windowSize + 1);
+        }
+
+        for (let page = start; page <= end; page++) {
             pickerPagination.appendChild(createItem(page, page, false, page === currentPage));
         }
+
         pickerPagination.appendChild(createItem('Siguiente &raquo;', currentPage + 1, currentPage >= lastPage));
     }
 
@@ -1482,7 +1519,8 @@
             if (pickerTipoAnalisis) pickerTipoAnalisis.value = 'top_clientes';
             if (pickerFiltro) pickerFiltro.value = '';
             if (pickerMontoMinimo) pickerMontoMinimo.value = '';
-            if (pickerPerPage) pickerPerPage.value = '150';
+            if (pickerPerPage) pickerPerPage.value = '15';
+            if (pickerPerPageFooter) pickerPerPageFooter.value = '15';
             if (pickerFechaInicio) pickerFechaInicio.value = defaultPickerStart || '';
             if (pickerFechaFin) pickerFechaFin.value = defaultPickerEnd || '';
             if (pickerLimite) pickerLimite.value = '50';
@@ -1490,7 +1528,7 @@
             clientFilters.filtro_id = '';
             clientFilters.monto_minimo = '';
             clientFilters.buscar_cliente = '';
-            clientFilters.per_page = 150;
+            clientFilters.per_page = 15;
             clientFilters.page = 1;
             clientFilters.fecha_inicio = pickerFechaInicio ? pickerFechaInicio.value : defaultPickerStart;
             clientFilters.fecha_fin = pickerFechaFin ? pickerFechaFin.value : defaultPickerEnd;
