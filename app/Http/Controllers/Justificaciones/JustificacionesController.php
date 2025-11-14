@@ -33,6 +33,10 @@ class JustificacionesController extends Controller
     public function store(Request $request)
     {
         try {
+            if (!$request->filled('periodo') && $request->filled('fecha_periodo_prestacion_campo')) {
+                $request->merge(['periodo' => $request->input('fecha_periodo_prestacion_campo')]);
+            }
+
             Log::info('📝 Inicio store justificación', [
                 'request_all' => $request->all()
             ]);
@@ -114,7 +118,7 @@ class JustificacionesController extends Controller
             $metadata = [
                 'url' => $request->input('url_campo'),
                 'tipo_analisis' => $request->input('tipo_analisis'),
-                'periodo' => $request->input('periodo'),
+                'periodo' => $request->input('periodo', $request->input('fecha_periodo_prestacion_campo')),
                 'estado' => 'pendiente'
             ];
         }
