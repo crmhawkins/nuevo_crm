@@ -33,12 +33,13 @@ class ClientsTable extends Component
 
     protected function actualizarClientes()
     {
-        // Base query: solo clientes (is_client = 1)
-        $query = Client::where('is_client', 1);
+        // Base query: solo clientes (is_client = 1) - usar whereRaw para ser más explícito
+        $query = Client::whereRaw('is_client = 1');
 
         // Si hay búsqueda, agregar condiciones de búsqueda agrupadas
         if (!empty(trim($this->buscar))) {
             $buscar = trim($this->buscar);
+            // Agrupar todas las condiciones de búsqueda para que respeten el filtro is_client = 1
             $query->where(function ($q) use ($buscar) {
                 $q->where('name', 'like', '%' . $buscar . '%')
                   ->orWhere('email', 'like', '%' . $buscar . '%')
@@ -57,10 +58,30 @@ class ClientsTable extends Component
         // Ordenamiento
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
+        // Log temporal para debug - eliminar después
+        \Log::info('🔍 Consulta SQL Clientes', [
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings(),
+            'buscar' => $this->buscar
+        ]);
+
         // Ejecutar consulta
         $this->clients = $this->perPage === 'all'
             ? $query->get()
             : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+
+        // Log temporal para verificar resultados
+        if ($this->clients) {
+            $isClientValues = $this->clients instanceof \Illuminate\Pagination\LengthAwarePaginator
+                ? $this->clients->pluck('is_client')->unique()->toArray()
+                : $this->clients->pluck('is_client')->unique()->toArray();
+            \Log::info('📊 Valores is_client encontrados', [
+                'valores' => $isClientValues,
+                'total' => $this->clients instanceof \Illuminate\Pagination\LengthAwarePaginator
+                    ? $this->clients->total()
+                    : $this->clients->count()
+            ]);
+        }
     }
 
     public function sortBy($column)
