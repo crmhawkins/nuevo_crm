@@ -134,7 +134,7 @@
             @endif
 
             @if ($perPage !== 'all')
-                {{ $clients->links('vendor.pagination.bootstrap-5') }}
+                {{ $clients->links() }}
             @endif
         </div>
     @else
