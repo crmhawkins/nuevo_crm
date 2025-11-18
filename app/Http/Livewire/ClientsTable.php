@@ -34,21 +34,22 @@ class ClientsTable extends Component
 
     protected function actualizarClientes()
     {
+        // Determinar el valor de is_client según el filtro
+        // soloClientes = false -> mostrar clientes (is_client = 1)
+        // soloClientes = true -> mostrar leads (is_client = 0)
+        $isClientValue = $this->soloClientes ? 0 : 1;
+        
         $query = Client::query()
-            ->when(!$this->soloClientes, function ($query) {
-                // Cuando soloClientes es false, mostrar clientes (is_client = 1)
-                $query->where('is_client', 1);
-            }, function ($query) {
-                // Cuando soloClientes es true, mostrar leads (is_client = 0)
-                $query->where('is_client', 0);
-            })
+            ->where('is_client', $isClientValue)
             ->when($this->buscar, function ($query) {
-                $query->where('name', 'like', '%' . $this->buscar . '%')
+                $query->where(function($q) {
+                    $q->where('name', 'like', '%' . $this->buscar . '%')
                       ->orWhere('email', 'like', '%' . $this->buscar . '%')
                       ->orWhere('company', 'like', '%' . $this->buscar . '%')
                       ->orWhere('cif', 'like', '%' . $this->buscar . '%')
                       ->orWhere('identifier', 'like', '%' . $this->buscar . '%')
                       ->orWhere('activity', 'like', '%' . $this->buscar . '%');
+                });
             })
             ->when($this->selectedGestor, function ($query) {
                 $query->where('admin_user_id', $this->selectedGestor);
