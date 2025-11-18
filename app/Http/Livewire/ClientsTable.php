@@ -33,25 +33,34 @@ class ClientsTable extends Component
 
     protected function actualizarClientes()
     {
-        $query = Client::where('is_client', 1)
-            ->when($this->buscar, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->buscar . '%')
-                      ->orWhere('email', 'like', '%' . $this->buscar . '%')
-                      ->orWhere('company', 'like', '%' . $this->buscar . '%')
-                      ->orWhere('cif', 'like', '%' . $this->buscar . '%')
-                      ->orWhere('identifier', 'like', '%' . $this->buscar . '%')
-                      ->orWhere('activity', 'like', '%' . $this->buscar . '%');
-                });
-            })
-            ->when($this->selectedGestor, function ($query) {
-                $query->where('admin_user_id', $this->selectedGestor);
+        // Base query: solo clientes (is_client = 1)
+        $query = Client::where('is_client', 1);
+
+        // Si hay búsqueda, agregar condiciones de búsqueda agrupadas
+        if (!empty(trim($this->buscar))) {
+            $buscar = trim($this->buscar);
+            $query->where(function ($q) use ($buscar) {
+                $q->where('name', 'like', '%' . $buscar . '%')
+                  ->orWhere('email', 'like', '%' . $buscar . '%')
+                  ->orWhere('company', 'like', '%' . $buscar . '%')
+                  ->orWhere('cif', 'like', '%' . $buscar . '%')
+                  ->orWhere('identifier', 'like', '%' . $buscar . '%')
+                  ->orWhere('activity', 'like', '%' . $buscar . '%');
             });
+        }
 
-            $query->orderBy($this->sortColumn, $this->sortDirection);
+        // Filtro por gestor
+        if ($this->selectedGestor) {
+            $query->where('admin_user_id', $this->selectedGestor);
+        }
 
-            // Verifica si se seleccionó 'all' para mostrar todos los registros
-            $this->clients = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+        // Ordenamiento
+        $query->orderBy($this->sortColumn, $this->sortDirection);
+
+        // Ejecutar consulta
+        $this->clients = $this->perPage === 'all'
+            ? $query->get()
+            : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
     }
 
     public function sortBy($column)
