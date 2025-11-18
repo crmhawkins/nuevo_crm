@@ -491,19 +491,18 @@ class ClientController extends Controller
             ]);
         }
 
-        if ($cliente->is_client === 0) {
-            return response()->json([
-                'error' => false,
-                'mensaje' => 'El cliente ya estaba marcado como lead.'
-            ]);
-        }
-
-        $cliente->is_client = 0;
+        // Cambiar el estado: si es cliente (1) -> lead (0), si es lead (0) -> cliente (1)
+        $nuevoEstado = $cliente->is_client == 1 ? 0 : 1;
+        $cliente->is_client = $nuevoEstado;
         $cliente->save();
+
+        $mensaje = $nuevoEstado == 0 
+            ? 'El cliente se marcó como lead correctamente.'
+            : 'El lead se marcó como cliente correctamente.';
 
         return response()->json([
             'error' => false,
-            'mensaje' => 'El cliente se marcó como lead correctamente.'
+            'mensaje' => $mensaje
         ]);
     }
 

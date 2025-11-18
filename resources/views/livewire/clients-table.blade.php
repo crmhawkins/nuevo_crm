@@ -20,10 +20,10 @@
         <div class="col-md-5">
             <div class="flex flex-row justify-end">
                 <div class="mr-3 d-flex flex-column justify-content-end">
-                    <label for="soloClientes" class="form-label mb-1">Mostrar solo clientes</label>
+                    <label for="soloClientes" class="form-label mb-1">Mostrar solo leads</label>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="soloClientes" wire:model="soloClientes">
-                        <label class="form-check-label" for="soloClientes">{{ $soloClientes ? 'Filtrado activo' : 'Filtrado inactivo' }}</label>
+                        <label class="form-check-label" for="soloClientes">{{ $soloClientes ? 'Mostrando leads' : 'Mostrando clientes' }}</label>
                     </div>
                 </div>
                 <div class="mr-0 w-75">
@@ -116,7 +116,9 @@
                             <td class="flex flex-row justify-evenly align-middle gap-2 flex-wrap" style="min-width: 160px">
                                 <a class="" href="{{ route('clientes.show', $client->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar usuario"></a>
                                 <a class="" href="{{ route('clientes.edit', $client->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Mostrar usuario"></a>
-                                <button type="button" class="btn btn-sm btn-outline-primary duplicate" data-id="{{ $client->id }}">Duplicado</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary toggle-status" data-id="{{ $client->id }}" data-current-status="{{ $client->is_client }}" data-filter-active="{{ $soloClientes ? 'true' : 'false' }}">
+                                    {{ $soloClientes ? 'Pasar a Cliente' : 'Pasar a Leads' }}
+                                </button>
                                 <a class="delete" data-id="{{ $client->id }}" href=""><img src="{{ asset('assets/icons/trash.svg') }}" alt="Mostrar usuario"></a>
                             </td>
                         </tr>
@@ -126,8 +128,8 @@
 
             @if (count($clients) == 0)
                 <div class="text-center py-4">
-                    <h3 class="text-center fs-3">No se encontraron registros de <strong>CLIENTES</strong></h3>
-                    <p class="mt-2">Pulse el botón superior para crear algún cliente.</p>
+                    <h3 class="text-center fs-3">No se encontraron registros de <strong>{{ $soloClientes ? 'LEADS' : 'CLIENTES' }}</strong></h3>
+                    <p class="mt-2">Pulse el botón superior para crear algún {{ $soloClientes ? 'lead' : 'cliente' }}.</p>
                 </div>
             @endif
 
@@ -137,8 +139,8 @@
         </div>
     @else
         <div class="text-center py-4">
-            <h3 class="text-center fs-3">No se encontraron registros de <strong>CLIENTES</strong></h3>
-            <p class="mt-2">Pulse el botón superior para crear algún cliente.</p>
+            <h3 class="text-center fs-3">No se encontraron registros de <strong>{{ $soloClientes ? 'LEADS' : 'CLIENTES' }}</strong></h3>
+            <p class="mt-2">Pulse el botón superior para crear algún {{ $soloClientes ? 'lead' : 'cliente' }}.</p>
         </div>
     @endif
 </div>
@@ -163,11 +165,13 @@ function attachActionEvents() {
         botonAceptar(id);
     });
 
-    $('.duplicate').off('click').on('click', function(e) {
+    $('.toggle-status').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         let id = $(this).data('id');
-        botonDuplicado(id);
+        let filterActive = $(this).data('filter-active') === 'true';
+        let currentStatus = $(this).data('current-status');
+        botonToggleStatus(id, filterActive, currentStatus);
     });
 }
 
@@ -200,13 +204,23 @@ function attachActionEvents() {
             });
         }
 
-        function botonDuplicado(id) {
+        function botonToggleStatus(id, filterActive, currentStatus) {
+            // filterActive = true significa que estamos viendo leads, entonces el botón dice "Pasar a Cliente"
+            // filterActive = false significa que estamos viendo clientes, entonces el botón dice "Pasar a Leads"
+            let titulo = filterActive 
+                ? "¿Quieres marcar este lead como cliente?" 
+                : "¿Quieres marcar este cliente como lead?";
+            let mensaje = filterActive 
+                ? "El lead pasará a aparecer en el listado de clientes." 
+                : "El cliente dejará de aparecer en este listado y pasará a ser un lead.";
+            let textoBoton = filterActive ? "Pasar a Cliente" : "Pasar a Leads";
+
             Swal.fire({
-                title: "¿Quieres marcar este cliente como lead?",
-                html: "<p>El cliente dejará de aparecer en este listado.</p>",
+                title: titulo,
+                html: "<p>" + mensaje + "</p>",
                 showDenyButton: false,
                 showCancelButton: true,
-                confirmButtonText: "Duplicado",
+                confirmButtonText: textoBoton,
                 cancelButtonText: "Cancelar",
             }).then((result) => {
                 if (result.isConfirmed) {
