@@ -604,23 +604,43 @@ class ClientController extends Controller
         }
 
         try {
-            // Obtener todos los atributos del cliente ipoint
-            $datos = $clienteIpoint->getAttributes();
+            // Obtener todos los campos fillable del modelo
+            $fillable = (new Client())->getFillable();
 
-            // Eliminar el id y timestamps para que se generen nuevos
-            unset($datos['id']);
-            unset($datos['created_at']);
-            unset($datos['updated_at']);
-            unset($datos['deleted_at']);
+            // Construir array de datos solo con campos fillable (excluyendo 'id')
+            $datos = [];
+            foreach ($fillable as $campo) {
+                if ($campo !== 'id' && isset($clienteIpoint->$campo)) {
+                    $datos[$campo] = $clienteIpoint->$campo;
+                }
+            }
+
+            // Log para debug
+            \Illuminate\Support\Facades\Log::info('Trasladando cliente', [
+                'cliente_ipoint_id' => $clienteIpoint->id,
+                'datos_count' => count($datos),
+                'campos' => array_keys($datos)
+            ]);
 
             // Crear el nuevo cliente en la tabla clients
             $nuevoCliente = Client::create($datos);
 
+            \Illuminate\Support\Facades\Log::info('Cliente trasladado exitosamente', [
+                'nuevo_cliente_id' => $nuevoCliente->id
+            ]);
+
             return response()->json([
                 'error' => false,
-                'mensaje' => 'Cliente trasladado correctamente a la tabla clients.'
+                'mensaje' => 'Cliente trasladado correctamente a la tabla clients.',
+                'nuevo_id' => $nuevoCliente->id
             ]);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error al trasladar cliente', [
+                'cliente_ipoint_id' => $request->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'error' => true,
                 'mensaje' => 'Error al trasladar el cliente: ' . $e->getMessage()
