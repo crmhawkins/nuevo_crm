@@ -594,29 +594,54 @@ class ClientController extends Controller
      */
     public function trasladar(Request $request)
     {
-        $clienteIpoint = ClientIpoint::find($request->id);
-
-        if (!$clienteIpoint) {
-            return response()->json([
-                'error' => true,
-                'mensaje' => "Cliente no encontrado en clients_ipoint."
-            ]);
-        }
-
         try {
-            // Obtener todos los campos fillable del modelo
-            $fillable = (new Client())->getFillable();
+            $clienteIpoint = ClientIpoint::find($request->id);
 
-            // Construir array de datos solo con campos fillable (excluyendo 'id')
+            if (!$clienteIpoint) {
+                \Illuminate\Support\Facades\Log::error('Trasladar: Cliente no encontrado', [
+                    'cliente_ipoint_id' => $request->id
+                ]);
+                return response()->json([
+                    'error' => true,
+                    'mensaje' => "Cliente no encontrado en clients_ipoint."
+                ]);
+            }
+
+            // Obtener todos los campos fillable del modelo Client (excluyendo 'id')
+            $fillable = array_filter((new Client())->getFillable(), function($campo) {
+                return $campo !== 'id';
+            });
+
+            // Obtener todos los atributos del cliente ipoint como array
+            $atributosIpoint = $clienteIpoint->getAttributes();
+
+            // Construir array de datos solo con campos fillable
             $datos = [];
             foreach ($fillable as $campo) {
-                if ($campo !== 'id' && isset($clienteIpoint->$campo)) {
-                    $datos[$campo] = $clienteIpoint->$campo;
+                // Usar array_key_exists para verificar si el campo existe, incluso si es null
+                if (array_key_exists($campo, $atributosIpoint)) {
+                    $datos[$campo] = $atributosIpoint[$campo];
                 }
             }
 
-            // Log para debug
-            \Illuminate\Support\Facades\Log::info('Trasladando cliente', [
+            // Verificar si ya existe un cliente con el mismo identifier o email
+            if (!empty($datos['identifier'])) {
+                $existe = Client::where('identifier', $datos['identifier'])->first();
+                if ($existe) {
+                    \Illuminate\Support\Facades\Log::warning('Trasladar: Cliente ya existe', [
+                        'cliente_ipoint_id' => $clienteIpoint->id,
+                        'identifier' => $datos['identifier'],
+                        'cliente_existente_id' => $existe->id
+                    ]);
+                    return response()->json([
+                        'error' => true,
+                        'mensaje' => 'Ya existe un cliente con el mismo identifier en la tabla clients.',
+                        'cliente_existente_id' => $existe->id
+                    ]);
+                }
+            }
+
+            \Illuminate\Support\Facades\Log::info('Trasladar: Iniciando traslado', [
                 'cliente_ipoint_id' => $clienteIpoint->id,
                 'datos_count' => count($datos),
                 'campos' => array_keys($datos)
@@ -625,7 +650,8 @@ class ClientController extends Controller
             // Crear el nuevo cliente en la tabla clients
             $nuevoCliente = Client::create($datos);
 
-            \Illuminate\Support\Facades\Log::info('Cliente trasladado exitosamente', [
+            \Illuminate\Support\Facades\Log::info('Trasladar: Cliente trasladado exitosamente', [
+                'cliente_ipoint_id' => $clienteIpoint->id,
                 'nuevo_cliente_id' => $nuevoCliente->id
             ]);
 
@@ -635,8 +661,8 @@ class ClientController extends Controller
                 'nuevo_id' => $nuevoCliente->id
             ]);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error al trasladar cliente', [
-                'cliente_ipoint_id' => $request->id,
+            \Illuminate\Support\Facades\Log::error('Trasladar: Error al trasladar cliente', [
+                'cliente_ipoint_id' => $request->id ?? null,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

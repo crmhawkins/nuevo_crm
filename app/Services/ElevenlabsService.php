@@ -49,26 +49,12 @@ class ElevenlabsService
 
             $url = $this->buildUrl('/convai/conversations');
 
-            Log::info('🔍 Obteniendo conversaciones de Eleven Labs', [
-                'url' => $url,
-                'params' => $params,
-                'from_timestamp' => $fromTimestamp,
-                'cursor' => $cursor ? substr($cursor, 0, 20) . '...' : null,
-            ]);
-
             $response = Http::withHeaders($this->getHeaders())
                 ->withOptions(['verify' => false])
                 ->timeout((int) $this->timeout)
                 ->get($url, $params);
 
             $data = $response->json();
-
-            Log::info('📥 Respuesta recibida', [
-                'status' => $response->status(),
-                'has_conversations' => isset($data['conversations']),
-                'count' => count($data['conversations'] ?? []),
-                'has_more' => $data['has_more'] ?? false,
-            ]);
 
             if (!$response->successful()) {
                 Log::error('❌ Error al obtener conversaciones', [
@@ -129,8 +115,6 @@ class ElevenlabsService
     public function syncAgents(): int
     {
         try {
-            Log::info('👥 SINCRONIZANDO AGENTES...');
-
             $url = $this->buildUrl('/convai/agents');
             $response = Http::withHeaders($this->getHeaders())
                 ->withOptions(['verify' => false])
@@ -147,8 +131,6 @@ class ElevenlabsService
 
             $data = $response->json();
             $agents = $data['agents'] ?? [];
-
-            Log::info("📋 Agentes recibidos: " . count($agents));
 
             $syncedCount = 0;
             foreach ($agents as $agentData) {
@@ -170,10 +152,8 @@ class ElevenlabsService
                 );
 
                 $syncedCount++;
-                Log::debug("  ✅ Agente sincronizado: {$name} ({$agentId})");
             }
 
-            Log::info("✅ {$syncedCount} agentes sincronizados en BD local");
             return $syncedCount;
 
         } catch (Exception $e) {
@@ -197,59 +177,39 @@ class ElevenlabsService
             'updated' => 0,
         ];
 
-        $fromDateStr = $fromTimestamp ? Carbon::createFromTimestamp($fromTimestamp)->format('Y-m-d H:i:s') : 'todas';
-
-        Log::info('🚀 INICIANDO SINCRONIZACIÓN', [
-            'from_timestamp' => $fromTimestamp,
-            'from_date' => $fromDateStr,
-            'max_pages' => $maxPages,
-            'batch_size' => $limit,
-        ]);
-
         // PRIMERO: Sincronizar agentes para tener el caché local actualizado
         $this->syncAgents();
 
         try {
             do {
-                Log::info("📄 === PÁGINA {$page}/{$maxPages} ===");
-
                 $response = $this->getConversations($page, $limit, $fromTimestamp);
 
                 $conversations = $response['conversations'] ?? [];
 
-                Log::info("📋 Conversaciones en página {$page}: " . count($conversations));
-
                 foreach ($conversations as $index => $convData) {
-                    $convId = $convData['conversation_id'] ?? 'unknown';
-                    Log::info("  📞 [" . ($index + 1) . "/" . count($conversations) . "] Procesando: {$convId}");
-
                     try {
                         $result = $this->saveConversation($convData);
                         $stats['total']++;
 
                         if ($result['created']) {
                             $stats['new']++;
-                            Log::info("    ✅ NUEVA conversación guardada");
                         } else {
                             $stats['updated']++;
-                            Log::info("    🔄 Conversación ACTUALIZADA");
                         }
                     } catch (Exception $e) {
-                        Log::error("    ❌ Error guardando conversación {$convId}", [
+                        Log::error("    ❌ Error guardando conversación", [
+                            'conversation_id' => $convData['conversation_id'] ?? 'unknown',
                             'error' => $e->getMessage(),
                         ]);
                     }
                 }
 
                 $hasMore = $response['has_more'] ?? false;
-                Log::info("📊 Página {$page} completada. ¿Hay más? " . ($hasMore ? 'SÍ' : 'NO'));
-                Log::info("📈 Stats actuales: Total={$stats['total']}, Nuevas={$stats['new']}, Actualizadas={$stats['updated']}");
 
                 $page++;
 
             } while ($hasMore && count($conversations) > 0 && $page <= $maxPages);
 
-            Log::info('🎉 SINCRONIZACIÓN COMPLETADA', $stats);
             return $stats;
 
         } catch (Exception $e) {
@@ -517,11 +477,6 @@ class ElevenlabsService
 
             $campaign->refreshCounters();
 
-            Log::info('🔗 Conversación vinculada a campaña', [
-                'conversation_id' => $conversation->conversation_id,
-                'campaign_id' => $campaign->id,
-                'campaign_call_id' => $campaignCall->id,
-            ]);
         } catch (Exception $e) {
             Log::error('❌ Error vinculando conversación con campaña', [
                 'conversation_id' => $conversation->conversation_id ?? null,

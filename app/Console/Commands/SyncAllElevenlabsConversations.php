@@ -29,7 +29,7 @@ class SyncAllElevenlabsConversations extends Command
     {
         $fromDate = $this->option('from-date');
         $fromTimestamp = Carbon::parse($fromDate)->startOfDay()->timestamp;
-        
+
         $this->info("═══════════════════════════════════════════");
         $this->info("🔄 SINCRONIZACIÓN MASIVA DE CONVERSACIONES");
         $this->info("═══════════════════════════════════════════");
@@ -42,10 +42,6 @@ class SyncAllElevenlabsConversations extends Command
             return 0;
         }
 
-        Log::info('SyncAll: Iniciando sincronización masiva', [
-            'from_date' => $fromDate,
-            'from_timestamp' => $fromTimestamp
-        ]);
 
         try {
             // PRIMERO: Sincronizar agentes para tener el caché local actualizado
@@ -53,7 +49,7 @@ class SyncAllElevenlabsConversations extends Command
             $agentsCount = $this->elevenlabsService->syncAgents();
             $this->info("✅ {$agentsCount} agentes sincronizados en BD local");
             $this->newLine();
-            
+
             $this->info('📥 Descargando TODAS las conversaciones con paginación...');
             $this->info('ℹ️  La API usa cursor para paginar (100 conversaciones por página)');
             $this->newLine();
@@ -62,37 +58,37 @@ class SyncAllElevenlabsConversations extends Command
             $this->line("📅 Desde: " . $startDate->format('d/m/Y H:i:s'));
             $this->line("⏰ Hasta: Ahora");
             $this->newLine();
-            
+
             $allConversations = [];
             $cursor = null;
             $page = 1;
             $hasMore = true;
-            
+
             $this->line("📡 Descargando páginas...");
-            
+
             // Paginar usando cursor hasta que no haya más
             while ($hasMore) {
                 $this->line("   📄 Página {$page}...");
-                
+
                 $response = $this->elevenlabsService->getConversations($fromTimestamp, $cursor, 100);
                 $conversations = $response['conversations'] ?? [];
                 $hasMore = $response['has_more'] ?? false;
                 $cursor = $response['next_cursor'] ?? null;
-                
+
                 $this->line("      ✓ " . count($conversations) . " conversaciones en esta página");
-                
+
                 if (!empty($conversations)) {
                     $allConversations = array_merge($allConversations, $conversations);
                 }
-                
+
                 if ($hasMore) {
                     $this->line("      → Hay más conversaciones, continuando...");
                 } else {
                     $this->line("      ✓ No hay más páginas");
                 }
-                
+
                 $page++;
-                
+
                 // Pequeña pausa entre requests para no saturar la API
                 if ($hasMore) {
                     usleep(200000); // 0.2 segundos
@@ -130,10 +126,6 @@ class SyncAllElevenlabsConversations extends Command
 
                     // Omitir conversaciones con status "failed"
                     if ($status === 'failed') {
-                        Log::info('SyncAll: Conversación con status failed, omitiendo', [
-                            'conversation_id' => $conversationId,
-                            'status' => $status
-                        ]);
                         $failedCount++;
                         $progressBar->advance();
                         continue;
@@ -141,7 +133,7 @@ class SyncAllElevenlabsConversations extends Command
 
                     // Verificar si la conversación ya existe
                     $existingConversation = ElevenlabsConversation::where('conversation_id', $conversationId)->first();
-                    
+
                     if ($existingConversation) {
                         $skippedCount++;
                         $progressBar->advance();
@@ -150,12 +142,8 @@ class SyncAllElevenlabsConversations extends Command
 
                     // Verificar si el agente está configurado
                     $agent = ElevenlabsAgent::where('agent_id', $agentId)->first();
-                    
+
                     if (!$agent) {
-                        Log::warning('SyncAll: Agente no configurado', [
-                            'agent_id' => $agentId,
-                            'conversation_id' => $conversationId
-                        ]);
                         $noAgentCount++;
                         $progressBar->advance();
                         continue;
@@ -163,10 +151,10 @@ class SyncAllElevenlabsConversations extends Command
 
                     // Obtener detalles completos de la conversación
                     $fullConversation = $this->elevenlabsService->getConversation($conversationId);
-                    
+
                     // Crear la conversación
                     $conversation = $this->createConversationFromData($fullConversation);
-                    
+
                     if ($conversation) {
                         // Procesar con IA
                         $this->processConversationWithAI($conversation, $agent);
@@ -206,16 +194,7 @@ class SyncAllElevenlabsConversations extends Command
             $this->info("   ⚠️  Sin agente configurado: {$noAgentCount}");
             $this->info("   ❗ Errores: {$errorCount}");
             $this->info("═══════════════════════════════════════════");
-            
-            Log::info('SyncAll: Sincronización masiva completada', [
-                'total' => count($allConversations),
-                'processed' => $processedCount,
-                'skipped' => $skippedCount,
-                'failed_status' => $failedCount,
-                'empty_transcript' => $emptyTranscriptCount,
-                'no_agent' => $noAgentCount,
-                'errors' => $errorCount
-            ]);
+
 
             return 0;
 
@@ -250,9 +229,6 @@ class SyncAllElevenlabsConversations extends Command
             // Validar que el transcript no esté vacío
             $transcript = trim($transcript);
             if (empty($transcript)) {
-                Log::warning('SyncAll: Transcript vacío, omitiendo conversación', [
-                    'conversation_id' => $data['conversation_id'] ?? 'unknown',
-                ]);
                 return null;
             }
 
@@ -271,16 +247,6 @@ class SyncAllElevenlabsConversations extends Command
             $agentName = null;
             if ($agentId) {
                 $agentName = ElevenlabsAgent::getNameByAgentId($agentId);
-                if ($agentName) {
-                    Log::debug('SyncAll: Agente encontrado en BD local', [
-                        'agent_id' => $agentId,
-                        'agent_name' => $agentName
-                    ]);
-                } else {
-                    Log::warning('SyncAll: Agente no encontrado en BD local', [
-                        'agent_id' => $agentId
-                    ]);
-                }
             }
 
             $conversation = ElevenlabsConversation::create([
@@ -288,7 +254,7 @@ class SyncAllElevenlabsConversations extends Command
                 'agent_id' => $agentId,
                 'agent_name' => $agentName, // Guardar nombre del agente desde BD local
                 'client_id' => $clientId,
-                'conversation_date' => isset($data['metadata']['start_time_unix_secs']) 
+                'conversation_date' => isset($data['metadata']['start_time_unix_secs'])
                     ? Carbon::createFromTimestamp($data['metadata']['start_time_unix_secs'])
                     : now(),
                 'duration_seconds' => $data['metadata']['call_duration_secs'] ?? 0,
