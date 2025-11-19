@@ -97,10 +97,16 @@
                             <td>{{ $client->identifier }}</td>
                             <td>{{ $client->activity }}</td>
                             <td>{{ $client->gestor->name ?? 'Gestor Borrado' }}</td>
-                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 180px">
+                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 180px" onclick="event.stopPropagation();">
                                 <a class="" href="{{ route('clientes.show', $client->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar usuario"></a>
                                 <a class="" href="{{ route('clientes.edit', $client->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Mostrar usuario"></a>
-                                <a class="trasladar-ipoint" data-id="{{ $client->id }}" href="javascript:void(0)" title="Trasladar a clients" onclick="event.stopPropagation(); event.stopImmediatePropagation(); return false;"><i class="fas fa-arrow-right text-primary"></i></a>
+                                <form action="{{ route('clientes.trasladar') }}" method="POST" style="display: inline;" onclick="event.stopPropagation();" onsubmit="return confirm('¿Trasladar cliente a clients? Este cliente será copiado a la tabla clients. El cliente original permanecerá en clients_ipoint.');">
+                                    @csrf
+                                    <input type="hidden" name="id" value="{{ $client->id }}">
+                                    <button type="submit" class="btn btn-link p-0" title="Trasladar a clients" style="border: none; background: none; padding: 0;">
+                                        <i class="fas fa-arrow-right text-primary"></i>
+                                    </button>
+                                </form>
                                 <a class="delete-ipoint" data-id="{{ $client->id }}" href=""><img src="{{ asset('assets/icons/trash.svg') }}" alt="Mostrar usuario"></a>
                             </td>
                         </tr>
@@ -139,32 +145,6 @@ function attachDeleteEventIpoint() {
             });
 }
 
-function attachTrasladarEventIpoint() {
-            // Primero, asegurarnos de que los enlaces detengan la propagación
-            $('.trasladar-ipoint').off('click').on('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-            });
-
-            // Luego, usar delegación de eventos para que funcione con Livewire
-            $(document).off('click', '.trasladar-ipoint').on('click', '.trasladar-ipoint', function(e) {
-                console.log('Click en trasladar detectado', $(this).data('id'));
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                let id = $(this).data('id');
-                console.log('ID obtenido:', id);
-                if (id) {
-                    console.log('Llamando a botonTrasladarIpoint con ID:', id);
-                    botonTrasladarIpoint(id);
-                } else {
-                    console.error('No se encontró el ID del cliente');
-                }
-                return false;
-            });
-            console.log('Evento trasladar adjuntado');
-}
 
         function botonAceptarIpoint(id) {
             Swal.fire({
@@ -211,119 +191,19 @@ function attachTrasladarEventIpoint() {
             });
         }
 
-        function botonTrasladarIpoint(id) {
-            console.log('botonTrasladarIpoint llamado con ID:', id);
-            if (!id) {
-                console.error('ID no válido para trasladar');
-                Toast.fire({
-                    icon: "error",
-                    title: "Error: ID de cliente no válido"
-                });
-                return;
-            }
-
-            console.log('Mostrando SweetAlert para confirmar traslado');
-            Swal.fire({
-                title: "¿Trasladar cliente a clients?",
-                html: "<p>Este cliente será copiado a la tabla clients. El cliente original permanecerá en clients_ipoint.</p>",
-                showDenyButton: false,
-                showCancelButton: true,
-                confirmButtonText: "Trasladar",
-                cancelButtonText: "Cancelar",
-            }).then((result) => {
-                console.log('Resultado de SweetAlert:', result);
-                if (result.isConfirmed) {
-                    console.log('Usuario confirmó, iniciando traslado...');
-                    // Mostrar loading
-                    Swal.fire({
-                        title: 'Trasladando...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    console.log('Llamando a getTrasladarIpoint con ID:', id);
-                    $.when(getTrasladarIpoint(id)).then(function(data) {
-                        console.log('Respuesta recibida:', data);
-                        Swal.close();
-                        if (data && data.error) {
-                            Toast.fire({
-                                icon: "error",
-                                title: data.mensaje || "Error al trasladar el cliente"
-                            });
-                        } else if (data) {
-                            Toast.fire({
-                                icon: "success",
-                                title: data.mensaje || "Cliente trasladado correctamente"
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: "error",
-                                title: "No se recibió respuesta del servidor"
-                            });
-                        }
-                    }).fail(function(xhr) {
-                        Swal.close();
-                        console.error('Error en trasladar:', xhr);
-                        Toast.fire({
-                            icon: "error",
-                            title: "Error al comunicarse con el servidor"
-                        });
-                    });
-                }
-            });
-        }
-
-        function getTrasladarIpoint(id) {
-            const url = '{{ route("clientes.trasladar") }}';
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
-            console.log('getTrasladarIpoint - URL:', url);
-            console.log('getTrasladarIpoint - ID:', id);
-            console.log('getTrasladarIpoint - CSRF Token:', csrfToken ? 'Presente' : 'FALTANTE');
-
-            return $.ajax({
-                type: "POST",
-                url: url,
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                },
-                data: {
-                    'id': id
-                },
-                dataType: "json",
-                beforeSend: function() {
-                    console.log('AJAX: Enviando petición...');
-                }
-            }).fail(function(xhr, status, error) {
-                console.error('AJAX FAIL - Error en AJAX trasladar:', {
-                    status: status,
-                    error: error,
-                    response: xhr.responseText,
-                    statusCode: xhr.status
-                });
-                Toast.fire({
-                    icon: "error",
-                    title: "Error al trasladar el cliente. Revisa la consola para más detalles."
-                });
-            });
-        }
 
         // Ejecutar cuando el DOM esté listo
         $(document).ready(function() {
             attachDeleteEventIpoint();
-            attachTrasladarEventIpoint();
         });
 
         // Ejecutar cuando Livewire carga/actualiza
         document.addEventListener('livewire:load', () => {
             attachDeleteEventIpoint();
-            attachTrasladarEventIpoint();
         });
 
         document.addEventListener('livewire:update', () => {
             attachDeleteEventIpoint();
-            attachTrasladarEventIpoint();
         });
     </script>
 @endsection
