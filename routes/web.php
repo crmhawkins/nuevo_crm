@@ -123,6 +123,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/client/show/{id}', [ClientController::class, 'show'])->name('clientes.show');
         Route::post('/client/destroy', [ClientController::class, 'destroy'])->name('clientes.delete');
         Route::post('/client/duplicate', [ClientController::class, 'duplicate'])->name('clientes.duplicate');
+        Route::post('/client/trasladar', [ClientController::class, 'trasladar'])->name('clientes.trasladar');
         Route::post('/client/logo/{id}', [ClientController::class, 'logo'])->name('clientes.logo');
         Route::get('/client/create-from-budget', [ClientController::class, 'createFromBudget'])->name('cliente.createFromBudget');
         Route::post('/client/store-from-budget', [ClientController::class, 'storeFromBudget'])->name('cliente.storeFromBudget');

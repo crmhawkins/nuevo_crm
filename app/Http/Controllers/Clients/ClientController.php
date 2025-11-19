@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Clients;
 
 use App\Http\Controllers\Controller;
 use App\Models\Clients\Client;
+use App\Models\Clients\ClientIpoint;
 use App\Models\Clients\ClientEmail;
 use App\Models\Clients\ClientPhone;
 use App\Models\Clients\ClientWeb;
@@ -496,7 +497,7 @@ class ClientController extends Controller
         $cliente->is_client = $nuevoEstado;
         $cliente->save();
 
-        $mensaje = $nuevoEstado == 0 
+        $mensaje = $nuevoEstado == 0
             ? 'El cliente se marcó como lead correctamente.'
             : 'El lead se marcó como cliente correctamente.';
 
@@ -586,6 +587,45 @@ class ClientController extends Controller
     {
         Auth::user()->archivedClients()->detach($cliente->id);
         return back()->with('success', 'Cliente desarchivado correctamente.');
+    }
+
+    /**
+     * Trasladar un cliente de clients_ipoint a clients
+     */
+    public function trasladar(Request $request)
+    {
+        $clienteIpoint = ClientIpoint::find($request->id);
+
+        if (!$clienteIpoint) {
+            return response()->json([
+                'error' => true,
+                'mensaje' => "Cliente no encontrado en clients_ipoint."
+            ]);
+        }
+
+        try {
+            // Obtener todos los atributos del cliente ipoint
+            $datos = $clienteIpoint->getAttributes();
+
+            // Eliminar el id y timestamps para que se generen nuevos
+            unset($datos['id']);
+            unset($datos['created_at']);
+            unset($datos['updated_at']);
+            unset($datos['deleted_at']);
+
+            // Crear el nuevo cliente en la tabla clients
+            $nuevoCliente = Client::create($datos);
+
+            return response()->json([
+                'error' => false,
+                'mensaje' => 'Cliente trasladado correctamente a la tabla clients.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'Error al trasladar el cliente: ' . $e->getMessage()
+            ]);
+        }
     }
 
 }

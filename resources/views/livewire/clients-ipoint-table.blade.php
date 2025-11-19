@@ -97,9 +97,10 @@
                             <td>{{ $client->identifier }}</td>
                             <td>{{ $client->activity }}</td>
                             <td>{{ $client->gestor->name ?? 'Gestor Borrado' }}</td>
-                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 120px">
+                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 180px">
                                 <a class="" href="{{ route('clientes.show', $client->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar usuario"></a>
                                 <a class="" href="{{ route('clientes.edit', $client->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Mostrar usuario"></a>
+                                <a class="trasladar-ipoint" data-id="{{ $client->id }}" href="" title="Trasladar a clients"><i class="fas fa-arrow-right text-primary"></i></a>
                                 <a class="delete-ipoint" data-id="{{ $client->id }}" href=""><img src="{{ asset('assets/icons/trash.svg') }}" alt="Mostrar usuario"></a>
                             </td>
                         </tr>
@@ -132,10 +133,12 @@
     <script>
       document.addEventListener('livewire:load', () => {
     attachDeleteEventIpoint();
+    attachTrasladarEventIpoint();
 });
 
 document.addEventListener('livewire:update', () => {
     attachDeleteEventIpoint();
+    attachTrasladarEventIpoint();
 });
 
 function attachDeleteEventIpoint() {
@@ -143,6 +146,14 @@ function attachDeleteEventIpoint() {
             e.preventDefault();
                 let id = $(this).data('id');
                 botonAceptarIpoint(id);
+            });
+}
+
+function attachTrasladarEventIpoint() {
+            $('.trasladar-ipoint').on('click', function(e) {
+            e.preventDefault();
+                let id = $(this).data('id');
+                botonTrasladarIpoint(id);
             });
 }
 
@@ -186,6 +197,48 @@ function attachDeleteEventIpoint() {
                 data: {
                     'id': id,
                     'table': 'clients_ipoint'
+                },
+                dataType: "json"
+            });
+        }
+
+        function botonTrasladarIpoint(id) {
+            Swal.fire({
+                title: "¿Trasladar cliente a clients?",
+                html: "<p>Este cliente será copiado a la tabla clients. El cliente original permanecerá en clients_ipoint.</p>",
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: "Trasladar",
+                cancelButtonText: "Cancelar",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.when(getTrasladarIpoint(id)).then(function(data) {
+                        if (data.error) {
+                            Toast.fire({
+                                icon: "error",
+                                title: data.mensaje
+                            })
+                        } else {
+                            Toast.fire({
+                                icon: "success",
+                                title: data.mensaje
+                            })
+                        }
+                    });
+                }
+            });
+        }
+
+        function getTrasladarIpoint(id) {
+            const url = '{{ route("clientes.trasladar") }}';
+            return $.ajax({
+                type: "POST",
+                url: url,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                data: {
+                    'id': id
                 },
                 dataType: "json"
             });
