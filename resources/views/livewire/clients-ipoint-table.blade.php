@@ -152,15 +152,19 @@ function attachDeleteEventIpoint() {
 function attachTrasladarEventIpoint() {
             // Usar delegación de eventos para que funcione con Livewire
             $(document).off('click', '.trasladar-ipoint').on('click', '.trasladar-ipoint', function(e) {
+                console.log('Click en trasladar detectado', $(this).data('id'));
                 e.preventDefault();
                 e.stopPropagation();
                 let id = $(this).data('id');
+                console.log('ID obtenido:', id);
                 if (id) {
+                    console.log('Llamando a botonTrasladarIpoint con ID:', id);
                     botonTrasladarIpoint(id);
                 } else {
                     console.error('No se encontró el ID del cliente');
                 }
             });
+            console.log('Evento trasladar adjuntado');
 }
 
         function botonAceptarIpoint(id) {
@@ -209,6 +213,7 @@ function attachTrasladarEventIpoint() {
         }
 
         function botonTrasladarIpoint(id) {
+            console.log('botonTrasladarIpoint llamado con ID:', id);
             if (!id) {
                 console.error('ID no válido para trasladar');
                 Toast.fire({
@@ -218,6 +223,7 @@ function attachTrasladarEventIpoint() {
                 return;
             }
 
+            console.log('Mostrando SweetAlert para confirmar traslado');
             Swal.fire({
                 title: "¿Trasladar cliente a clients?",
                 html: "<p>Este cliente será copiado a la tabla clients. El cliente original permanecerá en clients_ipoint.</p>",
@@ -226,7 +232,9 @@ function attachTrasladarEventIpoint() {
                 confirmButtonText: "Trasladar",
                 cancelButtonText: "Cancelar",
             }).then((result) => {
+                console.log('Resultado de SweetAlert:', result);
                 if (result.isConfirmed) {
+                    console.log('Usuario confirmó, iniciando traslado...');
                     // Mostrar loading
                     Swal.fire({
                         title: 'Trasladando...',
@@ -236,7 +244,9 @@ function attachTrasladarEventIpoint() {
                         }
                     });
 
+                    console.log('Llamando a getTrasladarIpoint con ID:', id);
                     $.when(getTrasladarIpoint(id)).then(function(data) {
+                        console.log('Respuesta recibida:', data);
                         Swal.close();
                         if (data && data.error) {
                             Toast.fire({
@@ -268,18 +278,26 @@ function attachTrasladarEventIpoint() {
 
         function getTrasladarIpoint(id) {
             const url = '{{ route("clientes.trasladar") }}';
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            console.log('getTrasladarIpoint - URL:', url);
+            console.log('getTrasladarIpoint - ID:', id);
+            console.log('getTrasladarIpoint - CSRF Token:', csrfToken ? 'Presente' : 'FALTANTE');
+
             return $.ajax({
                 type: "POST",
                 url: url,
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'X-CSRF-TOKEN': csrfToken,
                 },
                 data: {
                     'id': id
                 },
-                dataType: "json"
+                dataType: "json",
+                beforeSend: function() {
+                    console.log('AJAX: Enviando petición...');
+                }
             }).fail(function(xhr, status, error) {
-                console.error('Error en AJAX trasladar:', {
+                console.error('AJAX FAIL - Error en AJAX trasladar:', {
                     status: status,
                     error: error,
                     response: xhr.responseText,

@@ -594,6 +594,13 @@ class ClientController extends Controller
      */
     public function trasladar(Request $request)
     {
+        \Illuminate\Support\Facades\Log::info('Trasladar: Petición recibida', [
+            'request_all' => $request->all(),
+            'request_id' => $request->id,
+            'method' => $request->method(),
+            'url' => $request->fullUrl()
+        ]);
+
         try {
             $clienteIpoint = ClientIpoint::find($request->id);
 
