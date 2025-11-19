@@ -80,6 +80,9 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->withoutOverlapping();
 
+        // Backfill de enlaces de campañas de ElevenLabs cada 2 minutos
+        $schedule->command('elevenlabs:backfill-campaign-links')->everyTwoMinutes();
+
         // Enviar WhatsApp automático de incidencias de Maria Apartamentos
         $schedule->command('whatsapp:enviar-incidencias')->everyMinute();
 

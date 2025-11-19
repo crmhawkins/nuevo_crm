@@ -69,7 +69,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <a target="_blank" href="{{ route('elevenlabs.dashboard') }}" class="btn btn-outline-primary mb-2">
+                                <a target="_blank" href="/elevenlabs/gestion" class="btn btn-outline-primary mb-2">
                                     <i class="fas fa-phone-alt"></i> Registro de llamadas
                                 </a>
                                 <a target="_blank" href="{{ route('analisis.estadisticas') }}" class="btn btn-outline-primary mb-2">
