@@ -100,7 +100,7 @@
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 180px">
                                 <a class="" href="{{ route('clientes.show', $client->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar usuario"></a>
                                 <a class="" href="{{ route('clientes.edit', $client->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Mostrar usuario"></a>
-                                <a class="trasladar-ipoint" data-id="{{ $client->id }}" href="javascript:void(0)" title="Trasladar a clients"><i class="fas fa-arrow-right text-primary"></i></a>
+                                <a class="trasladar-ipoint" data-id="{{ $client->id }}" href="javascript:void(0)" title="Trasladar a clients" onclick="event.stopPropagation(); event.stopImmediatePropagation(); return false;"><i class="fas fa-arrow-right text-primary"></i></a>
                                 <a class="delete-ipoint" data-id="{{ $client->id }}" href=""><img src="{{ asset('assets/icons/trash.svg') }}" alt="Mostrar usuario"></a>
                             </td>
                         </tr>
@@ -131,16 +131,6 @@
     @include('partials.toast')
 
     <script>
-      document.addEventListener('livewire:load', () => {
-    attachDeleteEventIpoint();
-    attachTrasladarEventIpoint();
-});
-
-document.addEventListener('livewire:update', () => {
-    attachDeleteEventIpoint();
-    attachTrasladarEventIpoint();
-});
-
 function attachDeleteEventIpoint() {
             $('.delete-ipoint').on('click', function(e) {
             e.preventDefault();
@@ -150,11 +140,19 @@ function attachDeleteEventIpoint() {
 }
 
 function attachTrasladarEventIpoint() {
-            // Usar delegación de eventos para que funcione con Livewire
+            // Primero, asegurarnos de que los enlaces detengan la propagación
+            $('.trasladar-ipoint').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            });
+
+            // Luego, usar delegación de eventos para que funcione con Livewire
             $(document).off('click', '.trasladar-ipoint').on('click', '.trasladar-ipoint', function(e) {
                 console.log('Click en trasladar detectado', $(this).data('id'));
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
                 let id = $(this).data('id');
                 console.log('ID obtenido:', id);
                 if (id) {
@@ -163,6 +161,7 @@ function attachTrasladarEventIpoint() {
                 } else {
                     console.error('No se encontró el ID del cliente');
                 }
+                return false;
             });
             console.log('Evento trasladar adjuntado');
 }
@@ -309,6 +308,23 @@ function attachTrasladarEventIpoint() {
                 });
             });
         }
+
+        // Ejecutar cuando el DOM esté listo
+        $(document).ready(function() {
+            attachDeleteEventIpoint();
+            attachTrasladarEventIpoint();
+        });
+
+        // Ejecutar cuando Livewire carga/actualiza
+        document.addEventListener('livewire:load', () => {
+            attachDeleteEventIpoint();
+            attachTrasladarEventIpoint();
+        });
+
+        document.addEventListener('livewire:update', () => {
+            attachDeleteEventIpoint();
+            attachTrasladarEventIpoint();
+        });
     </script>
 @endsection
 
