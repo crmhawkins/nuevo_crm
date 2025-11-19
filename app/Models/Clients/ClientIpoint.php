@@ -71,7 +71,7 @@ class ClientIpoint extends Model
     ];
 
     public function contacto() {
-        return $this->hasMany(\App\Models\Contacts\Contact::class);
+        return $this->hasMany(\App\Models\Contacts\Contact::class, 'client_id');
     }
 
     public function gestor() {
@@ -83,13 +83,13 @@ class ClientIpoint extends Model
     }
 
     public function emails() {
-        return $this->hasMany(\App\Models\Clients\ClientEmail::class);
+        return $this->hasMany(\App\Models\Clients\ClientEmail::class, 'client_id');
     }
     public function phones() {
-        return $this->hasMany(\App\Models\Clients\ClientPhone::class);
+        return $this->hasMany(\App\Models\Clients\ClientPhone::class, 'client_id');
     }
     public function webs() {
-        return $this->hasMany(\App\Models\Clients\ClientWeb::class);
+        return $this->hasMany(\App\Models\Clients\ClientWeb::class, 'client_id');
     }
     public function presupuestos() {
         return $this->hasMany(\App\Models\Budgets\Budget::class,'client_id');
@@ -120,7 +120,7 @@ class ClientIpoint extends Model
 
     public function userOrders()
     {
-        return $this->hasMany(ClientUserOrder::class);
+        return $this->hasMany(ClientUserOrder::class, 'client_id');
     }
 
     public function totalPresupuestosPorMes()
