@@ -608,6 +608,13 @@ class ClientController extends Controller
                 \Illuminate\Support\Facades\Log::error('Trasladar: Cliente no encontrado', [
                     'cliente_ipoint_id' => $request->id
                 ]);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'error' => true,
+                        'mensaje' => 'Cliente no encontrado en clients_ipoint.'
+                    ]);
+                }
                 return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado en clients_ipoint.');
             }
 
@@ -637,6 +644,13 @@ class ClientController extends Controller
                         'identifier' => $datos['identifier'],
                         'cliente_existente_id' => $existe->id
                     ]);
+
+                    if ($request->expectsJson() || $request->ajax()) {
+                        return response()->json([
+                            'error' => true,
+                            'mensaje' => 'Ya existe un cliente con el mismo identifier en la tabla clients.'
+                        ]);
+                    }
                     return redirect()->route('clientes.index')->with('error', 'Ya existe un cliente con el mismo identifier en la tabla clients.');
                 }
             }
@@ -655,6 +669,13 @@ class ClientController extends Controller
                 'nuevo_cliente_id' => $nuevoCliente->id
             ]);
 
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'error' => false,
+                    'mensaje' => 'Cliente trasladado correctamente a la tabla clients.',
+                    'nuevo_id' => $nuevoCliente->id
+                ]);
+            }
             return redirect()->route('clientes.index')->with('success', 'Cliente trasladado correctamente a la tabla clients.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Trasladar: Error al trasladar cliente', [
@@ -663,6 +684,12 @@ class ClientController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'error' => true,
+                    'mensaje' => 'Error al trasladar el cliente: ' . $e->getMessage()
+                ]);
+            }
             return redirect()->route('clientes.index')->with('error', 'Error al trasladar el cliente: ' . $e->getMessage());
         }
     }

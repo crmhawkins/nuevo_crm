@@ -100,7 +100,7 @@
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 180px" onclick="event.stopPropagation();">
                                 <a class="" href="{{ route('clientes.show', $client->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar usuario"></a>
                                 <a class="" href="{{ route('clientes.edit', $client->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Mostrar usuario"></a>
-                                <form action="{{ route('clientes.trasladar') }}" method="POST" style="display: inline;" onclick="event.stopPropagation();" onsubmit="return confirm('¿Trasladar cliente a clients? Este cliente será copiado a la tabla clients. El cliente original permanecerá en clients_ipoint.');">
+                                <form class="form-trasladar-ipoint" action="{{ route('clientes.trasladar') }}" method="POST" style="display: inline;" onclick="event.stopPropagation();" data-id="{{ $client->id }}">
                                     @csrf
                                     <input type="hidden" name="id" value="{{ $client->id }}">
                                     <button type="submit" class="btn btn-link p-0" title="Trasladar a clients" style="border: none; background: none; padding: 0;">
@@ -192,18 +192,71 @@ function attachDeleteEventIpoint() {
         }
 
 
+        // Manejar formularios de trasladar con AJAX
+        function attachTrasladarFormIpoint() {
+            $(document).off('submit', '.form-trasladar-ipoint').on('submit', '.form-trasladar-ipoint', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const form = $(this);
+                const id = form.data('id');
+
+                if (!confirm('¿Trasladar cliente a clients? Este cliente será copiado a la tabla clients. El cliente original permanecerá en clients_ipoint.')) {
+                    return false;
+                }
+
+                const url = form.attr('action');
+                const formData = form.serialize();
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.error) {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.mensaje || "Error al trasladar el cliente"
+                            });
+                        } else {
+                            Toast.fire({
+                                icon: "success",
+                                title: response.mensaje || "Cliente trasladado correctamente"
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        let mensaje = "Error al trasladar el cliente";
+                        if (xhr.responseJSON && xhr.responseJSON.mensaje) {
+                            mensaje = xhr.responseJSON.mensaje;
+                        }
+                        Toast.fire({
+                            icon: "error",
+                            title: mensaje
+                        });
+                    }
+                });
+
+                return false;
+            });
+        }
+
         // Ejecutar cuando el DOM esté listo
         $(document).ready(function() {
             attachDeleteEventIpoint();
+            attachTrasladarFormIpoint();
         });
 
         // Ejecutar cuando Livewire carga/actualiza
         document.addEventListener('livewire:load', () => {
             attachDeleteEventIpoint();
+            attachTrasladarFormIpoint();
         });
 
         document.addEventListener('livewire:update', () => {
             attachDeleteEventIpoint();
+            attachTrasladarFormIpoint();
         });
     </script>
 @endsection
