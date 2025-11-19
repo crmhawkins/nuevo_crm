@@ -23,7 +23,11 @@
                             <img class="rounded-circle img-fuild avatar-table" alt="avatar1" src="{{asset('/storage/avatars/'.$cliente->image)}}" />
                         @endif --}}
                         <h2 class="ms-2 fs-2">{{$cliente->company ?? $cliente->name}}</h2>
-                        <span class="badge bg-warning h_fit_content ms-2">{{$cliente->gestor->name}}</span>
+                        @if($cliente->gestor)
+                            <span class="badge bg-warning h_fit_content ms-2">{{$cliente->gestor->name}}</span>
+                        @else
+                            <span class="badge bg-secondary h_fit_content ms-2">Sin gestor</span>
+                        @endif
                     </div>
                     <p class="text-subtitle text-muted">Información sobre el cliente {{$cliente->company ?? $cliente->name}}.</p>
                 </div>
@@ -153,7 +157,11 @@
                                                           <p class="mb-0">Gestor:</p>
                                                         </div>
                                                         <div class="col-sm-8">
-                                                          <p class="text-muted mb-0"><a href="{{route('users.show',$cliente->gestor->id)}}">{{$cliente->gestor->name}}</a></p>
+                                                          @if($cliente->gestor)
+                                                              <p class="text-muted mb-0"><a href="{{route('users.show',$cliente->gestor->id)}}">{{$cliente->gestor->name}}</a></p>
+                                                          @else
+                                                              <p class="text-muted mb-0">Sin gestor asignado</p>
+                                                          @endif
                                                         </div>
                                                     </div>
                                                     <hr>

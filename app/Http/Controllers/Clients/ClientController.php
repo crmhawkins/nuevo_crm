@@ -327,9 +327,19 @@ class ClientController extends Controller
      */
     public function show(string $id)
     {
+        // Primero intentar buscar en clients
         $cliente = Client::find($id);
-        return view('clients.show', compact('cliente'));
 
+        // Si no se encuentra, buscar en clients_ipoint
+        if (!$cliente) {
+            $cliente = ClientIpoint::find($id);
+        }
+
+        if (!$cliente) {
+            return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado.');
+        }
+
+        return view('clients.show', compact('cliente'));
     }
 
     /**
