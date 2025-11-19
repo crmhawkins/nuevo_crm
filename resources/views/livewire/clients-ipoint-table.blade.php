@@ -100,7 +100,7 @@
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 180px">
                                 <a class="" href="{{ route('clientes.show', $client->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar usuario"></a>
                                 <a class="" href="{{ route('clientes.edit', $client->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Mostrar usuario"></a>
-                                <a class="trasladar-ipoint" data-id="{{ $client->id }}" href="" title="Trasladar a clients"><i class="fas fa-arrow-right text-primary"></i></a>
+                                <a class="trasladar-ipoint" data-id="{{ $client->id }}" href="javascript:void(0)" title="Trasladar a clients"><i class="fas fa-arrow-right text-primary"></i></a>
                                 <a class="delete-ipoint" data-id="{{ $client->id }}" href=""><img src="{{ asset('assets/icons/trash.svg') }}" alt="Mostrar usuario"></a>
                             </td>
                         </tr>
@@ -150,10 +150,16 @@ function attachDeleteEventIpoint() {
 }
 
 function attachTrasladarEventIpoint() {
-            $('.trasladar-ipoint').on('click', function(e) {
-            e.preventDefault();
+            // Usar delegación de eventos para que funcione con Livewire
+            $(document).off('click', '.trasladar-ipoint').on('click', '.trasladar-ipoint', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 let id = $(this).data('id');
-                botonTrasladarIpoint(id);
+                if (id) {
+                    botonTrasladarIpoint(id);
+                } else {
+                    console.error('No se encontró el ID del cliente');
+                }
             });
 }
 
@@ -203,6 +209,15 @@ function attachTrasladarEventIpoint() {
         }
 
         function botonTrasladarIpoint(id) {
+            if (!id) {
+                console.error('ID no válido para trasladar');
+                Toast.fire({
+                    icon: "error",
+                    title: "Error: ID de cliente no válido"
+                });
+                return;
+            }
+
             Swal.fire({
                 title: "¿Trasladar cliente a clients?",
                 html: "<p>Este cliente será copiado a la tabla clients. El cliente original permanecerá en clients_ipoint.</p>",
@@ -212,18 +227,40 @@ function attachTrasladarEventIpoint() {
                 cancelButtonText: "Cancelar",
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Mostrar loading
+                    Swal.fire({
+                        title: 'Trasladando...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
                     $.when(getTrasladarIpoint(id)).then(function(data) {
-                        if (data.error) {
+                        Swal.close();
+                        if (data && data.error) {
                             Toast.fire({
                                 icon: "error",
-                                title: data.mensaje
-                            })
-                        } else {
+                                title: data.mensaje || "Error al trasladar el cliente"
+                            });
+                        } else if (data) {
                             Toast.fire({
                                 icon: "success",
-                                title: data.mensaje
-                            })
+                                title: data.mensaje || "Cliente trasladado correctamente"
+                            });
+                        } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: "No se recibió respuesta del servidor"
+                            });
                         }
+                    }).fail(function(xhr) {
+                        Swal.close();
+                        console.error('Error en trasladar:', xhr);
+                        Toast.fire({
+                            icon: "error",
+                            title: "Error al comunicarse con el servidor"
+                        });
                     });
                 }
             });
@@ -241,6 +278,17 @@ function attachTrasladarEventIpoint() {
                     'id': id
                 },
                 dataType: "json"
+            }).fail(function(xhr, status, error) {
+                console.error('Error en AJAX trasladar:', {
+                    status: status,
+                    error: error,
+                    response: xhr.responseText,
+                    statusCode: xhr.status
+                });
+                Toast.fire({
+                    icon: "error",
+                    title: "Error al trasladar el cliente. Revisa la consola para más detalles."
+                });
             });
         }
     </script>
