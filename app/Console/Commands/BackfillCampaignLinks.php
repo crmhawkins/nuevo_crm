@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\ElevenlabsConversation;
 use App\Services\ElevenlabsService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class BackfillCampaignLinks extends Command
 {
@@ -19,11 +18,6 @@ class BackfillCampaignLinks extends Command
     {
         $chunkSize = max((int) $this->option('chunk'), 50);
         $max = max((int) $this->option('max'), 0);
-
-        $this->info("🔄 Iniciando backfill de conversaciones ElevenLabs");
-        $this->line("   • chunk: {$chunkSize}");
-        $this->line("   • max  : " . ($max > 0 ? $max : 'sin límite'));
-        $this->newLine();
 
         $service = app(ElevenlabsService::class);
 
@@ -78,10 +72,7 @@ class BackfillCampaignLinks extends Command
                         }
                     } catch (\Throwable $e) {
                         $stats['no_match_found']++;
-                        Log::error('❌ Error vinculando conversación en backfill', [
-                            'conversation_id' => $conversation->conversation_id,
-                            'error' => $e->getMessage(),
-                        ]);
+                        // Log eliminado para evitar saturar los logs
                     }
 
                     $bar->advance();
@@ -91,19 +82,6 @@ class BackfillCampaignLinks extends Command
             });
 
         $bar->finish();
-        $this->newLine(2);
-
-        $this->info('✅ Backfill completado');
-        $this->table(
-            ['Métrica', 'Cantidad'],
-            [
-                ['Procesadas', $stats['processed']],
-                ['Vinculadas', $stats['linked']],
-                ['Ya vinculadas', $stats['already_linked']],
-                ['Sin metadata', $stats['missing_metadata']],
-                ['Sin coincidencia', $stats['no_match_found']],
-            ]
-        );
 
         return Command::SUCCESS;
     }
