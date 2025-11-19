@@ -95,4 +95,10 @@ class ClientsIpointTable extends Component
     {
         $this->paginators['ipoint_page'] = 1;
     }
+
+    public function refresh()
+    {
+        // Método público para refrescar el componente desde JavaScript
+        // No hace nada, solo fuerza que Livewire re-renderice el componente
+    }
 }

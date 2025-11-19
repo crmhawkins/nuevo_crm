@@ -512,20 +512,34 @@ class ClientController extends Controller
      */
     public function destroy(Request $request)
     {
-        $cliente = Client::find($request->id);
+        $table = $request->input('table', 'clients');
+
+        // Determinar qué modelo usar según la tabla
+        if ($table === 'clients_ipoint') {
+            $cliente = ClientIpoint::find($request->id);
+        } else {
+            $cliente = Client::find($request->id);
+        }
 
         if (!$cliente) {
-            return response()->json([
-                'error' => true,
-                'mensaje' => "Error en el servidor, intentelo mas tarde."
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'error' => true,
+                    'mensaje' => "Error en el servidor, intentelo mas tarde."
+                ]);
+            }
+            return redirect()->route('clientes.index')->with('error', 'Error en el servidor, intentelo mas tarde.');
         }
 
         $cliente->delete();
-        return response()->json([
-            'error' => false,
-            'mensaje' => 'El usuario fue borrado correctamente'
-        ]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'error' => false,
+                'mensaje' => 'El cliente fue borrado correctamente'
+            ]);
+        }
+        return redirect()->route('clientes.index')->with('success', 'El cliente fue borrado correctamente');
     }
 
     /**
