@@ -11,6 +11,8 @@ class ClientsIpointTable extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public $gestores;
     public $buscar;
     public $selectedGestor = '';
@@ -21,6 +23,10 @@ class ClientsIpointTable extends Component
 
     public function mount(){
         $this->gestores = User::where('access_level_id', 4)->get();
+        // Leer la página desde la query string si existe
+        if (request()->has('ipoint_page')) {
+            $this->paginators['ipoint_page'] = (int) request()->get('ipoint_page');
+        }
     }
 
     public function render()
@@ -58,10 +64,13 @@ class ClientsIpointTable extends Component
         // Ordenamiento
         $query->orderBy($this->sortColumn, $this->sortDirection);
 
-        // Ejecutar consulta
-        $this->clients = $this->perPage === 'all'
-            ? $query->get()
-            : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+        // Ejecutar consulta con paginación personalizada
+        if ($this->perPage === 'all') {
+            $this->clients = $query->get();
+        } else {
+            $page = $this->paginators['ipoint_page'] ?? 1;
+            $this->clients = $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10, ['*'], 'ipoint_page', $page);
+        }
     }
 
     public function sortBy($column)
@@ -72,18 +81,18 @@ class ClientsIpointTable extends Component
             $this->sortColumn = $column;
             $this->sortDirection = 'asc';
         }
-        $this->resetPage();
+        $this->paginators['ipoint_page'] = 1;
     }
 
     public function updating($propertyName)
     {
         if ($propertyName === 'buscar' || $propertyName === 'selectedGestor') {
-            $this->resetPage();
+            $this->paginators['ipoint_page'] = 1;
         }
     }
 
     public function updatingPerPage()
     {
-        $this->resetPage();
+        $this->paginators['ipoint_page'] = 1;
     }
 }

@@ -100,10 +100,10 @@
                             <td class="flex flex-row justify-evenly align-middle" style="min-width: 180px" onclick="event.stopPropagation();">
                                 <a class="" href="{{ route('clientes.show', $client->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar usuario"></a>
                                 <a class="" href="{{ route('clientes.edit', $client->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Mostrar usuario"></a>
-                                <form class="form-trasladar-ipoint" action="{{ route('clientes.trasladar') }}" method="POST" style="display: inline;" onclick="event.stopPropagation();" data-id="{{ $client->id }}">
+                                <form class="form-trasladar-ipoint" action="{{ route('clientes.trasladar') }}" method="POST" style="display: inline;" onclick="event.stopPropagation(); event.stopImmediatePropagation();" data-id="{{ $client->id }}">
                                     @csrf
                                     <input type="hidden" name="id" value="{{ $client->id }}">
-                                    <button type="submit" class="btn btn-link p-0" title="Trasladar a clients" style="border: none; background: none; padding: 0;">
+                                    <button type="submit" class="btn btn-link p-0 form-trasladar-btn" title="Trasladar a clients" style="border: none; background: none; padding: 0;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
                                         <i class="fas fa-arrow-right text-primary"></i>
                                     </button>
                                 </form>
@@ -197,6 +197,7 @@ function attachDeleteEventIpoint() {
             $(document).off('submit', '.form-trasladar-ipoint').on('submit', '.form-trasladar-ipoint', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
 
                 const form = $(this);
                 const id = form.data('id');
@@ -213,13 +214,17 @@ function attachDeleteEventIpoint() {
                     url: url,
                     data: formData,
                     dataType: "json",
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
                     success: function(response) {
-                        if (response.error) {
+                        if (response && response.error) {
                             Toast.fire({
                                 icon: "error",
                                 title: response.mensaje || "Error al trasladar el cliente"
                             });
-                        } else {
+                        } else if (response) {
                             Toast.fire({
                                 icon: "success",
                                 title: response.mensaje || "Cliente trasladado correctamente"
@@ -230,6 +235,13 @@ function attachDeleteEventIpoint() {
                         let mensaje = "Error al trasladar el cliente";
                         if (xhr.responseJSON && xhr.responseJSON.mensaje) {
                             mensaje = xhr.responseJSON.mensaje;
+                        } else if (xhr.responseText) {
+                            try {
+                                const errorData = JSON.parse(xhr.responseText);
+                                if (errorData.mensaje) {
+                                    mensaje = errorData.mensaje;
+                                }
+                            } catch(e) {}
                         }
                         Toast.fire({
                             icon: "error",
