@@ -349,7 +349,19 @@ class ClientController extends Controller
     {
         $gestores = User::where('inactive', 0)->where('access_level_id',4)->get();
         $clientes = Client::all();
+
+        // Primero intentar buscar en clients
         $cliente = Client::find($id);
+
+        // Si no se encuentra, buscar en clients_ipoint
+        if (!$cliente) {
+            $cliente = ClientIpoint::find($id);
+        }
+
+        if (!$cliente) {
+            return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado.');
+        }
+
         $contactos = Contact::where('client_id', $id)->get();
         return view('clients.edit', compact('clientes', 'cliente', 'gestores', 'contactos'));
     }
@@ -393,7 +405,20 @@ class ClientController extends Controller
             'phone.required' => 'El telefono es requerido para continuar',
         ]);
 
-        $cliente = Client::findOrFail($id);
+        // Primero intentar buscar en clients
+        $cliente = Client::find($id);
+        $isIpoint = false;
+
+        // Si no se encuentra, buscar en clients_ipoint
+        if (!$cliente) {
+            $cliente = ClientIpoint::find($id);
+            $isIpoint = true;
+        }
+
+        if (!$cliente) {
+            return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado.');
+        }
+
         $data = $request->all();
         $data['is_client'] = true;
         $data['privacy_policy_accepted'] = $request->input('privacy_policy_accepted', false); // Valor por defecto
