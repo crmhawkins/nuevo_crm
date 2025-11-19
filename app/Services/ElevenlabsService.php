@@ -96,11 +96,6 @@ class ElevenlabsService
         try {
             $url = $this->buildUrl("/convai/conversations/{$conversationId}");
 
-            Log::info('🔍 Obteniendo detalles de conversación', [
-                'conversation_id' => $conversationId,
-                'url' => $url,
-            ]);
-
             $response = Http::withHeaders($this->getHeaders())
                 ->withOptions(['verify' => false])
                 ->timeout((int) $this->timeout)
@@ -116,12 +111,6 @@ class ElevenlabsService
             }
 
             $data = $response->json();
-
-            Log::info('✅ Conversación obtenida', [
-                'conversation_id' => $conversationId,
-                'has_transcript' => isset($data['transcript']),
-                'message_count' => isset($data['transcript']) ? count($data['transcript']) : 0,
-            ]);
 
             return $data;
         } catch (Exception $e) {
@@ -284,29 +273,21 @@ class ElevenlabsService
             throw new Exception('conversation_id no encontrado');
         }
 
-        Log::debug("      🔍 Buscando si existe en BD: {$conversationId}");
         $conversation = ElevenlabsConversation::where('conversation_id', $conversationId)->first();
         $created = false;
 
         if (!$conversation) {
             $conversation = new ElevenlabsConversation();
             $created = true;
-            Log::debug("      ➕ Nueva conversación - será creada");
-        } else {
-            Log::debug("      🔄 Conversación existente - será actualizada");
         }
 
         // Obtener detalles completos si no tenemos la transcripción
         $fullData = $conversationData;
         if (!isset($conversationData['transcript'])) {
-            Log::info("      📥 Obteniendo detalles completos con transcripción...");
             try {
                 $fullData = $this->getConversation($conversationId);
             } catch (Exception $e) {
-                Log::warning('      ⚠️ No se pudo obtener detalles completos', [
-                    'conversation_id' => $conversationId,
-                    'error' => $e->getMessage(),
-                ]);
+                // Log eliminado para evitar saturar los logs
             }
         }
 
@@ -322,20 +303,15 @@ class ElevenlabsService
             $agentName = ElevenlabsAgent::getNameByAgentId($agentId);
             if ($agentName) {
                 $conversation->agent_name = $agentName;
-                Log::debug("      👤 Agente (desde BD local): {$agentName}");
-            } else {
-                Log::warning("      ⚠️ Agente {$agentId} no encontrado en BD local");
             }
         }
 
         // Fecha
         $timestamp = $fullData['metadata']['start_time_unix_secs'] ?? $conversationData['start_time_unix_secs'] ?? time();
         $conversation->conversation_date = Carbon::createFromTimestamp($timestamp);
-        Log::debug("      📅 Fecha: {$conversation->conversation_date->format('Y-m-d H:i:s')}");
 
         // Duración
         $conversation->duration_seconds = $fullData['metadata']['call_duration_secs'] ?? $conversationData['call_duration_secs'] ?? 0;
-        Log::debug("      ⏱️ Duración: {$conversation->duration_seconds} segundos");
 
         // Número de teléfono asociado (si está disponible)
         $phoneNumber = $this->extractPhoneNumber($fullData);
@@ -349,28 +325,19 @@ class ElevenlabsService
         // Procesar transcripción
         $transcriptProcessed = false;
         if (isset($fullData['transcript']) && is_array($fullData['transcript'])) {
-            $messageCount = count($fullData['transcript']);
-            Log::info("      💬 Formateando transcripción con {$messageCount} mensajes");
             $conversation->transcript = $this->formatTranscript($fullData['transcript']);
             $transcriptProcessed = true;
         } elseif (isset($fullData['analysis']['transcript_summary']) && !empty($fullData['analysis']['transcript_summary'])) {
-            Log::info("      📝 Usando transcript_summary del análisis");
             $conversation->transcript = $fullData['analysis']['transcript_summary'];
             $transcriptProcessed = true;
         } elseif (isset($fullData['analysis']['call_summary_title']) && !empty($fullData['analysis']['call_summary_title'])) {
-            Log::warning("      ⚠️ Usando call_summary_title (no hay transcripción completa)");
             $conversation->transcript = "Resumen: " . $fullData['analysis']['call_summary_title'];
             $transcriptProcessed = true;
-        }
-
-        if (!$transcriptProcessed) {
-            Log::warning("      ⚠️ NO SE ENCONTRÓ TRANSCRIPCIÓN");
         }
 
         $conversation->save();
 
         $this->linkConversationToCampaign($conversation, $fullData);
-        Log::info("      💾 Conversación guardada en BD (ID: {$conversation->id})");
 
         return [
             'created' => $created,
@@ -402,10 +369,7 @@ class ElevenlabsService
                 $result = $this->saveConversation($fullData);
                 $conversationAfter = $result['conversation']->fresh();
             } catch (Exception $e) {
-                Log::warning('No se pudo refrescar conversación para vincularla a campaña', [
-                    'conversation_id' => $conversation->conversation_id,
-                    'error' => $e->getMessage(),
-                ]);
+                // Log eliminado para evitar saturar los logs
                 return false;
             }
         }
@@ -475,13 +439,7 @@ class ElevenlabsService
                 $conversation->save();
             }
 
-            if (!$campaignUid && !$callUid) {
-                Log::debug('🔎 Conversación sin identificadores directos de campaña', [
-                    'conversation_id' => $conversation->conversation_id,
-                    'batch_call_id' => $batchCallId,
-                    'batch_call_recipient_id' => $batchCallRecipientId,
-                ]);
-            }
+            // Log eliminado para evitar saturar los logs
 
             $campaign = $campaignUid
                 ? ElevenlabsCampaign::where('uid', $campaignUid)->first()
@@ -518,12 +476,7 @@ class ElevenlabsService
             }
 
             if (!$campaign) {
-                Log::warning('⚠️ No se encontró la campaña vinculada', [
-                    'conversation_id' => $conversation->conversation_id,
-                    'campaign_uid' => $campaignUid,
-                    'call_uid' => $callUid,
-                    'batch_call_id' => $batchCallId,
-                ]);
+                // Log eliminado para evitar saturar los logs
                 return;
             }
 
@@ -549,10 +502,7 @@ class ElevenlabsService
             }
 
             if (!$campaignCall) {
-                Log::warning('⚠️ No se encontró llamada asociada en la campaña', [
-                    'conversation_id' => $conversation->conversation_id,
-                    'campaign_id' => $campaign->id,
-                ]);
+                // Log eliminado para evitar saturar los logs
                 return;
             }
 

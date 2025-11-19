@@ -59,21 +59,29 @@ class Kernel extends ConsoleKernel
         $schedule->command('Tesoreria:ProcesarExcel')->everyMinute();
         $schedule->command('Whatsapp:GenerarMensajeCampania')->everyTenSeconds();
         $schedule->command('Whatsapp:Enviar')->everyTenMinutes();
-        // Sincronización automática de conversaciones de Eleven Labs cada minuto
+        // Sincronización automática de conversaciones de Eleven Labs cada 3 minutos
         // Descarga todas las conversaciones de hoy automáticamente
-        $schedule->command('elevenlabs:sync-all', ['--from-date' => now()->format('Y-m-d')])->everyMinute();
+        $schedule->command('elevenlabs:sync-all', ['--from-date' => now()->format('Y-m-d')])
+            ->everyThreeMinutes()
+            ->withoutOverlapping();
 
-        // Actualizar números de teléfono de conversaciones de Hera Saliente y Hera Dominios cada minuto
+        // Actualizar números de teléfono de conversaciones de Hera Saliente y Hera Dominios cada 2 minutos
         // Procesa hasta 100 conversaciones sin número en cada ejecución
-        $schedule->command('elevenlabs:update-phone-numbers', ['--limit' => 100])->everyMinute();
+        $schedule->command('elevenlabs:update-phone-numbers', ['--limit' => 100])
+            ->everyTwoMinutes()
+            ->withoutOverlapping();
 
-        // Obtener números de llamadas entrantes (otros agentes) desde app Flask cada minuto
+        // Obtener números de llamadas entrantes (otros agentes) desde app Flask cada 2 minutos
         // Procesa hasta 50 conversaciones sin número en cada ejecución
-        $schedule->command('elevenlabs:obtener-numeros-entrantes', ['--limit' => 10])->everyMinute();
+        $schedule->command('elevenlabs:obtener-numeros-entrantes', ['--limit' => 10])
+            ->everyTwoMinutes()
+            ->withoutOverlapping();
 
         // Vincular conversaciones con clientes basándose en números de teléfono
         // Procesa hasta 100 conversaciones sin client_id en cada ejecución (cada 5 minutos)
-        $schedule->command('elevenlabs:vincular-clientes', ['--limit' => 100])->everyFiveMinutes();
+        $schedule->command('elevenlabs:vincular-clientes', ['--limit' => 100])
+            ->everyFiveMinutes()
+            ->withoutOverlapping();
 
         // Procesar conversaciones ElevenLabs pendientes directamente (sin cola) cada minuto
         $schedule->command('elevenlabs:process --limit=75')
@@ -81,7 +89,9 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping();
 
         // Backfill de enlaces de campañas de ElevenLabs cada 2 minutos
-        $schedule->command('elevenlabs:backfill-campaign-links')->everyTwoMinutes();
+        $schedule->command('elevenlabs:backfill-campaign-links')
+            ->everyTwoMinutes()
+            ->withoutOverlapping();
 
         // Enviar WhatsApp automático de incidencias de Maria Apartamentos
         $schedule->command('whatsapp:enviar-incidencias')->everyMinute();
