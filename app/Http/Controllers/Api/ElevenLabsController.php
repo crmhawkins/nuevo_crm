@@ -152,7 +152,7 @@ class ElevenLabsController extends Controller
 
             // Calcular duración automática basada en el tipo de cita
             $duracionMinutos = $request->duracion_minutos ?? $this->getDuracionPorTipo($request->tipo);
-            
+
             // Calcular fecha de fin
             $fechaInicio = Carbon::parse($request->fecha_inicio);
             $fechaFin = $fechaInicio->copy()->addMinutes($duracionMinutos);
@@ -173,7 +173,8 @@ class ElevenLabsController extends Controller
                 'fecha_fin' => $fechaFin,
                 'tipo' => $request->tipo,
                 'cliente_id' => $request->cliente_id,
-                'gestor_id' => $request->gestor_id,
+                //'gestor_id' => $request->gestor_id,
+                'gestor_id' => 103,
                 'ubicacion' => $request->ubicacion,
                 'color' => $request->color ?? $this->getColorPorTipo($request->tipo),
                 'estado' => 'programada',
@@ -347,7 +348,7 @@ class ElevenLabsController extends Controller
             }
 
             $busqueda = $request->busqueda;
-            
+
             $clientes = Client::where('is_client', 1)
                             ->where(function($query) use ($busqueda) {
                                 $query->where('name', 'like', "%{$busqueda}%")
@@ -381,30 +382,30 @@ class ElevenLabsController extends Controller
         try {
             // Limpiar y formatear los datos antes de la validación
             $data = $request->all();
-            
+
             // Log para debugging
             Log::info('Datos recibidos para crear cliente', $data);
-            
+
             // Limpiar el teléfono: quitar espacios, guiones y caracteres especiales
             if (isset($data['phone']) && !empty($data['phone'])) {
                 $data['phone'] = preg_replace('/[^0-9+]/', '', $data['phone']);
             }
-            
+
             // Limpiar el email: quitar espacios
             if (isset($data['email']) && !empty($data['email'])) {
                 $data['email'] = trim($data['email']);
             }
-            
+
             // Limpiar el nombre: quitar espacios extra
             if (isset($data['name']) && !empty($data['name'])) {
                 $data['name'] = trim(preg_replace('/\s+/', ' ', $data['name']));
             }
-            
+
             // Limpiar la empresa: quitar espacios extra
             if (isset($data['company']) && !empty($data['company'])) {
                 $data['company'] = trim(preg_replace('/\s+/', ' ', $data['company']));
             }
-            
+
             // Log de datos limpios
             Log::info('Datos limpios para crear cliente', $data);
 
@@ -512,7 +513,7 @@ class ElevenLabsController extends Controller
                 'cont_postpone' => 0,
                 'description' => '[ELEVENLABS] Nueva petición de ' . $peticion->cliente->name . ': ' . substr($peticion->note, 0, 50) . '...'
             ]);
-            
+
             Log::info('Alerta de ElevenLabs creada:', [
                 'peticion_id' => $peticion->id,
                 'cliente' => $peticion->cliente->name,
@@ -564,7 +565,7 @@ class ElevenLabsController extends Controller
     private function generarHorariosDisponibles($fechaInicio, $fechaFin, $citasExistentes, $duracionMinutos)
     {
         Log::info('=== INICIO generarHorariosDisponibles ===');
-        
+
         $horariosDisponibles = [];
         $fechaActual = $fechaInicio->copy();
 
@@ -586,7 +587,7 @@ class ElevenLabsController extends Controller
 
         while ($fechaActual->lte($fechaFin)) {
             $diasProcesados++;
-            
+
             // Saltar fines de semana
             if ($fechaActual->isWeekend()) {
                 Log::info('Saltando fin de semana: ' . $fechaActual->format('Y-m-d'));
@@ -609,14 +610,14 @@ class ElevenLabsController extends Controller
                 // Generar slots de tiempo dentro del horario de trabajo
                 $slotActual = $horaInicio->copy();
                 $slotsEnHorario = 0;
-                
+
                 while ($slotActual->copy()->addMinutes($duracionMinutos)->lte($horaFin)) {
                     $slotFin = $slotActual->copy()->addMinutes($duracionMinutos);
                     $slotsEnHorario++;
-                    
+
                     // Verificar si este slot está disponible (no hay citas existentes)
                     $disponible = $this->esSlotDisponible($slotActual, $slotFin, $citasExistentes);
-                    
+
                     if ($disponible) {
                         $horariosDisponibles[] = [
                             'fecha_inicio' => $slotActual->format('Y-m-d H:i:s'),
@@ -628,9 +629,9 @@ class ElevenLabsController extends Controller
                             'disponible' => true,
                             'tipo_horario' => $horario['inicio'] < 12 ? 'mañana' : 'tarde'
                         ];
-                        
+
                         $slotsGenerados++;
-                        
+
                         Log::info('Slot disponible encontrado:', [
                             'slot_inicio' => $slotActual->format('Y-m-d H:i:s'),
                             'slot_fin' => $slotFin->format('Y-m-d H:i:s'),
@@ -642,11 +643,11 @@ class ElevenLabsController extends Controller
                             'slot_fin' => $slotFin->format('Y-m-d H:i:s')
                         ]);
                     }
-                    
+
                     // Avanzar 30 minutos para el siguiente slot
                     $slotActual->addMinutes(30);
                 }
-                
+
                 Log::info('Horario procesado:', [
                     'tipo' => $horario['inicio'] < 12 ? 'mañana' : 'tarde',
                     'slots_en_horario' => $slotsEnHorario,
@@ -783,7 +784,7 @@ class ElevenLabsController extends Controller
     {
         try {
             Log::info('=== INICIO getDiaHoy ===');
-            
+
             $hoy = now();
             $fechaFormateada = $hoy->format('d/m/Y');
             $diaSemana = $hoy->locale('es')->dayName;
@@ -791,7 +792,7 @@ class ElevenLabsController extends Controller
             $año = $hoy->year;
             $hora = $hoy->format('H:i');
             $fechaCompleta = $hoy->format('d/m/Y H:i');
-            
+
             $informacion = [
                 'fecha' => $fechaFormateada,
                 'dia_semana' => $diaSemana,
@@ -873,11 +874,11 @@ class ElevenLabsController extends Controller
             // Generar referencia temporal primero (como hace el sistema original)
             $budgetTemporal = Budget::where('temp', true)->orderBy('created_at', 'desc')->first();
             $referenceTemp = $budgetTemporal === null ? 'temp_00' : $this->generateReferenceTemp($budgetTemporal->reference);
-            
+
             // Calcular totales
             $conceptos = $request->conceptos;
             $subtotal = 0;
-            
+
             foreach ($conceptos as $concepto) {
                 $total_concepto = $concepto['units'] * $concepto['sale_price'];
                 $subtotal += $total_concepto;
@@ -915,7 +916,7 @@ class ElevenLabsController extends Controller
             // Crear los conceptos del presupuesto
             foreach ($conceptos as $concepto) {
                 $total_concepto = $concepto['units'] * $concepto['sale_price'];
-                
+
                 BudgetConcept::create([
                     'budget_id' => $budget->id,
                     'concept_type_id' => $concepto['concept_type_id'] ?? 2, // Por defecto: Propio
@@ -1006,7 +1007,7 @@ class ElevenLabsController extends Controller
             }
 
             $budget = Budget::with(['cliente', 'usuario'])->find($request->budget_id);
-            
+
             if (!$budget) {
                 return response()->json([
                     'success' => false,
@@ -1028,7 +1029,7 @@ class ElevenLabsController extends Controller
             ];
 
             $budgetExist = BudgetSend::where('budget_id', $budget->id)->first();
-            
+
             if ($budgetExist) {
                 DB::table("budgets_sends")->where("budget_id", $budget->id)->update($data);
             } else {
@@ -1062,7 +1063,7 @@ class ElevenLabsController extends Controller
 
             // Enviar email
             $email = new MailBudget($mailBudget, []);
-            
+
             Mail::to($mail)
                 ->bcc($mailsBCC)
                 ->cc($mailsCC)
@@ -1222,7 +1223,7 @@ class ElevenLabsController extends Controller
     {
         // Los conceptos de este presupuesto
         $thisBudgetConcepts = BudgetConcept::where('budget_id', $budget->id)->get();
-        
+
         // Condiciones de categoría de los servicios
         $conceptCategoriesID = array();
         foreach($thisBudgetConcepts as $concept){
@@ -1230,7 +1231,7 @@ class ElevenLabsController extends Controller
                 array_push($conceptCategoriesID, $concept->services_category_id);
             }
         }
-        
+
         foreach($conceptCategoriesID as $key => $value){
             $category = ServiceCategories::where('id', $value)->first();
             if($category){
@@ -1251,16 +1252,16 @@ class ElevenLabsController extends Controller
                 }
             }
         }
-        
+
         // Título
         $title = "Presupuesto - ".$budget['reference'];
-        
+
         // PDF personalización
         $data = [
             'title' => $title,
             'budget_reference' => $budget['reference'],
         ];
-        
+
         // Array de conceptos para utilizar en la vista, formatea cadenas para que cuadre
         $budgetConceptsFormated = array();
         foreach($thisBudgetConcepts as $budgetConcept){
