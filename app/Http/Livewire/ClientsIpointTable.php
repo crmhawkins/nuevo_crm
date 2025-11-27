@@ -40,7 +40,9 @@ class ClientsIpointTable extends Component
     protected function actualizarClientes()
     {
         // Base query: solo clientes (is_client = 1) - usar whereRaw para ser más explícito
-        $query = ClientIpoint::whereRaw('is_client = 1');
+        $query = ClientIpoint::whereRaw('is_client = 1')
+            ->whereNotNull('company')
+            ->where('company', '!=', '');
 
         // Si hay búsqueda, agregar condiciones de búsqueda agrupadas
         if (!empty(trim($this->buscar))) {
