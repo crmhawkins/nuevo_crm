@@ -89,14 +89,16 @@
               $pdf->page_text(510, 753, "Página {PAGE_NUM}/{PAGE_COUNT}", $font, 9, array(0, 0, 0));
             }
         </script>
-        <div class="information" style="position: fixed;margin-top:-90px">
+        <div class="information" style="position: fixed;margin-top:-90px;width:100%">
+            <div style="position:absolute;right:20px;top:0;">
+                <img src="{{ public_path('assets/images/logo/logo.png') }}" alt="Logo" width="200" class="logo"/>
+            </div>
             <table width="100%">
                 <tr>
                     <td align="left" style="width: 40%;padding-left:20px;vertical-align:bottom;">
-                        <h1 style="font-weight: normal;vertical-align:bottom"><cite>PRESUPUESTO</cite></h1>
+                        <h1 style="font-weight: normal;vertical-align:bottom;margin:0;"><cite>PRESUPUESTO</cite></h1>
                     </td>
-                    <td align="right" style="width: auto;padding-left:20px;padding-right:45px">
-                        <img src="{{ public_path('assets/images/logo/logo.png') }}" alt="Logo" width="200" class="logo"/>
+                    <td align="right" style="width: 60%;padding-right:20px;vertical-align:bottom;">
                     </td>
                 </tr>
             </table>
