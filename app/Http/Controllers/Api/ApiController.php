@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Clients\Client;
+use App\Models\Clients\Client;
+use App\Models\Clients\Client;
 use App\Models\Contacts\Contact;
 use App\Models\EnvioB2b;
 use App\Models\EnvioDani;
@@ -122,6 +124,20 @@ class ApiController extends Controller
             ], 200);
         }
 
+    }
+
+    public function getClients()
+    {
+        $clients = Client::all();
+
+        return response()->json($clients, 200);
+    }
+
+    public function getClients()
+    {
+        $clients = Client::all();
+
+        return response()->json($clients, 200);
     }
 
 }
