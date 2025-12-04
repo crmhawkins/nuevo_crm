@@ -11,6 +11,8 @@ class ClientsTable extends Component
 {
     use WithPagination;
 
+    protected $paginationTheme = 'bootstrap';
+
     public $gestores;
     public $buscar;
     public $selectedGestor = '';
@@ -22,6 +24,10 @@ class ClientsTable extends Component
 
     public function mount(){
         $this->gestores = User::where('access_level_id', 4)->get();
+        // Leer la página desde la query string si existe
+        if (request()->has('clients_page')) {
+            $this->paginators['clients_page'] = (int) request()->get('clients_page');
+        }
     }
 
     public function render()
@@ -38,7 +44,7 @@ class ClientsTable extends Component
         // soloClientes = false -> mostrar clientes (is_client = 1)
         // soloClientes = true -> mostrar leads (is_client = 0)
         $isClientValue = $this->soloClientes ? 0 : 1;
-        
+
         $query = Client::query()
             ->where('is_client', $isClientValue)
             ->when($this->buscar, function ($query) {
@@ -58,7 +64,12 @@ class ClientsTable extends Component
             $query->orderBy($this->sortColumn, $this->sortDirection);
 
             // Verifica si se seleccionó 'all' para mostrar todos los registros
-            $this->clients = $this->perPage === 'all' ? $query->get() : $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10);
+            if ($this->perPage === 'all') {
+                $this->clients = $query->get();
+            } else {
+                $page = $this->paginators['clients_page'] ?? 1;
+                $this->clients = $query->paginate(is_numeric($this->perPage) ? $this->perPage : 10, ['*'], 'clients_page', $page);
+            }
     }
 
     public function sortBy($column)
@@ -69,18 +80,18 @@ class ClientsTable extends Component
             $this->sortColumn = $column;
             $this->sortDirection = 'asc';
         }
-        $this->resetPage();
+        $this->paginators['clients_page'] = 1;
     }
 
     public function updating($propertyName)
     {
         if (in_array($propertyName, ['buscar', 'selectedGestor', 'soloClientes'])) {
-            $this->resetPage();
+            $this->paginators['clients_page'] = 1;
         }
     }
 
     public function updatingPerPage()
     {
-        $this->resetPage();
+        $this->paginators['clients_page'] = 1;
     }
 }

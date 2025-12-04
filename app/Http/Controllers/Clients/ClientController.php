@@ -327,9 +327,19 @@ class ClientController extends Controller
      */
     public function show(string $id)
     {
+        // Primero intentar buscar en clients
         $cliente = Client::find($id);
-        return view('clients.show', compact('cliente'));
 
+        // Si no se encuentra, buscar en clients_ipoint
+        if (!$cliente) {
+            $cliente = ClientIpoint::find($id);
+        }
+
+        if (!$cliente) {
+            return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado.');
+        }
+
+        return view('clients.show', compact('cliente'));
     }
 
     /**
@@ -339,7 +349,19 @@ class ClientController extends Controller
     {
         $gestores = User::where('inactive', 0)->where('access_level_id',4)->get();
         $clientes = Client::all();
+
+        // Primero intentar buscar en clients
         $cliente = Client::find($id);
+
+        // Si no se encuentra, buscar en clients_ipoint
+        if (!$cliente) {
+            $cliente = ClientIpoint::find($id);
+        }
+
+        if (!$cliente) {
+            return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado.');
+        }
+
         $contactos = Contact::where('client_id', $id)->get();
         return view('clients.edit', compact('clientes', 'cliente', 'gestores', 'contactos'));
     }
@@ -383,7 +405,20 @@ class ClientController extends Controller
             'phone.required' => 'El telefono es requerido para continuar',
         ]);
 
-        $cliente = Client::findOrFail($id);
+        // Primero intentar buscar en clients
+        $cliente = Client::find($id);
+        $isIpoint = false;
+
+        // Si no se encuentra, buscar en clients_ipoint
+        if (!$cliente) {
+            $cliente = ClientIpoint::find($id);
+            $isIpoint = true;
+        }
+
+        if (!$cliente) {
+            return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado.');
+        }
+
         $data = $request->all();
         $data['is_client'] = true;
         $data['privacy_policy_accepted'] = $request->input('privacy_policy_accepted', false); // Valor por defecto
@@ -512,20 +547,34 @@ class ClientController extends Controller
      */
     public function destroy(Request $request)
     {
-        $cliente = Client::find($request->id);
+        $table = $request->input('table', 'clients');
+
+        // Determinar qué modelo usar según la tabla
+        if ($table === 'clients_ipoint') {
+            $cliente = ClientIpoint::find($request->id);
+        } else {
+            $cliente = Client::find($request->id);
+        }
 
         if (!$cliente) {
-            return response()->json([
-                'error' => true,
-                'mensaje' => "Error en el servidor, intentelo mas tarde."
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'error' => true,
+                    'mensaje' => "Error en el servidor, intentelo mas tarde."
+                ]);
+            }
+            return redirect()->route('clientes.index')->with('error', 'Error en el servidor, intentelo mas tarde.');
         }
 
         $cliente->delete();
-        return response()->json([
-            'error' => false,
-            'mensaje' => 'El usuario fue borrado correctamente'
-        ]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'error' => false,
+                'mensaje' => 'El cliente fue borrado correctamente'
+            ]);
+        }
+        return redirect()->route('clientes.index')->with('success', 'El cliente fue borrado correctamente');
     }
 
     /**
@@ -594,29 +643,68 @@ class ClientController extends Controller
      */
     public function trasladar(Request $request)
     {
-        $clienteIpoint = ClientIpoint::find($request->id);
-
-        if (!$clienteIpoint) {
-            return response()->json([
-                'error' => true,
-                'mensaje' => "Cliente no encontrado en clients_ipoint."
-            ]);
-        }
+        \Illuminate\Support\Facades\Log::info('Trasladar: Petición recibida', [
+            'request_all' => $request->all(),
+            'request_id' => $request->id,
+            'method' => $request->method(),
+            'url' => $request->fullUrl()
+        ]);
 
         try {
-            // Obtener todos los campos fillable del modelo
-            $fillable = (new Client())->getFillable();
+            $clienteIpoint = ClientIpoint::find($request->id);
 
-            // Construir array de datos solo con campos fillable (excluyendo 'id')
+            if (!$clienteIpoint) {
+                \Illuminate\Support\Facades\Log::error('Trasladar: Cliente no encontrado', [
+                    'cliente_ipoint_id' => $request->id
+                ]);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'error' => true,
+                        'mensaje' => 'Cliente no encontrado en clients_ipoint.'
+                    ]);
+                }
+                return redirect()->route('clientes.index')->with('error', 'Cliente no encontrado en clients_ipoint.');
+            }
+
+            // Obtener todos los campos fillable del modelo Client (excluyendo 'id')
+            $fillable = array_filter((new Client())->getFillable(), function($campo) {
+                return $campo !== 'id';
+            });
+
+            // Obtener todos los atributos del cliente ipoint como array
+            $atributosIpoint = $clienteIpoint->getAttributes();
+
+            // Construir array de datos solo con campos fillable
             $datos = [];
             foreach ($fillable as $campo) {
-                if ($campo !== 'id' && isset($clienteIpoint->$campo)) {
-                    $datos[$campo] = $clienteIpoint->$campo;
+                // Usar array_key_exists para verificar si el campo existe, incluso si es null
+                if (array_key_exists($campo, $atributosIpoint)) {
+                    $datos[$campo] = $atributosIpoint[$campo];
                 }
             }
 
-            // Log para debug
-            \Illuminate\Support\Facades\Log::info('Trasladando cliente', [
+            // Verificar si ya existe un cliente con el mismo identifier o email
+            if (!empty($datos['identifier'])) {
+                $existe = Client::where('identifier', $datos['identifier'])->first();
+                if ($existe) {
+                    \Illuminate\Support\Facades\Log::warning('Trasladar: Cliente ya existe', [
+                        'cliente_ipoint_id' => $clienteIpoint->id,
+                        'identifier' => $datos['identifier'],
+                        'cliente_existente_id' => $existe->id
+                    ]);
+
+                    if ($request->expectsJson() || $request->ajax()) {
+                        return response()->json([
+                            'error' => true,
+                            'mensaje' => 'Ya existe un cliente con el mismo identifier en la tabla clients.'
+                        ]);
+                    }
+                    return redirect()->route('clientes.index')->with('error', 'Ya existe un cliente con el mismo identifier en la tabla clients.');
+                }
+            }
+
+            \Illuminate\Support\Facades\Log::info('Trasladar: Iniciando traslado', [
                 'cliente_ipoint_id' => $clienteIpoint->id,
                 'datos_count' => count($datos),
                 'campos' => array_keys($datos)
@@ -625,26 +713,33 @@ class ClientController extends Controller
             // Crear el nuevo cliente en la tabla clients
             $nuevoCliente = Client::create($datos);
 
-            \Illuminate\Support\Facades\Log::info('Cliente trasladado exitosamente', [
+            \Illuminate\Support\Facades\Log::info('Trasladar: Cliente trasladado exitosamente', [
+                'cliente_ipoint_id' => $clienteIpoint->id,
                 'nuevo_cliente_id' => $nuevoCliente->id
             ]);
 
-            return response()->json([
-                'error' => false,
-                'mensaje' => 'Cliente trasladado correctamente a la tabla clients.',
-                'nuevo_id' => $nuevoCliente->id
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'error' => false,
+                    'mensaje' => 'Cliente trasladado correctamente a la tabla clients.',
+                    'nuevo_id' => $nuevoCliente->id
+                ]);
+            }
+            return redirect()->route('clientes.index')->with('success', 'Cliente trasladado correctamente a la tabla clients.');
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error al trasladar cliente', [
-                'cliente_ipoint_id' => $request->id,
+            \Illuminate\Support\Facades\Log::error('Trasladar: Error al trasladar cliente', [
+                'cliente_ipoint_id' => $request->id ?? null,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'error' => true,
-                'mensaje' => 'Error al trasladar el cliente: ' . $e->getMessage()
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'error' => true,
+                    'mensaje' => 'Error al trasladar el cliente: ' . $e->getMessage()
+                ]);
+            }
+            return redirect()->route('clientes.index')->with('error', 'Error al trasladar el cliente: ' . $e->getMessage());
         }
     }
 

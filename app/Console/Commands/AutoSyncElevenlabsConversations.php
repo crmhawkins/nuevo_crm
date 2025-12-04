@@ -27,7 +27,6 @@ class AutoSyncElevenlabsConversations extends Command
     public function handle()
     {
         $this->info('🔄 Iniciando sincronización automática de conversaciones...');
-        Log::info('AutoSync: Iniciando sincronización automática');
 
         try {
             // PRIMERO: Sincronizar agentes para tener el caché local actualizado
@@ -35,30 +34,24 @@ class AutoSyncElevenlabsConversations extends Command
             $agentsCount = $this->elevenlabsService->syncAgents();
             $this->info("✅ {$agentsCount} agentes sincronizados en BD local");
             $this->newLine();
-            
+
             // Obtener conversaciones de los últimos 15 minutos (margen de seguridad)
             $fifteenMinutesAgo = now()->subMinutes(15)->timestamp;
-            
+
             $this->info("📥 Descargando conversaciones desde " . now()->subMinutes(15)->format('Y-m-d H:i:s'));
-            
+
             $response = $this->elevenlabsService->getConversations($fifteenMinutesAgo, null, 100);
             $conversations = $response['conversations'] ?? [];
-            
+
             $this->info("📊 Conversaciones totales devueltas por API: " . count($conversations));
-            
+
             // Filtrar solo conversaciones dentro del rango de tiempo
             $filteredConversations = array_filter($conversations, function($conv) use ($fifteenMinutesAgo) {
                 $startTime = $conv['metadata']['start_time_unix_secs'] ?? 0;
                 return $startTime >= $fifteenMinutesAgo;
             });
-            
+
             $this->info("📊 Conversaciones dentro de los últimos 15 minutos: " . count($filteredConversations));
-            Log::info('AutoSync: Conversaciones obtenidas', [
-                'total' => count($conversations),
-                'filtered' => count($filteredConversations),
-                'from_timestamp' => $fifteenMinutesAgo,
-                'from_date' => date('Y-m-d H:i:s', $fifteenMinutesAgo)
-            ]);
 
             if (empty($filteredConversations)) {
                 $this->info('✅ No hay conversaciones nuevas en los últimos 15 minutos.');
@@ -75,7 +68,7 @@ class AutoSyncElevenlabsConversations extends Command
                     $conversationId = $conversationData['conversation_id'];
                     $agentId = $conversationData['agent_id'];
                     $status = $conversationData['status'] ?? 'unknown';
-                    
+
                     // Verificar fecha de la conversación
                     $conversationStartTime = $conversationData['metadata']['start_time_unix_secs'] ?? 0;
                     $conversationDate = date('Y-m-d H:i:s', $conversationStartTime);
@@ -89,7 +82,7 @@ class AutoSyncElevenlabsConversations extends Command
 
                     // Verificar si la conversación ya existe
                     $existingConversation = ElevenlabsConversation::where('conversation_id', $conversationId)->first();
-                    
+
                     if ($existingConversation) {
                         $this->line("⏩ Conversación {$conversationId} ya existe, saltando...");
                         $skippedCount++;
@@ -98,13 +91,9 @@ class AutoSyncElevenlabsConversations extends Command
 
                     // Verificar si el agente está configurado
                     $agent = ElevenlabsAgent::where('agent_id', $agentId)->first();
-                    
+
                     if (!$agent) {
                         $this->warn("⚠️  Agente {$agentId} no configurado, saltando conversación {$conversationId}");
-                        Log::warning('AutoSync: Agente no configurado', [
-                            'agent_id' => $agentId,
-                            'conversation_id' => $conversationId
-                        ]);
                         $skippedCount++;
                         continue;
                     }
@@ -112,17 +101,17 @@ class AutoSyncElevenlabsConversations extends Command
                     // Obtener detalles completos de la conversación (incluye transcript)
                     $this->line("📥 Descargando conversación {$conversationId}...");
                     $fullConversation = $this->elevenlabsService->getConversation($conversationId);
-                    
+
                     // Crear la conversación
                     $conversation = $this->createConversationFromData($fullConversation);
-                    
+
                     if ($conversation) {
                         $this->info("🤖 Procesando con IA: {$conversationId}");
-                        
+
                         // Procesar con IA
                         $this->processConversationWithAI($conversation, $agent);
                         $processedCount++;
-                        
+
                         $this->info("✅ Conversación procesada: {$conversationId}");
                     } else {
                         $this->error("❌ Error creando conversación: {$conversationId}");
@@ -150,15 +139,7 @@ class AutoSyncElevenlabsConversations extends Command
             $this->info("   ❌ Status 'failed': {$failedCount}");
             $this->info("   ❗ Errores: {$errorCount}");
             $this->info("═══════════════════════════════════════════");
-            
-            Log::info('AutoSync: Sincronización completada', [
-                'api_total' => count($conversations),
-                'filtered' => count($filteredConversations),
-                'processed' => $processedCount,
-                'skipped' => $skippedCount,
-                'failed_status' => $failedCount,
-                'errors' => $errorCount
-            ]);
+
 
             return 0;
 
@@ -193,9 +174,6 @@ class AutoSyncElevenlabsConversations extends Command
             // Validar que el transcript no esté vacío
             $transcript = trim($transcript);
             if (empty($transcript)) {
-                Log::warning('AutoSync: Transcript vacío, omitiendo conversación', [
-                    'conversation_id' => $data['conversation_id'] ?? 'unknown',
-                ]);
                 return null;
             }
 
@@ -214,16 +192,6 @@ class AutoSyncElevenlabsConversations extends Command
             $agentName = null;
             if ($agentId) {
                 $agentName = ElevenlabsAgent::getNameByAgentId($agentId);
-                if ($agentName) {
-                    Log::debug('AutoSync: Agente encontrado en BD local', [
-                        'agent_id' => $agentId,
-                        'agent_name' => $agentName
-                    ]);
-                } else {
-                    Log::warning('AutoSync: Agente no encontrado en BD local', [
-                        'agent_id' => $agentId
-                    ]);
-                }
             }
 
             $conversation = ElevenlabsConversation::create([
@@ -231,7 +199,7 @@ class AutoSyncElevenlabsConversations extends Command
                 'agent_id' => $agentId,
                 'agent_name' => $agentName, // Guardar nombre del agente desde BD local
                 'client_id' => $clientId,
-                'conversation_date' => isset($data['metadata']['start_time_unix_secs']) 
+                'conversation_date' => isset($data['metadata']['start_time_unix_secs'])
                     ? \Carbon\Carbon::createFromTimestamp($data['metadata']['start_time_unix_secs'])
                     : now(),
                 'duration_seconds' => $data['metadata']['call_duration_secs'] ?? 0,
@@ -263,19 +231,7 @@ class AutoSyncElevenlabsConversations extends Command
     {
         try {
             // El método processConversation ya guarda todo directamente en el modelo
-            $success = $this->aiService->processConversation($conversation);
-            
-            if ($success) {
-                Log::info('AutoSync: Conversación procesada con IA exitosamente', [
-                    'conversation_id' => $conversation->conversation_id,
-                    'sentiment' => $conversation->sentiment_category,
-                    'specific' => $conversation->specific_category
-                ]);
-            } else {
-                Log::error('AutoSync: Error en procesamiento IA', [
-                    'conversation_id' => $conversation->conversation_id
-                ]);
-            }
+            $this->aiService->processConversation($conversation);
 
         } catch (\Exception $e) {
             Log::error('AutoSync: Excepción en procesamiento IA', [

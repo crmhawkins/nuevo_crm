@@ -97,11 +97,24 @@
                             <td>{{ $client->identifier }}</td>
                             <td>{{ $client->activity }}</td>
                             <td>{{ $client->gestor->name ?? 'Gestor Borrado' }}</td>
-                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 180px">
+                            <td class="flex flex-row justify-evenly align-middle" style="min-width: 180px" onclick="event.stopPropagation();">
                                 <a class="" href="{{ route('clientes.show', $client->id) }}"><img src="{{ asset('assets/icons/eye.svg') }}" alt="Mostrar usuario"></a>
                                 <a class="" href="{{ route('clientes.edit', $client->id) }}"><img src="{{ asset('assets/icons/edit.svg') }}" alt="Mostrar usuario"></a>
-                                <a class="trasladar-ipoint" data-id="{{ $client->id }}" href="" title="Trasladar a clients"><i class="fas fa-arrow-right text-primary"></i></a>
-                                <a class="delete-ipoint" data-id="{{ $client->id }}" href=""><img src="{{ asset('assets/icons/trash.svg') }}" alt="Mostrar usuario"></a>
+                                <form class="form-trasladar-ipoint" action="{{ route('clientes.trasladar') }}" method="POST" style="display: inline;" onclick="event.stopPropagation(); event.stopImmediatePropagation();" data-id="{{ $client->id }}">
+                                    @csrf
+                                    <input type="hidden" name="id" value="{{ $client->id }}">
+                                    <button type="submit" class="btn btn-link p-0 form-trasladar-btn" title="Trasladar a clients" style="border: none; background: none; padding: 0;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+                                        <i class="fas fa-arrow-right text-primary"></i>
+                                    </button>
+                                </form>
+                                <form class="form-delete-ipoint" action="{{ route('clientes.delete') }}" method="POST" style="display: inline;" onclick="event.stopPropagation(); event.stopImmediatePropagation();" data-id="{{ $client->id }}">
+                                    @csrf
+                                    <input type="hidden" name="id" value="{{ $client->id }}">
+                                    <input type="hidden" name="table" value="clients_ipoint">
+                                    <button type="submit" class="btn btn-link p-0" title="Eliminar cliente" style="border: none; background: none; padding: 0;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+                                        <img src="{{ asset('assets/icons/trash.svg') }}" alt="Eliminar usuario">
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @endforeach
@@ -131,118 +144,174 @@
     @include('partials.toast')
 
     <script>
-      document.addEventListener('livewire:load', () => {
-    attachDeleteEventIpoint();
-    attachTrasladarEventIpoint();
-});
+        // Manejar formularios de borrar con AJAX
+        function attachDeleteFormIpoint() {
+            $(document).off('submit', '.form-delete-ipoint').on('submit', '.form-delete-ipoint', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
 
-document.addEventListener('livewire:update', () => {
-    attachDeleteEventIpoint();
-    attachTrasladarEventIpoint();
-});
+                const form = $(this);
+                const id = form.data('id');
 
-function attachDeleteEventIpoint() {
-            $('.delete-ipoint').on('click', function(e) {
-            e.preventDefault();
-                let id = $(this).data('id');
-                botonAceptarIpoint(id);
-            });
-}
+                if (!confirm('¿Estás seguro que quieres eliminar este cliente iPoint? Esta acción es irreversible.')) {
+                    return false;
+                }
 
-function attachTrasladarEventIpoint() {
-            $('.trasladar-ipoint').on('click', function(e) {
-            e.preventDefault();
-                let id = $(this).data('id');
-                botonTrasladarIpoint(id);
-            });
-}
+                const url = form.attr('action');
+                const formData = form.serialize();
 
-        function botonAceptarIpoint(id) {
-            Swal.fire({
-                title: "¿Estás seguro que quieres eliminar este cliente iPoint?",
-                html: "<p>Esta acción es irreversible.</p>",
-                showDenyButton: false,
-                showCancelButton: true,
-                confirmButtonText: "Borrar",
-                cancelButtonText: "Cancelar",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.when(getDeleteIpoint(id)).then(function(data) {
-                        if (data.error) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    dataType: "json",
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    success: function(response) {
+                        if (response && response.error) {
                             Toast.fire({
                                 icon: "error",
-                                title: data.mensaje
-                            })
-                        } else {
+                                title: response.mensaje || "Error al eliminar el cliente"
+                            });
+                        } else if (response) {
                             Toast.fire({
                                 icon: "success",
-                                title: data.mensaje
-                            }).then(() => {
-                                location.reload()
-                            })
+                                title: response.mensaje || "Cliente eliminado correctamente"
+                            });
+                            // Refrescar el componente Livewire sin recargar la página
+                            setTimeout(function() {
+                                // Buscar el componente Livewire dentro del div principal
+                                const componentDiv = document.querySelector('div[wire\\:id]');
+                                if (componentDiv && typeof Livewire !== 'undefined') {
+                                    const wireId = componentDiv.getAttribute('wire:id');
+                                    if (wireId) {
+                                        try {
+                                            const component = Livewire.find(wireId);
+                                            if (component && component.call) {
+                                                component.call('refresh');
+                                            } else {
+                                                // Si no funciona, recargar la página
+                                                window.location.reload();
+                                            }
+                                        } catch(e) {
+                                            // Si falla, recargar la página
+                                            window.location.reload();
+                                        }
+                                    } else {
+                                        window.location.reload();
+                                    }
+                                } else {
+                                    // Fallback: recargar la página
+                                    window.location.reload();
+                                }
+                            }, 500);
                         }
-                    });
+                    },
+                    error: function(xhr) {
+                        let mensaje = "Error al eliminar el cliente";
+                        if (xhr.responseJSON && xhr.responseJSON.mensaje) {
+                            mensaje = xhr.responseJSON.mensaje;
+                        } else if (xhr.responseText) {
+                            try {
+                                const errorData = JSON.parse(xhr.responseText);
+                                if (errorData.mensaje) {
+                                    mensaje = errorData.mensaje;
+                                }
+                            } catch(e) {}
+                        }
+                        Toast.fire({
+                            icon: "error",
+                            title: mensaje
+                        });
+                    }
+                });
+
+                return false;
+            });
+        }
+
+
+        // Manejar formularios de trasladar con AJAX
+        function attachTrasladarFormIpoint() {
+            $(document).off('submit', '.form-trasladar-ipoint').on('submit', '.form-trasladar-ipoint', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                const form = $(this);
+                const id = form.data('id');
+
+                if (!confirm('¿Trasladar cliente a clients? Este cliente será copiado a la tabla clients. El cliente original permanecerá en clients_ipoint.')) {
+                    return false;
                 }
-            });
-        }
 
-        function getDeleteIpoint(id) {
-            const url = '{{ route("clientes.delete") }}';
-            return $.ajax({
-                type: "POST",
-                url: url,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                },
-                data: {
-                    'id': id,
-                    'table': 'clients_ipoint'
-                },
-                dataType: "json"
-            });
-        }
+                const url = form.attr('action');
+                const formData = form.serialize();
 
-        function botonTrasladarIpoint(id) {
-            Swal.fire({
-                title: "¿Trasladar cliente a clients?",
-                html: "<p>Este cliente será copiado a la tabla clients. El cliente original permanecerá en clients_ipoint.</p>",
-                showDenyButton: false,
-                showCancelButton: true,
-                confirmButtonText: "Trasladar",
-                cancelButtonText: "Cancelar",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.when(getTrasladarIpoint(id)).then(function(data) {
-                        if (data.error) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    dataType: "json",
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    success: function(response) {
+                        if (response && response.error) {
                             Toast.fire({
                                 icon: "error",
-                                title: data.mensaje
-                            })
-                        } else {
+                                title: response.mensaje || "Error al trasladar el cliente"
+                            });
+                        } else if (response) {
                             Toast.fire({
                                 icon: "success",
-                                title: data.mensaje
-                            })
+                                title: response.mensaje || "Cliente trasladado correctamente"
+                            });
                         }
-                    });
-                }
+                    },
+                    error: function(xhr) {
+                        let mensaje = "Error al trasladar el cliente";
+                        if (xhr.responseJSON && xhr.responseJSON.mensaje) {
+                            mensaje = xhr.responseJSON.mensaje;
+                        } else if (xhr.responseText) {
+                            try {
+                                const errorData = JSON.parse(xhr.responseText);
+                                if (errorData.mensaje) {
+                                    mensaje = errorData.mensaje;
+                                }
+                            } catch(e) {}
+                        }
+                        Toast.fire({
+                            icon: "error",
+                            title: mensaje
+                        });
+                    }
+                });
+
+                return false;
             });
         }
 
-        function getTrasladarIpoint(id) {
-            const url = '{{ route("clientes.trasladar") }}';
-            return $.ajax({
-                type: "POST",
-                url: url,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                },
-                data: {
-                    'id': id
-                },
-                dataType: "json"
-            });
-        }
+        // Ejecutar cuando el DOM esté listo
+        $(document).ready(function() {
+            attachDeleteFormIpoint();
+            attachTrasladarFormIpoint();
+        });
+
+        // Ejecutar cuando Livewire carga/actualiza
+        document.addEventListener('livewire:load', () => {
+            attachDeleteFormIpoint();
+            attachTrasladarFormIpoint();
+        });
+
+        document.addEventListener('livewire:update', () => {
+            attachDeleteFormIpoint();
+            attachTrasladarFormIpoint();
+        });
     </script>
 @endsection
 

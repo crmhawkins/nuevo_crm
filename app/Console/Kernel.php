@@ -62,7 +62,7 @@ class Kernel extends ConsoleKernel
         // Sincronización automática de conversaciones de Eleven Labs cada 3 minutos
         // Descarga todas las conversaciones de hoy automáticamente
         $schedule->command('elevenlabs:sync-all', ['--from-date' => now()->format('Y-m-d')])
-            ->everyThreeMinutes()
+            ->everyFiveMinutes()
             ->withoutOverlapping();
 
         // Actualizar números de teléfono de conversaciones de Hera Saliente y Hera Dominios cada 2 minutos
@@ -84,13 +84,13 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping();
 
         // Procesar conversaciones ElevenLabs pendientes directamente (sin cola) cada minuto
-        $schedule->command('elevenlabs:process --limit=75')
-            ->everyMinute()
+        $schedule->command('elevenlabs:process --limit=50')
+            ->everyTwoMinutes()
             ->withoutOverlapping();
 
         // Backfill de enlaces de campañas de ElevenLabs cada 2 minutos
         $schedule->command('elevenlabs:backfill-campaign-links')
-            ->everyTwoMinutes()
+            ->everyFiveMinutes()
             ->withoutOverlapping();
 
         // Enviar WhatsApp automático de incidencias de Maria Apartamentos
