@@ -123,11 +123,4 @@ class ApiController extends Controller
 
     }
 
-    public function getClients()
-    {
-        $clients = Client::all();
-
-        return response()->json($clients, 200);
-    }
-
 }
