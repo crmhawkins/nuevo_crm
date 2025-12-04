@@ -69,6 +69,10 @@
 
     </head>
     <body style="padding-right:40px">
+        @php
+            // Determinar si es rectificativa basándose en la referencia (empieza con "N")
+            $esRectificativa = str_starts_with($invoice->reference, 'N');
+        @endphp
         <script type="text/php">
             if (isset($pdf)) {
               $font = $fontMetrics->getFont("Arial", "bold");
@@ -94,7 +98,7 @@
                     <tr>
                         <td align="left" style="width: 40%;padding-left:20px;vertical-align:top;">
                             <p style="font-size:12px">Ref.:<span style="padding-left:72px;font-weight: bold;">{{ $invoice->reference }}</span></p>
-                            @if($invoice->rectification)
+                            @if($esRectificativa)
                             <p style="font-size:12px">Rectifica a: <span style="padding-left:17px;font-weight: bold;">{{ str_replace('N', '', $invoice->reference) }}</span></p>
                             @endif
                             <p style="font-size:12px">Versión: <span style="padding-left:46px;"></span></p>
@@ -183,7 +187,7 @@
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['price_unit'] }} &nbsp;€</td>
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['subtotal'] }} &nbsp;€</td>
                                     <td style="text-align:right;vertical-align: top;">{{ $concept['discount_percentage'] ?? 0 }}%</td>
-                                    <td style="text-align:right;vertical-align: top;">{{ $invoice->rectification ? abs((float)$concept['total']) : $concept['total'] }} &nbsp;€</td>
+                                    <td style="text-align:right;vertical-align: top;">{{ $esRectificativa ? abs((float)$concept['total']) : $concept['total'] }} &nbsp;€</td>
                                 </tr>
                             @endforeach
 
@@ -201,22 +205,22 @@
                                 <th style="text-align:center">Dto.</th>
                                 <th style="text-align:center">Base</th>
                                 <th style="text-align:center">IVA {{ $invoice->iva_percentage }}%</th>
-                                @if($invoice->rectification)
-                                <th style="text-align:center">SUBTOTAL</th>
+                                @if($esRectificativa)
+                                    <th style="text-align:center">SUBTOTAL</th>
                                 @endif
                                 <th style="text-align:right">TOTAL</th>
                             </tr>
                             <tr>
-                                <td style="text-align:center">{{ $invoice->rectification ? abs((float)$invoice->gross) : $invoice->gross }}&nbsp;€</td>
+                                <td style="text-align:center">{{ $esRectificativa ? abs((float)$invoice->gross) : $invoice->gross }}&nbsp;€</td>
                                 <td style="text-align:center">{{ $invoice->discount }}&nbsp;€</td>
                                 <td style="text-align:center">{{ $invoice->base }}&nbsp;€</td>
-                                <td style="text-align:center">{{ $invoice->rectification ? -abs((float)$invoice->iva) : $invoice->iva }}&nbsp;€</td>
-                                @if($invoice->rectification)
+                                <td style="text-align:center">{{ $esRectificativa ? -abs((float)$invoice->iva) : $invoice->iva }}&nbsp;€</td>
+                                @if($esRectificativa)
                                 <td style="text-align:center">{{ -abs((float)$invoice->base) }}&nbsp;€</td>
                                 @endif
                                 <td style="text-align:right">{{ $invoice->total }}&nbsp;€</td>
                             </tr>
-                            <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>@if($invoice->rectification)<td>&nbsp;</td>@endif<td>&nbsp;</td> </tr>
+                            <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>@if($esRectificativa)<td>&nbsp;</td>@endif<td>&nbsp;</td> </tr>
                         </table>
                     </div>
                 </div>
