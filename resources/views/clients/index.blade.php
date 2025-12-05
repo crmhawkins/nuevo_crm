@@ -61,25 +61,6 @@
 
         </section>
 
-        <section class="section pt-4">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title"><i class="bi bi-people"></i> Clientes iPoint</h4>
-                </div>
-                <div class="card-body">
-                    @if ($agent->isMobile())
-                        {{-- Contenido para dispositivos móviles --}}
-                        <div>
-                            <span>Es movil</span>
-                        </div>
-                    @else
-                        {{-- Contenido para dispositivos de escritorio --}}
-                        @livewire('clients-ipoint-table')
-                    @endif
-                </div>
-            </div>
-        </section>
-
     </div>
 @endsection
 
