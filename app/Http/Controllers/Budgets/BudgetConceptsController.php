@@ -16,6 +16,7 @@ use App\Models\PurcharseOrde\PurcharseOrder;
 use App\Models\Services\Service;
 use App\Models\Services\ServiceCategories;
 use App\Models\Suppliers\Supplier;
+use App\Models\Email\UserEmailConfig;
 use Illuminate\Support\Facades\File;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -1217,6 +1218,31 @@ class BudgetConceptsController extends Controller
         $mailsBCC[] = "ivan@lchawkins.com";
         $mailsBCC[] = Auth::user()->email;
         $supplierMail = BudgetConceptSupplierRequest::where('budget_concept_id',$order->budget_concept_id)->where('selected',1)->first()->mail;
+        
+        // Obtener la configuración de correo electrónico del usuario
+        $correoConfig = UserEmailConfig::where('admin_user_id', Auth::id())->first();
+
+        if (!$correoConfig) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Configuración de correo no encontrada para este usuario. Por favor, configura tu correo en Configuración > Correo.'
+            ]);
+        }
+
+        // Configurar la configuración SMTP antes de enviar
+        config([
+            'mail.mailers.smtp.host' => $correoConfig->smtp_host,
+            'mail.mailers.smtp.port' => $correoConfig->smtp_port,
+            'mail.mailers.smtp.username' => $correoConfig->username,
+            'mail.mailers.smtp.password' => $correoConfig->password,
+            'mail.mailers.smtp.encryption' => 'ssl',
+            'mail.from.address' => $correoConfig->username, // Usar la dirección configurada en SMTP como remitente
+            'mail.from.name' => $correoConfig->user->name.' '.$correoConfig->user->surname,
+        ]);
+
+        // Nota: gestorMail se mantiene como el correo del usuario para mostrarlo en el cuerpo del correo
+        // El remitente real se tomará de la configuración SMTP en MailConceptSupplier
+        
         $email = new MailConceptSupplier($mailConcept, $pathFiles);
 
         try {

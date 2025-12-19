@@ -37,7 +37,12 @@ class MailConceptSupplier extends Mailable
      */
     public function build()
     {
-        $mail = $this->from($this->MailConceptSupplier->gestorMail)
+        // Usar la dirección configurada en SMTP si está disponible, 
+        // de lo contrario usar gestorMail
+        $fromAddress = config('mail.from.address', $this->MailConceptSupplier->gestorMail);
+        $fromName = config('mail.from.name', $this->MailConceptSupplier->gestor ?? 'Los Creativos de Hawkins');
+        
+        $mail = $this->from($fromAddress, $fromName)
         ->subject("Orden de Compra - Los Creativos de Hawkins")
         ->view('mails.mailConceptSupplier');
 
