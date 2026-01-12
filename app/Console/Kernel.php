@@ -96,6 +96,9 @@ class Kernel extends ConsoleKernel
         // Enviar WhatsApp automático de incidencias de Maria Apartamentos
         $schedule->command('whatsapp:enviar-incidencias')->everyMinute();
 
+        // Notificar dominios próximos a caducar
+        $schedule->command('dominios:notificar-caducidad')->dailyAt('09:00');
+
         // $schedule->call(function () {
         //     $users = User::where('inactive', 0)->where('id', '!=', 101)->get();
 

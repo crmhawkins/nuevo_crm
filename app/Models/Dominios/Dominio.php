@@ -36,7 +36,15 @@ class Dominio extends Model
         'sincronizado_ionos',
         'ultima_sincronizacion_ionos',
         'fecha_registro_calculada',
-        'ionos_id'
+        'ionos_id',
+        'metodo_pago_preferido',
+        'stripe_payment_method_id',
+        'iban_validado',
+        'ultima_notificacion_caducidad',
+        'dias_antes_notificar',
+        'stripe_subscription_id',
+        'stripe_plan_id',
+        'factura_id'
     ];
 
     /**
@@ -45,7 +53,7 @@ class Dominio extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at', 'ultima_sincronizacion', 'fecha_activacion_ionos', 'fecha_renovacion_ionos', 'ultima_sincronizacion_ionos', 'fecha_registro_calculada'
+        'created_at', 'updated_at', 'deleted_at', 'ultima_sincronizacion', 'fecha_activacion_ionos', 'fecha_renovacion_ionos', 'ultima_sincronizacion_ionos', 'fecha_registro_calculada', 'ultima_notificacion_caducidad'
     ];
 
     /**
@@ -61,6 +69,8 @@ class Dominio extends Model
         'sincronizado_ionos' => 'boolean',
         'ultima_sincronizacion_ionos' => 'datetime',
         'fecha_registro_calculada' => 'datetime',
+        'iban_validado' => 'boolean',
+        'ultima_notificacion_caducidad' => 'datetime',
     ];
 
 
@@ -77,6 +87,103 @@ class Dominio extends Model
     public function estadoName()
     {
         return $this->belongsTo(estadosDominios::class,'estado_id');
+    }
+
+    /**
+     * Obtener la factura asociada
+     */
+    public function factura()
+    {
+        return $this->belongsTo(\App\Models\Invoices\Invoice::class, 'factura_id');
+    }
+
+    /**
+     * Obtener las notificaciones del dominio
+     */
+    public function notificaciones()
+    {
+        return $this->hasMany(DominioNotificacion::class, 'dominio_id');
+    }
+
+    /**
+     * Verificar si el dominio está próximo a caducar
+     */
+    public function estaPorCaducar($dias = null)
+    {
+        $dias = $dias ?? $this->dias_antes_notificar ?? 30;
+        $fechaCaducidad = $this->getFechaCaducidad();
+        
+        if (!$fechaCaducidad) {
+            return false;
+        }
+        
+        $fechaLimite = \Carbon\Carbon::now()->addDays($dias);
+        
+        return $fechaCaducidad->lte($fechaLimite) && $fechaCaducidad->isFuture();
+    }
+
+    /**
+     * Verificar si tiene método de pago válido
+     */
+    public function tieneMetodoPagoValido()
+    {
+        // Verificar IBAN válido
+        $tieneIban = !empty($this->iban) && $this->iban_validado;
+        
+        // Verificar método de pago Stripe
+        $tieneStripe = !empty($this->stripe_payment_method_id);
+        
+        return $tieneIban || $tieneStripe;
+    }
+
+    /**
+     * Verificar si necesita notificación
+     */
+    public function necesitaNotificacion($dias = null)
+    {
+        // Si ya tiene método de pago válido, no necesita notificación
+        if ($this->tieneMetodoPagoValido()) {
+            return false;
+        }
+        
+        // Si está próximo a caducar
+        if (!$this->estaPorCaducar($dias)) {
+            return false;
+        }
+        
+        // Si ya se notificó recientemente (últimos 7 días), no notificar de nuevo
+        if ($this->ultima_notificacion_caducidad) {
+            $ultimaNotificacion = \Carbon\Carbon::parse($this->ultima_notificacion_caducidad);
+            if ($ultimaNotificacion->diffInDays(now()) < 7) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Marcar notificación como enviada
+     */
+    public function marcarNotificacionEnviada()
+    {
+        $this->update([
+            'ultima_notificacion_caducidad' => now()
+        ]);
+    }
+
+    /**
+     * Obtener fecha de caducidad (prioriza fecha_renovacion_ionos)
+     */
+    public function getFechaCaducidad()
+    {
+        if ($this->fecha_renovacion_ionos) {
+            return \Carbon\Carbon::parse($this->fecha_renovacion_ionos);
+        }
+        if ($this->date_end) {
+            return \Carbon\Carbon::parse($this->date_end);
+        }
+        return null;
     }
 
     /**

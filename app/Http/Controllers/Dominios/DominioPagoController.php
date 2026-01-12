@@ -1,0 +1,692 @@
+<?php
+
+namespace App\Http\Controllers\Dominios;
+
+use App\Http\Controllers\Controller;
+use App\Models\Clients\Client;
+use App\Models\Dominios\Dominio;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Stripe\Stripe;
+use Stripe\SetupIntent;
+use Stripe\PaymentMethod;
+use Stripe\Plan;
+use Stripe\Subscription;
+use Stripe\TestClock;
+use Stripe\Exception\ApiErrorException;
+
+class DominioPagoController extends Controller
+{
+    public function __construct()
+    {
+        Stripe::setApiKey(config('services.stripe.secret'));
+    }
+
+    /**
+     * Mostrar formulario de pago con token
+     */
+    public function showFormularioPago($token)
+    {
+        $validacion = $this->validarToken($token);
+        
+        if (!$validacion['valido']) {
+            return view('dominio-pago.error', [
+                'mensaje' => $validacion['mensaje']
+            ]);
+        }
+
+        $dominio = $validacion['dominio'];
+        $cliente = $validacion['cliente'];
+
+        return view('dominio-pago.formulario', compact('dominio', 'cliente', 'token'));
+    }
+
+    /**
+     * Validar token y devolver datos
+     */
+    public function validarToken($token)
+    {
+        $cliente = Client::where('token_verificacion_dominios', $token)->first();
+
+        if (!$cliente) {
+            return [
+                'valido' => false,
+                'mensaje' => 'Token inválido o expirado.'
+            ];
+        }
+
+        if (!$cliente->validarToken($token)) {
+            return [
+                'valido' => false,
+                'mensaje' => 'El token ha expirado. Por favor, solicite un nuevo enlace.'
+            ];
+        }
+
+        // Obtener el dominio más próximo a caducar del cliente
+        $dominio = $cliente->dominios()
+            ->where(function($query) {
+                $query->whereNotNull('fecha_renovacion_ionos')
+                      ->orWhereNotNull('date_end');
+            })
+            ->orderByRaw('COALESCE(fecha_renovacion_ionos, date_end) ASC')
+            ->first();
+
+        if (!$dominio) {
+            return [
+                'valido' => false,
+                'mensaje' => 'No se encontró ningún dominio asociado.'
+            ];
+        }
+
+        return [
+            'valido' => true,
+            'cliente' => $cliente,
+            'dominio' => $dominio
+        ];
+    }
+
+    /**
+     * Guardar IBAN
+     */
+    public function guardarIban(Request $request, $token)
+    {
+        $validacion = $this->validarToken($token);
+        
+        if (!$validacion['valido']) {
+            return redirect()->back()->with('error', $validacion['mensaje']);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'iban' => 'required|string|max:34|regex:/^[A-Z]{2}[0-9]{2}[A-Z0-9]{4,30}$/',
+        ], [
+            'iban.required' => 'El IBAN es obligatorio.',
+            'iban.regex' => 'El formato del IBAN no es válido.',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $dominio = $validacion['dominio'];
+        $iban = strtoupper(str_replace(' ', '', $request->iban));
+
+        // Validar formato IBAN básico
+        if (!$this->validarFormatoIban($iban)) {
+            return redirect()->back()
+                ->with('error', 'El formato del IBAN no es válido.')
+                ->withInput();
+        }
+
+        $dominio->update([
+            'iban' => $iban,
+            'iban_validado' => true,
+            'metodo_pago_preferido' => 'iban'
+        ]);
+
+        Log::info('IBAN guardado para dominio', [
+            'dominio_id' => $dominio->id,
+            'cliente_id' => $validacion['cliente']->id
+        ]);
+
+        return redirect()->route('dominio.pago.confirmacion', $token)
+            ->with('success', 'IBAN guardado correctamente. Su método de pago ha sido configurado.');
+    }
+
+    /**
+     * Procesar pago con Stripe
+     */
+    public function procesarStripe(Request $request, $token)
+    {
+        $validacion = $this->validarToken($token);
+        
+        if (!$validacion['valido']) {
+            return redirect()->back()->with('error', $validacion['mensaje']);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'payment_method_id' => 'required|string',
+        ], [
+            'payment_method_id.required' => 'Debe seleccionar un método de pago.',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $cliente = $validacion['cliente'];
+        $dominio = $validacion['dominio'];
+
+        $plan = null;
+        $subscription = null;
+
+        try {
+            // Validaciones previas
+            $precioVenta = $dominio->precio_venta ?? 0;
+            if ($precioVenta <= 0) {
+                return redirect()->back()
+                    ->with('error', 'El dominio no tiene un precio de venta configurado. Por favor, contacte con soporte.');
+            }
+
+            $fechaCaducidad = $dominio->getFechaCaducidad();
+            if (!$fechaCaducidad) {
+                return redirect()->back()
+                    ->with('error', 'El dominio no tiene fecha de caducidad configurada. Por favor, contacte con soporte.');
+            }
+
+            // Crear o verificar cliente de Stripe
+            $stripeCustomerId = $cliente->stripe_customer_id;
+            
+            if (!$stripeCustomerId) {
+                // Crear nuevo cliente
+                try {
+                    $stripeCustomer = \Stripe\Customer::create([
+                        'email' => $cliente->email ?? 'cliente@example.com',
+                        'name' => $cliente->name ?? 'Cliente',
+                        'metadata' => [
+                            'client_id' => $cliente->id,
+                        ]
+                    ]);
+
+                    $cliente->update([
+                        'stripe_customer_id' => $stripeCustomer->id
+                    ]);
+                    
+                    $stripeCustomerId = $stripeCustomer->id;
+                } catch (ApiErrorException $e) {
+                    Log::error('Error al crear cliente en Stripe', [
+                        'error' => $e->getMessage(),
+                        'cliente_id' => $cliente->id
+                    ]);
+                    return redirect()->back()
+                        ->with('error', 'Error al crear el cliente en el sistema de pagos. Por favor, intente de nuevo.');
+                }
+            } else {
+                // Verificar que el cliente existe en Stripe
+                try {
+                    \Stripe\Customer::retrieve($stripeCustomerId);
+                } catch (\Exception $e) {
+                    // Si el cliente no existe, crear uno nuevo
+                    Log::warning('Cliente Stripe no encontrado, creando nuevo', [
+                        'cliente_id' => $cliente->id,
+                        'stripe_customer_id' => $stripeCustomerId,
+                        'error' => $e->getMessage()
+                    ]);
+                    
+                    try {
+                        $stripeCustomer = \Stripe\Customer::create([
+                            'email' => $cliente->email ?? 'cliente@example.com',
+                            'name' => $cliente->name ?? 'Cliente',
+                            'metadata' => [
+                                'client_id' => $cliente->id,
+                            ]
+                        ]);
+
+                        $cliente->update([
+                            'stripe_customer_id' => $stripeCustomer->id
+                        ]);
+                        
+                        $stripeCustomerId = $stripeCustomer->id;
+                    } catch (ApiErrorException $createError) {
+                        Log::error('Error al crear nuevo cliente en Stripe', [
+                            'error' => $createError->getMessage(),
+                            'cliente_id' => $cliente->id
+                        ]);
+                        return redirect()->back()
+                            ->with('error', 'Error al crear el cliente en el sistema de pagos. Por favor, intente de nuevo.');
+                    }
+                }
+            }
+
+            // Adjuntar método de pago al cliente
+            try {
+                $paymentMethod = PaymentMethod::retrieve($request->payment_method_id);
+                $paymentMethod->attach([
+                    'customer' => $stripeCustomerId,
+                ]);
+            } catch (ApiErrorException $e) {
+                Log::error('Error al adjuntar método de pago', [
+                    'error' => $e->getMessage(),
+                    'payment_method_id' => $request->payment_method_id
+                ]);
+                return redirect()->back()
+                    ->with('error', 'Error al guardar el método de pago: ' . $e->getMessage());
+            }
+
+            // Crear Plan en Stripe para este dominio
+            try {
+                $amountInCents = (int)round($precioVenta * 100); // Convertir a céntimos y redondear
+                
+                Log::info('Creando Plan en Stripe', [
+                    'dominio_id' => $dominio->id,
+                    'precio_venta' => $precioVenta,
+                    'amount_in_cents' => $amountInCents,
+                    'amount_in_euros' => $amountInCents / 100
+                ]);
+                
+                $plan = Plan::create([
+                    'amount' => $amountInCents,
+                    'currency' => 'eur',
+                    'interval' => 'year', // Renovación anual
+                    'product' => [
+                        'name' => "Renovación dominio {$dominio->dominio}",
+                    ],
+                    'metadata' => [
+                        'dominio_id' => $dominio->id,
+                        'cliente_id' => $cliente->id,
+                        'tipo' => 'renovacion_dominio',
+                        'precio_venta' => (string)$precioVenta
+                    ]
+                ]);
+                
+                Log::info('Plan creado en Stripe', [
+                    'plan_id' => $plan->id,
+                    'amount' => $plan->amount,
+                    'currency' => $plan->currency,
+                    'interval' => $plan->interval
+                ]);
+            } catch (ApiErrorException $e) {
+                Log::error('Error al crear Plan en Stripe', [
+                    'error' => $e->getMessage(),
+                    'dominio_id' => $dominio->id,
+                    'precio' => $precioVenta
+                ]);
+                return redirect()->back()
+                    ->with('error', 'Error al configurar el plan de pago: ' . $e->getMessage());
+            }
+
+            // Calcular fecha de cobro (fecha de caducidad del dominio)
+            // Usar la fecha de caducidad directamente - es la fecha real cuando debe cobrarse
+            $fechaCaducidadInicioDia = $fechaCaducidad->copy()->startOfDay();
+            $billingCycleAnchor = $fechaCaducidadInicioDia->timestamp;
+            
+            $fechaActual = now();
+            $timestampActual = time();
+            
+            // Usar la fecha de caducidad directamente - NO ajustar por Test Clock
+            // Solo ajustar si está realmente en el pasado según el tiempo real
+            if ($billingCycleAnchor < ($timestampActual - 86400)) {
+                // La fecha está en el pasado, usar el mismo día/mes del año siguiente
+                $billingCycleAnchor = $fechaActual->copy()
+                    ->addYear() // Año siguiente
+                    ->month($fechaCaducidadInicioDia->month)
+                    ->day($fechaCaducidadInicioDia->day)
+                    ->startOfDay()
+                    ->timestamp;
+                
+                Log::info('Fecha de caducidad ajustada para billing_cycle_anchor (estaba en el pasado)', [
+                    'dominio_id' => $dominio->id,
+                    'fecha_caducidad_original' => $fechaCaducidad->format('Y-m-d'),
+                    'billing_cycle_anchor_nuevo' => $billingCycleAnchor,
+                    'billing_cycle_anchor_fecha' => date('Y-m-d H:i:s', $billingCycleAnchor),
+                    'fecha_actual' => $fechaActual->format('Y-m-d H:i:s')
+                ]);
+            } else {
+                // La fecha es futura, usar directamente (2026-06-09)
+                Log::info('Fecha de caducidad es futura, usando directamente', [
+                    'dominio_id' => $dominio->id,
+                    'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                    'billing_cycle_anchor' => $billingCycleAnchor,
+                    'billing_cycle_anchor_fecha' => date('Y-m-d H:i:s', $billingCycleAnchor),
+                    'fecha_actual' => $fechaActual->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            // NO usar cancel_at - dejar que la suscripción se renueve automáticamente
+            // Si necesitas cancelarla después de X años, hazlo manualmente o con webhook
+            $cancelAtTimestamp = null;
+
+            // Log para verificar el cálculo
+            Log::info('Configurando billing_cycle_anchor para suscripción', [
+                'dominio_id' => $dominio->id,
+                'dominio' => $dominio->dominio,
+                'fecha_caducidad_original' => $fechaCaducidad->format('Y-m-d H:i:s'),
+                'fecha_caducidad_inicio_dia' => $fechaCaducidadInicioDia->format('Y-m-d H:i:s'),
+                'billing_cycle_anchor_timestamp' => $billingCycleAnchor,
+                'billing_cycle_anchor_fecha' => date('Y-m-d H:i:s', $billingCycleAnchor),
+                'duracion_suscripcion' => 'Renovación automática anual',
+                'fecha_actual' => now()->format('Y-m-d H:i:s')
+            ]);
+
+            // Crear Subscription en Stripe
+            try {
+                $subscriptionData = [
+                    'customer' => $stripeCustomerId,
+                    'items' => [['plan' => $plan->id]],
+                    'default_payment_method' => $request->payment_method_id,
+                    'billing_cycle_anchor' => $billingCycleAnchor,
+                    // NO usar cancel_at aquí para evitar prorrateo incorrecto
+                    // La suscripción se renovará automáticamente cada año en la fecha de caducidad
+                    'proration_behavior' => 'none', // No prorratear
+                    'metadata' => [
+                        'dominio_id' => $dominio->id,
+                        'cliente_id' => $cliente->id,
+                        'dominio' => $dominio->dominio,
+                        'tipo' => 'renovacion_dominio',
+                        'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                        'billing_cycle_anchor_fecha' => date('Y-m-d', $billingCycleAnchor),
+                        'precio' => (string)$precioVenta
+                    ]
+                ];
+
+                Log::info('Creando suscripción en Stripe con datos', [
+                    'dominio_id' => $dominio->id,
+                    'billing_cycle_anchor' => $billingCycleAnchor,
+                    'billing_cycle_anchor_fecha' => date('Y-m-d H:i:s', $billingCycleAnchor),
+                    'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                    'precio_plan' => $precioVenta,
+                    'duracion' => 'Renovación automática anual en fecha de caducidad'
+                ]);
+
+                // Intentar avanzar Test Clock si es necesario antes de crear la suscripción
+                try {
+                    $testClocks = \Stripe\TestHelpers\TestClock::all(['limit' => 1]);
+                    if (count($testClocks->data) > 0) {
+                        $testClock = $testClocks->data[0];
+                        $testClockTime = $testClock->frozen_time;
+                        
+                        // Si el Test Clock está en el futuro y la fecha de caducidad está en el pasado según el Test Clock,
+                        // avanzar el Test Clock a 1 día antes de la fecha de caducidad
+                        if ($billingCycleAnchor < $testClockTime) {
+                            $nuevaFechaTestClock = $fechaCaducidadInicioDia->copy()->subDay()->timestamp;
+                            
+                            // Avanzar el Test Clock (solo se puede avanzar, no retroceder)
+                            // Pero si la nueva fecha es menor que la actual, no podemos hacerlo
+                            // En ese caso, usar el año siguiente para el billing_cycle_anchor
+                            if ($nuevaFechaTestClock > $testClockTime) {
+                                // Podemos avanzar el Test Clock
+                                $testClock->advance(['frozen_time' => $nuevaFechaTestClock]);
+                                Log::info('Test Clock avanzado para permitir fecha de caducidad', [
+                                    'test_clock_id' => $testClock->id,
+                                    'test_clock_time_anterior' => date('Y-m-d H:i:s', $testClockTime),
+                                    'test_clock_time_nuevo' => date('Y-m-d H:i:s', $nuevaFechaTestClock),
+                                    'billing_cycle_anchor' => date('Y-m-d H:i:s', $billingCycleAnchor)
+                                ]);
+                            } else {
+                                // No podemos avanzar el Test Clock (está en el futuro)
+                                // Usar el año siguiente para el billing_cycle_anchor
+                                $billingCycleAnchor = $fechaActual->copy()
+                                    ->addYear()
+                                    ->month($fechaCaducidadInicioDia->month)
+                                    ->day($fechaCaducidadInicioDia->day)
+                                    ->startOfDay()
+                                    ->timestamp;
+                                
+                                $subscriptionData['billing_cycle_anchor'] = $billingCycleAnchor;
+                                $subscriptionData['metadata']['billing_cycle_anchor_fecha'] = date('Y-m-d', $billingCycleAnchor);
+                                $subscriptionData['metadata']['ajustado_por_test_clock'] = 'true';
+                                
+                                Log::warning('Test Clock no se puede avanzar, usando año siguiente para billing_cycle_anchor', [
+                                    'test_clock_time' => date('Y-m-d H:i:s', $testClockTime),
+                                    'billing_cycle_anchor_ajustado' => date('Y-m-d H:i:s', $billingCycleAnchor)
+                                ]);
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Si hay error con Test Clock, continuar normalmente
+                    Log::info('Error al manejar Test Clock, continuando con fecha de caducidad', [
+                        'error' => $e->getMessage()
+                    ]);
+                }
+                
+                try {
+                    $subscription = Subscription::create($subscriptionData);
+                } catch (ApiErrorException $e) {
+                    // Si aún falla, lanzar el error
+                    throw $e;
+                }
+            } catch (ApiErrorException $e) {
+                // Si falla la suscripción, intentar eliminar el plan creado
+                if ($plan) {
+                    try {
+                        $plan->delete();
+                    } catch (\Exception $deleteError) {
+                        Log::warning('No se pudo eliminar el plan después de error', [
+                            'plan_id' => $plan->id,
+                            'error' => $deleteError->getMessage()
+                        ]);
+                    }
+                }
+
+                Log::error('Error al crear Subscription en Stripe', [
+                    'error' => $e->getMessage(),
+                    'dominio_id' => $dominio->id,
+                    'plan_id' => $plan->id ?? null
+                ]);
+
+                return redirect()->back()
+                    ->with('error', 'Error al crear la suscripción: ' . $e->getMessage());
+            }
+
+            // Guardar método de pago y suscripción en el dominio
+            try {
+                $dominio->update([
+                    'stripe_payment_method_id' => $request->payment_method_id,
+                    'stripe_subscription_id' => $subscription->id,
+                    'stripe_plan_id' => $plan->id,
+                    'metodo_pago_preferido' => 'stripe'
+                ]);
+            } catch (\Exception $e) {
+                // Si falla al guardar, cancelar la suscripción
+                if ($subscription) {
+                    try {
+                        $subscription->cancel();
+                    } catch (\Exception $cancelError) {
+                        Log::error('Error al cancelar suscripción después de fallo', [
+                            'subscription_id' => $subscription->id,
+                            'error' => $cancelError->getMessage()
+                        ]);
+                    }
+                }
+
+                Log::error('Error al guardar suscripción en base de datos', [
+                    'error' => $e->getMessage(),
+                    'dominio_id' => $dominio->id
+                ]);
+
+                return redirect()->back()
+                    ->with('error', 'Error al guardar la configuración. La suscripción ha sido cancelada.');
+            }
+
+            Log::info('Suscripción Stripe creada exitosamente para dominio', [
+                'dominio_id' => $dominio->id,
+                'cliente_id' => $cliente->id,
+                'payment_method_id' => $request->payment_method_id,
+                'subscription_id' => $subscription->id,
+                'plan_id' => $plan->id,
+                'billing_cycle_anchor' => date('Y-m-d H:i:s', $billingCycleAnchor),
+                'precio' => $precioVenta
+            ]);
+
+            return redirect()->route('dominio.pago.confirmacion', $token)
+                ->with('success', 'Método de pago y suscripción configurados correctamente. Su dominio se renovará automáticamente el ' . date('d/m/Y', $billingCycleAnchor) . '.');
+
+        } catch (\Exception $e) {
+            // Limpiar recursos en caso de error general
+            if ($subscription) {
+                try {
+                    $subscription->cancel();
+                } catch (\Exception $cancelError) {
+                    Log::warning('Error al cancelar suscripción en cleanup', [
+                        'error' => $cancelError->getMessage()
+                    ]);
+                }
+            }
+
+            if ($plan) {
+                try {
+                    $plan->delete();
+                } catch (\Exception $deleteError) {
+                    Log::warning('Error al eliminar plan en cleanup', [
+                        'error' => $deleteError->getMessage()
+                    ]);
+                }
+            }
+
+            Log::error('Error general al procesar suscripción Stripe', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'cliente_id' => $cliente->id ?? null,
+                'dominio_id' => $dominio->id ?? null
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Ha ocurrido un error inesperado. Por favor, intente de nuevo o contacte con soporte.');
+        }
+    }
+
+    /**
+     * Crear SetupIntent para Stripe
+     */
+    /**
+     * Crear SetupIntent para guardar método de pago
+     */
+    public function crearSetupIntent($token)
+    {
+        $validacion = $this->validarToken($token);
+        
+        if (!$validacion['valido']) {
+            return response()->json([
+                'error' => $validacion['mensaje']
+            ], 400);
+        }
+
+        $cliente = $validacion['cliente'];
+
+        try {
+            // Crear o verificar cliente de Stripe
+            $stripeCustomerId = $cliente->stripe_customer_id;
+            
+            if (!$stripeCustomerId) {
+                // Crear nuevo cliente
+                $stripeCustomer = \Stripe\Customer::create([
+                    'email' => $cliente->email ?? 'cliente@example.com',
+                    'name' => $cliente->name ?? 'Cliente',
+                    'metadata' => [
+                        'client_id' => $cliente->id,
+                    ]
+                ]);
+
+                $cliente->update([
+                    'stripe_customer_id' => $stripeCustomer->id
+                ]);
+                
+                $stripeCustomerId = $stripeCustomer->id;
+            } else {
+                // Verificar que el cliente existe en Stripe
+                try {
+                    Log::info('Verificando existencia de cliente en Stripe', [
+                        'cliente_id' => $cliente->id,
+                        'stripe_customer_id' => $stripeCustomerId
+                    ]);
+                    
+                    \Stripe\Customer::retrieve($stripeCustomerId);
+                    
+                    Log::info('Cliente Stripe verificado correctamente', [
+                        'cliente_id' => $cliente->id,
+                        'stripe_customer_id' => $stripeCustomerId
+                    ]);
+                } catch (\Exception $e) {
+                    // Si el cliente no existe (cualquier tipo de error), crear uno nuevo
+                    Log::warning('Cliente Stripe no encontrado o error al verificar, creando nuevo', [
+                        'cliente_id' => $cliente->id,
+                        'stripe_customer_id' => $stripeCustomerId,
+                        'error' => $e->getMessage(),
+                        'error_type' => get_class($e)
+                    ]);
+                    
+                    try {
+                        $stripeCustomer = \Stripe\Customer::create([
+                            'email' => $cliente->email ?? 'cliente@example.com',
+                            'name' => $cliente->name ?? 'Cliente',
+                            'metadata' => [
+                                'client_id' => $cliente->id,
+                            ]
+                        ]);
+
+                        $cliente->update([
+                            'stripe_customer_id' => $stripeCustomer->id
+                        ]);
+                        
+                        $stripeCustomerId = $stripeCustomer->id;
+                        
+                        Log::info('Nuevo cliente Stripe creado exitosamente', [
+                            'cliente_id' => $cliente->id,
+                            'nuevo_stripe_customer_id' => $stripeCustomerId
+                        ]);
+                    } catch (\Exception $createError) {
+                        Log::error('Error al crear nuevo cliente en Stripe', [
+                            'cliente_id' => $cliente->id,
+                            'error' => $createError->getMessage()
+                        ]);
+                        throw $createError;
+                    }
+                }
+            }
+
+            $setupIntent = SetupIntent::create([
+                'customer' => $stripeCustomerId,
+                'payment_method_types' => ['card'],
+            ]);
+
+            return response()->json([
+                'client_secret' => $setupIntent->client_secret,
+                'customer_id' => $cliente->stripe_customer_id
+            ]);
+
+        } catch (ApiErrorException $e) {
+            Log::error('Error al crear SetupIntent', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'error' => 'Error al inicializar el proceso de pago.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Página de confirmación
+     */
+    public function confirmacion($token)
+    {
+        $validacion = $this->validarToken($token);
+        
+        if (!$validacion['valido']) {
+            return view('dominio-pago.error', [
+                'mensaje' => $validacion['mensaje']
+            ]);
+        }
+
+        $dominio = $validacion['dominio'];
+        $cliente = $validacion['cliente'];
+
+        return view('dominio-pago.confirmacion', compact('dominio', 'cliente', 'token'));
+    }
+
+    /**
+     * Validar formato IBAN
+     */
+    private function validarFormatoIban($iban)
+    {
+        // Eliminar espacios y convertir a mayúsculas
+        $iban = strtoupper(str_replace(' ', '', $iban));
+        
+        // Verificar longitud mínima (15 caracteres) y máxima (34 caracteres)
+        if (strlen($iban) < 15 || strlen($iban) > 34) {
+            return false;
+        }
+        
+        // Verificar formato: 2 letras + 2 dígitos + hasta 30 caracteres alfanuméricos
+        if (!preg_match('/^[A-Z]{2}[0-9]{2}[A-Z0-9]{4,30}$/', $iban)) {
+            return false;
+        }
+        
+        return true;
+    }
+}

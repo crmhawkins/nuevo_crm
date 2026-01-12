@@ -60,7 +60,9 @@ class Client extends Model
         'last_newsletter',
         'pin',
         'tipoCliente',
-        'stripe_customer_id'
+        'stripe_customer_id',
+        'token_verificacion_dominios',
+        'token_verificacion_expires_at'
     ];
 
      /**
@@ -69,7 +71,16 @@ class Client extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at', 'deleted_at',
+        'created_at', 'updated_at', 'deleted_at', 'token_verificacion_expires_at',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'token_verificacion_expires_at' => 'datetime',
     ];
 
     public function contacto() {
@@ -172,5 +183,64 @@ class Client extends Model
         return $this->belongsToMany(AdminUser::class, 'archived_client_user')->withTimestamps();
     }
 
+    /**
+     * Generar token de verificación para dominios
+     */
+    public function generarTokenVerificacion($dominioId = null)
+    {
+        $data = [
+            'client_id' => $this->id,
+            'dominio_id' => $dominioId,
+            'timestamp' => now()->timestamp,
+            'random' => bin2hex(random_bytes(16))
+        ];
+        
+        $token = hash('sha256', json_encode($data) . config('app.key'));
+        
+        $this->update([
+            'token_verificacion_dominios' => $token,
+            'token_verificacion_expires_at' => now()->addDays(30)
+        ]);
+        
+        return $token;
+    }
 
+    /**
+     * Validar token de verificación
+     */
+    public function validarToken($token)
+    {
+        if ($this->token_verificacion_dominios !== $token) {
+            return false;
+        }
+        
+        if ($this->token_verificacion_expires_at) {
+            // Asegurarse de que es un objeto Carbon
+            $expiresAt = $this->token_verificacion_expires_at instanceof \Carbon\Carbon 
+                ? $this->token_verificacion_expires_at 
+                : \Carbon\Carbon::parse($this->token_verificacion_expires_at);
+            
+            if ($expiresAt->isPast()) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Verificar si tiene cliente de Stripe
+     */
+    public function tieneStripeCustomer()
+    {
+        return !empty($this->stripe_customer_id);
+    }
+
+    /**
+     * Obtener notificaciones de dominios
+     */
+    public function notificacionesDominios()
+    {
+        return $this->hasMany(\App\Models\Dominios\DominioNotificacion::class, 'client_id');
+    }
 }

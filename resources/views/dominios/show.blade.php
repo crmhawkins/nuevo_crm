@@ -172,6 +172,83 @@
             </div>
         </div>
 
+        <!-- Información de Stripe (Solo en modo test) -->
+        @php
+            $stripeKey = config('services.stripe.key');
+            $isTestMode = strpos($stripeKey, 'pk_test_') !== false;
+        @endphp
+        @if($isTestMode && ($dominio->stripe_subscription_id || $dominio->stripe_plan_id))
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning bg-opacity-10">
+                        <h4 class="card-title">🧪 Stripe - Modo Prueba</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> 
+                            <strong>Modo de Prueba:</strong> Puedes cancelar suscripciones y eliminar planes de prueba.
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="row mb-3">
+                                    <div class="col-sm-5"><strong>Subscription ID:</strong></div>
+                                    <div class="col-sm-7">
+                                        @if($dominio->stripe_subscription_id)
+                                            <code>{{ $dominio->stripe_subscription_id }}</code>
+                                        @else
+                                            <span class="text-muted">No configurado</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-5"><strong>Plan ID:</strong></div>
+                                    <div class="col-sm-7">
+                                        @if($dominio->stripe_plan_id)
+                                            <code>{{ $dominio->stripe_plan_id }}</code>
+                                        @else
+                                            <span class="text-muted">No configurado</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-5"><strong>Método de Pago:</strong></div>
+                                    <div class="col-sm-7">
+                                        @if($dominio->stripe_payment_method_id)
+                                            <code>{{ $dominio->stripe_payment_method_id }}</code>
+                                        @else
+                                            <span class="text-muted">No configurado</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-5"><strong>Método Preferido:</strong></div>
+                                    <div class="col-sm-7">
+                                        @if($dominio->metodo_pago_preferido)
+                                            <span class="badge bg-info">{{ strtoupper($dominio->metodo_pago_preferido) }}</span>
+                                        @else
+                                            <span class="text-muted">No configurado</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-danger" onclick="cancelarSuscripcionStripe({{ $dominio->id }})" id="btn-cancelar-stripe">
+                                        <i class="bi bi-x-circle"></i> Cancelar Suscripción y Eliminar Plan
+                                    </button>
+                                    <small class="text-muted text-center">
+                                        Esto cancelará la suscripción y eliminará el plan en Stripe (solo modo test)
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <!-- Información de IONOS -->
         <div class="row mt-4">
             <div class="col-12">
@@ -908,5 +985,53 @@
                });
            }
        });
+
+       // Función para cancelar suscripción de Stripe (solo modo test)
+       function cancelarSuscripcionStripe(dominioId) {
+           Swal.fire({
+               title: '¿Cancelar suscripción de Stripe?',
+               html: '<p>Esta acción cancelará la suscripción y eliminará el plan en Stripe.</p><p class="text-warning"><strong>Esta acción solo está disponible en modo de prueba.</strong></p>',
+               icon: 'warning',
+               showCancelButton: true,
+               confirmButtonColor: '#d33',
+               cancelButtonColor: '#3085d6',
+               confirmButtonText: 'Sí, cancelar',
+               cancelButtonText: 'No, mantener',
+               showLoaderOnConfirm: true,
+               preConfirm: () => {
+                   return fetch(`/dominios/cancelar-suscripcion-stripe/${dominioId}`, {
+                       method: 'POST',
+                       headers: {
+                           'Content-Type': 'application/json',
+                           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                       }
+                   })
+                   .then(response => response.json())
+                   .then(data => {
+                       if (!data.success) {
+                           throw new Error(data.message || 'Error al cancelar suscripción');
+                       }
+                       return data;
+                   })
+                   .catch(error => {
+                       Swal.showValidationMessage(`Error: ${error.message}`);
+                   });
+               },
+               allowOutsideClick: () => !Swal.isLoading()
+           })
+           .then((result) => {
+               if (result.isConfirmed) {
+                   Swal.fire({
+                       title: '¡Cancelado!',
+                       html: result.value.message || 'Suscripción cancelada y plan eliminado correctamente',
+                       icon: 'success',
+                       confirmButtonText: 'OK'
+                   }).then(() => {
+                       // Recargar la página para actualizar la información
+                       window.location.reload();
+                   });
+               }
+           });
+       }
 </script>
 @endsection

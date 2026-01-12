@@ -12,6 +12,11 @@ use App\Services\IonosApiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Stripe\Stripe;
+use Stripe\Subscription;
+use Stripe\Plan;
+use Stripe\Exception\ApiErrorException;
 
 class DominiosController extends Controller
 {
@@ -243,6 +248,211 @@ class DominiosController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cancelar el dominio: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Cancelar suscripción de Stripe y eliminar plan (solo en modo test)
+     */
+    public function cancelarSuscripcionStripe($id)
+    {
+        try {
+            Stripe::setApiKey(config('services.stripe.secret'));
+            
+            // Verificar que estamos en modo test
+            $stripeKey = config('services.stripe.key');
+            if (strpos($stripeKey, 'pk_live_') !== false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Esta acción solo está permitida en modo de prueba (test mode)'
+                ], 403);
+            }
+
+            $dominio = Dominio::find($id);
+
+            if (!$dominio) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dominio no encontrado'
+                ], 404);
+            }
+
+            $errores = [];
+            $exitos = [];
+
+            // Cancelar suscripción si existe
+            if ($dominio->stripe_subscription_id) {
+                try {
+                    $subscription = Subscription::retrieve($dominio->stripe_subscription_id);
+                    $subscription->cancel();
+                    $exitos[] = "Suscripción {$dominio->stripe_subscription_id} cancelada";
+                    
+                    Log::info('Suscripción Stripe cancelada (test mode)', [
+                        'dominio_id' => $dominio->id,
+                        'subscription_id' => $dominio->stripe_subscription_id
+                    ]);
+                } catch (ApiErrorException $e) {
+                    $errores[] = "Error al cancelar suscripción: " . $e->getMessage();
+                    Log::error('Error al cancelar suscripción Stripe', [
+                        'dominio_id' => $dominio->id,
+                        'subscription_id' => $dominio->stripe_subscription_id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            // Eliminar plan si existe
+            if ($dominio->stripe_plan_id) {
+                try {
+                    $plan = Plan::retrieve($dominio->stripe_plan_id);
+                    $plan->delete();
+                    $exitos[] = "Plan {$dominio->stripe_plan_id} eliminado";
+                    
+                    Log::info('Plan Stripe eliminado (test mode)', [
+                        'dominio_id' => $dominio->id,
+                        'plan_id' => $dominio->stripe_plan_id
+                    ]);
+                } catch (ApiErrorException $e) {
+                    $errores[] = "Error al eliminar plan: " . $e->getMessage();
+                    Log::error('Error al eliminar plan Stripe', [
+                        'dominio_id' => $dominio->id,
+                        'plan_id' => $dominio->stripe_plan_id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            // Limpiar campos en la base de datos
+            $dominio->update([
+                'stripe_subscription_id' => null,
+                'stripe_plan_id' => null,
+                'stripe_payment_method_id' => null,
+                'metodo_pago_preferido' => null
+            ]);
+
+            $mensaje = '';
+            if (!empty($exitos)) {
+                $mensaje .= implode('. ', $exitos) . '. ';
+            }
+            if (!empty($errores)) {
+                $mensaje .= 'Errores: ' . implode('. ', $errores);
+            } else {
+                $mensaje .= 'Recursos de Stripe eliminados correctamente.';
+            }
+
+            return response()->json([
+                'success' => empty($errores),
+                'message' => $mensaje,
+                'exitos' => $exitos,
+                'errores' => $errores
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error general al cancelar suscripción Stripe', [
+                'dominio_id' => $id ?? null,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cancelar suscripción: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Limpiar todos los recursos de Stripe de prueba (solo en modo test)
+     */
+    public function limpiarRecursosStripePrueba()
+    {
+        try {
+            Stripe::setApiKey(config('services.stripe.secret'));
+            
+            // Verificar que estamos en modo test
+            $stripeKey = config('services.stripe.key');
+            if (strpos($stripeKey, 'pk_live_') !== false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Esta acción solo está permitida en modo de prueba (test mode)'
+                ], 403);
+            }
+
+            $dominios = Dominio::whereNotNull('stripe_subscription_id')
+                ->orWhereNotNull('stripe_plan_id')
+                ->get();
+
+            $total = $dominios->count();
+            $exitos = 0;
+            $errores = 0;
+            $detalles = [];
+
+            foreach ($dominios as $dominio) {
+                try {
+                    // Cancelar suscripción
+                    if ($dominio->stripe_subscription_id) {
+                        try {
+                            $subscription = Subscription::retrieve($dominio->stripe_subscription_id);
+                            $subscription->cancel();
+                        } catch (\Exception $e) {
+                            // Ignorar si ya está cancelada
+                        }
+                    }
+
+                    // Eliminar plan
+                    if ($dominio->stripe_plan_id) {
+                        try {
+                            $plan = Plan::retrieve($dominio->stripe_plan_id);
+                            $plan->delete();
+                        } catch (\Exception $e) {
+                            // Ignorar si ya está eliminado
+                        }
+                    }
+
+                    // Limpiar campos
+                    $dominio->update([
+                        'stripe_subscription_id' => null,
+                        'stripe_plan_id' => null,
+                        'stripe_payment_method_id' => null,
+                        'metodo_pago_preferido' => null
+                    ]);
+
+                    $exitos++;
+                    $detalles[] = "Dominio {$dominio->dominio}: Limpiado correctamente";
+
+                } catch (\Exception $e) {
+                    $errores++;
+                    $detalles[] = "Dominio {$dominio->dominio}: Error - " . $e->getMessage();
+                    Log::error('Error al limpiar recursos Stripe de dominio', [
+                        'dominio_id' => $dominio->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            Log::info('Limpieza masiva de recursos Stripe (test mode)', [
+                'total' => $total,
+                'exitos' => $exitos,
+                'errores' => $errores
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Proceso completado: {$exitos} exitosos, {$errores} errores de {$total} dominios",
+                'total' => $total,
+                'exitos' => $exitos,
+                'errores' => $errores,
+                'detalles' => $detalles
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error general al limpiar recursos Stripe', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al limpiar recursos: ' . $e->getMessage()
             ], 500);
         }
     }

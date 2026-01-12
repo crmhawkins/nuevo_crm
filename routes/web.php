@@ -108,6 +108,9 @@ Route::post('/budget/generate-pdf', [BudgetController::class, 'generatePDF'])->n
 Route::post('/justificaciones/receive/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'receiveFiles'])->name('justificaciones.receive.public');
 Route::post('/justificaciones/update-estado/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'updateEstado'])->name('justificaciones.updateEstado.public');
 
+// Webhook de Stripe (sin autenticación, verificación por firma)
+Route::post('/stripe/webhook', [\App\Http\Controllers\Stripe\StripeWebhookController::class, 'handle'])->name('stripe.webhook');
+
 Route::group(['middleware' => 'auth'], function () {
 
     Route::middleware(['access.level:4'])->group(function () {
@@ -297,6 +300,8 @@ Route::prefix('api/domain-invoices')->group(function () {
         Route::post('/dominios/destroy', [DominiosController::class, 'destroy'])->name('dominios.delete');
         Route::post('/dominios/cancelar/{id}', [DominiosController::class, 'cancelar'])->name('dominios.cancelar');
         Route::get('/dominios/verificar/{id}', [DominiosController::class, 'verificarEstado'])->name('dominios.verificar');
+        Route::post('/dominios/cancelar-suscripcion-stripe/{id}', [DominiosController::class, 'cancelarSuscripcionStripe'])->name('dominios.cancelar-suscripcion-stripe');
+        Route::post('/dominios/limpiar-recursos-stripe-prueba', [DominiosController::class, 'limpiarRecursosStripePrueba'])->name('dominios.limpiar-recursos-stripe-prueba');
 Route::post('/dominios/sincronizar-ionos/{id}', [DominiosController::class, 'sincronizarIonos'])->name('dominios.sincronizar-ionos');
 Route::get('/dominios/info-ionos/{id}', [DominiosController::class, 'obtenerInfoIonos'])->name('dominios.info-ionos');
 Route::get('/dominios/probar-ionos', [DominiosController::class, 'probarConexionIonos'])->name('dominios.probar-ionos');
@@ -808,6 +813,13 @@ Route::post('/portal/dominios/', [PortalCompraWebs::class, 'dominiosStore'])->na
 
 // Mostrar compras
 Route::get('/portal/compras', [PortalCompraWebs::class, 'showPurchases'])->name('portal.compras');
+
+// Rutas públicas para configuración de pago de dominios (con token)
+Route::get('/dominio/pago/{token}', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'showFormularioPago'])->name('dominio.pago.formulario');
+Route::post('/dominio/pago/{token}/iban', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'guardarIban'])->name('dominio.pago.iban');
+Route::post('/dominio/pago/{token}/stripe', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'procesarStripe'])->name('dominio.pago.stripe');
+Route::post('/dominio/pago/{token}/setup-intent', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'crearSetupIntent'])->name('dominio.pago.setup-intent');
+Route::get('/dominio/pago/{token}/confirmacion', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'confirmacion'])->name('dominio.pago.confirmacion');
 
 // Usuarios temporales
 Route::get('/portal/tempdashboard', [PortalClientesController::class, 'tempdashboard'])->name('portal.tempdashboard');
