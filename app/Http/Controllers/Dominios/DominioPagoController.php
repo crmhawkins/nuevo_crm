@@ -829,6 +829,12 @@ class DominioPagoController extends Controller
             // El precio_venta ya debería incluir IVA o no, dependiendo de tu configuración
             // Asumimos que precio_venta es sin IVA, así que agregamos 21%
             $precioConIva = round($precioVenta * 1.21 * 100);
+            
+            // Stripe requiere mínimo 1 céntimo (0.01€)
+            if ($precioConIva < 1) {
+                return redirect()->back()
+                    ->with('error', 'El precio del dominio es demasiado bajo. Por favor, contacte con soporte.');
+            }
 
             // Calcular trial_end (fecha de caducidad) - esto hace que NO cobre hasta esa fecha
             $trialEnd = $fechaCaducidad->timestamp;
