@@ -43,45 +43,78 @@ class DominioPagoController extends Controller
 
     /**
      * Validar token y devolver datos
+     * El token debe ser único por cliente y dominio
      */
     public function validarToken($token)
     {
-        $cliente = Client::where('token_verificacion_dominios', $token)->first();
+        // Buscar el token en dominio_notificaciones (token único por dominio y cliente)
+        $notificacion = \App\Models\Dominios\DominioNotificacion::where('token_enlace', $token)
+            ->with(['dominio', 'cliente'])
+            ->orderBy('fecha_envio', 'desc')
+            ->first();
 
-        if (!$cliente) {
+        if (!$notificacion) {
+            // Fallback: buscar en el cliente (compatibilidad con tokens antiguos)
+            $cliente = Client::where('token_verificacion_dominios', $token)->first();
+            
+            if (!$cliente) {
+                return [
+                    'valido' => false,
+                    'mensaje' => 'Token inválido o expirado.'
+                ];
+            }
+
+            if (!$cliente->validarToken($token)) {
+                return [
+                    'valido' => false,
+                    'mensaje' => 'El token ha expirado. Por favor, solicite un nuevo enlace.'
+                ];
+            }
+
+            // Obtener el dominio más próximo a caducar del cliente (comportamiento antiguo)
+            $dominio = $cliente->dominios()
+                ->where(function($query) {
+                    $query->whereNotNull('fecha_renovacion_ionos')
+                          ->orWhereNotNull('date_end');
+                })
+                ->orderByRaw('COALESCE(fecha_renovacion_ionos, date_end) ASC')
+                ->first();
+
+            if (!$dominio) {
+                return [
+                    'valido' => false,
+                    'mensaje' => 'No se encontró ningún dominio asociado.'
+                ];
+            }
+
             return [
-                'valido' => false,
-                'mensaje' => 'Token inválido o expirado.'
+                'valido' => true,
+                'cliente' => $cliente,
+                'dominio' => $dominio
             ];
         }
 
-        if (!$cliente->validarToken($token)) {
+        // Validar que el token no haya expirado (30 días desde la fecha de envío)
+        $fechaExpiracion = \Carbon\Carbon::parse($notificacion->fecha_envio)->addDays(30);
+        if ($fechaExpiracion->isPast()) {
             return [
                 'valido' => false,
                 'mensaje' => 'El token ha expirado. Por favor, solicite un nuevo enlace.'
             ];
         }
 
-        // Obtener el dominio más próximo a caducar del cliente
-        $dominio = $cliente->dominios()
-            ->where(function($query) {
-                $query->whereNotNull('fecha_renovacion_ionos')
-                      ->orWhereNotNull('date_end');
-            })
-            ->orderByRaw('COALESCE(fecha_renovacion_ionos, date_end) ASC')
-            ->first();
-
-        if (!$dominio) {
+        // Validar que el dominio y cliente existan
+        if (!$notificacion->dominio || !$notificacion->cliente) {
             return [
                 'valido' => false,
-                'mensaje' => 'No se encontró ningún dominio asociado.'
+                'mensaje' => 'No se encontró el dominio o cliente asociado al token.'
             ];
         }
 
         return [
             'valido' => true,
-            'cliente' => $cliente,
-            'dominio' => $dominio
+            'cliente' => $notificacion->cliente,
+            'dominio' => $notificacion->dominio
         ];
     }
 

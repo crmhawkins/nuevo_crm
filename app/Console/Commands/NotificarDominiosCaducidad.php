@@ -78,14 +78,6 @@ class NotificarDominiosCaducidad extends Command
                     continue;
                 }
 
-                // Generar token para el cliente si no existe o ha expirado
-                if (!$cliente->token_verificacion_dominios || 
-                    ($cliente->token_verificacion_expires_at && $cliente->token_verificacion_expires_at->isPast())) {
-                    $token = $cliente->generarTokenVerificacion($dominio->id);
-                } else {
-                    $token = $cliente->token_verificacion_dominios;
-                }
-
                 $fechaCaducidad = $dominio->getFechaCaducidad();
                 
                 if (!$fechaCaducidad) {
@@ -93,6 +85,29 @@ class NotificarDominiosCaducidad extends Command
                     $fallidos++;
                     $progressBar->advance();
                     continue;
+                }
+
+                // Generar token único para este dominio y cliente
+                // Buscar si ya existe una notificación reciente con token válido
+                $notificacionExistente = DominioNotificacion::where('dominio_id', $dominio->id)
+                    ->where('client_id', $cliente->id)
+                    ->whereNotNull('token_enlace')
+                    ->where('fecha_envio', '>=', Carbon::now()->subDays(30))
+                    ->orderBy('fecha_envio', 'desc')
+                    ->first();
+
+                if ($notificacionExistente && $notificacionExistente->token_enlace) {
+                    // Reutilizar token existente si es válido
+                    $token = $notificacionExistente->token_enlace;
+                } else {
+                    // Generar nuevo token único para este dominio y cliente
+                    $data = [
+                        'client_id' => $cliente->id,
+                        'dominio_id' => $dominio->id,
+                        'timestamp' => now()->timestamp,
+                        'random' => bin2hex(random_bytes(16))
+                    ];
+                    $token = hash('sha256', json_encode($data) . config('app.key'));
                 }
                 
                 $urlPago = route('dominio.pago.formulario', ['token' => $token]);
@@ -102,16 +117,21 @@ class NotificarDominiosCaducidad extends Command
                     try {
                         Mail::to($cliente->email)->send(new MailDominioCaducidad($dominio, $cliente, $fechaCaducidad, $urlPago));
                         
-                        DominioNotificacion::create([
-                            'dominio_id' => $dominio->id,
-                            'client_id' => $cliente->id,
-                            'tipo_notificacion' => 'email',
-                            'fecha_envio' => now(),
-                            'estado' => 'enviado',
-                            'token_enlace' => $token,
-                            'metodo_pago_solicitado' => 'ambos',
-                            'fecha_caducidad' => $fechaCaducidad->format('Y-m-d')
-                        ]);
+                        DominioNotificacion::updateOrCreate(
+                            [
+                                'dominio_id' => $dominio->id,
+                                'client_id' => $cliente->id,
+                                'tipo_notificacion' => 'email',
+                                'fecha_envio' => now()->startOfDay() // Agrupar por día
+                            ],
+                            [
+                                'estado' => 'enviado',
+                                'token_enlace' => $token, // Token único por dominio y cliente
+                                'metodo_pago_solicitado' => 'ambos',
+                                'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                                'error_mensaje' => null
+                            ]
+                        );
 
                         $this->line("\n✅ Email enviado a {$cliente->email} para dominio {$dominio->dominio}");
                     } catch (\Exception $e) {
@@ -121,17 +141,21 @@ class NotificarDominiosCaducidad extends Command
                             'error' => $e->getMessage()
                         ]);
 
-                        DominioNotificacion::create([
-                            'dominio_id' => $dominio->id,
-                            'client_id' => $cliente->id,
-                            'tipo_notificacion' => 'email',
-                            'fecha_envio' => now(),
-                            'estado' => 'fallido',
-                            'token_enlace' => $token,
-                            'metodo_pago_solicitado' => 'ambos',
-                            'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
-                            'error_mensaje' => $e->getMessage()
-                        ]);
+                        DominioNotificacion::updateOrCreate(
+                            [
+                                'dominio_id' => $dominio->id,
+                                'client_id' => $cliente->id,
+                                'tipo_notificacion' => 'email',
+                                'fecha_envio' => now()->startOfDay() // Agrupar por día
+                            ],
+                            [
+                                'estado' => 'fallido',
+                                'token_enlace' => $token, // Token único por dominio y cliente
+                                'metodo_pago_solicitado' => 'ambos',
+                                'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                                'error_mensaje' => $e->getMessage()
+                            ]
+                        );
 
                         $this->warn("\n❌ Error al enviar email a {$cliente->email}: " . $e->getMessage());
                         $fallidos++;
@@ -147,16 +171,21 @@ class NotificarDominiosCaducidad extends Command
                         $phone = $this->formatearTelefono($cliente->phone);
                         $whatsappController->contestarWhatsapp($phone, $mensaje);
 
-                        DominioNotificacion::create([
-                            'dominio_id' => $dominio->id,
-                            'client_id' => $cliente->id,
-                            'tipo_notificacion' => 'whatsapp',
-                            'fecha_envio' => now(),
-                            'estado' => 'enviado',
-                            'token_enlace' => $token,
-                            'metodo_pago_solicitado' => 'ambos',
-                            'fecha_caducidad' => $fechaCaducidad->format('Y-m-d')
-                        ]);
+                        DominioNotificacion::updateOrCreate(
+                            [
+                                'dominio_id' => $dominio->id,
+                                'client_id' => $cliente->id,
+                                'tipo_notificacion' => 'whatsapp',
+                                'fecha_envio' => now()->startOfDay() // Agrupar por día
+                            ],
+                            [
+                                'estado' => 'enviado',
+                                'token_enlace' => $token, // Token único por dominio y cliente
+                                'metodo_pago_solicitado' => 'ambos',
+                                'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                                'error_mensaje' => null
+                            ]
+                        );
 
                         $this->line("\n✅ WhatsApp enviado a {$phone} para dominio {$dominio->dominio}");
                     } catch (\Exception $e) {
@@ -166,17 +195,21 @@ class NotificarDominiosCaducidad extends Command
                             'error' => $e->getMessage()
                         ]);
 
-                        DominioNotificacion::create([
-                            'dominio_id' => $dominio->id,
-                            'client_id' => $cliente->id,
-                            'tipo_notificacion' => 'whatsapp',
-                            'fecha_envio' => now(),
-                            'estado' => 'fallido',
-                            'token_enlace' => $token,
-                            'metodo_pago_solicitado' => 'ambos',
-                            'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
-                            'error_mensaje' => $e->getMessage()
-                        ]);
+                        DominioNotificacion::updateOrCreate(
+                            [
+                                'dominio_id' => $dominio->id,
+                                'client_id' => $cliente->id,
+                                'tipo_notificacion' => 'whatsapp',
+                                'fecha_envio' => now()->startOfDay() // Agrupar por día
+                            ],
+                            [
+                                'estado' => 'fallido',
+                                'token_enlace' => $token, // Token único por dominio y cliente
+                                'metodo_pago_solicitado' => 'ambos',
+                                'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                                'error_mensaje' => $e->getMessage()
+                            ]
+                        );
 
                         $this->warn("\n❌ Error al enviar WhatsApp a {$cliente->phone}: " . $e->getMessage());
                         $fallidos++;

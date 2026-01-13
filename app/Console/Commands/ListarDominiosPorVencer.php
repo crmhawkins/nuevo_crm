@@ -324,14 +324,6 @@ class ListarDominiosPorVencer extends Command
                     continue;
                 }
 
-                // Generar token para el cliente si no existe o ha expirado
-                if (!$cliente->token_verificacion_dominios || 
-                    ($cliente->token_verificacion_expires_at && $cliente->token_verificacion_expires_at->isPast())) {
-                    $token = $cliente->generarTokenVerificacion($dominio->id);
-                } else {
-                    $token = $cliente->token_verificacion_dominios;
-                }
-
                 $fechaCaducidad = $dominio->getFechaCaducidad();
                 
                 if (!$fechaCaducidad) {
@@ -339,6 +331,29 @@ class ListarDominiosPorVencer extends Command
                     $fallidos++;
                     $progressBar->advance();
                     continue;
+                }
+
+                // Generar token único para este dominio y cliente
+                // Buscar si ya existe una notificación reciente con token válido
+                $notificacionExistente = DominioNotificacion::where('dominio_id', $dominio->id)
+                    ->where('client_id', $cliente->id)
+                    ->whereNotNull('token_enlace')
+                    ->where('fecha_envio', '>=', \Carbon\Carbon::now()->subDays(30))
+                    ->orderBy('fecha_envio', 'desc')
+                    ->first();
+
+                if ($notificacionExistente && $notificacionExistente->token_enlace) {
+                    // Reutilizar token existente si es válido
+                    $token = $notificacionExistente->token_enlace;
+                } else {
+                    // Generar nuevo token único para este dominio y cliente
+                    $data = [
+                        'client_id' => $cliente->id,
+                        'dominio_id' => $dominio->id,
+                        'timestamp' => now()->timestamp,
+                        'random' => bin2hex(random_bytes(16))
+                    ];
+                    $token = hash('sha256', json_encode($data) . config('app.key'));
                 }
 
                 // Generar URL de pago
@@ -359,33 +374,42 @@ class ListarDominiosPorVencer extends Command
                 );
 
                 if (isset($resultado['error'])) {
-                    // Registrar error
-                    DominioNotificacion::create([
-                        'dominio_id' => $dominio->id,
-                        'client_id' => $cliente->id,
-                        'tipo_notificacion' => 'whatsapp',
-                        'fecha_envio' => now(),
-                        'estado' => 'fallido',
-                        'token_enlace' => $token,
-                        'metodo_pago_solicitado' => 'ambos',
-                        'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
-                        'error_mensaje' => $resultado['error']['message'] ?? 'Error desconocido'
-                    ]);
+                    // Registrar error - usar updateOrCreate para evitar duplicados
+                    DominioNotificacion::updateOrCreate(
+                        [
+                            'dominio_id' => $dominio->id,
+                            'client_id' => $cliente->id,
+                            'tipo_notificacion' => 'whatsapp',
+                            'fecha_envio' => now()->startOfDay() // Agrupar por día
+                        ],
+                        [
+                            'estado' => 'fallido',
+                            'token_enlace' => $token, // Token único por dominio y cliente
+                            'metodo_pago_solicitado' => 'ambos',
+                            'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                            'error_mensaje' => $resultado['error']['message'] ?? 'Error desconocido'
+                        ]
+                    );
 
                     $this->warn("\n❌ Error al enviar WhatsApp a {$telefono} (dominio: {$nombreDominio}): " . ($resultado['error']['message'] ?? 'Error desconocido'));
                     $fallidos++;
                 } else {
-                    // Registrar éxito
-                    DominioNotificacion::create([
-                        'dominio_id' => $dominio->id,
-                        'client_id' => $cliente->id,
-                        'tipo_notificacion' => 'whatsapp',
-                        'fecha_envio' => now(),
-                        'estado' => 'enviado',
-                        'token_enlace' => $token,
-                        'metodo_pago_solicitado' => 'ambos',
-                        'fecha_caducidad' => $fechaCaducidad->format('Y-m-d')
-                    ]);
+                    // Registrar éxito - usar updateOrCreate para evitar duplicados
+                    DominioNotificacion::updateOrCreate(
+                        [
+                            'dominio_id' => $dominio->id,
+                            'client_id' => $cliente->id,
+                            'tipo_notificacion' => 'whatsapp',
+                            'fecha_envio' => now()->startOfDay() // Agrupar por día
+                        ],
+                        [
+                            'estado' => 'enviado',
+                            'token_enlace' => $token, // Token único por dominio y cliente
+                            'metodo_pago_solicitado' => 'ambos',
+                            'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                            'error_mensaje' => null
+                        ]
+                    );
 
                     $this->line("\n✅ WhatsApp enviado a {$telefono} para dominio {$nombreDominio}");
                     $enviados++;
