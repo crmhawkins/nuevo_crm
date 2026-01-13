@@ -73,6 +73,14 @@ class StripeWebhookController extends Controller
                     $this->handleSubscriptionDeleted($event);
                     break;
 
+                case 'setup_intent.succeeded':
+                    $this->handleSetupIntentSucceeded($event);
+                    break;
+
+                case 'setup_intent.requires_action':
+                    $this->handleSetupIntentRequiresAction($event);
+                    break;
+
                 default:
                     Log::info('Evento de Stripe no manejado', [
                         'type' => $event->type
@@ -331,5 +339,112 @@ class StripeWebhookController extends Controller
             'dominio_id' => $dominio->id,
             'subscription_id' => $subscription->id
         ]);
+    }
+
+    /**
+     * Manejar SetupIntent completado exitosamente
+     */
+    protected function handleSetupIntentSucceeded($event)
+    {
+        $setupIntent = $event->data->object;
+
+        Log::info('SetupIntent completado exitosamente', [
+            'setup_intent_id' => $setupIntent->id,
+            'customer_id' => $setupIntent->customer ?? 'N/A',
+            'payment_method' => $setupIntent->payment_method ?? 'N/A',
+            'status' => $setupIntent->status
+        ]);
+
+        // Verificar que tiene customer y payment_method
+        if (!$setupIntent->customer || !$setupIntent->payment_method) {
+            Log::warning('SetupIntent sin customer o payment_method', [
+                'setup_intent_id' => $setupIntent->id
+            ]);
+            return;
+        }
+
+        try {
+            // Buscar cliente por stripe_customer_id
+            $cliente = \App\Models\Clients\Client::where('stripe_customer_id', $setupIntent->customer)->first();
+
+            if (!$cliente) {
+                Log::warning('Cliente no encontrado para SetupIntent', [
+                    'setup_intent_id' => $setupIntent->id,
+                    'stripe_customer_id' => $setupIntent->customer
+                ]);
+                return;
+            }
+
+            // Buscar dominio del cliente que no tenga payment method configurado
+            // O el más próximo a caducar
+            $dominio = $cliente->dominios()
+                ->where(function($query) {
+                    $query->whereNull('stripe_payment_method_id')
+                          ->orWhere('stripe_payment_method_id', '');
+                })
+                ->where(function($query) {
+                    $query->whereNotNull('fecha_renovacion_ionos')
+                          ->orWhereNotNull('date_end');
+                })
+                ->orderByRaw('COALESCE(fecha_renovacion_ionos, date_end) ASC')
+                ->first();
+
+            // Si no hay dominio sin payment method, buscar el más próximo a caducar
+            if (!$dominio) {
+                $dominio = $cliente->dominios()
+                    ->where(function($query) {
+                        $query->whereNotNull('fecha_renovacion_ionos')
+                              ->orWhereNotNull('date_end');
+                    })
+                    ->orderByRaw('COALESCE(fecha_renovacion_ionos, date_end) ASC')
+                    ->first();
+            }
+
+            if (!$dominio) {
+                Log::warning('Dominio no encontrado para SetupIntent', [
+                    'setup_intent_id' => $setupIntent->id,
+                    'cliente_id' => $cliente->id
+                ]);
+                return;
+            }
+
+            // Guardar el payment method en el dominio
+            $dominio->update([
+                'stripe_payment_method_id' => $setupIntent->payment_method,
+                'metodo_pago_preferido' => 'stripe'
+            ]);
+
+            Log::info('Payment method guardado desde SetupIntent', [
+                'setup_intent_id' => $setupIntent->id,
+                'dominio_id' => $dominio->id,
+                'cliente_id' => $cliente->id,
+                'payment_method_id' => $setupIntent->payment_method
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error al procesar SetupIntent succeeded', [
+                'setup_intent_id' => $setupIntent->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
+
+    /**
+     * Manejar SetupIntent que requiere acción (3D Secure, etc.)
+     */
+    protected function handleSetupIntentRequiresAction($event)
+    {
+        $setupIntent = $event->data->object;
+
+        Log::info('SetupIntent requiere acción', [
+            'setup_intent_id' => $setupIntent->id,
+            'customer_id' => $setupIntent->customer ?? 'N/A',
+            'status' => $setupIntent->status,
+            'next_action' => $setupIntent->next_action->type ?? 'N/A'
+        ]);
+
+        // Este evento solo se registra, la acción debe completarse en el frontend
+        // Cuando se complete, se disparará setup_intent.succeeded
     }
 }

@@ -22,7 +22,9 @@ class ListarDominiosPorVencer extends Command
                             {--con-pago : Solo mostrar dominios con método de pago válido}
                             {--cliente= : Filtrar por ID de cliente}
                             {--dominio= : Filtrar por ID de dominio específico}
-                            {--enviar-whatsapp : Enviar mensajes de WhatsApp a los clientes con teléfono válido}';
+                            {--enviar-whatsapp : Enviar mensajes de WhatsApp a los clientes con teléfono válido}
+                            {--sin-iban : Solo mostrar dominios sin IBAN válido en consola (sin enviar WhatsApp)}
+                            {--enviar-sin-iban : Mostrar y enviar mensajes a todos los dominios sin IBAN válido (ignora si ya se envió hoy)}';
 
     /**
      * The console command description.
@@ -41,27 +43,40 @@ class ListarDominiosPorVencer extends Command
         $conPago = $this->option('con-pago');
         $clienteId = $this->option('cliente');
         $dominioId = $this->option('dominio');
+        $sinIban = $this->option('sin-iban') || $this->option('enviar-sin-iban');
 
         // Si se especifica un dominio, mostrar información específica
         if ($dominioId) {
             $this->info("Buscando dominio ID: {$dominioId}");
+        } elseif ($sinIban) {
+            $this->info("Buscando todos los dominios sin IBAN válido (sin filtrar por fecha de caducidad)...");
         } else {
             $this->info("Buscando dominios que vencen en los próximos {$dias} días...");
         }
         
-        if (!$todos && !$conPago) {
+        if ($sinIban) {
+            $this->comment("(Solo dominios sin IBAN válido - ignorando Stripe y fecha de caducidad)");
+        } elseif (!$todos && !$conPago) {
             $this->comment("(Solo dominios sin método de pago válido - IBAN válido o Stripe)");
         }
         $this->newLine();
-
-        // Fecha límite
-        $fechaLimite = Carbon::now()->addDays($dias);
 
         // Si se especifica un dominio ID, filtrar directamente por ese ID
         if ($dominioId) {
             $query = Dominio::with(['cliente', 'cliente.phones'])
                 ->where('id', $dominioId);
+        } elseif ($sinIban) {
+            // Si se usa --sin-iban o --enviar-sin-iban, NO filtrar por fecha de caducidad
+            $query = Dominio::with(['cliente', 'cliente.phones']);
+            
+            // Filtrar por cliente si se especifica
+            if ($clienteId) {
+                $query->where('client_id', $clienteId);
+            }
         } else {
+            // Fecha límite solo si NO se usa --sin-iban
+            $fechaLimite = Carbon::now()->addDays($dias);
+            
             // Construir query base (cargar cliente con teléfonos)
             $query = Dominio::with(['cliente', 'cliente.phones'])
                 ->where(function($q) use ($fechaLimite) {
@@ -84,8 +99,17 @@ class ListarDominiosPorVencer extends Command
             }
         }
 
+        // Si se usa --sin-iban o --enviar-sin-iban, filtrar solo por IBAN (ignorar Stripe)
+        if ($this->option('sin-iban') || $this->option('enviar-sin-iban')) {
+            $query->where(function($q) {
+                // No tiene IBAN válido
+                $q->whereNull('iban')
+                   ->orWhere('iban', '')
+                   ->orWhere('iban_validado', false);
+            });
+        }
         // Por defecto, solo dominios sin método de pago válido
-        if (!$todos && !$conPago) {
+        elseif (!$todos && !$conPago) {
             $query->where(function($q) {
                 // No tiene IBAN válido
                 $q->where(function($subQ) {
@@ -119,13 +143,19 @@ class ListarDominiosPorVencer extends Command
         $dominios = $query->get();
 
         // Filtrar usando el método getFechaCaducidad() para asegurar que usamos la fecha correcta
-        // Si se especificó un dominio ID, no filtrar por fecha (mostrar siempre)
-        if ($dominioId) {
+        // Si se usa --sin-iban o --enviar-sin-iban, NO filtrar por fecha de caducidad
+        if ($sinIban) {
+            // No filtrar por fecha, mostrar todos los dominios sin IBAN
+            $dominiosFiltrados = $dominios;
+        } elseif ($dominioId) {
+            // Si se especificó un dominio ID, no filtrar por fecha (mostrar siempre)
             $dominiosFiltrados = $dominios->filter(function($dominio) {
                 // Solo verificar que tenga fecha de caducidad
                 return $dominio->getFechaCaducidad() !== null;
             });
         } else {
+            // Filtrar por fecha de caducidad
+            $fechaLimite = Carbon::now()->addDays($dias);
             $dominiosFiltrados = $dominios->filter(function($dominio) use ($fechaLimite) {
                 $fechaCaducidad = $dominio->getFechaCaducidad();
                 if (!$fechaCaducidad) {
@@ -136,7 +166,12 @@ class ListarDominiosPorVencer extends Command
         }
 
         // Verificación adicional: asegurar que no tienen método de pago válido (si no es --todos o --con-pago)
-        if (!$todos && !$conPago) {
+        // Si se usa --sin-iban o --enviar-sin-iban, filtrar solo por IBAN (ignorar Stripe)
+        if ($this->option('sin-iban') || $this->option('enviar-sin-iban')) {
+            $dominiosFiltrados = $dominiosFiltrados->filter(function($dominio) {
+                return empty($dominio->iban) || !$dominio->iban_validado;
+            });
+        } elseif (!$todos && !$conPago) {
             $dominiosFiltrados = $dominiosFiltrados->filter(function($dominio) {
                 return !$dominio->tieneMetodoPagoValido();
             });
@@ -147,7 +182,11 @@ class ListarDominiosPorVencer extends Command
         }
 
         if ($dominiosFiltrados->isEmpty()) {
-            $this->warn("No se encontraron dominios que vencen en los próximos {$dias} días.");
+            if ($sinIban) {
+                $this->warn("No se encontraron dominios sin IBAN válido.");
+            } else {
+                $this->warn("No se encontraron dominios que vencen en los próximos {$dias} días.");
+            }
             return 0;
         }
 
@@ -227,6 +266,22 @@ class ListarDominiosPorVencer extends Command
             $this->enviarMensajesWhatsapp($dominiosFiltrados);
         }
 
+        // Enviar WhatsApp solo a dominios sin IBAN válido (mostrar y enviar)
+        if ($this->option('enviar-sin-iban')) {
+            $this->newLine();
+            $this->info("📱 Iniciando envío de mensajes de WhatsApp a dominios sin IBAN válido...");
+            
+            if ($dominiosFiltrados->isEmpty()) {
+                $this->warn("No se encontraron dominios sin IBAN válido.");
+                return 0;
+            }
+            
+            $this->info("Se encontraron {$dominiosFiltrados->count()} dominio(s) sin IBAN válido.");
+            $this->enviarMensajesWhatsapp($dominiosFiltrados, true); // true = verificar si ya se envió hoy
+        }
+        
+        // Nota: --sin-iban solo muestra en consola, no envía WhatsApp (ya se mostró arriba)
+
         return 0;
     }
 
@@ -287,13 +342,15 @@ class ListarDominiosPorVencer extends Command
      * Envía mensajes de WhatsApp usando el template "mensaje_dominios"
      * 
      * @param \Illuminate\Support\Collection $dominios
+     * @param bool $verificarEnvioHoy Si es true, verifica si ya se envió un mensaje hoy antes de enviar
      * @return void
      */
-    private function enviarMensajesWhatsapp($dominios)
+    private function enviarMensajesWhatsapp($dominios, $verificarEnvioHoy = false)
     {
         $enviados = 0;
         $fallidos = 0;
         $sinTelefono = 0;
+        $yaEnviadosHoy = 0;
 
         $progressBar = $this->output->createProgressBar($dominios->count());
         $progressBar->start();
@@ -306,6 +363,23 @@ class ListarDominiosPorVencer extends Command
                     $sinTelefono++;
                     $progressBar->advance();
                     continue;
+                }
+
+                // Verificar si ya se envió un mensaje hoy (si está habilitada la verificación)
+                if ($verificarEnvioHoy) {
+                    $yaEnviadoHoy = DominioNotificacion::where('dominio_id', $dominio->id)
+                        ->where('client_id', $cliente->id)
+                        ->where('tipo_notificacion', 'whatsapp')
+                        ->where('estado', 'enviado')
+                        ->whereDate('fecha_envio', Carbon::today())
+                        ->exists();
+                    
+                    if ($yaEnviadoHoy) {
+                        $this->line("\n⏭️  Ya se envió un mensaje hoy a {$dominio->dominio}, se omite.");
+                        $yaEnviadosHoy++;
+                        $progressBar->advance();
+                        continue;
+                    }
                 }
 
                 // Obtener teléfono formateado
@@ -436,6 +510,9 @@ class ListarDominiosPorVencer extends Command
         $this->line("  ✅ Enviados: {$enviados}");
         $this->line("  ❌ Fallidos: {$fallidos}");
         $this->line("  ⚠️  Sin teléfono: {$sinTelefono}");
+        if ($verificarEnvioHoy && $yaEnviadosHoy > 0) {
+            $this->line("  ⏭️  Omitidos (ya enviados hoy): {$yaEnviadosHoy}");
+        }
     }
 
     /**

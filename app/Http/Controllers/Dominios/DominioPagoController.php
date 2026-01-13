@@ -922,6 +922,14 @@ class DominioPagoController extends Controller
                     'cancel_url' => route('dominio.pago.formulario', ['token' => $token]),
                 ]);
         
+                $successUrl = route('dominio.pago.confirmacion', ['token' => $token]) . '?session_id={CHECKOUT_SESSION_ID}';
+                Log::info('Checkout Session creada con success_url', [
+                    'session_id' => $checkoutSession->id,
+                    'success_url' => $successUrl,
+                    'checkout_url' => $checkoutSession->url,
+                    'dominio_id' => $dominio->id,
+                ]);
+        
                 return redirect($checkoutSession->url);
             } catch (\Stripe\Exception\ApiErrorException $e) {
                 // Si el error es "No such customer", intentar recrear el cliente
@@ -970,6 +978,14 @@ class DominioPagoController extends Controller
                         'cancel_url' => route('dominio.pago.formulario', ['token' => $token]),
                     ]);
             
+                    $successUrl = route('dominio.pago.confirmacion', ['token' => $token]) . '?session_id={CHECKOUT_SESSION_ID}';
+                    Log::info('Checkout Session recreada con success_url', [
+                        'session_id' => $checkoutSession->id,
+                        'success_url' => $successUrl,
+                        'checkout_url' => $checkoutSession->url,
+                        'dominio_id' => $dominio->id,
+                    ]);
+            
                     return redirect($checkoutSession->url);
                 }
                 
@@ -999,9 +1015,18 @@ class DominioPagoController extends Controller
      */
     public function confirmacion($token)
     {
+        Log::info('=== INICIO confirmacion ===', [
+            'token' => substr($token, 0, 20) . '...',
+            'session_id' => request()->query('session_id'),
+            'url' => request()->fullUrl()
+        ]);
+        
         $validacion = $this->validarToken($token);
         
         if (!$validacion['valido']) {
+            Log::warning('Token inválido en confirmacion', [
+                'mensaje' => $validacion['mensaje']
+            ]);
             return view('dominio-pago.error', [
                 'mensaje' => $validacion['mensaje']
             ]);
@@ -1014,9 +1039,26 @@ class DominioPagoController extends Controller
         $sessionId = request()->query('session_id');
         $pagoExitoso = false;
         
+        Log::info('Verificando session_id en confirmacion', [
+            'session_id' => $sessionId,
+            'dominio_id' => $dominio->id,
+            'cliente_id' => $cliente->id,
+        ]);
+        
         if ($sessionId) {
             try {
+                Log::info('Recuperando Checkout Session de Stripe', [
+                    'session_id' => $sessionId
+                ]);
+                
                 $session = Session::retrieve($sessionId);
+                
+                Log::info('Checkout Session recuperada', [
+                    'session_id' => $sessionId,
+                    'payment_status' => $session->payment_status ?? 'N/A',
+                    'subscription' => $session->subscription ?? 'N/A',
+                    'customer' => $session->customer ?? 'N/A',
+                ]);
                 
                 // Verificar que el pago fue exitoso
                 if ($session->payment_status === 'paid' && $session->subscription) {
@@ -1094,6 +1136,13 @@ class DominioPagoController extends Controller
                         'payment_status' => $session->payment_status,
                         'dominio_id' => $dominio->id,
                     ]);
+                } else {
+                    Log::warning('Checkout Session con estado inesperado', [
+                        'session_id' => $sessionId,
+                        'payment_status' => $session->payment_status ?? 'N/A',
+                        'subscription' => $session->subscription ?? 'N/A',
+                        'dominio_id' => $dominio->id,
+                    ]);
                 }
             } catch (\Exception $e) {
                 Log::error('Error al verificar Checkout Session', [
@@ -1102,7 +1151,17 @@ class DominioPagoController extends Controller
                     'trace' => $e->getTraceAsString(),
                 ]);
             }
+        } else {
+            Log::warning('No se recibió session_id en confirmacion', [
+                'token' => substr($token, 0, 20) . '...',
+                'query_params' => request()->query(),
+            ]);
         }
+
+        Log::info('=== FIN confirmacion ===', [
+            'pago_exitoso' => $pagoExitoso,
+            'dominio_id' => $dominio->id,
+        ]);
 
         return view('dominio-pago.confirmacion', compact('dominio', 'cliente', 'token', 'pagoExitoso'));
     }
