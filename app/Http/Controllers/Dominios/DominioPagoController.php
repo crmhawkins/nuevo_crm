@@ -13,7 +13,6 @@ use Stripe\SetupIntent;
 use Stripe\PaymentMethod;
 use Stripe\Plan;
 use Stripe\Subscription;
-use Stripe\TestClock;
 use Stripe\Exception\ApiErrorException;
 
 class DominioPagoController extends Controller
@@ -184,13 +183,37 @@ class DominioPagoController extends Controller
             if (!$stripeCustomerId) {
                 // Crear nuevo cliente
                 try {
-                    $stripeCustomer = \Stripe\Customer::create([
+                    // Intentar obtener el Test Clock más reciente para asociarlo al cliente
+                    $testClockId = null;
+                    try {
+                        $testClocks = \Stripe\TestHelpers\TestClock::all(['limit' => 1]);
+                        if (count($testClocks->data) > 0) {
+                            $testClockId = $testClocks->data[0]->id;
+                            Log::info('Test Clock detectado, asociando al cliente', [
+                                'test_clock_id' => $testClockId,
+                                'cliente_id' => $cliente->id
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        Log::info('No se pudo obtener Test Clock, continuando sin él', [
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                    
+                    $customerData = [
                         'email' => $cliente->email ?? 'cliente@example.com',
                         'name' => $cliente->name ?? 'Cliente',
                         'metadata' => [
                             'client_id' => $cliente->id,
                         ]
-                    ]);
+                    ];
+                    
+                    // Si hay Test Clock, asociarlo al cliente
+                    if ($testClockId) {
+                        $customerData['test_clock'] = $testClockId;
+                    }
+                    
+                    $stripeCustomer = \Stripe\Customer::create($customerData);
 
                     $cliente->update([
                         'stripe_customer_id' => $stripeCustomer->id
@@ -218,13 +241,37 @@ class DominioPagoController extends Controller
                     ]);
                     
                     try {
-                        $stripeCustomer = \Stripe\Customer::create([
+                        // Intentar obtener el Test Clock más reciente para asociarlo al cliente
+                        $testClockId = null;
+                        try {
+                            $testClocks = \Stripe\TestHelpers\TestClock::all(['limit' => 1]);
+                            if (count($testClocks->data) > 0) {
+                                $testClockId = $testClocks->data[0]->id;
+                                Log::info('Test Clock detectado al recrear cliente, asociando', [
+                                    'test_clock_id' => $testClockId,
+                                    'cliente_id' => $cliente->id
+                                ]);
+                            }
+                        } catch (\Exception $e) {
+                            Log::info('No se pudo obtener Test Clock al recrear cliente', [
+                                'error' => $e->getMessage()
+                            ]);
+                        }
+                        
+                        $customerData = [
                             'email' => $cliente->email ?? 'cliente@example.com',
                             'name' => $cliente->name ?? 'Cliente',
                             'metadata' => [
                                 'client_id' => $cliente->id,
                             ]
-                        ]);
+                        ];
+                        
+                        // Si hay Test Clock, asociarlo al cliente
+                        if ($testClockId) {
+                            $customerData['test_clock'] = $testClockId;
+                        }
+                        
+                        $stripeCustomer = \Stripe\Customer::create($customerData);
 
                         $cliente->update([
                             'stripe_customer_id' => $stripeCustomer->id
@@ -382,63 +429,26 @@ class DominioPagoController extends Controller
                     'duracion' => 'Renovación automática anual en fecha de caducidad'
                 ]);
 
-                // Intentar avanzar Test Clock si es necesario antes de crear la suscripción
-                try {
-                    $testClocks = \Stripe\TestHelpers\TestClock::all(['limit' => 1]);
-                    if (count($testClocks->data) > 0) {
-                        $testClock = $testClocks->data[0];
-                        $testClockTime = $testClock->frozen_time;
-                        
-                        // Si el Test Clock está en el futuro y la fecha de caducidad está en el pasado según el Test Clock,
-                        // avanzar el Test Clock a 1 día antes de la fecha de caducidad
-                        if ($billingCycleAnchor < $testClockTime) {
-                            $nuevaFechaTestClock = $fechaCaducidadInicioDia->copy()->subDay()->timestamp;
-                            
-                            // Avanzar el Test Clock (solo se puede avanzar, no retroceder)
-                            // Pero si la nueva fecha es menor que la actual, no podemos hacerlo
-                            // En ese caso, usar el año siguiente para el billing_cycle_anchor
-                            if ($nuevaFechaTestClock > $testClockTime) {
-                                // Podemos avanzar el Test Clock
-                                $testClock->advance(['frozen_time' => $nuevaFechaTestClock]);
-                                Log::info('Test Clock avanzado para permitir fecha de caducidad', [
-                                    'test_clock_id' => $testClock->id,
-                                    'test_clock_time_anterior' => date('Y-m-d H:i:s', $testClockTime),
-                                    'test_clock_time_nuevo' => date('Y-m-d H:i:s', $nuevaFechaTestClock),
-                                    'billing_cycle_anchor' => date('Y-m-d H:i:s', $billingCycleAnchor)
-                                ]);
-                            } else {
-                                // No podemos avanzar el Test Clock (está en el futuro)
-                                // Usar el año siguiente para el billing_cycle_anchor
-                                $billingCycleAnchor = $fechaActual->copy()
-                                    ->addYear()
-                                    ->month($fechaCaducidadInicioDia->month)
-                                    ->day($fechaCaducidadInicioDia->day)
-                                    ->startOfDay()
-                                    ->timestamp;
-                                
-                                $subscriptionData['billing_cycle_anchor'] = $billingCycleAnchor;
-                                $subscriptionData['metadata']['billing_cycle_anchor_fecha'] = date('Y-m-d', $billingCycleAnchor);
-                                $subscriptionData['metadata']['ajustado_por_test_clock'] = 'true';
-                                
-                                Log::warning('Test Clock no se puede avanzar, usando año siguiente para billing_cycle_anchor', [
-                                    'test_clock_time' => date('Y-m-d H:i:s', $testClockTime),
-                                    'billing_cycle_anchor_ajustado' => date('Y-m-d H:i:s', $billingCycleAnchor)
-                                ]);
-                            }
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // Si hay error con Test Clock, continuar normalmente
-                    Log::info('Error al manejar Test Clock, continuando con fecha de caducidad', [
-                        'error' => $e->getMessage()
-                    ]);
-                }
-                
+                // Crear suscripción directamente con la fecha de caducidad
+                // NO intentar ajustar el Test Clock - el usuario debe hacerlo manualmente si es necesario
                 try {
                     $subscription = Subscription::create($subscriptionData);
                 } catch (ApiErrorException $e) {
-                    // Si aún falla, lanzar el error
-                    throw $e;
+                    // Si falla por Test Clock, mostrar mensaje claro al usuario
+                    if (strpos($e->getMessage(), 'billing_cycle_anchor') !== false && 
+                        strpos($e->getMessage(), 'Test Clock') !== false) {
+                        
+                        Log::error('Error por Test Clock al crear suscripción', [
+                            'error' => $e->getMessage(),
+                            'billing_cycle_anchor' => date('Y-m-d H:i:s', $billingCycleAnchor),
+                            'fecha_caducidad' => $fechaCaducidad->format('Y-m-d')
+                        ]);
+                        
+                        return redirect()->back()
+                            ->with('error', 'Error: El Test Clock de Stripe está en el futuro. Por favor, avanza el Test Clock a una fecha anterior a ' . $fechaCaducidad->format('d/m/Y') . ' desde el Dashboard de Stripe (Desarrolladores → Test Clocks) o elimínalo si no lo necesitas.');
+                    } else {
+                        throw $e;
+                    }
                 }
             } catch (ApiErrorException $e) {
                 // Si falla la suscripción, intentar eliminar el plan creado
@@ -564,13 +574,37 @@ class DominioPagoController extends Controller
             
             if (!$stripeCustomerId) {
                 // Crear nuevo cliente
-                $stripeCustomer = \Stripe\Customer::create([
+                // Intentar obtener el Test Clock más reciente para asociarlo al cliente
+                $testClockId = null;
+                try {
+                    $testClocks = \Stripe\TestHelpers\TestClock::all(['limit' => 1]);
+                    if (count($testClocks->data) > 0) {
+                        $testClockId = $testClocks->data[0]->id;
+                        Log::info('Test Clock detectado en crearSetupIntent, asociando al cliente', [
+                            'test_clock_id' => $testClockId,
+                            'cliente_id' => $cliente->id
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::info('No se pudo obtener Test Clock en crearSetupIntent', [
+                        'error' => $e->getMessage()
+                    ]);
+                }
+                
+                $customerData = [
                     'email' => $cliente->email ?? 'cliente@example.com',
                     'name' => $cliente->name ?? 'Cliente',
                     'metadata' => [
                         'client_id' => $cliente->id,
                     ]
-                ]);
+                ];
+                
+                // Si hay Test Clock, asociarlo al cliente
+                if ($testClockId) {
+                    $customerData['test_clock'] = $testClockId;
+                }
+                
+                $stripeCustomer = \Stripe\Customer::create($customerData);
 
                 $cliente->update([
                     'stripe_customer_id' => $stripeCustomer->id
@@ -601,13 +635,37 @@ class DominioPagoController extends Controller
                     ]);
                     
                     try {
-                        $stripeCustomer = \Stripe\Customer::create([
+                        // Intentar obtener el Test Clock más reciente para asociarlo al cliente
+                        $testClockId = null;
+                        try {
+                            $testClocks = \Stripe\TestHelpers\TestClock::all(['limit' => 1]);
+                            if (count($testClocks->data) > 0) {
+                                $testClockId = $testClocks->data[0]->id;
+                                Log::info('Test Clock detectado en crearSetupIntent (catch), asociando al cliente', [
+                                    'test_clock_id' => $testClockId,
+                                    'cliente_id' => $cliente->id
+                                ]);
+                            }
+                        } catch (\Exception $testClockError) {
+                            Log::info('No se pudo obtener Test Clock en crearSetupIntent (catch)', [
+                                'error' => $testClockError->getMessage()
+                            ]);
+                        }
+                        
+                        $customerData = [
                             'email' => $cliente->email ?? 'cliente@example.com',
                             'name' => $cliente->name ?? 'Cliente',
                             'metadata' => [
                                 'client_id' => $cliente->id,
                             ]
-                        ]);
+                        ];
+                        
+                        // Si hay Test Clock, asociarlo al cliente
+                        if ($testClockId) {
+                            $customerData['test_clock'] = $testClockId;
+                        }
+                        
+                        $stripeCustomer = \Stripe\Customer::create($customerData);
 
                         $cliente->update([
                             'stripe_customer_id' => $stripeCustomer->id

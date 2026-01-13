@@ -405,6 +405,115 @@
             </div>
         </div>
 
+        <!-- Notificaciones de Dominio -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">📧 Notificaciones de Caducidad</h4>
+                        <span class="badge bg-info">{{ $notificaciones->count() }} notificaciones</span>
+                    </div>
+                    <div class="card-body">
+                        @if($notificaciones->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Fecha de Envío</th>
+                                            <th>Estado</th>
+                                            <th>Fecha Caducidad</th>
+                                            <th>Método Pago Solicitado</th>
+                                            <th>Cliente</th>
+                                            <th>Error</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($notificaciones as $notificacion)
+                                        <tr>
+                                            <td>
+                                                @if($notificacion->tipo_notificacion == 'email')
+                                                    <span class="badge bg-primary">
+                                                        <i class="bi bi-envelope"></i> Email
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-whatsapp"></i> WhatsApp
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                {{ \Carbon\Carbon::parse($notificacion->fecha_envio)->format('d/m/Y H:i') }}
+                                            </td>
+                                            <td>
+                                                @if($notificacion->estado == 'enviado')
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle"></i> Enviado
+                                                    </span>
+                                                @elseif($notificacion->estado == 'fallido')
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle"></i> Fallido
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-warning">
+                                                        <i class="bi bi-clock"></i> Pendiente
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                {{ \Carbon\Carbon::parse($notificacion->fecha_caducidad)->format('d/m/Y') }}
+                                            </td>
+                                            <td>
+                                                @php
+                                                    $metodoPago = $notificacion->metodo_pago_solicitado ?? 'ambos';
+                                                    $badgeClass = match($metodoPago) {
+                                                        'iban' => 'bg-info',
+                                                        'stripe' => 'bg-primary',
+                                                        'ambos' => 'bg-secondary',
+                                                        default => 'bg-secondary'
+                                                    };
+                                                @endphp
+                                                <span class="badge {{ $badgeClass }}">
+                                                    {{ strtoupper($metodoPago) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if($notificacion->cliente)
+                                                    <a href="{{ route('clientes.show', $notificacion->cliente->id) }}" class="text-primary">
+                                                        {{ $notificacion->cliente->name }}
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">Sin cliente</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($notificacion->error_mensaje)
+                                                    <button class="btn btn-sm btn-outline-danger" 
+                                                            onclick="mostrarError('{{ addslashes($notificacion->error_mensaje) }}')"
+                                                            title="Ver error">
+                                                        <i class="bi bi-exclamation-triangle"></i>
+                                                    </button>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="bi bi-bell-slash display-1 text-muted"></i>
+                                <h5 class="text-muted mt-3">No hay notificaciones registradas</h5>
+                                <p class="text-muted">Las notificaciones de caducidad aparecerán aquí cuando se envíen mensajes de email o WhatsApp.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Facturas Asociadas -->
         <div class="row mt-4">
             <div class="col-12">
@@ -985,6 +1094,17 @@
                });
            }
        });
+
+       // Función para mostrar error de notificación
+       function mostrarError(errorMensaje) {
+           Swal.fire({
+               title: 'Error en la Notificación',
+               html: `<div class="text-start"><pre style="white-space: pre-wrap; word-wrap: break-word;">${errorMensaje}</pre></div>`,
+               icon: 'error',
+               confirmButtonText: 'Cerrar',
+               width: '600px'
+           });
+       }
 
        // Función para cancelar suscripción de Stripe (solo modo test)
        function cancelarSuscripcionStripe(dominioId) {

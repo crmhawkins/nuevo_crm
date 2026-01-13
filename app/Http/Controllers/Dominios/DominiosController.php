@@ -40,7 +40,13 @@ class DominiosController extends Controller
         // Buscar facturas asociadas a este dominio
         $facturasAsociadas = $this->buscarFacturasAsociadas($dominio->dominio, $dominio->client_id);
 
-        return view('dominios.show', compact('dominio', 'facturasAsociadas'));
+        // Cargar notificaciones del dominio ordenadas por fecha de envío (más recientes primero)
+        $notificaciones = \App\Models\Dominios\DominioNotificacion::where('dominio_id', $dominio->id)
+            ->with('cliente')
+            ->orderBy('fecha_envio', 'desc')
+            ->get();
+
+        return view('dominios.show', compact('dominio', 'facturasAsociadas', 'notificaciones'));
     }
 
     public function edit($id)
