@@ -785,20 +785,25 @@ class DominioPagoController extends Controller
 
             // Crear o verificar cliente de Stripe
             $stripeCustomerId = $cliente->stripe_customer_id;
+            $testClockId = null;
+            $testClockTime = null;
+            
+            // Verificar si hay Test Clock activo
+            try {
+                $testClocks = \Stripe\TestHelpers\TestClock::all(['limit' => 1]);
+                if (count($testClocks->data) > 0) {
+                    $testClockId = $testClocks->data[0]->id;
+                    $testClock = \Stripe\TestHelpers\TestClock::retrieve($testClockId);
+                    $testClockTime = $testClock->frozen_time ?? time();
+                }
+            } catch (\Exception $e) {
+                // Ignorar error de Test Clock
+                Log::debug('No se pudo obtener Test Clock', ['error' => $e->getMessage()]);
+            }
             
             if (!$stripeCustomerId) {
                 // Crear nuevo cliente
                 try {
-                    $testClockId = null;
-                    try {
-                        $testClocks = \Stripe\TestHelpers\TestClock::all(['limit' => 1]);
-                        if (count($testClocks->data) > 0) {
-                            $testClockId = $testClocks->data[0]->id;
-                        }
-                    } catch (\Exception $e) {
-                        // Ignorar error de Test Clock
-                    }
-                    
                     $customerData = [
                         'email' => $cliente->email ?? 'cliente@example.com',
                         'name' => $cliente->name ?? 'Cliente',
@@ -823,6 +828,48 @@ class DominioPagoController extends Controller
                     return redirect()->back()
                         ->with('error', 'Error al crear el cliente en Stripe. Por favor, intente de nuevo.');
                 }
+            } else {
+                // Verificar si el cliente existe en Stripe y obtener su test_clock si tiene
+                try {
+                    $stripeCustomer = \Stripe\Customer::retrieve($stripeCustomerId);
+                    if ($stripeCustomer->test_clock) {
+                        $testClockId = $stripeCustomer->test_clock;
+                        $testClock = \Stripe\TestHelpers\TestClock::retrieve($testClockId);
+                        $testClockTime = $testClock->frozen_time ?? time();
+                    }
+                } catch (\Exception $e) {
+                    // Si el cliente no existe, crear uno nuevo
+                    Log::warning('Cliente Stripe no encontrado, creando uno nuevo', [
+                        'stripe_customer_id' => $stripeCustomerId,
+                        'cliente_id' => $cliente->id
+                    ]);
+                    
+                    try {
+                        $customerData = [
+                            'email' => $cliente->email ?? 'cliente@example.com',
+                            'name' => $cliente->name ?? 'Cliente',
+                            'metadata' => [
+                                'client_id' => $cliente->id,
+                            ]
+                        ];
+                        
+                        if ($testClockId) {
+                            $customerData['test_clock'] = $testClockId;
+                        }
+                        
+                        $stripeCustomer = \Stripe\Customer::create($customerData);
+                        $stripeCustomerId = $stripeCustomer->id;
+                        
+                        $cliente->update(['stripe_customer_id' => $stripeCustomerId]);
+                    } catch (ApiErrorException $createError) {
+                        Log::error('Error al crear nuevo cliente de Stripe', [
+                            'error' => $createError->getMessage(),
+                            'cliente_id' => $cliente->id
+                        ]);
+                        return redirect()->back()
+                            ->with('error', 'Error al crear el cliente en Stripe. Por favor, intente de nuevo.');
+                    }
+                }
             }
 
             // Calcular precio con IVA (en céntimos)
@@ -837,23 +884,33 @@ class DominioPagoController extends Controller
             }
 
             // Calcular trial_end (fecha de caducidad) - esto hace que NO cobre hasta esa fecha
+            // Stripe requiere que trial_end sea al menos 1 hora en el futuro
+            // Si hay Test Clock, usar su tiempo en lugar del tiempo real
+            $referenceTime = $testClockTime ?? time();
             $trialEnd = $fechaCaducidad->timestamp;
+            $minTrialEnd = $referenceTime + 3600; // Mínimo 1 hora en el futuro
             
-            // Si la fecha está en el pasado, usar el próximo año
-            if ($trialEnd <= time()) {
+            // Si la fecha está en el pasado o es muy cercana, usar el próximo año
+            if ($trialEnd <= $minTrialEnd) {
                 $trialEnd = $fechaCaducidad->copy()->addYear()->timestamp;
+                
+                // Asegurar que sea al menos 1 hora en el futuro
+                if ($trialEnd <= $minTrialEnd) {
+                    $trialEnd = $minTrialEnd;
+                }
             }
-
-            // billing_cycle_anchor será igual a trial_end para que la primera facturación sea en la fecha de caducidad
-            $billingCycleAnchor = $trialEnd;
 
             Log::info('Creando Checkout Session', [
                 'precio_venta' => $precioVenta,
                 'precio_con_iva' => $precioConIva,
                 'precio_con_iva_euros' => $precioConIva / 100,
                 'trial_end' => date('Y-m-d H:i:s', $trialEnd),
-                'billing_cycle_anchor' => date('Y-m-d H:i:s', $billingCycleAnchor),
+                'trial_end_timestamp' => $trialEnd,
+                'reference_time' => $referenceTime,
+                'reference_time_formatted' => date('Y-m-d H:i:s', $referenceTime),
+                'test_clock_id' => $testClockId,
                 'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                'stripe_customer_id' => $stripeCustomerId,
             ]);
 
             // Crear Checkout Session
@@ -886,6 +943,7 @@ class DominioPagoController extends Controller
                         'precio' => (string)$precioVenta,
                     ],
                 ],
+                // Si hay Test Clock, no lo pasamos aquí porque el cliente ya está asociado
                 'payment_method_collection' => 'always', // Siempre pedir método de pago
                 'success_url' => route('dominio.pago.confirmacion', ['token' => $token]) . '?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('dominio.pago.formulario', ['token' => $token]),
@@ -906,18 +964,38 @@ class DominioPagoController extends Controller
             return redirect($checkoutSession->url);
 
         } catch (ApiErrorException $e) {
+            $errorMessage = $e->getMessage();
+            $errorCode = $e->getStripeCode() ?? 'unknown';
+            $httpStatus = method_exists($e, 'getHttpStatus') ? $e->getHttpStatus() : null;
+            
             Log::error('Error al crear Checkout Session', [
-                'error' => $e->getMessage(),
-                'dominio_id' => $dominio->id,
-                'cliente_id' => $cliente->id,
+                'error' => $errorMessage,
+                'error_code' => $errorCode,
+                'http_status' => $httpStatus,
+                'dominio_id' => $dominio->id ?? null,
+                'cliente_id' => $cliente->id ?? null,
+                'stripe_customer_id' => $stripeCustomerId ?? null,
+                'trace' => $e->getTraceAsString(),
             ]);
 
+            // Mensaje más específico según el tipo de error
+            $userMessage = 'Error al crear la sesión de pago.';
+            if (strpos($errorMessage, 'trial_end') !== false) {
+                $userMessage = 'Error con la fecha de la suscripción. Por favor, contacte con soporte.';
+            } elseif (strpos($errorMessage, 'customer') !== false) {
+                $userMessage = 'Error con el cliente. Por favor, intente de nuevo.';
+            } elseif (strpos($errorMessage, 'price') !== false || strpos($errorMessage, 'amount') !== false) {
+                $userMessage = 'Error con el precio. Por favor, contacte con soporte.';
+            }
+
             return redirect()->back()
-                ->with('error', 'Error al crear la sesión de pago. Por favor, intente de nuevo.');
+                ->with('error', $userMessage);
         } catch (\Exception $e) {
             Log::error('Error inesperado al crear Checkout Session', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
+                'dominio_id' => $dominio->id ?? null,
+                'cliente_id' => $cliente->id ?? null,
             ]);
 
             return redirect()->back()
