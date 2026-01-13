@@ -129,12 +129,16 @@
                             <p class="text-muted mb-3">Añada su tarjeta de forma segura para pagos recurrentes</p>
                             
                             <!-- Apple Pay / Google Pay Button -->
-                            <div class="mb-3">
+                            <div class="mb-3" id="payment-request-container">
                                 <label class="form-label">Pago Rápido</label>
-                                <div id="payment-request-button" class="mb-3">
+                                <div id="payment-request-button" class="mb-3" style="min-height: 48px;">
                                     <!-- Stripe Payment Request Button aparecerá aquí -->
                                 </div>
-                                <div class="text-center mb-3">
+                                <div id="payment-request-info" class="alert alert-info" style="display: none; font-size: 0.875rem;">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <span id="payment-request-message"></span>
+                                </div>
+                                <div class="text-center mb-3" id="payment-separator">
                                     <span class="text-muted">o</span>
                                 </div>
                             </div>
@@ -178,6 +182,9 @@
         const precioVenta = {{ ($dominio->precio_venta ?? 0) * 100 }};
         const precioConIva = Math.round(precioVenta * 1.21);
         
+        // Asegurar que el precio sea al menos 1 céntimo (Stripe requiere mínimo 1)
+        const precioFinal = precioConIva > 0 ? precioConIva : 100; // 1€ mínimo si no hay precio
+        
         // Crear Payment Request para Apple Pay / Google Pay
         let paymentRequest = null;
         let paymentRequestButton = null;
@@ -189,31 +196,80 @@
                 currency: 'eur',
                 total: {
                     label: 'Renovación de dominio {{ $dominio->dominio }}',
-                    amount: precioConIva,
+                    amount: precioFinal,
                 },
                 requestPayerName: true,
                 requestPayerEmail: true,
             });
             
-            // Crear botón de Payment Request
-            paymentRequestButton = elements.create('paymentRequestButton', {
-                paymentRequest: paymentRequest,
-                style: {
-                    paymentRequestButton: {
-                        theme: 'dark',
-                        height: '48px',
-                    },
-                },
-            });
-            
-            // Verificar si el navegador soporta Payment Request
+            // Verificar si el navegador soporta Payment Request ANTES de crear el botón
             paymentRequest.canMakePayment().then(function(result) {
+                console.log('canMakePayment resultado:', result);
+                console.log('Precio configurado:', precioFinal);
+                console.log('Protocolo:', window.location.protocol);
+                console.log('User Agent:', navigator.userAgent);
+                
                 if (result) {
-                    paymentRequestButton.mount('#payment-request-button');
+                    console.log('Payment Request disponible. Métodos:', {
+                        applePay: result.applePay,
+                        googlePay: result.googlePay
+                    });
+                    
+                    // Crear botón de Payment Request solo si está disponible
+                    try {
+                        paymentRequestButton = elements.create('paymentRequestButton', {
+                            paymentRequest: paymentRequest,
+                            style: {
+                                paymentRequestButton: {
+                                    theme: 'dark',
+                                    height: '48px',
+                                    type: 'default',
+                                },
+                            },
+                        });
+                        
+                        paymentRequestButton.mount('#payment-request-button');
+                        console.log('Botón de Payment Request montado correctamente');
+                    } catch (mountError) {
+                        console.error('Error al montar el botón:', mountError);
+                    }
                 } else {
+                    console.warn('Payment Request no disponible. Razones posibles:');
+                    console.warn('- No es HTTPS (requerido para Apple Pay)');
+                    console.warn('- No hay tarjetas configuradas en Apple Pay/Google Pay');
+                    console.warn('- Navegador no soporta Payment Request API');
+                    
+                    // Mostrar mensaje informativo
+                    const infoDiv = document.getElementById('payment-request-info');
+                    const messageSpan = document.getElementById('payment-request-message');
+                    if (infoDiv && messageSpan) {
+                        if (window.location.protocol !== 'https:') {
+                            messageSpan.textContent = 'Apple Pay y Google Pay requieren conexión HTTPS. Por favor, use el formulario de tarjeta tradicional.';
+                        } else {
+                            messageSpan.textContent = 'Apple Pay/Google Pay no está disponible. Asegúrese de tener tarjetas configuradas en su dispositivo.';
+                        }
+                        infoDiv.style.display = 'block';
+                    }
+                    
                     // Ocultar el contenedor si no está disponible
-                    document.getElementById('payment-request-button').style.display = 'none';
-                    document.querySelector('#stripe-option .text-center').style.display = 'none';
+                    const paymentRequestContainer = document.getElementById('payment-request-button');
+                    const separator = document.querySelector('#stripe-option .text-center');
+                    if (paymentRequestContainer) {
+                        paymentRequestContainer.style.display = 'none';
+                    }
+                    if (separator) {
+                        separator.style.display = 'none';
+                    }
+                }
+            }).catch(function(error) {
+                console.error('Error al verificar Payment Request:', error);
+                const paymentRequestContainer = document.getElementById('payment-request-button');
+                const separator = document.querySelector('#stripe-option .text-center');
+                if (paymentRequestContainer) {
+                    paymentRequestContainer.style.display = 'none';
+                }
+                if (separator) {
+                    separator.style.display = 'none';
                 }
             });
             
