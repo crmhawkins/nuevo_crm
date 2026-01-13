@@ -126,36 +126,16 @@
                         <!-- Opción Stripe -->
                         <div class="method-option" id="stripe-option">
                             <h5><i class="fab fa-cc-stripe me-2"></i>Tarjeta de Crédito (Stripe)</h5>
-                            <p class="text-muted mb-3">Añada su tarjeta de forma segura para pagos recurrentes</p>
+                            <p class="text-muted mb-3">Configure su tarjeta de crédito para pagos automáticos recurrentes</p>
                             
-                            <!-- Apple Pay / Google Pay Button -->
-                            <div class="mb-3" id="payment-request-container">
-                                <label class="form-label">Pago Rápido</label>
-                                <div id="payment-request-button" class="mb-3" style="min-height: 48px;">
-                                    <!-- Stripe Payment Request Button aparecerá aquí -->
-                                </div>
-                                <div id="payment-request-info" class="alert alert-info" style="display: none; font-size: 0.875rem;">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    <span id="payment-request-message"></span>
-                                </div>
-                                <div class="text-center mb-3" id="payment-separator">
-                                    <span class="text-muted">o</span>
-                                </div>
+                            <div class="d-grid gap-2">
+                                <a href="{{ route('dominio.pago.checkout', $token) }}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-credit-card me-2"></i>Pagar con Tarjeta
+                                </a>
+                                <small class="text-muted text-center">
+                                    Será redirigido a la pasarela segura de Stripe para completar el pago
+                                </small>
                             </div>
-                            
-                            <form method="POST" action="{{ route('dominio.pago.stripe', $token) }}" id="stripe-form">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="form-label">Datos de la Tarjeta</label>
-                                    <div id="card-element" class="stripe-element">
-                                        <!-- Stripe Elements creará el formulario aquí -->
-                                    </div>
-                                    <div id="card-errors" role="alert" class="text-danger mt-2"></div>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100" id="stripe-submit">
-                                    <i class="fas fa-lock me-2"></i>Guardar Tarjeta
-                                </button>
-                            </form>
                         </div>
 
                         <div class="text-center mt-4">
@@ -182,8 +162,15 @@
         const precioVenta = {{ ($dominio->precio_venta ?? 0) * 100 }};
         const precioConIva = Math.round(precioVenta * 1.21);
         
-        // Asegurar que el precio sea al menos 1 céntimo (Stripe requiere mínimo 1)
-        const precioFinal = precioConIva > 0 ? precioConIva : 100; // 1€ mínimo si no hay precio
+        // Asegurar que el precio sea al menos 50 céntimos (Stripe requiere mínimo para Payment Request)
+        const precioFinal = precioConIva >= 50 ? precioConIva : 5000; // 50€ mínimo si no hay precio configurado
+        
+        console.log('=== Configuración Payment Request ===');
+        console.log('Precio venta (céntimos):', precioVenta);
+        console.log('Precio con IVA (céntimos):', precioConIva);
+        console.log('Precio final usado (céntimos):', precioFinal);
+        console.log('Dominio:', '{{ $dominio->dominio }}');
+        console.log('Stripe Key:', '{{ config('services.stripe.key') }}'.substring(0, 20) + '...');
         
         // Crear Payment Request para Apple Pay / Google Pay
         let paymentRequest = null;
@@ -202,18 +189,20 @@
                 requestPayerEmail: true,
             });
             
+            console.log('Payment Request creado correctamente');
+            
             // Verificar si el navegador soporta Payment Request ANTES de crear el botón
             paymentRequest.canMakePayment().then(function(result) {
-                console.log('canMakePayment resultado:', result);
-                console.log('Precio configurado:', precioFinal);
+                console.log('=== Resultado canMakePayment ===');
+                console.log('Resultado completo:', result);
                 console.log('Protocolo:', window.location.protocol);
+                console.log('Es HTTPS:', window.location.protocol === 'https:');
                 console.log('User Agent:', navigator.userAgent);
                 
                 if (result) {
-                    console.log('Payment Request disponible. Métodos:', {
-                        applePay: result.applePay,
-                        googlePay: result.googlePay
-                    });
+                    console.log('✅ Payment Request DISPONIBLE');
+                    console.log('Apple Pay disponible:', result.applePay);
+                    console.log('Google Pay disponible:', result.googlePay);
                     
                     // Crear botón de Payment Request solo si está disponible
                     try {
@@ -229,15 +218,23 @@
                         });
                         
                         paymentRequestButton.mount('#payment-request-button');
-                        console.log('Botón de Payment Request montado correctamente');
+                        console.log('✅ Botón de Payment Request montado correctamente');
+                        
+                        // Ocultar mensaje informativo si el botón se montó
+                        const infoDiv = document.getElementById('payment-request-info');
+                        if (infoDiv) {
+                            infoDiv.style.display = 'none';
+                        }
                     } catch (mountError) {
-                        console.error('Error al montar el botón:', mountError);
+                        console.error('❌ Error al montar el botón:', mountError);
+                        console.error('Stack:', mountError.stack);
                     }
                 } else {
-                    console.warn('Payment Request no disponible. Razones posibles:');
-                    console.warn('- No es HTTPS (requerido para Apple Pay)');
-                    console.warn('- No hay tarjetas configuradas en Apple Pay/Google Pay');
-                    console.warn('- Navegador no soporta Payment Request API');
+                    console.warn('❌ Payment Request NO disponible');
+                    console.warn('Razones posibles:');
+                    console.warn('1. No hay tarjetas configuradas en Apple Pay/Google Pay');
+                    console.warn('2. Navegador no soporta Payment Request API');
+                    console.warn('3. Dominio no verificado en Stripe (solo en producción)');
                     
                     // Mostrar mensaje informativo
                     const infoDiv = document.getElementById('payment-request-info');
@@ -246,7 +243,7 @@
                         if (window.location.protocol !== 'https:') {
                             messageSpan.textContent = 'Apple Pay y Google Pay requieren conexión HTTPS. Por favor, use el formulario de tarjeta tradicional.';
                         } else {
-                            messageSpan.textContent = 'Apple Pay/Google Pay no está disponible. Asegúrese de tener tarjetas configuradas en su dispositivo.';
+                            messageSpan.textContent = 'Apple Pay/Google Pay no está disponible. Verifique que tenga tarjetas configuradas en Apple Wallet o Google Pay.';
                         }
                         infoDiv.style.display = 'block';
                     }
@@ -262,7 +259,10 @@
                     }
                 }
             }).catch(function(error) {
-                console.error('Error al verificar Payment Request:', error);
+                console.error('❌ Error al verificar Payment Request:', error);
+                console.error('Error completo:', error);
+                console.error('Stack:', error.stack);
+                
                 const paymentRequestContainer = document.getElementById('payment-request-button');
                 const separator = document.querySelector('#stripe-option .text-center');
                 if (paymentRequestContainer) {

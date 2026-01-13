@@ -13,6 +13,7 @@ use Stripe\SetupIntent;
 use Stripe\PaymentMethod;
 use Stripe\Plan;
 use Stripe\Subscription;
+use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
 
 class DominioPagoController extends Controller
@@ -129,11 +130,24 @@ class DominioPagoController extends Controller
             return redirect()->back()->with('error', $validacion['mensaje']);
         }
 
-        $validator = Validator::make($request->all(), [
-            'iban' => 'required|string|max:34|regex:/^[A-Z]{2}[0-9]{2}[A-Z0-9]{4,30}$/',
+        // Limpiar el IBAN antes de validar (eliminar espacios y convertir a mayúsculas)
+        $ibanLimpio = strtoupper(str_replace(' ', '', $request->iban ?? ''));
+
+        $validator = Validator::make([
+            'iban' => $ibanLimpio
+        ], [
+            'iban' => [
+                'required',
+                'string',
+                'min:15',
+                'max:34',
+                'regex:/^[A-Z]{2}[0-9]{2}[A-Z0-9]{4,30}$/',
+            ],
         ], [
             'iban.required' => 'El IBAN es obligatorio.',
-            'iban.regex' => 'El formato del IBAN no es válido.',
+            'iban.min' => 'El IBAN debe tener al menos 15 caracteres.',
+            'iban.max' => 'El IBAN no puede tener más de 34 caracteres.',
+            'iban.regex' => 'El formato del IBAN no es válido. Debe comenzar con 2 letras, seguido de 2 dígitos y luego caracteres alfanuméricos.',
         ]);
 
         if ($validator->fails()) {
@@ -143,9 +157,9 @@ class DominioPagoController extends Controller
         }
 
         $dominio = $validacion['dominio'];
-        $iban = strtoupper(str_replace(' ', '', $request->iban));
+        $iban = $ibanLimpio;
 
-        // Validar formato IBAN básico
+        // Validar formato IBAN básico (doble verificación)
         if (!$this->validarFormatoIban($iban)) {
             return redirect()->back()
                 ->with('error', 'El formato del IBAN no es válido.')
@@ -742,6 +756,170 @@ class DominioPagoController extends Controller
     }
 
     /**
+     * Crear Checkout Session de Stripe y redirigir
+     */
+    public function crearCheckoutSession($token)
+    {
+        $validacion = $this->validarToken($token);
+        
+        if (!$validacion['valido']) {
+            return redirect()->back()->with('error', $validacion['mensaje']);
+        }
+
+        $cliente = $validacion['cliente'];
+        $dominio = $validacion['dominio'];
+
+        try {
+            // Validaciones previas
+            $precioVenta = $dominio->precio_venta ?? 0;
+            if ($precioVenta <= 0) {
+                return redirect()->back()
+                    ->with('error', 'El dominio no tiene un precio de venta configurado. Por favor, contacte con soporte.');
+            }
+
+            $fechaCaducidad = $dominio->getFechaCaducidad();
+            if (!$fechaCaducidad) {
+                return redirect()->back()
+                    ->with('error', 'El dominio no tiene fecha de caducidad configurada. Por favor, contacte con soporte.');
+            }
+
+            // Crear o verificar cliente de Stripe
+            $stripeCustomerId = $cliente->stripe_customer_id;
+            
+            if (!$stripeCustomerId) {
+                // Crear nuevo cliente
+                try {
+                    $testClockId = null;
+                    try {
+                        $testClocks = \Stripe\TestHelpers\TestClock::all(['limit' => 1]);
+                        if (count($testClocks->data) > 0) {
+                            $testClockId = $testClocks->data[0]->id;
+                        }
+                    } catch (\Exception $e) {
+                        // Ignorar error de Test Clock
+                    }
+                    
+                    $customerData = [
+                        'email' => $cliente->email ?? 'cliente@example.com',
+                        'name' => $cliente->name ?? 'Cliente',
+                        'metadata' => [
+                            'client_id' => $cliente->id,
+                        ]
+                    ];
+                    
+                    if ($testClockId) {
+                        $customerData['test_clock'] = $testClockId;
+                    }
+                    
+                    $stripeCustomer = \Stripe\Customer::create($customerData);
+                    $stripeCustomerId = $stripeCustomer->id;
+                    
+                    $cliente->update(['stripe_customer_id' => $stripeCustomerId]);
+                } catch (ApiErrorException $e) {
+                    Log::error('Error al crear cliente de Stripe', [
+                        'error' => $e->getMessage(),
+                        'cliente_id' => $cliente->id
+                    ]);
+                    return redirect()->back()
+                        ->with('error', 'Error al crear el cliente en Stripe. Por favor, intente de nuevo.');
+                }
+            }
+
+            // Calcular precio con IVA (en céntimos)
+            // El precio_venta ya debería incluir IVA o no, dependiendo de tu configuración
+            // Asumimos que precio_venta es sin IVA, así que agregamos 21%
+            $precioConIva = round($precioVenta * 1.21 * 100);
+
+            // Calcular trial_end (fecha de caducidad) - esto hace que NO cobre hasta esa fecha
+            $trialEnd = $fechaCaducidad->timestamp;
+            
+            // Si la fecha está en el pasado, usar el próximo año
+            if ($trialEnd <= time()) {
+                $trialEnd = $fechaCaducidad->copy()->addYear()->timestamp;
+            }
+
+            // billing_cycle_anchor será igual a trial_end para que la primera facturación sea en la fecha de caducidad
+            $billingCycleAnchor = $trialEnd;
+
+            Log::info('Creando Checkout Session', [
+                'precio_venta' => $precioVenta,
+                'precio_con_iva' => $precioConIva,
+                'precio_con_iva_euros' => $precioConIva / 100,
+                'trial_end' => date('Y-m-d H:i:s', $trialEnd),
+                'billing_cycle_anchor' => date('Y-m-d H:i:s', $billingCycleAnchor),
+                'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+            ]);
+
+            // Crear Checkout Session
+            $checkoutSession = Session::create([
+                'customer' => $stripeCustomerId,
+                'payment_method_types' => ['card'],
+                'mode' => 'subscription',
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => 'eur',
+                        'product_data' => [
+                            'name' => 'Renovación de dominio ' . $dominio->dominio,
+                            'description' => 'Renovación anual automática del dominio ' . $dominio->dominio,
+                        ],
+                        'unit_amount' => $precioConIva,
+                        'recurring' => [
+                            'interval' => 'year',
+                        ],
+                    ],
+                    'quantity' => 1,
+                ]],
+                'subscription_data' => [
+                    'trial_end' => $trialEnd, // Período de prueba hasta la fecha de caducidad (no cobra nada hasta entonces)
+                    'metadata' => [
+                        'dominio_id' => $dominio->id,
+                        'cliente_id' => $cliente->id,
+                        'dominio' => $dominio->dominio,
+                        'tipo' => 'renovacion_dominio',
+                        'fecha_caducidad' => $fechaCaducidad->format('Y-m-d'),
+                        'precio' => (string)$precioVenta,
+                    ],
+                ],
+                'payment_method_collection' => 'always', // Siempre pedir método de pago
+                'success_url' => route('dominio.pago.confirmacion', ['token' => $token]) . '?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => route('dominio.pago.formulario', ['token' => $token]),
+                'metadata' => [
+                    'dominio_id' => $dominio->id,
+                    'cliente_id' => $cliente->id,
+                    'token' => $token,
+                ],
+            ]);
+
+            Log::info('Checkout Session creada', [
+                'session_id' => $checkoutSession->id,
+                'dominio_id' => $dominio->id,
+                'cliente_id' => $cliente->id,
+            ]);
+
+            // Redirigir a Stripe Checkout
+            return redirect($checkoutSession->url);
+
+        } catch (ApiErrorException $e) {
+            Log::error('Error al crear Checkout Session', [
+                'error' => $e->getMessage(),
+                'dominio_id' => $dominio->id,
+                'cliente_id' => $cliente->id,
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Error al crear la sesión de pago. Por favor, intente de nuevo.');
+        } catch (\Exception $e) {
+            Log::error('Error inesperado al crear Checkout Session', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Error inesperado. Por favor, contacte con soporte.');
+        }
+    }
+
+    /**
      * Página de confirmación
      */
     public function confirmacion($token)
@@ -757,7 +935,41 @@ class DominioPagoController extends Controller
         $dominio = $validacion['dominio'];
         $cliente = $validacion['cliente'];
 
-        return view('dominio-pago.confirmacion', compact('dominio', 'cliente', 'token'));
+        // Si hay session_id, verificar el estado del pago
+        $sessionId = request()->query('session_id');
+        $pagoExitoso = false;
+        
+        if ($sessionId) {
+            try {
+                $session = Session::retrieve($sessionId);
+                if ($session->payment_status === 'paid' && $session->subscription) {
+                    $pagoExitoso = true;
+                    
+                    // Actualizar dominio con la suscripción
+                    $subscription = Subscription::retrieve($session->subscription);
+                    $planId = $subscription->items->data[0]->price->id;
+                    
+                    $dominio->update([
+                        'stripe_subscription_id' => $subscription->id,
+                        'stripe_plan_id' => $planId,
+                        'metodo_pago_preferido' => 'stripe',
+                    ]);
+                    
+                    Log::info('Suscripción confirmada desde Checkout', [
+                        'session_id' => $sessionId,
+                        'subscription_id' => $subscription->id,
+                        'dominio_id' => $dominio->id,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error al verificar Checkout Session', [
+                    'session_id' => $sessionId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return view('dominio-pago.confirmacion', compact('dominio', 'cliente', 'token', 'pagoExitoso'));
     }
 
     /**

@@ -819,6 +819,7 @@ Route::get('/dominio/pago/{token}', [\App\Http\Controllers\Dominios\DominioPagoC
 Route::post('/dominio/pago/{token}/iban', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'guardarIban'])->name('dominio.pago.iban');
 Route::post('/dominio/pago/{token}/stripe', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'procesarStripe'])->name('dominio.pago.stripe');
 Route::post('/dominio/pago/{token}/setup-intent', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'crearSetupIntent'])->name('dominio.pago.setup-intent');
+Route::get('/dominio/pago/{token}/checkout', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'crearCheckoutSession'])->name('dominio.pago.checkout');
 Route::get('/dominio/pago/{token}/confirmacion', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'confirmacion'])->name('dominio.pago.confirmacion');
 
 // Usuarios temporales
