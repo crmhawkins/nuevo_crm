@@ -128,6 +128,17 @@
                             <h5><i class="fab fa-cc-stripe me-2"></i>Tarjeta de Crédito (Stripe)</h5>
                             <p class="text-muted mb-3">Añada su tarjeta de forma segura para pagos recurrentes</p>
                             
+                            <!-- Apple Pay / Google Pay Button -->
+                            <div class="mb-3">
+                                <label class="form-label">Pago Rápido</label>
+                                <div id="payment-request-button" class="mb-3">
+                                    <!-- Stripe Payment Request Button aparecerá aquí -->
+                                </div>
+                                <div class="text-center mb-3">
+                                    <span class="text-muted">o</span>
+                                </div>
+                            </div>
+                            
                             <form method="POST" action="{{ route('dominio.pago.stripe', $token) }}" id="stripe-form">
                                 @csrf
                                 <div class="mb-3">
@@ -162,6 +173,109 @@
         // Configurar Stripe
         const stripe = Stripe('{{ config('services.stripe.key') }}');
         const elements = stripe.elements();
+        
+        // Obtener precio del dominio (en centavos)
+        const precioVenta = {{ ($dominio->precio_venta ?? 0) * 100 }};
+        const precioConIva = Math.round(precioVenta * 1.21);
+        
+        // Crear Payment Request para Apple Pay / Google Pay
+        let paymentRequest = null;
+        let paymentRequestButton = null;
+        
+        // Inicializar Payment Request
+        try {
+            paymentRequest = stripe.paymentRequest({
+                country: 'ES',
+                currency: 'eur',
+                total: {
+                    label: 'Renovación de dominio {{ $dominio->dominio }}',
+                    amount: precioConIva,
+                },
+                requestPayerName: true,
+                requestPayerEmail: true,
+            });
+            
+            // Crear botón de Payment Request
+            paymentRequestButton = elements.create('paymentRequestButton', {
+                paymentRequest: paymentRequest,
+                style: {
+                    paymentRequestButton: {
+                        theme: 'dark',
+                        height: '48px',
+                    },
+                },
+            });
+            
+            // Verificar si el navegador soporta Payment Request
+            paymentRequest.canMakePayment().then(function(result) {
+                if (result) {
+                    paymentRequestButton.mount('#payment-request-button');
+                } else {
+                    // Ocultar el contenedor si no está disponible
+                    document.getElementById('payment-request-button').style.display = 'none';
+                    document.querySelector('#stripe-option .text-center').style.display = 'none';
+                }
+            });
+            
+            // Manejar el evento de pago con Payment Request
+            paymentRequest.on('paymentmethod', async function(ev) {
+                try {
+                    // Crear SetupIntent
+                    const response = await fetch('{{ route('dominio.pago.setup-intent', $token) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+                    
+                    const { client_secret } = await response.json();
+                    
+                    // Confirmar el método de pago
+                    const { error: confirmError } = await stripe.confirmCardSetup(
+                        client_secret,
+                        { payment_method: ev.paymentMethod.id },
+                        { handleActions: false }
+                    );
+                    
+                    if (confirmError) {
+                        ev.complete('fail');
+                        document.getElementById('card-errors').textContent = confirmError.message;
+                    } else {
+                        ev.complete('success');
+                        
+                        // Guardar el método de pago
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ route('dominio.pago.stripe', $token) }}';
+                        
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_token';
+                        csrfInput.value = document.querySelector('meta[name="csrf-token"]').content;
+                        form.appendChild(csrfInput);
+                        
+                        const paymentMethodInput = document.createElement('input');
+                        paymentMethodInput.type = 'hidden';
+                        paymentMethodInput.name = 'payment_method_id';
+                        paymentMethodInput.value = ev.paymentMethod.id;
+                        form.appendChild(paymentMethodInput);
+                        
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                } catch (error) {
+                    ev.complete('fail');
+                    document.getElementById('card-errors').textContent = 'Error al procesar el pago. Por favor, intente de nuevo.';
+                }
+            });
+        } catch (error) {
+            console.error('Error al inicializar Payment Request:', error);
+            document.getElementById('payment-request-button').style.display = 'none';
+            if (document.querySelector('#stripe-option .text-center')) {
+                document.querySelector('#stripe-option .text-center').style.display = 'none';
+            }
+        }
         
         // Crear elemento de tarjeta
         const cardElement = elements.create('card', {
