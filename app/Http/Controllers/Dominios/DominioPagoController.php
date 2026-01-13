@@ -894,6 +894,13 @@ class DominioPagoController extends Controller
             // =========================
             // CHECKOUT SESSION
             // =========================
+            // Preparar descripción del producto con texto personalizado si está configurado
+            $productDescription = 'Renovación anual automática del dominio ' . $dominio->dominio;
+            $textoPeriodoPrueba = config('dominios.stripe.texto_periodo_prueba');
+            if ($textoPeriodoPrueba) {
+                $productDescription = $textoPeriodoPrueba . ' - ' . $productDescription;
+            }
+            
             try {
                 $checkoutSession = \Stripe\Checkout\Session::create([
                     'customer' => $stripeCustomerId,
@@ -903,6 +910,7 @@ class DominioPagoController extends Controller
                             'currency' => 'eur',
                             'product_data' => [
                                 'name' => 'Renovación de dominio ' . $dominio->dominio,
+                                'description' => $productDescription,
                             ],
                             'unit_amount' => $precioConIva,
                             'recurring' => ['interval' => 'year'],
@@ -950,6 +958,7 @@ class DominioPagoController extends Controller
                                 'currency' => 'eur',
                                 'product_data' => [
                                     'name' => 'Renovación de dominio ' . $dominio->dominio,
+                                    'description' => $productDescription,
                                 ],
                                 'unit_amount' => $precioConIva,
                                 'recurring' => ['interval' => 'year'],
@@ -1008,22 +1017,81 @@ class DominioPagoController extends Controller
         if ($sessionId) {
             try {
                 $session = Session::retrieve($sessionId);
+                
+                // Verificar que el pago fue exitoso
                 if ($session->payment_status === 'paid' && $session->subscription) {
                     $pagoExitoso = true;
                     
-                    // Actualizar dominio con la suscripción
-                    $subscription = Subscription::retrieve($session->subscription);
-                    $planId = $subscription->items->data[0]->price->id;
+                    // Obtener la suscripción completa con expand para obtener el payment method
+                    $subscription = Subscription::retrieve($session->subscription, [
+                        'expand' => ['default_payment_method', 'items.data.price']
+                    ]);
                     
-                    $dominio->update([
+                    // Obtener el plan ID de la suscripción
+                    $planId = $subscription->items->data[0]->price->id ?? null;
+                    
+                    // Obtener el payment method ID
+                    $paymentMethodId = null;
+                    if ($subscription->default_payment_method) {
+                        // Si está expandido como objeto, obtener el ID
+                        if (is_object($subscription->default_payment_method)) {
+                            $paymentMethodId = $subscription->default_payment_method->id;
+                        } else {
+                            // Si es un string, usarlo directamente
+                            $paymentMethodId = $subscription->default_payment_method;
+                        }
+                    }
+                    
+                    // Si no se pudo obtener el payment method, intentar obtenerlo de la suscripción
+                    if (!$paymentMethodId && isset($subscription->default_payment_method)) {
+                        try {
+                            $pm = \Stripe\PaymentMethod::retrieve($subscription->default_payment_method);
+                            $paymentMethodId = $pm->id;
+                        } catch (\Exception $e) {
+                            Log::warning('No se pudo obtener payment method de la suscripción', [
+                                'subscription_id' => $subscription->id,
+                                'error' => $e->getMessage()
+                            ]);
+                        }
+                    }
+                    
+                    // Preparar datos para actualizar el dominio
+                    $updateData = [
                         'stripe_subscription_id' => $subscription->id,
                         'stripe_plan_id' => $planId,
                         'metodo_pago_preferido' => 'stripe',
-                    ]);
+                    ];
+                    
+                    // Agregar payment method ID si se obtuvo
+                    if ($paymentMethodId) {
+                        $updateData['stripe_payment_method_id'] = $paymentMethodId;
+                    }
+                    
+                    // Actualizar dominio con toda la información de Stripe
+                    $dominio->update($updateData);
+                    
+                    // Actualizar también el cliente con el stripe_customer_id si no lo tiene
+                    if (!$cliente->stripe_customer_id && $subscription->customer) {
+                        $cliente->update(['stripe_customer_id' => $subscription->customer]);
+                        Log::info('Cliente actualizado con stripe_customer_id desde Checkout', [
+                            'cliente_id' => $cliente->id,
+                            'stripe_customer_id' => $subscription->customer,
+                        ]);
+                    }
                     
                     Log::info('Suscripción confirmada desde Checkout', [
                         'session_id' => $sessionId,
                         'subscription_id' => $subscription->id,
+                        'plan_id' => $planId,
+                        'payment_method_id' => $paymentMethodId,
+                        'customer_id' => $subscription->customer,
+                        'dominio_id' => $dominio->id,
+                        'cliente_id' => $cliente->id,
+                    ]);
+                } elseif ($session->payment_status === 'unpaid') {
+                    Log::warning('Checkout Session con pago no completado', [
+                        'session_id' => $sessionId,
+                        'payment_status' => $session->payment_status,
                         'dominio_id' => $dominio->id,
                     ]);
                 }
@@ -1031,6 +1099,7 @@ class DominioPagoController extends Controller
                 Log::error('Error al verificar Checkout Session', [
                     'session_id' => $sessionId,
                     'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                 ]);
             }
         }

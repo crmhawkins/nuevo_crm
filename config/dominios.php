@@ -51,6 +51,19 @@ return [
         
         // Plan de Stripe para renovación de dominios
         'plan_id' => env('DOMINIOS_STRIPE_PLAN_ID', null),
+        
+        // Días mínimos de período de prueba (trial) - Stripe requiere mínimo 2 días
+        'dias_trial_minimo' => env('DOMINIOS_STRIPE_DIAS_TRIAL_MINIMO', 2),
+        
+        // Usar fecha de caducidad del dominio como trial_end (true) o usar días fijos (false)
+        'usar_fecha_caducidad_como_trial' => env('DOMINIOS_STRIPE_USAR_FECHA_CADUCIDAD_TRIAL', true),
+        
+        // Días de prueba fijos si no se usa la fecha de caducidad
+        'dias_trial_fijos' => env('DOMINIOS_STRIPE_DIAS_TRIAL_FIJOS', 0),
+        
+        // Texto personalizado para el período de prueba (se mostrará en la descripción del producto)
+        // Ejemplo: "Período de prueba gratuito" o "30 días de prueba"
+        'texto_periodo_prueba' => env('DOMINIOS_STRIPE_TEXTO_PERIODO_PRUEBA', null),
     ],
 
     /*
