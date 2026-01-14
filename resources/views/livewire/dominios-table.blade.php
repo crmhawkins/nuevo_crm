@@ -1435,7 +1435,7 @@
 
           try {
               isUpdatingBadge = true;
-              
+
               // Obtener los filtros actuales de Livewire
               const filtros = await @this.call('getFiltrosActuales');
 
