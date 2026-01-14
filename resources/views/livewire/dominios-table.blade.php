@@ -1421,63 +1421,144 @@
            document.getElementById('btnEnviarBatchCallDominios').disabled = true;
        }
 
-       // Actualizar el badge del botón cuando cambian los filtros de Livewire
-       Livewire.hook('message.processed', (message, component) => {
-           // Recargar el badge y los checkboxes después de que Livewire actualice
-           setTimeout(() => {
-               actualizarBadgeTotalDominios();
-               actualizarContadorDominios(); // Actualizar contador de checkboxes
-           }, 100);
-       });
+      // Variables para controlar el debounce y evitar llamadas duplicadas
+      let badgeUpdateTimeout = null;
+      let lastFiltrosHash = '';
+      let isUpdatingBadge = false;
 
-       // Función para actualizar el badge con el total de clientes con teléfono
-       async function actualizarBadgeTotalDominios() {
-           try {
-               // Obtener los filtros actuales de Livewire
-               const filtros = await @this.call('getFiltrosActuales');
+      // Función para actualizar el badge con el total de clientes con teléfono
+      async function actualizarBadgeTotalDominios() {
+          // Evitar llamadas simultáneas
+          if (isUpdatingBadge) {
+              return;
+          }
 
-               const params = new URLSearchParams({
-                   buscar: filtros.buscar || '',
-                   selectedCliente: filtros.selectedCliente || '',
-                   selectedEstado: filtros.selectedEstado || '',
-                   fechaInicio: filtros.fechaInicio || '',
-                   fechaFin: filtros.fechaFin || '',
-                   filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
-                   añoSinFacturas: filtros.añoSinFacturas || '',
-                   filtroFacturacion: filtros.filtroFacturacion || ''
-               });
+          try {
+              isUpdatingBadge = true;
+              
+              // Obtener los filtros actuales de Livewire
+              const filtros = await @this.call('getFiltrosActuales');
 
-               fetch(`/api/telefonos-clientes-dominios?${params.toString()}`)
-                   .then(response => response.json())
-                   .then(data => {
-                       if (data.success) {
-                           const badge = document.getElementById('totalDominiosConTelefono');
-                           if (badge) {
-                               badge.textContent = data.total + ' con teléfono';
-                           }
-                       }
-                   })
-                   .catch(error => {
-                       console.error('Error al cargar total de clientes:', error);
-                   });
-           } catch (error) {
-               console.error('Error en actualizarBadgeTotalDominios:', error);
-           }
-       }
+              // Crear un hash de los filtros para comparar
+              const filtrosHash = JSON.stringify({
+                  buscar: filtros.buscar || '',
+                  selectedCliente: filtros.selectedCliente || '',
+                  selectedEstado: filtros.selectedEstado || '',
+                  fechaInicio: filtros.fechaInicio || '',
+                  fechaFin: filtros.fechaFin || '',
+                  filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
+                  añoSinFacturas: filtros.añoSinFacturas || '',
+                  filtroFacturacion: filtros.filtroFacturacion || ''
+              });
 
-       // Cargar contadores al iniciar
-       document.addEventListener('DOMContentLoaded', function() {
-           setTimeout(() => {
-               actualizarBadgeTotalDominios();
-               actualizarContadorDominios(); // Actualiza el contador de seleccionados
-           }, 500);
-       });
+              // Solo actualizar si los filtros han cambiado
+              if (filtrosHash === lastFiltrosHash) {
+                  isUpdatingBadge = false;
+                  return;
+              }
 
-       // También actualizar al renderizar Livewire
-       document.addEventListener('livewire:load', function() {
-           setTimeout(() => {
-               actualizarContadorDominios();
-           }, 200);
-       });
+              lastFiltrosHash = filtrosHash;
+
+              const params = new URLSearchParams({
+                  buscar: filtros.buscar || '',
+                  selectedCliente: filtros.selectedCliente || '',
+                  selectedEstado: filtros.selectedEstado || '',
+                  fechaInicio: filtros.fechaInicio || '',
+                  fechaFin: filtros.fechaFin || '',
+                  filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
+                  añoSinFacturas: filtros.añoSinFacturas || '',
+                  filtroFacturacion: filtros.filtroFacturacion || ''
+              });
+
+              fetch(`/api/telefonos-clientes-dominios?${params.toString()}`)
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          const badge = document.getElementById('totalDominiosConTelefono');
+                          if (badge) {
+                              badge.textContent = data.total + ' con teléfono';
+                          }
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Error al cargar total de clientes:', error);
+                  })
+                  .finally(() => {
+                      isUpdatingBadge = false;
+                  });
+          } catch (error) {
+              console.error('Error en actualizarBadgeTotalDominios:', error);
+              isUpdatingBadge = false;
+          }
+      }
+
+      // Función con debounce para actualizar el badge
+      function actualizarBadgeTotalDominiosDebounced() {
+          // Limpiar timeout anterior
+          if (badgeUpdateTimeout) {
+              clearTimeout(badgeUpdateTimeout);
+          }
+
+          // Establecer nuevo timeout con debounce de 1500ms para evitar llamadas excesivas
+          badgeUpdateTimeout = setTimeout(() => {
+              actualizarBadgeTotalDominios();
+          }, 1500);
+      }
+
+      // IMPORTANTE: NO actualizar el badge en cada mensaje de Livewire
+      // Solo actualizar el contador de checkboxes cuando Livewire actualice
+      Livewire.hook('message.processed', (message, component) => {
+          // Solo actualizar contador de checkboxes, NO el badge
+          // El badge se actualizará solo cuando el usuario cambie los filtros manualmente
+          setTimeout(() => {
+              actualizarContadorDominios();
+          }, 100);
+      });
+
+      // Cargar contadores y configurar listeners al iniciar
+      document.addEventListener('DOMContentLoaded', function() {
+          // Cargar badge y contador al inicio
+          setTimeout(() => {
+              actualizarBadgeTotalDominios();
+              actualizarContadorDominios();
+          }, 500);
+
+          // Escuchar eventos de cambio en inputs y selects de filtros
+          const filtrosContainer = document.querySelector('.filtros, .filtros-fecha, .filtros-sin-facturas');
+          if (filtrosContainer) {
+              filtrosContainer.addEventListener('change', function(e) {
+                  const wireModel = e.target.getAttribute('wire:model');
+                  if (wireModel && ['buscar', 'selectedCliente', 'selectedEstado', 'fechaInicio', 'fechaFin', 'filtroSinFacturas', 'añoSinFacturas', 'filtroFacturacion'].includes(wireModel)) {
+                      actualizarBadgeTotalDominiosDebounced();
+                  }
+              });
+
+              // Escuchar eventos de input para el campo buscar (que tiene debounce en Livewire)
+              filtrosContainer.addEventListener('input', function(e) {
+                  if (e.target.getAttribute('wire:model') === 'buscar') {
+                      actualizarBadgeTotalDominiosDebounced();
+                  }
+              });
+          }
+
+          // Escuchar clicks en botones de filtros rápidos
+          document.addEventListener('click', function(e) {
+              if (e.target.closest('button[wire\\:click]')) {
+                  const wireClick = e.target.closest('button[wire\\:click]').getAttribute('wire:click');
+                  if (wireClick && ['filtroRango30Dias', 'filtroRango90Dias', 'filtroVencidos', 'filtroEsteMes', 'activarFiltroSinFacturas', 'desactivarFiltroSinFacturas'].includes(wireClick)) {
+                      setTimeout(() => {
+                          actualizarBadgeTotalDominiosDebounced();
+                      }, 500);
+                  }
+              }
+          });
+      });
+
+      // También actualizar contador al renderizar Livewire
+      document.addEventListener('livewire:load', function() {
+          setTimeout(() => {
+              actualizarContadorDominios();
+          }, 200);
+      });
     </script>
 @endsection
