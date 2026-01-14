@@ -1436,20 +1436,40 @@
           try {
               isUpdatingBadge = true;
 
-              // Obtener los filtros actuales de Livewire
-              const filtros = await @this.call('getFiltrosActuales');
+              // Leer los filtros directamente del DOM para evitar actualizaciones de Livewire
+              // que causan el bucle infinito
+              const buscarInput = document.querySelector('input[wire\\:model\\.debounce\\.300ms="buscar"], input[wire\\:model="buscar"]');
+              const selectedClienteSelect = document.querySelector('select[wire\\:model="selectedCliente"]');
+              const selectedEstadoSelect = document.querySelector('select[wire\\:model="selectedEstado"]');
+              const fechaInicioInput = document.querySelector('input[wire\\:model="fechaInicio"]');
+              const fechaFinInput = document.querySelector('input[wire\\:model="fechaFin"]');
+              const añoSinFacturasInput = document.querySelector('input[wire\\:model="añoSinFacturas"]');
+              const filtroFacturacionSelect = document.querySelector('select[wire\\:model="filtroFacturacion"]');
+
+              // Verificar si el filtro de sin facturas está activo
+              // Buscar el badge que indica que el filtro está activo o el botón de desactivar
+              let filtroSinFacturas = '0';
+              const badgeSinFacturas = document.querySelector('.badge.bg-warning.text-dark');
+              const botonDesactivar = document.querySelector('button[wire\\:click="desactivarFiltroSinFacturas"]');
+              if ((badgeSinFacturas && badgeSinFacturas.textContent.includes('Sin facturas')) ||
+                  (botonDesactivar && botonDesactivar.offsetParent !== null) ||
+                  (añoSinFacturasInput && añoSinFacturasInput.value)) {
+                  filtroSinFacturas = '1';
+              }
+
+              const filtros = {
+                  buscar: buscarInput?.value || '',
+                  selectedCliente: selectedClienteSelect?.value || '',
+                  selectedEstado: selectedEstadoSelect?.value || '',
+                  fechaInicio: fechaInicioInput?.value || '',
+                  fechaFin: fechaFinInput?.value || '',
+                  filtroSinFacturas: filtroSinFacturas,
+                  añoSinFacturas: añoSinFacturasInput?.value || '',
+                  filtroFacturacion: filtroFacturacionSelect?.value || ''
+              };
 
               // Crear un hash de los filtros para comparar
-              const filtrosHash = JSON.stringify({
-                  buscar: filtros.buscar || '',
-                  selectedCliente: filtros.selectedCliente || '',
-                  selectedEstado: filtros.selectedEstado || '',
-                  fechaInicio: filtros.fechaInicio || '',
-                  fechaFin: filtros.fechaFin || '',
-                  filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
-                  añoSinFacturas: filtros.añoSinFacturas || '',
-                  filtroFacturacion: filtros.filtroFacturacion || ''
-              });
+              const filtrosHash = JSON.stringify(filtros);
 
               // Solo actualizar si los filtros han cambiado
               if (filtrosHash === lastFiltrosHash) {
@@ -1465,7 +1485,7 @@
                   selectedEstado: filtros.selectedEstado || '',
                   fechaInicio: filtros.fechaInicio || '',
                   fechaFin: filtros.fechaFin || '',
-                  filtroSinFacturas: filtros.filtroSinFacturas ? '1' : '0',
+                  filtroSinFacturas: filtros.filtroSinFacturas || '0',
                   añoSinFacturas: filtros.añoSinFacturas || '',
                   filtroFacturacion: filtros.filtroFacturacion || ''
               });
