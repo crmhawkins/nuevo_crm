@@ -45,17 +45,40 @@ class CrmClienteController extends Controller
         ]);
 
         try {
-            // Buscar dominio en la base de datos
-            $dominio = Dominio::with('cliente')->where('dominio', $dominioNombre)->first();
+            // Limpiar el dominio (eliminar espacios y convertir a minúsculas)
+            $dominioNombreLimpio = strtolower(trim($dominioNombre));
+            
+            Log::info('Buscando dominio', [
+                'dominio_original' => $dominioNombre,
+                'dominio_limpio' => $dominioNombreLimpio,
+            ]);
+            
+            // Buscar dominio en la base de datos (case-insensitive)
+            $dominio = Dominio::with('cliente')
+                ->whereRaw('LOWER(dominio) = ?', [strtolower($dominioNombreLimpio)])
+                ->first();
 
             if (!$dominio) {
-                Log::warning('Dominio no encontrado', [
-                    'dominio' => $dominioNombre,
-                ]);
+                // Intentar búsqueda sin www
+                $dominioSinWww = preg_replace('/^www\./', '', $dominioNombreLimpio);
+                if ($dominioSinWww !== $dominioNombreLimpio) {
+                    $dominio = Dominio::with('cliente')
+                        ->whereRaw('LOWER(dominio) = ?', [strtolower($dominioSinWww)])
+                        ->first();
+                }
                 
-                return response()->json([
-                    'error' => 'No se encontró cliente para este dominio'
-                ], 404);
+                if (!$dominio) {
+                    Log::warning('Dominio no encontrado', [
+                        'dominio_original' => $dominioNombre,
+                        'dominio_limpio' => $dominioNombreLimpio,
+                        'dominio_sin_www' => $dominioSinWww ?? null,
+                    ]);
+                    
+                    return response()->json([
+                        'error' => 'No se encontró cliente para este dominio',
+                        'dominio_buscado' => $dominioNombre
+                    ], 404);
+                }
             }
 
             // Verificar si el dominio tiene un cliente asociado

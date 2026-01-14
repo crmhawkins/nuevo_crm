@@ -141,3 +141,6 @@ Route::post('/buscar-producto', action: [AIController::class, 'buscarProducto'])
 
 Route::middleware('api.key')->get('/clients', [ApiController::class, 'getClients']);
 
+// Endpoint para obtener cliente desde CRM externo por dominio
+Route::post('/crm/cliente/por-dominio', [\App\Http\Controllers\Api\CrmClienteController::class, 'obtenerClientePorDominio'])->name('api.crm.cliente.por-dominio');
+Route::get('/crm/cliente/por-dominio', [\App\Http\Controllers\Api\CrmClienteController::class, 'obtenerClientePorDominio'])->name('api.crm.cliente.por-dominio.get');
