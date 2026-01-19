@@ -8,18 +8,72 @@
         font-family: 'Courier New', monospace;
         font-size: 1.2rem;
         font-weight: bold;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1rem;
+        background: #ffffff;
+        border: 2px solid #e9ecef;
+        border-left: 4px solid #0d6efd;
+        color: #212529;
+        padding: 1.5rem;
         border-radius: 8px;
         text-align: center;
         margin-top: 1rem;
         word-break: break-all;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .domain-info {
         color: #6c757d;
         font-size: 0.9rem;
         margin-top: 0.5rem;
+    }
+    .password-strength {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+    .strength-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    .strength-bar-container {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    .strength-bar {
+        height: 100%;
+        transition: width 0.3s ease, background-color 0.3s ease;
+        border-radius: 4px;
+    }
+    .strength-text {
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    .strength-weak {
+        background-color: #dc3545;
+    }
+    .strength-fair {
+        background-color: #ffc107;
+    }
+    .strength-good {
+        background-color: #0dcaf0;
+    }
+    .strength-strong {
+        background-color: #198754;
+    }
+    .strength-very-strong {
+        background-color: #0d6efd;
+    }
+    .password-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        color: #495057;
     }
 </style>
 @endsection
@@ -86,14 +140,26 @@
 
                             <div id="resultado-container" style="display: none;">
                                 <div class="password-result" id="password-result">
-                                    <div class="mb-2">
-                                        <i class="bi bi-shield-lock"></i> Contraseña Generada
+                                    <div class="password-header">
+                                        <i class="bi bi-shield-lock-fill"></i>
+                                        <span>Contraseña Generada</span>
                                     </div>
-                                    <div id="password-value" style="font-size: 1.5rem; letter-spacing: 2px;"></div>
-                                    <div class="domain-info" id="domain-info"></div>
+                                    <div id="password-value" style="font-size: 1.5rem; letter-spacing: 2px; color: #212529; margin: 1rem 0;"></div>
+
+                                    <div class="password-strength">
+                                        <div class="strength-label">
+                                            <i class="bi bi-shield-check"></i> Nivel de Seguridad
+                                        </div>
+                                        <div class="strength-bar-container">
+                                            <div class="strength-bar" id="strength-bar" style="width: 0%;"></div>
+                                        </div>
+                                        <div class="strength-text" id="strength-text"></div>
+                                    </div>
+
+                                    <div class="domain-info" id="domain-info" style="margin-top: 1rem;"></div>
                                     <button
                                         type="button"
-                                        class="btn btn-sm btn-light mt-3"
+                                        class="btn btn-sm btn-outline-primary mt-3"
                                         id="btn-copiar"
                                         title="Copiar al portapapeles"
                                     >
@@ -154,9 +220,11 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.error === false) {
-                passwordValue.textContent = data.password;
                 domainInfo.textContent = `Dominio procesado: ${data.dominio_limpio}`;
                 resultadoContainer.style.display = 'block';
+
+                // Animar la generación de la contraseña
+                animarGeneracionPassword(data.password);
 
                 // Scroll suave al resultado
                 resultadoContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -175,6 +243,127 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Función para calcular la seguridad de la contraseña (sin animación)
+    function calcularSeguridad(password) {
+        let score = 0;
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('strength-text');
+
+        // Criterios de seguridad
+        if (password.length >= 8) score += 1;
+        if (password.length >= 12) score += 1;
+        if (password.length >= 16) score += 1;
+        if (/[a-z]/.test(password)) score += 1;
+        if (/[A-Z]/.test(password)) score += 1;
+        if (/[0-9]/.test(password)) score += 1;
+        if (/[^a-zA-Z0-9]/.test(password)) score += 1;
+        if (password.length >= 20) score += 1;
+
+        // Determinar nivel y porcentaje
+        let nivel = '';
+        let porcentaje = 0;
+        let colorClass = '';
+
+        if (score <= 2) {
+            nivel = 'Débil';
+            porcentaje = 25;
+            colorClass = 'strength-weak';
+        } else if (score <= 4) {
+            nivel = 'Regular';
+            porcentaje = 50;
+            colorClass = 'strength-fair';
+        } else if (score <= 6) {
+            nivel = 'Buena';
+            porcentaje = 75;
+            colorClass = 'strength-good';
+        } else if (score <= 7) {
+            nivel = 'Fuerte';
+            porcentaje = 90;
+            colorClass = 'strength-strong';
+        } else {
+            nivel = 'Muy Fuerte';
+            porcentaje = 100;
+            colorClass = 'strength-very-strong';
+        }
+
+        return {
+            nivel: nivel,
+            porcentaje: porcentaje,
+            colorClass: colorClass
+        };
+    }
+
+    // Función para animar la generación de la contraseña
+    function animarGeneracionPassword(password) {
+        const parteFija = "H11+&401m$Kva";
+        const parteDinamica = password.substring(parteFija.length);
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('strength-text');
+
+        // Calcular seguridad final
+        const seguridad = calcularSeguridad(password);
+
+        // Resetear barra
+        strengthBar.style.width = '0%';
+        strengthBar.className = 'strength-bar';
+        strengthText.textContent = '';
+
+        // Mostrar parte fija primero
+        passwordValue.textContent = parteFija;
+
+        const duracionTotal = 1000; // 1 segundo
+        const caracteresRestantes = parteDinamica.length;
+        const inicioTiempo = Date.now();
+
+        // Mapa de colores para el texto de seguridad
+        const colorMap = {
+            'strength-weak': '#dc3545',
+            'strength-fair': '#ffc107',
+            'strength-good': '#0dcaf0',
+            'strength-strong': '#198754',
+            'strength-very-strong': '#0d6efd'
+        };
+
+        function animarFrame() {
+            const tiempoTranscurrido = Date.now() - inicioTiempo;
+            const progreso = Math.min(tiempoTranscurrido / duracionTotal, 1);
+
+            // Calcular cuántos caracteres mostrar basado en el progreso
+            const caracteresAMostrar = Math.floor(progreso * caracteresRestantes);
+            passwordValue.textContent = parteFija + parteDinamica.substring(0, caracteresAMostrar);
+
+            // Calcular progreso exponencial de la barra (ease-out exponencial)
+            // Función exponencial: 1 - Math.pow(1 - progreso, 3) para efecto ease-out
+            const progresoExponencial = 1 - Math.pow(1 - progreso, 3);
+            const porcentajeActual = progresoExponencial * seguridad.porcentaje;
+
+            // Actualizar barra de seguridad
+            strengthBar.style.width = porcentajeActual + '%';
+
+            // Actualizar color y texto cuando llegue al 30% del progreso exponencial
+            if (progresoExponencial >= 0.3 && strengthBar.className === 'strength-bar') {
+                strengthBar.className = 'strength-bar ' + seguridad.colorClass;
+                strengthText.textContent = seguridad.nivel;
+                strengthText.style.color = colorMap[seguridad.colorClass] || '#495057';
+            }
+
+            if (progreso < 1) {
+                // Continuar animación
+                requestAnimationFrame(animarFrame);
+            } else {
+                // Asegurar que todo esté al 100%
+                passwordValue.textContent = password;
+                strengthBar.style.width = seguridad.porcentaje + '%';
+                strengthBar.className = 'strength-bar ' + seguridad.colorClass;
+                strengthText.textContent = seguridad.nivel;
+                strengthText.style.color = colorMap[seguridad.colorClass] || '#495057';
+            }
+        }
+
+        // Iniciar animación
+        requestAnimationFrame(animarFrame);
+    }
+
     // Función para copiar al portapapeles
     btnCopiar.addEventListener('click', function() {
         const password = passwordValue.textContent;
@@ -183,13 +372,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Feedback visual
             const originalText = btnCopiar.innerHTML;
             btnCopiar.innerHTML = '<i class="bi bi-check"></i> ¡Copiado!';
-            btnCopiar.classList.remove('btn-light');
+            btnCopiar.classList.remove('btn-outline-primary');
             btnCopiar.classList.add('btn-success');
 
             setTimeout(function() {
                 btnCopiar.innerHTML = originalText;
                 btnCopiar.classList.remove('btn-success');
-                btnCopiar.classList.add('btn-light');
+                btnCopiar.classList.add('btn-outline-primary');
             }, 2000);
         }).catch(function(err) {
             console.error('Error al copiar:', err);
