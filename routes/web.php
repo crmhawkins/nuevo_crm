@@ -710,6 +710,7 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     // Contraseñas
     Route::get('/passwords', [PasswordsController::class, 'index'])->name('passwords.index');
     Route::get('/passwords/create', [PasswordsController::class, 'create'])->name('passwords.create');
+    Route::get('/passwords/generator', [PasswordsController::class, 'generator'])->name('passwords.generator');
     Route::get('/passwords/edit/{id}', [PasswordsController::class, 'edit'])->name('passwords.edit');
     Route::post('/passwords/store', [PasswordsController::class, 'store'])->name('passwords.store');
     Route::post('/passwords/update/{id}', [PasswordsController::class, 'update'])->name('passwords.update');

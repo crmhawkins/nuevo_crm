@@ -5,10 +5,15 @@ namespace App\Services;
 class PasswordGeneratorService
 {
     /**
-     * Parte fija de la contraseña (clave maestra)
+     * Obtiene la parte fija de la contraseña (clave maestra)
      * Si alguien descubre esto, podría generar tus claves, ¡cuídala!
+     *
+     * @return string
      */
-    private const PARTE_FIJA = "H11+&401m$Kva";
+    private static function getParteFija(): string
+    {
+        return "H11+&401m\$Kva";
+    }
 
     /**
      * Genera una contraseña determinista basada en un dominio
@@ -35,7 +40,7 @@ class PasswordGeneratorService
         // 2. Magia Matemática (HMAC-SHA256)
         // Usamos la PARTE_FIJA como "llave" para firmar el dominio
         $mensaje = $dominioLimpio;
-        $llave = self::PARTE_FIJA;
+        $llave = self::getParteFija();
 
         $hash = hash_hmac('sha256', $mensaje, $llave, true);
 
@@ -53,7 +58,7 @@ class PasswordGeneratorService
         $sufijoDinamico = substr($passSegura, 0, 10);
 
         // Opcional: Forzar un símbolo especial extra al final para asegurar requisitos paranoicos
-        $resultado = self::PARTE_FIJA . $sufijoDinamico;
+        $resultado = self::getParteFija() . $sufijoDinamico;
 
         return [
             'dominio_limpio' => $dominioLimpio,

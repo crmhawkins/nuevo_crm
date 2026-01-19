@@ -29,6 +29,14 @@ class PasswordsController extends Controller
         return view('passwords.create', compact('clientes'));
     }
 
+    /**
+     * Muestra la herramienta independiente para generar contraseñas
+     */
+    public function generator()
+    {
+        return view('passwords.generator');
+    }
+
     public function store(Request $request)
     {
         // Validamos los campos

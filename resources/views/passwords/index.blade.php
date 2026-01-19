@@ -21,6 +21,9 @@
                         <p class="text-subtitle text-muted">Listado de contraseñas</p>
                     </div>
                     <div class="col-auto">
+                        <a href="{{route('passwords.generator')}}" class="btn btn-outline-primary me-2">
+                            <i class="bi bi-key-fill"></i> Generar Contraseña
+                        </a>
                         <a href="{{route('passwords.create')}}" class="btn btn-outline-secondary">
                             <i class="bi bi-plus-lg"></i> Crear
                         </a>
