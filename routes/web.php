@@ -714,6 +714,7 @@ Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'eje
     Route::post('/passwords/store', [PasswordsController::class, 'store'])->name('passwords.store');
     Route::post('/passwords/update/{id}', [PasswordsController::class, 'update'])->name('passwords.update');
     Route::post('/passwords/destroy', [PasswordsController::class, 'destroy'])->name('passwords.delete');
+    Route::post('/passwords/generar', [PasswordsController::class, 'generarPassword'])->name('passwords.generar');
 
     // Incidencias
     Route::get('/incidencias', [IncidenceController::class, 'index'])->name('incidencias.index');

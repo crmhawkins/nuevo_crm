@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Passwords;
 use App\Http\Controllers\Controller;
 use App\Models\Clients\Client;
 use App\Models\Passwords\CompanyPassword;
+use App\Services\PasswordGeneratorService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -96,6 +97,25 @@ class PasswordsController extends Controller
         return response()->json([
             'error' => false,
             'mensaje' => 'La contraseña fue borrada correctamente'
+        ]);
+    }
+
+    /**
+     * Genera una contraseña determinista basada en un dominio
+     */
+    public function generarPassword(Request $request)
+    {
+        $request->validate([
+            'dominio' => 'required|string|max:255'
+        ]);
+
+        $service = new PasswordGeneratorService();
+        $resultado = $service->generarPasswordDinamica($request->dominio);
+
+        return response()->json([
+            'error' => false,
+            'dominio_limpio' => $resultado['dominio_limpio'],
+            'password' => $resultado['password']
         ]);
     }
 }

@@ -75,7 +75,12 @@
                         </div>
                         <div class="form-group mb-4">
                             <label class="text-uppercase form-label" style="font-weight: bold" for="password">Contraseña:</label>
-                            <input type="text" class="form-control @error('password') is-invalid @enderror" id="password" value="{{ old('password') }}" name="password">
+                            <div class="input-group">
+                                <input type="text" class="form-control @error('password') is-invalid @enderror" id="password" value="{{ old('password') }}" name="password">
+                                <button type="button" class="btn btn-outline-primary" id="btn-generar-password" title="Generar contraseña determinista">
+                                    <i class="bi bi-key-fill"></i> Generar
+                                </button>
+                            </div>
                             @error('password')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -99,7 +104,58 @@
 @section('scripts')
 <script src="{{asset('assets/vendors/choices.js/choices.min.js')}}"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnGenerar = document.getElementById('btn-generar-password');
+    const inputPassword = document.getElementById('password');
+    const inputWebsite = document.getElementById('website');
 
+    if (btnGenerar && inputPassword && inputWebsite) {
+        btnGenerar.addEventListener('click', function() {
+            const dominio = inputWebsite.value.trim();
+
+            if (!dominio) {
+                alert('Por favor, ingresa primero el dominio/website para generar la contraseña.');
+                inputWebsite.focus();
+                return;
+            }
+
+            // Deshabilitar botón mientras se genera
+            btnGenerar.disabled = true;
+            btnGenerar.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
+
+            // Realizar petición AJAX
+            fetch('{{ route("passwords.generar") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ dominio: dominio })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error === false) {
+                    inputPassword.value = data.password;
+                    // Opcional: mostrar notificación
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success('Contraseña generada correctamente');
+                    }
+                } else {
+                    alert('Error al generar la contraseña: ' + (data.mensaje || 'Error desconocido'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al generar la contraseña. Por favor, intenta nuevamente.');
+            })
+            .finally(() => {
+                // Rehabilitar botón
+                btnGenerar.disabled = false;
+                btnGenerar.innerHTML = '<i class="bi bi-key-fill"></i> Generar';
+            });
+        });
+    }
+});
 </script>
 @endsection
 
