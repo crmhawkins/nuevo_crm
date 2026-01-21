@@ -5,14 +5,28 @@ namespace App\Services;
 class PasswordGeneratorService
 {
     /**
-     * Obtiene la parte fija de la contraseña (clave maestra)
+     * Prefijo identificador visible en la contraseña
+     * Solo sirve para identificar que es nuestra contraseña
+     * NO se usa para generar la contraseña, es solo decorativo
+     *
+     * @return string
+     */
+    private static function getPrefijoIdentificador(): string
+    {
+        return "H11+&401m\$Kva";
+    }
+
+    /**
+     * Clave secreta maestra para generar el hash
+     * Esta clave NO aparece en la contraseña final
      * Si alguien descubre esto, podría generar tus claves, ¡cuídala!
      *
      * @return string
      */
-    private static function getParteFija(): string
+    private static function getClaveSecreta(): string
     {
-        return "H11+&401m\$Kva";
+        // Puedes mover esto a env('PASSWORD_SECRET_KEY') para mayor seguridad
+        return env('PASSWORD_SECRET_KEY');
     }
 
     /**
@@ -38,9 +52,9 @@ class PasswordGeneratorService
         }
 
         // 2. Magia Matemática (HMAC-SHA256)
-        // Usamos la PARTE_FIJA como "llave" para firmar el dominio
+        // Usamos la CLAVE_SECRETA (que NO aparece en la contraseña) para firmar el dominio
         $mensaje = $dominioLimpio;
-        $llave = self::getParteFija();
+        $llave = self::getClaveSecreta(); // Clave secreta diferente al prefijo
 
         $hash = hash_hmac('sha256', $mensaje, $llave, true);
 
@@ -57,8 +71,10 @@ class PasswordGeneratorService
         // Tomamos los primeros 10 caracteres del hash generado
         $sufijoDinamico = substr($passSegura, 0, 10);
 
-        // Opcional: Forzar un símbolo especial extra al final para asegurar requisitos paranoicos
-        $resultado = self::getParteFija() . $sufijoDinamico;
+        // El prefijo identificador solo sirve para identificar que es nuestra contraseña
+        // NO tiene nada que ver con la generación, así que no se puede usar para generar contraseñas
+        $prefijo = self::getPrefijoIdentificador();
+        $resultado = $prefijo . $sufijoDinamico;
 
         return [
             'dominio_limpio' => $dominioLimpio,
