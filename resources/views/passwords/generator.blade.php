@@ -295,24 +295,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para animar la generación de la contraseña
     function animarGeneracionPassword(password) {
-        const parteFija = "H11+&401m$Kva";
-        const parteDinamica = password.substring(parteFija.length);
         const strengthBar = document.getElementById('strength-bar');
         const strengthText = document.getElementById('strength-text');
 
         // Calcular seguridad final
         const seguridad = calcularSeguridad(password);
 
+        // Mostrar contraseña completa instantáneamente
+        passwordValue.textContent = password;
+
         // Resetear barra
         strengthBar.style.width = '0%';
         strengthBar.className = 'strength-bar';
         strengthText.textContent = '';
 
-        // Mostrar parte fija primero
-        passwordValue.textContent = parteFija;
-
         const duracionTotal = 1000; // 1 segundo
-        const caracteresRestantes = parteDinamica.length;
         const inicioTiempo = Date.now();
 
         // Mapa de colores para el texto de seguridad
@@ -327,10 +324,6 @@ document.addEventListener('DOMContentLoaded', function() {
         function animarFrame() {
             const tiempoTranscurrido = Date.now() - inicioTiempo;
             const progreso = Math.min(tiempoTranscurrido / duracionTotal, 1);
-
-            // Calcular cuántos caracteres mostrar basado en el progreso
-            const caracteresAMostrar = Math.floor(progreso * caracteresRestantes);
-            passwordValue.textContent = parteFija + parteDinamica.substring(0, caracteresAMostrar);
 
             // Calcular progreso exponencial de la barra (ease-out exponencial)
             // Función exponencial: 1 - Math.pow(1 - progreso, 3) para efecto ease-out
@@ -352,7 +345,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 requestAnimationFrame(animarFrame);
             } else {
                 // Asegurar que todo esté al 100%
-                passwordValue.textContent = password;
                 strengthBar.style.width = seguridad.porcentaje + '%';
                 strengthBar.className = 'strength-bar ' + seguridad.colorClass;
                 strengthText.textContent = seguridad.nivel;
@@ -360,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Iniciar animación
+        // Iniciar animación de la barra
         requestAnimationFrame(animarFrame);
     }
 
