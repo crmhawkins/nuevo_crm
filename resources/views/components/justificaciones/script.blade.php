@@ -199,20 +199,20 @@
             });
             }
 
-            // Si es CRM/ERP/Factura, primero enviar el nombre del beneficiario a /api/addname
+            // Si es CRM/ERP/Factura, primero enviar el nombre del beneficiario a /api/addBeneficiarioName
             if (tipoJustificacion === 'crm_erp_factura') {
                 const urlCrm = document.getElementById('url_crm_campo').value;
                 const nombreBeneficiario = document.getElementById('nombre_beneficiario_campo').value;
                 
-                // Construir la URL del endpoint /api/addname
+                // Construir la URL del endpoint /api/addBeneficiarioName
                 let urlAddName = urlCrm.trim();
                 // Asegurar que la URL termine con / si no termina con /
                 if (!urlAddName.endsWith('/')) {
                     urlAddName += '/';
                 }
-                urlAddName += 'api/addname';
+                urlAddName += 'api/addBeneficiarioName';
 
-                // Enviar el nombre del beneficiario a /api/addname
+                // Enviar el nombre del beneficiario a /api/addBeneficiarioName
                 fetch(urlAddName, {
                     method: 'POST',
                     headers: {
@@ -226,7 +226,7 @@
                 .then(response => {
                     // No importa si falla, continuamos con el proceso normal
                     if (!response.ok) {
-                        console.warn('Advertencia: No se pudo enviar el nombre del beneficiario a /api/addname', response.status);
+                        console.warn('Advertencia: No se pudo enviar el nombre del beneficiario a /api/addBeneficiarioName', response.status);
                     }
                     return response.json().catch(() => ({}));
                 })
