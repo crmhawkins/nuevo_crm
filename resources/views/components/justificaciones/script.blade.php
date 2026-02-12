@@ -111,12 +111,13 @@
             } else if (tipoJustificacion === 'crm_erp_factura') {
                 const tipoSistema = document.getElementById('tipo_sistema_campo').value;
                 const urlCrm = document.getElementById('url_crm_campo').value;
+                const nombreBeneficiario = document.getElementById('nombre_beneficiario_campo').value;
 
-                if (!tipoSistema || !urlCrm) {
+                if (!tipoSistema || !urlCrm || !nombreBeneficiario) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Debe seleccionar el tipo de sistema e ingresar la URL'
+                        text: 'Debe seleccionar el tipo de sistema, ingresar la URL y el nombre del beneficiario'
                     });
                     return;
                 }
@@ -132,14 +133,22 @@
                 }
             });
 
-            // Enviar formulario al servidor
-            fetch('{{ route("justificaciones.store") }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            // Función para enviar el formulario al servidor Laravel
+            function enviarFormularioNormal() {
+                // Crear un nuevo FormData sin el campo nombre_beneficiario_campo
+                // (este campo solo se envía a /api/addname, no al backend Laravel)
+                const formDataParaBackend = new FormData(justificacionesForm);
+                if (tipoJustificacion === 'crm_erp_factura') {
+                    formDataParaBackend.delete('nombre_beneficiario_campo');
                 }
-            })
+
+                fetch('{{ route("justificaciones.store") }}', {
+                    method: 'POST',
+                    body: formDataParaBackend,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
             .then(response => {
                 console.log('Response status:', response.status);
                 return response.json();
@@ -188,6 +197,51 @@
                     footer: error.message
                 });
             });
+            }
+
+            // Si es CRM/ERP/Factura, primero enviar el nombre del beneficiario a /api/addname
+            if (tipoJustificacion === 'crm_erp_factura') {
+                const urlCrm = document.getElementById('url_crm_campo').value;
+                const nombreBeneficiario = document.getElementById('nombre_beneficiario_campo').value;
+                
+                // Construir la URL del endpoint /api/addname
+                let urlAddName = urlCrm.trim();
+                // Asegurar que la URL termine con / si no termina con /
+                if (!urlAddName.endsWith('/')) {
+                    urlAddName += '/';
+                }
+                urlAddName += 'api/addname';
+
+                // Enviar el nombre del beneficiario a /api/addname
+                fetch(urlAddName, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre_beneficiario: nombreBeneficiario
+                    })
+                })
+                .then(response => {
+                    // No importa si falla, continuamos con el proceso normal
+                    if (!response.ok) {
+                        console.warn('Advertencia: No se pudo enviar el nombre del beneficiario a /api/addname', response.status);
+                    }
+                    return response.json().catch(() => ({}));
+                })
+                .catch(error => {
+                    // Continuar aunque falle esta petición
+                    console.warn('Advertencia: Error al enviar nombre del beneficiario:', error);
+                })
+                .finally(() => {
+                    // Continuar con el envío normal al backend
+                    enviarFormularioNormal();
+                });
+            } else {
+                // Para otros tipos, enviar directamente
+                enviarFormularioNormal();
+            }
         });
     });
 

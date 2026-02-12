@@ -158,6 +158,11 @@
                                 <input type="text" class="form-control" id="password_campo" name="password_campo" placeholder="Contraseña" value="12345678">
                                 <small class="text-muted">Opcional - Los archivos serán generados automáticamente</small>
                             </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="nombre_beneficiario_campo" class="form-label">Nombre del Beneficiario <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nombre_beneficiario_campo" name="nombre_beneficiario_campo" placeholder="Nombre del beneficiario" required>
+                            </div>
                         </div>
 
                         <input type="hidden" id="nombre_justificacion" name="nombre_justificacion">
