@@ -57,8 +57,8 @@ class Kernel extends ConsoleKernel
         //  $schedule->command('kitdigital:avisar-contratos-antiguos')->dailyAt('08:00');
 
         $schedule->command('Tesoreria:ProcesarExcel')->everyMinute();
-        $schedule->command('Whatsapp:GenerarMensajeCampania')->everyTenSeconds();
-        $schedule->command('Whatsapp:Enviar')->everyTenMinutes();
+        // $schedule->command('Whatsapp:GenerarMensajeCampania')->everyTenSeconds();
+        // $schedule->command('Whatsapp:Enviar')->everyTenMinutes();
         // Sincronización automática de conversaciones de Eleven Labs cada 3 minutos
         // Descarga todas las conversaciones de hoy automáticamente
         $schedule->command('elevenlabs:sync-all', ['--from-date' => now()->format('Y-m-d')])
@@ -94,7 +94,7 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping();
 
         // Enviar WhatsApp automático de incidencias de Maria Apartamentos
-        $schedule->command('whatsapp:enviar-incidencias')->everyMinute();
+        // $schedule->command('whatsapp:enviar-incidencias')->everyMinute();
 
         // Notificar dominios próximos a caducar
         $schedule->command('dominios:notificar-caducidad')->dailyAt('09:00');
