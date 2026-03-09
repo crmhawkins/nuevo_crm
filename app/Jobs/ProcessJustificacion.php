@@ -153,6 +153,33 @@ class ProcessJustificacion implements ShouldQueue
     }
 
     /**
+     * Normalizar URL eliminando protocolos duplicados
+     */
+    private function normalizarUrl($url): string
+    {
+        if (empty($url)) {
+            return '';
+        }
+        
+        $url = trim($url);
+        
+        // Eliminar todos los protocolos duplicados al inicio
+        while (preg_match('/^https?:\/\/https?:\/\//i', $url)) {
+            $url = preg_replace('/^https?:\/\//i', '', $url);
+        }
+        
+        // Si no tiene protocolo, agregar https://
+        if (!preg_match('/^https?:\/\//i', $url)) {
+            $url = 'https://' . $url;
+        }
+        
+        // Eliminar barra final
+        $url = rtrim($url, '/');
+        
+        return $url;
+    }
+
+    /**
      * Construir payload según tipo de justificación
      */
     private function buildPayload($justificacion): array
@@ -187,7 +214,7 @@ class ProcessJustificacion implements ShouldQueue
 
             case 'segunda_justificacion_presencia_basica':
                 return array_merge($basePayload, [
-                    'url' => $metadata['url'] ?? '',
+                    'url' => $this->normalizarUrl($metadata['url'] ?? ''),
                     'tipo_analisis' => $metadata['tipo_analisis'] ?? 'web',
                     'periodo' => $metadata['periodo'] ?? ($metadata['fecha_inicio_periodo_prestacion'] ?? '')
                 ]);
@@ -197,7 +224,7 @@ class ProcessJustificacion implements ShouldQueue
                     'kd' => $metadata['kd'] ?? '',
                     'fecha' => $metadata['fecha'] ?? '',
                     'nombre' => $metadata['nombre'] ?? '',
-                    'url' => $metadata['url'] ?? '',
+                    'url' => $this->normalizarUrl($metadata['url'] ?? ''),
                     'keyword_principal' => $metadata['keyword_principal'] ?? '',
                     'phone' => $metadata['phone'] ?? '',
                     'email' => $metadata['email'] ?? '',
@@ -215,10 +242,13 @@ class ProcessJustificacion implements ShouldQueue
                     default => strtoupper($tipoSistema)
                 };
                 
+                // Normalizar URL para evitar duplicados de https://
+                $urlNormalizada = $this->normalizarUrl($metadata['url'] ?? '');
+                
                 return array_merge($basePayload, [
                     'tipo' => $tipoMapeado,
                     'tipo_sistema' => $metadata['tipo_sistema'] ?? '',
-                    'url' => $metadata['url'] ?? '',
+                    'url' => $urlNormalizada,
                     'username' => $metadata['username'] ?? 'admin',
                     'password' => $metadata['password'] ?? '12345678'
                 ]);
