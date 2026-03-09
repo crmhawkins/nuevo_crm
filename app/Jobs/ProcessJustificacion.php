@@ -82,6 +82,7 @@ class ProcessJustificacion implements ShouldQueue
             $payload = $this->buildPayload($justificacion);
 
             Log::info('📦 Payload construido', ['payload' => $payload]);
+            Log::info('🔗 URL en payload (crm_erp_factura): ' . ($payload['url'] ?? 'N/A'));
 
             // Enviar petición a la API externa con timeout extendido
             $response = Http::timeout(300)->post($apiUrl, $payload);
@@ -160,22 +161,25 @@ class ProcessJustificacion implements ShouldQueue
         if (empty($url)) {
             return '';
         }
-        
+
         $url = trim($url);
-        
-        // Eliminar todos los protocolos duplicados al inicio
-        while (preg_match('/^https?:\/\/https?:\/\//i', $url)) {
+
+        // Eliminar TODOS los protocolos al inicio (puede haber múltiples duplicados)
+        while (preg_match('/^https?:\/\//i', $url)) {
             $url = preg_replace('/^https?:\/\//i', '', $url);
         }
-        
+
+        // Eliminar cualquier otro protocolo duplicado que pueda quedar
+        $url = preg_replace('/^https?:\/\/+/i', '', $url);
+
         // Si no tiene protocolo, agregar https://
         if (!preg_match('/^https?:\/\//i', $url)) {
             $url = 'https://' . $url;
         }
-        
+
         // Eliminar barra final
         $url = rtrim($url, '/');
-        
+
         return $url;
     }
 
@@ -241,14 +245,22 @@ class ProcessJustificacion implements ShouldQueue
                     'factura' => 'FACTURA',
                     default => strtoupper($tipoSistema)
                 };
-                
-                // Normalizar URL para evitar duplicados de https://
-                $urlNormalizada = $this->normalizarUrl($metadata['url'] ?? '');
-                
+
+                // Normalizar URL: eliminar protocolo porque el servidor Python lo agregará
+                // Esto evita el problema de https://https:// duplicado
+                $urlRaw = $metadata['url'] ?? '';
+                $urlRaw = trim($urlRaw);
+
+                // Eliminar protocolos al inicio (el servidor Python los agregará)
+                $urlSinProtocolo = preg_replace('/^https?:\/\//i', '', $urlRaw);
+
+                // Eliminar barras finales
+                $urlSinProtocolo = rtrim($urlSinProtocolo, '/');
+
                 return array_merge($basePayload, [
                     'tipo' => $tipoMapeado,
                     'tipo_sistema' => $metadata['tipo_sistema'] ?? '',
-                    'url' => $urlNormalizada,
+                    'url' => $urlSinProtocolo, // Enviar sin protocolo para que el servidor Python lo agregue
                     'username' => $metadata['username'] ?? 'admin',
                     'password' => $metadata['password'] ?? '12345678'
                 ]);
