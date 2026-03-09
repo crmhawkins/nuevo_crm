@@ -200,7 +200,7 @@ class JustificacionesController extends Controller
         $logMessage .= "Files: " . json_encode(array_keys($request->allFiles())) . "\n";
         $logMessage .= "All data: " . json_encode($request->all()) . "\n";
         $logMessage .= "---\n";
-        
+
         file_put_contents(storage_path('logs/justificaciones_receive.log'),
             $logMessage,
             FILE_APPEND
@@ -260,7 +260,7 @@ class JustificacionesController extends Controller
                     if ($file->getClientOriginalExtension() === 'pdf' || $file->getMimeType() === 'application/pdf') {
                         $path = $file->store('justificaciones/' . $userId, 'public');
                         $archivos['just'] = $path;
-                        
+
                         Log::info("✅ Archivo PDF único guardado como 'just': {$path}", [
                             'extension' => $file->getClientOriginalExtension(),
                             'size' => $file->getSize(),
@@ -288,27 +288,33 @@ class JustificacionesController extends Controller
                 $metadata = json_decode($metadata, true) ?? [];
             }
             $metadata = $metadata ?? [];
-            
+
+            Log::info("📥 Estado actual antes de recibir archivos: " . ($metadata['estado'] ?? 'NO DEFINIDO'));
+
             // Forzar actualización del estado a completado
             $metadata['estado'] = 'completado';
             $metadata['fecha_completado'] = now()->toDateTimeString();
             $metadata['archivos_recibidos'] = count($archivos);
             $metadata['archivos_enviados'] = true;
+            $metadata['archivos_recibidos_en'] = now()->toDateTimeString();
 
             Log::info("📝 Antes de actualizar - Estado a guardar: completado");
             Log::info("📝 Metadata antes de guardar: " . json_encode($metadata));
 
-            // Usar update() explícito para asegurar que se guarde correctamente
-            $updated = $justificacion->update([
-                'archivos' => $archivos,
-                'metadata' => $metadata
-            ]);
+            // Usar DB::table para actualizar directamente y evitar problemas con casts/events
+            $updated = DB::table('justificacions')
+                ->where('id', $id)
+                ->update([
+                    'archivos' => json_encode($archivos),
+                    'metadata' => json_encode($metadata),
+                    'updated_at' => now()
+                ]);
 
-            Log::info("📝 Resultado del update: " . ($updated ? 'TRUE' : 'FALSE'));
-            
+            Log::info("📝 Resultado del update directo: " . ($updated ? 'TRUE (filas afectadas: ' . $updated . ')' : 'FALSE'));
+
             // Refrescar el modelo desde la base de datos para verificar
             $justificacion->refresh();
-            
+
             // Verificar el estado guardado directamente desde la BD
             $metadataVerificada = $justificacion->metadata;
             if (is_string($metadataVerificada)) {
@@ -316,17 +322,29 @@ class JustificacionesController extends Controller
             }
 
             Log::info("✅ Justificación actualizada con " . count($archivos) . " archivos");
-            Log::info("🔍 Estado guardado en BD: " . ($metadataVerificada['estado'] ?? 'NO GUARDADO'));
+            Log::info("🔍 Estado guardado en BD (desde modelo): " . ($metadataVerificada['estado'] ?? 'NO GUARDADO'));
             Log::info("🔍 Metadata final desde BD: " . json_encode($metadataVerificada));
-            
+
             // Verificación adicional: leer directamente desde la base de datos
-            $justificacionRaw = \DB::table('justificacions')
+            $justificacionRaw = DB::table('justificacions')
                 ->where('id', $id)
                 ->first();
-            
+
             if ($justificacionRaw) {
                 $metadataRaw = json_decode($justificacionRaw->metadata, true) ?? [];
                 Log::info("🔍 Estado desde consulta RAW: " . ($metadataRaw['estado'] ?? 'NO ENCONTRADO'));
+
+                // Si el estado no es "completado", intentar actualizarlo de nuevo
+                if (($metadataRaw['estado'] ?? '') !== 'completado') {
+                    Log::warning("⚠️ Estado no es 'completado', intentando actualizar de nuevo...");
+                    DB::table('justificacions')
+                        ->where('id', $id)
+                        ->update([
+                            'metadata' => json_encode($metadata),
+                            'updated_at' => now()
+                        ]);
+                    Log::info("🔄 Reintento de actualización completado");
+                }
             }
 
             return response()->json([
