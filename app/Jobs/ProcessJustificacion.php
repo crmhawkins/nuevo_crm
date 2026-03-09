@@ -206,7 +206,17 @@ class ProcessJustificacion implements ShouldQueue
                 ]);
 
             case 'crm_erp_factura':
+                // Mapear tipo_sistema a tipo en mayúsculas como espera la API
+                $tipoSistema = strtolower($metadata['tipo_sistema'] ?? '');
+                $tipoMapeado = match($tipoSistema) {
+                    'crm' => 'CRM',
+                    'erp' => 'ERP',
+                    'factura' => 'FACTURA',
+                    default => strtoupper($tipoSistema)
+                };
+                
                 return array_merge($basePayload, [
+                    'tipo' => $tipoMapeado,
                     'tipo_sistema' => $metadata['tipo_sistema'] ?? '',
                     'url' => $metadata['url'] ?? '',
                     'username' => $metadata['username'] ?? 'admin',
