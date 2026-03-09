@@ -21,9 +21,15 @@ class JustificacionesController extends Controller
     public function index()
     {
         $user = Auth::user();
+        // Forzar recarga desde BD sin caché
         $justificaciones = Justificacion::where('admin_user_id', $user->id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($justificacion) {
+                // Forzar recarga de metadata para asegurar datos actualizados
+                $justificacion->refresh();
+                return $justificacion;
+            });
 
         return view('justificaciones.index', compact('justificaciones'));
     }
@@ -311,9 +317,12 @@ class JustificacionesController extends Controller
                 ]);
 
             Log::info("📝 Resultado del update directo: " . ($updated ? 'TRUE (filas afectadas: ' . $updated . ')' : 'FALSE'));
-
-            // Refrescar el modelo desde la base de datos para verificar
+            
+            // Limpiar caché del modelo y refrescar
             $justificacion->refresh();
+            
+            // Forzar recarga del modelo desde la BD sin usar caché
+            $justificacion = Justificacion::findOrFail($id);
 
             // Verificar el estado guardado directamente desde la BD
             $metadataVerificada = $justificacion->metadata;

@@ -63,9 +63,18 @@ class ProcessJustificacion implements ShouldQueue
             $tipo = $justificacion->tipo_justificacion;
             $metadata = $justificacion->metadata ?? [];
 
+            // Verificar si ya está completado (no sobrescribir)
+            $estadoActual = $metadata['estado'] ?? 'pendiente';
+            if ($estadoActual === 'completado') {
+                Log::info('⚠️ Justificación ya completada, no se procesará de nuevo', [
+                    'justificacion_id' => $this->justificacionId
+                ]);
+                return; // Salir sin procesar
+            }
+
             Log::info('📋 Tipo de justificación: ' . $tipo);
 
-            // Actualizar estado a procesando
+            // Actualizar estado a procesando solo si no está completado
             $metadata['estado'] = 'procesando';
             $metadata['procesamiento_iniciado'] = now()->toDateTimeString();
             $justificacion->update(['metadata' => $metadata]);
@@ -95,11 +104,29 @@ class ProcessJustificacion implements ShouldQueue
                     'response' => $data
                 ]);
 
+                // Verificar si ya está completado antes de actualizar (el callback puede haber llegado antes)
+                $justificacion->refresh();
+                $metadataActualizada = $justificacion->metadata ?? [];
+                $estadoActual = $metadataActualizada['estado'] ?? 'pendiente';
+
+                if ($estadoActual === 'completado') {
+                    Log::info('⚠️ Justificación ya completada (callback recibido), no se actualizará el estado', [
+                        'justificacion_id' => $this->justificacionId
+                    ]);
+                    return; // Salir sin actualizar
+                }
+
                 // Si la respuesta incluye información de PDF generado pero no se envió al callback,
                 // actualizar el estado a "procesando" para indicar que el servidor Python está trabajando
                 if (isset($data['success']) && $data['success'] === true && isset($data['pdf'])) {
-                    $metadata['estado'] = 'procesando';
-                    $metadata['mensaje'] = 'PDF generado correctamente. Esperando envío de archivos...';
+                    // Si el callback ya fue llamado según la respuesta del servidor Python
+                    if (isset($data['callback_response']) && isset($data['callback_response']['success']) && $data['callback_response']['success'] === true) {
+                        Log::info('✅ Callback ya procesado según respuesta del servidor Python');
+                        // No cambiar el estado, debe estar en completado
+                    } else {
+                        $metadata['estado'] = 'procesando';
+                        $metadata['mensaje'] = 'PDF generado correctamente. Esperando envío de archivos...';
+                    }
                     $metadata['pdf_generado'] = $data['pdf'];
                     if (isset($data['pdf_path'])) {
                         $metadata['pdf_path'] = $data['pdf_path'];
