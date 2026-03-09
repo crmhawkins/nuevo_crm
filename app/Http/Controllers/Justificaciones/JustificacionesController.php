@@ -192,8 +192,16 @@ class JustificacionesController extends Controller
     public function receiveFiles(Request $request, $id)
     {
         // Log ANTES de todo para ver si llega la petición
+        $logMessage = "[" . now() . "] Petición recibida para ID: {$id}\n";
+        $logMessage .= "Method: " . $request->method() . "\n";
+        $logMessage .= "URL: " . $request->fullUrl() . "\n";
+        $logMessage .= "Headers: " . json_encode($request->headers->all()) . "\n";
+        $logMessage .= "Files: " . json_encode(array_keys($request->allFiles())) . "\n";
+        $logMessage .= "All data: " . json_encode($request->all()) . "\n";
+        $logMessage .= "---\n";
+        
         file_put_contents(storage_path('logs/justificaciones_receive.log'),
-            "[" . now() . "] Petición recibida para ID: {$id}\n",
+            $logMessage,
             FILE_APPEND
         );
 
@@ -201,8 +209,9 @@ class JustificacionesController extends Controller
             Log::info("📥 Recibiendo archivos para justificación #{$id}");
             Log::info("Request method: " . $request->method());
             Log::info("Request URL: " . $request->fullUrl());
+            Log::info("Request headers: " . json_encode($request->headers->all()));
             Log::info("Todos los inputs: " . json_encode($request->all()));
-            Log::info("Archivos en request: " . json_encode($request->allFiles()));
+            Log::info("Archivos en request: " . json_encode(array_keys($request->allFiles())));
 
             $justificacion = Justificacion::findOrFail($id);
 
@@ -243,8 +252,28 @@ class JustificacionesController extends Controller
                 }
             }
 
+            // También aceptar archivo único sin prefijo 'archivo_' (para compatibilidad con servidor Python)
+            if (empty($archivos)) {
+                foreach ($request->allFiles() as $fieldName => $file) {
+                    // Si es un archivo PDF directo, aceptarlo como 'just'
+                    if ($file->getClientOriginalExtension() === 'pdf' || $file->getMimeType() === 'application/pdf') {
+                        $path = $file->store('justificaciones/' . $userId, 'public');
+                        $archivos['just'] = $path;
+                        
+                        Log::info("✅ Archivo PDF único guardado como 'just': {$path}", [
+                            'extension' => $file->getClientOriginalExtension(),
+                            'size' => $file->getSize(),
+                            'original_name' => $file->getClientOriginalName(),
+                            'field_name' => $fieldName
+                        ]);
+                        break; // Solo tomar el primer PDF si hay múltiples
+                    }
+                }
+            }
+
             if (empty($archivos)) {
                 Log::error("❌ No se recibió ningún archivo");
+                Log::error("Archivos recibidos: " . json_encode(array_keys($request->allFiles())));
                 return response()->json([
                     'success' => false,
                     'message' => 'No se recibieron archivos'
