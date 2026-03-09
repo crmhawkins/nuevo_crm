@@ -8,6 +8,7 @@ use App\Models\Justificacion;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use ZipArchive;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\ProcessJustificacion;
@@ -287,17 +288,46 @@ class JustificacionesController extends Controller
                 $metadata = json_decode($metadata, true) ?? [];
             }
             $metadata = $metadata ?? [];
+            
+            // Forzar actualización del estado a completado
             $metadata['estado'] = 'completado';
             $metadata['fecha_completado'] = now()->toDateTimeString();
             $metadata['archivos_recibidos'] = count($archivos);
+            $metadata['archivos_enviados'] = true;
 
-            $justificacion->update([
-                'archivos' => $archivos, // Laravel lo convierte a JSON automáticamente
-                'metadata' => $metadata  // Laravel lo convierte a JSON automáticamente
+            Log::info("📝 Antes de actualizar - Estado a guardar: completado");
+            Log::info("📝 Metadata antes de guardar: " . json_encode($metadata));
+
+            // Usar update() explícito para asegurar que se guarde correctamente
+            $updated = $justificacion->update([
+                'archivos' => $archivos,
+                'metadata' => $metadata
             ]);
 
+            Log::info("📝 Resultado del update: " . ($updated ? 'TRUE' : 'FALSE'));
+            
+            // Refrescar el modelo desde la base de datos para verificar
+            $justificacion->refresh();
+            
+            // Verificar el estado guardado directamente desde la BD
+            $metadataVerificada = $justificacion->metadata;
+            if (is_string($metadataVerificada)) {
+                $metadataVerificada = json_decode($metadataVerificada, true) ?? [];
+            }
+
             Log::info("✅ Justificación actualizada con " . count($archivos) . " archivos");
-            Log::info("Metadata final: " . json_encode($metadata));
+            Log::info("🔍 Estado guardado en BD: " . ($metadataVerificada['estado'] ?? 'NO GUARDADO'));
+            Log::info("🔍 Metadata final desde BD: " . json_encode($metadataVerificada));
+            
+            // Verificación adicional: leer directamente desde la base de datos
+            $justificacionRaw = \DB::table('justificacions')
+                ->where('id', $id)
+                ->first();
+            
+            if ($justificacionRaw) {
+                $metadataRaw = json_decode($justificacionRaw->metadata, true) ?? [];
+                Log::info("🔍 Estado desde consulta RAW: " . ($metadataRaw['estado'] ?? 'NO ENCONTRADO'));
+            }
 
             return response()->json([
                 'success' => true,

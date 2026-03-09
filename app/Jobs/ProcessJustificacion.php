@@ -95,9 +95,21 @@ class ProcessJustificacion implements ShouldQueue
                     'response' => $data
                 ]);
 
-                // Actualizar estado a en_cola (esperando archivos)
-                $metadata['estado'] = 'en_cola';
-                $metadata['mensaje'] = $data['message'] ?? 'Solicitud enviada correctamente';
+                // Si la respuesta incluye información de PDF generado pero no se envió al callback,
+                // actualizar el estado a "procesando" para indicar que el servidor Python está trabajando
+                if (isset($data['success']) && $data['success'] === true && isset($data['pdf'])) {
+                    $metadata['estado'] = 'procesando';
+                    $metadata['mensaje'] = 'PDF generado correctamente. Esperando envío de archivos...';
+                    $metadata['pdf_generado'] = $data['pdf'];
+                    if (isset($data['pdf_path'])) {
+                        $metadata['pdf_path'] = $data['pdf_path'];
+                    }
+                } else {
+                    // Actualizar estado a en_cola (esperando archivos)
+                    $metadata['estado'] = 'en_cola';
+                    $metadata['mensaje'] = $data['message'] ?? 'Solicitud enviada correctamente';
+                }
+
                 $metadata['api_response'] = $data;
                 $metadata['api_enviado'] = now()->toDateTimeString();
                 $justificacion->update(['metadata' => $metadata]);
