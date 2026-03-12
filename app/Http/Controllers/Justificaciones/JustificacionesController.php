@@ -307,24 +307,17 @@ class JustificacionesController extends Controller
             Log::info("📝 Antes de actualizar - Estado a guardar: completado");
             Log::info("📝 Metadata antes de guardar: " . json_encode($metadata));
 
-            // Usar DB::table para actualizar directamente y evitar problemas con casts/events
-            $updated = DB::table('justificacions')
-                ->where('id', $id)
-                ->update([
-                    'archivos' => json_encode($archivos),
-                    'metadata' => json_encode($metadata),
-                    'updated_at' => now()
-                ]);
+            // Actualizar usando el modelo Eloquent para respetar los casts
+            $justificacion->archivos = $archivos;
+            $justificacion->metadata = $metadata;
+            $justificacion->save();
 
-            Log::info("📝 Resultado del update directo: " . ($updated ? 'TRUE (filas afectadas: ' . $updated . ')' : 'FALSE'));
+            Log::info("📝 Justificación actualizada usando modelo Eloquent");
             
-            // Limpiar caché del modelo y refrescar
+            // Refrescar el modelo para obtener los datos actualizados
             $justificacion->refresh();
-            
-            // Forzar recarga del modelo desde la BD sin usar caché
-            $justificacion = Justificacion::findOrFail($id);
 
-            // Verificar el estado guardado directamente desde la BD
+            // Verificar el estado guardado
             $metadataVerificada = $justificacion->metadata;
             if (is_string($metadataVerificada)) {
                 $metadataVerificada = json_decode($metadataVerificada, true) ?? [];
@@ -334,7 +327,7 @@ class JustificacionesController extends Controller
             Log::info("🔍 Estado guardado en BD (desde modelo): " . ($metadataVerificada['estado'] ?? 'NO GUARDADO'));
             Log::info("🔍 Metadata final desde BD: " . json_encode($metadataVerificada));
 
-            // Verificación adicional: leer directamente desde la base de datos
+            // Verificación adicional: leer directamente desde la base de datos para confirmar
             $justificacionRaw = DB::table('justificacions')
                 ->where('id', $id)
                 ->first();
@@ -343,9 +336,9 @@ class JustificacionesController extends Controller
                 $metadataRaw = json_decode($justificacionRaw->metadata, true) ?? [];
                 Log::info("🔍 Estado desde consulta RAW: " . ($metadataRaw['estado'] ?? 'NO ENCONTRADO'));
 
-                // Si el estado no es "completado", intentar actualizarlo de nuevo
+                // Si el estado no es "completado", intentar actualizarlo de nuevo usando DB::table como fallback
                 if (($metadataRaw['estado'] ?? '') !== 'completado') {
-                    Log::warning("⚠️ Estado no es 'completado', intentando actualizar de nuevo...");
+                    Log::warning("⚠️ Estado no es 'completado', intentando actualizar de nuevo con DB::table...");
                     DB::table('justificacions')
                         ->where('id', $id)
                         ->update([
@@ -353,6 +346,9 @@ class JustificacionesController extends Controller
                             'updated_at' => now()
                         ]);
                     Log::info("🔄 Reintento de actualización completado");
+                    
+                    // Refrescar nuevamente después del fallback
+                    $justificacion->refresh();
                 }
             }
 
