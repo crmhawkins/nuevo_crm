@@ -109,11 +109,26 @@ class ProcessJustificacion implements ShouldQueue
                 $metadataActualizada = $justificacion->metadata ?? [];
                 $estadoActual = $metadataActualizada['estado'] ?? 'pendiente';
 
+                // Si el callback ya llegó y el estado es "completado", solo actualizar campos adicionales sin cambiar el estado
                 if ($estadoActual === 'completado') {
-                    Log::info('⚠️ Justificación ya completada (callback recibido), no se actualizará el estado', [
+                    Log::info('⚠️ Justificación ya completada (callback recibido), solo actualizando campos adicionales', [
                         'justificacion_id' => $this->justificacionId
                     ]);
-                    return; // Salir sin actualizar
+                    
+                    // Solo actualizar campos adicionales sin cambiar el estado
+                    $metadataActualizada['api_response'] = $data;
+                    $metadataActualizada['api_enviado'] = now()->toDateTimeString();
+                    
+                    // Agregar información del PDF si está disponible
+                    if (isset($data['pdf'])) {
+                        $metadataActualizada['pdf_generado'] = $data['pdf'];
+                    }
+                    if (isset($data['pdf_path'])) {
+                        $metadataActualizada['pdf_path'] = $data['pdf_path'];
+                    }
+                    
+                    $justificacion->update(['metadata' => $metadataActualizada]);
+                    return; // Salir sin cambiar el estado
                 }
 
                 // Si la respuesta incluye información de PDF generado pero no se envió al callback,
@@ -122,24 +137,62 @@ class ProcessJustificacion implements ShouldQueue
                     // Si el callback ya fue llamado según la respuesta del servidor Python
                     if (isset($data['callback_response']) && isset($data['callback_response']['success']) && $data['callback_response']['success'] === true) {
                         Log::info('✅ Callback ya procesado según respuesta del servidor Python');
-                        // No cambiar el estado, debe estar en completado
+                        // No cambiar el estado, debe estar en completado o lo estará pronto
+                        // Solo actualizar campos adicionales
+                        $metadataActualizada['api_response'] = $data;
+                        $metadataActualizada['api_enviado'] = now()->toDateTimeString();
+                        $metadataActualizada['pdf_generado'] = $data['pdf'];
+                        if (isset($data['pdf_path'])) {
+                            $metadataActualizada['pdf_path'] = $data['pdf_path'];
+                        }
+                        $justificacion->update(['metadata' => $metadataActualizada]);
                     } else {
-                        $metadata['estado'] = 'procesando';
-                        $metadata['mensaje'] = 'PDF generado correctamente. Esperando envío de archivos...';
-                    }
-                    $metadata['pdf_generado'] = $data['pdf'];
-                    if (isset($data['pdf_path'])) {
-                        $metadata['pdf_path'] = $data['pdf_path'];
+                        // Verificar nuevamente el estado antes de actualizar (race condition)
+                        $justificacion->refresh();
+                        $metadataVerificada = $justificacion->metadata ?? [];
+                        $estadoVerificado = $metadataVerificada['estado'] ?? 'pendiente';
+                        
+                        if ($estadoVerificado !== 'completado') {
+                            $metadataVerificada['estado'] = 'procesando';
+                            $metadataVerificada['mensaje'] = 'PDF generado correctamente. Esperando envío de archivos...';
+                            $metadataVerificada['pdf_generado'] = $data['pdf'];
+                            if (isset($data['pdf_path'])) {
+                                $metadataVerificada['pdf_path'] = $data['pdf_path'];
+                            }
+                            $metadataVerificada['api_response'] = $data;
+                            $metadataVerificada['api_enviado'] = now()->toDateTimeString();
+                            $justificacion->update(['metadata' => $metadataVerificada]);
+                        } else {
+                            Log::info('⚠️ Estado ya es completado, solo actualizando campos adicionales');
+                            $metadataVerificada['api_response'] = $data;
+                            $metadataVerificada['api_enviado'] = now()->toDateTimeString();
+                            $metadataVerificada['pdf_generado'] = $data['pdf'];
+                            if (isset($data['pdf_path'])) {
+                                $metadataVerificada['pdf_path'] = $data['pdf_path'];
+                            }
+                            $justificacion->update(['metadata' => $metadataVerificada]);
+                        }
                     }
                 } else {
-                    // Actualizar estado a en_cola (esperando archivos)
-                    $metadata['estado'] = 'en_cola';
-                    $metadata['mensaje'] = $data['message'] ?? 'Solicitud enviada correctamente';
+                    // Verificar nuevamente el estado antes de actualizar (race condition)
+                    $justificacion->refresh();
+                    $metadataVerificada = $justificacion->metadata ?? [];
+                    $estadoVerificado = $metadataVerificada['estado'] ?? 'pendiente';
+                    
+                    if ($estadoVerificado !== 'completado') {
+                        // Actualizar estado a en_cola (esperando archivos)
+                        $metadataVerificada['estado'] = 'en_cola';
+                        $metadataVerificada['mensaje'] = $data['message'] ?? 'Solicitud enviada correctamente';
+                        $metadataVerificada['api_response'] = $data;
+                        $metadataVerificada['api_enviado'] = now()->toDateTimeString();
+                        $justificacion->update(['metadata' => $metadataVerificada]);
+                    } else {
+                        Log::info('⚠️ Estado ya es completado, solo actualizando campos adicionales');
+                        $metadataVerificada['api_response'] = $data;
+                        $metadataVerificada['api_enviado'] = now()->toDateTimeString();
+                        $justificacion->update(['metadata' => $metadataVerificada]);
+                    }
                 }
-
-                $metadata['api_response'] = $data;
-                $metadata['api_enviado'] = now()->toDateTimeString();
-                $justificacion->update(['metadata' => $metadata]);
 
             } else {
                 Log::error('❌ Error en respuesta de API externa', [
