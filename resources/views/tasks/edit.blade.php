@@ -66,7 +66,7 @@
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="description">Gestor:</label>
-                                    <input type="text" class="form-control" value="{{ $task->gestor->name }}"readonly>
+                                    <input type="text" class="form-control" value="{{ optional($task->gestor)->name ?? 'Gestor no asignado' }}" readonly>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="description">Cliente:</label>
