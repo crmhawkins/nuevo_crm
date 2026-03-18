@@ -991,36 +991,42 @@ class DashboardController extends Controller
 
     public function getDataTask(Request $request)
     {
-        $tarea = Task::find($request->id);
-        //$metas = DB::table('meta')->where("tasks_id", $request->id)->get();
-        $autor = $tarea->usuario;
-        if ($tarea) {
-            $data = [];
-            $data['id'] = $tarea->id;
-            $data['user'] = $tarea->admin_user_id;
-            $data['titulo'] = $tarea->title;
-            $data['cliente'] = Optional(Optional($tarea->presupuesto)->cliente)->name ?? 'Cliente no encontrado';
-            $data['descripcion'] = $tarea->description;
-            $data['estimado'] = $tarea->estimated_time;
-            $data['real'] = $tarea->real_time;
-            $data['proyecto'] = Optional($tarea->proyecto)->name ?? 'Proyecto no encontrado';
-            $data['prioridad'] = Optional($tarea->prioridad)->name ?? 'Prioridad no encontrada';
-            $data['gestor'] = $tarea->gestor->name;
-            $data['gestorid'] = Optional($tarea->gestor)->id ?? 'Gestor no encontrado';
-            $data['estado'] = $tarea->estado->name;
-            $data['metas'] = '';
-            $data['userName'] = $autor;
-
-            $response = json_encode($data);
-
-            return $response;
-        } else {
-            $response = json_encode([
-                'estado' => 'ERROR',
-            ]);
-
-            return $response;
+        $ids = $request->id;
+        if (is_array($ids)) {
+            $tareas = Task::find($ids);
+            $result = [];
+            foreach ($tareas as $tarea) {
+                $result[] = $this->buildTaskData($tarea);
+            }
+            return response()->json($result);
         }
+
+        $tarea = Task::find($ids);
+        if (!$tarea) {
+            return response()->json(['estado' => 'ERROR'], 404);
+        }
+
+        return response()->json($this->buildTaskData($tarea));
+    }
+
+    private function buildTaskData(Task $tarea): array
+    {
+        return [
+            'id' => $tarea->id,
+            'user' => $tarea->admin_user_id,
+            'titulo' => $tarea->title,
+            'cliente' => Optional(Optional($tarea->presupuesto)->cliente)->name ?? 'Cliente no encontrado',
+            'descripcion' => $tarea->description,
+            'estimado' => $tarea->estimated_time,
+            'real' => $tarea->real_time,
+            'proyecto' => Optional($tarea->proyecto)->name ?? 'Proyecto no encontrado',
+            'prioridad' => Optional($tarea->prioridad)->name ?? 'Prioridad no encontrada',
+            'gestor' => Optional($tarea->gestor)->name ?? 'Gestor no encontrado',
+            'gestorid' => Optional($tarea->gestor)->id ?? null,
+            'estado' => Optional($tarea->estado)->name ?? 'Estado no encontrado',
+            'metas' => '',
+            'userName' => Optional($tarea->usuario)->name ?? 'Usuario no encontrado',
+        ];
     }
 
     public function getTasksRefresh()

@@ -11,6 +11,7 @@ use App\Models\Tasks\TaskStatus;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TasksController extends Controller
@@ -220,7 +221,8 @@ class TasksController extends Controller
                 if (!empty($request['employeeId' . $i])) {
                     $data = [];
                     $data['admin_user_id'] = $request['employeeId' . $i];
-                    $data['gestor_id'] = $loadTask->gestor_id;
+                    // Usar gestor de la tarea maestra solo si existe (no borrado); si no, quien asigna es el gestor
+                    $data['gestor_id'] = optional($loadTask->gestor)->id ?? Auth::id();
                     $data['priority_id'] = $request['priority'] ?? $loadTask->priority_id;
                     $data['project_id'] = $loadTask->project_id;
                     $data['budget_id'] = $loadTask->budget_id;
