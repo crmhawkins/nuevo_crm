@@ -286,7 +286,7 @@ class LoginController extends Controller
         ]);
 
         $allowedIds = [1, 2, 8, 58, 52, 124];
-        $allowedsIp = ['88.30.82.217', '127.0.0.1'];
+        $allowedsIp = ['88.30.82.217', '127.0.0.1', '217.160.39.79'];
 
         Log::info('🔍 Verificando permisos de IP', [
             'user_id' => $user->id,
