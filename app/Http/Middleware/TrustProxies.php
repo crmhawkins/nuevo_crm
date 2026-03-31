@@ -12,7 +12,9 @@ class TrustProxies extends Middleware
      *
      * @var array<int, string>|string|null
      */
-    protected $proxies;
+    // Trust upstream proxies/load balancers so Request::ip()
+    // resolves the original client IP from forwarded headers.
+    protected $proxies = '*';
 
     /**
      * The headers that should be used to detect proxies.
