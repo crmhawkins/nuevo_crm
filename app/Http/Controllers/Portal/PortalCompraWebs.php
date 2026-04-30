@@ -16,7 +16,7 @@ use App\Models\Purchase;
 use App\Models\PortalPurchaseDetail;
 use App\Models\Projects\Project;
 use App\Models\TempUser;
-use App\Models\User;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -94,7 +94,6 @@ class PortalCompraWebs extends Controller
             return view('portal.login');
         }
 
-        // Definir reglas de validación
         $rules = [
             'purchase_id' => 'required|int',
             'marca' => 'required|string|max:22',
@@ -104,12 +103,11 @@ class PortalCompraWebs extends Controller
             'historia' => 'required|string',
             'servicios' => 'required|string',
             'redes' => 'nullable|string',
-            'politica' => 'nullable|string',  // Aceptar texto para 'politica', no archivos
+            'politica' => 'nullable|string',
             'color_principal' => 'required|string',
             'color_secundario' => 'required|string'
         ];
 
-        // Ejecutar validador
         $validator = Validator::make($request->all(), $rules);
         $type = $request->type;
         if ($validator->fails()) {
@@ -119,7 +117,6 @@ class PortalCompraWebs extends Controller
                 ->withInput();
         }
 
-        // Verificar que la compra sea valida
         $id = (int) $request->input('purchase_id');
         $purchase = Purchase::where('client_id', $cliente->id)
             ->where('payment_status', 'pendiente')
@@ -132,25 +129,15 @@ class PortalCompraWebs extends Controller
 
         $type = $request->type;
         $purchase_id = $purchase->id;
-
-        // Incluir el campo 'politica' junto con los demás datos
         $purchaseData = $request->all();
-
-        // Crear el registro de detalles de compra y guardar el campo 'politica' directamente
         $purchaseDetail = PortalPurchaseDetail::create($purchaseData);
 
-        // Actualizar estado de la compra
         $purchase->status = 'pendiente';
         $purchase->save();
 
         session()->flash('purchase_id', $id);
         return redirect()->route('portal.dominiosCheckout');
     }
-
-
-
-
-
 
     public function redirectUrl($url) {
         $client = session('cliente');
@@ -182,7 +169,6 @@ class PortalCompraWebs extends Controller
         }
     }
 
-
     public function dominiosStore(Request $request) {
         $cliente = session('cliente');
         if (!$cliente) {
@@ -209,7 +195,7 @@ class PortalCompraWebs extends Controller
                 return redirect()->route('portal.dashboard', compact('cliente'))
                     ->with('error_message', 'Ha ocurrido un error inesperado. ' . $purchase_id);
             }
-            session(['purchase' => $purchase]); // guarda la sesión de forma persistente
+            session(['purchase' => $purchase]);
             return redirect()->route('portal.checkout');
         }
 
@@ -225,36 +211,28 @@ class PortalCompraWebs extends Controller
         $archivos = [];
 
         if ($request->hasFile('archivo')) {
-            $files = $request->file('archivo');
-
-            foreach ($files as $file) {
-                $archivoPath = $file->store('uploads', 'public');
-                $archivos[] = $archivoPath;
+            foreach ($request->file('archivo') as $file) {
+                $archivos[] = $file->store('uploads', 'public');
             }
         }
-
-        $archivos = implode(',', $archivos);
 
         $purchaseDetail->update([
             'dominio' => $dominio === 'si' ? $request->input('nombre_dominio') : null,
             'dominio_externo' => $dominio === 'no' ? $dominioExterno : null,
             'hosting' => $hosting,
-            'imagenes' => $archivos,
+            'imagenes' => implode(',', $archivos),
         ]);
 
-        session(['purchase' => $purchase]); // guarda la sesión de forma persistente
+        session(['purchase' => $purchase]);
         return redirect()->route('portal.checkout');
     }
 
-
-    // Generar cupones y usuarios temporales
     public function generarUserView() {
         $admin = session('admin');
         if (!$admin) {
             return redirect()->route('portal.loginAdmin');
-        } else {
-            return view('portal.generaruser');
         }
+        return view('portal.generaruser');
     }
 
     public function generarUser() {
@@ -267,7 +245,6 @@ class PortalCompraWebs extends Controller
         } while (TempUser::where('user', $userNumber)->exists());
 
         $pin = random_int(100000, 999999);
-
         TempUser::create(['user' => $userNumber, 'password' => $pin]);
 
         return view('portal.generaruser', compact('userNumber', 'pin'));
@@ -277,9 +254,8 @@ class PortalCompraWebs extends Controller
         $admin = session('admin');
         if (!$admin) {
             return redirect()->route('portal.loginAdminGet');
-        } else {
-            return view('portal.generarcupon');
         }
+        return view('portal.generarcupon');
     }
 
     public function generarCupon(Request $request) {
@@ -317,5 +293,4 @@ class PortalCompraWebs extends Controller
 
         return redirect()->route('dominios.index');
     }
-
 }
