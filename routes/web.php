@@ -9,73 +9,62 @@ use App\Http\Controllers\CrmActivities\CrmActivityMeetingController;
 use App\Http\Controllers\Plataforma\ExcelUploadController;
 use App\Http\Controllers\Suppliers\SuppliersController;
 use App\Http\Controllers\Tesoreria\CuadroController;
-use App\Http\Controllers\Tesoreria\TesoreriaContabilizarIa;
-use App\Http\Controllers\To_do\To_doController;
-use App\Http\Controllers\Autoseo\AutoseoController;
+use App\Http\Controllers\Tesoreria\TesoreriaController;
+use App\Http\Controllers\Users\UserController;
+use App\Http\Controllers\Budgets\BudgetController;
+use App\Http\Controllers\Clients\ClientController;
+use App\Http\Controllers\Companies\CompanyController;
+use App\Http\Controllers\ContactEvents\ContactEventController;
+use App\Http\Controllers\Contacts\ContactController;
+use App\Http\Controllers\Contracts\ContractController;
+use App\Http\Controllers\Cotizaciones\CotizacionController;
+use App\Http\Controllers\InvoicesEmitidas\InvoiceEmitidaController;
+use App\Http\Controllers\InvoicesRecibidas\InvoiceRecibidaController;
+use App\Http\Controllers\Leads\LeadController;
+use App\Http\Controllers\News\NewsController;
+use App\Http\Controllers\Portal\PortalController;
+use App\Http\Controllers\Proyectos\ProyectoController;
+use App\Http\Controllers\Roles\RoleController;
+use App\Http\Controllers\Settings\SettingsController;
+use App\Http\Controllers\States\StateController;
+use App\Http\Controllers\Tags\TagController;
+use App\Http\Controllers\Tasks\TaskController;
+use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Emails\EmailController;
+use App\Http\Controllers\Stats\StatsController;
+use App\Http\Controllers\Workers\WorkerController;
+use App\Http\Controllers\Expenses\ExpenseController;
+use App\Http\Controllers\Api\ClientsApiController;
+use App\Http\Controllers\PaymentMethod\PaymentMethodController;
+use App\Http\Controllers\Subcontract\SubcontractController;
+use App\Http\Controllers\Facturas\FacturaController;
+use App\Http\Controllers\Remesas\RemesaController;
+use App\Http\Controllers\Seguros\SeguroController;
+use App\Http\Controllers\Alert\AlertCategoriesController;
+use App\Http\Controllers\Cuentas\CuentasController;
+use App\Http\Controllers\Bancos\BancosController;
+use App\Http\Controllers\Categorias\CategoriasController;
+use App\Http\Controllers\Gastos\GastosController;
+use App\Http\Controllers\Periodos\PeriodosController;
+use App\Http\Controllers\Rrhh\RrhhController;
+use App\Http\Controllers\Nominas\NominasController;
+use App\Http\Controllers\Contratos\ContratosController;
+use App\Http\Controllers\Almacen\AlmacenController;
+use App\Http\Controllers\Tipos\TiposController;
+use App\Http\Controllers\Grupos\GruposController;
+use App\Http\Controllers\InformeEmpleados\InformeEmpleadosController;
+use App\Http\Controllers\FormacionTrabajadores\FormacionTrabajadoresController;
+use App\Http\Controllers\CartaPortes\CartaPortesController;
+use App\Http\Controllers\Choferes\ChoferesController;
+use App\Http\Controllers\Camiones\CamionesController;
+use App\Http\Controllers\Servicios\ServiciosController;
+use App\Http\Controllers\Zonas\ZonasController;
+use App\Http\Controllers\FirmaDigital\FirmaDigitalController;
+use App\Http\Controllers\Dominios\DominiosController;
+use App\Http\Controllers\Hosting\HostingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Users\UserController;
-use App\Http\Controllers\Clients\ClientController;
-use App\Http\Controllers\Petitions\PetitionController;
-use App\Http\Controllers\Budgets\BudgetController;
-use App\Http\Controllers\Tasks\TasksController;
-use App\Http\Controllers\Budgets\BudgetConceptsController;
-use App\Http\Controllers\Contabilidad\CuentasContableController;
-use App\Http\Controllers\Contabilidad\PlanContableController;
-use App\Http\Controllers\Contabilidad\SubCuentasContableController;
-use App\Http\Controllers\Contabilidad\SubCuentasHijoController;
-use App\Http\Controllers\Contabilidad\SubGrupoContabilidadController;
-use App\Http\Controllers\Contratos\ContratosController;
-use App\Http\Controllers\Passwords\PasswordsController;
-use App\Http\Controllers\Projects\ProjectController;
-use App\Http\Controllers\Services\ServicesController;
-use App\Http\Controllers\Services\ServicesCategoriesController;
-use App\Http\Controllers\Invoice\InvoiceController;
-use App\Http\Controllers\Tesoreria\TesoreriaController;
-use App\Http\Controllers\Settings\SettingsController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Dominios\DominiosController;
-use App\Http\Controllers\Email\CategoryEmailController;
-use App\Http\Controllers\Email\EmailController;
-use App\Http\Controllers\Email\FirmaController;
-use App\Http\Controllers\Email\StatusMailController;
-use App\Http\Controllers\Events\EventController;
-use App\Http\Controllers\GrupoContabilidadController;
-use App\Http\Controllers\Holiday\HolidayController;
-use App\Http\Controllers\Holiday\AdminHolidaysController;
-use App\Http\Controllers\Horas\HorasController;
-use App\Http\Controllers\Incidence\IncidenceController;
-use App\Http\Controllers\KitDigitalController;
-use App\Http\Controllers\Llamadas\LlamadaController;
-use App\Http\Controllers\Logs\LogActionsController;
-use App\Http\Controllers\CitasController;
-use App\Http\Controllers\Message\MessageController;
-use App\Http\Controllers\Nominas\NominasController;
-use App\Http\Controllers\Ordenes\OrdenesController;
-use App\Http\Controllers\Portal\PortalClientesController;
-use App\Http\Controllers\Productividad\ProductividadController;
-use App\Http\Controllers\Settings\UserSettingsController;
-use App\Http\Controllers\Statistics\StatisticsController;
-use App\Http\Controllers\Tesoreria\CategoriaAsociadosController;
-use App\Http\Controllers\Tesoreria\CategoriaGastosController;
-use App\Http\Controllers\Tesoreria\CierreController;
-use App\Http\Controllers\Tesoreria\IvaController;
-use App\Http\Controllers\test;
-use App\Http\Controllers\Users\DepartamentController;
-use App\Http\Controllers\Users\PositionController;
-use App\Http\Controllers\Whatsapp\AccionesController;
-use App\Http\Controllers\Whatsapp\WhatsappController;
-use App\Http\Controllers\Portal\PortalPagos;
-use App\Http\Controllers\Portal\PortalCompraWebs;
-// use App\Http\Controllers\Clients\ClientController;
-use App\Http\Controllers\Portal\PortalProductos;
-use App\Http\Controllers\AutomatizacionKit\AutomatizacionKitController;
-use App\Http\Controllers\AutomatizacionKit\KitPagadosController;
-use App\Http\Controllers\PresupuestoComentarioController;
-use App\Http\Controllers\Plataforma\PlataformaWhatsappController;
-use App\Http\Controllers\Suite\SuiteController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Autoseo\AutoseoClientsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,7 +78,7 @@ use App\Http\Controllers\Autoseo\AutoseoClientsController;
 */
 
 Route::name('inicio')->get('/', function () {
-    return view('auth.login');
+    return redirect()->route('portal.loginAdminGet');
 });
 
 Route::get('/budget/cliente/{budget}', [BudgetController::class, 'getBudget'])->name('presupuestos.cliente');
@@ -98,987 +87,336 @@ Route::post('/budget/acceptance', [BudgetController::class, 'setAcceptance'])->n
 Auth::routes();
 
 //pdf
-Route::post('/invoice/generate-pdf', [InvoiceController::class, 'generatePDF'])->name('factura.generarPDF');
-Route::post('/budget/generate-pdf', [BudgetController::class, 'generatePDF'])->name('presupuesto.generarPDF');
-
-// ========================================
-// RUTAS PÚBLICAS PARA API EXTERNA
-// ========================================
-// Endpoints para recibir datos del servidor Python externo (sin autenticación)
-Route::post('/justificaciones/receive/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'receiveFiles'])->name('justificaciones.receive.public');
-Route::post('/justificaciones/update-estado/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'updateEstado'])->name('justificaciones.updateEstado.public');
-
-// Webhook de Stripe (sin autenticación, verificación por firma)
-Route::post('/stripe/webhook', [\App\Http\Controllers\Stripe\StripeWebhookController::class, 'handle'])->name('stripe.webhook');
-
-Route::group(['middleware' => 'auth'], function () {
-
-    Route::middleware(['access.level:4'])->group(function () {
-        Route::post('/alerts/create', [AutomatizacionKitController::class, 'createAlert'])->name('alerts.create');
-
-        Route::get('/logs/kitdigital',[LogActionsController::class, 'kitdigital'])->name('logs.kitdigital');
-        // Clients (CLIENTES)
-        Route::get('/clients', [ClientController::class, 'index'])->name('clientes.index');
-        Route::get('/client/create', [ClientController::class, 'create'])->name('clientes.create');
-        Route::get('/client/edit/{id}', [ClientController::class, 'edit'])->name('clientes.edit');
-        Route::post('/client/store', [ClientController::class, 'store'])->name('clientes.store');
-        Route::post('/client/update/{id}', [ClientController::class, 'update'])->name('clientes.update');
-        Route::get('/client/show/{id}', [ClientController::class, 'show'])->name('clientes.show');
-        Route::post('/client/destroy', [ClientController::class, 'destroy'])->name('clientes.delete');
-        Route::post('/client/duplicate', [ClientController::class, 'duplicate'])->name('clientes.duplicate');
-        Route::post('/client/trasladar', [ClientController::class, 'trasladar'])->name('clientes.trasladar');
-        Route::post('/client/logo/{id}', [ClientController::class, 'logo'])->name('clientes.logo');
-        Route::get('/client/create-from-budget', [ClientController::class, 'createFromBudget'])->name('cliente.createFromBudget');
-        Route::post('/client/store-from-budget', [ClientController::class, 'storeFromBudget'])->name('cliente.storeFromBudget');
-        Route::get('/client/create-from-petition', [ClientController::class, 'createFromPetition'])->name('cliente.createFromPetition');
-        Route::post('/client/store-from-petition', [ClientController::class, 'storeFromPetition'])->name('cliente.storeFromPetition');
-        Route::post('/client/get-gestor', [ClientController::class, 'getGestorFromClient'])->name('cliente.getGestor');
-        Route::post('/client/get-contacts', [ClientController::class, 'getContactsFromClient'])->name('cliente.getContacts');
-        Route::post('/client/verificar-existente', [ClientController::class, 'verificarClienteExistente'])->name('cliente.verificarExistente');
-
-        //Proveedores
-        Route::get('/supplier', [SuppliersController::class, 'index'])->name('proveedores.index');
-        Route::get('/supplier/create', [SuppliersController::class, 'create'])->name('proveedores.create');
-        Route::get('/supplier/edit/{id}', [SuppliersController::class, 'edit'])->name('proveedores.edit');
-        Route::post('/supplier/store', [SuppliersController::class, 'store'])->name('proveedores.store');
-        Route::post('/supplier/update/{id}', [SuppliersController::class, 'update'])->name('proveedores.update');
-        Route::get('/supplier/show/{id}', [SuppliersController::class, 'show'])->name('proveedores.show');
-        Route::post('/supplier/destroy', [SuppliersController::class, 'destroy'])->name('proveedores.delete');
-
-        // Petition (PETICIONES)
-        Route::get('/petition', [PetitionController::class, 'index'])->name('peticion.index');
-        Route::get('/petition-for-user', [PetitionController::class, 'indexUser'])->name('peticion.indexUser');
-        Route::get('/petition/create', [PetitionController::class, 'create'])->name('peticion.create');
-        Route::get('/petition/edit/{id}', [PetitionController::class, 'edit'])->name('peticion.edit');
-        Route::post('/petition/store', [PetitionController::class, 'store'])->name('peticion.store');
-        Route::post('/budpetitionget/update/{id}', [PetitionController::class, 'update'])->name('peticion.update');
-        Route::post('/petition/destroy', [PetitionController::class, 'destroy'])->name('peticion.delete');
-
-        //Order
-        Route::get('/order', [OrdenesController::class, 'index'])->name('order.index');
-        Route::get('/orderAll', [OrdenesController::class, 'indexAll'])->name('order.indexAll');
-
-        // Budgets (PRESUPUESTOS)
-        Route::get('/budgets', [BudgetController::class, 'index'])->name('presupuestos.index');
-        Route::get('/budgets-for-user', [BudgetController::class, 'indexUser'])->name('presupuestos.indexUser');
-        Route::get('/budget/create', [BudgetController::class, 'create'])->name('presupuesto.create');
-        Route::get('/budget/create-from-petition/{id}', [BudgetController::class, 'createFromPetition'])->name('presupuesto.createFromPetition');
-        Route::get('/budget/edit/{id}', [BudgetController::class, 'edit'])->name('presupuesto.edit');
-        Route::post('/budget/store', [BudgetController::class, 'store'])->name('presupuesto.store');
-        Route::post('/budget/update/{id}', [BudgetController::class, 'update'])->name('presupuesto.update');
-        Route::post('/budget/duplicate/{id}', [BudgetController::class, 'duplicate'])->name('presupuesto.duplicate');
-        Route::get('/budget/show/{id}', [BudgetController::class, 'show'])->name('presupuesto.show');
-        Route::post('/budget/destroy', [BudgetController::class, 'destroy'])->name('presupuesto.delete');
-        Route::post('/budget/logo/{id}', [BudgetController::class, 'logo'])->name('presupuesto.logo');
-        Route::get('/budget/create-from-project/{cliente}', [BudgetController::class, 'createFromProject'])->name('presupuesto.createFromProject');
-        Route::post('/budget/accept-budget/', [BudgetController::class, 'aceptarPresupuesto'])->name('presupuesto.aceptarPresupuesto');
-        Route::post('/budget/cancel-budget/', [BudgetController::class, 'cancelarPresupuesto'])->name('presupuesto.cancelarPresupuesto');
-        Route::post('/budget/generate-invoice', [BudgetController::class, 'generateInvoice'])->name('presupuesto.generarFactura');
-        Route::post('/budget/generate-partia-invoice', [BudgetController::class, 'generateInvoicePartial'])->name('presupuesto.generarFacturaParcial');
-        Route::post('/budget/generate-pago-inicial', [BudgetController::class, 'pagoInicial'])->name('presupuesto.generarPagoInicial');
-        Route::post('/budget/generate-task', [BudgetController::class, 'createTask'])->name('presupuesto.generarTarea');
-        Route::post('/budgets-by-client', [BudgetController::class, 'getBudgetsByClientId']);
-        Route::post('/budgets-by-project', [BudgetController::class, 'getBudgetsByprojectId']);
-        Route::post('/budget-by-id', [BudgetController::class, 'getBudgetById']);
-        Route::get('/status-projects', [BudgetController::class, 'statusProjects'])->name('presupuestos.status');
-        Route::post('/budget/descripcion/{id}', [BudgetController::class, 'actualizarDescripcion'])->name('presupuesto.descripcion');
-        Route::post('/budget/send/{budget}', [BudgetController::class, 'sendEmail'])->name('presupuestos.sendEmail');
-        Route::post('/presupuesto/comentario', [PresupuestoComentarioController::class, 'store'])->name('presupuesto.comentario.store');
-        Route::delete('/presupuesto/comentario/{id}', [PresupuestoComentarioController::class, 'destroy'])->name('presupuesto.comentario.destroy');
-        Route::patch('/budget/{id}/archivar', [BudgetController::class, 'archivar'])->name('presupuesto.archivar');
-        Route::patch('/budget/{id}/desarchivar', [BudgetController::class, 'desarchivar'])->name('presupuesto.desarchivar');
-        Route::get('/kit-digital/exportar-estados', [AutomatizacionKitController::class, 'exportarExcelEstados'])
-        ->name('kitDigital.exportar_estados');
-
-        Route::patch('/clientes/{cliente}/archivar', [ClientController::class, 'archivar'])->name('cliente.archivar');
-        Route::patch('/clientes/{cliente}/desarchivar', [ClientController::class, 'desarchivar'])->name('cliente.desarchivar');
-
-        // Budgets Concepts (CONCEPTOS DE PRESUPUESTOS)
-        Route::get('/budget-concepts/{budget}/create-type-own', [BudgetConceptsController::class, 'createTypeOwn'])->name('budgetConcepts.createTypeOwn');
-        Route::post('/budget-concepts/{budget}/store-type-own', [BudgetConceptsController::class, 'storeTypeOwn'])->name('budgetConcepts.storeTypeOwn');
-        Route::get('/budget-concepts/{budgetConcept}/edit-type-own', [BudgetConceptsController::class, 'editTypeOwn'])->name('budgetConcepts.editTypeOwn');
-        Route::post('/budget-concepts/{budgetConcept}/update-type-own', [BudgetConceptsController::class, 'updateTypeOwn'])->name('budgetConcepts.updateTypeOwn');
-        Route::get('/budget-concepts/{budgetConcept}/destroy-type-own', [BudgetConceptsController::class, 'destroyTypeOwn'])->name('budgetConcepts.destroyTypeOwn');
-
-        Route::get('/budget-concepts/{budget}/create-type-supplier', [BudgetConceptsController::class, 'createTypeSupplier'])->name('budgetConcepts.createTypeSupplier');
-        Route::post('/budget-concepts/{budget}/store-type-supplier', [BudgetConceptsController::class, 'storeTypeSupplier'])->name('budgetConcepts.storeTypeSupplier');
-        Route::get('/budget-concepts/{budgetConcept}/edit-type-supplier', [BudgetConceptsController::class, 'editTypeSupplier'])->name('budgetConcepts.editTypeSupplier');
-        Route::post('/budget-concepts/{budgetConcept}/update-type-supplier', [BudgetConceptsController::class, 'updateTypeSupplier'])->name('budgetConcepts.updateTypeSupplier');
-        Route::post('/budget-concepts/{budgetConcept}/destroy-type-supplier', [BudgetConceptsController::class, 'destroyTypeSupplier'])->name('budgetConcepts.destroyTypeSupplier');
-
-        Route::get('/budget-concepts/{categoryId}', [BudgetConceptsController::class, 'getServicesByCategory'])->name('budgetConcepts.getServicesByCategory');
-        Route::post('/budget-concepts/category-service', [BudgetConceptsController::class, 'getInfoByServices'])->name('budgetConcepts.getInfoByServices');
-        Route::post('/budget-concepts/delete', [BudgetConceptsController::class, 'deleteConceptsType'])->name('budgetConcepts.delete');
-        Route::post('/budget-concepts/discount-update', [BudgetConceptsController::class, 'discountUpdate'])->name('budgetConcepts.discountUpdate');
-
-        Route::post('/budget-concept-supplier/saveOrderForSend', [BudgetConceptsController::class, 'saveOrderForSend'])->name('budgetConcepts.saveOrderForSend');
-        Route::post('/budget-concept-supplier/generatePurchaseOrder/{id}', [BudgetConceptsController::class, 'generatePurchaseOrder'])->name('budgetConcepts.generatePurchaseOrder');
-        Route::get('/budget-concept-supplier/preview-pdf/{id}', [BudgetConceptsController::class, 'generatePDF'])->name('purchase_order.purchaseOrderPDF');
-
-        // Projects (CAMPAÑAS)
-        Route::get('/projects', [ProjectController::class, 'index'])->name('campania.index');
-        Route::get('/projects/create', [ProjectController::class, 'create'])->name('campania.create');
-        Route::get('/projects/show/{id}', [ProjectController::class, 'show'])->name('campania.show');
-        Route::get('/projects/edit/{id}', [ProjectController::class, 'edit'])->name('campania.edit');
-        Route::get('/projects/{cliente}/create-from-budget', [ProjectController::class, 'createFromBudget'])->name('campania.createFromBudget');
-        Route::get('/projects/{cliente}/create-from-budget/{petitionid}', [ProjectController::class, 'createFromBudgetAndPetition'])->name('campania.createFromBudgetAndPetition');
-        Route::post('/projects/store', [ProjectController::class, 'store'])->name('campania.store');
-        Route::post('/projects/update/{id}', [ProjectController::class, 'update'])->name('campania.update');
-        Route::post('/projects/destroy', [ProjectController::class, 'destroy'])->name('campania.delete');
-        Route::post('/projects/store-from-budget', [ProjectController::class, 'storeFromBudget'])->name('campania.storeFromBudget');
-        Route::post('/projects/update-from-window', [ProjectController::class, 'updateFromWindow'])->name('campania.updateFromWindow');
-        Route::post('/projects-from-client', [ProjectController::class, 'postProjectsFromClient'])->name('campania.postProjectsFromClient');
-        Route::post('/project-by-id', [ProjectController::class, 'getProjectById']);
-
-        // Services (SERVICIOS)
-        Route::get('/services', [ServicesController::class, 'index'])->name('servicios.index');
-        Route::get('/services/create', [ServicesController::class, 'create'])->name('servicios.create');
-        Route::get('/services-show/{id}', [ServicesController::class, 'show'])->name('servicios.show');
-        Route::get('/services/edit/{id}', [ServicesController::class, 'edit'])->name('servicios.edit');
-        Route::post('/services/store', [ServicesController::class, 'store'])->name('servicios.store');
-        Route::post('/services/update/{id}', [ServicesController::class, 'update'])->name('servicios.update');
-        Route::post('/services/destroy', [ServicesController::class, 'destroy'])->name('servicios.delete');
-
-        // Services Categories (CATEGORIA DE SERVICIOS)
-        Route::get('/services-categories', [ServicesCategoriesController::class, 'index'])->name('serviciosCategoria.index');
-        Route::get('/services-categories/create', [ServicesCategoriesController::class, 'create'])->name('serviciosCategoria.create');
-        Route::get('/services-categories/edit/{id}', [ServicesCategoriesController::class, 'edit'])->name('serviciosCategoria.edit');
-        Route::post('/services-categories/store', [ServicesCategoriesController::class, 'store'])->name('serviciosCategoria.store');
-        Route::post('/services-categories/update/{id}', [ServicesCategoriesController::class, 'update'])->name('serviciosCategoria.update');
-        Route::post('/services-categories/destroy', [ServicesCategoriesController::class, 'destroy'])->name('serviciosCategoria.delete');
-
-        // Suppliers (PROVEEDORES)
-        Route::get('/suppliers/{supplier}/get-supplier', [App\Http\Controllers\Suppliers\SuppliersController::class, 'getSupplier'])->name('proveedores.getSupplier');
-
-        // Invoice (FACTURAS)
-        Route::post('/invoice/electronica', [InvoiceController::class, 'electronica'])->name('factura.electronica');
-        Route::get('/invoices', [InvoiceController::class, 'index'])->name('facturas.index');
-        Route::get('/invoice/create', [InvoiceController::class, 'create'])->name('factura.create');
-        Route::get('/invoice/edit/{id}', [InvoiceController::class, 'edit'])->name('factura.edit');
-        Route::post('/invoice/store', [InvoiceController::class, 'store'])->name('factura.store');
-        Route::post('/invoice/update/{id}', [InvoiceController::class, 'update'])->name('factura.update');
-        Route::get('/invoice/show/{id}', [InvoiceController::class, 'show'])->name('factura.show');
-        Route::post('/invoice/destroy', [InvoiceController::class, 'destroy'])->name('factura.delete');
-        Route::post('/invoice/paid-invoice', [InvoiceController::class, 'cobrarFactura'])->name('factura.cobrada');
-        Route::post('/invoice/rectify', [InvoiceController::class, 'rectificateInvoice'])->name('factura.rectificada');
-        Route::get('/invoice/generateMultiplePDFs', [InvoiceController::class, 'generateMultiplePDFs'])->name('factura.generateMultiplePDFs');
-        Route::post('/invoice/sendInvoicePDF', [InvoiceController::class, 'sendInvoicePDF'])->name('factura.sendInvoicePDF');
-        Route::post("/get-invoice-data", [TesoreriaController::class, 'getInvoiceData'])->name('tesoreria.getInvoiceData');
-        // Task (TAREAS)
-        Route::get('/tasks', [TasksController::class, 'index'])->name('tareas.index');
-        Route::get('/tasks/cola-trabajo', [TasksController::class, 'cola'])->name('tareas.cola');
-        Route::get('/tasks/revision', [TasksController::class, 'revision'])->name('tareas.revision');
-        Route::get('/tasks/asignar', [TasksController::class, 'asignar'])->name('tareas.asignar');
-        Route::get('/task/create', [TasksController::class, 'create'])->name('tarea.create');
-        Route::get('/task/edit/{id}', [TasksController::class, 'edit'])->name('tarea.edit');
-        Route::post('/task/store', [TasksController::class, 'store'])->name('tarea.store');
-        Route::post('/task/update/{id}', [TasksController::class, 'update'])->name('tarea.update');
-        Route::get('/task/show/{id}', [TasksController::class, 'show'])->name('tarea.show');
-        Route::post('/task/destroy', [TasksController::class, 'destroy'])->name('tarea.delete');
-        Route::get('/task/calendar/{id}', [TasksController::class, 'calendar'])->name('tarea.calendar');
-        Route::put('/task/update-status/{id}', [TasksController::class, 'updateStatus'])->name('tarea.updateStatus');
-
-
-        // Dominios
-        Route::get('/dominios', [DominiosController::class, 'index'])->name('dominios.index');
-
-// Rutas para asociación de facturas con dominios
-Route::prefix('api/domain-invoices')->group(function () {
-    Route::get('/domain/{domainId}', [DomainInvoiceAssociationController::class, 'showDomainInvoices']);
-    Route::post('/associate', [DomainInvoiceAssociationController::class, 'associateManually']);
-    Route::post('/disassociate', [DomainInvoiceAssociationController::class, 'disassociate']);
-    Route::post('/auto-associate/{domainId}', [DomainInvoiceAssociationController::class, 'associateAutomatically']);
-    Route::get('/available/{domainId}', [DomainInvoiceAssociationController::class, 'getAvailableInvoices']);
-    Route::get('/statistics/{domainId}', [DomainInvoiceAssociationController::class, 'getStatistics']);
-    Route::get('/search', [DomainInvoiceAssociationController::class, 'searchInvoices']);
-});
-        Route::get('/dominios/create', [DominiosController::class, 'create'])->name('dominios.create');
-        Route::get('/dominios/show/{id}', [DominiosController::class, 'show'])->name('dominios.show');
-        Route::get('/dominios/edit/{id}', [DominiosController::class, 'edit'])->name('dominios.edit');
-        Route::post('/dominios/store', [DominiosController::class, 'store'])->name('dominios.store');
-        Route::post('/dominios/update/{id}', [DominiosController::class, 'update'])->name('dominios.update');
-        Route::post('/dominios/destroy', [DominiosController::class, 'destroy'])->name('dominios.delete');
-        Route::post('/dominios/cancelar/{id}', [DominiosController::class, 'cancelar'])->name('dominios.cancelar');
-        Route::get('/dominios/verificar/{id}', [DominiosController::class, 'verificarEstado'])->name('dominios.verificar');
-        Route::post('/dominios/cancelar-suscripcion-stripe/{id}', [DominiosController::class, 'cancelarSuscripcionStripe'])->name('dominios.cancelar-suscripcion-stripe');
-        Route::post('/dominios/limpiar-recursos-stripe-prueba', [DominiosController::class, 'limpiarRecursosStripePrueba'])->name('dominios.limpiar-recursos-stripe-prueba');
-Route::post('/dominios/sincronizar-ionos/{id}', [DominiosController::class, 'sincronizarIonos'])->name('dominios.sincronizar-ionos');
-Route::get('/dominios/info-ionos/{id}', [DominiosController::class, 'obtenerInfoIonos'])->name('dominios.info-ionos');
-Route::get('/dominios/probar-ionos', [DominiosController::class, 'probarConexionIonos'])->name('dominios.probar-ionos');
-Route::post('/dominios/calcular-fecha-registro/{id}', [DominiosController::class, 'calcularFechaRegistro'])->name('dominios.calcular-fecha-registro');
-Route::post('/dominios/ejecutar-comando-ionos', [DominiosController::class, 'ejecutarComandoIonos'])->name('dominios.ejecutar-comando-ionos');
-
-        // Kit Digital
-        Route::get('/kit-digital-whatsapp', [KitDigitalController::class, 'index'])->name('kitDigital.indexWhatsapp');
-        Route::get('/kit-digital', [KitDigitalController::class, 'listarClientes'])->name('kitDigital.index');
-        Route::get('/kit-digital/create', [KitDigitalController::class, 'create'])->name('kitDigital.create');
-        Route::post('/kit-digital/store', [KitDigitalController::class, 'store'])->name('kitDigital.store');
-        Route::post('/kit-digital/updatedata', [KitDigitalController::class, 'updateData'])->name('kitDigital.updateData');
-        Route::get('/kit-digital/whatsapp/{id}', [KitDigitalController::class, 'whatsapp'])->name('kitDigital.whatsapp');
-        Route::post('/kit-digital/excel', [KitDigitalController::class, 'exportToExcel'])->name('kitDigital.Excel');
-
-        // Estados sin actualizar Kit Digital
-        Route::get('/kit-digital/sin_actualizar', [AutomatizacionKitController::class, 'viewEstados'])->name('kitDigital.sin_actualizar');
-        Route::get('/kit-digital/pagados', [KitPagadosController::class, 'viewPagados'])->name('kitDigital.pagados');
-
-        // Gastos asociados (TESORERIA)
-         Route::get('/gastos-asociados', [TesoreriaController::class, 'indexAssociatedExpenses'])->name('gasto-asociados.index');
-         Route::get('/gasto-asociado/create', [TesoreriaController::class, 'createAssociatedExpenses'])->name('gasto-asociado.create');
-         Route::get('/gasto-asociado/edit/{id}', [TesoreriaController::class, 'editAssociatedExpenses'])->name('gasto-asociado.edit');
-         Route::post('/gasto-asociado/store', [TesoreriaController::class, 'storeAssociatedExpenses'])->name('gasto-asociado.store');
-         Route::post('/gasto-asociado/update/{id}', [TesoreriaController::class, 'updateAssociatedExpenses'])->name('gasto-asociado.update');
-         Route::post('/gasto-asociado/destroy', [TesoreriaController::class, 'destroyAssociatedExpenses'])->name('gasto-asociado.delete');
-    });
-
-    Route::middleware(['access.level:3'])->group(function () {
-
-        //Holidays(Vacaciones Admin)
-        Route::get('/holiday/index', [AdminHolidaysController::class, 'index'])->name('holiday.admin.index');
-        Route::get('/holiday/admin-create', [AdminHolidaysController::class, 'create'])->name('holiday.admin.create');
-        Route::get('/holiday/store', [AdminHolidaysController::class, 'store'])->name('holiday.admin.store');
-        Route::get('/holiday/destroy', [AdminHolidaysController::class, 'destroy'])->name('holiday.admin.destroy');
-        Route::get('/holidays/admin-edit/{id}', [AdminHolidaysController::class, 'edit'])->name('holiday.admin.edit');
-        Route::post('/holidays/admin-update', [AdminHolidaysController::class, 'update'])->name('holiday.admin.update');
-        Route::get('/holidays/petitions', [AdminHolidaysController::class, 'usersPetitions'])->name('holiday.admin.petitions');
-        Route::get('/holidays/petitions-user/{id}', [AdminHolidaysController::class, 'userPetitions'])->name('holiday.admin.petitions-user');
-        Route::get('/holidays/record', [AdminHolidaysController::class, 'addedRecord'])->name('holiday.admin.record');
-        Route::get('/holidays/history', [AdminHolidaysController::class, 'allHistory'])->name('holiday.admin.history');
-        Route::get('/holidays/managePetition/{id}', [AdminHolidaysController::class, 'managePetition'])->name('holiday.admin.managePetition');
-        Route::post('/holidays/acceptHolidays', [AdminHolidaysController::class, 'acceptHolidays'])->name('holiday.admin.acceptHolidays');
-        Route::post('/holidays/denyHolidays', [AdminHolidaysController::class, 'denyHolidays'])->name('holiday.admin.denyHolidays');
-        Route::post('/holidays/getDate/{holidaysPetitions}', [AdminHolidaysController::class, 'getDate'])->name('holiday.admin.getDate');
-
-        // Users (USUARIOS)
-        Route::get('/users', [UserController::class, 'index'])->name('users.index');
-        Route::get('/user/create', [UserController::class, 'create'])->name('users.create');
-        Route::get('/user/edit/{id}', [UserController::class, 'edit'])->name('users.edit');
-        Route::post('/user/store', [UserController::class, 'store'])->name('user.store');
-        Route::post('/user/update/{id}', [UserController::class, 'update'])->name('user.update');
-        Route::get('/user/show/{id}', [UserController::class, 'show'])->name('users.show');
-        Route::post('/user/destroy', [UserController::class, 'destroy'])->name('users.delete');
-        Route::post('/user/avatar/{id}', [UserController::class, 'avatar'])->name('users.avatar');
-
-        //Bajas
-        Route::get('/bajas', [BajaController::class, 'index'])->name('bajas.index');
-        Route::get('/baja/create', [BajaController::class, 'create'])->name('bajas.create');
-        Route::get('/baja/edit/{baja}', [BajaController::class, 'edit'])->name('bajas.edit');
-        Route::post('/bajas/store', [BajaController::class, 'store'])->name('bajas.store');
-        Route::post('/bajas/update/{baja}', [BajaController::class, 'update'])->name('bajas.update');
-        Route::post('/bajas/delete', [BajaController::class, 'destroy'])->name('bajas.delete');
-
-        //Departamentos
-        Route::get('/departament', [DepartamentController::class, 'index'])->name('departamento.index');
-        Route::get('/departament/create', [DepartamentController::class, 'create'])->name('departamento.create');
-        Route::get('/departament/edit/{id}', [DepartamentController::class, 'edit'])->name('departamento.edit');
-        Route::post('/departament/store', [DepartamentController::class, 'store'])->name('departamento.store');
-        Route::post('/departament/update/{id}', [DepartamentController::class, 'update'])->name('departamento.update');
-        Route::post('/departament/destroy', [DepartamentController::class, 'destroy'])->name('departamento.delete');
-
-        //Cargos
-        Route::get('/position', [PositionController::class, 'index'])->name('cargo.index');
-        Route::get('/position/create', [PositionController::class, 'create'])->name('cargo.create');
-        Route::get('/position/edit/{id}', [PositionController::class, 'edit'])->name('cargo.edit');
-        Route::post('/position/store', [PositionController::class, 'store'])->name('cargo.store');
-        Route::post('/position/update/{id}', [PositionController::class, 'update'])->name('cargo.update');
-        Route::post('/position/destroy', [PositionController::class, 'destroy'])->name('cargo.delete');
-
-
-        // Ingresos (TESORERIA)
-        Route::get('/ingresos', [TesoreriaController::class, 'indexIngresos'])->name('ingreso.index');
-        Route::get('/ingreso/create', [TesoreriaController::class, 'createIngresos'])->name('ingreso.create');
-        Route::get('/ingreso/edit/{id}', [TesoreriaController::class, 'editIngresos'])->name('ingreso.edit');
-        Route::get('/ingreso/show/{id}', [TesoreriaController::class, 'showIngresos'])->name('ingreso.show');
-        Route::post('/ingreso/store', [TesoreriaController::class, 'storeIngresos'])->name('ingreso.store');
-        Route::post('/ingreso/update/{id}', [TesoreriaController::class, 'updateIngresos'])->name('ingreso.update');
-        Route::post('/ingreso/destroy', [TesoreriaController::class, 'destroyIngresos'])->name('ingreso.delete');
-
-        // Gastos (TESORERIA)
-        Route::get('/gastos', [TesoreriaController::class, 'indexGastos'])->name('gasto.index');
-        Route::get('/gasto/create', [TesoreriaController::class, 'createGastos'])->name('gasto.create');
-        Route::get('/gasto/edit/{id}', [TesoreriaController::class, 'editGastos'])->name('gasto.edit');
-        Route::get('/gasto/show/{id}', [TesoreriaController::class, 'showGastos'])->name('gasto.show');
-        Route::post('/gasto/store', [TesoreriaController::class, 'storeGastos'])->name('gasto.store');
-        Route::post('/gasto/update/{id}', [TesoreriaController::class, 'updateGastos'])->name('gasto.update');
-        Route::post('/gasto/destroy', [TesoreriaController::class, 'destroyGastos'])->name('gasto.delete');
-
-        //Traspasos
-        Route::get('/traspasos', [TesoreriaController::class, 'indexTraspasos'])->name('traspasos.index');
-        Route::get('/traspasos/create', [TesoreriaController::class, 'createTraspasos'])->name('traspasos.create');
-        Route::get('/traspasos/edit/{id}', [TesoreriaController::class, 'editTraspasos'])->name('traspasos.edit');
-        Route::post('/traspasos/store', [TesoreriaController::class, 'storeTraspasos'])->name('traspasos.store');
-        Route::post('/traspasos/update/{id}', [TesoreriaController::class, 'updateTraspasos'])->name('traspasos.update');
-        Route::post('/traspasos/destroy', [TesoreriaController::class, 'destroyTraspasos'])->name('traspasos.delete');
-
-
-        // Gastos sin clasificar (TESORERIA)
-        Route::prefix('tesoreria')->group(function () {
-            Route::get('/gastos-sin-clasificar', [TesoreriaController::class, 'indexUnclassifiedExpensese'])->name('gasto-sin-clasificar.index');
-            Route::get('/gastos-sin-clasificar/edit/{id}', [TesoreriaController::class, 'editUnclassifiedExpensese'])->name('gasto-sin-clasificar.edit');
-            Route::post('/gastos-sin-clasificar/update/{id}', [TesoreriaController::class, 'updateUnclassifiedExpensese'])->name('gasto-sin-clasificar.update');
-            Route::post('/gastos-sin-clasificar/destroy', [TesoreriaController::class, 'destroyUnclassifiedExpensese'])->name('gastos-sin-clasificar.delete');
-        });
-
-        //Categorias de gastos asociados
-        Route::get('/categorias-gastos-asociados', [CategoriaAsociadosController::class, 'index'])->name('categorias-gastos-asociados.index');
-        Route::get('/categorias-gastos-asociados/create', [CategoriaAsociadosController::class, 'create'])->name('categorias-gastos-asociados.create');
-        Route::post('/categorias-gastos-asociados/store', [CategoriaAsociadosController::class, 'store'])->name('categorias-gastos-asociados.store');
-        Route::get('/categorias-gastos-asociados/edit/{id}', [CategoriaAsociadosController::class, 'edit'])->name('categorias-gastos-asociados.edit');
-        Route::post('/categorias-gastos-asociados/update/{id}', [CategoriaAsociadosController::class, 'update'])->name('categorias-gastos-asociados.update');
-        Route::post('/categorias-gastos-asociados/destroy', [CategoriaAsociadosController::class, 'destroy'])->name('categorias-gastos-asociados.delete');
-
-        //Categorias de gastos
-        Route::get('/categorias-gastos', [CategoriaGastosController::class, 'index'])->name('categorias-gastos.index');
-        Route::get('/categorias-gastos/create', [CategoriaGastosController::class, 'create'])->name('categorias-gastos.create');
-        Route::post('/categorias-gastos/store', [CategoriaGastosController::class, 'store'])->name('categorias-gastos.store');
-        Route::get('/categorias-gastos/edit/{id}', [CategoriaGastosController::class, 'edit'])->name('categorias-gastos.edit');
-        Route::post('/categorias-gastos/update/{id}', [CategoriaGastosController::class, 'update'])->name('categorias-gastos.update');
-        Route::post('/categorias-gastos/destroy', [CategoriaGastosController::class, 'destroy'])->name('categorias-gastos.delete');
-
-        //Ivas
-        Route::get('/ivas', [IvaController::class, 'index'])->name('iva.index');
-        Route::get('/iva/create', [IvaController::class, 'create'])->name('iva.create');
-        Route::post('/iva/store', [IvaController::class, 'store'])->name('iva.store');
-        Route::get('/iva/edit/{id}', [IvaController::class, 'edit'])->name('iva.edit');
-        Route::post('/iva/update/{id}', [IvaController::class, 'update'])->name('iva.update');
-        Route::post('/iva/destroy', [IvaController::class, 'destroy'])->name('iva.delete');
-
-        // Treasury(Cuadro)
-        Route::get('/treasury', [CuadroController::class,'index'])->name('admin.treasury.index');
-        Route::get('/treasury/{anio}/{mes}/getMonthYear',[CuadroController::class,'getMonthYear'])->name('admin.treasury.getMonthYear');
-        Route::post('/treasury/SaveInvoice',[CuadroController::class,'SaveInvoice'])->name('admin.treasury.SaveInvoice');
-        Route::post('/treasury/SaveInvoiceData',[CuadroController::class,'SaveInvoiceData'])->name('admin.treasury.SaveInvoiceData');
-        Route::post('/treasury/ChangeInvoiceStatus',[CuadroController::class,'ChangeInvoiceStatus'])->name('admin.treasury.ChangeInvoiceStatus');
-        Route::post('/treasury/getInvoices',[CuadroController::class,'getInvoices'])->name('admin.treasury.getInvoices');
-        Route::post('/treasury/saveDateContabilidad',[CuadroController::class,'saveDateContabilidad'])->name('admin.treasury.saveDateContabilidad');
-        Route::post('/treasury/getIngresos',[CuadroController::class,'getIngresos'])->name('admin.treasury.getIngresos');
-        Route::post('/treasury/getGastos',[CuadroController::class,'getGastos'])->name('admin.treasury.getGastos');
-        Route::post('/treasury/getGastosAsociados',[CuadroController::class,'getGastosAsociados'])->name('admin.treasury.getGastosAsociados');
-        Route::get('/treasury/{year}', [CuadroController::class,'indexYear'])->name('admin.treasury.indexYear');
-
-        // Categoria de Emails
-        Route::get('/category-email', [CategoryEmailController::class, 'index'])->name('admin.categoriaEmail.index');
-        Route::get('/category-email/create', [CategoryEmailController::class, 'create'])->name('admin.categoriaEmail.create');
-        Route::post('/category-email/store', [CategoryEmailController::class, 'store'])->name('admin.categoriaEmail.store');
-        Route::get('/category-email/{id}/edit', [CategoryEmailController::class, 'edit'])->name('admin.categoriaEmail.edit');
-        Route::put('/category-email/{id}/update', [CategoryEmailController::class, 'update'])->name('admin.categoriaEmail.update');
-        Route::post('/category-email/{id}/destroy', [CategoryEmailController::class, 'destroy'])->name('admin.categoriaEmail.destroy');
-
-        // Estados de Emails
-        Route::get('/status-mail', [StatusMailController::class, 'index'])->name('admin.statusMail.index');
-        Route::get('/status-mail/create', [StatusMailController::class, 'create'])->name('admin.statusMail.create');
-        Route::post('/status-mail/store', [StatusMailController::class, 'store'])->name('admin.statusMail.store');
-        Route::get('/status-mail/{id}/edit', [StatusMailController::class, 'edit'])->name('admin.statusMail.edit');
-        Route::put('/status-mail/{id}/update', [StatusMailController::class, 'update'])->name('admin.statusMail.update');
-        Route::post('/status-mail/{id}/destroy', [StatusMailController::class, 'destroy'])->name('admin.statusMail.destroy');
-
-
-        // Configuracion
-        Route::get('/statistics', [StatisticsController::class, 'index'])->name('estadistica.index');
-
-        Route::get('/configuracion', [SettingsController::class, 'index'])->name('configuracion.index');
-        Route::post('/configuracion/update/{id}', [SettingsController::class, 'update'])->name('configuracion.update');
-        Route::post('/configuracion/store', [SettingsController::class, 'store'])->name('configuracion.store');
-
-
-        Route::get('/cuentas-contables', [CuentasContableController::class, 'index'])->name('cuentasContables.index');
-        Route::get('/cuentas-contables/create', [CuentasContableController::class, 'create'])->name('cuentasContables.create');
-        Route::post('/cuentas-contables/store', [CuentasContableController::class, 'store'])->name('cuentasContables.store');
-        Route::get('/cuentas-contables/{id}/edit', [CuentasContableController::class, 'edit'])->name('cuentasContables.edit');
-        Route::post('/cuentas-contables/updated', [CuentasContableController::class, 'updated'])->name('cuentasContables.updated');
-        Route::delete('/cuentas-contables/destroy/{id}', [CuentasContableController::class, 'destroy'])->name('cuentasContables.destroy');
-
-        Route::get('/cuentas-contables/get-cuentas', [CuentasContableController::class, 'getCuentasByDataTables'])->name('cuentasContables.getClients');
-
-        // Sub-Cuentas Contables
-        Route::get('/sub-cuentas-contables', [SubCuentasContableController::class, 'index'])->name('subCuentasContables.index');
-        Route::get('/sub-cuentas-contables/create', [SubCuentasContableController::class, 'create'])->name('subCuentasContables.create');
-        Route::post('/sub-cuentas-contables/store', [SubCuentasContableController::class, 'store'])->name('subCuentasContables.store');
-        Route::get('/sub-cuentas-contables/{id}/edit', [SubCuentasContableController::class, 'edit'])->name('subCuentasContables.edit');
-        Route::post('/sub-cuentas-contables/updated', [SubCuentasContableController::class, 'updated'])->name('subCuentasContables.updated');
-        Route::delete('/sub-cuentas-contables/destroy/{id}', [SubCuentasContableController::class, 'destroy'])->name('subCuentasContables.destroy');
-
-        // Sub-Cuentas Hijas Contables
-        Route::get('/sub-cuentas-hijas-contables', [SubCuentasHijoController::class, 'index'])->name('subCuentasHijaContables.index');
-        Route::get('/sub-cuentas-hijas-contables/create', [SubCuentasHijoController::class, 'create'])->name('subCuentasHijaContables.create');
-        Route::post('/sub-cuentas-hijas-contables/store', [SubCuentasHijoController::class, 'store'])->name('subCuentasHijaContables.store');
-        Route::get('/sub-cuentas-hijas-contables/{id}/edit', [SubCuentasHijoController::class, 'edit'])->name('subCuentasHijaContables.edit');
-        Route::post('/sub-cuentas-hijas-contables/updated', [SubCuentasHijoController::class, 'updated'])->name('subCuentasHijaContables.updated');
-        Route::delete('/sub-cuentas-hijas-contables/destroy/{id}', [SubCuentasHijoController::class, 'destroy'])->name('subCuentasHijaContables.destroy');
-
-        // Grupos Contables
-        Route::get('/grupo-contable', [GrupoContabilidadController::class, 'index'])->name('grupoContabilidad.index');
-        Route::get('/grupo-contable/create', [GrupoContabilidadController::class, 'create'])->name('grupoContabilidad.create');
-        Route::post('/grupo-contable/store', [GrupoContabilidadController::class, 'store'])->name('grupoContabilidad.store');
-        Route::get('/grupo-contable/{id}/edit', [GrupoContabilidadController::class, 'edit'])->name('grupoContabilidad.edit');
-        Route::post('/grupo-contable/updated', [GrupoContabilidadController::class, 'updated'])->name('grupoContabilidad.updated');
-        Route::delete('/grupo-contable/destroy/{id}', [GrupoContabilidadController::class, 'destroy'])->name('grupoContabilidad.destroy');
-
-        // Sub-Grupos Contables
-        Route::get('/sub-grupo-contable', [SubGrupoContabilidadController::class, 'index'])->name('subGrupoContabilidad.index');
-        Route::get('/sub-grupo-contable/create', [SubGrupoContabilidadController::class, 'create'])->name('subGrupoContabilidad.create');
-        Route::post('/sub-grupo-contable/store', [SubGrupoContabilidadController::class, 'store'])->name('subGrupoContabilidad.store');
-        Route::get('/sub-grupo-contable/{id}/edit', [SubGrupoContabilidadController::class, 'edit'])->name('subGrupoContabilidad.edit');
-        Route::post('/sub-grupo-contable/updated', [SubGrupoContabilidadController::class, 'updated'])->name('subGrupoContabilidad.updated');
-        Route::delete('/sub-grupo-contable/destroy/{id}', [SubGrupoContabilidadController::class, 'destroy'])->name('subGrupoContabilidad.destroy');
-
-
-        Route::get('/plan-contable', [PlanContableController::class, 'index'])->name('admin.planContable.index');
-        Route::get('/plan-contable/json', [PlanContableController::class, 'json']);
-
-        //Logs
-        Route::get('/logs',[LogActionsController::class, 'index'])->name('logs.index');
-        Route::get('/logs/clasificado',[LogActionsController::class, 'Clasificacion'])->name('logs.clasificado');
-
-
-        //Productividad
-        Route::get('/productividad', [ProductividadController::class, 'index'])->name('productividad.index');
-
-        //Cierre
-        Route::get('/cierre', [CierreController::class, 'index'])->name('cierre.index');
-        Route::get('/cierre/create', [CierreController::class, 'create'])->name('cierre.create');
-        Route::post('/cierre/store', [CierreController::class, 'store'])->name('cierre.store');
-        Route::get('/cierre/edit/{id}', [CierreController::class, 'edit'])->name('cierre.edit');
-        Route::post('/cierre/update/{id}', [CierreController::class, 'update'])->name('cierre.update');
-        Route::post('/cierre/destroy', [CierreController::class, 'destroy'])->name('cierre.delete');
-
-        Route::get('/dominios_iban', function () {
-            include base_path('app/Legacy/index.php');
-            exit;
-        })->name('dominios_iban');
-
-        Route::get('/subdominios_ionos', function () {
-            include base_path('app/Legacy/index_subdominios.php');
-            exit;
-        })->name('subdominios_ionos');
-
-        Route::post('/actualizar-renovacion', function () {
-            include base_path('app/Legacy/guardar-renovacion.php');
-            exit;
-        })->name('actualizar_renovacion');
-
-        Route::post('/actualizar-iban', function () {
-            include base_path('app/Legacy/actualizar_iban.php');
-            exit;
-        })->name('actualizar_iban');
-
-    });
-
-    Route::middleware(['access.level:5'])->group(function () {
-        Route::get('/suite', [SuiteController::class, 'index'])->name('suite');
-        Route::get('/suite/create', [SuiteController::class, 'create'])->name('suite.create');
-        Route::get('/suite/edit', [SuiteController::class, 'edit'])->name('suite.edit');
-
-        Route::post('/suite/create', [SuiteController::class, 'store'])->name('suite.store');
-        Route::post('/suite/update/{id}', [SuiteController::class, 'update'])->name('suite.update');
-        Route::delete('/suite/delete/{id}', [SuiteController::class, 'destroy'])->name('suite.destroy');
-    });
-
-    Route::post('/get-produccion', [DashboardController::class, 'getProduccion'])->name('productividad.get');
-    Route::post('/get-gestion', [DashboardController::class, 'getGestion'])->name('gestion.get');
-    Route::post('/get-comercial', [DashboardController::class, 'getComercial'])->name('comercial.get');
-    Route::post('/get-contabilidad', [DashboardController::class, 'getContabilidad'])->name('contabilidad.get');
-
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
-
-    //Alertas
-    Route::post('/user/alerts', [AlertController::class, 'getUserAlerts'])->name('user.alerts');
-    Route::post('/alert/update', [AlertController::class, 'updateStatusAlert'])->name('alert.update');
-    Route::post('/alert/postpone', [AlertController::class, 'postpone'])->name('alert.postpone');
-
-
-    //Dashboard
+Route::get('/invoice/pdf/{invoice}', [InvoiceEmitidaController::class, 'pdf'])->name('invoice.pdf');
+Route::get('/invoice/pdf-send/{invoice}', [InvoiceEmitidaController::class, 'sendPdf'])->name('invoice.pdf.send');
+Route::get('/cotizacion/pdf/{cotizacion}', [CotizacionController::class, 'pdf'])->name('cotizacion.pdf');
+Route::get('/cotizacion/pdf-send/{cotizacion}', [CotizacionController::class, 'sendPdf'])->name('cotizacion.pdf.send');
+Route::get('/budget/pdf/{budget}', [BudgetController::class, 'pdf'])->name('budget.pdf');
+Route::get('/budget/pdf-send/{budget}', [BudgetController::class, 'sendPdf'])->name('budget.pdf.send');
+
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Análisis y Estadísticas
-    Route::get('/analisis-estadisticas', [DashboardController::class, 'analisisEstadisticas'])->name('analisis.estadisticas');
-    // Justificaciones (rutas que SÍ requieren autenticación)
-    Route::get('/justificaciones', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'index'])->name('justificaciones.index');
-    Route::post('/justificaciones/store', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'store'])->name('justificaciones.store');
-    Route::get('/justificaciones/download/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'download'])->name('justificaciones.download');
-    Route::delete('/justificaciones/{id}', [\App\Http\Controllers\Justificaciones\JustificacionesController::class, 'destroy'])->name('justificaciones.destroy');
+    // Users
+    Route::resource('users', UserController::class);
+    Route::get('/profile/{user}', [UserController::class, 'profile'])->name('users.profile');
+    Route::get('/updatePassword/{user}', [UserController::class, 'showUpdatePassword'])->name('users.showUpdatePassword');
+    Route::post('/updatePassword/{user}', [UserController::class, 'updatePassword'])->name('users.updatePassword');
+    Route::post('/users/updateProfile/{user}', [UserController::class, 'updateProfile'])->name('users.updateProfile');
+    Route::post('/users/updateProfileImage/{user}', [UserController::class, 'updateProfileImage'])->name('users.updateProfileImage');
+    Route::post('/users/deleteProfileImage/{user}', [UserController::class, 'deleteProfileImage'])->name('users.deleteProfileImage');
 
-    // Test endpoint para justificaciones
-    Route::any('/justificaciones/test-receive/{id}', function($id) {
-        file_put_contents(storage_path('logs/test_receive.log'),
-            "[" . now() . "] TEST: Petición recibida para ID: {$id}\n" .
-            "Method: " . request()->method() . "\n" .
-            "Files: " . json_encode(request()->allFiles()) . "\n" .
-            "All: " . json_encode(request()->all()) . "\n\n",
-            FILE_APPEND
-        );
-        return response()->json(['success' => true, 'id' => $id, 'message' => 'Test OK']);
-    });
+    // Clients
+    Route::resource('clients', ClientController::class);
+    Route::get('/clients-search', [ClientController::class, 'search'])->name('clients.search');
+    Route::get('/clients-search-rrhh', [ClientController::class, 'searchRrhh'])->name('clients.searchRrhh');
+    Route::get('/clients/{client}/contacts', [ClientController::class, 'contacts'])->name('clients.contacts');
+    Route::get('/clients/{client}/contacts/create', [ClientController::class, 'createContact'])->name('clients.contacts.create');
+    Route::post('/clients/{client}/contacts/store', [ClientController::class, 'storeContact'])->name('clients.contacts.store');
+    Route::get('/clients/{client}/contacts/{contact}/edit', [ClientController::class, 'editContact'])->name('clients.contacts.edit');
+    Route::put('/clients/{client}/contacts/{contact}', [ClientController::class, 'updateContact'])->name('clients.contacts.update');
+    Route::get('/clients/{client}/contacts/{contact}/delete', [ClientController::class, 'deleteContact'])->name('clients.contacts.delete');
 
-    // Visitas Comerciales
-    Route::get('/visitas-comerciales', [\App\Http\Controllers\VisitaComercialController::class, 'index'])->name('visitas.index');
-    Route::post('/visitas/store', [\App\Http\Controllers\VisitaComercialController::class, 'store'])->name('visitas.store');
-    Route::post('/visitas/store-lead', [\App\Http\Controllers\VisitaComercialController::class, 'storeLead'])->name('visitas.storeLead');
-    Route::get('/visitas/get', [\App\Http\Controllers\VisitaComercialController::class, 'getVisitas'])->name('visitas.get');
+    // Contacts
+    Route::resource('contacts', ContactController::class);
+    Route::get('/contacts-search', [ContactController::class, 'search'])->name('contacts.search');
 
-    // Audio de Visitas Comerciales
-    Route::post('/visitas/audio/upload', [\App\Http\Controllers\VisitaAudioController::class, 'uploadAudio'])->name('visitas.audio.upload');
-    Route::get('/visitas/{visitaId}/audio', [\App\Http\Controllers\VisitaAudioController::class, 'getAudioUrl'])->name('visitas.audio.get');
-    Route::delete('/visitas/{visitaId}/audio', [\App\Http\Controllers\VisitaAudioController::class, 'deleteAudio'])->name('visitas.audio.delete');
-    Route::post('/dashboard/getDataTask', [DashboardController::class, 'getDataTask'])->name('dashboard.getDataTask');
-    Route::post('/dashboard/getTasksRefresh', [DashboardController::class, 'getTasksRefresh'])->name('dashboard.getTasksRefresh');
-    Route::post('/dashboard/setStatusTask', [DashboardController::class, 'setStatusTask'])->name('dashboard.setStatusTask');
-    Route::post('/dashboard/llamada', [DashboardController::class, 'llamada'])->name('llamada.store');
-    Route::post('/dashboard/llamadafin', [DashboardController::class, 'finalizar'])->name('llamada.end');
-    Route::post('/dashboard/llamadaInforme', [DashboardController::class, 'informeLlamadas'])->name('llamada.informe');
-    Route::post('/dashboard/timeworked', [DashboardController::class, 'timeworked'])->name('user.time');
-    Route::post('/dashboard/updateStatusAlertAndAcceptHours', [DashboardController::class, 'updateStatusAlertAndAcceptHours'])->name('user.updateStatusAlertAndAcceptHours');
-    Route::post('/dashboard/responseAlert', [DashboardController::class, 'responseAlert'])->name('user.responseAlert');
-    Route::post('/dashboard/getkits', [DashboardController::class, 'getKitDigital'])->name('kits.get');
+    // Contact Events
+    Route::resource('contact-events', ContactEventController::class);
 
-    Route::post('/start-jornada', [DashboardController::class, 'startJornada'])->name('dashboard.startJornada');
-    Route::post('/end-jornada', [DashboardController::class, 'endJornada'])->name('dashboard.endJornada');
-    Route::post('/start-pause', [DashboardController::class, 'startPause'])->name('dashboard.startPause');
-    Route::post('/end-pause', [DashboardController::class, 'endPause'])->name('dashboard.endPause');
-    Route::post('/dashboard/save-time', [DashboardController::class, 'saveCurrentTime'])->name('dashboard.saveTime');
-    Route::post('/dashboard/get-current-time', [DashboardController::class, 'getCurrentTime'])->name('dashboard.getCurrentTime');
+    // Companies
+    Route::resource('companies', CompanyController::class);
+    Route::get('/companies-search', [CompanyController::class, 'search'])->name('companies.search');
 
-    // Visitas Comerciales - Admin
-    Route::middleware(['auth', 'admin'])->group(function () {
-        Route::get('/visitas-comerciales/estadisticas', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'estadisticas'])->name('visitas-comerciales.estadisticas');
-        Route::get('/visitas-comerciales', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'index'])->name('visitas-comerciales.index');
-        Route::get('/visitas-comerciales/{visita}', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'show'])->name('visitas-comerciales.show');
-        Route::delete('/visitas-comerciales/{visita}', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'destroy'])->name('visitas-comerciales.destroy');
-        Route::get('/visitas-comerciales/{visita}/audio', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'getAudio'])->name('visitas-comerciales.audio');
-        Route::delete('/visitas-comerciales/{visita}/audio', [\App\Http\Controllers\Admin\VisitasComercialesController::class, 'deleteAudio'])->name('visitas-comerciales.audio.delete');
-    });
+    // Leads
+    Route::resource('leads', LeadController::class);
+    Route::get('/leads-search', [LeadController::class, 'search'])->name('leads.search');
+    Route::post('/leads/changeState/{lead}', [LeadController::class, 'changeState'])->name('leads.changeState');
+    Route::post('/leads/changeWorker/{lead}', [LeadController::class, 'changeWorker'])->name('leads.changeWorker');
+    Route::post('/leads/changePriority/{lead}', [LeadController::class, 'changePriority'])->name('leads.changePriority');
 
-    //Jornadas
-    Route::get('/jornadas', [HorasController::class, 'indexHoras'])->name('horas.index');
-    Route::get('/jornadas/calendar/{id}', [HorasController::class, 'calendar'])->name('horas.calendar');
-    Route::get('/exportarjornadas', [HorasController::class, 'exportHoras'])->name('horas.export');
+    // News
+    Route::resource('news', NewsController::class);
 
-    //Events(Eventos del to-do)
-    Route::post('/event/store', [EventController::class, 'store'])->name('event.store');
-    Route::post('/todos/store', [To_doController::class, 'store'])->name('todos.store');
-    Route::post('/todos/finish/{id}', [To_doController::class, 'finish'])->name('todos.finalizar');
-    Route::post('/todos/complete/{id}', [To_doController::class, 'complete'])->name('todos.completar');
-    Route::post('/todos/unread-messages-count/{todoId}', [To_doController::class, 'getUnreadMessagesCount']);
-    Route::post('/message/store', [MessageController::class, 'store'])->name('message.store');
-    Route::post('/mark-as-read/{todoId}', [MessageController::class,'markAsRead']);
-    Route::post('/todos/getMessages/{todoId}', [MessageController::class, 'getMessages']);
+    // Tags
+    Route::resource('tags', TagController::class);
 
+    // States
+    Route::resource('states', StateController::class);
 
-    //Meetings(Reuniones)
-    Route::get('/meeting', [CrmActivityMeetingController::class, 'index'])->name('reunion.index');
-    Route::get('/meeting/create', [CrmActivityMeetingController::class, 'createMeetingFromAllUsers'])->name('reunion.create');
-    Route::get('/view-meeting/{id}', [CrmActivityMeetingController::class, 'viewMeeting'])->name('reunion.view');
-    Route::post('/meeting/store', [CrmActivityMeetingController::class, 'storeMeetingFromAllUsers'])->name('reunion.store');
-    Route::post('/meeting/alreadyRead/{id}', [CrmActivityMeetingController::class, 'alreadyRead'])->name('reunion.alreadyRead');
-    Route::post('/meeting/addComments/{id}', [CrmActivityMeetingController::class, 'addCommentsToMeeting'])->name('reunion.addComments');
+    // Workers
+    Route::resource('workers', WorkerController::class);
+    Route::get('/workers-search', [WorkerController::class, 'search'])->name('workers.search');
+    Route::get('/workers-search-all', [WorkerController::class, 'searchAll'])->name('workers.searchAll');
 
-    // Actas de Reunion
-    Route::post('/transcribir-acta', [CrmActivityMeetingController::class,'transcripcion'])->name('admin.trascricion.update');
-    Route::post('/enviar-acta', [CrmActivityMeetingController::class,'sendMeetingEmails'])->name('admin.acta.sendEmails');
-    Route::post('/registrar-acta', [CrmActivityMeetingController::class,'register'])->name('admin.acta.register');
+    // Tasks
+    Route::resource('tasks', TaskController::class);
+    Route::post('/tasks/changeState/{task}', [TaskController::class, 'changeState'])->name('tasks.changeState');
+    Route::post('/tasks/changeWorker/{task}', [TaskController::class, 'changeWorker'])->name('tasks.changeWorker');
+    Route::post('/tasks/changePriority/{task}', [TaskController::class, 'changePriority'])->name('tasks.changePriority');
+    Route::post('/tasks/addTag/{task}', [TaskController::class, 'addTag'])->name('tasks.addTag');
+    Route::get('/tasks/getByUser/{user}', [TaskController::class, 'getByUser'])->name('tasks.getByUser');
 
-    //Audios
-    Route::post('/store-audio', [CrmActivityMeetingController::class,'storeAudio'])->name('audio.store');
+    // Projects
+    Route::resource('proyectos', ProyectoController::class);
+    Route::post('/proyectos/changeState/{proyecto}', [ProyectoController::class, 'changeState'])->name('proyectos.changeState');
+    Route::post('/proyectos/changeWorker/{proyecto}', [ProyectoController::class, 'changeWorker'])->name('proyectos.changeWorker');
+    Route::post('/proyectos/changePriority/{proyecto}', [ProyectoController::class, 'changePriority'])->name('proyectos.changePriority');
+    Route::post('/proyectos/addTag/{proyecto}', [ProyectoController::class, 'addTag'])->name('proyectos.addTag');
 
-    //Holidays(Vacaciones users)
-    Route::get('/holidays', [HolidayController::class, 'index'])->name('holiday.index');
-    Route::get('/holidays/edit/{id}', [HolidayController::class, 'edit'])->name('holiday.edit');
-    Route::post('/holidays/store', [HolidayController::class, 'store'])->name('holiday.store');
-    Route::get('/holidays/create', [HolidayController::class, 'create'])->name('holiday.create');
+    // Contracts
+    Route::resource('contracts', ContractController::class);
 
+    // Invoices Emitidas
+    Route::resource('invoices', InvoiceEmitidaController::class);
+    Route::get('/invoices-search', [InvoiceEmitidaController::class, 'search'])->name('invoices.search');
+    Route::get('/invoices-search-client', [InvoiceEmitidaController::class, 'searchByClient'])->name('invoices.searchByClient');
+    Route::post('/invoices/sendEmail/{invoice}', [InvoiceEmitidaController::class, 'sendEmail'])->name('invoices.sendEmail');
+    Route::get('/invoices/duplicate/{invoice}', [InvoiceEmitidaController::class, 'duplicate'])->name('invoices.duplicate');
+    Route::post('/invoices/changeState/{invoice}', [InvoiceEmitidaController::class, 'changeState'])->name('invoices.changeState');
+    Route::post('/invoices/massChangeState', [InvoiceEmitidaController::class, 'massChangeState'])->name('invoices.massChangeState');
 
-    //Nominas
-    Route::get('/nominas', [NominasController::class, 'index'])->name('nominas.index');
-    Route::get('/nominas/user/{id}', [NominasController::class, 'indexUser'])->name('nominas.index_user');
-    Route::get('/nominas/create', [NominasController::class, 'create'])->name('nominas.create');
-    Route::get('/nominas/edit/{id}', [NominasController::class, 'edit'])->name('nominas.edit');
-    Route::get('/nominas/show/{id}', [NominasController::class, 'show'])->name('nominas.show');
-    Route::post('/nominas/store', [NominasController::class, 'store'])->name('nominas.store');
-    Route::post('/nominas/update/{id}', [NominasController::class, 'update'])->name('nominas.update');
-    Route::post('/nominas/destroy', [NominasController::class, 'destroy'])->name('nominas.delete');
+    // Invoices Recibidas
+    Route::resource('invoices-recibidas', InvoiceRecibidaController::class);
+    Route::get('/invoices-recibidas-search', [InvoiceRecibidaController::class, 'search'])->name('invoices-recibidas.search');
 
+    // Budgets
+    Route::resource('budgets', BudgetController::class);
+    Route::get('/budgets-search', [BudgetController::class, 'search'])->name('budgets.search');
+    Route::post('/budgets/sendEmail/{budget}', [BudgetController::class, 'sendEmail'])->name('budgets.sendEmail');
+    Route::get('/budgets/duplicate/{budget}', [BudgetController::class, 'duplicate'])->name('budgets.duplicate');
+    Route::post('/budgets/changeState/{budget}', [BudgetController::class, 'changeState'])->name('budgets.changeState');
+    Route::post('/budgets/toInvoice/{budget}', [BudgetController::class, 'toInvoice'])->name('budgets.toInvoice');
 
-    //Contratos
-    Route::get('/contratos', [ContratosController::class, 'index'])->name('contratos.index');
-    Route::get('/contratos/user/{id}', [ContratosController::class, 'indexUser'])->name('contratos.index_user');
-    Route::get('/contratos/create', [ContratosController::class, 'create'])->name('contratos.create');
-    Route::get('/contratos/edit/{id}', [ContratosController::class, 'edit'])->name('contratos.edit');
-    Route::get('/contratos/show/{id}', [ContratosController::class, 'show'])->name('contratos.show');
-    Route::post('/contratos/store', [ContratosController::class, 'store'])->name('contratos.store');
-    Route::post('/contratos/update/{id}', [ContratosController::class, 'update'])->name('contratos.update');
-    Route::post('/contratos/destroy', [ContratosController::class, 'destroy'])->name('contratos.delete');
+    // Cotizaciones
+    Route::resource('cotizaciones', CotizacionController::class);
+    Route::get('/cotizaciones-search', [CotizacionController::class, 'search'])->name('cotizaciones.search');
+    Route::post('/cotizaciones/sendEmail/{cotizacion}', [CotizacionController::class, 'sendEmail'])->name('cotizaciones.sendEmail');
+    Route::get('/cotizaciones/duplicate/{cotizacion}', [CotizacionController::class, 'duplicate'])->name('cotizaciones.duplicate');
+    Route::post('/cotizaciones/changeState/{cotizacion}', [CotizacionController::class, 'changeState'])->name('cotizaciones.changeState');
+    Route::post('/cotizaciones/toInvoice/{cotizacion}', [CotizacionController::class, 'toInvoice'])->name('cotizaciones.toInvoice');
+    Route::post('/cotizaciones/toBudget/{cotizacion}', [CotizacionController::class, 'toBudget'])->name('cotizaciones.toBudget');
 
-    // Contraseñas
-    Route::get('/passwords', [PasswordsController::class, 'index'])->name('passwords.index');
-    Route::get('/passwords/create', [PasswordsController::class, 'create'])->name('passwords.create');
-    Route::get('/passwords/generator', [PasswordsController::class, 'generator'])->name('passwords.generator');
-    Route::get('/passwords/edit/{id}', [PasswordsController::class, 'edit'])->name('passwords.edit');
-    Route::post('/passwords/store', [PasswordsController::class, 'store'])->name('passwords.store');
-    Route::post('/passwords/update/{id}', [PasswordsController::class, 'update'])->name('passwords.update');
-    Route::post('/passwords/destroy', [PasswordsController::class, 'destroy'])->name('passwords.delete');
-    Route::post('/passwords/generar', [PasswordsController::class, 'generarPassword'])->name('passwords.generar');
+    // Roles
+    Route::resource('roles', RoleController::class);
 
-    // Incidencias
-    Route::get('/incidencias', [IncidenceController::class, 'index'])->name('incidencias.index');
-    Route::get('/incidencias/create', [IncidenceController::class, 'create'])->name('incidencias.create');
-    Route::get('/incidencias/edit/{id}', [IncidenceController::class, 'edit'])->name('incidencias.edit');
-    Route::post('/incidencias/store', [IncidenceController::class, 'store'])->name('incidencias.store');
-    Route::post('/incidencias/update/{id}', [IncidenceController::class, 'update'])->name('incidencias.update');
-    Route::post('/incidencias/destroy', [IncidenceController::class, 'destroy'])->name('incidencias.delete');
-
-    // web.php
-    Route::post('/save-theme-preference', [UserController::class, 'saveThemePreference'])->name('saveThemePreference');
-
-    //kit digital comercial
-    Route::post('/kit-digital/storeComercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');
+    // Settings
+    Route::resource('settings', SettingsController::class);
 
     // Emails
-    Route::get('/emails', [EmailController::class, 'index'])->name('admin.emails.index');
-    Route::get('/emails/create', [EmailController::class, 'create'])->name('admin.emails.create');
-    Route::get('/email/{email}/show', [EmailController::class, 'show'])->name('admin.emails.show');
-    Route::post('/emails/send', [EmailController::class, 'sendEmail'])->name('admin.emails.send');
-    Route::get('/emails/forward/{emailId}', [EmailController::class, 'forward'])->name('admin.emails.forward');
-    Route::get('/emails/relpy/{emailId}', [EmailController::class, 'reply'])->name('admin.emails.reply');
-    Route::post('/emails/sendReply/{emailId}', [EmailController::class, 'replyToEmail'])->name('admin.emails.sendReply');
-    Route::post('/emails/sendForward/{emailId}', [EmailController::class, 'forwardEmail'])->name('admin.emails.sendforward');
-    Route::get('/emails/settings', [UserSettingsController::class, 'emailSettings'])->name('admin.emailConfig.settings');
-    Route::post('/emails/settings/store', [UserSettingsController::class, 'store'])->name('admin.emailConfig.store');
-    Route::put('/emails/settings/update/{id}', [UserSettingsController::class, 'update'])->name('admin.emailConfig.update');
-    Route::post('/emails/unread', [EmailController::class, 'countUnread'])->name('admin.emails.unread');
-    Route::post('/emails/delete', [EmailController::class, 'destroy'])->name('admin.emails.destroy');
-    Route::post('/emails/destroy-multiple', [EmailController::class, 'destroyMultiple'])->name('admin.emails.destroyMultiple');
-    Route::post('/emails/change-status', [EmailController::class, 'setEmailStatus'])->name('admin.emails.changeStatus');
-    Route::get('/emails/get-correos', [EmailController::class, 'getCorreos'])->name('admin.emails.getCorreos');
+    Route::resource('emails', EmailController::class);
+    Route::get('/emails-search', [EmailController::class, 'search'])->name('emails.search');
+    Route::post('/emails/reply/{email}', [EmailController::class, 'reply'])->name('emails.reply');
+    Route::get('/emails/syncEmails/{email}', [EmailController::class, 'syncEmails'])->name('emails.syncEmails');
 
-    //firma
-    Route::get('/firma/emails', [FirmaController::class, 'firma'])->name('admin.firma');
-    Route::post('/firma/emails/store', [FirmaController::class, 'store'])->name('admin.firma.store');
-    Route::put('/firma/emails/update/{id}', [FirmaController::class, 'update'])->name('admin.firma.update');
+    // Calendar
+    Route::resource('calendar', CalendarController::class);
+    Route::get('/calendar-events', [CalendarController::class, 'getEvents'])->name('calendar.events');
 
-    Route::post('/save-order', [BudgetController::class, 'saveOrder'])->name('save.order');
+    // Stats
+    Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
 
+    // Expenses
+    Route::resource('expenses', ExpenseController::class);
 
-    //Whatsapp
-    Route::get('/whatsapp', [WhatsappController::class, 'hookWhatsapp'])->name('whatsapp.hookWhatsapp');
-    Route::post('/whatsapp', [WhatsappController::class, 'processHookWhatsapp'])->name('whatsapp.processHookWhatsapp');
-    Route::get('/chatgpt/{texto}', [WhatsappController::class, 'chatGptPruebas'])->name('whatsapp.chatGptPruebas');
+    // Payment Methods
+    Route::resource('payment-methods', PaymentMethodController::class);
 
-    // Prueba de envío de mensaje simple sin template
-Route::get('/whatsapp/prueba', function() {
-    return view('whatsapp.prueba');
-})->name('whatsapp.prueba');
-Route::post('/whatsapp/enviar-prueba', [WhatsappController::class, 'enviarMensajePrueba'])->name('whatsapp.enviarPrueba');
-Route::post('/whatsapp/enviar-template', [WhatsappController::class, 'enviarTemplatePrueba'])->name('whatsapp.enviarTemplate');
+    // Subcontracts
+    Route::resource('subcontracts', SubcontractController::class);
 
-    Route::get('/mensajes-whatsapp', [WhatsappController::class, 'whatsapp'])->name('whatsapp.mensajes');
-    Route::get('/acciones', [AccionesController::class, 'index'])->name('acciones.index');
-    Route::get('/acciones/enviar', [AccionesController::class, 'enviar'])->name('acciones.enviar');
-    Route::post('/acciones/enviar-mensajes', [AccionesController::class, 'enviarMensajes'])->name('acciones.enviarMensajes');
-    Route::post('/listar-mensajes/{id}', [AccionesController::class, 'listarMensajes'])->name('acciones.listarMensajes');
-    Route::post('/acciones/enviar-segmento-3', [AccionesController::class, 'enviarMensajesSegmentos'])->name('acciones.enviarMensajesSegmentos');
+    // Facturas
+    Route::resource('facturas', FacturaController::class);
+    Route::get('/facturas-search', [FacturaController::class, 'search'])->name('facturas.search');
+    Route::post('/facturas/sendEmail/{factura}', [FacturaController::class, 'sendEmail'])->name('facturas.sendEmail');
+    Route::get('/facturas/duplicate/{factura}', [FacturaController::class, 'duplicate'])->name('facturas.duplicate');
+    Route::post('/facturas/changeState/{factura}', [FacturaController::class, 'changeState'])->name('facturas.changeState');
+    Route::post('/facturas/massChangeState', [FacturaController::class, 'massChangeState'])->name('facturas.massChangeState');
+    Route::get('/facturas/pdf/{factura}', [FacturaController::class, 'pdf'])->name('facturas.pdf');
+    Route::get('/facturas/pdf-send/{factura}', [FacturaController::class, 'sendPdf'])->name('facturas.pdf.send');
 
-    Route::post('/actualizar', [AccionesController::class, 'actualizar'])->name('acciones.actualizar');
+    // Remesas
+    Route::resource('remesas', RemesaController::class);
+    Route::get('/remesas-search', [RemesaController::class, 'search'])->name('remesas.search');
+    Route::post('/remesas/addInvoice/{remesa}', [RemesaController::class, 'addInvoice'])->name('remesas.addInvoice');
+    Route::post('/remesas/removeInvoice/{remesa}', [RemesaController::class, 'removeInvoice'])->name('remesas.removeInvoice');
+    Route::get('/remesas/generate/{remesa}', [RemesaController::class, 'generate'])->name('remesas.generate');
 
-    //LLamadas
-    Route::get('/llamadas', [LlamadaController::class, 'index'])->name('llamadas.index');
+    // Seguros
+    Route::resource('seguros', SeguroController::class);
+    Route::get('/seguros-search', [SeguroController::class, 'search'])->name('seguros.search');
 
-    // Suite IA gestor
-    Route::get('/suite/justificaciones', [SuiteController::class, 'indexJustificaciones'])->name('suite.index.justificaciones');
-});
-// Portal Clientes
-Route::get('/portal', [PortalClientesController::class, 'login'])->name('portal.login');
-Route::post('/portal/login', [PortalClientesController::class, 'loginPost'])->name('portal.loginPost');
-Route::get('/portal/dashboard', [PortalClientesController::class, 'dashboard'])->name('portal.dashboard');
-Route::get('/portal/presupuestos', [PortalClientesController::class, 'presupuestos'])->name('portal.presupuestos');
-Route::get('/portal/facturas', [PortalClientesController::class, 'facturas'])->name('portal.facturas');
-Route::get('/portal/taskview', [PortalClientesController::class, 'pageTasksViewer'])->name('portal.taskview');
-Route::get('/portal/changePin', [PortalClientesController::class, 'changePin'])->name('portal.changePin');
-Route::post('/portal/setPin', [PortalClientesController::class, 'setPin'])->name('portal.setPin');
-Route::get('/portal/presupuesto/{id}', [PortalClientesController::class, 'showBudget'])->name('portal.showBudget');
-Route::get('/portal/factura/{id}', [PortalClientesController::class, 'showInvoice'])->name('portal.showInvoice');
+    // Alert Categories
+    Route::resource('alert-categories', AlertCategoriesController::class);
 
-// Formularios compra web
-Route::post('/portal/formulario/', [PortalCompraWebs::class, 'storeForm'])->name('portal.storeForm');
-Route::post('/portal/generateForm/', [PortalCompraWebs::class, 'generateForm'])->name('portal.generateForm');
-Route::get('/portal/generateForm/', [PortalCompraWebs::class, 'generateFormGet'])->name('portal.generateFormGet');
+    // Alerts
+    Route::resource('alerts', AlertController::class);
+    Route::get('/alerts-search', [AlertController::class, 'search'])->name('alerts.search');
+    Route::post('/alerts/changeState/{alert}', [AlertController::class, 'changeState'])->name('alerts.changeState');
 
-// Pago portal clientes
-Route::get('/portal/estructura/{type}', [PortalPagos::class, 'selectStructure'])->name('portal.selectStructure');
+    // Cuentas
+    Route::resource('cuentas', CuentasController::class);
 
-Route::get('/portal/checkout/', [PortalPagos::class, 'checkout'])->name('portal.checkout');
-Route::post('/portal/checkout/', [PortalPagos::class, 'processPayment'])->name('portal.processPayment');
+    // Bancos
+    Route::resource('bancos', BancosController::class);
 
-Route::post('/portal/checkout/select-template', [PortalPagos::class, 'selectTemplate'])->name('portal.selectTemplate');
+    // Categorias
+    Route::resource('categorias', CategoriasController::class);
 
-// Formulario dominios
-Route::get('/portal/dominios/', [PortalCompraWebs::class, 'dominiosCheckout'])->name('portal.dominiosCheckout');
-Route::post('/portal/dominios/', [PortalCompraWebs::class, 'dominiosStore'])->name('portal.dominiosStore');
+    // Gastos
+    Route::resource('gastos', GastosController::class);
+    Route::get('/gastos-search', [GastosController::class, 'search'])->name('gastos.search');
+    Route::post('/gastos/changeState/{gasto}', [GastosController::class, 'changeState'])->name('gastos.changeState');
 
-// Mostrar compras
-Route::get('/portal/compras', [PortalCompraWebs::class, 'showPurchases'])->name('portal.compras');
+    // Periodos
+    Route::resource('periodos', PeriodosController::class);
 
-// Rutas públicas para configuración de pago de dominios (con token)
-Route::get('/dominio/pago/{token}', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'showFormularioPago'])->name('dominio.pago.formulario');
-Route::post('/dominio/pago/{token}/iban', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'guardarIban'])->name('dominio.pago.iban');
-Route::post('/dominio/pago/{token}/stripe', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'procesarStripe'])->name('dominio.pago.stripe');
-Route::post('/dominio/pago/{token}/setup-intent', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'crearSetupIntent'])->name('dominio.pago.setup-intent');
-Route::get('/dominio/pago/{token}/checkout', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'crearCheckoutSession'])->name('dominio.pago.checkout');
-Route::get('/dominio/pago/{token}/confirmacion', [\App\Http\Controllers\Dominios\DominioPagoController::class, 'confirmacion'])->name('dominio.pago.confirmacion');
+    // Tesoreria
+    Route::get('/tesoreria', [TesoreriaController::class, 'index'])->name('tesoreria.index');
+    Route::get('/tesoreria/cuadro', [CuadroController::class, 'index'])->name('tesoreria.cuadro');
 
-// Usuarios temporales
-Route::get('/portal/tempdashboard', [PortalClientesController::class, 'tempdashboard'])->name('portal.tempdashboard');
+    // Rrhh
+    Route::get('/rrhh', [RrhhController::class, 'index'])->name('rrhh.index');
+    Route::get('/rrhh/informe', [InformeEmpleadosController::class, 'index'])->name('rrhh.informe');
+    Route::get('/rrhh/formacion', [FormacionTrabajadoresController::class, 'index'])->name('rrhh.formacion');
+    Route::get('/rrhh/formacion/create', [FormacionTrabajadoresController::class, 'create'])->name('rrhh.formacion.create');
+    Route::post('/rrhh/formacion/store', [FormacionTrabajadoresController::class, 'store'])->name('rrhh.formacion.store');
+    Route::get('/rrhh/formacion/{formacion}/edit', [FormacionTrabajadoresController::class, 'edit'])->name('rrhh.formacion.edit');
+    Route::put('/rrhh/formacion/{formacion}', [FormacionTrabajadoresController::class, 'update'])->name('rrhh.formacion.update');
+    Route::delete('/rrhh/formacion/{formacion}', [FormacionTrabajadoresController::class, 'destroy'])->name('rrhh.formacion.destroy');
 
-// Cupones y usuarios temporales
-Route::get('/portal/login-admin', [PortalCompraWebs::class, 'loginAdminGet'])->name('portal.loginAdminGet');
-Route::post('/portal/login-admin', [PortalCompraWebs::class, 'loginAdmin'])->name('portal.loginAdmin');
-Route::get('/portal/generarUser', [PortalCompraWebs::class, 'generarUserView'])->name('portal.generarUserView');
-Route::post('/portal/generarUser', [PortalCompraWebs::class, 'generarUser'])->name('portal.generarUser');
-Route::get('/portal/generarCupon', [PortalCompraWebs::class, 'generarCuponView'])->name('portal.generarCuponView');
-Route::post('/portal/generarCupon', [PortalCompraWebs::class, 'generarCupon'])->name('portal.generarCupon');
+    // Nominas
+    Route::resource('nominas', NominasController::class);
+    Route::get('/nominas-search', [NominasController::class, 'search'])->name('nominas.search');
 
-// Generar presupuesto portal
-Route::get('/portal/generateBudget', [PortalCompraWebs::class, 'generateBudget']);
+    // Contratos
+    Route::resource('contratos', ContratosController::class);
+    Route::get('/contratos-search', [ContratosController::class, 'search'])->name('contratos.search');
 
-Route::get('/actualizar', [OrdenesController::class, 'actualizar'])->name('actualizar');
+    // Almacen
+    Route::get('/almacen', [AlmacenController::class, 'index'])->name('almacen.index');
+    Route::get('/almacen/create', [AlmacenController::class, 'create'])->name('almacen.create');
+    Route::post('/almacen/store', [AlmacenController::class, 'store'])->name('almacen.store');
+    Route::get('/almacen/{almacen}/edit', [AlmacenController::class, 'edit'])->name('almacen.edit');
+    Route::put('/almacen/{almacen}', [AlmacenController::class, 'update'])->name('almacen.update');
+    Route::delete('/almacen/{almacen}', [AlmacenController::class, 'destroy'])->name('almacen.destroy');
 
-// Publico
-Route::get('/kit-digital/create-comercial', [KitDigitalController::class, 'createComercial'])->name('kitDigital.createComercial');
-Route::post('/kit-digital/store-comercial', [KitDigitalController::class, 'storeComercial'])->name('kitDigital.storeComercial');
+    // Tipos
+    Route::resource('tipos', TiposController::class);
 
-Route::get('/portal/productos', [PortalProductos::class, 'productos'])->name('portal.productos');
+    // Grupos
+    Route::resource('grupos', GruposController::class);
 
-Route::get('/test', [test::class, 'test']);
+    // Carta Portes
+    Route::resource('carta-portes', CartaPortesController::class);
+    Route::get('/carta-portes-search', [CartaPortesController::class, 'search'])->name('carta-portes.search');
+    Route::get('/carta-portes/pdf/{cartaPorte}', [CartaPortesController::class, 'pdf'])->name('carta-portes.pdf');
 
+    // Choferes
+    Route::resource('choferes', ChoferesController::class);
+    Route::get('/choferes-search', [ChoferesController::class, 'search'])->name('choferes.search');
 
-Route::prefix('plataforma')->group(function () {
-    Route::get('/', [PlataformaWhatsappController::class, 'index'])->name('plataforma.dashboard');
-    Route::get('/clientes', [PlataformaWhatsappController::class, 'clientes'])->name('plataforma.clientes');
-    Route::get('/campanias', [PlataformaWhatsappController::class, 'campanias'])->name('plataforma.campanias');
-    Route::post('/create-template', [PlataformaWhatsappController::class, 'createTemplate'])->name('plataforma.createTemplate');
-    Route::get('/templates', [PlataformaWhatsappController::class, 'templates'])->name('plataforma.templates');
-    Route::get('/alertas', [PlataformaWhatsappController::class, 'alertas'])->name('plataforma.alertas');
-    Route::post('/create-campania', [PlataformaWhatsappController::class, 'createCampania'])->name('plataforma.createCampania');
-    Route::post('/send-campania', [PlataformaWhatsappController::class, 'sendCampania'])->name('plataforma.sendCampania');
-    Route::get('/get-clients', [PlataformaWhatsappController::class, 'getClients'])->name('plataforma.getClients');
-    Route::get('/logs', [PlataformaWhatsappController::class, 'logs'])->name('plataforma.logs');
-    Route::post('/logs/client', [PlataformaWhatsappController::class, 'logsClient'])->name('plataforma.logsClient');
-    Route::get('/configuracion', [PlataformaWhatsappController::class, 'configuracion'])->name('plataforma.configuracion');
-    Route::post('/configuracion-store', [PlataformaWhatsappController::class, 'configuracionStore'])->name('plataforma.configuracionStore');
-    Route::post('/programar-campania', [PlataformaWhatsappController::class, 'programarCampania'])->name('plataforma.programarCampania');
-    Route::post('/store-log', [PlataformaWhatsappController::class, 'storeLog'])->name('plataforma.storelog');
-    Route::post('/delete-alert', [PlataformaWhatsappController::class, 'deleteAlert'])->name('plataforma.deleteAlert');
-    Route::post('/delete-template', [PlataformaWhatsappController::class, 'deleteTemplate'])->name('plataforma.deleteTemplate');
-    Route::get('/chat', [PlataformaWhatsappController::class, 'chat'])->name('plataforma.chat');
-    Route::get('/get-contact/{contactId}', [PlataformaWhatsappController::class, 'getContact'])->name('plataforma.getContact');
-    Route::get('/get-chat', [PlataformaWhatsappController::class, 'getMessages'])->name('plataforma.getMessages');
-    Route::get('/get-chats', [PlataformaWhatsappController::class, 'getChats'])->name('plataforma.getChats');
-    Route::post('/send-message', [PlataformaWhatsappController::class, 'sendMessage'])->name('plataforma.sendMessage');
-    Route::get('/upload-excel', [ExcelUploadController::class, 'showForm'])->name('plataforma.upload_excel');
-    Route::post('/upload-excel', [ExcelUploadController::class, 'upload'])->name('plataforma.upload_excel');
-});
+    // Camiones
+    Route::resource('camiones', CamionesController::class);
+    Route::get('/camiones-search', [CamionesController::class, 'search'])->name('camiones.search');
 
+    // Servicios
+    Route::resource('servicios', ServiciosController::class);
+    Route::get('/servicios-search', [ServiciosController::class, 'search'])->name('servicios.search');
 
-Route::prefix('tesoreria')->group(function () {
-    Route::get('/contabilizar-ia', [TesoreriaContabilizarIa::class, 'index'])->name('tesoreria.contabilizar-ia');
-    Route::post('/contabilizar-ia/upload', [TesoreriaContabilizarIa::class, 'upload'])->name('tesoreria.contabilizar-ia.upload');
-    Route::get('/show-generico', [TesoreriaContabilizarIa::class, 'showGenerico'])->name('tesoreria.contabilizar-ia.showGenerico');
-    Route::post('/accept-coincidencias', [TesoreriaContabilizarIa::class, 'acceptCoincidencias'])->name('tesoreria.acceptCoincidencias');
-    Route::post('/reject-coincidencias', [TesoreriaContabilizarIa::class, 'rejectCoincidencias'])->name('tesoreria.rejectCoincidencias');
-    Route::post('/gasto-store-api', [TesoreriaController::class, 'storeGastosApi'])->name('tesoreria.gasto-store-api');
-    Route::post('/ingreso-store-api', [TesoreriaController::class, 'storeIngresosApi'])->name('tesoreria.ingreso-store-api');
-    Route::post('/transferencia-store-api', [TesoreriaController::class, 'storeTransferenciasApi'])->name('tesoreria.transferencia-store-api');
-    Route::post('/multi-ingreso', [TesoreriaController::class, 'multiIngreso'])->name('tesoreria.multi-ingreso');
-    Route::get('/asociar-gasto', [TesoreriaController::class, 'asociarGasto'])->name('tesoreria.asociar-gasto');
-});
+    // Zonas
+    Route::resource('zonas', ZonasController::class);
+    Route::get('/zonas-search', [ZonasController::class, 'search'])->name('zonas.search');
 
-// AutoSEO - Accesible para todos los niveles de acceso
-Route::middleware(['auth'])->group(function () {
-    Route::prefix('autoseo')->group(function () {
-        Route::get('/', [AutoseoController::class, 'index'])->name('autoseo.index');
-        Route::put('/update', [AutoseoController::class, 'update'])->name('autoseo.update');
-        Route::post('/create', [AutoseoController::class, 'store'])->name('autoseo.store');
-        Route::post('/delete', [AutoseoController::class, 'delete'])->name('autoseo.delete');
-        Route::post('/create-puntual-seo', [AutoseoController::class, 'createPuntualSeo'])->name('autoseo.createPuntualSeo');
+    // Firma Digital
+    Route::resource('firma-digital', FirmaDigitalController::class);
+    Route::get('/firma-digital-search', [FirmaDigitalController::class, 'search'])->name('firma-digital.search');
 
-        // Test de conexión WordPress
-        Route::post('/test-wp-auth', [\App\Http\Controllers\Api\AutoseoTestController::class, 'testWordPressAuth'])->name('autoseo.test.wp.auth');
-        Route::post('/test-endpoint', [\App\Http\Controllers\Api\AutoseoTestController::class, 'testEndpoint'])->name('autoseo.test.endpoint');
-    });
-});
-Route::redirect('/autoseo/reports', '/seo/reports');
-Route::get('/seo/reports', [AutoseoReports::class, 'show'])->name('autoseo.reports.show');
-Route::get('/autoseo/reports/{userid}/{id}', [AutoseoReports::class, 'showReport'])->name('autoseo.reports.showReport');
+    // Dominios
+    Route::resource('dominios', DominiosController::class);
+    Route::get('/dominios-search', [DominiosController::class, 'search'])->name('dominios.search');
+    Route::get('/dominios/check/{dominio}', [DominiosController::class, 'checkDomain'])->name('dominios.check');
+    Route::get('/dominios/renovar/{dominio}', [DominiosController::class, 'renovarDominio'])->name('dominios.renovar');
 
-// Generación de informes SEO
-Route::match(['GET', 'POST'], '/autoseo/generate-report/{id?}', [AutoseoReportsGen::class, 'generateReport'])->name('autoseo.generate.report');
+    // Hosting
+    Route::resource('hosting', HostingController::class);
+    Route::get('/hosting-search', [HostingController::class, 'search'])->name('hosting.search');
 
-// Lista de clientes Autoseo
-Route::get('/autoseo/clients', [AutoseoClientsController::class, 'index'])
-    ->name('autoseo.clients')
-    ->middleware(['auth']);
+    // Autoseo
+    Route::get('/autoseo', [AutoseoReports::class, 'index'])->name('autoseo.index');
+    Route::get('/autoseo/create', [AutoseoReports::class, 'create'])->name('autoseo.create');
+    Route::post('/autoseo/store', [AutoseoReports::class, 'store'])->name('autoseo.store');
+    Route::get('/autoseo/{report}', [AutoseoReports::class, 'show'])->name('autoseo.show');
+    Route::get('/autoseo/{report}/edit', [AutoseoReports::class, 'edit'])->name('autoseo.edit');
+    Route::put('/autoseo/{report}', [AutoseoReports::class, 'update'])->name('autoseo.update');
+    Route::delete('/autoseo/{report}', [AutoseoReports::class, 'destroy'])->name('autoseo.destroy');
+    Route::get('/autoseo/{report}/generate', [AutoseoReportsGen::class, 'generate'])->name('autoseo.generate');
+    Route::get('/autoseo/{report}/download', [AutoseoReportsGen::class, 'download'])->name('autoseo.download');
 
-        // Autoseo
-        Route::get('/autoseo/clients', [AutoseoClientsController::class, 'index'])->name('autoseo.clients');
-        Route::get('/autoseo/generate-report/{id?}', [AutoseoReportsGen::class, 'generateReport'])->name('autoseo.generate.report');
-        Route::post('/autoseo/generate-report', [AutoseoReportsGen::class, 'generateReport'])->name('autoseo.generate.report');
+    // Bajas
+    Route::resource('bajas', BajaController::class);
+    Route::get('/bajas-search', [BajaController::class, 'search'])->name('bajas.search');
 
-Route::get('/facturas/duplicar', function() {
-    return view('invoices.duplicar');
-})->name('factura.duplicar');
+    // CRM Activities
+    Route::resource('crm-activities', CrmActivityMeetingController::class);
 
-Route::post('/facturas/duplicar-pdf', [InvoiceController::class, 'generateClonedPDFs'])->name('factura.generateClonedPDFs');
+    // Excel Upload
+    Route::get('/excel-upload', [ExcelUploadController::class, 'index'])->name('excel-upload.index');
+    Route::post('/excel-upload/store', [ExcelUploadController::class, 'store'])->name('excel-upload.store');
 
-// Ruta de prueba
-Route::get('/test-citas', function() {
-    return 'Sistema de citas funcionando';
+    // Firma Digital
+    Route::get('/firma-digital-sign/{firma}', [FirmaDigitalController::class, 'sign'])->name('firma-digital.sign');
+    Route::post('/firma-digital-sign/{firma}', [FirmaDigitalController::class, 'signStore'])->name('firma-digital.signStore');
+
+    // Portal
+    Route::get('/portal', [PortalController::class, 'index'])->name('portal.index');
+    Route::get('/portal/clients', [PortalController::class, 'clients'])->name('portal.clients');
+    Route::get('/portal/clients/{client}', [PortalController::class, 'clientShow'])->name('portal.clientShow');
+    Route::get('/portal/invoices', [PortalController::class, 'invoices'])->name('portal.invoices');
+    Route::get('/portal/invoices/{invoice}', [PortalController::class, 'invoiceShow'])->name('portal.invoiceShow');
+    Route::get('/portal/budgets', [PortalController::class, 'budgets'])->name('portal.budgets');
+    Route::get('/portal/budgets/{budget}', [PortalController::class, 'budgetShow'])->name('portal.budgetShow');
+    Route::get('/portal/tasks', [PortalController::class, 'tasks'])->name('portal.tasks');
+    Route::get('/portal/tasks/{task}', [PortalController::class, 'taskShow'])->name('portal.taskShow');
+    Route::get('/portal/contracts', [PortalController::class, 'contracts'])->name('portal.contracts');
+    Route::get('/portal/contracts/{contract}', [PortalController::class, 'contractShow'])->name('portal.contractShow');
+    Route::get('/portal/projects', [PortalController::class, 'projects'])->name('portal.projects');
+    Route::get('/portal/projects/{project}', [PortalController::class, 'projectShow'])->name('portal.projectShow');
+    Route::get('/portal/news', [PortalController::class, 'news'])->name('portal.news');
+    Route::get('/portal/news/{news}', [PortalController::class, 'newsShow'])->name('portal.newsShow');
+    Route::get('/portal/cotizaciones', [PortalController::class, 'cotizaciones'])->name('portal.cotizaciones');
+    Route::get('/portal/cotizaciones/{cotizacion}', [PortalController::class, 'cotizacionShow'])->name('portal.cotizacionShow');
+    Route::get('/portal/alerts', [PortalController::class, 'alerts'])->name('portal.alerts');
+    Route::get('/portal/alerts/{alert}', [PortalController::class, 'alertShow'])->name('portal.alertShow');
+
 });
 
-// Ruta de prueba sin autenticación
-Route::get('/citas-test', function() {
-    $gestores = collect([
-        (object)['id' => 1, 'name' => 'Diego Hawkins'],
-        (object)['id' => 2, 'name' => 'Gestor Principal'],
-        (object)['id' => 3, 'name' => 'Gestor Senior']
-    ]);
-    $clientes = collect([
-        (object)['id' => 1, 'name' => 'Cliente Corporativo'],
-        (object)['id' => 2, 'name' => 'Cliente Importante'],
-        (object)['id' => 3, 'name' => 'Cliente de Prueba']
-    ]);
-    return view('citas.fixed', compact('gestores', 'clientes'));
+// Portal Auth routes (outside auth middleware)
+Route::get('/portal/login', [PortalController::class, 'loginAdminGet'])->name('portal.loginAdminGet');
+Route::post('/portal/login', [PortalController::class, 'loginAdminPost'])->name('portal.loginAdminPost');
+Route::get('/portal/logout', [PortalController::class, 'logout'])->name('portal.logout');
+Route::get('/portal/client/login', [PortalController::class, 'loginClientGet'])->name('portal.loginClientGet');
+Route::post('/portal/client/login', [PortalController::class, 'loginClientPost'])->name('portal.loginClientPost');
+Route::get('/portal/client/logout', [PortalController::class, 'logoutClient'])->name('portal.logoutClient');
+Route::middleware(['auth:portal'])->group(function () {
+    Route::get('/portal/client', [PortalController::class, 'clientIndex'])->name('portal.clientIndex');
+    Route::get('/portal/client/invoices', [PortalController::class, 'clientInvoices'])->name('portal.clientInvoices');
+    Route::get('/portal/client/invoices/{invoice}', [PortalController::class, 'clientInvoiceShow'])->name('portal.clientInvoiceShow');
+    Route::get('/portal/client/budgets', [PortalController::class, 'clientBudgets'])->name('portal.clientBudgets');
+    Route::get('/portal/client/budgets/{budget}', [PortalController::class, 'clientBudgetShow'])->name('portal.clientBudgetShow');
+    Route::get('/portal/client/tasks', [PortalController::class, 'clientTasks'])->name('portal.clientTasks');
+    Route::get('/portal/client/tasks/{task}', [PortalController::class, 'clientTaskShow'])->name('portal.clientTaskShow');
+    Route::get('/portal/client/contracts', [PortalController::class, 'clientContracts'])->name('portal.clientContracts');
+    Route::get('/portal/client/contracts/{contract}', [PortalController::class, 'clientContractShow'])->name('portal.clientContractShow');
+    Route::get('/portal/client/projects', [PortalController::class, 'clientProjects'])->name('portal.clientProjects');
+    Route::get('/portal/client/projects/{project}', [PortalController::class, 'clientProjectShow'])->name('portal.clientProjectShow');
+    Route::get('/portal/client/news', [PortalController::class, 'clientNews'])->name('portal.clientNews');
+    Route::get('/portal/client/news/{news}', [PortalController::class, 'clientNewsShow'])->name('portal.clientNewsShow');
+    Route::get('/portal/client/cotizaciones', [PortalController::class, 'clientCotizaciones'])->name('portal.clientCotizaciones');
+    Route::get('/portal/client/cotizaciones/{cotizacion}', [PortalController::class, 'clientCotizacionShow'])->name('portal.clientCotizacionShow');
+    Route::get('/portal/client/alerts', [PortalController::class, 'clientAlerts'])->name('portal.clientAlerts');
+    Route::get('/portal/client/alerts/{alert}', [PortalController::class, 'clientAlertShow'])->name('portal.clientAlertShow');
 });
 
-// Ruta temporal sin autenticación para probar
-Route::get('/citas-funcionando', function() {
-    try {
-        // Intentar obtener datos reales de la base de datos
-        $gestores = \App\Models\Users\User::where('access_level_id', 4)->where('inactive', false)->get();
-        $clientes = \App\Models\Clients\Client::where('is_client', 1)->get();
-
-        // Si no hay datos reales, usar datos de prueba
-        if ($gestores->isEmpty()) {
-            $gestores = collect([
-                (object)['id' => 1, 'name' => 'Diego Hawkins'],
-                (object)['id' => 2, 'name' => 'Gestor Principal'],
-                (object)['id' => 3, 'name' => 'Gestor Senior']
-            ]);
-        }
-
-        if ($clientes->isEmpty()) {
-            $clientes = collect([
-                (object)['id' => 1, 'name' => 'Cliente Corporativo'],
-                (object)['id' => 2, 'name' => 'Cliente Importante'],
-                (object)['id' => 3, 'name' => 'Cliente de Prueba']
-            ]);
-        }
-
-        return view('citas.fixed', compact('gestores', 'clientes'));
-
-    } catch (\Exception $e) {
-        // Si hay error con la base de datos, usar datos de prueba
-        $gestores = collect([
-            (object)['id' => 1, 'name' => 'Diego Hawkins'],
-            (object)['id' => 2, 'name' => 'Gestor Principal'],
-            (object)['id' => 3, 'name' => 'Gestor Senior']
-        ]);
-        $clientes = collect([
-            (object)['id' => 1, 'name' => 'Cliente Corporativo'],
-            (object)['id' => 2, 'name' => 'Cliente Importante'],
-            (object)['id' => 3, 'name' => 'Cliente de Prueba']
-        ]);
-        return view('citas.fixed', compact('gestores', 'clientes'));
-    }
-});
-
-// Rutas para gestión de citas
-Route::middleware(['auth'])->group(function () {
-    Route::get('/citas', [CitasController::class, 'index'])->name('citas.index');
-    Route::get('/citas/get', [CitasController::class, 'getCitas'])->name('citas.get');
-    Route::get('/citas/create', [CitasController::class, 'create'])->name('citas.create');
-    Route::post('/citas', [CitasController::class, 'store'])->name('citas.store');
-    Route::get('/citas/{cita}', [CitasController::class, 'show'])->name('citas.show');
-    Route::get('/citas/{cita}/edit', [CitasController::class, 'edit'])->name('citas.edit');
-    Route::put('/citas/{cita}', [CitasController::class, 'update'])->name('citas.update');
-    Route::delete('/citas/{cita}', [CitasController::class, 'destroy'])->name('citas.destroy');
-    Route::patch('/citas/{cita}/estado', [CitasController::class, 'updateEstado'])->name('citas.update.estado');
-    Route::get('/citas/estadisticas', [CitasController::class, 'estadisticas'])->name('citas.estadisticas');
-    Route::get('/citas/proximas', [CitasController::class, 'proximas'])->name('citas.proximas');
-
-        // Objetivos Comerciales (Solo para administradores)
-        Route::middleware(['admin'])->prefix('admin')->group(function () {
-            Route::get('/objetivos-comerciales', [\App\Http\Controllers\ObjetivoComercialController::class, 'index'])->name('objetivos.index');
-            Route::post('/objetivos-comerciales', [\App\Http\Controllers\ObjetivoComercialController::class, 'store'])->name('objetivos.store');
-            Route::get('/objetivos-comerciales/progreso/{comercialId}', [\App\Http\Controllers\ObjetivoComercialController::class, 'getProgreso'])->name('objetivos.progreso');
-            Route::put('/objetivos-comerciales/{id}', [\App\Http\Controllers\ObjetivoComercialController::class, 'update'])->name('objetivos.update');
-            Route::delete('/objetivos-comerciales/{id}', [\App\Http\Controllers\ObjetivoComercialController::class, 'destroy'])->name('objetivos.destroy');
-
-            // Incentivos Comerciales
-            Route::get('/incentivos-comerciales', [\App\Http\Controllers\IncentivoComercialController::class, 'index'])->name('incentivos.index');
-            Route::post('/incentivos-comerciales', [\App\Http\Controllers\IncentivoComercialController::class, 'store'])->name('incentivos.store');
-            Route::get('/incentivos-comerciales/progreso/{comercialId}', [\App\Http\Controllers\IncentivoComercialController::class, 'getProgresoIncentivos'])->name('incentivos.progreso');
-            Route::put('/incentivos-comerciales/{id}', [\App\Http\Controllers\IncentivoComercialController::class, 'update'])->name('incentivos.update');
-            Route::delete('/incentivos-comerciales/{id}', [\App\Http\Controllers\IncentivoComercialController::class, 'destroy'])->name('incentivos.destroy');
-        });
-});
-
-// Rutas de Eleven Labs - Monitoreo de Llamadas
-Route::middleware(['auth'])->prefix('elevenlabs')->name('elevenlabs.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\ElevenDashboard::class, 'index'])->name('dashboard');
-    Route::get('/conversations', [\App\Http\Controllers\ElevenDashboard::class, 'conversations'])->name('conversations');
-    Route::get('/conversations/{id}', [\App\Http\Controllers\ElevenDashboard::class, 'show'])->name('conversation.show');
-    Route::post('/conversations/{id}/mark-attended', [\App\Http\Controllers\ElevenDashboard::class, 'markAsAttended'])->name('conversation.mark-attended');
-    Route::post('/conversations/{id}/unmark-attended', [\App\Http\Controllers\ElevenDashboard::class, 'unmarkAsAttended'])->name('conversation.unmark-attended');
-    Route::post('/sync', [\App\Http\Controllers\ElevenDashboard::class, 'sync'])->name('sync');
-    Route::post('/conversations/{id}/reprocess', [\App\Http\Controllers\ElevenDashboard::class, 'reprocess'])->name('reprocess');
-    Route::get('/stats', [\App\Http\Controllers\ElevenDashboard::class, 'stats'])->name('stats');
-    Route::get('/export', [\App\Http\Controllers\ElevenDashboard::class, 'export'])->name('export');
-
-    // Gestión de Agentes
-    Route::get('/agents', [\App\Http\Controllers\ElevenAgentsController::class, 'index'])->name('agents');
-    Route::post('/agents/{agentId}/description', [\App\Http\Controllers\ElevenAgentsController::class, 'updateDescription'])->name('agents.description');
-    Route::post('/agents/{agentId}/generate-categories', [\App\Http\Controllers\ElevenAgentsController::class, 'generateCategories'])->name('agents.generate');
-    Route::post('/agents/{agentId}/categories', [\App\Http\Controllers\ElevenAgentsController::class, 'saveCategories'])->name('agents.categories');
-});
-
-Route::middleware(['auth', 'gestor'])
-    ->prefix('elevenlabs/gestion')
-    ->name('elevenlabs.gestor.')
-    ->group(function () {
-        Route::get('/', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/clientes/listado', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'clientsData'])->name('clients.data');
-        Route::get('/campanas/{campaign}/llamadas', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'calls'])->name('campaign.calls');
-        Route::post('/llamadas/{call}/estado', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'updateCallStatus'])->name('call.update');
-        Route::get('/clientes/exportar', [\App\Http\Controllers\ElevenlabsManagerDashboardController::class, 'exportClients'])->name('clients.export');
-    });
-
-// API AJAX para Eleven Labs Monitoring (usa autenticación web)
-Route::middleware(['auth'])->prefix('api/elevenlabs-monitoring')->group(function () {
-    Route::get('/stats/overview', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'statsOverview']);
-    Route::get('/stats/categories', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'statsCategories']);
-    Route::get('/conversations', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'index']);
-    Route::get('/conversations/{id}', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'show']);
-    Route::post('/sync', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'sync']);
-    Route::post('/conversations/{id}/process', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'process']);
-
-    // Obtener contactos sin respuesta por agente (GET para todos, POST para filtrar por IDs de página actual)
-    Route::match(['get', 'post'], '/sin-respuesta/{agentId}', [\App\Http\Controllers\Api\ElevenlabsApiController::class, 'getSinRespuestaByAgent']);
-
-    // Agentes
-    Route::get('/agents/{agentId}/categories', [\App\Http\Controllers\ElevenAgentsController::class, 'getCategories']);
-    Route::get('/agents/{agentId}/available-categories', [\App\Http\Controllers\Api\ElevenlabsCategoryController::class, 'getAvailableCategories']);
-
-    // Actualizar categorías manualmente
-    Route::post('/conversations/{id}/update-categories', [\App\Http\Controllers\Api\ElevenlabsCategoryController::class, 'updateCategories']);
-
-    // Batch Calls de ElevenLabs
-    Route::get('/batch-calls/agentes', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'obtenerAgentes']);
-    Route::get('/batch-calls/agentes/{agentId}/phone-numbers', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'obtenerPhoneNumbers']);
-    Route::post('/batch-calls/submit', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'submitBatchCall']);
-    Route::post('/batch-calls/submit-from-view', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'submitBatchCallFromView']);
-    Route::post('/batch-calls/submit-clientes-filtrados', [\App\Http\Controllers\Api\ElevenLabsBatchCallController::class, 'submitBatchCallConClientesFiltrados']);
-});
-
-// Rutas para obtener teléfonos de clientes filtrados
-Route::middleware(['auth'])->get('/api/telefonos-clientes-filtrados', [DashboardController::class, 'obtenerTelefonosClientesFiltrados'])->name('api.telefonos.filtrados');
 Route::middleware(['auth'])->get('/api/telefonos-clientes-dominios', [\App\Http\Controllers\Dominios\DominiosController::class, 'obtenerTelefonosClientesDominios'])->name('api.telefonos.dominios');
-
 
