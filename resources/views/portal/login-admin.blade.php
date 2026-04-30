@@ -36,8 +36,8 @@
                         <input id="Usuario" type="text" class="form-control" name="usuario" value="{{ old('usuario') }}" required autocomplete="usuario" autofocus>
                     </div>
                     <div class="form-group">
-                        <label for="pin">Pin</label>
-                        <input id="pin" type="text" class="form-control" name="pin" required autocomplete="pin" autofocus>
+                        <label for="pin">Contraseña</label>
+                        <input id="pin" type="password" class="form-control" name="pin" required autocomplete="current-password">
                     </div>
                     <button type="submit" class="btn btn-dark w-100">Iniciar sesión</button>
                 </form>
