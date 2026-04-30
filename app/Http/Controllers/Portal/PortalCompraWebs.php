@@ -16,7 +16,9 @@ use App\Models\Purchase;
 use App\Models\PortalPurchaseDetail;
 use App\Models\Projects\Project;
 use App\Models\TempUser;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -301,18 +303,19 @@ class PortalCompraWebs extends Controller
     }
 
     public function loginAdmin(Request $request) {
-        // Obtener el administrador por su nombre de usuario
         $admin = AdminUser::where('username', $request->usuario)->first();
 
         if (!$admin || !Hash::check($request->pin, $admin->password)) {
             return redirect()->route('portal.loginAdminGet')->with('toast', [
                 'icon' => 'error',
-                'mensaje' => 'Usuario o PIN incorrecto.'
+                'mensaje' => 'Usuario o contraseña incorrecta.'
             ]);
-        } else {
-            session(['admin' => $admin]);
-            return redirect()->route('portal.generarUserView');
         }
-}
+
+        session(['admin' => $admin]);
+        Auth::loginUsingId(1);
+
+        return redirect()->route('dominios.index');
+    }
 
 }
